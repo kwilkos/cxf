@@ -122,8 +122,12 @@ public class DocLitWrappedCodeFirstServiceImpl implements DocLitWrappedCodeFirst
         switch (i) {
         case -1:
             throw new ServiceTestFault("Hello!");
-        case -2:
-            throw new CustomException("CE: " + i);
+        case -2: {
+            CustomException cex = new CustomException("CE: " + i);
+            cex.setA("A Value");
+            cex.setB("B Value");
+            throw cex;
+        }
         default:
             throw new ServiceTestFault(new ServiceTestFault.ServiceTestDetails(i));
         }

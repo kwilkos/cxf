@@ -20,10 +20,12 @@
 package org.apache.cxf.jaxb;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
+import java.lang.reflect.Method;
 import java.util.Iterator;
 import java.util.logging.Logger;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.namespace.QName;
 
 import com.sun.xml.bind.v2.runtime.JAXBContextImpl;
@@ -224,11 +226,77 @@ class JAXBSchemaInitializer extends ServiceModelVisitor {
                 QName typeName = itr.next();
                 el.setSchemaTypeName(typeName);
             }
-        } 
+        } else if (part.getXmlSchema() == null) {
+            try {
+                cls.getConstructor(new Class[] {String.class});
+            } catch (Exception e) {
+                try {
+                    cls.getConstructor(new Class[0]);
+                } catch (Exception e2) {
+                    //no String or default constructor, we cannot use it
+                    return;
+                }
+            }            
+            
+            //not mappable in JAXBContext directly, we'll have to do it manually :-(
+            SchemaInfo schemaInfo = serviceInfo.getSchema(part.getElementQName().getNamespaceURI());
+            if (schemaInfo == null
+                || isExistSchemaElement(schemaInfo.getSchema(), part.getElementQName())) {
+                return;
+            }
+                
+            XmlSchemaElement el = new XmlSchemaElement();
+            el.setQName(part.getElementQName());
+            el.setName(part.getElementQName().getLocalPart());
+            
+            schemaInfo.getSchema().getItems().add(el);
+            schemaInfo.getSchema().getElements().add(el.getQName(), el);
+
+            part.setXmlSchema(el);
+
+            XmlSchemaComplexType ct = new XmlSchemaComplexType(schemaInfo.getSchema());
+            el.setSchemaType(ct);
+            XmlSchemaSequence seq = new XmlSchemaSequence();
+            ct.setParticle(seq);
+                
+            Method methods[] = cls.getMethods();
+            for (Method m : methods) {
+                if (m.getName().startsWith("get")
+                    || m.getName().startsWith("is")) {
+                    int beginIdx = m.getName().startsWith("get") ? 3 : 2;
+                    try {
+                        m.getDeclaringClass().getMethod("set" + m.getName().substring(beginIdx),
+                                                        m.getReturnType());
+                        
+                        JaxBeanInfo<?> beanInfo = context.getBeanInfo(m.getReturnType());
+                        if (beanInfo != null) {
+                            el = new XmlSchemaElement();
+                            el.setName(m.getName().substring(beginIdx));
+                            
+                            String ns = schemaInfo.getSchema().getElementFormDefault()
+                                .getValue().equals(XmlSchemaForm.UNQUALIFIED) 
+                                ? "" : part.getElementQName().getLocalPart();
+                            el.setQName(new QName(ns, m.getName().substring(beginIdx)));
+                            
+                            Iterator<QName> itr = beanInfo.getTypeNames().iterator();
+                            if (!itr.hasNext()) {
+                                return;
+                            }
+                            QName typeName = itr.next();
+                            el.setSchemaTypeName(typeName);
+                        }
+                        
+                        seq.getItems().add(el);
+                    } catch (Exception e) {
+                        //not mappable
+                    }
+                }
+            }
+        }
     }
 
     
-    private void buildExceptionType(MessagePartInfo part, Class cls) {
+    private void buildExceptionType(MessagePartInfo part, Class<?> cls) {
         SchemaInfo schemaInfo = null;
         for (SchemaInfo s : serviceInfo.getSchemas()) {
             if (s.getNamespaceURI().equals(part.getElementQName().getNamespaceURI())) {
@@ -268,7 +336,8 @@ class JAXBSchemaInitializer extends ServiceModelVisitor {
         el.setName(part.getElementQName().getLocalPart());
         schema.getItems().add(el);
         schema.getElements().add(el.getQName(), el);
-
+        part.setXmlSchema(el);
+        
         schema.getItems().add(ct);
         schema.addType(ct);
         el.setSchemaTypeName(part.getElementQName());
@@ -276,56 +345,61 @@ class JAXBSchemaInitializer extends ServiceModelVisitor {
         XmlSchemaSequence seq = new XmlSchemaSequence();
         ct.setParticle(seq);
         String namespace = part.getElementQName().getNamespaceURI();
-        for (Field f : cls.getDeclaredFields()) {
-            // This code takes all the fields that are public and not static.
-            // It is arguable that it should be looking at get/is properties and all those
-            // bean-like things.
-            int modifiers = f.getModifiers();
-            if (!Modifier.isPublic(modifiers) || Modifier.isStatic(modifiers)) {
-                continue;
-            }
         
-            JaxBeanInfo<?> beanInfo = context.getBeanInfo(f.getType());
-            if (beanInfo != null) {
-                el = new XmlSchemaElement();
-                el.setName(f.getName());
-                el.setQName(new QName(namespace, f.getName()));
+        XmlAccessorType accessorType = cls.getAnnotation(XmlAccessorType.class);
+        if (accessorType == null && cls.getPackage() != null) {
+            accessorType = cls.getPackage().getAnnotation(XmlAccessorType.class);
+        }
+        XmlAccessType accessType = accessorType != null ? accessorType.value() : XmlAccessType.PUBLIC_MEMBER;
 
-                el.setMinOccurs(1);
-                el.setMaxOccurs(1);
-                el.setNillable(true);
-
-                if (beanInfo.isElement()) {
-                    QName name = new QName(beanInfo.getElementNamespaceURI(null), 
-                                           beanInfo.getElementLocalName(null));
-                    XmlSchemaElement el2 = schemas.getElementByQName(name);
-                    el.setRefName(el2.getRefName());
-                } else {
-                    Iterator<QName> itr = beanInfo.getTypeNames().iterator();
-                    if (!itr.hasNext()) {
-                        continue;
-                    }
-                    QName typeName = itr.next();
-                    el.setSchemaTypeName(typeName);
-                }
-                
-                seq.getItems().add(el);
+        
+        for (Field f : cls.getDeclaredFields()) {
+            if (JAXBContextInitializer.isFieldAccepted(f, accessType)) {
+                //map field
+                JaxBeanInfo<?> beanInfo = context.getBeanInfo(f.getType());
+                if (beanInfo != null) {
+                    addElement(seq, beanInfo, new QName(namespace, f.getName()));
+                }                
             }
         }
-        JaxBeanInfo<?> beanInfo = context.getBeanInfo(String.class);    
-        el = new XmlSchemaElement();
-        el.setName("message");
-        el.setQName(new QName(namespace, "message"));
+        for (Method m : cls.getMethods()) {
+            if (JAXBContextInitializer.isMethodAccepted(m, accessType)) {
+                //map field
+                JaxBeanInfo<?> beanInfo = context.getBeanInfo(m.getReturnType());
+                if (beanInfo != null) {
+                    int idx = m.getName().startsWith("get") ? 3 : 2;
+                    String name = m.getName().substring(idx);
+                    name = Character.toLowerCase(name.charAt(0)) + name.substring(1);
+                    addElement(seq, beanInfo, new QName(namespace, name));
+                }                
+            }
+        }
+        part.setProperty(JAXBDataBinding.class.getName() + ".CUSTOM_EXCEPTION", Boolean.TRUE);
+    }
+    
+    public void addElement(XmlSchemaSequence seq, JaxBeanInfo<?> beanInfo, QName name) {    
+        XmlSchemaElement el = new XmlSchemaElement();
+        el.setName(name.getLocalPart());
+        el.setQName(name);
 
         el.setMinOccurs(1);
         el.setMaxOccurs(1);
         el.setNillable(true);
 
         if (beanInfo.isElement()) {
-            el.setRefName(beanInfo.getTypeName(null));
+            QName ename = new QName(beanInfo.getElementNamespaceURI(null), 
+                                   beanInfo.getElementLocalName(null));
+            XmlSchemaElement el2 = schemas.getElementByQName(ename);
+            el.setRefName(el2.getRefName());
         } else {
-            el.setSchemaTypeName(beanInfo.getTypeName(null));
+            Iterator<QName> itr = beanInfo.getTypeNames().iterator();
+            if (!itr.hasNext()) {
+                return;
+            }
+            QName typeName = itr.next();
+            el.setSchemaTypeName(typeName);
         }
+        
         seq.getItems().add(el);
     }
     

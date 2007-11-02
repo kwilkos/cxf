@@ -32,9 +32,7 @@
 </xs:complexType>
 <xs:element name="DBServiceFault" type="DBServiceFault"/>
 <xs:complexType name="DBServiceFault">
-<xs:sequence>
-<xs:element name="message" nillable="true" type="xs:string"/>
-</xs:sequence>
+<xs:sequence/>
 </xs:complexType>
 <xs:element name="operation0" type="operation0"/>
 <xs:complexType name="operation0">
