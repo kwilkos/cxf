@@ -118,11 +118,15 @@ public class DocLitWrappedCodeFirstServiceImpl implements DocLitWrappedCodeFirst
         return Arrays.asList(new Foo[] {a, b}, new Foo[] {c, d});
     }
    
-    public int throwException(int i) throws ServiceTestFault {
-        if (i == -1) {
+    public int throwException(int i) throws ServiceTestFault, CustomException {
+        switch (i) {
+        case -1:
             throw new ServiceTestFault("Hello!");
+        case -2:
+            throw new CustomException("CE: " + i);
+        default:
+            throw new ServiceTestFault(new ServiceTestFault.ServiceTestDetails(i));
         }
-        throw new ServiceTestFault(new ServiceTestFault.ServiceTestDetails(i));
     }
     
     public String echo(String msg) {
