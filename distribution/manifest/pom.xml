@@ -236,7 +236,13 @@
         <dependency>
             <groupId>commons-httpclient</groupId>
             <artifactId>commons-httpclient</artifactId>
-        </dependency>        
+        </dependency>    
+
+        <dependency>
+            <groupId>ant</groupId>
+            <artifactId>ant</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>

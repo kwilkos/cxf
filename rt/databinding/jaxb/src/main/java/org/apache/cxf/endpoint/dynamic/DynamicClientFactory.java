@@ -312,7 +312,6 @@ public final class DynamicClientFactory {
         try {
             int i = Integer.valueOf(minor);
             if (i >= 1) {
-                System.out.println("Found JAXB 2.1");
                 return true;
             }
         } catch (NumberFormatException e) {

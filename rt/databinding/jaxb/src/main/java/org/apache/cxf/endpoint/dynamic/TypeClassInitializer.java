@@ -23,6 +23,7 @@ import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
 
+import com.sun.codemodel.JDefinedClass;
 import com.sun.codemodel.JType;
 import com.sun.tools.xjc.api.Mapping;
 import com.sun.tools.xjc.api.S2JJAXBModel;
@@ -37,6 +38,8 @@ import org.apache.cxf.service.factory.ServiceConstructionException;
 import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.service.model.ServiceInfo;
+import org.apache.cxf.service.model.UnwrappedOperationInfo;
+import org.apache.ws.commons.schema.XmlSchemaElement;
 
 public class TypeClassInitializer extends ServiceModelVisitor {
     private static final Logger LOG = LogUtils.getL7dLogger(TypeClassInitializer.class);
@@ -66,9 +69,7 @@ public class TypeClassInitializer extends ServiceModelVisitor {
         //String clsName = null;
         JType jType = null;
         if (mapping != null) {
-            
             jType = mapping.getType().getTypeClass();              
-            
         }
         
         if (jType == null) {
@@ -76,6 +77,32 @@ public class TypeClassInitializer extends ServiceModelVisitor {
             if (typeAndAnnotation != null) {                
                 jType = typeAndAnnotation.getTypeClass();
             }
+        }
+        if (jType == null 
+            && part.isElement()
+            && part.getXmlSchema() instanceof XmlSchemaElement
+            && ((XmlSchemaElement)part.getXmlSchema()).getSchemaTypeName() == null) {
+            //anonymous inner thing.....
+            UnwrappedOperationInfo oInfo = (UnwrappedOperationInfo)op;
+            op = oInfo.getWrappedOperation();
+            
+            if (part.getMessageInfo() == oInfo.getInput()) {
+                mapping = model.get(op.getInput().getMessagePart(0).getElementQName());
+            } else {
+                mapping = model.get(op.getOutput().getMessagePart(0).getElementQName());
+            }
+            if (mapping != null) {
+                jType = mapping.getType().getTypeClass();  
+                if (jType instanceof JDefinedClass) {
+                    JDefinedClass jdType = (JDefinedClass)jType;
+                    for (JType jt : jdType.listClasses()) {
+                        if (jt.name().equalsIgnoreCase(part.getElementQName().getLocalPart())) {
+                            jType = jt;
+                        }
+                    }
+                }
+            }
+            
         }
         
         if (jType == null) {
@@ -116,7 +143,7 @@ public class TypeClassInitializer extends ServiceModelVisitor {
         Class cls;
         
         if (!jType.isPrimitive()) {
-            cls = ClassLoaderUtils.loadClass(jType.fullName(), getClass());
+            cls = ClassLoaderUtils.loadClass(jType.binaryName(), getClass());
         } else {
             cls = PrimitiveUtils.getClass(jType.fullName());
         }
