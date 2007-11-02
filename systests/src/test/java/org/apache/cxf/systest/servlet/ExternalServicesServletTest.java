@@ -34,7 +34,8 @@ import org.apache.cxf.helpers.DOMUtils;
 import org.junit.Test;
 
 public class ExternalServicesServletTest extends AbstractServletTest {
-    
+    static final String FORCED_BASE_ADDRESS 
+        = "http://localhost/somewhere";
     @Override
     protected Bus createBus() throws BusException {
         return null;
@@ -55,8 +56,8 @@ public class ExternalServicesServletTest extends AbstractServletTest {
         WebResponse  res = client.getResponse(CONTEXT_URL + "/");
         WebLink[] links = res.getLinks();
         assertEquals("There should get two links for the services", 2, links.length);
-        assertEquals(CONTEXT_URL + "/greeter?wsdl", links[0].getURLString()); 
-        assertEquals(CONTEXT_URL + "/greeter2?wsdl", links[1].getURLString()); 
+        assertEquals(FORCED_BASE_ADDRESS + "/greeter?wsdl", links[0].getURLString()); 
+        assertEquals(FORCED_BASE_ADDRESS + "/greeter2?wsdl", links[1].getURLString()); 
         assertEquals("text/html", res.getContentType());
         
         //HTTPUnit do not support require url with ""
