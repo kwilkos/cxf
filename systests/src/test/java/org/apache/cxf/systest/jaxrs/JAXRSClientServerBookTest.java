@@ -25,6 +25,7 @@ import java.net.URL;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.FileRequestEntity;
+import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
 import org.apache.commons.httpclient.methods.RequestEntity;
@@ -54,6 +55,30 @@ public class JAXRSClientServerBookTest extends AbstractBusClientServerTestBase {
 
         //System.out.println("---" + getStringFromInputStream(in));
         assertEquals(getStringFromInputStream(expected), getStringFromInputStream(in)); 
+    }
+    
+    @Test
+    public void testGetBookNotFound() throws Exception {
+        String endpointAddress =
+            "http://localhost:9080/bookstore/books/126"; 
+
+        GetMethod get = new GetMethod(endpointAddress);
+        HttpClient httpclient = new HttpClient();
+        
+        try {
+            int result = httpclient.executeMethod(get);
+            assertEquals(500, result);
+            //System.out.println("Response status code: " + result);
+            //System.out.println("Response body: ");
+            //System.out.println(get.getResponseBodyAsString());
+            
+            InputStream expected = getClass().getResourceAsStream("resources/expected_get_book_notfound.txt");
+            
+            assertEquals(getStringFromInputStream(expected), get.getResponseBodyAsString());
+        } finally {
+            // Release current connection to the connection pool once you are done
+            get.releaseConnection();
+        }  
     }
     
     @Test

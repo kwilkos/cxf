@@ -30,6 +30,9 @@ import javax.ws.rs.UriParam;
 import javax.ws.rs.UriTemplate;
 import javax.ws.rs.core.Response;
 
+import org.apache.cxf.customer.book.BookNotFoundDetails;
+import org.apache.cxf.customer.book.BookNotFoundFault;
+
 @UriTemplate("/bookstore/")
 public class BookStore {
 
@@ -53,9 +56,16 @@ public class BookStore {
 
     @HttpMethod("GET")
     @UriTemplate("/books/{bookId}/")
-    public Book getBook(@UriParam("bookId") String id) {
+    public Book getBook(@UriParam("bookId") String id) throws BookNotFoundFault {
         System.out.println("----invoking getBook with id: " + id);
-        return books.get(Long.parseLong(id));
+        Book book = books.get(Long.parseLong(id));
+        if (book != null) {
+            return book;
+        } else {
+            BookNotFoundDetails details = new BookNotFoundDetails();
+            details.setId(Long.parseLong(id));
+            throw new BookNotFoundFault(details);
+        }
     }
 
     @HttpMethod("POST")

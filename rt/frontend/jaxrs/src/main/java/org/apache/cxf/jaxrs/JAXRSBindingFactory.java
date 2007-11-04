@@ -23,6 +23,8 @@ import org.apache.cxf.binding.AbstractBindingFactory;
 import org.apache.cxf.binding.Binding;
 
 import org.apache.cxf.binding.xml.XMLBinding;
+import org.apache.cxf.binding.xml.interceptor.XMLFaultOutInterceptor;
+import org.apache.cxf.interceptor.StaxOutInterceptor;
 import org.apache.cxf.jaxrs.interceptor.JAXRSDispatchInterceptor;
 import org.apache.cxf.jaxrs.interceptor.JAXRSOutInterceptor;
 import org.apache.cxf.service.Service;
@@ -41,13 +43,14 @@ public class JAXRSBindingFactory extends AbstractBindingFactory {
         binding.getInInterceptors().add(new JAXRSDispatchInterceptor());
         binding.getOutInterceptors().add(new JAXRSOutInterceptor());
         
-        //TODO: Add fault interceptors
+        binding.getOutFaultInterceptors().add(new XMLFaultOutInterceptor());
+        binding.getOutFaultInterceptors().add(new StaxOutInterceptor());
 
         return binding;
     }
 
     /*
-     * The concept of Binding is not used in this JAX-RS impl. Here we use
+     * The concept of Binding can not be applied to JAX-RS. Here we use
      * Binding merely to make this JAX-RS impl compatible with CXF framework
      */
     public BindingInfo createBindingInfo(Service service, String namespace, Object obj) {
