@@ -189,7 +189,8 @@ public class JAXRSClientServerBookTest extends AbstractBusClientServerTestBase {
         }               
     } 
         
-    @Test
+    //@Test
+    @org.junit.Ignore
     public void testGetCDs() throws Exception {
         String endpointAddress =
             "http://localhost:9080/bookstore/cds"; 
