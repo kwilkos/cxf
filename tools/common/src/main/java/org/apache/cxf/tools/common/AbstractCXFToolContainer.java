@@ -92,13 +92,13 @@ public abstract class AbstractCXFToolContainer extends AbstractToolContainer {
                 System.out.println();
                 System.out.println("Options: ");
                 System.out.println();
-                System.out.println(parser.getFromatedDetailedUsage());
+                System.out.println(parser.getFormattedDetailedUsage());
                 String toolUsage = parser.getToolUsage();
                 if (toolUsage != null) {
                     System.out.println(toolUsage);
                 }
             } catch (Exception ex) {
-                System.err.println("Error : Could not output detailed usage");
+                System.err.println("Error: Could not output detailed usage");
                 System.err.println();
             }
         }
