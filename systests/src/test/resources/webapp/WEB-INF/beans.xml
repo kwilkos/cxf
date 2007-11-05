@@ -50,6 +50,29 @@ http://cxf.apache.org/schemas/jaxws.xsd">
     </simple:serviceBean>
   </simple:server>
   
+  <simple:server address="/serviceWithCustomNS"
+    serviceClass="org.apache.cxf.authservice.AuthService">
+    <simple:dataBinding>
+       <bean class="org.apache.cxf.aegis.databinding.AegisDatabinding" />
+    </simple:dataBinding>
+    <simple:serviceBean>
+      <bean class="org.apache.cxf.authservice.AuthServiceImpl" />
+    </simple:serviceBean>
+    <simple:serviceFactory>
+    	<bean class="org.apache.cxf.service.factory.ReflectionServiceFactoryBean">
+    		<property name="serviceConfigurations">
+    			<list>
+    				<bean class="org.apache.cxf.aegis.databinding.AegisServiceConfiguration">
+    					<property name="serviceNamespace" value="http://foo.bar.com"/>
+    				</bean>
+    				<bean class="org.apache.cxf.service.factory.DefaultServiceConfiguration"/>
+    			</list>
+    		</property>
+    	</bean>
+    </simple:serviceFactory>
+  </simple:server>
+  
+  
   <jaxws:server address="/jaxwsAndAegis"
     serviceClass="org.apache.cxf.authservice.AuthService">
     <jaxws:dataBinding>
