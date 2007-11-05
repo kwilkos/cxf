@@ -53,7 +53,7 @@ public class BookStore {
 
         return books;
     }    */
-
+    
     @HttpMethod("GET")
     @UriTemplate("/books/{bookId}/")
     public Book getBook(@UriParam("bookId") String id) throws BookNotFoundFault {

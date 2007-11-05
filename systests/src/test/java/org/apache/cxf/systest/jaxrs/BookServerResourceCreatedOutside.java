@@ -22,7 +22,7 @@ package org.apache.cxf.systest.jaxrs;
 import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
 import org.apache.cxf.testutil.common.AbstractBusTestServerBase;
     
-public class BookServerFromResourceInstance extends AbstractBusTestServerBase {
+public class BookServerResourceCreatedOutside extends AbstractBusTestServerBase {
 
     protected void run() {
         JAXRSServerFactoryBean sf = new JAXRSServerFactoryBean();

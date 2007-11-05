@@ -31,11 +31,11 @@ import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class JAXRSClientServerFromResourceInstanceBookTest extends AbstractBusClientServerTestBase {
+public class JAXRSClientServerResourceCreatedOutsideBookTest extends AbstractBusClientServerTestBase {
 
     @BeforeClass
     public static void startServers() throws Exception {
-        assertTrue("server did not launch correctly", launchServer(BookServerFromResourceInstance.class));
+        assertTrue("server did not launch correctly", launchServer(BookServerResourceCreatedOutside.class));
     }
     
     @Test
