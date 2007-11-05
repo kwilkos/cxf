@@ -60,6 +60,9 @@
                 <exclude>**/build</exclude>
                 <exclude>**/build/**/*</exclude>
                 <exclude>**/.settings</exclude>
+                <exclude>**/.pmd</exclude>
+                <exclude>**/.checkstyle</exclude>
+                <exclude>**/.ruleset</exclude>
                 <exclude>**/pmd-eclipse.log</exclude>
                 <exclude>**/.classpath</exclude>
                 <exclude>**/.project</exclude>
