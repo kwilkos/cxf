@@ -303,5 +303,14 @@ public class CommandLineParserTest extends Assert {
     public void testGetDetailedUsage() {
         assertTrue("Namespace".equals(parser.getDetailedUsage("namespace")));
     }
+    
+
+    @Test
+    public void testFormatedDetailedUsage() throws Exception {
+        String usage = parser.getFromatedDetailedUsage();
+        assertNotNull(usage);
+        StringTokenizer st1 = new StringTokenizer(usage, System.getProperty("line.separator"));
+        assertEquals(13, st1.countTokens());
+    }
 
 }
