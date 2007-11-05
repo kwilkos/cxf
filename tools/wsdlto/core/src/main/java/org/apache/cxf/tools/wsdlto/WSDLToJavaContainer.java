@@ -421,6 +421,7 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
             context.put(ToolConstants.CFG_WSDL_VERSION, WSDLConstants.WSDL11);
         }
 
+        context.put(ToolConstants.CFG_SUPPRESS_WARNINGS, true);
         loadDefaultNSPackageMapping(context);
         setPackageAndNamespaces(context);
         setExcludePackageAndNamespaces(context);
