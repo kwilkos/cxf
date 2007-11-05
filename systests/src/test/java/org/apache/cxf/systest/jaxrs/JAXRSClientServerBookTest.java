@@ -189,8 +189,7 @@ public class JAXRSClientServerBookTest extends AbstractBusClientServerTestBase {
         }               
     } 
         
-    //@Test
-    @org.junit.Ignore
+    @Test
     public void testGetCDs() throws Exception {
         String endpointAddress =
             "http://localhost:9080/bookstore/cds"; 
@@ -199,10 +198,10 @@ public class JAXRSClientServerBookTest extends AbstractBusClientServerTestBase {
         assertNotNull(in);           
 
 /*        InputStream expected = getClass()
-            .getResourceAsStream("resources/expected_get_cds.txt");*/
+            .getResourceAsStream("resources/expected_get_cds.txt");
 
-        //System.out.println("---" + getStringFromInputStream(in));
-        //assertEquals(getStringFromInputStream(expected), getStringFromInputStream(in)); 
+        System.out.println("---" + getStringFromInputStream(in));
+        assertEquals(getStringFromInputStream(expected), getStringFromInputStream(in)); */
     }
     
     @Test
