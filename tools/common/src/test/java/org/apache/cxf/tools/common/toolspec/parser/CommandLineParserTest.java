@@ -306,8 +306,8 @@ public class CommandLineParserTest extends Assert {
     
 
     @Test
-    public void testFormatedDetailedUsage() throws Exception {
-        String usage = parser.getFromatedDetailedUsage();
+    public void testFormattedDetailedUsage() throws Exception {
+        String usage = parser.getFormattedDetailedUsage();
         assertNotNull(usage);
         StringTokenizer st1 = new StringTokenizer(usage, System.getProperty("line.separator"));
         assertEquals(13, st1.countTokens());
