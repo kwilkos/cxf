@@ -254,7 +254,9 @@ public class CommandLineParser {
             for (i = 0; i < tmpStr.length(); i = i + (totalLen - beforeDesSpan)) {
                 if (i + totalLen - beforeDesSpan < tmpStr.length()) {
                     addWhiteNamespace(strbuffer, beforeDesSpan);
-                    strbuffer.append(tmpStr.substring(i, i + totalLen - beforeDesSpan));
+                    int lastIdx = i + totalLen - beforeDesSpan; 
+                    int lastIdx2 = splitAndAppendText(strbuffer, tmpStr, i, lastIdx);
+                    i += lastIdx2 - lastIdx; 
                     strbuffer.append(lineSeparator);
                 } else {
                     addWhiteNamespace(strbuffer, beforeDesSpan);
@@ -267,6 +269,21 @@ public class CommandLineParser {
         }
 
         return strbuffer.toString();
+    }
+    private int splitAndAppendText(StringBuffer buffer, String tmpStr, int idx, int lastIdx) {
+        int origLast = lastIdx;
+        while (lastIdx > idx && !Character.isWhitespace(tmpStr.charAt(lastIdx))) {
+            --lastIdx;
+        }
+        if (lastIdx == idx) {
+            lastIdx = origLast;
+        }
+        buffer.append(tmpStr.substring(idx, lastIdx));
+        
+        if (Character.isWhitespace(tmpStr.charAt(lastIdx))) {
+            lastIdx++;
+        }
+        return lastIdx;
     }
 
     private void addWhiteNamespace(StringBuffer strbuffer, int count) {

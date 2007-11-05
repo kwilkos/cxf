@@ -311,6 +311,15 @@ public class CommandLineParserTest extends Assert {
         assertNotNull(usage);
         StringTokenizer st1 = new StringTokenizer(usage, System.getProperty("line.separator"));
         assertEquals(13, st1.countTokens());
+        
+        while (st1.hasMoreTokens()) {
+            String s = st1.nextToken();
+            if (s.indexOf("java package") != -1) {
+                s = s.trim();
+                assertTrue(s.charAt(s.length() - 1) != 'o');
+            }
+        }
+        
     }
 
 }

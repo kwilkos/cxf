@@ -48,26 +48,28 @@ under the License.
     <jaxws:endpoint 
         id="JaxwsHttpsEndpoint"
         implementor="org.apache.cxf.systest.http.GreeterImpl"
-        address="https://localhost:9001/SoapContext/HttpsPort"
+        address="https://localhost:9004/SoapContext/HttpsPort"
         serviceName="s:SOAPService"
         endpointName="e:HttpsPort"
         xmlns:e="http://apache.org/hello_world/services"
         xmlns:s="http://apache.org/hello_world/services"
-        depends-on="port-9001-tls-config"/>
+        depends-on="port-9004-tls-config"/>
 
     <!-- -->
-    <!-- TLS Port configuration parameters for port 9001 -->
+    <!-- TLS Port configuration parameters for port 9004 -->
     <!-- -->
-    <httpj:engine-factory id="port-9001-tls-config">
-        <httpj:engine port="9001">
+    <!-- This test exercises the resource attribute in a keyStore element -->
+    <!-- -->
+    <httpj:engine-factory id="port-9004-tls-config">
+        <httpj:engine port="9004">
             <httpj:tlsServerParameters>
                <sec:keyManagers keyPassword="password">
                <sec:keyStore type="JKS" password="password" 
-                    file="src/test/java/org/apache/cxf/systest/http/resources/Bethal.jks"/>
+                    resource="org/apache/cxf/systest/http/resources/Bethal.jks"/>
                 </sec:keyManagers>
                 <sec:trustManagers>
                 <sec:keyStore type="JKS" password="password"
-                   file="src/test/java/org/apache/cxf/systest/http/resources/Truststore.jks"/>
+                   resource="org/apache/cxf/systest/http/resources/Truststore.jks"/>
                 </sec:trustManagers>
             </httpj:tlsServerParameters>
         </httpj:engine>
@@ -76,15 +78,17 @@ under the License.
     <!-- -->
     <!-- HTTP/S configuration for clients -->
     <!-- -->
+    <!-- This test exercises the resource attribute in a keyStore and certStore element -->
+    <!-- -->
     <http:conduit name="{http://apache.org/hello_world/services}HttpsPort.http-conduit">
         <http:tlsClientParameters>
             <sec:keyManagers keyPassword="password">
-               <sec:keyStore type="JKS" password="password" 
-                    file="src/test/java/org/apache/cxf/systest/http/resources/Morpit.jks"/>
+               <sec:keyStore type="pkcs12" password="password" 
+                    resource="org/apache/cxf/systest/http/resources/Morpit.p12"/>
                </sec:keyManagers>
             <sec:trustManagers>
-               <sec:keyStore type="JKS" password="password"
-                   file="src/test/java/org/apache/cxf/systest/http/resources/Truststore.jks"/>
+               <sec:certStore
+                   resource="org/apache/cxf/systest/http/resources/Truststore.pem"/>
             </sec:trustManagers>
         </http:tlsClientParameters>
     </http:conduit>

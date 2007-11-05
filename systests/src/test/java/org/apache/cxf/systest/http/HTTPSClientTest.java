@@ -112,4 +112,10 @@ public class HTTPSClientTest extends AbstractBusClientServerTestBase {
         testSuccessfulCall("resources/pkcs12.xml",
                            "https://localhost:9003/SoapContext/HttpsPort");
     }
+    
+    @Test
+    public final void testResourceKeySpecEndpoint() throws Exception {
+        testSuccessfulCall("resources/resource-key-spec.xml",
+                           "https://localhost:9004/SoapContext/HttpsPort");
+    }
 }
