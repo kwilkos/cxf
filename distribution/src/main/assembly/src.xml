@@ -52,6 +52,7 @@
             <excludes>
                 <exclude>build.xml</exclude>
                 <exclude>distribution/build.xml</exclude>
+                <exclude>distribution/maven-build.xml</exclude>
                 <exclude>benchmark</exclude>
                 <exclude>benchmark/**/*</exclude>
                 <exclude>**/target</exclude>
