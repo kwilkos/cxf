@@ -47,6 +47,25 @@ public class WSDLToJavaContainerTest extends Assert {
         }
     }
 
+    @Test
+    public void testValidateorSuppressWarningsIsOn() throws Exception {
+        WSDLToJavaContainer container = new WSDLToJavaContainer("dummy", null);
+
+        ToolContext context = new ToolContext();
+        context.put(ToolConstants.CFG_WSDLURL, getLocation("hello_world.wsdl"));
+        container.setContext(context);
+
+        try {
+            container.execute();
+        } catch (ToolException te) {
+            assertEquals(getLogMessage("FOUND_NO_FRONTEND"), te.getMessage());
+        } catch (Exception e) {
+            fail("Should not throw any exception but ToolException.");
+        }
+
+        assertTrue(context.optionSet(ToolConstants.CFG_SUPPRESS_WARNINGS));
+    }
+
     private String getLocation(String wsdlFile) throws URISyntaxException {
         return this.getClass().getResource(wsdlFile).toURI().getPath();
     }
