@@ -31,12 +31,15 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.Collection;
+import java.util.logging.Logger;
 
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 
+import org.apache.cxf.common.classloader.ClassLoaderUtils;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.configuration.security.CertStoreType;
 import org.apache.cxf.configuration.security.KeyManagersType;
 import org.apache.cxf.configuration.security.KeyStoreType;
@@ -50,6 +53,9 @@ import org.apache.cxf.configuration.security.TrustManagersType;
  * with TLSClientParameters and TLSServerParameters respectively.
  */
 public final class TLSParameterJaxBUtils {
+    
+    private static final Logger LOG =
+        LogUtils.getL7dLogger(TLSParameterJaxBUtils.class);
 
     private TLSParameterJaxBUtils() {
         // empty
@@ -92,7 +98,6 @@ public final class TLSParameterJaxBUtils {
         if (kst == null) {
             return null;
         }
-        
         String type = kst.isSetType()
                     ? kst.getType()
                     : KeyStore.getDefaultType();
@@ -109,7 +114,15 @@ public final class TLSParameterJaxBUtils {
             keyStore.load(new FileInputStream(kst.getFile()), password);
         }
         if (kst.isSetResource()) {
-            keyStore.load(kst.getClass().getClassLoader().getResourceAsStream(kst.getResource()), password);
+            final java.io.InputStream is =
+                ClassLoaderUtils.getResourceAsStream(kst.getResource(), kst.getClass());
+            if (is == null) {
+                final String msg =
+                    "Could not load keystore resource " + kst.getResource();
+                LOG.severe(msg);
+                throw new java.io.IOException(msg);
+            }
+            keyStore.load(is, password);
         }
         if (kst.isSetUrl()) {
             keyStore.load(new URL(kst.getUrl()).openStream(), password);
@@ -131,11 +144,15 @@ public final class TLSParameterJaxBUtils {
             return createTrustStore(new FileInputStream(pst.getFile()));
         }
         if (pst.isSetResource()) {
-            return createTrustStore(
-                pst.getClass().getClassLoader().getResourceAsStream(
-                    pst.getResource()
-                )
-            );
+            final java.io.InputStream is =
+                ClassLoaderUtils.getResourceAsStream(pst.getResource(), pst.getClass());
+            if (is == null) {
+                final String msg =
+                    "Could not load truststore resource " + pst.getResource();
+                LOG.severe(msg);
+                throw new java.io.IOException(msg);
+            }
+            return createTrustStore(is);
         }
         if (pst.isSetUrl()) {
             return createTrustStore(new URL(pst.getUrl()).openStream());
