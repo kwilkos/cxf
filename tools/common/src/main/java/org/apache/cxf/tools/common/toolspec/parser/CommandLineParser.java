@@ -189,9 +189,91 @@ public class CommandLineParser {
         // REVISIT: style usage document into a form more readily output as a
         // usage message
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-
         toolspec.transform(getClass().getResourceAsStream("detailedUsage.xsl"), baos);
         return baos.toString();
+    }
+
+    public String getFromatedDetailedUsage() throws TransformerException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        toolspec.transform(getClass().getResourceAsStream("detailedUsage.xsl"), baos);
+        String usage = baos.toString();
+        // we use the following pattern to format usage
+        // |-------|-options|------|description-----------------|
+        // before option white space size is 7
+        int beforeOptSpan = 3;
+        // option lenght is 8
+        int optSize = 12;
+        // after option white space size is 6
+        int afterOptLen = 6;
+        int totalLen = 80;
+        int optSpan = optSize + afterOptLen - 1;
+        int beforeDesSpan = beforeOptSpan + optSpan + 1;
+        String lineSeparator = System.getProperty("line.separator");
+        StringTokenizer st1 = new StringTokenizer(usage, lineSeparator);
+        int i = 0;
+        int length = st1.countTokens();
+        String[] orginalStrs = new String[length];
+        while (st1.hasMoreTokens()) {
+            String str = st1.nextToken();
+            orginalStrs[i] = str;
+            i++;
+        }
+        StringBuffer strbuffer = new StringBuffer();
+        for (int j = 0; j < length - 1; j = j + 2) {
+            int optionLen = orginalStrs[j].length();
+            addWhiteNamespace(strbuffer, beforeOptSpan);
+            if (optionLen <= optSpan) {
+                // && beforeOptSpan + optionLen + optSpan + desLen <= totalLen -
+                // 1) {
+
+                strbuffer.append(orginalStrs[j]);
+                addWhiteNamespace(strbuffer, optSpan - orginalStrs[j].length());
+                strbuffer.append(" ");
+                if (orginalStrs[j + 1].length() > totalLen - beforeDesSpan) {
+                    String tmp = orginalStrs[j + 1].substring(0, totalLen - beforeDesSpan);
+                    strbuffer.append(tmp);
+                    orginalStrs[j + 1] = orginalStrs[j + 1].substring(totalLen - beforeDesSpan, 
+                                                                      orginalStrs[j + 1].length());
+                    strbuffer.append(lineSeparator);
+                } else {
+                    strbuffer.append(orginalStrs[j + 1]);
+                    strbuffer.append(lineSeparator);
+                    orginalStrs[j + 1] = "";
+                }
+                
+                // strbuffer.append(orginalStrs[j + 1]);
+                // strbuffer.append(lineSeparator);
+                // strbuffer.append(lineSeparator);
+            } else {
+                // addWhiteNamespace(strbuffer, beforeOptSpan);
+                strbuffer.append(orginalStrs[j]);
+                strbuffer.append(lineSeparator);
+            }
+            String tmpStr = orginalStrs[j + 1];
+            
+            for (i = 0; i < tmpStr.length(); i = i + (totalLen - beforeDesSpan)) {
+                if (i + totalLen - beforeDesSpan < tmpStr.length()) {
+                    addWhiteNamespace(strbuffer, beforeDesSpan);
+                    strbuffer.append(tmpStr.substring(i, i + totalLen - beforeDesSpan));
+                    strbuffer.append(lineSeparator);
+                } else {
+                    addWhiteNamespace(strbuffer, beforeDesSpan);
+                    strbuffer.append(tmpStr.substring(i));
+                    strbuffer.append(lineSeparator);
+                }
+            }
+            strbuffer.append(lineSeparator);
+
+        }
+
+        return strbuffer.toString();
+    }
+
+    private void addWhiteNamespace(StringBuffer strbuffer, int count) {
+
+        for (int i = 0; i < count; i++) {
+            strbuffer.append(" ");
+        }
     }
 
     public String getDetailedUsage(String id) {
