@@ -212,33 +212,33 @@ public class CommandLineParser {
         StringTokenizer st1 = new StringTokenizer(usage, lineSeparator);
         int i = 0;
         int length = st1.countTokens();
-        String[] orignalStrs = new String[length];
+        String[] originalStrs = new String[length];
         while (st1.hasMoreTokens()) {
             String str = st1.nextToken();
-            orignalStrs[i] = str;
+            originalStrs[i] = str;
             i++;
         }
         StringBuffer strbuffer = new StringBuffer();
         for (int j = 0; j < length - 1; j = j + 2) {
-            int optionLen = orignalStrs[j].length();
+            int optionLen = originalStrs[j].length();
             addWhiteNamespace(strbuffer, beforeOptSpan);
             if (optionLen <= optSpan) {
                 // && beforeOptSpan + optionLen + optSpan + desLen <= totalLen -
                 // 1) {
 
-                strbuffer.append(orignalStrs[j]);
-                addWhiteNamespace(strbuffer, optSpan - orignalStrs[j].length());
+                strbuffer.append(originalStrs[j]);
+                addWhiteNamespace(strbuffer, optSpan - originalStrs[j].length());
                 strbuffer.append(" ");
-                if (orignalStrs[j + 1].length() > totalLen - beforeDesSpan) {
-                    String tmp = orignalStrs[j + 1].substring(0, totalLen - beforeDesSpan);
+                if (originalStrs[j + 1].length() > totalLen - beforeDesSpan) {
+                    String tmp = originalStrs[j + 1].substring(0, totalLen - beforeDesSpan);
                     strbuffer.append(tmp);
-                    orignalStrs[j + 1] = orignalStrs[j + 1].substring(totalLen - beforeDesSpan, 
-                                                                      orignalStrs[j + 1].length());
+                    originalStrs[j + 1] = originalStrs[j + 1].substring(totalLen - beforeDesSpan, 
+                                                                        originalStrs[j + 1].length());
                     strbuffer.append(lineSeparator);
                 } else {
-                    strbuffer.append(orignalStrs[j + 1]);
+                    strbuffer.append(originalStrs[j + 1]);
                     strbuffer.append(lineSeparator);
-                    orignalStrs[j + 1] = "";
+                    originalStrs[j + 1] = "";
                 }
                 
                 // strbuffer.append(orginalStrs[j + 1]);
@@ -246,10 +246,10 @@ public class CommandLineParser {
                 // strbuffer.append(lineSeparator);
             } else {
                 // addWhiteNamespace(strbuffer, beforeOptSpan);
-                strbuffer.append(orignalStrs[j]);
+                strbuffer.append(originalStrs[j]);
                 strbuffer.append(lineSeparator);
             }
-            String tmpStr = orignalStrs[j + 1];
+            String tmpStr = originalStrs[j + 1];
             
             for (i = 0; i < tmpStr.length(); i = i + (totalLen - beforeDesSpan)) {
                 if (i + totalLen - beforeDesSpan < tmpStr.length()) {
