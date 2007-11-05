@@ -193,7 +193,7 @@ public class CommandLineParser {
         return baos.toString();
     }
 
-    public String getFromatedDetailedUsage() throws TransformerException {
+    public String getFormattedDetailedUsage() throws TransformerException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         toolspec.transform(getClass().getResourceAsStream("detailedUsage.xsl"), baos);
         String usage = baos.toString();
@@ -201,7 +201,7 @@ public class CommandLineParser {
         // |-------|-options|------|description-----------------|
         // before option white space size is 7
         int beforeOptSpan = 3;
-        // option lenght is 8
+        // option length is 8
         int optSize = 12;
         // after option white space size is 6
         int afterOptLen = 6;
@@ -212,33 +212,33 @@ public class CommandLineParser {
         StringTokenizer st1 = new StringTokenizer(usage, lineSeparator);
         int i = 0;
         int length = st1.countTokens();
-        String[] orginalStrs = new String[length];
+        String[] orignalStrs = new String[length];
         while (st1.hasMoreTokens()) {
             String str = st1.nextToken();
-            orginalStrs[i] = str;
+            orignalStrs[i] = str;
             i++;
         }
         StringBuffer strbuffer = new StringBuffer();
         for (int j = 0; j < length - 1; j = j + 2) {
-            int optionLen = orginalStrs[j].length();
+            int optionLen = orignalStrs[j].length();
             addWhiteNamespace(strbuffer, beforeOptSpan);
             if (optionLen <= optSpan) {
                 // && beforeOptSpan + optionLen + optSpan + desLen <= totalLen -
                 // 1) {
 
-                strbuffer.append(orginalStrs[j]);
-                addWhiteNamespace(strbuffer, optSpan - orginalStrs[j].length());
+                strbuffer.append(orignalStrs[j]);
+                addWhiteNamespace(strbuffer, optSpan - orignalStrs[j].length());
                 strbuffer.append(" ");
-                if (orginalStrs[j + 1].length() > totalLen - beforeDesSpan) {
-                    String tmp = orginalStrs[j + 1].substring(0, totalLen - beforeDesSpan);
+                if (orignalStrs[j + 1].length() > totalLen - beforeDesSpan) {
+                    String tmp = orignalStrs[j + 1].substring(0, totalLen - beforeDesSpan);
                     strbuffer.append(tmp);
-                    orginalStrs[j + 1] = orginalStrs[j + 1].substring(totalLen - beforeDesSpan, 
-                                                                      orginalStrs[j + 1].length());
+                    orignalStrs[j + 1] = orignalStrs[j + 1].substring(totalLen - beforeDesSpan, 
+                                                                      orignalStrs[j + 1].length());
                     strbuffer.append(lineSeparator);
                 } else {
-                    strbuffer.append(orginalStrs[j + 1]);
+                    strbuffer.append(orignalStrs[j + 1]);
                     strbuffer.append(lineSeparator);
-                    orginalStrs[j + 1] = "";
+                    orignalStrs[j + 1] = "";
                 }
                 
                 // strbuffer.append(orginalStrs[j + 1]);
@@ -246,10 +246,10 @@ public class CommandLineParser {
                 // strbuffer.append(lineSeparator);
             } else {
                 // addWhiteNamespace(strbuffer, beforeOptSpan);
-                strbuffer.append(orginalStrs[j]);
+                strbuffer.append(orignalStrs[j]);
                 strbuffer.append(lineSeparator);
             }
-            String tmpStr = orginalStrs[j + 1];
+            String tmpStr = orignalStrs[j + 1];
             
             for (i = 0; i < tmpStr.length(); i = i + (totalLen - beforeDesSpan)) {
                 if (i + totalLen - beforeDesSpan < tmpStr.length()) {
