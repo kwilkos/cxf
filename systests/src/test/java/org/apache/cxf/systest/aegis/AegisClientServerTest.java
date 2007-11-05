@@ -126,5 +126,10 @@ public class AegisClientServerTest extends AbstractBusClientServerTestBase {
                            + "xsd:complexType[@name='getRolesAsArrayResponse']/"
                            + "xsd:sequence/xsd:element[@nillable='true']",
                            dom);
+        
+        url = new URL("http://localhost:9002/serviceWithCustomNS?wsdl");
+        dom = XMLUtils.parse(url.openStream());
+        util.assertValid("//wsdl:definitions[@targetNamespace='http://foo.bar.com']",
+                         dom);
     }
 }
