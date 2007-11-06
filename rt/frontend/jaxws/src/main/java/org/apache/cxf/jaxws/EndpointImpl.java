@@ -24,12 +24,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
+
 import javax.xml.namespace.QName;
 import javax.xml.transform.Source;
 import javax.xml.ws.Binding;
 import javax.xml.ws.EndpointReference;
 import javax.xml.ws.WebServiceFeature;
 import javax.xml.ws.WebServicePermission;
+import javax.xml.ws.soap.Addressing;
+import javax.xml.ws.soap.AddressingFeature;
 import javax.xml.ws.soap.MTOM;
 import javax.xml.ws.soap.MTOMFeature;
 
@@ -51,7 +54,6 @@ import org.apache.cxf.jaxws.support.JaxWsImplementorInfo;
 import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.invoker.Invoker;
-
 
 public class EndpointImpl extends javax.xml.ws.Endpoint 
     implements InterceptorProvider, Configurable {
@@ -99,6 +101,7 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
         this.bus = b;
         this.serverFactory = sf;
         this.implementor = implementor;
+        loadWSFeatureAnnotation();
     }
     
     /**
@@ -129,11 +132,16 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
     private void loadWSFeatureAnnotation() {
         List<WebServiceFeature> wsFeatures = new ArrayList<WebServiceFeature>();
         MTOM mtom = implementor.getClass().getAnnotation(MTOM.class);        
-        if (mtom != null) {            
+        if (mtom != null) {
             wsFeatures.add(new MTOMFeature(mtom.enabled(), mtom.threshold()));
         }
-        ((JaxWsServiceFactoryBean) serverFactory.getServiceFactory()).setWsFeatures(wsFeatures);        
-    }    
+
+        Addressing addressing = implementor.getClass().getAnnotation(Addressing.class);
+        if (addressing != null) {
+            wsFeatures.add(new AddressingFeature(addressing.enabled(), addressing.required()));
+        }
+        ((JaxWsServiceFactoryBean) serverFactory.getServiceFactory()).setWsFeatures(wsFeatures);
+    }
 
     public Binding getBinding() {
         return ((JaxWsEndpointImpl) getEndpoint()).getJaxwsBinding();
@@ -276,7 +284,7 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
             serverFactory.setEndpointName(endpointName);
             serverFactory.setServiceBean(implementor);
             serverFactory.setBus(bus);
-            serverFactory.setFeatures(features);
+            serverFactory.setFeatures(getFeatures());
             serverFactory.setInvoker(invoker);
             serverFactory.setSchemaLocations(schemaLocations);
             

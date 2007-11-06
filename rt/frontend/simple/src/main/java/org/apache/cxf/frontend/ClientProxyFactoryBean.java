@@ -55,7 +55,7 @@ public class ClientProxyFactoryBean extends AbstractBasicInterceptorProvider {
     private String password;
     private Map<String, Object> properties;
     private Bus bus;
-    private List<AbstractFeature> features;
+    private List<AbstractFeature> features = new ArrayList<AbstractFeature>();
     private DataBinding dataBinding;
     
     public ClientProxyFactoryBean() {
@@ -232,16 +232,13 @@ public class ClientProxyFactoryBean extends AbstractBasicInterceptorProvider {
     }
 
     public List<AbstractFeature> getFeatures() {
-        if (features == null) {
-            features = new ArrayList<AbstractFeature>();
-        }
         return features;
     }
 
-    public void setFeatures(List<AbstractFeature> features) {
-        this.features = features;
+    public void setFeatures(List<AbstractFeature> f) {
+        this.features = f;
     }
-
+    
     public DataBinding getDataBinding() {
         return dataBinding;
     }

@@ -83,6 +83,10 @@
                                     <wsdl>${basedir}/src/test/resources/wsdl/mtom.wsdl</wsdl>
                                 </wsdlOption>
 
+                                <wsdlOption>
+                                    <wsdl>${basedir}/src/test/resources/wsdl/add_numbers.wsdl</wsdl>
+                                </wsdlOption>
+
                             </wsdlOptions>
                         </configuration>
                         <goals>

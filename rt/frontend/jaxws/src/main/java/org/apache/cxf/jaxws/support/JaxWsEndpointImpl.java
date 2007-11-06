@@ -23,6 +23,7 @@ import java.util.List;
 
 import javax.xml.ws.Binding;
 import javax.xml.ws.WebServiceFeature;
+import javax.xml.ws.soap.AddressingFeature;
 import javax.xml.ws.soap.MTOMFeature;
 import javax.xml.ws.soap.SOAPBinding;
 
@@ -31,6 +32,7 @@ import org.apache.cxf.binding.soap.SoapBinding;
 import org.apache.cxf.binding.xml.XMLBinding;
 import org.apache.cxf.endpoint.EndpointException;
 import org.apache.cxf.endpoint.EndpointImpl;
+import org.apache.cxf.feature.AbstractFeature;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.jaxws.binding.BindingImpl;
 import org.apache.cxf.jaxws.binding.http.HTTPBindingImpl;
@@ -53,6 +55,7 @@ import org.apache.cxf.jaxws.interceptors.WrapperClassOutInterceptor;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.model.EndpointInfo;
+import org.apache.cxf.ws.addressing.WSAddressingFeature;
 
 /**
  * A JAX-WS specific implementation of the CXF {@link org.apache.cxf.endpoint.Endpoint} interface.
@@ -67,18 +70,21 @@ public class JaxWsEndpointImpl extends EndpointImpl {
     private Binding jaxwsBinding;
     private JaxWsImplementorInfo implInfo; 
     private List<WebServiceFeature> wsFeatures;
+    private List<AbstractFeature> features;
     
     public JaxWsEndpointImpl(Bus bus, Service s, EndpointInfo ei) throws EndpointException {
-        this(bus, s, ei, null, null);
+        this(bus, s, ei, null, null, null);
     }
 
     public JaxWsEndpointImpl(Bus bus, Service s, EndpointInfo ei, JaxWsImplementorInfo implementorInfo, 
-                             List<WebServiceFeature> features)
+                             List<WebServiceFeature> wf, List<AbstractFeature> af)
         throws EndpointException {
         super(bus, s, ei);
         this.implInfo = implementorInfo;
-        this.wsFeatures = features;
+        this.wsFeatures = wf;
+        this.features = af;
         
+        resolveFeatures();
         createJaxwsBinding();
         
         List<Interceptor> in = super.getInInterceptors();       
@@ -135,6 +141,57 @@ public class JaxWsEndpointImpl extends EndpointImpl {
     public Binding getJaxwsBinding() {
         return jaxwsBinding;
     }
+
+    private AddressingFeature getAddressingFeature() { 
+        if (wsFeatures == null) {
+            return null;
+        }
+        for (WebServiceFeature feature : wsFeatures) {
+            if (feature instanceof AddressingFeature) {
+                return (AddressingFeature)feature;                
+            }
+        }
+        return null;
+    }
+    
+    public final void resolveFeatures() {
+        AddressingFeature addressing = getAddressingFeature();
+        if (addressing == null) {
+            return;
+        }
+        if (addressing.isEnabled()) {
+            addAddressingFeature(new WSAddressingFeature());
+        } else {
+            removeAddressingFeature();
+        }
+    }
+
+    private AbstractFeature getWSAddressingFeature() {
+        if (features == null) {
+            return null;
+        }
+        AbstractFeature addressing = null;
+        for (AbstractFeature f : features) {
+            if (f instanceof WSAddressingFeature) {
+                addressing = f;
+            }
+        }
+        return addressing;
+    }
+
+    private void addAddressingFeature(AbstractFeature a) {
+        AbstractFeature f = getWSAddressingFeature();
+        if (f == null) {
+            features.add(a);
+        }
+    }
+
+    private void removeAddressingFeature() {
+        AbstractFeature f = getWSAddressingFeature();
+        if (f != null) {
+            features.remove(f);
+        }
+    }    
     
     private MTOMFeature getMTOMFeature() {
         if (wsFeatures == null) {

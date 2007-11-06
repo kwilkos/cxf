@@ -54,6 +54,7 @@ import org.apache.cxf.databinding.source.mime.MimeSerializer;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.EndpointException;
 import org.apache.cxf.endpoint.EndpointImpl;
+import org.apache.cxf.feature.AbstractFeature;
 import org.apache.cxf.frontend.FaultInfoException;
 import org.apache.cxf.frontend.MethodDispatcher;
 import org.apache.cxf.frontend.SimpleMethodDispatcher;
@@ -135,7 +136,8 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     private boolean populateFromClass;
     private boolean anonymousWrappers;
     private boolean qualifiedSchemas = true;
-
+    
+    private List<AbstractFeature> features;
 
     public ReflectionServiceFactoryBean() {
         getServiceConfigurations().add(0, new DefaultServiceConfiguration());
@@ -1685,4 +1687,11 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         this.ignoredMethods = ignoredMethods;
     }
 
+    public List<AbstractFeature> getFeatures() {
+        return features;
+    }
+
+    public void setFeatures(List<AbstractFeature> f) {
+        this.features = f;
+    }
 }

@@ -134,7 +134,7 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
 
     @Override
     public Endpoint createEndpoint(EndpointInfo ei) throws EndpointException {
-        return new JaxWsEndpointImpl(getBus(), getService(), ei, implInfo, wsFeatures);
+        return new JaxWsEndpointImpl(getBus(), getService(), ei, implInfo, wsFeatures, this.getFeatures());
     }
 
     @Override

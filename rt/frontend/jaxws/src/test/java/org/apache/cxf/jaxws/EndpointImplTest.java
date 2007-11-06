@@ -22,7 +22,6 @@ package org.apache.cxf.jaxws;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-
 import javax.xml.ws.WebServiceContext;
 
 import org.apache.cxf.Bus;
@@ -34,6 +33,7 @@ import org.apache.cxf.message.Message;
 import org.apache.cxf.service.invoker.BeanInvoker;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.MessageObserver;
+import org.apache.cxf.ws.addressing.WSAddressingFeature;
 import org.apache.hello_world_soap_http.GreeterImpl;
 import org.apache.hello_world_soap_http.HelloImpl;
 import org.apache.hello_world_soap_http.HelloWrongAnnotation;
@@ -172,6 +172,52 @@ public class EndpointImplTest extends AbstractJaxWsTest {
         }
         
         ep.publish("local://localhost:9090/hello");
+    }
+
+    @Test
+    public void testAddWSAFeature() throws Exception {
+        GreeterImpl greeter = new GreeterImpl();
+        JaxWsServiceFactoryBean serviceFactory = new JaxWsServiceFactoryBean();
+        serviceFactory.setBus(getBus());
+        serviceFactory.setInvoker(new BeanInvoker(greeter));
+        serviceFactory.setServiceClass(GreeterImpl.class);
+        
+        EndpointImpl endpoint = new EndpointImpl(getBus(), greeter, 
+                                                 new JaxWsServerFactoryBean(serviceFactory));
+
+        endpoint.getFeatures().add(new WSAddressingFeature());
+        try {
+            String address = "http://localhost:8080/test";
+            endpoint.publish(address);
+        } catch (IllegalArgumentException ex) {
+            assertTrue(ex.getCause() instanceof BusException);
+            assertEquals("BINDING_INCOMPATIBLE_ADDRESS_EXC", ((BusException)ex.getCause()).getCode());
+        }
+ 
+        assertTrue(serviceFactory.getFeatures().size() == 1);
+        assertTrue(serviceFactory.getFeatures().get(0) instanceof WSAddressingFeature);
+    }
+
+    @Test
+    public void testJaxWsaFeature() throws Exception {
+        HelloWsa greeter = new HelloWsa();
+        JaxWsServiceFactoryBean serviceFactory = new JaxWsServiceFactoryBean();
+        serviceFactory.setBus(getBus());
+        serviceFactory.setInvoker(new BeanInvoker(greeter));
+        serviceFactory.setServiceClass(HelloWsa.class);
+
+        EndpointImpl endpoint = new EndpointImpl(getBus(), greeter, 
+                                                 new JaxWsServerFactoryBean(serviceFactory));
+        try {
+            String address = "http://localhost:8080/test";
+            endpoint.publish(address);
+        } catch (IllegalArgumentException ex) {
+            assertTrue(ex.getCause() instanceof BusException);
+            assertEquals("BINDING_INCOMPATIBLE_ADDRESS_EXC", ((BusException)ex.getCause()).getCode());
+        }
+ 
+        assertTrue(serviceFactory.getFeatures().size() == 1);
+        assertTrue(serviceFactory.getFeatures().get(0) instanceof WSAddressingFeature);
     }
 
     static class EchoObserver implements MessageObserver {
