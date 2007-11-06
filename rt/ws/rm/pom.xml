@@ -26,7 +26,7 @@
     <parent>
         <groupId>org.apache.cxf</groupId>
         <artifactId>cxf-parent</artifactId>
-        <version>2.0.3-incubator-SNAPSHOT</version>
+        <version>2.0.3-incubator</version>
         <relativePath>../../../parent/pom.xml</relativePath>
     </parent>
 
@@ -177,8 +177,9 @@
     </build>
 
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/branches/2.0.x-fixes/rt/ws/rm</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/branches/2.0.x-fixes/rt/ws/rm</developerConnection>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/tags/cxf-2.0.3-incubator/rt/ws/rm</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/tags/cxf-2.0.3-incubator/rt/ws/rm</developerConnection>
+    <url>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/tags/cxf-2.0.3-incubator/cxf-parent/cxf-rt-ws-rm</url>
   </scm>
 
 </project>

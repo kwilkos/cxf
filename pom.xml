@@ -21,16 +21,16 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.apache.cxf</groupId>
     <artifactId>cxf</artifactId>
-    <version>2.0.3-incubator-SNAPSHOT</version>
+    <version>2.0.3-incubator</version>
     <name>Apache CXF</name>
     <url>http://cwiki.apache.org/CXF</url>
 
     <packaging>pom</packaging>
 
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/branches/2.0.x-fixes</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/branches/2.0.x-fixes</developerConnection>
-        <url>http://svn.apache.org/viewvc/incubator/cxf/branches/2.0.x-fixes</url>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/tags/cxf-2.0.3-incubator</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/tags/cxf-2.0.3-incubator</developerConnection>
+        <url>http://svn.apache.org/viewvc/incubator/cxf/tags/cxf-2.0.3-incubator</url>
     </scm>
     <issueManagement>
         <system>jira</system>
@@ -262,7 +262,7 @@
                                             <entry key="org.eclipse.jdt.ui.enable.visibility.order" value="true" />
                                         </propertyfile>
 					<propertyfile file="${full.eclipse.workspace}/.metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.wst.xml.ui.prefs">
-					    <entry key="eclipse.preferences.version" value="1"/>
+					    <entry key="eclipse.preferences.version" value="1" />
 					    <entry key="org.eclipse.wst.sse.ui.custom_templates" value="${eclipse.xml.templates}" />
 					</propertyfile>
                                     </tasks>

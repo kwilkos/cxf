@@ -22,13 +22,13 @@
     <artifactId>apache-cxf</artifactId>
     <packaging>pom</packaging>
     <name>Apache CXF Distribution</name>
-    <version>2.0.3-incubator-SNAPSHOT</version>
+    <version>2.0.3-incubator</version>
     <url>http://cwiki.apache.org/CXF</url>
 
     <parent>
         <groupId>org.apache.cxf</groupId>
         <artifactId>cxf-parent</artifactId>
-        <version>2.0.3-incubator-SNAPSHOT</version>
+        <version>2.0.3-incubator</version>
         <relativePath>../parent</relativePath>
     </parent>
 
@@ -390,8 +390,9 @@
     </build>
 
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/branches/2.0.x-fixes/distribution</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/branches/2.0.x-fixes/distribution</developerConnection>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/tags/cxf-2.0.3-incubator/distribution</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/tags/cxf-2.0.3-incubator/distribution</developerConnection>
+    <url>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/tags/cxf-2.0.3-incubator/cxf-parent/apache-cxf</url>
   </scm>
 
 </project>
