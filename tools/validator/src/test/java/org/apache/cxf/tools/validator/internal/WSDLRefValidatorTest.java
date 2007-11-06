@@ -36,9 +36,7 @@ public class WSDLRefValidatorTest extends Assert {
         WSDLRefValidator validator = new WSDLRefValidator(wsdl);
         assertFalse(validator.isValid());
         ValidationResult results = validator.getValidationResults();
-        assertEquals(1, results.getWarnings().size());
-        String t = results.getWarnings().pop();
-        assertEquals("WSDL document does not define any services", t);
+        assertEquals(0, results.getWarnings().size());
     }
 
     @Test
@@ -104,9 +102,7 @@ public class WSDLRefValidatorTest extends Assert {
         validator.isValid();
         ValidationResult results = validator.getValidationResults();
 
-        assertEquals(1, results.getWarnings().size());
-        String t = results.getWarnings().pop();
-        assertEquals("WSDL document does not define any services", t);
+        assertEquals(0, results.getWarnings().size());
 
         WSDLRefValidator v = new WSDLRefValidator(wsdl);
         v.setSuppressWarnings(true);
