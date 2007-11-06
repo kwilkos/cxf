@@ -27,6 +27,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.wsdl.Binding;
 import javax.wsdl.BindingOperation;
@@ -351,7 +352,9 @@ public class WSDLRefValidator extends AbstractDefinitionValidator {
     @SuppressWarnings("unchecked")
     private void collectValidationPoints() {
         if (services.size() == 0) {
-            addWarning("WSDL document does not define any services");
+            LOG.log(Level.WARNING, "WSDL document " 
+                    + this.definition.getDocumentBaseURI() + " does not define any services");
+            //addWarning("WSDL document does not define any services");
             portTypeRefNames.addAll(this.definition.getAllPortTypes().keySet());
         } else {
             collectValidationPointsForBindings();
