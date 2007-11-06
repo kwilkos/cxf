@@ -265,7 +265,8 @@ public class CommandLineParserTest extends Assert {
         String[] expected = new String[]{"[ -n <C++ Namespace> ]",
                                          "Namespace",
                                          "[ -impl ]",
-                                         "impl",
+                                         "impl - the impl that will be used by this tool to do "
+                                         + "whatever it is this tool does.",
                                          "[ -e <Enum Value> ]",
                                          "enum",
                                          "-r",
@@ -310,13 +311,15 @@ public class CommandLineParserTest extends Assert {
         String usage = parser.getFormattedDetailedUsage();
         assertNotNull(usage);
         StringTokenizer st1 = new StringTokenizer(usage, System.getProperty("line.separator"));
-        assertEquals(13, st1.countTokens());
+        assertEquals(14, st1.countTokens());
         
         while (st1.hasMoreTokens()) {
             String s = st1.nextToken();
             if (s.indexOf("java package") != -1) {
                 s = s.trim();
                 assertTrue(s.charAt(s.length() - 1) != 'o');
+            } else if (s.indexOf("impl - the") != -1) {
+                assertTrue(s.charAt(s.length() - 1) == 'o');
             }
         }
         
