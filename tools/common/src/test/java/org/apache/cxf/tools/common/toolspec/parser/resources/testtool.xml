@@ -39,6 +39,7 @@
       </option>
       
       <option id="impl" minOccurs="0">
+	<annotation>impl - the impl that will be used by this tool to do whatever it is this tool does.</annotation>
 	<switch>impl</switch>
       </option>
 
