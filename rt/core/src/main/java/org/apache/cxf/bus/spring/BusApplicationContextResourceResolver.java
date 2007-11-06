@@ -20,6 +20,7 @@ package org.apache.cxf.bus.spring;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 
 import org.apache.cxf.resource.ResourceResolver;
 
@@ -54,12 +55,23 @@ public class BusApplicationContextResourceResolver
     public <T> T resolve(String resourceName, Class<T> resourceType) {
         if (resourceName == null) {
             return null;
-        }    
-        try { 
+        }   
+        try {
             return resourceType.cast(context.getBean(resourceName, resourceType));
         } catch (NoSuchBeanDefinitionException def) {
-            return null;
+            //ignore
         }
+        try {
+            if (URL.class.isAssignableFrom(resourceType)) {
+                Resource r = context.getResource(resourceName);
+                if (r != null && r.exists()) {
+                    return resourceType.cast(r.getURL());
+                }
+            }
+        } catch (IOException e) {
+            //ignore
+        }
+        return null;
     }
 
 
