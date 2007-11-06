@@ -23,13 +23,13 @@
     <artifactId>cxf-bundle</artifactId>
     <packaging>jar</packaging>
     <name>Apache CXF Bundle Jar</name>
-    <version>2.0.3-incubator-SNAPSHOT</version>
+    <version>2.0.3-incubator</version>
     <url>http://cwiki.apache.org/CXF</url>
 
     <parent>
         <groupId>org.apache.cxf</groupId>
         <artifactId>cxf-parent</artifactId>
-        <version>2.0.3-incubator-SNAPSHOT</version>
+        <version>2.0.3-incubator</version>
         <relativePath>../../parent</relativePath>
     </parent>
 
@@ -357,8 +357,9 @@
 
 
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/branches/2.0.x-fixes/distribution/bundle</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/branches/2.0.x-fixes/distribution/bundle</developerConnection>
-    </scm>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/tags/cxf-2.0.3-incubator/distribution/bundle</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/tags/cxf-2.0.3-incubator/distribution/bundle</developerConnection>
+      <url>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/tags/cxf-2.0.3-incubator/cxf-parent/cxf-bundle</url>
+  </scm>
 
 </project>
