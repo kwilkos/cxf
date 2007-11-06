@@ -34,6 +34,7 @@ import org.apache.cxf.aegis.type.collection.CollectionType;
 import org.apache.cxf.aegis.type.collection.MapType;
 import org.apache.cxf.aegis.util.NamespaceHelper;
 import org.apache.cxf.aegis.util.ServiceUtils;
+import org.apache.cxf.wsdl.WSDLConstants;
 
 /**
  * @author Hani Suleiman Date: Jun 14, 2005 Time: 11:59:57 PM
@@ -301,6 +302,9 @@ public abstract class AbstractTypeCreator implements TypeCreator {
             ns = type.getSchemaType().getNamespaceURI();
         } else {
             ns = tm.getEncodingStyleURI();
+        }
+        if (WSDLConstants.NS_SCHEMA_XSD.equals(ns)) {
+            ns = "http://cxf.apache.org/arrays";
         }
 
         String first = type.getSchemaType().getLocalPart().substring(0, 1);

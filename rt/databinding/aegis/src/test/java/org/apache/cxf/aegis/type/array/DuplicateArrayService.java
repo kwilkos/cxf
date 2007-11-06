@@ -32,5 +32,20 @@ public interface DuplicateArrayService {
   
     @WebMethod
     List<List<DuplicateArrayReturnItem>> lookupBatch(String indexid);
+    
+    @WebMethod 
+    Foo<String> doFoo(Foo<Integer> foo);
+    
+    
+    static class Foo<T> {
+        List<T> list;
+        
+        public void setList(List<T> l) {
+            list = l;
+        }
+        public List<T> getList() {
+            return list;
+        }
+    }
 
 }
