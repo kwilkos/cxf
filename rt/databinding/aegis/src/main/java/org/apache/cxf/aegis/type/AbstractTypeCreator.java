@@ -303,7 +303,7 @@ public abstract class AbstractTypeCreator implements TypeCreator {
         } else {
             ns = tm.getEncodingStyleURI();
         }
-        if (WSDLConstants.NS_SCHEMA_XSD.equals(ns)) {
+        if (WSDLConstants.NU_SCHEMA_XSD.equals(ns)) {
             ns = "http://cxf.apache.org/arrays";
         }
 
