@@ -230,10 +230,9 @@ public class CommandLineParser {
                 addWhiteNamespace(strbuffer, optSpan - originalStrs[j].length());
                 strbuffer.append(" ");
                 if (originalStrs[j + 1].length() > totalLen - beforeDesSpan) {
-                    String tmp = originalStrs[j + 1].substring(0, totalLen - beforeDesSpan);
-                    strbuffer.append(tmp);
-                    originalStrs[j + 1] = originalStrs[j + 1].substring(totalLen - beforeDesSpan, 
-                                                                        originalStrs[j + 1].length());
+                    int lastIdx = totalLen - beforeDesSpan; 
+                    int lastIdx2 = splitAndAppendText(strbuffer, originalStrs[j + 1], 0, lastIdx);
+                    originalStrs[j + 1] = originalStrs[j + 1].substring(lastIdx2);
                     strbuffer.append(lineSeparator);
                 } else {
                     strbuffer.append(originalStrs[j + 1]);
