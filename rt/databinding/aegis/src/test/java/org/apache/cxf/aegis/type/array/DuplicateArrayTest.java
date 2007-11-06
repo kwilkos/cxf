@@ -22,6 +22,8 @@ package org.apache.cxf.aegis.type.array;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.w3c.dom.Document;
+
 import org.apache.cxf.aegis.AbstractAegisTest;
 import org.apache.cxf.aegis.databinding.AegisDatabinding;
 import org.apache.cxf.aegis.type.Configuration;
@@ -53,8 +55,11 @@ public class DuplicateArrayTest extends AbstractAegisTest {
         serviceFactory.setServiceBean(new DuplicateArrayServiceBean());
         serviceFactory.setServiceClass(DuplicateArrayService.class);
         serviceFactory.setProperties(props);
-        serviceFactory.create();
-
+        Document doc = this.getWSDLDocument(serviceFactory.create());
+        this.assertValid("//wsdl:definitions/wsdl:types"
+                         + "/xsd:schema[@targetNamespace='http://cxf.apache.org/arrays']"
+                         + "/xsd:complexType[@name='ArrayOfAnyType']",
+                         doc.getDocumentElement());
     }
 
 }
