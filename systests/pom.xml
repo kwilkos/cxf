@@ -410,7 +410,6 @@
         <dependency>
             <groupId>org.codehaus.jettison</groupId>
             <artifactId>jettison</artifactId>
-            <version>1.0-RC2</version>
             <scope>test</scope>
         </dependency>
         <dependency>

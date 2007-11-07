@@ -410,14 +410,32 @@
                 </exclusions>
             </dependency>
             <dependency>
-                <groupId>stax</groupId>
-                <artifactId>stax-api</artifactId>
-                <version>1.0.1</version>
+                <groupId>org.apache.geronimo.specs</groupId>
+                <artifactId>geronimo-stax-api_1.0_spec</artifactId>
+                <version>1.0</version>
             </dependency>
+            <dependency>
+                <groupId>org.codehaus.jettison</groupId>
+                <artifactId>jettison</artifactId>
+                <version>1.0-RC2</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>stax</groupId>
+                        <artifactId>stax-api</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
             <dependency>
                 <groupId>org.codehaus.woodstox</groupId>
                 <artifactId>wstx-asl</artifactId>
                 <version>3.2.1</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>stax</groupId>
+                        <artifactId>stax-api</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.mortbay.jetty</groupId>
@@ -636,6 +654,10 @@
                     <exclusion>
                         <groupId>javax.xml.soap</groupId>
                         <artifactId>saaj-api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>javax.xml.stream</groupId>
+                        <artifactId>stax-api</artifactId>
                     </exclusion>
                     <exclusion>
                         <groupId>javax.xml.bind</groupId>
