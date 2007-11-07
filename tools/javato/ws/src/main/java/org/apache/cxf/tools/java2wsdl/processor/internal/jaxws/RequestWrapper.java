@@ -19,6 +19,7 @@
 
 package org.apache.cxf.tools.java2wsdl.processor.internal.jaxws;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +44,7 @@ public class RequestWrapper extends Wrapper {
         javax.xml.ws.RequestWrapper reqWrapper = method.getAnnotation(javax.xml.ws.RequestWrapper.class);
         return getClassName() == null && (reqWrapper == null || StringUtils.isEmpty(reqWrapper.className()));
     }
-    
+
     public String getWrapperTns(Method method) {
         javax.xml.ws.RequestWrapper reqWrapper = method.getAnnotation(javax.xml.ws.RequestWrapper.class);
         if (reqWrapper != null) {
@@ -56,7 +57,7 @@ public class RequestWrapper extends Wrapper {
     protected List<JavaField> buildFields() {
         return buildFields(getMethod(), getOperationInfo().getUnwrappedOperation().getInput());
     }
-    
+
     protected List<JavaField> buildFields(final Method method, final MessageInfo message) {
         List<JavaField> fields = new ArrayList<JavaField>();
         String name;
@@ -77,9 +78,10 @@ public class RequestWrapper extends Wrapper {
                 type = clz.getName();
             }
             JavaField field = new JavaField(name, type, "");
-            field.setTargetNamespace("");
+            field.setTargetNamespace("");           
+            List<Annotation> jaxbAnns = WrapperUtil.getJaxbAnnotations(method, idx);
+            field.setJaxbAnnotations(jaxbAnns.toArray(new Annotation[jaxbAnns.size()]));
             fields.add(field);
-            
         }
 
         return fields;
@@ -90,11 +92,11 @@ public class RequestWrapper extends Wrapper {
         javax.xml.ws.RequestWrapper reqWrapper = method.getAnnotation(javax.xml.ws.RequestWrapper.class);
         String reqClassName = getClassName();
         String reqNs = null;
-        
+
         if (reqWrapper != null) {
             reqClassName = reqWrapper.className().length() > 0 ? reqWrapper.className() : reqClassName;
             reqNs = reqWrapper.targetNamespace().length() > 0 ? reqWrapper.targetNamespace() : null;
-        } 
+        }
         if (reqClassName == null) {
             reqClassName = getPackageName(method) + ".jaxws." + StringUtils.capitalize(method.getName());
         }
@@ -104,4 +106,5 @@ public class RequestWrapper extends Wrapper {
         jClass.setNamespace(reqNs);
         return jClass;
     }
+
 }

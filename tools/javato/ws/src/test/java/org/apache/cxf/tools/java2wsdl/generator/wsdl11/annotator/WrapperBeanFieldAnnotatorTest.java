@@ -20,6 +20,8 @@
 package org.apache.cxf.tools.java2wsdl.generator.wsdl11.annotator;
 
 
+import java.util.List;
+
 import org.apache.cxf.tools.common.model.JAnnotation;
 import org.apache.cxf.tools.common.model.JavaClass;
 import org.apache.cxf.tools.common.model.JavaField;
@@ -38,15 +40,15 @@ public class WrapperBeanFieldAnnotatorTest extends Assert {
                                            "http://doc.withannotation.fortest.tools.cxf.apache.org/");
 
         reqField.setOwner(clz);
-        JAnnotation annotation = reqField.getAnnotation();
-        assertNull(annotation);
+        List<JAnnotation> annotation = reqField.getAnnotations();
+        assertEquals(0, annotation.size());
         
         reqField.annotate(new WrapperBeanFieldAnnotator());
-        annotation = reqField.getAnnotation();
+        annotation = reqField.getAnnotations();
 
         String expectedNamespace = "http://doc.withannotation.fortest.tools.cxf.apache.org/";
         assertEquals("@XmlElement(name = \"array\", namespace = \"" + expectedNamespace + "\")",
-                     annotation.toString());
+                     annotation.get(0).toString());
 
         clz.setFullClassName("org.apache.cxf.tools.fortest.withannotation.doc.jaxws.SayHiResponse");
         JavaField resField = new JavaField("return",
@@ -54,8 +56,8 @@ public class WrapperBeanFieldAnnotatorTest extends Assert {
                                            "http://doc.withannotation.fortest.tools.cxf.apache.org/");
         resField.setOwner(clz);
         resField.annotate(new WrapperBeanFieldAnnotator());
-        annotation = resField.getAnnotation();
+        annotation = resField.getAnnotations();
         assertEquals("@XmlElement(name = \"return\", namespace = \"" + expectedNamespace + "\")",
-                     annotation.toString());
+                     annotation.get(0).toString());
     }
 }

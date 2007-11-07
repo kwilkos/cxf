@@ -19,6 +19,7 @@
 
 package org.apache.cxf.tools.java2wsdl.processor.internal.jaxws;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +31,7 @@ import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.tools.common.model.JavaField;
 import org.apache.cxf.tools.java2wsdl.generator.wsdl11.model.WrapperBeanClass;
+
 
 public final class ResponseWrapper extends Wrapper { 
     @Override
@@ -81,7 +83,9 @@ public final class ResponseWrapper extends Wrapper {
             } else {
                 type = returnType.getName();
             }
+            List<Annotation> jaxbAnns = WrapperUtil.getJaxbAnnotations(method);
             field.setType(type);
+            field.setJaxbAnnotations(jaxbAnns.toArray(new Annotation[jaxbAnns.size()]));
             field.setTargetNamespace("");
             
         }
@@ -103,6 +107,9 @@ public final class ResponseWrapper extends Wrapper {
                 } else {
                     type = clz.getName();
                 }
+                JavaField jf = new JavaField(name, type, "");
+                List<Annotation> jaxbAnns = WrapperUtil.getJaxbAnnotations(method, idx - 1);
+                jf.setJaxbAnnotations(jaxbAnns.toArray(new Annotation[jaxbAnns.size()]));
                 fields.add(new JavaField(name, type, ""));
                
             }
@@ -132,4 +139,8 @@ public final class ResponseWrapper extends Wrapper {
         jClass.setNamespace(resNs);
         return jClass;
     }
+    
+    
+
+    
 }

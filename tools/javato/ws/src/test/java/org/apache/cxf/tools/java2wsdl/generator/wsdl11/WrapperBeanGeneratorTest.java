@@ -21,12 +21,16 @@ package org.apache.cxf.tools.java2wsdl.generator.wsdl11;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.lang.reflect.Field;
+
+import javax.xml.bind.annotation.XmlList;
 
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.tools.common.ProcessorTestBase;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.java2wsdl.processor.JavaToWSDLProcessor;
+import org.apache.cxf.tools.util.AnnotationUtil;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,13 +38,17 @@ import org.junit.Test;
 public class WrapperBeanGeneratorTest extends ProcessorTestBase {
     JavaToWSDLProcessor processor = new JavaToWSDLProcessor();
     String classPath = "";
+    ClassLoader classLoader;
 
     @Before
     public void setUp() throws Exception {
-        super.setUp();
+        super.setUp();        
         classPath = System.getProperty("java.class.path");
-        System.setProperty("java.class.path", getClassPath());
+        String pathSeperoatr = System.getProperty("path.separator");
+        System.setProperty("java.class.path", getClassPath() + pathSeperoatr + output.getPath());
+        classLoader = AnnotationUtil.getClassLoader(Thread.currentThread().getContextClassLoader());
         processor.setEnvironment(env);
+        
     }
 
     @After
@@ -111,4 +119,20 @@ public class WrapperBeanGeneratorTest extends ProcessorTestBase {
         contents = IOUtils.toString(new FileInputStream(requestWrapperClass));
         assertTrue(contents.indexOf("org.apache.cxf.tools.fortest.withannotation.doc.TestDataBean[]") != -1);
     }
+    
+    @Test
+    public void testGenJaxbAnno() throws Exception {
+        String testingClass = "org.apache.cxf.tools.fortest.withannotation.doc.SayHiNoWrapperBean";
+        env.put(ToolConstants.CFG_CLASSNAME, testingClass);
+        
+        WrapperBeanGenerator generator = new WrapperBeanGenerator();
+        generator.setServiceModel(getServiceInfo());
+        
+        generator.generate(output);
+        Class clz = classLoader.loadClass("org.apache.cxf.SayHi");
+        assertNotNull(clz);
+        Field field = clz.getDeclaredField("arg0");
+        assertNotNull(field.getAnnotation(XmlList.class));
+    }
+    
 }

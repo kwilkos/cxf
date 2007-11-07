@@ -19,11 +19,16 @@
 
 package org.apache.cxf.tools.common.model;
 
+import java.lang.annotation.Annotation;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.cxf.tools.util.URIParserUtil;
 
 public class JavaField extends JavaType implements JavaAnnotatable {
     private String modifier;
-    private JAnnotation annotation;
+    private List<JAnnotation> annotations = new ArrayList<JAnnotation>();
+    private Annotation[] jaxbAnnotations;
 
     public JavaField() {
     }
@@ -41,15 +46,15 @@ public class JavaField extends JavaType implements JavaAnnotatable {
         this.modifier = modi;
     }
 
-    public void setAnnotation(JAnnotation anno) {
-        this.annotation = anno;
-        for (String importClz : annotation.getImports()) {
+    public void addAnnotation(JAnnotation anno) {
+        annotations.add(anno);
+        for (String importClz : anno.getImports()) {
             getOwner().addImport(importClz);
         }        
     }
 
-    public JAnnotation getAnnotation() {
-        return this.annotation;
+    public List<JAnnotation> getAnnotations() {
+        return this.annotations;
     }
 
     public void annotate(Annotator annotator) {
@@ -61,6 +66,17 @@ public class JavaField extends JavaType implements JavaAnnotatable {
             return "_" + this.name;
         }
         return this.name;
+    }
+    
+    public void setJaxbAnnotations(Annotation[] anns) {
+        jaxbAnnotations = anns;
+    }
+    
+    public Annotation[] getJaxbAnnotaions() {
+        if (jaxbAnnotations == null) {
+            return new Annotation[]{};
+        } 
+        return jaxbAnnotations;
     }
     
 }

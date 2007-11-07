@@ -239,12 +239,7 @@ public class CommandLineParser {
                     strbuffer.append(lineSeparator);
                     originalStrs[j + 1] = "";
                 }
-                
-                // strbuffer.append(orginalStrs[j + 1]);
-                // strbuffer.append(lineSeparator);
-                // strbuffer.append(lineSeparator);
             } else {
-                // addWhiteNamespace(strbuffer, beforeOptSpan);
                 strbuffer.append(originalStrs[j]);
                 strbuffer.append(lineSeparator);
             }

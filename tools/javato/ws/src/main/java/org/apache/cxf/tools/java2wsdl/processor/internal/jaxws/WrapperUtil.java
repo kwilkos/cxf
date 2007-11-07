@@ -19,12 +19,19 @@
 
 package org.apache.cxf.tools.java2wsdl.processor.internal.jaxws;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.jws.Oneway;
+import javax.xml.bind.annotation.XmlAttachmentRef;
+import javax.xml.bind.annotation.XmlList;
+import javax.xml.bind.annotation.XmlMimeType;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 public final class WrapperUtil {
-    
+
     private WrapperUtil() {
     }
 
@@ -43,5 +50,44 @@ public final class WrapperUtil {
             return false;
         }
         return true;
+    }
+
+    public static List<Annotation> getJaxbAnnotations(Method method) {
+        List<Annotation> jaxbAnnotation = new ArrayList<Annotation>();
+        Annotation ann = method.getAnnotation(XmlAttachmentRef.class);
+        if (ann != null) {
+            jaxbAnnotation.add(ann);
+        }
+        ann = method.getAnnotation(XmlMimeType.class);
+        if (ann != null) {
+            jaxbAnnotation.add(ann);
+        }
+        ann = method.getAnnotation(XmlJavaTypeAdapter.class);
+        if (ann != null) {
+            jaxbAnnotation.add(ann);
+        }
+        ann = method.getAnnotation(XmlList.class);
+        if (ann != null) {
+            jaxbAnnotation.add(ann);
+        }
+        return jaxbAnnotation;
+    }
+
+    public static List<Annotation> getJaxbAnnotations(Method method, int idx) {
+        List<Annotation> jaxbAnnotation = new ArrayList<Annotation>();
+        Annotation[][] anns = method.getParameterAnnotations();
+        for (int i = 0; i < method.getParameterTypes().length; i++) {            
+            if (i == idx) {
+                for (Annotation ann : anns[i]) {
+                    if (ann.annotationType() == XmlAttachmentRef.class
+                        || ann.annotationType() == XmlMimeType.class
+                        || ann.annotationType() == XmlJavaTypeAdapter.class
+                        || ann.annotationType() == XmlList.class) {
+                        jaxbAnnotation.add(ann);
+                    }                   
+                }
+            }
+        }
+        return jaxbAnnotation;
     }
 }
