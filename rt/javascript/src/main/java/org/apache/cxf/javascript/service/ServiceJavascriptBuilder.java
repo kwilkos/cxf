@@ -28,6 +28,7 @@ import java.util.Set;
 import java.util.logging.Logger;
 
 import org.apache.cxf.binding.soap.SoapBindingConstants;
+import org.apache.cxf.binding.soap.SoapVersion;
 import org.apache.cxf.binding.soap.model.SoapBindingInfo;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
@@ -70,6 +71,10 @@ class ServiceJavascriptBuilder extends ServiceModelVisitor {
         utils = new JavascriptUtils(code);
         this.nameManager = nameManager;
         xmlSchemaCollection = serviceInfo.getXmlSchemaCollection();
+    }
+    
+    public String getCode() {
+        return code.toString();
     }
 
     @Override
@@ -172,6 +177,10 @@ class ServiceJavascriptBuilder extends ServiceModelVisitor {
                 utils.appendLine("wrapper.set" + StringUtils.capitalize(param) + "(" + param + ");");
             }
         }
+        
+        SoapVersion soapVersion = soapBindingInfo.getSoapVersion();
+        assert soapVersion.getVersion() == 1.1;
+        // we could have less code cooked in 
 
         utils.appendLine("}");
     }
