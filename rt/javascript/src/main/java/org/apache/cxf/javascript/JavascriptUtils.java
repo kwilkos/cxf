@@ -36,7 +36,7 @@ import org.apache.ws.commons.schema.XmlSchemaType;
  */
 public class JavascriptUtils {
     private static final String NL = "\n";
-    private StringBuffer code;
+    private StringBuilder code;
     private Stack<String> prefixStack;
     private String xmlStringAccumulatorVariable;
     private Map<String, String> defaultValueForSimpleType;
@@ -44,7 +44,7 @@ public class JavascriptUtils {
     private Set<String> intTypes;
     private Set<String> floatTypes;
     
-    public JavascriptUtils(StringBuffer code) {
+    public JavascriptUtils(StringBuilder code) {
         this.code = code;
         defaultValueForSimpleType = new HashMap<String, String>();
         defaultValueForSimpleType.put("int", "0");
@@ -183,5 +183,9 @@ public class JavascriptUtils {
         } else {
             return value;
         }
+    }
+    
+    public static String javaScriptNameToken(String token) {
+        return token;
     }
 }

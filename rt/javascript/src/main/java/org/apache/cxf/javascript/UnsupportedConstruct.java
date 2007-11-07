@@ -24,24 +24,24 @@ import org.apache.cxf.common.i18n.Message;
  * This exception is thrown when the Javascript client generator hits a schema
  * construct that it cannot handle. 
  */
-public class UnsupportedSchemaConstruct extends RuntimeException {
+public class UnsupportedConstruct extends RuntimeException {
 
-    public UnsupportedSchemaConstruct() {
+    public UnsupportedConstruct() {
     }
 
-    public UnsupportedSchemaConstruct(String explanation) {
+    public UnsupportedConstruct(String explanation) {
         super(explanation);
     }
 
-    public UnsupportedSchemaConstruct(Throwable cause) {
+    public UnsupportedConstruct(Throwable cause) {
         super(cause);
     }
 
-    public UnsupportedSchemaConstruct(String explanation, Throwable cause) {
+    public UnsupportedConstruct(String explanation, Throwable cause) {
         super(explanation, cause);
     }
 
-    public UnsupportedSchemaConstruct(Message message) {
+    public UnsupportedConstruct(Message message) {
         super(message.toString());
     }
 

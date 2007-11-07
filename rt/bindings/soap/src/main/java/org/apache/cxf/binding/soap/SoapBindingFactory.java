@@ -302,8 +302,8 @@ public class SoapBindingFactory extends AbstractBindingFactory {
         // TODO what about the mix style/use?
 
         // The default style should be doc-lit wrapped.
-        String parameterStyle = SoapConstants.PARAMETER_STYLE_WRAPPED;
-        String bindingStyle = SoapConstants.BINDING_STYLE_DOC;
+        String parameterStyle = SoapBindingConstants.PARAMETER_STYLE_WRAPPED;
+        String bindingStyle = SoapBindingConstants.BINDING_STYLE_DOC;
 
         org.apache.cxf.binding.soap.SoapBinding sb = null;
         SoapVersion version = null;
@@ -322,7 +322,7 @@ public class SoapBindingFactory extends AbstractBindingFactory {
                     bindingStyle = sbi.getStyle(boi.getOperationInfo());
                 }
                 if (boi.getUnwrappedOperation() == null) {
-                    parameterStyle = SoapConstants.PARAMETER_STYLE_BARE;
+                    parameterStyle = SoapBindingConstants.PARAMETER_STYLE_BARE;
                 }
             }
         } else {
@@ -342,11 +342,11 @@ public class SoapBindingFactory extends AbstractBindingFactory {
             sb.getOutInterceptors().add(new StaxOutInterceptor());
             sb.getOutInterceptors().add(new SoapHeaderOutFilterInterceptor());
 
-            if (SoapConstants.BINDING_STYLE_RPC.equalsIgnoreCase(bindingStyle)) {
+            if (SoapBindingConstants.BINDING_STYLE_RPC.equalsIgnoreCase(bindingStyle)) {
                 sb.getInInterceptors().add(new RPCInInterceptor());
                 sb.getOutInterceptors().add(new RPCOutInterceptor());
-            } else if (SoapConstants.BINDING_STYLE_DOC.equalsIgnoreCase(bindingStyle)
-                            && SoapConstants.PARAMETER_STYLE_BARE.equalsIgnoreCase(parameterStyle)) {
+            } else if (SoapBindingConstants.BINDING_STYLE_DOC.equalsIgnoreCase(bindingStyle)
+                            && SoapBindingConstants.PARAMETER_STYLE_BARE.equalsIgnoreCase(parameterStyle)) {
                 //sb.getInInterceptors().add(new BareInInterceptor());
                 sb.getInInterceptors().add(new DocLiteralInInterceptor());
                 sb.getOutInterceptors().add(new BareOutInterceptor());

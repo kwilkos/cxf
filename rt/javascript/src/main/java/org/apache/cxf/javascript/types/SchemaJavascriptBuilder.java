@@ -24,16 +24,14 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
 
-import org.apache.cxf.common.i18n.Message;
-import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.javascript.JavascriptUtils;
 import org.apache.cxf.javascript.NameManager;
-import org.apache.cxf.javascript.UnsupportedSchemaConstruct;
+import org.apache.cxf.javascript.UnsupportedConstruct;
+import org.apache.cxf.javascript.XmlSchemaUtils;
 import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.wsdl.WSDLConstants;
 import org.apache.ws.commons.schema.XmlSchemaCollection;
@@ -54,7 +52,7 @@ import org.apache.ws.commons.schema.XmlSchemaType;
  */
 public class SchemaJavascriptBuilder {
     
-    private static final Logger LOG = LogUtils.getL7dLogger(SchemaJavascriptBuilder.class);
+    //private static final Logger LOG = LogUtils.getL7dLogger(SchemaJavascriptBuilder.class);
     
     private static final XmlSchemaForm QUALIFIED = new XmlSchemaForm(XmlSchemaForm.QUALIFIED);
     private static final XmlSchemaForm UNQUALIFIED = new XmlSchemaForm(XmlSchemaForm.UNQUALIFIED);
@@ -98,29 +96,6 @@ public class SchemaJavascriptBuilder {
         String getAttributes() {
             return attributes.toString();
         }
-    }
-    
-    private String cleanedUpSchemaSource(XmlSchemaType subject) {
-        if (subject.getSourceURI() == null) {
-            return "";
-        } else {
-            return subject.getSourceURI() + ":" + subject.getLineNumber(); 
-        }
-    }
-    
-    private void unsupportedConstruct(String messageKey, XmlSchemaType subject) {
-        Message message = new Message(messageKey, LOG, subject.getQName(), 
-                                      cleanedUpSchemaSource(subject));
-        throw new UnsupportedSchemaConstruct(message);
-        
-    }
-    
-    private void unsupportedConstruct(String messageKey, String what, XmlSchemaType subject) {
-        Message message = new Message(messageKey, LOG, what, subject.getQName(), 
-                                      cleanedUpSchemaSource(subject));
-        LOG.severe(message.toString());
-        throw new UnsupportedSchemaConstruct(message);
-        
     }
     
     public static boolean isParticleArray(XmlSchemaParticle particle) {
@@ -220,7 +195,7 @@ public class SchemaJavascriptBuilder {
                     code.append(complexTypeConstructorAndAccessors(complexType));
                     code.append(complexTypeSerializerFunction(complexType));
                     code.append(domDeserializerFunction(complexType));
-                } catch (UnsupportedSchemaConstruct usc) {
+                } catch (UnsupportedConstruct usc) {
                     continue; // it could be empty, but the style checker would complain.
                 }
             }
@@ -229,39 +204,32 @@ public class SchemaJavascriptBuilder {
         return code.toString();
     }
     
+    
+    
     public String complexTypeConstructorAndAccessors(XmlSchemaComplexType type) {
-        StringBuffer code = new StringBuffer();
-        StringBuffer accessors = new StringBuffer();
+        StringBuilder code = new StringBuilder();
+        StringBuilder accessors = new StringBuilder();
         JavascriptUtils utils = new JavascriptUtils(code);
-        XmlSchemaParticle particle = type.getParticle();
-        XmlSchemaSequence sequence = null;
+        XmlSchemaSequence sequence = XmlSchemaUtils.getSequence(type);
+        
         final String elementPrefix = "this._";
         
         String typeObjectName = nameManager.getJavascriptName(type);
         code.append("function " + typeObjectName + " () {\n");
         
-        if (particle == null) {
-            unsupportedConstruct("NULL_PARTICLE", type);
-        }
-        
-        try {
-            sequence = (XmlSchemaSequence) particle;
-        } catch (ClassCastException cce) {
-            unsupportedConstruct("NON_SEQUENCE_PARTICLE", type);
-        }
-        
         for (int i = 0; i < sequence.getItems().getCount(); i++) {
             XmlSchemaObject thing = sequence.getItems().getItem(i);
             if (!(thing instanceof XmlSchemaElement)) {
-                unsupportedConstruct("NON_ELEMENT_CHILD", thing.getClass().getSimpleName(), type);
+                XmlSchemaUtils.unsupportedConstruct("NON_ELEMENT_CHILD", 
+                                                    thing.getClass().getSimpleName(), type);
             }
             
             XmlSchemaElement elChild = (XmlSchemaElement)thing;
-            XmlSchemaType elType = getElementType(type, elChild);
+            XmlSchemaType elType = XmlSchemaUtils.getElementType(xmlSchemaCollection, null, elChild, type);
 
             boolean nillable = elChild.isNillable();
             if (elChild.isAbstract()) { 
-                unsupportedConstruct("ABSTRACT_ELEMENT", elChild.getName(), type);
+                XmlSchemaUtils.unsupportedConstruct("ABSTRACT_ELEMENT", elChild.getName(), type);
             }
             
             // Assume that no lunatic has created multiple elements that differ only by namespace.
@@ -302,46 +270,7 @@ public class SchemaJavascriptBuilder {
         return code.toString() + "\n" + accessors.toString();
     }
     
-    /**
-     * This copes with an observed phenomenon in the schema built by the ReflectionServiceFactoryBean. It 
-     * is creating element such that: (a) the type is not set. (b) the refName is set. 
-     * (c) the namespaceURI in the refName is set empty. This apparently indicates 
-     * 'same Schema' to everyone else, so thus function implements
-     * that convention here. It is unclear if that is a correct structure, 
-     * and it if changes, we can simplify or eliminate this function.
-     * @param name
-     * @param referencingURI
-     * @return
-     */
-    private XmlSchemaElement findElementByRefName(QName name, String referencingURI) {
-        String uri = name.getNamespaceURI();
-        if ("".equals(uri)) {
-            uri = referencingURI;
-        }
-        QName copyName = new QName(uri, name.getLocalPart());
-        XmlSchemaElement target = xmlSchemaCollection.getElementByQName(copyName);
-        assert target != null;
-        return target;
-    }
     
-    /**
-     * Follow a chain of references from element to element until we can obtain a type.
-     * @param element
-     * @return
-     */
-    private XmlSchemaType getElementType(XmlSchemaComplexType containingType, XmlSchemaElement element) {
-        XmlSchemaElement originalElement = element;
-        while (element.getSchemaType() == null && element.getRefName() != null) {
-            XmlSchemaElement nextElement = findElementByRefName(element.getRefName(), 
-                                                                containingType.getQName().getNamespaceURI());
-            assert nextElement != null;
-            element = nextElement;
-        }
-        if (element.getSchemaType() == null) {
-            unsupportedConstruct("ELEMENT_HAS_NO_TYPE", originalElement.getName(), containingType);
-        }
-        return element.getSchemaType();
-    }
 
     /**
      * Produce a serializer function for a type.
@@ -353,14 +282,14 @@ public class SchemaJavascriptBuilder {
      */
     public String complexTypeSerializerFunction(XmlSchemaComplexType type) {
         
-        StringBuffer bodyCode = new StringBuffer();
+        StringBuilder bodyCode = new StringBuilder();
         JavascriptUtils bodyUtils = new JavascriptUtils(bodyCode);
         bodyUtils.setXmlStringAccumulator("xml");
 
         NamespacePrefixAccumulator prefixAccumulator = new NamespacePrefixAccumulator();
         complexTypeSerializerBody(type, "this._", bodyUtils, prefixAccumulator);
         
-        StringBuffer code = new StringBuffer();
+        StringBuilder code = new StringBuilder();
         JavascriptUtils utils = new JavascriptUtils(code);
         String functionName = nameManager.getJavascriptName(type) + "_" + "serialize";
         code.append("function " + functionName + "(cxfjsutils, elementName) {\n");
@@ -404,17 +333,15 @@ public class SchemaJavascriptBuilder {
                                           JavascriptUtils utils, 
                                           NamespacePrefixAccumulator prefixAccumulator) {
 
-        XmlSchemaParticle particle = type.getParticle();
-        XmlSchemaSequence sequence = null;
-        sequence = (XmlSchemaSequence) particle;
+        XmlSchemaSequence sequence = XmlSchemaUtils.getSequence(type);
 
         // XML Schema, please meet Iterable (not).
         for (int i = 0; i < sequence.getItems().getCount(); i++) {
             XmlSchemaElement elChild = (XmlSchemaElement)sequence.getItems().getItem(i);
-            XmlSchemaType elType = getElementType(type, elChild);
+            XmlSchemaType elType = XmlSchemaUtils.getElementType(xmlSchemaCollection, null, elChild, type);
             boolean nillable = elChild.isNillable();
             if (elChild.isAbstract()) {
-                unsupportedConstruct("ABSTRACT_ELEMENT", elChild.getName(), type);
+                XmlSchemaUtils.unsupportedConstruct("ABSTRACT_ELEMENT", elChild.getName(), type);
             }
             
             // assume that no lunatic has created multiple elements that differ only by namespace.
@@ -495,19 +422,19 @@ public class SchemaJavascriptBuilder {
      * @return the string contents of the JavaScript.
      */
     public String domDeserializerFunction(XmlSchemaComplexType type) {
-        StringBuffer code = new StringBuffer();
+        StringBuilder code = new StringBuilder();
         JavascriptUtils utils = new JavascriptUtils(code);
         XmlSchemaParticle particle = type.getParticle();
         XmlSchemaSequence sequence = null;
         
         if (particle == null) {
-            unsupportedConstruct("NULL_PARTICLE", type);
+            XmlSchemaUtils.unsupportedConstruct("NULL_PARTICLE", type);
         }
         
         try {
             sequence = (XmlSchemaSequence) particle;
         } catch (ClassCastException cce) {
-            unsupportedConstruct("NON_SEQUENCE_PARTICLE", type);
+            XmlSchemaUtils.unsupportedConstruct("NON_SEQUENCE_PARTICLE", type);
         }
         
         String typeObjectName = nameManager.getJavascriptName(type);
@@ -522,11 +449,12 @@ public class SchemaJavascriptBuilder {
             utils.appendLine("cxfjsutils.trace('curElement: ' + cxfjsutils.traceElementName(curElement));");
             XmlSchemaObject thing = sequence.getItems().getItem(i);
             if (!(thing instanceof XmlSchemaElement)) {
-                unsupportedConstruct("NON_ELEMENT_CHILD", thing.getClass().getSimpleName(), type);
+                XmlSchemaUtils.unsupportedConstruct("NON_ELEMENT_CHILD", 
+                                                    thing.getClass().getSimpleName(), type);
             }
             
             XmlSchemaElement elChild = (XmlSchemaElement)thing;
-            XmlSchemaType elType = getElementType(type, elChild);
+            XmlSchemaType elType = XmlSchemaUtils.getElementType(xmlSchemaCollection, null, elChild, type);
             boolean simple = elType instanceof XmlSchemaSimpleType;
 
             String accessorName = "set" + StringUtils.capitalize(elChild.getName()); 

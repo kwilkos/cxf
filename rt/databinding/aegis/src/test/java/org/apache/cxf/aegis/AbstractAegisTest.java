@@ -37,6 +37,7 @@ import org.apache.cxf.BusFactory;
 import org.apache.cxf.aegis.databinding.AegisDatabinding;
 import org.apache.cxf.aegis.databinding.AegisServiceConfiguration;
 import org.apache.cxf.binding.BindingFactoryManager;
+import org.apache.cxf.binding.soap.SoapBindingConstants;
 import org.apache.cxf.binding.soap.SoapBindingFactory;
 import org.apache.cxf.binding.soap.SoapTransportFactory;
 import org.apache.cxf.bus.extension.ExtensionManagerBus;
@@ -74,7 +75,7 @@ public abstract class AbstractAegisTest extends AbstractCXFTest {
         SoapTransportFactory soapDF = new SoapTransportFactory();
         soapDF.setBus(bus);
         dfm.registerDestinationFactory("http://schemas.xmlsoap.org/wsdl/soap/", soapDF);
-        dfm.registerDestinationFactory("http://schemas.xmlsoap.org/soap/", soapDF);
+        dfm.registerDestinationFactory(SoapBindingConstants.SOAP11_BINDING_ID, soapDF);
         dfm.registerDestinationFactory("http://cxf.apache.org/transports/local", soapDF);
         
         localTransport = new LocalTransportFactory();
@@ -87,7 +88,7 @@ public abstract class AbstractAegisTest extends AbstractCXFTest {
         extension.registerConduitInitiator(LocalTransportFactory.TRANSPORT_ID, localTransport);
         extension.registerConduitInitiator("http://schemas.xmlsoap.org/wsdl/soap/", localTransport);
         extension.registerConduitInitiator("http://schemas.xmlsoap.org/soap/http", localTransport);
-        extension.registerConduitInitiator("http://schemas.xmlsoap.org/soap/", localTransport);
+        extension.registerConduitInitiator(SoapBindingConstants.SOAP11_BINDING_ID, localTransport);
         
         bus.setExtension(new WSDLManagerImpl(), WSDLManager.class);
         

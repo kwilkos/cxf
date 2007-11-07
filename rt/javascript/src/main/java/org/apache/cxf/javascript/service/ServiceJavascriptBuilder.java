@@ -19,15 +19,23 @@
 
 package org.apache.cxf.javascript.service;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 
+import org.apache.cxf.binding.soap.SoapBindingConstants;
 import org.apache.cxf.binding.soap.model.SoapBindingInfo;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
-import org.apache.cxf.javascript.BasicNameManager;
+import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.javascript.JavascriptUtils;
 import org.apache.cxf.javascript.NameManager;
-import org.apache.cxf.javascript.UnsupportedSchemaConstruct;
+import org.apache.cxf.javascript.UnsupportedConstruct;
+import org.apache.cxf.javascript.XmlSchemaUtils;
 import org.apache.cxf.service.ServiceModelVisitor;
 import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.FaultInfo;
@@ -36,23 +44,32 @@ import org.apache.cxf.service.model.MessageInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.service.model.ServiceInfo;
+import org.apache.cxf.transport.local.LocalTransportFactory;
 import org.apache.cxf.wsdl.WSDLConstants;
+import org.apache.ws.commons.schema.XmlSchemaCollection;
+import org.apache.ws.commons.schema.XmlSchemaComplexType;
+import org.apache.ws.commons.schema.XmlSchemaElement;
+import org.apache.ws.commons.schema.XmlSchemaObject;
+import org.apache.ws.commons.schema.XmlSchemaSequence;
 
-public class ServiceJavascriptBuilder extends ServiceModelVisitor {
+class ServiceJavascriptBuilder extends ServiceModelVisitor {
     private static final Logger LOG = LogUtils.getL7dLogger(ServiceJavascriptBuilder.class);
 
     private boolean isRPC;
-    private boolean isWrapped;
     private SoapBindingInfo soapBindingInfo;
     private JavascriptUtils utils;
     private NameManager nameManager;
-    private StringBuffer code;
+    private StringBuilder code;
+    private String currentInterfaceClassName;
+    private Set<OperationInfo> operationsWithNameConflicts;
+    private XmlSchemaCollection xmlSchemaCollection;
 
-    public ServiceJavascriptBuilder(ServiceInfo serviceInfo) {
+    public ServiceJavascriptBuilder(ServiceInfo serviceInfo, NameManager nameManager) {
         super(serviceInfo);
-        code = new StringBuffer();
+        code = new StringBuilder();
         utils = new JavascriptUtils(code);
-        nameManager = new BasicNameManager(serviceInfo);
+        this.nameManager = nameManager;
+        xmlSchemaCollection = serviceInfo.getXmlSchemaCollection();
     }
 
     @Override
@@ -61,9 +78,19 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
 
     @Override
     public void begin(InterfaceInfo intf) {
-        utils.appendLine("function " 
-                         + nameManager.getJavascriptName(intf.getName())
-                         + " () {");
+        currentInterfaceClassName = nameManager.getJavascriptName(intf.getName());
+        operationsWithNameConflicts = new HashSet<OperationInfo>();
+        utils.appendLine("function " + currentInterfaceClassName + " () {");
+        utils.appendLine("}");
+        Map<String, OperationInfo> localNameMap = new HashMap<String, OperationInfo>();
+        for (OperationInfo operation : intf.getOperations()) {
+            OperationInfo conflict = localNameMap.get(operation.getName().getLocalPart());
+            if (conflict != null) {
+                operationsWithNameConflicts.add(conflict);
+                operationsWithNameConflicts.add(operation);
+            }
+            localNameMap.put(operation.getName().getLocalPart(), operation);
+        }
     }
 
     @Override
@@ -76,20 +103,97 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
 
     @Override
     public void begin(OperationInfo op) {
-        isWrapped = !op.isUnwrappedCapable();
+        assert !isRPC;
+        boolean isWrapped = op.isUnwrappedCapable();
+        // to make best use of the visitor scheme, we wait until end to
+        // create the function, since the message function can participate in
+        // building the argument list.
+        boolean needsLongName = operationsWithNameConflicts.contains(op);
+        String opFunctionName;
+        if (needsLongName) {
+            opFunctionName = nameManager.getJavascriptName(op.getName());
+        } else {
+            opFunctionName = JavascriptUtils.javaScriptNameToken(op.getName().getLocalPart());
+        }
+        List<String> inputParameterNames = new ArrayList<String>();
+        MessageInfo inputMessage = op.getInput();
+        String wrapperClassName = null;
+        StringBuilder parameterList = new StringBuilder();
+        XmlSchemaElement wrapperElement = null;
+
+        if (inputMessage != null) {
+            List<MessagePartInfo> parts = inputMessage.getMessageParts();
+            if (isWrapped) {
+                // expect one input part.
+                assert parts.size() == 1;
+                MessagePartInfo wrapperPart = parts.get(0);
+                // we expect a type
+                assert wrapperPart.isElement();
+                wrapperElement = (XmlSchemaElement)wrapperPart.getXmlSchema();
+                XmlSchemaComplexType wrapperType = 
+                    (XmlSchemaComplexType)XmlSchemaUtils.getElementType(xmlSchemaCollection, 
+                                                                        op.getName().getNamespaceURI(), 
+                                                                        wrapperElement,
+                                                                        null);
+                wrapperClassName = nameManager.getJavascriptName(wrapperType);
+                XmlSchemaSequence wrapperTypeSequence = XmlSchemaUtils.getSequence(wrapperType);
+                for (int i = 0; i < wrapperTypeSequence.getItems().getCount(); i++) {
+                    XmlSchemaObject thing = wrapperTypeSequence.getItems().getItem(i);
+                    if (!(thing instanceof XmlSchemaElement)) {
+                        XmlSchemaUtils.unsupportedConstruct("NON_ELEMENT_CHILD", thing.getClass()
+                            .getSimpleName(), wrapperType);
+                    }
+
+                    XmlSchemaElement elChild = (XmlSchemaElement)thing;
+                    inputParameterNames.add(elChild.getName());
+                }
+            }
+
+            for (String param : inputParameterNames) {
+                parameterList.append(param);
+                parameterList.append(", ");
+            }
+        }
+
+        // note that these functions operate in terms of async callbacks, they
+        // don't
+        // ever have return values. Hypothetically, I suppose that users who
+        // wanted a
+        // synchronous behavior might want a synchronous function (rather like
+        // the Microsoft
+        // wsdl.exe behavior), but I'm not going to worry about it for now.
+        utils.appendLine("function " + opFunctionName + "(" + parameterList
+                         + "responseCallback, errorCallback) {");
+        
+        // wrapped
+        if (wrapperClassName != null) {
+            utils.appendLine("var wrapper = new " + wrapperClassName + "();");
+            for (String param : inputParameterNames) {
+                utils.appendLine("wrapper.set" + StringUtils.capitalize(param) + "(" + param + ");");
+            }
+        }
+
+        utils.appendLine("}");
+    }
+
+    @Override
+    public void end(OperationInfo op) {
     }
 
     @Override
     public void begin(ServiceInfo service) {
-        // assume only one soap binding. 
+        // assume only one soap binding.
         // until further consideration.
-        // hypothetically, we could generate two different JavaScript classes, one for each.
+        // hypothetically, we could generate two different JavaScript classes,
+        // one for each.
         for (BindingInfo bindingInfo : service.getBindings()) {
-            if (WSDLConstants.NS_SOAP11.equals(bindingInfo.getBindingId())
-                || WSDLConstants.NS_SOAP12.equals(bindingInfo.getBindingId())) { 
+            if (SoapBindingConstants.SOAP11_BINDING_ID.equals(bindingInfo.getBindingId())
+                || SoapBindingConstants.SOAP11_BINDING_ID.equals(bindingInfo.getBindingId())) {
                 SoapBindingInfo sbi = (SoapBindingInfo)bindingInfo;
                 if (WSDLConstants.NS_SOAP11_HTTP_TRANSPORT.equals(sbi.getTransportURI())
-                    || WSDLConstants.NS_SOAP12_HTTP_TRANSPORT.equals(sbi.getTransportURI())) {
+                    || WSDLConstants.NS_SOAP12_HTTP_TRANSPORT.equals(sbi.getTransportURI())
+                    // we may want this for testing.
+                    || LocalTransportFactory.TRANSPORT_ID.equals(sbi.getTransportURI())) {
                     soapBindingInfo = sbi;
                     break;
                 }
@@ -98,7 +202,7 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
         if (soapBindingInfo == null) {
             unsupportedConstruct("NO_SOAP_BINDING", service.getName());
         }
-        
+
         isRPC = soapBindingInfo.getStyle().equals(WSDLConstants.RPC);
     }
 
@@ -121,41 +225,9 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
     @Override
     public void end(ServiceInfo service) {
     }
-    
+
     private void unsupportedConstruct(String messageKey, Object... args) {
         Message message = new Message(messageKey, LOG, args);
-        throw new UnsupportedSchemaConstruct(message);
-    }
-
-    public boolean isRPC() {
-        return isRPC;
-    }
-
-    public void setRPC(boolean rpc) {
-        this.isRPC = rpc;
-    }
-
-    public boolean isWrapped() {
-        return isWrapped;
-    }
-
-    public void setWrapped(boolean wrapped) {
-        this.isWrapped = wrapped;
-    }
-
-    public JavascriptUtils getUtils() {
-        return utils;
-    }
-
-    public void setUtils(JavascriptUtils utils) {
-        this.utils = utils;
-    }
-
-    public NameManager getNameManager() {
-        return nameManager;
-    }
-
-    public void setNameManager(NameManager nameManager) {
-        this.nameManager = nameManager;
+        throw new UnsupportedConstruct(message);
     }
 }

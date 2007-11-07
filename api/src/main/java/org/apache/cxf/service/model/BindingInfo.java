@@ -146,6 +146,11 @@ public class BindingInfo extends AbstractDescriptionElement {
         
         return null;
     }
+    
+    @Override
+    public String toString() {
+        return "[BindingInfo " + getBindingId() + "]";
+    }
 }
 
 

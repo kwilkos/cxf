@@ -26,7 +26,7 @@ import java.util.Map;
 
 import org.apache.cxf.binding.soap.Soap11;
 import org.apache.cxf.binding.soap.Soap12;
-import org.apache.cxf.binding.soap.SoapConstants;
+import org.apache.cxf.binding.soap.SoapBindingConstants;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.model.SoapOperationInfo;
 import org.apache.cxf.helpers.CastUtils;
@@ -83,7 +83,7 @@ public class SoapActionOutInterceptor extends AbstractSoapInterceptor {
 
     private String getSoapAction(SoapMessage message, BindingOperationInfo boi) {
         // allow an interceptor to override the SOAPAction if need be
-        String action = (String) message.get(SoapConstants.SOAP_ACTION);
+        String action = (String) message.get(SoapBindingConstants.SOAP_ACTION);
         
         // Fall back on the SOAPAction in the operation info
         if (action == null) {

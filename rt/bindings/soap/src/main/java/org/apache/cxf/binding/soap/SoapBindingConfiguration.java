@@ -33,7 +33,7 @@ public class SoapBindingConfiguration extends BindingConfiguration {
 
     @Override
     public String getBindingId() {
-        return "http://schemas.xmlsoap.org/soap/";
+        return SoapBindingConstants.SOAP11_BINDING_ID;
     }
 
     protected boolean isHeader(BindingOperationInfo op, MessagePartInfo part) {
