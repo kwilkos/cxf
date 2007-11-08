@@ -148,12 +148,14 @@ CxfApacheOrgUtil.prototype.getNodeText = org_apache_cxf_getNodeText;
 // The following could be parameterized using the SoapVersion class, but does anyone believe that
 // there will ever be another soap version?
 
-function org_apache_cxf_begin_soap11_message()
+function org_apache_cxf_begin_soap11_message(namespaceAttributes)
 {
 	return
-		'<?xml version="1.0" encoding="UTF-8"?><soap-env:Envelope xmlns:soap-env="http://schemas.xmlsoap.org/soap/envelope/"' +
-		' xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"' +
-	    '><soap-env:Body>';
+		'<?xml version="1.0" encoding="UTF-8"?><soap-env:Envelope xmlns:soap-env="http://schemas.xmlsoap.org/soap/envelope/"'
+		+ ' xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"'
+	    + '><soap-env:Body '
+	    + namespaceAtttributes 
+	    + '>';
 }
 CxfApacheOrgUtil.prototype.beginSoap11Message = org_apache_cxf_begin_soap11_message; 
 

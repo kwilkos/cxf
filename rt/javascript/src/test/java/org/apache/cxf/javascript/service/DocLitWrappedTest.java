@@ -33,11 +33,9 @@ import org.apache.cxf.javascript.types.SchemaJavascriptBuilder;
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
 import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.service.model.ServiceInfo;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 
-@Ignore
 public class DocLitWrappedTest extends AbstractDependencyInjectionSpringContextTests {
     private JavascriptTestUtilities testUtilities;
     private Client client;

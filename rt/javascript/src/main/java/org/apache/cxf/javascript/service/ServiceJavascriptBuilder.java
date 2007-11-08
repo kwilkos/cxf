@@ -89,8 +89,8 @@ class ServiceJavascriptBuilder extends ServiceModelVisitor {
     public void begin(InterfaceInfo intf) {
         currentInterfaceClassName = nameManager.getJavascriptName(intf.getName());
         operationsWithNameConflicts = new HashSet<OperationInfo>();
-        utils.appendLine("function " + currentInterfaceClassName + " () {");
-        utils.appendLine("}");
+        code.append("function " + currentInterfaceClassName + " () {\n");
+        code.append("}\n");
         Map<String, OperationInfo> localNameMap = new HashMap<String, OperationInfo>();
         for (OperationInfo operation : intf.getOperations()) {
             OperationInfo conflict = localNameMap.get(operation.getName().getLocalPart());
@@ -111,17 +111,46 @@ class ServiceJavascriptBuilder extends ServiceModelVisitor {
     public void begin(MessagePartInfo part) {
     }
     
+    private static class ElementAndNames {
+        private XmlSchemaElement element;
+        private String javascriptName;
+        private String xmlName;
+        
+        public ElementAndNames(XmlSchemaElement element, String javascriptName, String xmlName) {
+            this.element = element;
+            this.javascriptName = javascriptName;
+            this.xmlName = xmlName;
+        }
+
+        public XmlSchemaElement getElement() {
+            return element;
+        }
+
+        public String getXmlName() {
+            return xmlName;
+        }
+
+        public String getJavascriptName() {
+            return javascriptName;
+        }
+    }
+    
     @Override
     public void begin(OperationInfo op) {
         assert !isRPC;
         boolean isWrapped = op.isUnwrappedCapable();
+        // we only process the wrapped operation, not the unwrapped alternative.
+        if (op.isUnwrapped()) {
+            return;
+        }
         // to make best use of the visitor scheme, we wait until end to
         // create the function, since the message function can participate in
         // building the argument list.
         boolean needsLongName = operationsWithNameConflicts.contains(op);
         String opFunctionName;
+        String opGlobalFunctionName = nameManager.getJavascriptName(op.getName());
         if (needsLongName) {
-            opFunctionName = nameManager.getJavascriptName(op.getName());
+            opFunctionName = opGlobalFunctionName;
         } else {
             opFunctionName = JavascriptUtils.javaScriptNameToken(op.getName().getLocalPart());
         }
@@ -132,13 +161,13 @@ class ServiceJavascriptBuilder extends ServiceModelVisitor {
         
         // the message content is a set of elements. Perhaps they come from the parts,
         // or perhaps we invent them.
-        List<XmlSchemaElement> elements = new ArrayList<XmlSchemaElement>();
+        List<ElementAndNames> elements = new ArrayList<ElementAndNames>();
         List<MessagePartInfo> parts  = null;
         
         if (inputMessage != null) {
             parts = inputMessage.getMessageParts();
             if (isWrapped) {
-                wrapperClassName = setupWrapperElement(op, inputParameterNames, elements, parts);
+                wrapperClassName = setupWrapperElement(op, inputParameterNames, parts);
             }
 
             for (String param : inputParameterNames) {
@@ -147,25 +176,21 @@ class ServiceJavascriptBuilder extends ServiceModelVisitor {
             }
         }
 
-        // note that these functions operate in terms of async callbacks, they
-        // don't
-        // ever have return values. Hypothetically, I suppose that users who
-        // wanted a
-        // synchronous behavior might want a synchronous function (rather like
-        // the Microsoft
-        // wsdl.exe behavior), but I'm not going to worry about it for now.
-        utils.appendLine("function " + opFunctionName + "(" + parameterList
-                         + "responseCallback, errorCallback) {");
+        code.append("function " + opGlobalFunctionName + "(" + parameterList
+                         + "responseCallback, errorCallback) {\n");
         
+        NamespacePrefixAccumulator prefixAccumulator = new NamespacePrefixAccumulator(serviceSchemaInfo);
+
         if (parts != null) {
             for (MessagePartInfo mpi : parts) {
                 XmlSchemaElement element;
                 if (mpi.isElement()) {
                     element = (XmlSchemaElement) mpi.getXmlSchema();
                     if (element == null) {
-                        element = xmlSchemaCollection.getElementByQName(mpi.getElementQName());
+                        element = XmlSchemaUtils.findElementByRefName(xmlSchemaCollection, 
+                                                                      mpi.getElementQName(),
+                                                                      serviceInfo.getTargetNamespace());
                     }
-                        
                 } else {
                     // there is still an element in there, but it's not a very interesting element
                     element = new XmlSchemaElement();
@@ -178,19 +203,21 @@ class ServiceJavascriptBuilder extends ServiceModelVisitor {
                 }
                 assert element != null;
                 assert element.getQName() != null;
-                elements.add(element);
+                String partJavascriptVar = 
+                    JavascriptUtils.javaScriptNameToken(element.getQName().getLocalPart());
+                String elementXmlRef = prefixAccumulator.xmlElementString(element);
+
+                elements.add(new ElementAndNames(element, partJavascriptVar, elementXmlRef));
             }
         }
         
         // if not wrapped, we already have parameter vars for each of the parts.
 
         if (isWrapped) {
-            // this will need Javascript name cleanup
-            String partElementName = 
-                JavascriptUtils.javaScriptNameToken(elements.get(0).getQName().getLocalPart());
-            utils.appendLine("var " + partElementName + " = new " + wrapperClassName + "();");
+            String partJavascriptVar = elements.get(0).getJavascriptName();
+            utils.appendLine("var " + partJavascriptVar + " = new " + wrapperClassName + "();");
             for (String param : inputParameterNames) {
-                utils.appendLine(partElementName + ".set" 
+                utils.appendLine(partJavascriptVar + ".set" 
                                  + StringUtils.capitalize(param) + "(" + param + ");");
             }
         }
@@ -200,27 +227,29 @@ class ServiceJavascriptBuilder extends ServiceModelVisitor {
         SoapVersion soapVersion = soapBindingInfo.getSoapVersion();
         assert soapVersion.getVersion() == 1.1;
         utils.appendLine("var xml;");
-        utils.appendLine("xml = cxfutils.beginSoap11Message();");
+        utils.appendLine("xml = cxfutils.beginSoap11Message(\""
+                         + prefixAccumulator.getAttributes()
+                         + "\");");
+
         utils.setXmlStringAccumulator("xml");
         
-        NamespacePrefixAccumulator prefixAccumulator = new NamespacePrefixAccumulator(serviceSchemaInfo);
-        
-        for (XmlSchemaElement partElement : elements) {
-            String partElementName = 
-                JavascriptUtils.javaScriptNameToken(partElement.getQName().getLocalPart());
-            String elementXmlRef = prefixAccumulator.xmlElementString(partElement);
-            utils.generateCodeToSerializeElement(partElement, partElementName, elementXmlRef, 
+        for (ElementAndNames partElement : elements) {
+            utils.generateCodeToSerializeElement(partElement.getElement(),
+                                                 partElement.getJavascriptName(),
+                                                 partElement.getXmlName(), 
                                                  xmlSchemaCollection, serviceSchemaInfo.getNamespaceURI(), 
                                                  null);
         }
   
         utils.appendLine("xml = xml + cxfutils.endSoap11Message();");
 
-        utils.appendLine("}");
+        code.append("}\n\n");
+        code.append(currentInterfaceClassName + ".prototype." + opFunctionName + " = " 
+                    + opGlobalFunctionName + "\n\n");
     }
 
     private String setupWrapperElement(OperationInfo op, List<String> inputParameterNames,
-                                       List<XmlSchemaElement> elements, List<MessagePartInfo> parts) {
+                                       List<MessagePartInfo> parts) {
         String wrapperClassName;
         // expect one input part.
         assert parts.size() == 1;
@@ -228,7 +257,6 @@ class ServiceJavascriptBuilder extends ServiceModelVisitor {
         // we expect a type
         assert wrapperPart.isElement();
         wrapperElement = (XmlSchemaElement)wrapperPart.getXmlSchema();
-        elements.add(wrapperElement);
         XmlSchemaComplexType wrapperType = 
             (XmlSchemaComplexType)XmlSchemaUtils.getElementType(xmlSchemaCollection, 
                                                                 op.getName().getNamespaceURI(), 
