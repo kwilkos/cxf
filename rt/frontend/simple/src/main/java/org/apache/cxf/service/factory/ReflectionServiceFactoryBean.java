@@ -706,6 +706,9 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                 if (!oldEl.getQName().equals(qname)) {
                     el.setSchemaTypeName(oldEl.getSchemaTypeName());
                     el.setSchemaType(oldEl.getSchemaType());
+                    if (oldEl.getSchemaTypeName() != null) {
+                        addImport(schema, oldEl.getSchemaTypeName().getNamespaceURI());
+                    }
                 }
                 mpi.setXmlSchema(el);
                 mpi.setElementQName(qname);
@@ -713,14 +716,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                 continue;
             } else {
                 el.setSchemaTypeName(mpi.getTypeQName());
-                String ns = mpi.getTypeQName().getNamespaceURI();
-                if (!ns.equals(schema.getTargetNamespace()) && !ns.equals(WSDLConstants.NS_SCHEMA_XSD)) {
-                    XmlSchemaImport is = new XmlSchemaImport();
-                    is.setNamespace(ns);
-                    if (!isExistImport(schema, ns)) {
-                        schema.getItems().add(is);
-                    }
-                }
+                addImport(schema, mpi.getTypeQName().getNamespaceURI());
             }
 
             schemaInfo.setSchema(schema);
@@ -731,6 +727,16 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         }
     }
 
+    private void addImport(XmlSchema schema, String ns) {
+        if (!ns.equals(schema.getTargetNamespace()) 
+            && !ns.equals(WSDLConstants.NS_SCHEMA_XSD)
+            && !isExistImport(schema, ns)) {
+            
+            XmlSchemaImport is = new XmlSchemaImport();
+            is.setNamespace(ns);
+            schema.getItems().add(is);
+        }
+    }
     private boolean isExistImport(XmlSchema schema, String ns) {
         boolean isExist = false;
 
@@ -782,7 +788,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         
         if (!isAnonymousWrapperTypes()) {
             ct.setName(wrapperName.getLocalPart());
-            el.setSchemaTypeName(wrapperName);
+            el.setSchemaTypeName(wrapperName);            
             schema.addType(ct);
             schema.getItems().add(ct);
         }
@@ -797,9 +803,14 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
             el.setName(mpi.getName().getLocalPart());
             el.setQName(mpi.getName());
             if (mpi.isElement()) {
+                addImport(schema, mpi.getElementQName().getNamespaceURI());
                 el.setRefName(mpi.getElementQName());
             } else {
-                el.setSchemaTypeName(mpi.getTypeQName());
+                if (mpi.getTypeQName() != null) {
+                    el.setSchemaTypeName(mpi.getTypeQName());
+                    addImport(schema, mpi.getTypeQName().getNamespaceURI());
+                }
+
                 el.setSchemaType((XmlSchemaType)mpi.getXmlSchema());
                 if (schema.getElementFormDefault().getValue().equals(XmlSchemaForm.UNQUALIFIED)) {
                     mpi.setConcreteName(new QName(null, mpi.getName().getLocalPart()));

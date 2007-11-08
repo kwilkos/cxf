@@ -254,6 +254,10 @@ public final class StaxUtils {
      * @throws XMLStreamException
      */
     public static void copy(XMLStreamReader reader, XMLStreamWriter writer) throws XMLStreamException {
+        copy(reader, writer, false);
+    }
+    public static void copy(XMLStreamReader reader, XMLStreamWriter writer,
+                            boolean fragment) throws XMLStreamException {
         // number of elements read in
         int read = 0;
         int event = reader.getEventType();
@@ -267,7 +271,7 @@ public final class StaxUtils {
             case XMLStreamConstants.END_ELEMENT:
                 writer.writeEndElement();
                 read--;
-                if (read <= 0) {
+                if (read <= 0 && !fragment) {
                     return;
                 }
                 break;
