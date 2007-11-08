@@ -44,8 +44,8 @@ public class WrapperBeanGeneratorTest extends ProcessorTestBase {
     public void setUp() throws Exception {
         super.setUp();        
         classPath = System.getProperty("java.class.path");
-        String pathSeperoatr = System.getProperty("path.separator");
-        System.setProperty("java.class.path", getClassPath() + pathSeperoatr + output.getPath());
+        String pathSeparator = System.getProperty("path.separator");
+        System.setProperty("java.class.path", getClassPath() + pathSeparator + output.getPath());
         classLoader = AnnotationUtil.getClassLoader(Thread.currentThread().getContextClassLoader());
         processor.setEnvironment(env);
         
