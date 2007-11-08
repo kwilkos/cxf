@@ -671,6 +671,10 @@
                         <groupId>javax.jws</groupId>
                         <artifactId>jsr181-api</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>javax.jws</groupId>
+                        <artifactId>jsr181</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
             <dependency>
