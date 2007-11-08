@@ -17,6 +17,9 @@
  * under the License.
  */
  
+// This code is structured on to require a 'new' of an object of type CxfApacheOrgUtil.
+// Alternative, it could be made 'static', but this allowed us to use this same object
+// to carry some state.
  
 function cxf_apache_org_util_null_trace(message)
 {
@@ -141,6 +144,9 @@ function org_apache_cxf_getNodeText(node)
 }
 
 CxfApacheOrgUtil.prototype.getNodeText = org_apache_cxf_getNodeText;
+
+// The following could be parameterized using the SoapVersion class, but does anyone believe that
+// there will ever be another soap version?
 
 function org_apache_cxf_begin_soap11_message()
 {

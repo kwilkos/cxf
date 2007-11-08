@@ -25,9 +25,12 @@ import javax.xml.namespace.QName;
 
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.service.model.SchemaInfo;
+import org.apache.cxf.wsdl.WSDLConstants;
 import org.apache.ws.commons.schema.XmlSchemaCollection;
 import org.apache.ws.commons.schema.XmlSchemaComplexType;
 import org.apache.ws.commons.schema.XmlSchemaElement;
+import org.apache.ws.commons.schema.XmlSchemaForm;
 import org.apache.ws.commons.schema.XmlSchemaParticle;
 import org.apache.ws.commons.schema.XmlSchemaSequence;
 import org.apache.ws.commons.schema.XmlSchemaType;
@@ -36,7 +39,13 @@ import org.apache.ws.commons.schema.XmlSchemaType;
  * 
  */
 public final class XmlSchemaUtils {
+    public static final XmlSchemaForm QUALIFIED = new XmlSchemaForm(XmlSchemaForm.QUALIFIED);
+    public static final XmlSchemaForm UNQUALIFIED = new XmlSchemaForm(XmlSchemaForm.UNQUALIFIED);
     
+    public static final String XSI_NS_ATTR = WSDLConstants.NP_XMLNS + ":" 
+                    + WSDLConstants.NP_SCHEMA_XSI + "='" + WSDLConstants.NS_SCHEMA_XSI + "'";
+    public static final String NIL_ATTRIBUTES = XSI_NS_ATTR + " xsi:nil='true'";
+
     private static final Logger LOG = LogUtils.getL7dLogger(XmlSchemaUtils.class);
     
     private XmlSchemaUtils() {
@@ -135,5 +144,55 @@ public final class XmlSchemaUtils {
         }
         return element.getSchemaType();
     }
+    
+    public static boolean isComplexType(XmlSchemaType type) {
+        return type instanceof XmlSchemaComplexType;
+    }
+    
+    public static boolean isElementNameQualified(XmlSchemaElement element, SchemaInfo schemaInfo) {
+        if (element.getForm().equals(QUALIFIED)) {
+            return true;
+        }
+        if (element.getForm().equals(UNQUALIFIED)) {
+            return false;
+        }
+        return schemaInfo.getSchema().getElementFormDefault().equals(QUALIFIED);
+    }
+    
+    /**
+     * Return an empty string if this element should be unqualified in XML
+     * or the namespace URI if it should be qualified. 
+     * @param element
+     * @return
+     */
+    public static String getElementQualifier(SchemaInfo schemaInfo, XmlSchemaElement element) {
+        QName qname;
+        boolean forceQualification = false;
+        // JAXB ends up with no form='qualified', but we qualify anyway if the namespace don't
+        // match.
+        if (element.getRefName() != null) {
+            qname = element.getRefName();
+            forceQualification = !qname.getNamespaceURI().equals(schemaInfo.getNamespaceURI());
+        } else {
+            qname = element.getQName();
+        }
+        // some elements don't have qnames, only local names.
+        // one hopes that we aren't called upon to produce a qualified form for such an element, though
+        // perhaps we're supposed to pull the TNS out of a hat.
+        if (forceQualification || isElementNameQualified(element, schemaInfo)) {
+            return qname.getNamespaceURI();
+        } else {
+            return "";
+        }
+    }
+    
+    public static boolean isParticleArray(XmlSchemaParticle particle) {
+        return particle.getMaxOccurs() > 1;
+    }
+    
+    public static boolean isParticleOptional(XmlSchemaParticle particle) {
+        return particle.getMinOccurs() == 0 && particle.getMaxOccurs() == 1;
+    }
+      
 
 }

@@ -19,25 +19,20 @@
 
 package org.apache.cxf.javascript.types;
 
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
 
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.javascript.JavascriptUtils;
 import org.apache.cxf.javascript.NameManager;
+import org.apache.cxf.javascript.NamespacePrefixAccumulator;
 import org.apache.cxf.javascript.UnsupportedConstruct;
 import org.apache.cxf.javascript.XmlSchemaUtils;
 import org.apache.cxf.service.model.SchemaInfo;
-import org.apache.cxf.wsdl.WSDLConstants;
 import org.apache.ws.commons.schema.XmlSchemaCollection;
 import org.apache.ws.commons.schema.XmlSchemaComplexType;
 import org.apache.ws.commons.schema.XmlSchemaElement;
-import org.apache.ws.commons.schema.XmlSchemaForm;
 import org.apache.ws.commons.schema.XmlSchemaObject;
 import org.apache.ws.commons.schema.XmlSchemaObjectTable;
 import org.apache.ws.commons.schema.XmlSchemaParticle;
@@ -54,17 +49,10 @@ public class SchemaJavascriptBuilder {
     
     //private static final Logger LOG = LogUtils.getL7dLogger(SchemaJavascriptBuilder.class);
     
-    private static final XmlSchemaForm QUALIFIED = new XmlSchemaForm(XmlSchemaForm.QUALIFIED);
-    private static final XmlSchemaForm UNQUALIFIED = new XmlSchemaForm(XmlSchemaForm.UNQUALIFIED);
     
-    private static final String XSI_NS_ATTR = WSDLConstants.NP_XMLNS + ":" 
-        + WSDLConstants.NP_SCHEMA_XSI + "='" + WSDLConstants.NS_SCHEMA_XSI + "'";
-    private static final String NIL_ATTRIBUTES = XSI_NS_ATTR + " xsi:nil='true'";
     private XmlSchemaCollection xmlSchemaCollection;
-    private SchemaInfo schemaInfo;
     private NameManager nameManager;
-    private Map<String, String> fallbackNamespacePrefixMap;
-    private int nsCounter;
+    private SchemaInfo schemaInfo;
     
     public SchemaJavascriptBuilder(XmlSchemaCollection schemaCollection,
                                    NameManager nameManager, 
@@ -72,110 +60,6 @@ public class SchemaJavascriptBuilder {
         this.xmlSchemaCollection = schemaCollection;
         this.nameManager = nameManager;
         this.schemaInfo = schemaInfo;
-        fallbackNamespacePrefixMap = new HashMap<String, String>();
-    }
-    
-    // this class assumes that the rest of the code is not going to try to use the same prefix twice
-    // for two different URIs.
-    private static class NamespacePrefixAccumulator {
-        private StringBuffer attributes;
-        private Set<String> prefixes;
-        
-        NamespacePrefixAccumulator() {
-            attributes = new StringBuffer();
-            prefixes = new HashSet<String>();
-        }
-        
-        void collect(String prefix, String uri) {
-            if (!prefixes.contains(prefix)) {
-                attributes.append("xmlns:" + prefix + "='" + uri + "' ");
-                prefixes.add(prefix);
-            }
-        }
-        
-        String getAttributes() {
-            return attributes.toString();
-        }
-    }
-    
-    public static boolean isParticleArray(XmlSchemaParticle particle) {
-        return particle.getMaxOccurs() > 1;
-    }
-    
-    public static boolean isParticleOptional(XmlSchemaParticle particle) {
-        return particle.getMinOccurs() == 0 && particle.getMaxOccurs() == 1;
-    }
-    
-    /**
-     * Return an empty string if this element should be unqualified in XML
-     * or the namespace URI if it should be qualified. 
-     * @param element
-     * @return
-     */
-    private String getElementQualifier(XmlSchemaElement element) {
-        QName qname;
-        boolean forceQualification = false;
-        // JAXB ends up with no form='qualified', but we qualify anyway if the namespace don't
-        // match.
-        if (element.getRefName() != null) {
-            qname = element.getRefName();
-            forceQualification = !qname.getNamespaceURI().equals(schemaInfo.getNamespaceURI());
-        } else {
-            qname = element.getQName();
-        }
-        // some elements don't have qnames, only local names.
-        // one hopes that we aren't called upon to produce a qualified form for such an element, though
-        // perhaps we're supposed to pull the TNS out of a hat.
-        if (forceQualification || isElementNameQualified(element)) {
-            return qname.getNamespaceURI();
-        } else {
-            return "";
-        }
-    }
-    
-    /**
-     * This function obtains a name, perhaps namespace-qualified, for an element.
-     * It also maintains a Map that records all the prefixes used in the course
-     * of working on a single serializer function (and thus a single complex-type-element
-     * XML element) which is used for namespace prefix management.
-     * @param element
-     * @param namespaceMap
-     * @return
-     */
-    private String xmlElementString(XmlSchemaElement element, NamespacePrefixAccumulator accumulator) {
-        String namespaceURI = getElementQualifier(element);
-        if ("".equals(namespaceURI)) {
-            return element.getName(); // use the non-qualified name.
-        } else {
-            // What if there were a prefix in the element's qname? This is not apparently 
-            // something that happens in this environment.
-            String prefix = getPrefix(namespaceURI);
-            accumulator.collect(prefix, namespaceURI);
-            return prefix + ":" + element.getName();
-        }
-    }
-    
-    private boolean isElementNameQualified(XmlSchemaElement element) {
-        if (element.getForm().equals(QUALIFIED)) {
-            return true;
-        }
-        if (element.getForm().equals(UNQUALIFIED)) {
-            return false;
-        }
-        return schemaInfo.getSchema().getElementFormDefault().equals(QUALIFIED);
-    }
-    
-    private String getPrefix(String namespaceURI) {
-        String schemaPrefix = schemaInfo.getSchema().getNamespaceContext().getPrefix(namespaceURI);
-        if (schemaPrefix == null || "tns".equals(schemaPrefix)) {
-            schemaPrefix = fallbackNamespacePrefixMap.get(namespaceURI);
-            if (schemaPrefix == null) {
-                schemaPrefix = "jns" + nsCounter;
-                nsCounter++;
-                fallbackNamespacePrefixMap.put(namespaceURI, schemaPrefix);
-            }
-        }
-        return schemaPrefix;
     }
     
     public String generateCodeForSchema(SchemaInfo schema) {
@@ -248,9 +132,10 @@ public class SchemaJavascriptBuilder {
             accessors.append(typeObjectName 
                              + ".prototype.set" + accessorSuffix + " = " + accessorName + ";\n");
             
-            if (isParticleOptional(elChild) || (nillable && !isParticleArray(elChild))) {
+            if (XmlSchemaUtils.isParticleOptional(elChild) 
+                || (nillable && !XmlSchemaUtils.isParticleArray(elChild))) {
                 utils.appendLine(elementName + " = null;");
-            } else if (isParticleArray(elChild)) {
+            } else if (XmlSchemaUtils.isParticleArray(elChild)) {
                 utils.appendLine(elementName + " = [];");
             } else if (elType instanceof XmlSchemaComplexType) {
                 // even for required complex elements, we leave them null. 
@@ -286,7 +171,7 @@ public class SchemaJavascriptBuilder {
         JavascriptUtils bodyUtils = new JavascriptUtils(bodyCode);
         bodyUtils.setXmlStringAccumulator("xml");
 
-        NamespacePrefixAccumulator prefixAccumulator = new NamespacePrefixAccumulator();
+        NamespacePrefixAccumulator prefixAccumulator = new NamespacePrefixAccumulator(schemaInfo);
         complexTypeSerializerBody(type, "this._", bodyUtils, prefixAccumulator);
         
         StringBuilder code = new StringBuilder();
@@ -338,8 +223,6 @@ public class SchemaJavascriptBuilder {
         // XML Schema, please meet Iterable (not).
         for (int i = 0; i < sequence.getItems().getCount(); i++) {
             XmlSchemaElement elChild = (XmlSchemaElement)sequence.getItems().getItem(i);
-            XmlSchemaType elType = XmlSchemaUtils.getElementType(xmlSchemaCollection, null, elChild, type);
-            boolean nillable = elChild.isNillable();
             if (elChild.isAbstract()) {
                 XmlSchemaUtils.unsupportedConstruct("ABSTRACT_ELEMENT", elChild.getName(), type);
             }
@@ -347,72 +230,10 @@ public class SchemaJavascriptBuilder {
             // assume that no lunatic has created multiple elements that differ only by namespace.
             // or, perhaps, detect that when generating the parser?
             String elementName = elementPrefix + elChild.getName();
-            String elementXmlRef = xmlElementString(elChild, prefixAccumulator);
+            String elementXmlRef = prefixAccumulator.xmlElementString(elChild);
             
-            // first question: optional?
-            if (isParticleOptional(elChild)) {
-                utils.startIf(elementName + " != null");
-            }
-            
-            // nillable and optional would be very strange together.
-            // and nillable in the array case applies to the elements.
-            if (nillable && !isParticleArray(elChild)) {
-                utils.startIf(elementName + " == null");
-                utils.appendString("<" + elementXmlRef + " " + NIL_ATTRIBUTES + "/>");
-                utils.appendElse();
-            }
-            
-            if (isParticleArray(elChild)) {
-                // protected against null in arrays.
-                utils.startIf(elementName + " != null");
-                utils.startFor("var ax = 0", "ax < " +  elementName + ".length", "ax ++");
-                elementName = elementName + "[ax]";
-                // we need an extra level of 'nil' testing here. Or do we, depending on the type structure?
-                // Recode and fiddle appropriately.
-                utils.startIf(elementName + " == null");
-                utils.appendString("<" + elementXmlRef + " " + NIL_ATTRIBUTES + "/>");
-                utils.appendElse();
-            }
-            
-            // now for the thing itself.
-            if (elType instanceof XmlSchemaComplexType) {
-                if (elChild.getMinOccurs() != 0) { // required
-                    utils.startIf(elementName + " == null");
-                    utils.appendString("<" + elementXmlRef + " " + NIL_ATTRIBUTES + "/>");
-                    utils.appendElse();
-                    utils.appendExpression(elementName + ".serialize(cxfjsutils, '" + elementXmlRef + "')");
-                    utils.endBlock();
-                } else {
-                    utils.startIf(elementName + " != null");
-                    utils.appendExpression(elementName + ".serialize(cxfjsutils, '" + elementXmlRef + "')");
-                    utils.endBlock();
-                }
-            } else {
-                QName typeName = elType.getQName();
-                utils.appendString("<" + elementXmlRef + ">");
-                // warning: this assumes that ordinary Javascript serialization is all we need.
-                // except for &gt; ad all of that.
-                if (utils.isStringSimpleType(typeName)) {
-                    utils.appendExpression("cxfjsutils.escapeXmlEntities(" + elementName + ")");
-                } else {
-                    utils.appendExpression(elementName);
-                }
-                utils.appendString("</" + elementXmlRef + ">");
-            }
-            
-            if (isParticleArray(elChild)) {
-                utils.endBlock(); // for the extra level of nil checking, which might be wrong.
-                utils.endBlock(); // for the for loop.
-                utils.endBlock(); // the null protection.
-            }
-            
-            if (nillable && !isParticleArray(elChild)) {
-                utils.endBlock();
-            }
-            
-            if (isParticleOptional(elChild)) {
-                utils.endBlock();
-            }
+            utils.generateCodeToSerializeElement(elChild, elementName, 
+                                                 elementXmlRef, xmlSchemaCollection, null, type);
         }
     }
     /**
@@ -463,17 +284,17 @@ public class SchemaJavascriptBuilder {
             
             String elementName = elChild.getName();
             utils.appendLine("cxfjsutils.trace('processing " + elementName + "');");
-            String elementNamespaceURI = getElementQualifier(elChild);
+            String elementNamespaceURI = XmlSchemaUtils.getElementQualifier(schemaInfo, elChild);
             
             String valueTarget = "item";
 
-            if (isParticleOptional(elChild) || isParticleArray(elChild)) {
+            if (XmlSchemaUtils.isParticleOptional(elChild) || XmlSchemaUtils.isParticleArray(elChild)) {
                 utils.startIf("curElement != null && cxfjsutils.isNodeNamedNS(curElement, '" 
                               + elementNamespaceURI 
                               + "', '" 
                               + elementName
                               + "')");
-                if (isParticleArray(elChild)) {
+                if (XmlSchemaUtils.isParticleArray(elChild)) {
                     utils.appendLine("item = [];");
                     utils.startDo();
                     valueTarget = "arrayItem";
@@ -496,7 +317,7 @@ public class SchemaJavascriptBuilder {
             }
              
             utils.endBlock(); // the if for the nil.
-            if (isParticleArray(elChild)) {
+            if (XmlSchemaUtils.isParticleArray(elChild)) {
                 utils.appendLine("item.push(arrayItem);");
                 utils.appendLine("curElement = cxfjsutils.getNextElementSibling(curElement);");
                 utils.endBlock();
@@ -505,12 +326,12 @@ public class SchemaJavascriptBuilder {
                                   + elChild.getName() + "'));");
             }
             utils.appendLine("newobject." + accessorName + "(item);");
-            if (!isParticleArray(elChild)) {
+            if (!XmlSchemaUtils.isParticleArray(elChild)) {
                 utils.startIf("curElement != null");
                 utils.appendLine("curElement = cxfjsutils.getNextElementSibling(curElement);");
                 utils.endBlock();
             }
-            if (isParticleOptional(elChild) || isParticleArray(elChild)) {
+            if (XmlSchemaUtils.isParticleOptional(elChild) || XmlSchemaUtils.isParticleArray(elChild)) {
                 utils.endBlock();
             }
         }
