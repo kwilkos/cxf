@@ -21,10 +21,13 @@ package org.apache.cxf.binding.http.strategy;
 import java.lang.reflect.Method;
 import java.util.logging.Logger;
 
+import javax.xml.namespace.QName;
+
 import org.apache.cxf.binding.http.URIMapper;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
+import org.apache.ws.commons.schema.XmlSchemaElement;
 
 import static org.apache.cxf.binding.http.HttpConstants.DELETE;
 import static org.apache.cxf.binding.http.HttpConstants.GET;
@@ -132,8 +135,13 @@ public class ConventionStrategy implements ResourceStrategy {
 
     private boolean isXSDPrimitive(MessagePartInfo part) {
         String xsdNs = "http://www.w3.org/2001/XMLSchema";
-        if (!part.isElement() 
-            && part.getTypeQName().getNamespaceURI().equals(xsdNs)) {
+        QName tn = null;
+        if (part.isElement()) {
+            tn = ((XmlSchemaElement)part.getXmlSchema()).getSchemaTypeName();
+        } else {
+            tn = part.getTypeQName();
+        }
+        if (tn != null && tn.getNamespaceURI().equals(xsdNs)) {
             return true;
         }
         
