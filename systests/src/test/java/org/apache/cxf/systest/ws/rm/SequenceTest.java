@@ -126,8 +126,12 @@ public class SequenceTest extends AbstractBusClientServerTestBase {
     
     @After
     public void tearDown() {
-        stopGreeter();
-        stopControl();
+        try {
+            stopGreeter();
+            stopControl();
+        } catch (Throwable t) {
+            //ignore
+        }
     }
 
     /** 
