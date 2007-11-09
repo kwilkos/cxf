@@ -149,6 +149,8 @@ public class DefaultValueTest extends Assert {
     }
     
     private void assertDefaultElementValues(Foo foo) {
+        assertEquals("Unexpected value for element driving",
+                     "LeftTurn", foo.getDriving().value());
         assertEquals("Unexpected value for element stringElem",
                      "hello", foo.getStringElem());
         assertTrue("Unexpected value for element booleanElem",

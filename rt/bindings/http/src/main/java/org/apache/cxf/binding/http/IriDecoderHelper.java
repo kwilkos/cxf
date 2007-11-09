@@ -218,6 +218,10 @@ public final class IriDecoderHelper {
         if (schemaAnnotation instanceof XmlSchemaElement) {
             element = (XmlSchemaElement)schemaAnnotation;
             qname = element.getQName();
+            if (element.getSchemaType() instanceof XmlSchemaSimpleType) {
+                throw new Fault(new Message("SIMPLE_TYPE", BUNDLE));
+            }
+            
             cplxType = (XmlSchemaComplexType)element.getSchemaType();
             unQualified = findSchemaUnQualified(schemas, element.getSchemaTypeName());
             if (cplxType == null) {

@@ -401,7 +401,8 @@ public class JavaToProcessorTest extends ProcessorTestBase {
     //Test for cxf774
     public void testList() throws Exception {
         env.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/list_test.wsdl");
-        env.put(ToolConstants.CFG_CLASSNAME, "org.apache.cxf.tools.fortest.cxf774.ListTestImpl");
+        env.put(ToolConstants.CFG_CLASSNAME, 
+                org.apache.cxf.tools.fortest.cxf774.ListTestImpl.class.getName());
         env.put(ToolConstants.CFG_VERBOSE, ToolConstants.CFG_VERBOSE);
         try {
             processor.setEnvironment(env);
