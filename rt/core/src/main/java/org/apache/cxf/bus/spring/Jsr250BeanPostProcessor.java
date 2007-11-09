@@ -37,11 +37,12 @@ import org.springframework.core.Ordered;
 public class Jsr250BeanPostProcessor 
     implements DestructionAwareBeanPostProcessor, Ordered, ApplicationContextAware {
 
-    private ResourceInjector injector;
+    private ResourceManager resourceManager;
+    private List<ResourceResolver> resolvers;
+    
     private ApplicationContext context;
 
     Jsr250BeanPostProcessor() {
-        injector = new ResourceInjector(null, null); 
     }
     
     public void setApplicationContext(ApplicationContext arg0) throws BeansException {
@@ -53,32 +54,30 @@ public class Jsr250BeanPostProcessor
     }
         
     public Object postProcessAfterInitialization(Object bean, String beanId) throws BeansException {
-        if (bean != null
-            && injector != null) {
-            injector.construct(bean);
+        if (bean != null) {
+            new ResourceInjector(resourceManager, resolvers).construct(bean);
         }
         if (bean instanceof ResourceManager) {
-            ResourceManager rm = (ResourceManager)bean;
+            resourceManager = (ResourceManager)bean;
 
             Map<String, Object> mp = CastUtils.cast(context.getBeansOfType(ResourceResolver.class));
             Collection<ResourceResolver> resolvs = CastUtils.cast(mp.values());
-            List<ResourceResolver> resolvers = new ArrayList<ResourceResolver>(rm.getResourceResolvers());
+            resolvers = new ArrayList<ResourceResolver>(resourceManager.getResourceResolvers());
             resolvers.addAll(resolvs);
-            injector = new ResourceInjector(rm, resolvers);
         }
         return bean;
     }
 
     public Object postProcessBeforeInitialization(Object bean, String beanId) throws BeansException {
-        if (bean != null && injector != null) {
-            injector.inject(bean);
+        if (bean != null) {
+            new ResourceInjector(resourceManager, resolvers).inject(bean);
         }
         return bean;
     }
 
     public void postProcessBeforeDestruction(Object bean, String beanId) {
         if (bean != null) {
-            injector.destroy(bean);
+            new ResourceInjector(resourceManager, resolvers).destroy(bean);
         }
     }
 
