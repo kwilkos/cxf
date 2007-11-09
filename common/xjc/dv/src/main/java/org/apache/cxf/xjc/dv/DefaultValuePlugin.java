@@ -29,6 +29,7 @@ import javax.xml.namespace.QName;
 
 import org.xml.sax.ErrorHandler;
 
+import com.sun.codemodel.ClassType;
 import com.sun.codemodel.JConditional;
 import com.sun.codemodel.JDefinedClass;
 import com.sun.codemodel.JDocComment;
@@ -185,7 +186,12 @@ public class DefaultValuePlugin extends Plugin {
                 .arg(qn.getPrefix());
         } else if ("javax.xml.datatype.Duration".equals(typeName)) {
             dv = outline.getCodeModel().ref(org.apache.cxf.jaxb.DatatypeFactory.class)
-            .staticInvoke("createDuration").arg(defaultValue);
+                .staticInvoke("createDuration").arg(defaultValue);
+        } else if (type instanceof JDefinedClass) {
+            JDefinedClass cls = (JDefinedClass)type;
+            if (cls.getClassType() == ClassType.ENUM) {
+                dv = cls.staticInvoke("fromValue").arg(defaultValue);
+            }
         }
         // TODO: GregorianCalendar, ...
         return dv;

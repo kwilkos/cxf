@@ -32,9 +32,18 @@
             <xs:minExclusive value="0"/>
         </xs:restriction>
     </xs:simpleType>
+    
+    <xs:simpleType name="drivingDecision">
+    	<xs:restriction base="xs:string">
+    		<xs:enumeration value="RightTurn"/>
+    		<xs:enumeration value="LeftTurn"/>
+    		<xs:enumeration value="U-Turn"/>
+    	</xs:restriction>
+    </xs:simpleType>
 
     <xs:complexType name="foo">        
         <xs:sequence>
+            <xs:element name="driving" type="tns:drivingDecision" default="LeftTurn" minOccurs="0"></xs:element>
             <xs:element name="stringElem" type="xs:string" default="hello" minOccurs="0"></xs:element>
             <xs:element name="booleanElem" type="xs:boolean" default="true" minOccurs="0"></xs:element>
             <xs:element name="integerElem" type="xs:integer" default="11" minOccurs="0"></xs:element>

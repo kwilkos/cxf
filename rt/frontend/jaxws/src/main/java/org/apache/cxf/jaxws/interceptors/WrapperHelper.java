@@ -268,7 +268,11 @@ public abstract class WrapperHelper {
                 Object ret = wrapperType.newInstance();
 
                 for (int x = 0; x < setMethods.length; x++) {
-                    if (setMethods[x] == null && fields[x] == null) {
+                    if (getMethods[x] == null
+                        && setMethods[x] == null 
+                        && fields[x] == null) {
+                        //this part is a header or something
+                        //that is not part of the wrapper.
                         continue;
                     }
                     Object o = lst.get(x);
