@@ -23,7 +23,12 @@ import java.net.URL;
 import javax.xml.namespace.QName;
 import javax.xml.ws.soap.AddressingFeature;
 
+import org.apache.cxf.interceptor.LoggingInInterceptor;
+import org.apache.cxf.interceptor.LoggingOutInterceptor;
+import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
 import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
+import org.apache.cxf.ws.addressing.WSAddressingFeature;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -31,23 +36,71 @@ public class WSAClientServerTest extends AbstractBusClientServerTestBase {
 
     private final QName serviceName = new QName("http://apache.org/cxf/systest/ws/addr_feature/",
                                                 "AddNumbersService");
+
+    private LoggingInInterceptor in;
+    private LoggingOutInterceptor out;
+
+    @Before
+    public void setUp() throws Exception {
+        createBus();
+
+        in = new LoggingInInterceptor(true);
+        this.bus.getInInterceptors().add(in);
+        out = new LoggingOutInterceptor(true);
+        this.bus.getOutInterceptors().add(out);
+    }
+
     @BeforeClass
     public static void startServers() throws Exception {
         assertTrue("server did not launch correctly", launchServer(Server.class));
     }
 
     @Test
-    public void testDetail() throws Exception {
+    public void testNoWsaFeature() throws Exception {
+        JaxWsProxyFactoryBean factory = new JaxWsProxyFactoryBean();
+        factory.setServiceClass(AddNumbersPortType.class);
+        factory.setAddress("http://localhost:9091/jaxws/add");
+        AddNumbersPortType port = (AddNumbersPortType) factory.create();
+
+        assertEquals(3, port.addNumbers(1, 2));
+        
+        String expectedOut = "<Address>http://www.w3.org/2005/08/addressing/anonymous</Address>";
+        String expectedIn = "<RelatesTo xmlns=\"http://www.w3.org/2005/08/addressing\">";
+
+        assertTrue(out.getBuffer().getPayload().toString().indexOf(expectedOut) == -1);
+        assertTrue(in.getBuffer().getPayload().toString().indexOf(expectedIn) == -1);
+    }
+
+    @Test
+    public void testCxfWsaFeature() throws Exception {
+        JaxWsProxyFactoryBean factory = new JaxWsProxyFactoryBean();
+        factory.setServiceClass(AddNumbersPortType.class);
+        factory.setAddress("http://localhost:9091/jaxws/add");
+        factory.getFeatures().add(new WSAddressingFeature());
+        AddNumbersPortType port = (AddNumbersPortType) factory.create();
+
+        assertEquals(3, port.addNumbers(1, 2));
+        
+        String expectedOut = "<Address>http://www.w3.org/2005/08/addressing/anonymous</Address>";
+        String expectedIn = "<RelatesTo xmlns=\"http://www.w3.org/2005/08/addressing\">";
+
+        assertTrue(out.getBuffer().getPayload().toString().indexOf(expectedOut) != -1);
+        assertTrue(in.getBuffer().getPayload().toString().indexOf(expectedIn) != -1);
+    }
+
+    @Test
+    public void testJaxwsWsaFeature() throws Exception {
         AddNumbersPortType port = getPort();
 
-        //         JaxWsProxyFactoryBean factory = new JaxWsProxyFactoryBean();
-        //         factory.setServiceClass(AddNumbersPortType.class);
-        //         factory.setAddress("http://localhost:9090/jaxws/add");
-        //         factory.getFeatures().add(new WSAddressingFeature());
-        //         AddNumbersPortType port = (AddNumbersPortType) factory.create();
         assertEquals(3, port.addNumbers(1, 2));
+
+        String expectedOut = "<Address>http://www.w3.org/2005/08/addressing/anonymous</Address>";
+        String expectedIn = "<RelatesTo xmlns=\"http://www.w3.org/2005/08/addressing\">";
+
+        assertTrue(out.getBuffer().getPayload().toString().indexOf(expectedOut) != -1);
+        assertTrue(in.getBuffer().getPayload().toString().indexOf(expectedIn) != -1);
     }
-    
+
     private AddNumbersPortType getPort() {
         URL wsdl = getClass().getResource("/wsdl/add_numbers.wsdl");
         assertNotNull("WSDL is null", wsdl);
