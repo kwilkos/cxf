@@ -544,11 +544,14 @@ public class JettyHTTPServerEngine
      */
     protected void stop() throws Exception {
         if (server != null) {
-            
-            connector.close();
-            server.stop();
-            server.destroy();
-            server = null;
+            try {
+                connector.stop();
+                connector.close();            
+            } finally {         
+                server.stop();
+                server.destroy();
+                server = null;
+            }
         }
     }
     
