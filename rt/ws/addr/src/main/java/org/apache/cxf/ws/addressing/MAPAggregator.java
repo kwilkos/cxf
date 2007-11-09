@@ -22,7 +22,6 @@ package org.apache.cxf.ws.addressing;
 
 import java.text.MessageFormat;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -65,14 +64,14 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
      * is used in all chains.
      */
     protected final Map<String, String> messageIDs = 
-        new HashMap<String, String>();
+        new ConcurrentHashMap<String, String>();
     
     /**
      * Whether the endpoint supports WS-Addressing.
      */
 
-    private Map<Endpoint, Boolean> usingAddressing = new ConcurrentHashMap<Endpoint, Boolean>();
-    private boolean usingAddressingAdvisory;    
+    private final Map<Endpoint, Boolean> usingAddressing = new ConcurrentHashMap<Endpoint, Boolean>();
+    private boolean usingAddressingAdvisory = true;
 
     private boolean allowDuplicates = true;
     
@@ -85,7 +84,7 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
     
     /**
      * Indicates if duplicate messageIDs are allowed.
-     * @return true iff duplicate messageIDs are allowed
+     * @return true if duplicate messageIDs are allowed
      */
     public boolean allowDuplicates() {
         return allowDuplicates;
@@ -147,13 +146,17 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
      * @pre message is outbound
      */
     private boolean usingAddressing(Message message) {
-        boolean ret = false;
+        boolean ret = true;
         if (ContextUtils.isRequestor(message)) {
-            ret = usingAddressingAdvisory
-                || WSAContextUtils.retrieveUsingAddressing(message)
-                || hasUsingAddressing(message) 
+            if (hasUsingAddressing(message) 
                 || hasAddressingAssertion(message)
-                || hasUsingAddressingAssertion(message);
+                || hasUsingAddressingAssertion(message)) {
+                return true;
+            }
+            if (!usingAddressingAdvisory
+                || !WSAContextUtils.retrieveUsingAddressing(message)) {
+                ret = false;
+            }
         } else {
             ret = getMAPs(message, false, false) != null;
         }
@@ -205,8 +208,7 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
     private boolean hasAddressingAssertion(Message message) {
         AssertionInfoMap aim = message.get(AssertionInfoMap.class);
         if (null == aim) {
-            return false;
-            
+            return false;            
         }
         Collection<AssertionInfo> ais = aim.get(MetadataConstants.ADDRESSING_ASSERTION_QNAME);
         if (null == ais || ais.size() == 0) {
