@@ -37,16 +37,29 @@ import org.apache.cxf.phase.Phase;
 public class LoggingInInterceptor extends AbstractPhaseInterceptor<Message> {
 
     private static final Logger LOG = LogUtils.getL7dLogger(LoggingInInterceptor.class);
+    private final LoggingMessage buffer = new LoggingMessage("Inbound Message\n----------------------------");
 
     private int limit = 100 * 1024;
+    private boolean enabled;
+    
     
     public LoggingInInterceptor() {
         super(Phase.RECEIVE);
     }
     public LoggingInInterceptor(int lim) {
-        super(Phase.RECEIVE);
+        this();
         limit = lim;
     }
+
+    public LoggingInInterceptor(boolean b) {
+        this();
+        this.enabled = b;
+    }
+    
+    public LoggingMessage getBuffer() {
+        return this.buffer;
+    }
+    
     public void setLimit(int lim) {
         limit = lim;
     }
@@ -56,52 +69,53 @@ public class LoggingInInterceptor extends AbstractPhaseInterceptor<Message> {
     }    
 
     public void handleMessage(Message message) throws Fault {
-
-        if (LOG.isLoggable(Level.INFO)) {
-            StringBuilder buffer = new StringBuilder(2048);
-            
-            buffer.append("Inbound Message\n")
-                .append("--------------------------------------");
-            
-            String encoding = (String)message.get(Message.ENCODING);
-            if (encoding != null) {
-                buffer.append("\nEncoding: " + encoding);
-            }
-            Object headers = message.get(Message.PROTOCOL_HEADERS);
-            if (headers != null) {
-                buffer.append("\nHeaders: " + headers);
-            }
-            
-            InputStream is = message.getContent(InputStream.class);
-            if (is != null) {
-                CachedOutputStream bos = new CachedOutputStream();
-                try {
-                    IOUtils.copy(is, bos);
-
-                    bos.flush();
-                    is.close();
-
-                    message.setContent(InputStream.class, bos.getInputStream());
-                    if (bos.getTempFile() != null) {
-                        //large thing on disk...
-                        buffer.append("\nMessage (saved to tmp file):\n");
-                        buffer.append("Filename: " + bos.getTempFile().getAbsolutePath() + "\n");
-                    } else {            
-                        buffer.append("\nMessage:\n");
-                    }
-                    if (bos.size() > limit) {
-                        buffer.append("(message truncated to " + limit + " bytes)\n");
-                    }
-                    bos.writeCacheTo(buffer, limit);
-                    
-                    bos.close();
-                } catch (IOException e) {
-                    throw new Fault(e);
-                }
-            }
-            buffer.append("\n--------------------------------------");
-            LOG.info(buffer.toString());
+        if (enabled || LOG.isLoggable(Level.INFO)) {
+            logging(message);
         }
     }
 
+    private void logging(Message message) throws Fault {
+        String encoding = (String)message.get(Message.ENCODING);
+
+        if (encoding != null) {
+            buffer.getEncoding().append(encoding);
+        }
+        Object headers = message.get(Message.PROTOCOL_HEADERS);
+
+        if (headers != null) {
+            buffer.getHeader().append(headers);
+        }
+            
+        InputStream is = message.getContent(InputStream.class);
+        if (is != null) {
+            CachedOutputStream bos = new CachedOutputStream();
+            try {
+                IOUtils.copy(is, bos);
+
+                bos.flush();
+                is.close();
+
+                message.setContent(InputStream.class, bos.getInputStream());
+                if (bos.getTempFile() != null) {
+                    //large thing on disk...
+                    buffer.getMessage().append("\nMessage (saved to tmp file):\n");
+                    buffer.getMessage().append("Filename: " + bos.getTempFile().getAbsolutePath() + "\n");
+                } else {            
+                    buffer.getMessage().append("\nMessage:\n");
+                }
+                if (bos.size() > limit) {
+                    buffer.getMessage().append("(message truncated to " + limit + " bytes)\n");
+                }
+                bos.writeCacheTo(buffer.getPayload(), limit);
+                    
+                bos.close();
+            } catch (IOException e) {
+                throw new Fault(e);
+            }
+        }
+
+        if (LOG.isLoggable(Level.INFO)) {
+            LOG.info(buffer.toString());
+        }
+    }
 }

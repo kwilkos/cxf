@@ -37,17 +37,23 @@ import org.apache.cxf.phase.Phase;
 public class LoggingOutInterceptor extends AbstractPhaseInterceptor {
    
     private static final Logger LOG = LogUtils.getL7dLogger(LoggingOutInterceptor.class); 
+    private final LoggingMessage buffer = new LoggingMessage("Outbound Message\n---------------------------");
 
     private int limit = 100 * 1024;
+    private boolean enabled;
     
     public LoggingOutInterceptor() {
         super(Phase.PRE_STREAM);
         addBefore(StaxOutInterceptor.class.getName());
     }
     public LoggingOutInterceptor(int lim) {
-        super(Phase.PRE_STREAM);
-        addBefore(StaxOutInterceptor.class.getName());
+        this();
         limit = lim;
+    }
+
+    public LoggingOutInterceptor(boolean b) {
+        this();
+        this.enabled = b;
     }
     
     public void setLimit(int lim) {
@@ -58,20 +64,22 @@ public class LoggingOutInterceptor extends AbstractPhaseInterceptor {
         return limit;
     }    
 
+    public LoggingMessage getBuffer() {
+        return this.buffer;
+    }
     
     public void handleMessage(Message message) throws Fault {
         final OutputStream os = message.getContent(OutputStream.class);
         if (os == null) {
             return;
         }
-        if (!LOG.isLoggable(Level.INFO)) {
-            return;
+
+        if (LOG.isLoggable(Level.INFO) || enabled) {
+            // Write the output while caching it for the log message
+            final CacheAndWriteOutputStream newOut = new CacheAndWriteOutputStream(os);
+            message.setContent(OutputStream.class, newOut);
+            newOut.registerCallback(new LoggingCallback());
         }
-        
-        // Write the output while caching it for the log message
-        final CacheAndWriteOutputStream newOut = new CacheAndWriteOutputStream(os);
-        message.setContent(OutputStream.class, newOut);
-        newOut.registerCallback(new LoggingCallback());
     }
 
     class LoggingCallback implements CachedOutputStreamCallback {
@@ -81,31 +89,27 @@ public class LoggingOutInterceptor extends AbstractPhaseInterceptor {
         }
         
         public void onClose(CachedOutputStream cos) {
-            
-            StringBuilder buffer = new StringBuilder(2048);
-            
             if (cos.getTempFile() == null) {
-                buffer.append("Outbound Message:\n");
+                //buffer.append("Outbound Message:\n");
                 if (cos.size() > limit) {
-                    buffer.append("(message truncated to " + limit + " bytes)\n");
+                    buffer.getMessage().append("(message truncated to " + limit + " bytes)\n");
                 }
-                buffer.append("--------------------------------------\n");
             } else {
-                buffer.append("Outbound Message (saved to tmp file):\n");
-                buffer.append("Filename: " + cos.getTempFile().getAbsolutePath() + "\n");
+                buffer.getMessage().append("Outbound Message (saved to tmp file):\n");
+                buffer.getMessage().append("Filename: " + cos.getTempFile().getAbsolutePath() + "\n");
                 if (cos.size() > limit) {
-                    buffer.append("(message truncated to " + limit + " bytes)\n");
+                    buffer.getMessage().append("(message truncated to " + limit + " bytes)\n");
                 }
-                buffer.append("--------------------------------------\n");
             }
             try {
-                cos.writeCacheTo(buffer, limit);
+                cos.writeCacheTo(buffer.getPayload(), limit);
             } catch (Exception ex) {
                 //ignore
             }
-            buffer.append("--------------------------------------\n");
-            LOG.info(buffer.toString());
+
+            if (LOG.isLoggable(Level.INFO)) {
+                LOG.info(buffer.toString());
+            }
         }
-        
     } 
 }
