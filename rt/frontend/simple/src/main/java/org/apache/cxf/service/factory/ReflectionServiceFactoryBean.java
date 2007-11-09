@@ -332,6 +332,61 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         } else {
             buildServiceFromClass();
         }
+        //assert validateServiceModel();
+    }
+    
+    public boolean validateServiceModel() {
+        for (ServiceInfo si : getService().getServiceInfos()) {
+            for (OperationInfo opInfo : si.getInterface().getOperations()) {
+                for (MessagePartInfo mpi : opInfo.getInput().getMessageParts()) {
+                    assert mpi.getXmlSchema() != null;
+                    if (mpi.isElement()) {
+                        assert mpi.getXmlSchema() instanceof XmlSchemaElement;
+                    } else {
+                        assert !(mpi.getXmlSchema() instanceof XmlSchemaElement);
+                    }
+                }
+                for (MessagePartInfo mpi : opInfo.getOutput().getMessageParts()) {
+                    assert mpi.getXmlSchema() != null;
+                    if (mpi.isElement()) {
+                        assert mpi.getXmlSchema() instanceof XmlSchemaElement;
+                    } else {
+                        assert !(mpi.getXmlSchema() instanceof XmlSchemaElement);
+                    }
+                }
+                if (opInfo.isUnwrappedCapable()) {
+                    opInfo = opInfo.getUnwrappedOperation();
+                    for (MessagePartInfo mpi : opInfo.getInput().getMessageParts()) {
+                        assert mpi.getXmlSchema() != null;
+                        if (mpi.isElement()) {
+                            assert mpi.getXmlSchema() instanceof XmlSchemaElement;
+                        } else {
+                            assert !(mpi.getXmlSchema() instanceof XmlSchemaElement);
+                        }
+                    }
+                    for (MessagePartInfo mpi : opInfo.getOutput().getMessageParts()) {
+                        assert mpi.getXmlSchema() != null;
+                        if (mpi.isElement()) {
+                            assert mpi.getXmlSchema() instanceof XmlSchemaElement;
+                        } else {
+                            assert !(mpi.getXmlSchema() instanceof XmlSchemaElement);
+                        }
+                    }
+                }
+                if (opInfo.hasFaults()) {
+                    //check to make sure the faults are elements
+                    for (FaultInfo fault : opInfo.getFaults()) {
+                        MessagePartInfo mpi = fault.getMessagePart(0);
+                        assert mpi != null;
+                        assert mpi.getXmlSchema() != null;
+                        assert mpi.isElement();
+                        assert mpi.getXmlSchema() instanceof XmlSchemaElement;
+                    }
+                }
+
+            }
+        }
+        return true;
     }
 
     public boolean isPopulateFromClass() {
@@ -696,12 +751,15 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                         addImport(schema, oldEl.getSchemaTypeName().getNamespaceURI());
                     }
                 }
+                mpi.setElement(true);
                 mpi.setXmlSchema(el);
                 mpi.setElementQName(qname);
                 mpi.setConcreteName(qname);
                 continue;
             } else {
                 el.setSchemaTypeName(mpi.getTypeQName());
+                mpi.setXmlSchema(el);
+                mpi.setConcreteName(qname);
                 addImport(schema, mpi.getTypeQName().getNamespaceURI());
             }
 
@@ -800,11 +858,18 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                 el.setSchemaType((XmlSchemaType)mpi.getXmlSchema());
                 if (schema.getElementFormDefault().getValue().equals(XmlSchemaForm.UNQUALIFIED)) {
                     mpi.setConcreteName(new QName(null, mpi.getName().getLocalPart()));
+                } else {
+                    mpi.setConcreteName(mpi.getName());
                 }
             }
             if (!Boolean.TRUE.equals(mpi.getProperty(HEADER))) {
-                if (!mpi.isElement()) {
-                    mpi.setXmlSchema(el);                    
+                boolean wasType = !mpi.isElement();
+                if (wasType) {
+                    QName concreteName = mpi.getConcreteName();
+                    mpi.setXmlSchema(el);
+                    mpi.setElement(true);
+                    mpi.setElementQName(el.getQName());
+                    mpi.setConcreteName(concreteName);
                 }
                 if (mpi.getTypeClass() != null && mpi.getTypeClass().isArray()
                     && !Byte.TYPE.equals(mpi.getTypeClass().getComponentType())) {
@@ -825,13 +890,14 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                 } else if (Collection.class.isAssignableFrom(mpi.getTypeClass())
                            && mpi.getTypeClass().isInterface()) {
                     Type type = (Type)mpi.getProperty(GENERIC_TYPE);
+                    
                     if (!(type instanceof java.lang.reflect.ParameterizedType)
-                        && mpi.getTypeQName() == null) {
+                        && el.getSchemaTypeName() == null
+                        && el.getSchemaType() == null) {
                         el.setMinOccurs(0);
                         el.setMaxOccurs(Long.MAX_VALUE);
                         el.setSchemaTypeName(Constants.XSD_ANYTYPE);
                     }
-
                 } else {
                     el.setMaxOccurs(1);
                     if (mpi.getTypeClass() != null && !mpi.getTypeClass().isPrimitive()) {

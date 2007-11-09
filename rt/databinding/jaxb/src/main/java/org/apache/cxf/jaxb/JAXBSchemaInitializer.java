@@ -150,6 +150,8 @@ class JAXBSchemaInitializer extends ServiceModelVisitor {
                 QName typeName = getTypeName(beanInfo);
 
                 createBridgeXsElement(part, qn, typeName);
+            } else if (part.getXmlSchema() == null) {
+                part.setXmlSchema(el);
             }
         }
     }
