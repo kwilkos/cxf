@@ -779,7 +779,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
 
     private void addImport(XmlSchema schema, String ns) {
         if (!ns.equals(schema.getTargetNamespace()) 
-            && !ns.equals(WSDLConstants.NS_SCHEMA_XSD)
+            && !ns.equals(WSDLConstants.NU_SCHEMA_XSD)
             && !isExistImport(schema, ns)) {
             
             XmlSchemaImport is = new XmlSchemaImport();
