@@ -619,10 +619,14 @@ public class WSDLServiceBuilder {
                     MessagePartInfo mpi = wrapper.addMessagePart(new QName(namespaceURI, el.getName()));
                     mpi.setTypeQName(el.getSchemaTypeName());
                     mpi.setConcreteName(el.getQName());
+                    mpi.setElement(true);
+                    mpi.setElementQName(el.getQName());
                     mpi.setXmlSchema(el);
                 } else if (el.getRefName() != null) {
                     MessagePartInfo mpi = wrapper.addMessagePart(el.getRefName());
                     mpi.setTypeQName(el.getRefName());
+                    mpi.setElementQName(el.getRefName());
+                    mpi.setElement(true);
                     mpi.setXmlSchema(el);
                     // element reference is not permitted for wrapper element
                     if (!allowRefs) {
@@ -631,6 +635,7 @@ public class WSDLServiceBuilder {
                 } else {
                     // anonymous type
                     MessagePartInfo mpi = wrapper.addMessagePart(new QName(namespaceURI, el.getName()));
+                    mpi.setConcreteName(el.getQName());
                     mpi.setElementQName(mpi.getName());
                     mpi.setElement(true);
                     mpi.setXmlSchema(el);

@@ -22,6 +22,7 @@ package org.apache.cxf.service.model;
 import javax.xml.namespace.QName;
 
 import org.apache.ws.commons.schema.XmlSchemaAnnotated;
+import org.apache.ws.commons.schema.XmlSchemaElement;
 
 public final class MessagePartInfo extends AbstractPropertiesHolder {
 
@@ -78,6 +79,8 @@ public final class MessagePartInfo extends AbstractPropertiesHolder {
     public QName getTypeQName() {
         if (!isElement) {
             return typeName;
+        } else if (xmlSchema instanceof XmlSchemaElement) {
+            return ((XmlSchemaElement)xmlSchema).getSchemaTypeName();
         }
         return null;
     }
