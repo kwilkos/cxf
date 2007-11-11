@@ -43,13 +43,12 @@ import org.apache.cxf.service.model.MessageInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.service.model.ServiceInfo;
+import org.apache.cxf.test.AbstractCXFSpringTest;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.mozilla.javascript.Scriptable;
-import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 
-@Ignore
-public class DocLitWrappedTest extends AbstractDependencyInjectionSpringContextTests {
+public class DocLitWrappedTest extends AbstractCXFSpringTest {
     private static final Logger LOG = LogUtils.getL7dLogger(DocLitWrappedTest.class);
     private static final String BASIC_TYPE_FUNCTION_RETURN_STRING_SERIALIZER_NAME 
         = "org_apache_cxf_javascript_fortest_basicTypeFunctionReturnString_serializeInput";
@@ -73,6 +72,7 @@ public class DocLitWrappedTest extends AbstractDependencyInjectionSpringContextT
         return new String[] {"classpath:serializationTestBeans.xml"};
     }
 
+    @Ignore
     @Test 
     public void testMessageSerialization() throws Exception {
         setupClientAndRhino("simple-dlwu-proxy-factory");
@@ -118,12 +118,12 @@ public class DocLitWrappedTest extends AbstractDependencyInjectionSpringContextT
     }
 
     private void setupClientAndRhino(String clientProxyFactoryBeanId) throws IOException {
-        testUtilities.setBus((Bus)applicationContext.getBean("cxf"));
+        testUtilities.setBus(getBean(Bus.class, "cxf"));
         
         testUtilities.initializeRhino();
         testUtilities.readResourceIntoRhino("/org/apache/cxf/javascript/cxf-utils.js");
 
-        clientProxyFactory = (JaxWsProxyFactoryBean)applicationContext.getBean(clientProxyFactoryBeanId);
+        clientProxyFactory = getBean(JaxWsProxyFactoryBean.class, clientProxyFactoryBeanId);
         client = clientProxyFactory.getClientFactoryBean().create();
         serviceInfos = client.getEndpoint().getService().getServiceInfos();
         // there can only be one.

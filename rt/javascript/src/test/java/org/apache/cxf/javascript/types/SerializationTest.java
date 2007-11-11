@@ -44,11 +44,11 @@ import org.apache.cxf.javascript.fortest.TestBean1;
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
 import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.service.model.ServiceInfo;
+import org.apache.cxf.test.AbstractCXFSpringTest;
 import org.apache.cxf.wsdl.EndpointReferenceUtils;
 import org.junit.Test;
-import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 
-public class SerializationTest extends AbstractDependencyInjectionSpringContextTests {
+public class SerializationTest extends AbstractCXFSpringTest {
     private JavascriptTestUtilities testUtilities;
     private XMLInputFactory xmlInputFactory;
     private XMLOutputFactory xmlOutputFactory;
@@ -179,12 +179,12 @@ public class SerializationTest extends AbstractDependencyInjectionSpringContextT
     }
 
     private void setupClientAndRhino(String clientProxyFactoryBeanId) throws IOException {
-        testUtilities.setBus((Bus)applicationContext.getBean("cxf"));
+        testUtilities.setBus(getBean(Bus.class, "cxf"));
 
         testUtilities.initializeRhino();
         testUtilities.readResourceIntoRhino("/org/apache/cxf/javascript/cxf-utils.js");
 
-        clientProxyFactory = (JaxWsProxyFactoryBean)applicationContext.getBean(clientProxyFactoryBeanId);
+        clientProxyFactory = getBean(JaxWsProxyFactoryBean.class, clientProxyFactoryBeanId);
         client = clientProxyFactory.getClientFactoryBean().create();
         serviceInfos = client.getEndpoint().getService().getServiceInfos();
         // there can only be one.
