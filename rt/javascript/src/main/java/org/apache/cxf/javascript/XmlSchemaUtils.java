@@ -127,6 +127,7 @@ public final class XmlSchemaUtils {
                                                String referencingURI, 
                                                XmlSchemaElement element,
                                                XmlSchemaType containingType) {
+        assert element != null;
         if (referencingURI == null && containingType != null) {
             referencingURI = containingType.getQName().getNamespaceURI();
         }

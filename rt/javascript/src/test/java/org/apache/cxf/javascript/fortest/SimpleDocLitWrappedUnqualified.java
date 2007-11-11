@@ -21,12 +21,14 @@ package org.apache.cxf.javascript.fortest;
 
 import javax.jws.WebParam;
 import javax.jws.WebService;
+import javax.xml.ws.RequestWrapper;
 
 /**
  * 
  */
 @WebService(targetNamespace = "uri:org.apache.cxf.javascript.fortest")
 public interface SimpleDocLitWrappedUnqualified {
+    @RequestWrapper(className = "org.apache.cxf.javascript.fortest.BasicTypeFunctionReturnStringWrapper")
     String basicTypeFunctionReturnString(@WebParam(name = "s") String s, 
                                          @WebParam(name = "i") int i, 
                                          @WebParam(name = "l") long l, 

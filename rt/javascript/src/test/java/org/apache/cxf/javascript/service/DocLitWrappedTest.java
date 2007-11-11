@@ -44,7 +44,6 @@ import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.test.AbstractCXFSpringTest;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mozilla.javascript.Scriptable;
 
@@ -72,7 +71,7 @@ public class DocLitWrappedTest extends AbstractCXFSpringTest {
         return new String[] {"classpath:serializationTestBeans.xml"};
     }
 
-    @Ignore
+    @org.junit.Ignore
     @Test 
     public void testMessageSerialization() throws Exception {
         setupClientAndRhino("simple-dlwu-proxy-factory");
@@ -98,11 +97,7 @@ public class DocLitWrappedTest extends AbstractCXFSpringTest {
         MessageInfo inputMessage = serviceInfo.getMessage(messageName);
         assertNotNull(inputMessage);
         MessagePartInfo part = inputMessage.getMessagePartByIndex(0); // has only one part.
-        // we have the entire SOAP message in the string. Readng the entire message is
-        // really organized by the full endpoint. If we want to focus for the moment at the message
-        // or part part level, either need to invoke Javascript that builds less, or we need to fish out the 
-        // part from the DOM or the reader.
-        // we can use the DOM to local
+        // Read into the full message to find the part.
         StringReader stringReader = new StringReader((String)xmlString);
         XMLStreamReader xmlStreamReader = xmlInputFactory.createXMLStreamReader(stringReader);
         boolean gotToPart = false;
