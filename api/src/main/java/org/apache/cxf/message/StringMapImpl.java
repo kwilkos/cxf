@@ -21,13 +21,16 @@ package org.apache.cxf.message;
 
 import java.util.HashMap;
 
+/**
+ * A variation on HashMap which allows lookup by Class, via the string
+ * returned by {@link Class#getName()}.
+ */
 public class StringMapImpl 
     extends HashMap<String, Object> 
     implements StringMap {
     
-    @SuppressWarnings("unchecked")
     public <T> T get(Class<T> key) {
-        return (T)get(key.getName());
+        return key.cast(get(key.getName()));
     }
 
     public <T> void put(Class<T> key, T value) {

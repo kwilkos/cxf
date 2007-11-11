@@ -39,16 +39,13 @@ import org.apache.cxf.databinding.DataWriter;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.javascript.BasicNameManager;
 import org.apache.cxf.javascript.JavascriptTestUtilities;
-import org.apache.cxf.javascript.JavascriptTestUtilities.JavaScriptAssertionFailed;
 import org.apache.cxf.javascript.NameManager;
 import org.apache.cxf.javascript.fortest.TestBean1;
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
 import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.wsdl.EndpointReferenceUtils;
-import org.junit.Assert;
 import org.junit.Test;
-import org.mozilla.javascript.RhinoException;
 import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 
 public class SerializationTest extends AbstractDependencyInjectionSpringContextTests {
@@ -72,48 +69,39 @@ public class SerializationTest extends AbstractDependencyInjectionSpringContextT
     protected String[] getConfigLocations() {
         return new String[] {"classpath:serializationTestBeans.xml"};
     }
-    
-    @Test 
+
+    @Test
     public void testEndpointGetSchema() throws IOException {
         setupClientAndRhino("simple-dlwu-proxy-factory");
         ServiceInfo serviceInfo = serviceInfos.get(0);
         EndpointReferenceUtils.getSchema(serviceInfo);
     }
-    
-    @Test 
+
+    @Test
     public void testDeserialization() throws Exception {
         setupClientAndRhino("simple-dlwu-proxy-factory");
         testUtilities.readResourceIntoRhino("/deserializationTests.js");
         DataBinding dataBinding = clientProxyFactory.getServiceFactory().getDataBinding();
         assertNotNull(dataBinding);
-        try {
-            TestBean1 bean = new TestBean1();
-            bean.stringItem = "bean1>stringItem";
-            bean.doubleItem = -1.0;
-            String serialized = serializeObject(dataBinding, bean);
-            testUtilities.rhinoCall("deserializeTestBean1_1", serialized);
-            
-            bean = new TestBean1();
-            bean.stringItem = null;
-            bean.intItem = 21;
-            bean.longItem = 200000001;
-            bean.optionalIntItem = 456123;
-            bean.optionalIntArrayItem = new int[4];
-            bean.optionalIntArrayItem[0] = 3;
-            bean.optionalIntArrayItem[1] = 1;
-            bean.optionalIntArrayItem[2] = 4;
-            bean.optionalIntArrayItem[3] = 1;
-            bean.doubleItem = -1.0;
-            serialized = serializeObject(dataBinding, bean);
-            testUtilities.rhinoCall("deserializeTestBean1_2", serialized);
+        TestBean1 bean = new TestBean1();
+        bean.stringItem = "bean1>stringItem";
+        bean.doubleItem = -1.0;
+        String serialized = serializeObject(dataBinding, bean);
+        testUtilities.rhinoCall("deserializeTestBean1_1", serialized);
 
-        } catch (JavaScriptAssertionFailed assertion) {
-            fail(assertion.getMessage());
-        } catch (RhinoException angryRhino) {
-            String trace = angryRhino.getScriptStackTrace();
-            Assert.fail("Javascript error: " + angryRhino.toString() + " " + trace);
-        }
-
+        bean = new TestBean1();
+        bean.stringItem = null;
+        bean.intItem = 21;
+        bean.longItem = 200000001;
+        bean.optionalIntItem = 456123;
+        bean.optionalIntArrayItem = new int[4];
+        bean.optionalIntArrayItem[0] = 3;
+        bean.optionalIntArrayItem[1] = 1;
+        bean.optionalIntArrayItem[2] = 4;
+        bean.optionalIntArrayItem[3] = 1;
+        bean.doubleItem = -1.0;
+        serialized = serializeObject(dataBinding, bean);
+        testUtilities.rhinoCall("deserializeTestBean1_2", serialized);
     }
 
     private String serializeObject(DataBinding dataBinding, TestBean1 bean) throws XMLStreamException {
@@ -125,80 +113,74 @@ public class SerializationTest extends AbstractDependencyInjectionSpringContextT
         xmlStreamWriter.close();
         return stringWriter.toString();
     }
-    
+
     @Test
     public void testSerialization() throws Exception {
         setupClientAndRhino("simple-dlwu-proxy-factory");
-        
+
         testUtilities.readResourceIntoRhino("/serializationTests.js");
         DataBinding dataBinding = clientProxyFactory.getServiceFactory().getDataBinding();
         assertNotNull(dataBinding);
-        
-        try {
-            Object serialized = testUtilities.rhinoCall("serializeTestBean1_1");
-            assertTrue(serialized instanceof String);
-            String xml = (String)serialized;
-            DataReader<XMLStreamReader> reader = dataBinding.createReader(XMLStreamReader.class);
-            StringReader stringReader = new StringReader(xml);
-            XMLStreamReader xmlStreamReader = xmlInputFactory.createXMLStreamReader(stringReader);
-            QName testBeanQName = new QName("uri:org.apache.cxf.javascript.testns", "TestBean1");
-            Object bean = reader.read(testBeanQName, xmlStreamReader, TestBean1.class);
-            assertNotNull(bean);
-            assertTrue(bean instanceof TestBean1);
-            TestBean1 testBean = (TestBean1)bean;
-            assertEquals("bean1<stringItem", testBean.stringItem);
-            assertEquals(64, testBean.intItem);
-            assertEquals(64000000, testBean.longItem);
-            assertEquals(101, testBean.optionalIntItem);
-            assertNotNull(testBean.optionalIntArrayItem);
-            assertEquals(1, testBean.optionalIntArrayItem.length);
-            assertEquals(543, testBean.optionalIntArrayItem[0]);
-            
-            serialized = testUtilities.rhinoCall("serializeTestBean1_2");
-            assertTrue(serialized instanceof String);
-            xml = (String)serialized;
-            reader = dataBinding.createReader(XMLStreamReader.class);
-            stringReader = new StringReader(xml);
-            xmlStreamReader = xmlInputFactory.createXMLStreamReader(stringReader);
-            bean = reader.read(testBeanQName, xmlStreamReader, TestBean1.class);
-            assertNotNull(bean);
-            assertTrue(bean instanceof TestBean1);
-            testBean = (TestBean1)bean;
-            assertEquals("bean1<stringItem", testBean.stringItem);
-            assertEquals(64, testBean.intItem);
-            assertEquals(64000000, testBean.longItem);
-            assertEquals(0, testBean.optionalIntItem);
-            assertNotNull(testBean.optionalIntArrayItem);
-            assertEquals(3, testBean.optionalIntArrayItem.length);
-            assertEquals(543, testBean.optionalIntArrayItem[0]);
-            assertEquals(0, testBean.optionalIntArrayItem[1]);
-            assertEquals(345, testBean.optionalIntArrayItem[2]);
-            
-            serialized = testUtilities.rhinoCall("serializeTestBean1_3");
-            assertTrue(serialized instanceof String);
-            xml = (String)serialized;
-            reader = dataBinding.createReader(XMLStreamReader.class);
-            stringReader = new StringReader(xml);
-            xmlStreamReader = xmlInputFactory.createXMLStreamReader(stringReader);
-            bean = reader.read(testBeanQName, xmlStreamReader, TestBean1.class);
-            assertNotNull(bean);
-            assertTrue(bean instanceof TestBean1);
-            testBean = (TestBean1)bean;
-            assertEquals("bean1<stringItem", testBean.stringItem);
-            assertEquals(64, testBean.intItem);
-            assertEquals(43, testBean.longItem);
-            assertEquals(33, testBean.optionalIntItem);
-            assertNull(testBean.optionalIntArrayItem);
-        } catch (RhinoException angryRhino) {
-            String trace = angryRhino.getScriptStackTrace();
-            Assert.fail("Javascript error: " + angryRhino.toString() + " " + trace);
-        }
-        
+
+        Object serialized = testUtilities.rhinoCall("serializeTestBean1_1");
+        assertTrue(serialized instanceof String);
+        String xml = (String)serialized;
+        DataReader<XMLStreamReader> reader = dataBinding.createReader(XMLStreamReader.class);
+        StringReader stringReader = new StringReader(xml);
+        XMLStreamReader xmlStreamReader = xmlInputFactory.createXMLStreamReader(stringReader);
+        QName testBeanQName = new QName("uri:org.apache.cxf.javascript.testns", "TestBean1");
+        Object bean = reader.read(testBeanQName, xmlStreamReader, TestBean1.class);
+        assertNotNull(bean);
+        assertTrue(bean instanceof TestBean1);
+        TestBean1 testBean = (TestBean1)bean;
+        assertEquals("bean1<stringItem", testBean.stringItem);
+        assertEquals(64, testBean.intItem);
+        assertEquals(64000000, testBean.longItem);
+        assertEquals(101, testBean.optionalIntItem);
+        assertNotNull(testBean.optionalIntArrayItem);
+        assertEquals(1, testBean.optionalIntArrayItem.length);
+        assertEquals(543, testBean.optionalIntArrayItem[0]);
+
+        serialized = testUtilities.rhinoCall("serializeTestBean1_2");
+        assertTrue(serialized instanceof String);
+        xml = (String)serialized;
+        reader = dataBinding.createReader(XMLStreamReader.class);
+        stringReader = new StringReader(xml);
+        xmlStreamReader = xmlInputFactory.createXMLStreamReader(stringReader);
+        bean = reader.read(testBeanQName, xmlStreamReader, TestBean1.class);
+        assertNotNull(bean);
+        assertTrue(bean instanceof TestBean1);
+        testBean = (TestBean1)bean;
+        assertEquals("bean1<stringItem", testBean.stringItem);
+        assertEquals(64, testBean.intItem);
+        assertEquals(64000000, testBean.longItem);
+        assertEquals(0, testBean.optionalIntItem);
+        assertNotNull(testBean.optionalIntArrayItem);
+        assertEquals(3, testBean.optionalIntArrayItem.length);
+        assertEquals(543, testBean.optionalIntArrayItem[0]);
+        assertEquals(0, testBean.optionalIntArrayItem[1]);
+        assertEquals(345, testBean.optionalIntArrayItem[2]);
+
+        serialized = testUtilities.rhinoCall("serializeTestBean1_3");
+        assertTrue(serialized instanceof String);
+        xml = (String)serialized;
+        reader = dataBinding.createReader(XMLStreamReader.class);
+        stringReader = new StringReader(xml);
+        xmlStreamReader = xmlInputFactory.createXMLStreamReader(stringReader);
+        bean = reader.read(testBeanQName, xmlStreamReader, TestBean1.class);
+        assertNotNull(bean);
+        assertTrue(bean instanceof TestBean1);
+        testBean = (TestBean1)bean;
+        assertEquals("bean1<stringItem", testBean.stringItem);
+        assertEquals(64, testBean.intItem);
+        assertEquals(43, testBean.longItem);
+        assertEquals(33, testBean.optionalIntItem);
+        assertNull(testBean.optionalIntArrayItem);
     }
 
     private void setupClientAndRhino(String clientProxyFactoryBeanId) throws IOException {
         testUtilities.setBus((Bus)applicationContext.getBean("cxf"));
-        
+
         testUtilities.initializeRhino();
         testUtilities.readResourceIntoRhino("/org/apache/cxf/javascript/cxf-utils.js");
 
@@ -211,8 +193,8 @@ public class SerializationTest extends AbstractDependencyInjectionSpringContextT
         schemata = serviceInfo.getSchemas();
         nameManager = new BasicNameManager(serviceInfo);
         for (SchemaInfo schema : schemata) {
-            SchemaJavascriptBuilder builder = 
-                new SchemaJavascriptBuilder(serviceInfo.getXmlSchemaCollection(), nameManager, schema);
+            SchemaJavascriptBuilder builder = new SchemaJavascriptBuilder(serviceInfo
+                .getXmlSchemaCollection(), nameManager, schema);
             String allThatJavascript = builder.generateCodeForSchema(schema);
             assertNotNull(allThatJavascript);
             testUtilities.readStringIntoRhino(allThatJavascript, schema.toString() + ".js");

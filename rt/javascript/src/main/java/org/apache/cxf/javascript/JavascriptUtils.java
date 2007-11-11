@@ -192,7 +192,8 @@ public class JavascriptUtils {
         return token;
     }
     
-    public void generateCodeToSerializeElement(XmlSchemaElement element, 
+    public void generateCodeToSerializeElement(String utilsVarName,
+                                               XmlSchemaElement element, 
                                                String elementJavascriptName,
                                                String elementXmlName,
                                                XmlSchemaCollection xmlSchemaCollection,
@@ -234,7 +235,9 @@ public class JavascriptUtils {
                 startIf(elementJavascriptName + " == null");
                 appendString("<" + elementXmlName + " " + XmlSchemaUtils.NIL_ATTRIBUTES + "/>");
                 appendElse();
-                appendExpression(elementJavascriptName + ".serialize(cxfjsutils, '" + elementXmlName + "')");
+                appendExpression(elementJavascriptName + ".serialize(" 
+                                 + utilsVarName + ", '" 
+                                 + elementXmlName + "')");
                 endBlock();
             } else {
                 startIf(elementJavascriptName + " != null");
@@ -248,7 +251,7 @@ public class JavascriptUtils {
             // warning: this assumes that ordinary Javascript serialization is all we need.
             // except for &gt; ad all of that.
             if (isStringSimpleType(typeName)) {
-                appendExpression("cxfjsutils.escapeXmlEntities(" + elementJavascriptName + ")");
+                appendExpression(utilsVarName + ".escapeXmlEntities(" + elementJavascriptName + ")");
             } else {
                 appendExpression(elementJavascriptName);
             }

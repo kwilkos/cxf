@@ -150,13 +150,16 @@ CxfApacheOrgUtil.prototype.getNodeText = org_apache_cxf_getNodeText;
 
 function org_apache_cxf_begin_soap11_message(namespaceAttributes)
 {
-	return
-		'<?xml version="1.0" encoding="UTF-8"?><soap-env:Envelope xmlns:soap-env="http://schemas.xmlsoap.org/soap/envelope/"'
+	var value = 
+	    '<?xml version="1.0" encoding="UTF-8"?>' 
+	    + '<soap-env:Envelope xmlns:soap-env="http://schemas.xmlsoap.org/soap/envelope/"'
 		+ ' xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"'
 	    + '><soap-env:Body '
-	    + namespaceAtttributes 
+	    + namespaceAttributes 
 	    + '>';
+		return value;
 }
+
 CxfApacheOrgUtil.prototype.beginSoap11Message = org_apache_cxf_begin_soap11_message; 
 
 function org_apache_cxf_end_soap11_message()
@@ -164,5 +167,5 @@ function org_apache_cxf_end_soap11_message()
 	return '</soap-env:Body>';
 }
 	
-CxfApacheOrgUtil.prototype.envSoap11Message = org_apache_cxf_end_soap11_message; 
+CxfApacheOrgUtil.prototype.endSoap11Message = org_apache_cxf_end_soap11_message; 
 	

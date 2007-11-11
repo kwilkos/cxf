@@ -26,8 +26,10 @@ import java.util.logging.Logger;
 
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.test.TestUtilities;
+import org.junit.Assert;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
+import org.mozilla.javascript.RhinoException;
 import org.mozilla.javascript.ScriptableObject;
 
 /**
@@ -47,9 +49,9 @@ public class JavascriptTestUtilities extends TestUtilities {
         }
     }
     
-    public static class Assert extends ScriptableObject {
+    public static class JsAssert extends ScriptableObject {
 
-        public Assert() { }
+        public JsAssert() { }
         public void jsConstructor(String exp) {
             LOG.severe("Assertion failed: " + exp);
             throw new JavaScriptAssertionFailed(exp);
@@ -86,7 +88,7 @@ public class JavascriptTestUtilities extends TestUtilities {
         rhinoContext = Context.enter();
         rhinoScope = rhinoContext.initStandardObjects();
         try {
-            ScriptableObject.defineClass(rhinoScope, Assert.class);
+            ScriptableObject.defineClass(rhinoScope, JsAssert.class);
             ScriptableObject.defineClass(rhinoScope, Trace.class);
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
@@ -127,7 +129,15 @@ public class JavascriptTestUtilities extends TestUtilities {
             throw new RuntimeException("Missing test function " + functionName);
         }
         Function function = (Function)fObj;
-        return function.call(rhinoContext, rhinoScope, rhinoScope, args);
+        try {
+            return function.call(rhinoContext, rhinoScope, rhinoScope, args);
+        } catch (RhinoException angryRhino) {
+            String trace = angryRhino.getScriptStackTrace();
+            Assert.fail("JavaScript error: " + angryRhino.toString() + " " + trace);
+        } catch (JavaScriptAssertionFailed assertion) {
+            Assert.fail(assertion.getMessage());
+        }
+        // we never reach here, but Eclipse doesn't know about Assert.fail.
+        return null;
     }
-
 }

@@ -20,9 +20,11 @@
 package org.apache.cxf.javascript.types;
 
 import java.util.Iterator;
+import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
 
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.javascript.JavascriptUtils;
 import org.apache.cxf.javascript.NameManager;
@@ -47,8 +49,7 @@ import org.apache.ws.commons.schema.XmlSchemaType;
  */
 public class SchemaJavascriptBuilder {
     
-    //private static final Logger LOG = LogUtils.getL7dLogger(SchemaJavascriptBuilder.class);
-    
+    private static final Logger LOG = LogUtils.getL7dLogger(SchemaJavascriptBuilder.class);
     
     private XmlSchemaCollection xmlSchemaCollection;
     private NameManager nameManager;
@@ -85,7 +86,9 @@ public class SchemaJavascriptBuilder {
             }
         }
         
-        return code.toString();
+        String returnValue = code.toString();
+        LOG.finer(returnValue);
+        return returnValue;
     }
     
     
@@ -232,7 +235,7 @@ public class SchemaJavascriptBuilder {
             String elementName = elementPrefix + elChild.getName();
             String elementXmlRef = prefixAccumulator.xmlElementString(elChild);
             
-            utils.generateCodeToSerializeElement(elChild, elementName, 
+            utils.generateCodeToSerializeElement("cxfjsutils", elChild, elementName, 
                                                  elementXmlRef, xmlSchemaCollection, null, type);
         }
     }
