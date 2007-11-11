@@ -48,6 +48,7 @@ import org.apache.cxf.test.AbstractCXFSpringTest;
 import org.apache.cxf.wsdl.EndpointReferenceUtils;
 import org.junit.Test;
 
+@org.junit.Ignore
 public class SerializationTest extends AbstractCXFSpringTest {
     private JavascriptTestUtilities testUtilities;
     private XMLInputFactory xmlInputFactory;
