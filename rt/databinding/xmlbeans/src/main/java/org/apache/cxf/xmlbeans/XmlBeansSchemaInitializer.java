@@ -32,12 +32,12 @@ import org.w3c.dom.Document;
 
 
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.common.xmlschema.SchemaCollection;
 import org.apache.cxf.helpers.XMLUtils;
 import org.apache.cxf.service.ServiceModelVisitor;
 import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.ws.commons.schema.XmlSchema;
-import org.apache.ws.commons.schema.XmlSchemaCollection;
 import org.apache.ws.commons.schema.XmlSchemaElement;
 import org.apache.ws.commons.schema.XmlSchemaType;
 import org.apache.xmlbeans.SchemaType;
@@ -48,13 +48,13 @@ import org.apache.xmlbeans.SchemaTypeSystem;
  */
 class XmlBeansSchemaInitializer extends ServiceModelVisitor {
     private static final Logger LOG = LogUtils.getLogger(XmlBeansSchemaInitializer.class);
-    private XmlSchemaCollection schemas;
+    private SchemaCollection schemas;
     private XmlBeansDataBinding dataBinding;
     private Map<String, XmlSchema> schemaMap 
         = new HashMap<String, XmlSchema>();
     
     public XmlBeansSchemaInitializer(ServiceInfo serviceInfo,
-                                     XmlSchemaCollection col,
+                                     SchemaCollection col,
                                      XmlBeansDataBinding db) {
         super(serviceInfo);
         schemas = col;
@@ -76,9 +76,7 @@ class XmlBeansSchemaInitializer extends ServiceModelVisitor {
             schemaMap.put(file, schema);
             return schema;
         } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-            return null;
+            throw new RuntimeException("Failed to find schema for: " + file, e);
         }
     }
 

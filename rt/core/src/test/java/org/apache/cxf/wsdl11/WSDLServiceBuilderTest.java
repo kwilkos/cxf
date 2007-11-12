@@ -45,6 +45,7 @@ import org.w3c.dom.Element;
 import org.apache.cxf.Bus;
 import org.apache.cxf.binding.BindingFactoryManager;
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.common.xmlschema.SchemaCollection;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.helpers.XMLUtils;
 import org.apache.cxf.service.model.BindingFaultInfo;
@@ -62,7 +63,6 @@ import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.transport.DestinationFactory;
 import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.cxf.wsdl.EndpointReferenceUtils;
-import org.apache.ws.commons.schema.XmlSchemaCollection;
 import org.apache.ws.commons.schema.XmlSchemaElement;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
@@ -363,7 +363,7 @@ public class WSDLServiceBuilderTest extends Assert {
 
     @Test
     public void testSchema() {
-        XmlSchemaCollection schemas = serviceInfo.getXmlSchemaCollection();
+        SchemaCollection schemas = serviceInfo.getXmlSchemaCollection();
         assertNotNull(schemas);
         assertEquals(serviceInfo.getSchemas().size(), 1);
         SchemaInfo schemaInfo = serviceInfo.getSchemas().iterator().next();

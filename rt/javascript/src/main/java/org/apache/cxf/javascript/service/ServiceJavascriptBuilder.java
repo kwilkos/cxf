@@ -33,6 +33,7 @@ import org.apache.cxf.binding.soap.model.SoapBindingInfo;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.StringUtils;
+import org.apache.cxf.common.xmlschema.SchemaCollection;
 import org.apache.cxf.javascript.JavascriptUtils;
 import org.apache.cxf.javascript.NameManager;
 import org.apache.cxf.javascript.NamespacePrefixAccumulator;
@@ -49,7 +50,6 @@ import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.transport.local.LocalTransportFactory;
 import org.apache.cxf.wsdl.WSDLConstants;
-import org.apache.ws.commons.schema.XmlSchemaCollection;
 import org.apache.ws.commons.schema.XmlSchemaComplexType;
 import org.apache.ws.commons.schema.XmlSchemaElement;
 import org.apache.ws.commons.schema.XmlSchemaObject;
@@ -65,7 +65,7 @@ class ServiceJavascriptBuilder extends ServiceModelVisitor {
     private StringBuilder code;
     private String currentInterfaceClassName;
     private Set<OperationInfo> operationsWithNameConflicts;
-    private XmlSchemaCollection xmlSchemaCollection;
+    private SchemaCollection xmlSchemaCollection;
     private SchemaInfo serviceSchemaInfo;
     private XmlSchemaElement wrapperElement;
 

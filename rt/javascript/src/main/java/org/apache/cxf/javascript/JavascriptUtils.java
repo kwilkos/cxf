@@ -27,8 +27,8 @@ import java.util.Stack;
 
 import javax.xml.namespace.QName;
 
+import org.apache.cxf.common.xmlschema.SchemaCollection;
 import org.apache.cxf.wsdl.WSDLConstants;
-import org.apache.ws.commons.schema.XmlSchemaCollection;
 import org.apache.ws.commons.schema.XmlSchemaComplexType;
 import org.apache.ws.commons.schema.XmlSchemaElement;
 import org.apache.ws.commons.schema.XmlSchemaSimpleType;
@@ -196,7 +196,7 @@ public class JavascriptUtils {
                                                XmlSchemaElement element, 
                                                String elementJavascriptName,
                                                String elementXmlName,
-                                               XmlSchemaCollection xmlSchemaCollection,
+                                               SchemaCollection xmlSchemaCollection,
                                                String referencingURI,
                                                XmlSchemaType containingType) {
         boolean nillable = element.isNillable();

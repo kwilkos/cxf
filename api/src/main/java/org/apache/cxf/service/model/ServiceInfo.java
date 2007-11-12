@@ -27,7 +27,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.xml.namespace.QName;
-import org.apache.ws.commons.schema.XmlSchemaCollection;
+
+import org.apache.cxf.common.xmlschema.SchemaCollection;
 
 public class ServiceInfo extends AbstractDescriptionElement {
     QName name;
@@ -37,10 +38,10 @@ public class ServiceInfo extends AbstractDescriptionElement {
     Map<QName, EndpointInfo> endpoints = new ConcurrentHashMap<QName, EndpointInfo>(2);
     Map<QName, MessageInfo> messages;
     List<SchemaInfo> schemas = new ArrayList<SchemaInfo>(4);
-    private XmlSchemaCollection xmlSchemaCollection;
+    private SchemaCollection xmlSchemaCollection;
 
     public ServiceInfo() {
-        xmlSchemaCollection = new XmlSchemaCollection();
+        xmlSchemaCollection = new SchemaCollection();
     }
 
     public String getTargetNamespace() {
@@ -141,7 +142,7 @@ public class ServiceInfo extends AbstractDescriptionElement {
         return Collections.unmodifiableCollection(schemas);
     }
 
-    public XmlSchemaCollection getXmlSchemaCollection() {
+    public SchemaCollection getXmlSchemaCollection() {
         return xmlSchemaCollection;
     }
 }

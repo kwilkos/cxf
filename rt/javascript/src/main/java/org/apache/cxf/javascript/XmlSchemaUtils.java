@@ -25,9 +25,9 @@ import javax.xml.namespace.QName;
 
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.common.xmlschema.SchemaCollection;
 import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.wsdl.WSDLConstants;
-import org.apache.ws.commons.schema.XmlSchemaCollection;
 import org.apache.ws.commons.schema.XmlSchemaComplexType;
 import org.apache.ws.commons.schema.XmlSchemaElement;
 import org.apache.ws.commons.schema.XmlSchemaForm;
@@ -104,7 +104,7 @@ public final class XmlSchemaUtils {
      * @param referencingURI
      * @return
      */
-    public static XmlSchemaElement findElementByRefName(XmlSchemaCollection xmlSchemaCollection,
+    public static XmlSchemaElement findElementByRefName(SchemaCollection xmlSchemaCollection,
                                                          QName name, 
                                                          String referencingURI) {
         String uri = name.getNamespaceURI();
@@ -123,7 +123,7 @@ public final class XmlSchemaUtils {
      * @param element
      * @return
      */
-    public static XmlSchemaType getElementType(XmlSchemaCollection xmlSchemaCollection,
+    public static XmlSchemaType getElementType(SchemaCollection xmlSchemaCollection,
                                                String referencingURI, 
                                                XmlSchemaElement element,
                                                XmlSchemaType containingType) {

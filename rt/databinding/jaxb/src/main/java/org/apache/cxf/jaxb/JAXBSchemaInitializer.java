@@ -33,6 +33,7 @@ import com.sun.xml.bind.v2.runtime.JaxBeanInfo;
 
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.common.xmlschema.SchemaCollection;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.service.ServiceModelVisitor;
 import org.apache.cxf.service.model.FaultInfo;
@@ -41,7 +42,6 @@ import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.wsdl.WSDLConstants;
 import org.apache.ws.commons.schema.XmlSchema;
-import org.apache.ws.commons.schema.XmlSchemaCollection;
 import org.apache.ws.commons.schema.XmlSchemaComplexType;
 import org.apache.ws.commons.schema.XmlSchemaElement;
 import org.apache.ws.commons.schema.XmlSchemaForm;
@@ -55,10 +55,10 @@ import org.apache.ws.commons.schema.utils.NamespaceMap;
 class JAXBSchemaInitializer extends ServiceModelVisitor {
     private static final Logger LOG = LogUtils.getLogger(JAXBSchemaInitializer.class);
 
-    private XmlSchemaCollection schemas;
+    private SchemaCollection schemas;
     private JAXBContextImpl context;
     
-    public JAXBSchemaInitializer(ServiceInfo serviceInfo, XmlSchemaCollection col, JAXBContextImpl context) {
+    public JAXBSchemaInitializer(ServiceInfo serviceInfo, SchemaCollection col, JAXBContextImpl context) {
         super(serviceInfo);
         schemas = col;
         this.context = context;
@@ -175,7 +175,7 @@ class JAXBSchemaInitializer extends ServiceModelVisitor {
         schemaInfo = new SchemaInfo(serviceInfo, qn.getNamespaceURI());
         el = createXsElement(part, typeName, schemaInfo);
 
-        XmlSchema schema = new XmlSchema(qn.getNamespaceURI(), schemas);
+        XmlSchema schema = schemas.newXmlSchemaInCollection(qn.getNamespaceURI());
         schemaInfo.setSchema(schema);
         schema.getElements().add(el.getQName(), el);
         schema.getItems().add(el);
@@ -308,7 +308,7 @@ class JAXBSchemaInitializer extends ServiceModelVisitor {
         }
         XmlSchema schema;
         if (schemaInfo == null) {
-            schema = new XmlSchema(part.getElementQName().getNamespaceURI(), schemas);
+            schema = schemas.newXmlSchemaInCollection(part.getElementQName().getNamespaceURI());
             schema.setElementFormDefault(new XmlSchemaForm(XmlSchemaForm.QUALIFIED));
 
             NamespaceMap nsMap = new NamespaceMap();

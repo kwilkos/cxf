@@ -29,6 +29,7 @@ import javax.xml.stream.XMLStreamWriter;
 import org.w3c.dom.Document;
 
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.common.xmlschema.SchemaCollection;
 import org.apache.cxf.databinding.DataBinding;
 import org.apache.cxf.databinding.DataReader;
 import org.apache.cxf.databinding.DataWriter;
@@ -36,7 +37,7 @@ import org.apache.cxf.databinding.source.AbstractDataBinding;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.ws.commons.schema.XmlSchema;
-import org.apache.ws.commons.schema.XmlSchemaCollection;
+
 
 /**
  * 
@@ -87,7 +88,7 @@ public class XmlBeansDataBinding extends AbstractDataBinding implements DataBind
             LOG.log(Level.FINER, "Creating XmlBeansDatabinding for " + service.getName());
         }
         for (ServiceInfo serviceInfo : service.getServiceInfos()) {
-            XmlSchemaCollection col = serviceInfo.getXmlSchemaCollection();
+            SchemaCollection col = serviceInfo.getXmlSchemaCollection();
 
             if (col.getXmlSchemas().length > 1) {
                 // someone has already filled in the types
@@ -101,7 +102,7 @@ public class XmlBeansDataBinding extends AbstractDataBinding implements DataBind
     }
     
     public XmlSchema addSchemaDocument(ServiceInfo serviceInfo, 
-                                        XmlSchemaCollection col,
+                                        SchemaCollection col,
                                         Document d,
                                         String systemId) {
         return super.addSchemaDocument(serviceInfo, col, d, systemId);
