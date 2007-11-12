@@ -37,7 +37,6 @@ import org.apache.cxf.phase.Phase;
 public class LoggingInInterceptor extends AbstractPhaseInterceptor<Message> {
 
     private static final Logger LOG = LogUtils.getL7dLogger(LoggingInInterceptor.class);
-    private final LoggingMessage buffer = new LoggingMessage("Inbound Message\n----------------------------");
 
     private int limit = 100 * 1024;
     private boolean enabled;
@@ -56,10 +55,6 @@ public class LoggingInInterceptor extends AbstractPhaseInterceptor<Message> {
         this.enabled = b;
     }
     
-    public LoggingMessage getBuffer() {
-        return this.buffer;
-    }
-    
     public void setLimit(int lim) {
         limit = lim;
     }
@@ -75,6 +70,9 @@ public class LoggingInInterceptor extends AbstractPhaseInterceptor<Message> {
     }
 
     private void logging(Message message) throws Fault {
+        final LoggingMessage buffer = new LoggingMessage("Inbound Message\n----------------------------");
+
+        
         String encoding = (String)message.get(Message.ENCODING);
 
         if (encoding != null) {
