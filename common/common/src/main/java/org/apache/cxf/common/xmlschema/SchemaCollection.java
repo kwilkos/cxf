@@ -47,6 +47,14 @@ import org.apache.ws.commons.schema.utils.TargetNamespaceValidator;
 public class SchemaCollection {
     
     private XmlSchemaCollection schemaCollection;
+    
+    public SchemaCollection() {
+        this(new XmlSchemaCollection());
+    }
+    
+    public SchemaCollection(XmlSchemaCollection col) {
+        schemaCollection = col;
+    }
 
     public boolean equals(Object obj) {
         return schemaCollection.equals(obj);
