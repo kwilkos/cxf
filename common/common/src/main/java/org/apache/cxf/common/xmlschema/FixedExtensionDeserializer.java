@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.cxf.common.util;
+package org.apache.cxf.common.xmlschema;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -39,7 +39,7 @@ import org.apache.ws.commons.schema.extensions.ExtensionDeserializer;
  * last one wipes out the earlier recorded extensions.
  */
 @SuppressWarnings("unchecked")
-public class FixedExtensionDeserializer implements ExtensionDeserializer {
+class FixedExtensionDeserializer implements ExtensionDeserializer {
 
     public void deserialize(XmlSchemaObject schemaObject, QName name, Node node) {
 

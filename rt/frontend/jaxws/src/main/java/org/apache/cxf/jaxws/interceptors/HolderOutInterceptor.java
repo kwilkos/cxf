@@ -21,6 +21,7 @@ package org.apache.cxf.jaxws.interceptors;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.xml.ws.Holder;
@@ -50,11 +51,13 @@ public class HolderOutInterceptor extends AbstractPhaseInterceptor<Message> {
         Exchange exchange = message.getExchange();
         OperationInfo op = exchange.get(OperationInfo.class);
         
-        LOG.fine("op: " + op);
-        if (null != op) {
-            LOG.fine("op.hasOutput(): " + op.hasOutput());
-            if (op.hasOutput()) {
-                LOG.fine("op.getOutput().size(): " + op.getOutput().size());
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine("op: " + op);
+            if (null != op) {
+                LOG.fine("op.hasOutput(): " + op.hasOutput());
+                if (op.hasOutput()) {
+                    LOG.fine("op.getOutput().size(): " + op.getOutput().size());
+                }
             }
         }
 
@@ -81,21 +84,16 @@ public class HolderOutInterceptor extends AbstractPhaseInterceptor<Message> {
                 }
             }
         } else {
-            List<MessagePartInfo> parts = op.getOutput().getMessageParts();
             List<Object> holders = new ArrayList<Object>(outObjects);
             for (int x = 0; x < outObjects.size(); x++) {
                 Object o = outObjects.get(x);
-                if (!(o instanceof Holder)) {
+                if (o instanceof Holder) {
+                    outObjects.set(x, ((Holder)o).value);
+                } else {
                     holders.set(x, null);
                 }
             }
             message.put(HolderInInterceptor.CLIENT_HOLDERS, holders);
-            for (MessagePartInfo part : parts) {
-                if (part.getIndex() > 0) {
-                    Holder holder = (Holder)outObjects.get(part.getIndex() - 1);
-                    outObjects.set(part.getIndex() - 1, holder.value);
-                }
-            }
         }
         
     }    

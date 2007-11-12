@@ -54,6 +54,7 @@ public class SchemaCollection {
     
     public SchemaCollection(XmlSchemaCollection col) {
         schemaCollection = col;
+        col.getExtReg().setDefaultExtensionDeserializer(new FixedExtensionDeserializer());
     }
 
     public boolean equals(Object obj) {
