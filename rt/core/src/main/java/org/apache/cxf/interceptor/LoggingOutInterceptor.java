@@ -37,7 +37,6 @@ import org.apache.cxf.phase.Phase;
 public class LoggingOutInterceptor extends AbstractPhaseInterceptor {
    
     private static final Logger LOG = LogUtils.getL7dLogger(LoggingOutInterceptor.class); 
-    private final LoggingMessage buffer = new LoggingMessage("Outbound Message\n---------------------------");
 
     private int limit = 100 * 1024;
     private boolean enabled;
@@ -64,10 +63,6 @@ public class LoggingOutInterceptor extends AbstractPhaseInterceptor {
         return limit;
     }    
 
-    public LoggingMessage getBuffer() {
-        return this.buffer;
-    }
-    
     public void handleMessage(Message message) throws Fault {
         final OutputStream os = message.getContent(OutputStream.class);
         if (os == null) {
@@ -89,6 +84,8 @@ public class LoggingOutInterceptor extends AbstractPhaseInterceptor {
         }
         
         public void onClose(CachedOutputStream cos) {
+            final LoggingMessage buffer = new LoggingMessage("Outbound Message\n---------------------------");
+
             if (cos.getTempFile() == null) {
                 //buffer.append("Outbound Message:\n");
                 if (cos.size() > limit) {
