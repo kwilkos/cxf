@@ -1151,4 +1151,16 @@ public class CodeGenTest extends ProcessorTestBase {
         assertTrue(contents.indexOf("import javax.xml.ws.FaultAction;") != -1);
         assertTrue(contents.indexOf(expected) != -1);
     }
+
+    @Test
+    public void testWrongTNS() {
+        try {
+            env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/wrong_tns.wsdl"));
+            processor.setContext(env);
+            processor.execute();
+            fail("The targetNamespce is not valid");
+        } catch (Exception e) {
+            assertTrue(e.getMessage().indexOf(": is not a valid char in the targetNamespace") != -1);
+        }
+    }
 }
