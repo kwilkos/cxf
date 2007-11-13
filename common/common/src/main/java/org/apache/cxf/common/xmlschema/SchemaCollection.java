@@ -157,4 +157,47 @@ public class SchemaCollection {
         StringReader reader = new StringReader(tinyXmlSchemaDocument.toString());
         return schemaCollection.read(reader, new ValidationEventHandler() { });
     }
+
+    /**
+     * Validate that a qualified name points to some namespace in the schema.
+     * @param qname
+     */
+    public void validateQNameNamespace(QName qname) {
+        // astonishingly, xmlSchemaCollection has no accessor by target URL.
+        for (XmlSchema schema : schemaCollection.getXmlSchemas()) {
+            if (schema.getTargetNamespace().equals(qname.getNamespaceURI())) {
+                return;
+            }
+        }
+        throw new InvalidXmlSchemaReferenceException(qname + " refers to unknown namespace.");
+    }
+
+    public void validateElementName(QName referrer, QName elementQName) {
+        XmlSchemaElement element = schemaCollection.getElementByQName(elementQName);
+        if (element == null) {
+            throw new InvalidXmlSchemaReferenceException(referrer 
+                                                         + " references "
+                                                         + elementQName);
+        }
+    }
+
+    public void validateTypeName(QName referrer, QName typeQName) {
+        XmlSchemaType type = schemaCollection.getTypeByQName(typeQName);
+        if (type == null) {
+            throw new InvalidXmlSchemaReferenceException(referrer 
+                                                         + " references "
+                                                         + typeQName);
+        }
+    }
+    
+    public static void addGlobalElementToSchema(XmlSchema schema, XmlSchemaElement element) {
+        schema.getItems().add(element);
+        // believe it or not, it is up to us to do both of these adds!
+        schema.getElements().add(element.getQName(), element);
+    }
+    
+    public static void addGlobalTypeToSchema(XmlSchema schema, XmlSchemaType type) {
+        schema.getItems().add(type);
+        schema.addType(type);
+    }
 }
