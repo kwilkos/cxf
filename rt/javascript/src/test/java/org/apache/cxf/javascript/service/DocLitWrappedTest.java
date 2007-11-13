@@ -47,6 +47,7 @@ import org.apache.cxf.test.AbstractCXFSpringTest;
 import org.junit.Test;
 import org.mozilla.javascript.Scriptable;
 
+@org.junit.Ignore
 public class DocLitWrappedTest extends AbstractCXFSpringTest {
     private static final Logger LOG = LogUtils.getL7dLogger(DocLitWrappedTest.class);
     private static final String BASIC_TYPE_FUNCTION_RETURN_STRING_SERIALIZER_NAME 
@@ -71,7 +72,6 @@ public class DocLitWrappedTest extends AbstractCXFSpringTest {
         return new String[] {"classpath:serializationTestBeans.xml"};
     }
 
-    @org.junit.Ignore
     @Test 
     public void testMessageSerialization() throws Exception {
         setupClientAndRhino("simple-dlwu-proxy-factory");

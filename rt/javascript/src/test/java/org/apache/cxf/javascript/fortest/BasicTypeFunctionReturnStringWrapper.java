@@ -20,11 +20,13 @@
 package org.apache.cxf.javascript.fortest;
 
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
 
 /**
  * Wrapper class.
  */
-@XmlRootElement
+@XmlRootElement(namespace = "uri:org.apache.cxf.javascript.testns")
+@XmlType(namespace = "uri:org.apache.cxf.javascript.testns")
 public class BasicTypeFunctionReturnStringWrapper {
     private String s;
     private int i;

@@ -26,7 +26,7 @@ import javax.xml.bind.annotation.XmlType;
 /**
  * Bean with a selection of elements suitable for testing the JavaScript client.
  */
-@XmlRootElement
+@XmlRootElement(namespace = "uri:org.apache.cxf.javascript.testns")
 @XmlType(namespace = "uri:org.apache.cxf.javascript.testns")
 public class TestBean1 {
     
