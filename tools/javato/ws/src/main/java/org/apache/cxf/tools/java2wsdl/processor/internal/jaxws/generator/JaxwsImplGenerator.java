@@ -20,6 +20,8 @@ package org.apache.cxf.tools.java2wsdl.processor.internal.jaxws.generator;
 
 import java.util.Map;
 
+import javax.xml.namespace.QName;
+
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolException;
@@ -40,9 +42,7 @@ public class JaxwsImplGenerator extends AbstractJaxwsGenerator {
             && (!env.optionSet(ToolConstants.IMPL_CLASS))) {
             return false;
         }
-
         return true;
-
     }
 
     public void generate(ToolContext penv) throws ToolException {
@@ -54,10 +54,11 @@ public class JaxwsImplGenerator extends AbstractJaxwsGenerator {
         }
 
         Map<String, JavaInterface> interfaces = javaModel.getInterfaces();
-
+        QName service = (QName)env.get(ToolConstants.SERVICE_NAME);
         for (JavaInterface intf : interfaces.values()) {
             clearAttributes();
             setAttributes("intf", intf);
+            setAttributes("service", service);
             setCommonAttributes();
 
             doWrite(IMPL_TEMPLATE, parseOutputName(intf.getPackageName(), intf.getName() + "Impl"));

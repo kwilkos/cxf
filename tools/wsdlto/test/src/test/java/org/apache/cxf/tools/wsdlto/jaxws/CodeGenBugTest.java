@@ -29,6 +29,7 @@ import javax.xml.namespace.QName;
 import javax.xml.ws.WebServiceClient;
 
 import org.apache.cxf.common.i18n.Message;
+import org.apache.cxf.helpers.FileUtils;
 import org.apache.cxf.tools.common.ProcessorTestBase;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.util.AnnotationUtil;
@@ -216,7 +217,7 @@ public class CodeGenBugTest extends ProcessorTestBase {
         assertFalse("Generated file has been excluded", iona.exists());
 
         File implFile = new File(output, "org/apache/hello_world_soap_http/Greeter.java");
-        String str = getStringFromFile(implFile);
+        String str = FileUtils.getStringFromFile(implFile);
         assertTrue(str.indexOf("com.iona.BareDocumentResponse") > 0);
 
         File org = new File(output, "org");
@@ -511,7 +512,7 @@ public class CodeGenBugTest extends ProcessorTestBase {
         processor.setContext(env);
         processor.execute();
 
-        String results = getStringFromFile(new File(output.getCanonicalPath(), 
+        String results = FileUtils.getStringFromFile(new File(output.getCanonicalPath(), 
                                                     "org/apache/sayhi/SayHi.java"));
         assertTrue(results.trim().length() > 0);
         assertTrue(results.indexOf("@WebResult(name  =  \"return\",  " 
@@ -623,7 +624,7 @@ public class CodeGenBugTest extends ProcessorTestBase {
         
         processor.execute();
         File file = new File(output.getCanonicalPath() + "/build.xml");
-        String str = getStringFromFile(file);
+        String str = FileUtils.getStringFromFile(file);
         assertTrue(str.indexOf("org.apache.hello_world_soap_http.Greeter_SoapPortTest1_Client") > -1);
         assertTrue(str.indexOf("org.apache.hello_world_soap_http.Greeter_SoapPortTest2_Client") > -1);
         assertTrue(str.indexOf("org.apache.hello_world_soap_http.Greeter_SoapPortTest1_Server") > -1);
@@ -688,7 +689,7 @@ public class CodeGenBugTest extends ProcessorTestBase {
             processor.setContext(env);
             processor.execute();
 
-            String results = getStringFromFile(new File(output.getCanonicalPath(), 
+            String results = FileUtils.getStringFromFile(new File(output.getCanonicalPath(), 
                                                         "org/tempuri/GreeterRPCLit.java"));
             assertTrue(results.indexOf("@WebParam(partName  =  \"inInt\",  name  =  \"inInt\")") != -1);
         } catch (Exception e) {
@@ -721,7 +722,7 @@ public class CodeGenBugTest extends ProcessorTestBase {
         processor.setContext(env);
         processor.execute();
 
-        String results = getStringFromFile(new File(output.getCanonicalPath(), 
+        String results = FileUtils.getStringFromFile(new File(output.getCanonicalPath(), 
                                                     "soapinterface/ems/esendex/com/AccountServiceSoap.java"));
         assertTrue(results.indexOf("public  int  getMessageLimit") != -1);
         assertTrue(results.indexOf("name  =  \"MessengerHeader") != -1);

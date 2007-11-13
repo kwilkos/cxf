@@ -38,6 +38,7 @@ import javax.xml.ws.RequestWrapper;
 import javax.xml.ws.ResponseWrapper;
 import javax.xml.ws.WebFault;
 
+import org.apache.cxf.helpers.FileUtils;
 import org.apache.cxf.tools.common.ProcessorTestBase;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolException;
@@ -1117,7 +1118,7 @@ public class CodeGenTest extends ProcessorTestBase {
 
         File greeter = new File(output, "org/apache/hello_world_soap_http/Greeter.java");
         assertTrue(output.exists());
-        String contents = getStringFromFile(greeter);
+        String contents = FileUtils.getStringFromFile(greeter);
         assertTrue(contents.indexOf("SOAPBinding.ParameterStyle.BARE") != -1);
         assertTrue(contents.indexOf("@ResponseWrapper") == -1);
     }
@@ -1131,7 +1132,7 @@ public class CodeGenTest extends ProcessorTestBase {
 
         File sei = new File(output, "type_substitution/server/CarDealer.java");
         assertTrue(output.exists());
-        String contents = getStringFromFile(sei);
+        String contents = FileUtils.getStringFromFile(sei);
         assertTrue(contents.indexOf("@XmlSeeAlso({ObjectFactory.class})") != -1);
     }
 
@@ -1144,7 +1145,7 @@ public class CodeGenTest extends ProcessorTestBase {
 
         File sei = new File(output, "com/example/AddNumbersPortType.java");
         assertTrue(sei.exists());
-        String contents = getStringFromFile(sei).replace("  ", " ");
+        String contents = FileUtils.getStringFromFile(sei).replace("  ", " ");
         String expected = "@Action(input = \"3in\", output = \"3out\", "
             + "fault = {@FaultAction(className = AddNumbersFault_Exception.class, value = \"3fault\")})";
         assertTrue(contents.indexOf("import javax.xml.ws.Action;") != -1);

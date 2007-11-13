@@ -19,11 +19,10 @@
 
 package org.apache.cxf.tools.common;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
-import java.io.InputStreamReader;
+
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -100,8 +99,8 @@ public class ProcessorTestBase extends Assert {
     }
 
     protected void assertFileEquals(File location1, File location2) {
-        String str1 = getStringFromFile(location1);
-        String str2 = getStringFromFile(location2);
+        String str1 = FileUtils.getStringFromFile(location1);
+        String str2 = FileUtils.getStringFromFile(location2);
 
         StringTokenizer st1 = new StringTokenizer(str1, " \t\n\r\f(),");
         StringTokenizer st2 = new StringTokenizer(str2, " \t\n\r\f(),");
@@ -143,7 +142,7 @@ public class ProcessorTestBase extends Assert {
 
         try {
             is = new FileInputStream(location);
-            result = normalizeCRLF(is);
+            result = FileUtils.normalizeCRLF(is);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -157,44 +156,6 @@ public class ProcessorTestBase extends Assert {
         }
 
         return result;
-    }
-
-    private String normalizeCRLF(InputStream instream) {
-        BufferedReader in = new BufferedReader(new InputStreamReader(instream));
-        StringBuffer result = new StringBuffer();
-        String line = null;
-
-        try {
-            line = in.readLine();
-            while (line != null) {
-                String[] tok = line.split("\\s");
-
-                for (int x = 0; x < tok.length; x++) {
-                    String token = tok[x];
-                    result.append("  " + token);
-                }
-                line = in.readLine();
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-
-        String rtn = result.toString();
-
-        rtn = ignoreTokens(rtn, "<!--", "-->");
-        rtn = ignoreTokens(rtn, "/*", "*/");
-        return rtn;
-    }
-
-    private String ignoreTokens(final String contents, final String startToken, final String endToken) {
-        String rtn = contents;
-        int headerIndexStart = rtn.indexOf(startToken);
-        int headerIndexEnd = rtn.indexOf(endToken);
-        if (headerIndexStart != -1 && headerIndexEnd != -1 && headerIndexStart < headerIndexEnd) {
-            rtn = rtn.substring(0, headerIndexStart - 1)
-                + rtn.substring(headerIndexEnd + endToken.length() + 1);
-        }
-        return rtn;
     }
 
     public boolean assertXmlEquals(final File expected, final File source) throws Exception {

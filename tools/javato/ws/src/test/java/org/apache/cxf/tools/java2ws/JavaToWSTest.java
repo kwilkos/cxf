@@ -30,7 +30,6 @@ import org.apache.cxf.tools.util.Compiler;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class JavaToWSTest extends ToolTestBase {
@@ -159,17 +158,20 @@ public class JavaToWSTest extends ToolTestBase {
     }
 
     @Test
-    @Ignore // CXF-1024
     public void testGenServerAndClient() throws Exception {
         File client = outputFile("org/apache/hello_world_soap12_http/GreeterClient.java");
         File server = outputFile("org/apache/hello_world_soap12_http/GreeterServer.java");
-
+        File impl = outputFile("org/apache/hello_world_soap12_http/GreeterImpl.java");
         String[] args = new String[] {"-s", output.getPath(), "-client", "-server",
                                       "org.apache.hello_world_soap12_http.Greeter"};
         JavaToWS.main(args);
         checkStdErr();
         assertTrue("Client was not generated", client.exists());
         assertTrue("Greeter_GreeterPort_Server.java was not generated", server.exists());
+        assertTrue("Impl was not generated", impl.exists());
+        String implContent = FileUtils.getStringFromFile(impl);
+        assertTrue("serviceName annotation was not generated", 
+                   implContent.indexOf("serviceName=\"GreeterService\"") > -1);       
     }
 
     @Test
