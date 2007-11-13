@@ -88,10 +88,8 @@ public class DefaultValuePlugin extends Plugin {
             if (f.getPropertyInfo().getSchemaComponent() instanceof XSParticle) {
                 XSParticle particle = (XSParticle)f.getPropertyInfo().getSchemaComponent();
                 XSTerm term = particle.getTerm();
-                if (term.isElementDecl()) {
-                    if (term.asElementDecl().getDefaultValue() != null) {
-                        return true;
-                    }
+                if (term.isElementDecl() && term.asElementDecl().getDefaultValue() != null) {
+                    return true;
                 }
             }
         }
