@@ -19,6 +19,7 @@
 
 package org.apache.cxf.tools.wsdlto.frontend.jaxws.wsdl11;
 
+import java.io.File;
 import java.util.Iterator;
 import java.util.List;
 import javax.wsdl.Definition;
@@ -134,11 +135,13 @@ public class JAXWSDefinitionBuilderTest extends Assert {
 
     // tests the error case described in JIRA CXF-556
     @Test
-    public void testCustomizationWhereURINotAnExactStringMatch() {
+    public void testCustomizationWhereURINotAnExactStringMatch() throws Exception  {
         // set up a URI with ./../wsdl11/hello_world.wsdl instead of
         // ./hello_world.wsdl
+
         env.put(ToolConstants.CFG_WSDLURL,
-            getClass().getResource(".").toString() + "../wsdl11/resources/hello_world.wsdl");
+            new File(getClass().getResource("JAXWSDefinitionBuilderTest.class").toURI())
+                .getParentFile().getParent() + "/wsdl11/resources/hello_world.wsdl");
         env.put(ToolConstants.CFG_BINDING,
             getClass().getResource("resources/cxf556_binding.xml").toString());
 
