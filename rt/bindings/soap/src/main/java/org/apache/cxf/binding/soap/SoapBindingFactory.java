@@ -58,6 +58,7 @@ import org.apache.cxf.binding.soap.model.SoapBodyInfo;
 import org.apache.cxf.binding.soap.model.SoapHeaderInfo;
 import org.apache.cxf.binding.soap.model.SoapOperationInfo;
 import org.apache.cxf.common.util.StringUtils;
+import org.apache.cxf.common.xmlschema.SchemaCollection;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.interceptor.AttachmentInInterceptor;
 import org.apache.cxf.interceptor.AttachmentOutInterceptor;
@@ -89,7 +90,6 @@ import org.apache.cxf.transport.MultipleEndpointObserver;
 import org.apache.cxf.wsdl.WSDLConstants;
 import org.apache.cxf.wsdl.WSDLManager;
 import org.apache.cxf.wsdl11.WSDLServiceBuilder;
-import org.apache.ws.commons.schema.XmlSchemaCollection;
 
 import static org.apache.cxf.helpers.CastUtils.cast;
 
@@ -389,7 +389,7 @@ public class SoapBindingFactory extends AbstractBindingFactory {
 
         if (header != null && serviceInfo.getMessage(header.getMessage()) == null) {
             Definition def = (Definition)serviceInfo.getProperty(WSDLServiceBuilder.WSDL_DEFINITION);
-            XmlSchemaCollection schemas = serviceInfo.getXmlSchemaCollection();
+            SchemaCollection schemas = serviceInfo.getXmlSchemaCollection();
 
             if (def != null && schemas != null) {
                 javax.wsdl.Message msg = def.getMessage(header.getMessage());
@@ -397,14 +397,14 @@ public class SoapBindingFactory extends AbstractBindingFactory {
                     addOutOfBandParts(bop, msg, schemas, isInput);
                     serviceInfo.refresh();
                 } else {
-                    //TODO: The header message is not defined in this wsdl, what to do
+                    throw new RuntimeException("Header message not defined in service model.");
                 }
             }
         }
     }
 
     private void addOutOfBandParts(final BindingOperationInfo bop, final javax.wsdl.Message msg,
-                                   final XmlSchemaCollection schemas, boolean isInput) {
+                                   final SchemaCollection schemas, boolean isInput) {
         MessageInfo minfo = null;
         if (isInput) {
             minfo = bop.getOperationInfo().getInput();
@@ -435,7 +435,7 @@ public class SoapBindingFactory extends AbstractBindingFactory {
     }
 
     private void buildMessage(MessageInfo minfo, javax.wsdl.Message msg,
-                              XmlSchemaCollection schemas) {
+                              SchemaCollection schemas) {
         for (Part part : cast(msg.getParts().values(), Part.class)) {
             MessagePartInfo pi = minfo.addMessagePart(new QName(minfo.getName().getNamespaceURI(), part
                                                                 .getName()));

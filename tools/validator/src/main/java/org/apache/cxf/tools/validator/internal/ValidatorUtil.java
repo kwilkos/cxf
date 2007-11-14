@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -44,12 +45,12 @@ import org.xml.sax.SAXException;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.common.xmlschema.SchemaCollection;
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.wsdl.WSDLConstants;
 import org.apache.cxf.wsdl11.SchemaUtil;
-import org.apache.ws.commons.schema.XmlSchemaCollection;
 
 public final class ValidatorUtil {
     private static final Logger LOG = LogUtils.getL7dLogger(ValidatorUtil.class);
@@ -58,7 +59,7 @@ public final class ValidatorUtil {
     }
 
 
-    public static XmlSchemaCollection getSchema(final Definition def) {
+    public static SchemaCollection getSchema(final Definition def) {
         ServiceInfo serviceInfo = new ServiceInfo();
         new SchemaUtil(BusFactory.getDefaultBus(), 
                        new HashMap<String, Element>()).getSchemas(def, 
@@ -77,18 +78,15 @@ public final class ValidatorUtil {
      * @throws IOException
      * @throws SAXException
      */
-    public static List<XmlSchemaCollection> getSchemaList(Document document,
+    public static List<SchemaCollection> getSchemaList(Document document,
             String baseURI) throws IOException, SAXException {
-        List<XmlSchemaCollection> schemaList = new ArrayList<XmlSchemaCollection>();
+        List<SchemaCollection> schemaList = new ArrayList<SchemaCollection>();
         if (document == null) {
             return schemaList;
         }
-        //
-        // If we are on windows we may have spaces in the uri
-        // which need to be escaped.
-        //
-        baseURI = baseURI.replaceAll(" ", "%20");
-        XmlSchemaCollection schemaCol = new XmlSchemaCollection();
+        // URL might need encoding for special characters.
+        baseURI = URLEncoder.encode(baseURI, "utf-8");
+        SchemaCollection schemaCol = new SchemaCollection();
         schemaCol.setBaseUri(baseURI);
         NodeList nodes = document.getElementsByTagNameNS(
             WSDLConstants.NU_SCHEMA_XSD, "schema");

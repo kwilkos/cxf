@@ -30,10 +30,10 @@ import org.w3c.dom.NodeList;
 
 import org.apache.cxf.common.util.FixedExtensionDeserializer;
 import org.apache.cxf.common.util.StringUtils;
+import org.apache.cxf.common.xmlschema.SchemaCollection;
 import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.ws.commons.schema.XmlSchema;
-import org.apache.ws.commons.schema.XmlSchemaCollection;
 
 public class AbstractDataBinding {
     private Collection<DOMSource> schemas;
@@ -45,23 +45,20 @@ public class AbstractDataBinding {
     public void setSchemas(Collection<DOMSource> schemas) {
         this.schemas = schemas;
     }
-    
 
-    protected XmlSchema addSchemaDocument(ServiceInfo serviceInfo, 
-                                   XmlSchemaCollection col,
-                                   Document d,
-                                   String systemId) {
+    protected XmlSchema addSchemaDocument(ServiceInfo serviceInfo, SchemaCollection col, Document d,
+                                          String systemId) {
         String ns = d.getDocumentElement().getAttribute("targetNamespace");
         if (StringUtils.isEmpty(ns)) {
             ns = serviceInfo.getInterface().getName().getNamespaceURI();
             d.getDocumentElement().setAttribute("targetNamespace", ns);
         }
-                           
+
         NodeList nodes = d.getDocumentElement().getChildNodes();
         for (int i = 0; i < nodes.getLength(); i++) {
             Node n = nodes.item(i);
             if (n instanceof Element) {
-                Element e = (Element) n;
+                Element e = (Element)n;
                 if (e.getLocalName().equals("import")) {
                     e.removeAttribute("schemaLocation");
                 }

@@ -37,11 +37,11 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.catalog.CatalogXmlSchemaURIResolver;
 import org.apache.cxf.catalog.OASISCatalogManager;
 import org.apache.cxf.common.util.FixedExtensionDeserializer;
+import org.apache.cxf.common.xmlschema.SchemaCollection;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.ws.commons.schema.XmlSchema;
-import org.apache.ws.commons.schema.XmlSchemaCollection;
 
 import static org.apache.cxf.helpers.CastUtils.cast;
 
@@ -57,7 +57,7 @@ public final class SchemaUtil {
     }
 
     public void getSchemas(final Definition def, final ServiceInfo serviceInfo) {
-        XmlSchemaCollection schemaCol = serviceInfo.getXmlSchemaCollection();
+        SchemaCollection schemaCol = serviceInfo.getXmlSchemaCollection();
         schemaCol.getExtReg().setDefaultExtensionDeserializer(
             new FixedExtensionDeserializer());
 
@@ -73,7 +73,7 @@ public final class SchemaUtil {
         }
     }
 
-    private void extractSchema(Definition def, XmlSchemaCollection schemaCol, ServiceInfo serviceInfo) {
+    private void extractSchema(Definition def, SchemaCollection schemaCol, ServiceInfo serviceInfo) {
         Types typesElement = def.getTypes();
         if (typesElement != null) {
             int schemaCount = 1;

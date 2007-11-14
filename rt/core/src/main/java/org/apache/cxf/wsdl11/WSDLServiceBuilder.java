@@ -54,6 +54,7 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
 import org.apache.cxf.binding.BindingFactory;
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.common.xmlschema.SchemaCollection;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.service.model.AbstractMessageContainer;
 import org.apache.cxf.service.model.AbstractPropertiesHolder;
@@ -72,7 +73,6 @@ import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.service.model.UnwrappedOperationInfo;
 import org.apache.cxf.transport.DestinationFactory;
 import org.apache.cxf.transport.DestinationFactoryManager;
-import org.apache.ws.commons.schema.XmlSchemaCollection;
 import org.apache.ws.commons.schema.XmlSchemaComplexType;
 import org.apache.ws.commons.schema.XmlSchemaElement;
 import org.apache.ws.commons.schema.XmlSchemaObject;
@@ -500,7 +500,7 @@ public class WSDLServiceBuilder {
         if (!passedRule) {
             return;
         }
-        XmlSchemaCollection schemas = opInfo.getInterface().getService().getXmlSchemaCollection();
+        SchemaCollection schemas = opInfo.getInterface().getService().getXmlSchemaCollection();
         XmlSchemaElement inputEl = null;
         XmlSchemaElement outputEl = null;
 
@@ -650,7 +650,7 @@ public class WSDLServiceBuilder {
     }
 
     private void buildMessage(AbstractMessageContainer minfo, Message msg) {
-        XmlSchemaCollection schemas = minfo.getOperation().getInterface().getService()
+        SchemaCollection schemas = minfo.getOperation().getInterface().getService()
             .getXmlSchemaCollection();
         List orderedParam = msg.getOrderedParts(null);
         for (Part part : cast(orderedParam, Part.class)) {
