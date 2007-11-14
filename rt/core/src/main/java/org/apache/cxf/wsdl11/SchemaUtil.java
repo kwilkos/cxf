@@ -36,7 +36,6 @@ import org.w3c.dom.Element;
 import org.apache.cxf.Bus;
 import org.apache.cxf.catalog.CatalogXmlSchemaURIResolver;
 import org.apache.cxf.catalog.OASISCatalogManager;
-import org.apache.cxf.common.util.FixedExtensionDeserializer;
 import org.apache.cxf.common.xmlschema.SchemaCollection;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.service.model.SchemaInfo;
@@ -58,8 +57,6 @@ public final class SchemaUtil {
 
     public void getSchemas(final Definition def, final ServiceInfo serviceInfo) {
         SchemaCollection schemaCol = serviceInfo.getXmlSchemaCollection();
-        schemaCol.getExtReg().setDefaultExtensionDeserializer(
-            new FixedExtensionDeserializer());
 
         List<Definition> defList = new ArrayList<Definition>();
         parseImports(def, defList);
