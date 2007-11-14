@@ -52,6 +52,7 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.StringUtils;
+import org.apache.cxf.common.xmlschema.SchemaCollection;
 import org.apache.cxf.helpers.XPathUtils;
 import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.validator.internal.model.FailureLocation;
@@ -68,7 +69,6 @@ import org.apache.cxf.tools.validator.internal.model.XPortType;
 import org.apache.cxf.tools.validator.internal.model.XService;
 import org.apache.cxf.wsdl.WSDLConstants;
 import org.apache.cxf.wsdl11.WSDLDefinitionBuilder;
-import org.apache.ws.commons.schema.XmlSchemaCollection;
 import org.apache.ws.commons.schema.XmlSchemaElement;
 import org.apache.ws.commons.schema.XmlSchemaType;
 
@@ -85,8 +85,8 @@ public class WSDLRefValidator extends AbstractDefinitionValidator {
     private Definition definition;
 
     private List<Definition> importedDefinitions;
-    private List<XmlSchemaCollection> schemas = new ArrayList<XmlSchemaCollection>();
-    private XmlSchemaCollection schemaCollection = new XmlSchemaCollection();
+    private List<SchemaCollection> schemas = new ArrayList<SchemaCollection>();
+    private SchemaCollection schemaCollection = new SchemaCollection();
 
     private boolean suppressWarnings;
 
@@ -566,7 +566,7 @@ public class WSDLRefValidator extends AbstractDefinitionValidator {
 
         } else {
             if (isElement) {
-                for (XmlSchemaCollection schema : schemas) {
+                for (SchemaCollection schema : schemas) {
                     if (schema != null && schema.getElementByQName(
                             new QName(namespace, name)) != null) {
                         partvalid = true;
@@ -574,7 +574,7 @@ public class WSDLRefValidator extends AbstractDefinitionValidator {
                     }
                 }
             } else {
-                for (XmlSchemaCollection schema : schemas) {
+                for (SchemaCollection schema : schemas) {
                     if (schema != null && schema.getTypeByQName(
                             new QName(namespace, name)) != null) {
                         partvalid = true;

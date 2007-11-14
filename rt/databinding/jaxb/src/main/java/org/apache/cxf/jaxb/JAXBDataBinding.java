@@ -59,6 +59,7 @@ import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.CacheMap;
 import org.apache.cxf.common.util.PackageUtils;
 import org.apache.cxf.common.util.StringUtils;
+import org.apache.cxf.common.xmlschema.SchemaCollection;
 import org.apache.cxf.databinding.DataBinding;
 import org.apache.cxf.databinding.DataReader;
 import org.apache.cxf.databinding.DataWriter;
@@ -69,7 +70,6 @@ import org.apache.cxf.service.Service;
 import org.apache.cxf.service.factory.ServiceConstructionException;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.ws.addressing.ObjectFactory;
-import org.apache.ws.commons.schema.XmlSchemaCollection;
 
 public final class JAXBDataBinding extends AbstractDataBinding implements DataBinding {
     public static final String SCHEMA_RESOURCE = "SCHEMRESOURCE";
@@ -205,7 +205,7 @@ public final class JAXBDataBinding extends AbstractDataBinding implements DataBi
         
             
         for (ServiceInfo serviceInfo : service.getServiceInfos()) {
-            XmlSchemaCollection col = serviceInfo.getXmlSchemaCollection();
+            SchemaCollection col = serviceInfo.getXmlSchemaCollection();
 
             if (col.getXmlSchemas().length > 1) {
                 // someone has already filled in the types

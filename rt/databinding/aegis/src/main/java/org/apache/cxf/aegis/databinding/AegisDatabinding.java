@@ -45,6 +45,7 @@ import org.apache.cxf.aegis.type.TypeUtil;
 import org.apache.cxf.aegis.type.basic.BeanType;
 import org.apache.cxf.aegis.util.XmlConstants;
 import org.apache.cxf.common.classloader.ClassLoaderUtils;
+import org.apache.cxf.common.xmlschema.SchemaCollection;
 import org.apache.cxf.databinding.DataBinding;
 import org.apache.cxf.databinding.DataReader;
 import org.apache.cxf.databinding.DataWriter;
@@ -61,7 +62,6 @@ import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.wsdl.WSDLConstants;
 import org.apache.ws.commons.schema.XmlSchema;
 import org.apache.ws.commons.schema.XmlSchemaAnnotated;
-import org.apache.ws.commons.schema.XmlSchemaCollection;
 import org.apache.ws.commons.schema.utils.NamespaceMap;
 import org.jdom.Attribute;
 import org.jdom.Document;
@@ -274,7 +274,7 @@ public class AegisDatabinding extends AbstractDataBinding implements DataBinding
     protected void initializeMessageTypes(ServiceInfo s,
                                      AbstractMessageContainer container, 
                                      int partType) {
-        XmlSchemaCollection col = s.getXmlSchemaCollection();
+        SchemaCollection col = s.getXmlSchemaCollection();
         for (Iterator itr = container.getMessageParts().iterator(); itr.hasNext();) {
             MessagePartInfo part = (MessagePartInfo)itr.next();
             if (part.isElement()) {
@@ -311,7 +311,7 @@ public class AegisDatabinding extends AbstractDataBinding implements DataBinding
             types.add(t);
         }
         for (ServiceInfo si : s.getServiceInfos()) {
-            XmlSchemaCollection col = si.getXmlSchemaCollection();
+            SchemaCollection col = si.getXmlSchemaCollection();
             if (col.getXmlSchemas().length > 1) {
                 // someone has already filled in the types
                 continue;
@@ -371,7 +371,7 @@ public class AegisDatabinding extends AbstractDataBinding implements DataBinding
                 org.w3c.dom.Document schema = new DOMOutputter().output(new Document(e));
 
                 for (ServiceInfo si : s.getServiceInfos()) {
-                    XmlSchemaCollection col = si.getXmlSchemaCollection();
+                    SchemaCollection col = si.getXmlSchemaCollection();
                     col.setNamespaceContext(nsMap);
                     XmlSchema xmlSchema = addSchemaDocument(si, col, schema, entry.getKey());
                     // Work around bug in JDOM DOMOutputter which fails to correctly
