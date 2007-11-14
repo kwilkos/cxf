@@ -59,6 +59,7 @@ import org.apache.cxf.interceptor.FaultOutInterceptor;
 import org.apache.cxf.jaxb.JAXBDataBinding;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.ServiceImpl;
+import org.apache.cxf.service.ServiceModelSchemaValidator;
 import org.apache.cxf.service.invoker.ApplicationScopePolicy;
 import org.apache.cxf.service.invoker.FactoryInvoker;
 import org.apache.cxf.service.invoker.Invoker;
@@ -319,6 +320,12 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                     }
                 }
             }
+        }
+        ServiceModelSchemaValidator validator = new ServiceModelSchemaValidator(serviceInfo);
+        validator.walk();
+        String validationComplaints = validator.getComplaints();
+        if (!"".equals(validationComplaints)) {
+            LOG.info(validationComplaints);
         }
     }
 
@@ -632,7 +639,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         el.setQName(mpi.getElementQName());
         el.setName(mpi.getElementQName().getLocalPart());
         if (!isExistSchemaElement(schema, mpi.getElementQName())) {
-            schema.getItems().add(el);
+            SchemaCollection.addGlobalElementToSchema(schema, el);
         }
         el.setMinOccurs(1);
         el.setMaxOccurs(0);
@@ -741,8 +748,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
             el.setNillable(true);
             
             if (!isExistSchemaElement(schema, qname)) {
-                schema.getItems().add(el);
-                schema.getElements().add(qname, el);
+                SchemaCollection.addGlobalElementToSchema(schema, el);
             } else {
                 el = getExistingSchemaElement(schema, qname);    
             }
@@ -828,7 +834,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         XmlSchemaElement el = new XmlSchemaElement();
         el.setQName(wrapperName);
         el.setName(wrapperName.getLocalPart());
-        schema.getItems().add(el);
+        SchemaCollection.addGlobalElementToSchema(schema, el);
 
         wrappedMessage.getMessageParts().get(0).setXmlSchema(el);
 
@@ -836,9 +842,8 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         
         if (!isAnonymousWrapperTypes()) {
             ct.setName(wrapperName.getLocalPart());
-            el.setSchemaTypeName(wrapperName);            
-            schema.addType(ct);
-            schema.getItems().add(ct);
+            el.setSchemaTypeName(wrapperName);
+            SchemaCollection.addGlobalTypeToSchema(schema, ct);
         }
         el.setSchemaType(ct);
 
@@ -1079,6 +1084,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         }
         if (part.getElementQName() == null) {
             part.setElementQName(inMsg.getName());
+//Benson            checkForElement(op.getInterface().getService(), part);
         } else if (!part.getElementQName().equals(op.getInput().getName())) {
             op.getInput().setName(part.getElementQName());
         }
