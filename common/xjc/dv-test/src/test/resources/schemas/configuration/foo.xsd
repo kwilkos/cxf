@@ -41,8 +41,16 @@
     	</xs:restriction>
     </xs:simpleType>
 
+    <xs:complexType name="pageColor">
+	<xs:sequence>
+	    <xs:element name="background" type="xs:string" default="red"/>
+	    <xs:element name="foreground" type="xs:string" default="blue"/>
+    	</xs:sequence>
+    </xs:complexType>
+
     <xs:complexType name="foo">        
         <xs:sequence>
+	    <xs:element name="pageColor" type="tns:pageColor" minOccurs="0"></xs:element>
             <xs:element name="driving" type="tns:drivingDecision" default="LeftTurn" minOccurs="0"></xs:element>
             <xs:element name="stringElem" type="xs:string" default="hello" minOccurs="0"></xs:element>
             <xs:element name="booleanElem" type="xs:boolean" default="true" minOccurs="0"></xs:element>

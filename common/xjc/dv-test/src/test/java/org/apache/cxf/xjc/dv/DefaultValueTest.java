@@ -149,6 +149,11 @@ public class DefaultValueTest extends Assert {
     }
     
     private void assertDefaultElementValues(Foo foo) {
+        assertEquals("Unexpected value for element pageColor.background", "red", 
+                     foo.getPageColor().getBackground());
+        assertEquals("Unexpected value for element pageColor.foreground", "blue", 
+                     foo.getPageColor().getForeground());
+
         assertEquals("Unexpected value for element driving",
                      "LeftTurn", foo.getDriving().value());
         assertEquals("Unexpected value for element stringElem",
