@@ -20,6 +20,7 @@
 package org.apache.cxf.jaxws;
 
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.util.Collection;
 import java.util.HashMap;
@@ -54,6 +55,7 @@ import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.endpoint.ClientImpl;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.EndpointException;
+import org.apache.cxf.endpoint.ServiceContractResolverRegistry;
 import org.apache.cxf.feature.AbstractFeature;
 import org.apache.cxf.jaxb.JAXBDataBinding;
 import org.apache.cxf.jaxws.binding.soap.JaxWsSoapBindingConfiguration;
@@ -97,11 +99,29 @@ public class ServiceImpl extends ServiceDelegate {
 
     public ServiceImpl(Bus b, URL url, QName name, Class<?> cls) {
         bus = b;
-        wsdlURL = url == null ? null : url.toString();
         this.serviceName = name;
         clazz = cls;
         
         handlerResolver = new HandlerResolverImpl(bus, name, clazz);
+        
+        if (null == url && null != bus) {
+            ServiceContractResolverRegistry registry = 
+                bus.getExtension(ServiceContractResolverRegistry.class);
+            if (null != registry) {
+                URI uri = registry.getContractLocation(name);
+                if (null != uri) {
+                    try {
+                        url = uri.toURL();
+                    } catch (MalformedURLException e) {
+                        LOG.log(Level.FINE, "resolve qname failed", name);
+                        throw new WebServiceException(e);
+                    }
+                }
+            }
+        }
+
+        wsdlURL = url == null ? null : url.toString();
+        
         if (url != null) {
             try {
                 initializePorts();
