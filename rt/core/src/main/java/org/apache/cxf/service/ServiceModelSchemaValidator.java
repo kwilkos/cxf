@@ -93,7 +93,7 @@ public class ServiceModelSchemaValidator extends ServiceModelVisitor {
             try {
                 schemaCollection.validateElementName(part.getName(), part.getElementQName());
             } catch (InvalidXmlSchemaReferenceException ixsre) {
-                complaints.append(part.getName() + " element name " + ixsre.getMessage() + "\n");
+                complaints.append(part.getName() + " part element name " + ixsre.getMessage() + "\n");
             }
         } else {
             if (part.getTypeQName() == null) {
@@ -102,7 +102,7 @@ public class ServiceModelSchemaValidator extends ServiceModelVisitor {
                 try {
                     schemaCollection.validateTypeName(part.getName(), part.getTypeQName());
                 } catch (InvalidXmlSchemaReferenceException ixsre) {
-                    complaints.append(part.getName() + " type name " + ixsre.getMessage() + "\n");
+                    complaints.append(part.getName() + " part type name " + ixsre.getMessage() + "\n");
                 }
             }
         }
