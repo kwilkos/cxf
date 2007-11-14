@@ -36,6 +36,7 @@ import com.sun.codemodel.JDocComment;
 import com.sun.codemodel.JExpr;
 import com.sun.codemodel.JExpression;
 import com.sun.codemodel.JFieldRef;
+import com.sun.codemodel.JFieldVar;
 import com.sun.codemodel.JMethod;
 import com.sun.codemodel.JOp;
 import com.sun.codemodel.JType;
@@ -74,6 +75,29 @@ public class DefaultValuePlugin extends Plugin {
         return "  -Xdv                 : Initialize fields mapped from elements with their default values";
     }
 
+    private boolean containsDefaultValue(Outline outline, FieldOutline field) {
+        ClassOutline fClass = null;
+        for (ClassOutline classOutline : outline.getClasses()) {
+            if (classOutline.implClass == field.getRawType()) {
+                fClass = classOutline;
+                break;
+            }
+        }
+
+        for (FieldOutline f : fClass.getDeclaredFields()) {
+            if (f.getPropertyInfo().getSchemaComponent() instanceof XSParticle) {
+                XSParticle particle = (XSParticle)f.getPropertyInfo().getSchemaComponent();
+                XSTerm term = particle.getTerm();
+                if (term.isElementDecl()) {
+                    if (term.asElementDecl().getDefaultValue() != null) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
     public boolean run(Outline outline, Options opt, ErrorHandler errorHandler) {
         LOG.fine("Running default value plugin.");
         for (ClassOutline co : outline.getClasses()) {
@@ -103,6 +127,21 @@ public class DefaultValuePlugin extends Plugin {
                     XSAttributeDecl decl = attributeUse.getDecl();
                     xmlDefaultValue = decl.getDefaultValue();                        
                     xsType = decl.getType();
+                }
+
+                
+                if (xsType != null && xsType.isComplexType() && containsDefaultValue(outline, f)) {
+                    String varName = f.getPropertyInfo().getName(false);
+                    JFieldVar var = co.implClass.fields().get(varName);
+                    if (var != null) {
+                        co.implClass.removeField(var);
+
+                        JFieldVar newVar = co.implClass.field(var.mods().getValue(), 
+                                                              var.type(), 
+                                                              var.name(), 
+                                                              JExpr._new(f.getRawType()));
+                        newVar.javadoc().append(var.javadoc());
+                    }
                 }
 
                 if (null == xmlDefaultValue || null == xmlDefaultValue.value) {
