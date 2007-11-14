@@ -27,6 +27,8 @@ import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
+import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -54,6 +56,7 @@ import org.apache.cxf.databinding.source.mime.MimeSerializer;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.EndpointException;
 import org.apache.cxf.endpoint.EndpointImpl;
+import org.apache.cxf.endpoint.ServiceContractResolverRegistry;
 import org.apache.cxf.feature.AbstractFeature;
 import org.apache.cxf.frontend.FaultInfoException;
 import org.apache.cxf.frontend.MethodDispatcher;
@@ -1642,13 +1645,30 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
             for (AbstractServiceConfiguration c : serviceConfigurations) {
                 wsdlURL = c.getWsdlURL();
                 if (wsdlURL != null) {
-                    //create a unique string so if its an interned string (like
-                    //from an annotation), caches will clear
-                    wsdlURL = new String(wsdlURL);
                     break;
                 }
             }
+            if (null == wsdlURL && getBus() != null) {
+                ServiceContractResolverRegistry registry = 
+                    getBus().getExtension(ServiceContractResolverRegistry.class);
+                if (null != registry) {
+                    URI uri = registry.getContractLocation(this.getServiceQName());
+                    if (null != uri) {
+                        try {
+                            wsdlURL = uri.toURL().toString();
+                        } catch (MalformedURLException e) {
+                            LOG.log(Level.FINE, "resolve qname failed", this.getServiceQName());
+                        }
+                    }
+                }
+            }
+            if (wsdlURL != null) {
+                //create a unique string so if its an interned string (like
+                //from an annotation), caches will clear
+                wsdlURL = new String(wsdlURL);
+            }
         }
+        
         return wsdlURL;
     }
 
