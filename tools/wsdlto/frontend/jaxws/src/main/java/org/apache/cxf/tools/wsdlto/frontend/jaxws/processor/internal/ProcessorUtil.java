@@ -37,6 +37,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
+import org.apache.cxf.common.xmlschema.SchemaCollection;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.helpers.JavaUtils;
 import org.apache.cxf.jaxb.JAXBUtils;
@@ -50,7 +51,6 @@ import org.apache.cxf.tools.util.NameUtil;
 import org.apache.cxf.tools.util.URIParserUtil;
 import org.apache.cxf.tools.wsdlto.core.DataBindingProfile;
 import org.apache.ws.commons.schema.XmlSchema;
-import org.apache.ws.commons.schema.XmlSchemaCollection;
 import org.apache.ws.commons.schema.XmlSchemaComplexType;
 import org.apache.ws.commons.schema.XmlSchemaElement;
 import org.apache.ws.commons.schema.XmlSchemaForm;
@@ -354,7 +354,7 @@ public final class ProcessorUtil {
         List<WrapperElement> qnames = new ArrayList<WrapperElement>();
         
         ServiceInfo serviceInfo = (ServiceInfo)context.get(ServiceInfo.class);
-        XmlSchemaCollection schema = serviceInfo.getXmlSchemaCollection();
+        SchemaCollection schema = serviceInfo.getXmlSchemaCollection();
        
         XmlSchemaElement elementByName = schema.getElementByQName(partElement);
         
@@ -395,7 +395,7 @@ public final class ProcessorUtil {
     
     public static boolean isSchemaFormQualified(ToolContext context, QName partElement) {
         ServiceInfo serviceInfo = (ServiceInfo)context.get(ServiceInfo.class);
-        XmlSchemaCollection schemaCol = serviceInfo.getXmlSchemaCollection();
+        SchemaCollection schemaCol = serviceInfo.getXmlSchemaCollection();
 
         for (int i = 0; i < schemaCol.getXmlSchemas().length; i++) {
             XmlSchema schema = schemaCol.getXmlSchemas().clone()[i];

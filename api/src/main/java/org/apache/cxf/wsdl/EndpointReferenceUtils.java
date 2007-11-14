@@ -58,6 +58,7 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.StringUtils;
+import org.apache.cxf.common.xmlschema.SchemaCollection;
 import org.apache.cxf.endpoint.EndpointResolverRegistry;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.endpoint.ServerRegistry;
@@ -72,8 +73,6 @@ import org.apache.cxf.ws.addressing.MetadataType;
 import org.apache.cxf.ws.addressing.wsdl.AttributedQNameType;
 import org.apache.cxf.ws.addressing.wsdl.ServiceNameType;
 import org.apache.ws.commons.schema.XmlSchema;
-import org.apache.ws.commons.schema.XmlSchemaCollection;
-
 
 /**
  * Provides utility methods for obtaining endpoint references, wsdl definitions, etc.
@@ -448,7 +447,7 @@ public final class EndpointReferenceUtils {
             SchemaFactory factory = SchemaFactory.newInstance(
                 XMLConstants.W3C_XML_SCHEMA_NS_URI);
             List<Source> schemaSources = new ArrayList<Source>();
-            final XmlSchemaCollection sc = serviceInfo.getXmlSchemaCollection();
+            final SchemaCollection sc = serviceInfo.getXmlSchemaCollection();
             for (SchemaInfo schemaInfo : serviceInfo.getSchemas()) {
                 Source source = new DOMSource(schemaInfo.getElement());
                 if (source != null) {
