@@ -83,7 +83,9 @@ public class DefaultValuePlugin extends Plugin {
                 break;
             }
         }
-
+        if (fClass == null) {
+            return false;
+        }
         for (FieldOutline f : fClass.getDeclaredFields()) {
             if (f.getPropertyInfo().getSchemaComponent() instanceof XSParticle) {
                 XSParticle particle = (XSParticle)f.getPropertyInfo().getSchemaComponent();
