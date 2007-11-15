@@ -16,23 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.acme.customer;
+@javax.xml.bind.annotation.XmlSchema(namespace = "http://demo.restful.server",
+                                     elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED)
+package demo.restful.server;
 
-import java.util.Collection;
-
-import javax.xml.bind.annotation.XmlRootElement;
-
-// START SNIPPET: bean
-@XmlRootElement
-public class Customers {
-    private Collection<Customer> customers;
-
-    public Collection<Customer> getCustomer() {
-        return customers;
-    }
-
-    public void setCustomer(Collection<Customer> c) {
-        this.customers = c;
-    }
-}
-// END SNIPPET: bean

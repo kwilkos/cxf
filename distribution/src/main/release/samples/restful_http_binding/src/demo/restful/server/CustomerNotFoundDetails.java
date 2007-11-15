@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.acme.customer;
+package demo.restful.server;
 
 import javax.xml.bind.annotation.XmlRootElement;
 

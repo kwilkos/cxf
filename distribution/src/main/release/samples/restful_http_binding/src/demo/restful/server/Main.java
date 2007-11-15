@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.acme.customer;
+package demo.restful.server;
 
 import java.io.FileInputStream;
 import java.io.OutputStream;
@@ -46,7 +46,7 @@ import org.codehaus.jettison.mapped.MappedXMLOutputFactory;
 
 public final class Main {
     private Main() { }
-    
+
     public static void main(String[] args) throws Exception {
         CustomerServiceImpl bs = new CustomerServiceImpl();
 
@@ -57,9 +57,9 @@ public final class Main {
         createJsonRestService(bs);
 
         serveHTML();
-        
+
         System.out.println("Started CustomerService!");
-    
+
         System.out.println("Server ready...");
 
         Thread.sleep(5 * 60 * 1000);

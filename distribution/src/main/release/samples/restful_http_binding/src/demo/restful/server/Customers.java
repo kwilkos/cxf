@@ -16,20 +16,23 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.acme.customer;
+package demo.restful.server;
 
-import javax.xml.ws.WebFault;
+import java.util.Collection;
 
-@WebFault
-public class CustomerNotFoundFault extends Exception {
-    private CustomerNotFoundDetails details;
+import javax.xml.bind.annotation.XmlRootElement;
 
-    public CustomerNotFoundFault(CustomerNotFoundDetails details) {
-        super();
-        this.details = details;
+// START SNIPPET: bean
+@XmlRootElement
+public class Customers {
+    private Collection<Customer> customers;
+
+    public Collection<Customer> getCustomer() {
+        return customers;
     }
 
-    public CustomerNotFoundDetails getFaultInfo() {
-        return details;
+    public void setCustomer(Collection<Customer> c) {
+        this.customers = c;
     }
 }
+// END SNIPPET: bean

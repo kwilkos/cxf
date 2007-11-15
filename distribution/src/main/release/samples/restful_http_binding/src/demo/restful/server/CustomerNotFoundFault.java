@@ -16,7 +16,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-@javax.xml.bind.annotation.XmlSchema(namespace = "http://customer.acme.com", 
-                                     elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED)
-package com.acme.customer;
+package demo.restful.server;
 
+import javax.xml.ws.WebFault;
+
+@WebFault
+public class CustomerNotFoundFault extends Exception {
+    private CustomerNotFoundDetails details;
+
+    public CustomerNotFoundFault(CustomerNotFoundDetails details) {
+        super();
+        this.details = details;
+    }
+
+    public CustomerNotFoundDetails getFaultInfo() {
+        return details;
+    }
+}
