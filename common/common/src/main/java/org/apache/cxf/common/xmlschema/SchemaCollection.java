@@ -176,7 +176,7 @@ public class SchemaCollection {
         XmlSchemaElement element = schemaCollection.getElementByQName(elementQName);
         if (element == null) {
             throw new InvalidXmlSchemaReferenceException(referrer 
-                                                         + " references "
+                                                         + " references element "
                                                          + elementQName);
         }
     }
@@ -185,7 +185,7 @@ public class SchemaCollection {
         XmlSchemaType type = schemaCollection.getTypeByQName(typeQName);
         if (type == null) {
             throw new InvalidXmlSchemaReferenceException(referrer 
-                                                         + " references "
+                                                         + " references type "
                                                          + typeQName);
         }
     }
