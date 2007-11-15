@@ -110,7 +110,7 @@ public final class WSActionAnnotator implements Annotator {
 
     private JavaException getExceptionClass(JavaMethod method, FaultInfo faultInfo) {
         for (JavaException exception : method.getExceptions()) {
-            QName faultName = faultInfo.getFaultName();
+            QName faultName = faultInfo.getName();
             if (exception.getTargetNamespace().equals(faultName.getNamespaceURI()) 
                 && exception.getName().toLowerCase().startsWith(faultName.getLocalPart().toLowerCase())) {
                 return exception;

@@ -890,5 +890,13 @@ public class CodeGenBugTest extends ProcessorTestBase {
         assertNotNull("Customized SEI class is not found", clz);
         Method customizedMethod = clz.getMethod("myGreetMe", new Class[] {String.class});
         assertNotNull("Customized method 'myGreetMe' in MyGreeter.class is not found", customizedMethod);
-    }  
+    }
+    
+    @Test
+    public void testWSAActionAnno() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, 
+                getLocation("/wsdl2java_wsdl/cxf1209/hello_world_fault.wsdl"));        
+        processor.setContext(env);
+        processor.execute();
+    }    
 }

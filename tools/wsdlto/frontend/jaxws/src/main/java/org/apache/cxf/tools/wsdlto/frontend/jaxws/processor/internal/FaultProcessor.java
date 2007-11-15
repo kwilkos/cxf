@@ -94,7 +94,8 @@ public class FaultProcessor extends AbstractProcessor {
         collector.addExceptionClassName(packageName, name, fullClassName);
 
         boolean samePackage = method.getInterface().getPackageName().equals(packageName);
-        method.addException(new JavaException(name, samePackage ? name : fullClassName, namespace));
+        method.addException(new JavaException(faultMessage.getName().getLocalPart(), 
+                                              samePackage ? name : fullClassName, namespace));
 
         List<MessagePartInfo> faultParts = faultMessage.getMessageParts();
 
