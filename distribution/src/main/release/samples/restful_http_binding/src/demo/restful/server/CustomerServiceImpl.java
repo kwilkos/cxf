@@ -24,7 +24,7 @@ import java.util.Map;
 import javax.jws.WebService;
 
 // END SNIPPET: service
-@WebService(endpointInterface = "com.acme.customer.CustomerService")
+@WebService(endpointInterface = "demo.restful.server.CustomerService")
 public class CustomerServiceImpl implements CustomerService {
     long currentId = 1;
     Map<Long, Customer> customers = new HashMap<Long, Customer>();
