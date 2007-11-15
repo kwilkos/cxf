@@ -58,7 +58,7 @@ function getCustomers() {
 }
 
 function addCustomer(c) {
-  var t = document.getElementById('customertable');
+  var t = document.getElementById("customertable");
 
   var tr = document.createElement("tr");
   var td = document.createElement("td");
@@ -86,7 +86,7 @@ function addCustomer(c) {
    <p>
      <h1>Customers</h1>
      <!-- Yes, this is using a table because I'm incompotent with HTML! -->
-     <table style="border: 1px black solid;" cellspacing="5" id="customertable">
+     <table id="customertable">
        <tr>
          <th><strong>ID</strong></th>
          <th><strong>Customer Name</strong></th>
