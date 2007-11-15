@@ -31,48 +31,46 @@ import org.apache.cxf.Bus;
 public class ServiceContractResolverRegistryImpl implements ServiceContractResolverRegistry {
 
     private Bus bus;
-    private List<ServiceContactResolver> resolvers;
+    private List<ServiceContractResolver> resolvers;
 
     /**
-     * Initialize registry, and expose as Bus extension.
+     * Initialize registry, and register itself on Bus as an extension.
      */
     @PostConstruct
     public void init() {
-        resolvers = new ArrayList<ServiceContactResolver>();
+        resolvers = new ArrayList<ServiceContractResolver>();
         if (bus != null) {
             bus.setExtension(this, ServiceContractResolverRegistry.class);
         }
     }
 
     public URI getContractLocation(QName qname) {
-        for (ServiceContactResolver resolver : resolvers) {
-            URI contact = resolver.getContractLocation(qname);
-            if (null != contact) {
-                return contact;
+        for (ServiceContractResolver resolver : resolvers) {
+            URI contractLocation = resolver.getContractLocation(qname);
+            if (null != contractLocation) {
+                return contractLocation;
             }
         }
         return null;
     }
 
-    public boolean isRegistered(ServiceContactResolver resolver) {
+    public boolean isRegistered(ServiceContractResolver resolver) {
         return resolvers.contains(resolver);
     }
 
-    public synchronized void register(ServiceContactResolver resolver) {
-        resolvers.add(resolver);
-        
+    public synchronized void register(ServiceContractResolver resolver) {
+        resolvers.add(resolver);        
     }
 
-    public synchronized void unregister(ServiceContactResolver resolver) {
-        resolvers.remove(resolver);
-        
+    public synchronized void unregister(ServiceContractResolver resolver) {
+        resolvers.remove(resolver);        
     }
 
     public void setBus(Bus bus) {
         this.bus = bus;
     }
     
-    protected List<ServiceContactResolver> getResolvers() {
+    protected List<ServiceContractResolver> getResolvers() {
         return resolvers;
     }
 
