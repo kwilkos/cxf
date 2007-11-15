@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<customer xmlns="http://customer.acme.com">
+<customer xmlns="http://server.restful.demo">
 <name>Jim Bob</name>
 </customer>

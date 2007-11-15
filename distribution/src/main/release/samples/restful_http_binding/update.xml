@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<customer xmlns="http://customer.acme.com">
+<customer xmlns="http://server.restful.demo">
 <id>123</id>
-<name>Danno Manno</name>
+<name>Danno</name>
 </customer>
