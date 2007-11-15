@@ -24,6 +24,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import javax.xml.namespace.QName;
+
+import org.apache.cxf.common.xmlschema.SchemaCollection;
 import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.ws.commons.schema.XmlSchemaElement;
 
@@ -32,14 +35,14 @@ public class NamespacePrefixAccumulator {
     private Set<String> prefixes;
     private Map<String, String> fallbackNamespacePrefixMap;
     private int nsCounter;
-    private SchemaInfo schemaInfo;
+    private SchemaCollection schemaCollection;
 
-    public NamespacePrefixAccumulator(SchemaInfo schemaInfo) {
+    public NamespacePrefixAccumulator(SchemaCollection schemaCollection) {
         attributes = new StringBuffer();
         prefixes = new HashSet<String>();
         fallbackNamespacePrefixMap = new HashMap<String, String>();
         nsCounter = 0;
-        this.schemaInfo = schemaInfo;
+        this.schemaCollection = schemaCollection;
     }
     
     public void collect(String prefix, String uri) {
@@ -54,7 +57,9 @@ public class NamespacePrefixAccumulator {
     }
     
     private String getPrefix(String namespaceURI) {
-        String schemaPrefix = schemaInfo.getSchema().getNamespaceContext().getPrefix(namespaceURI);
+        String schemaPrefix = schemaCollection.getNamespaceContext().getPrefix(namespaceURI);
+        // there could also be a namespace context on an individual schema info.
+        // perhaps SchemaCollection should be enforcing some discipline there.
         if (schemaPrefix == null || "tns".equals(schemaPrefix)) {
             schemaPrefix = fallbackNamespacePrefixMap.get(namespaceURI);
             if (schemaPrefix == null) {
@@ -75,7 +80,7 @@ public class NamespacePrefixAccumulator {
      * @param namespaceMap
      * @return
      */
-    public String xmlElementString(XmlSchemaElement element) {
+    public String xmlElementString(SchemaInfo schemaInfo, XmlSchemaElement element) {
         String namespaceURI = XmlSchemaUtils.getElementQualifier(schemaInfo, element);
         if ("".equals(namespaceURI)) {
             return element.getName(); // use the non-qualified name.
@@ -87,5 +92,10 @@ public class NamespacePrefixAccumulator {
             return prefix + ":" + element.getName();
         }
     }
-
+    
+    public String xmlElementString(QName name) { // used with part concrete names
+        String prefix = getPrefix(name.getNamespaceURI());
+        collect(prefix, name.getNamespaceURI());
+        return prefix + ":" + name.getLocalPart();
+    }
 }

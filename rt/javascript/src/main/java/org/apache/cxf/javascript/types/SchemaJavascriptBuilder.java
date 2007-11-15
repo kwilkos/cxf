@@ -54,13 +54,16 @@ public class SchemaJavascriptBuilder {
     private SchemaCollection xmlSchemaCollection;
     private NameManager nameManager;
     private SchemaInfo schemaInfo;
+    private NamespacePrefixAccumulator prefixAccumulator;
     
     public SchemaJavascriptBuilder(SchemaCollection schemaCollection,
+                                   NamespacePrefixAccumulator prefixAccumulator,
                                    NameManager nameManager, 
                                    SchemaInfo schemaInfo) {
         this.xmlSchemaCollection = schemaCollection;
         this.nameManager = nameManager;
         this.schemaInfo = schemaInfo;
+        this.prefixAccumulator = prefixAccumulator;
     }
     
     public String generateCodeForSchema(SchemaInfo schema) {
@@ -174,8 +177,7 @@ public class SchemaJavascriptBuilder {
         JavascriptUtils bodyUtils = new JavascriptUtils(bodyCode);
         bodyUtils.setXmlStringAccumulator("xml");
 
-        NamespacePrefixAccumulator prefixAccumulator = new NamespacePrefixAccumulator(schemaInfo);
-        complexTypeSerializerBody(type, "this._", bodyUtils, prefixAccumulator);
+        complexTypeSerializerBody(type, "this._", bodyUtils);
         
         StringBuilder code = new StringBuilder();
         JavascriptUtils utils = new JavascriptUtils(code);
@@ -218,8 +220,7 @@ public class SchemaJavascriptBuilder {
      */
     protected void complexTypeSerializerBody(XmlSchemaComplexType type, 
                                           String elementPrefix, 
-                                          JavascriptUtils utils, 
-                                          NamespacePrefixAccumulator prefixAccumulator) {
+                                          JavascriptUtils utils) {
 
         XmlSchemaSequence sequence = XmlSchemaUtils.getSequence(type);
 
@@ -233,7 +234,7 @@ public class SchemaJavascriptBuilder {
             // assume that no lunatic has created multiple elements that differ only by namespace.
             // or, perhaps, detect that when generating the parser?
             String elementName = elementPrefix + elChild.getName();
-            String elementXmlRef = prefixAccumulator.xmlElementString(elChild);
+            String elementXmlRef = prefixAccumulator.xmlElementString(schemaInfo, elChild);
             
             utils.generateCodeToSerializeElement("cxfjsutils", elChild, elementName, 
                                                  elementXmlRef, xmlSchemaCollection, null, type);

@@ -40,6 +40,7 @@ import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.javascript.BasicNameManager;
 import org.apache.cxf.javascript.JavascriptTestUtilities;
 import org.apache.cxf.javascript.NameManager;
+import org.apache.cxf.javascript.NamespacePrefixAccumulator;
 import org.apache.cxf.javascript.fortest.TestBean1;
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
 import org.apache.cxf.service.model.SchemaInfo;
@@ -193,9 +194,11 @@ public class SerializationTest extends AbstractCXFSpringTest {
         ServiceInfo serviceInfo = serviceInfos.get(0);
         schemata = serviceInfo.getSchemas();
         nameManager = new BasicNameManager(serviceInfo);
+        NamespacePrefixAccumulator prefixAccumulator = 
+            new NamespacePrefixAccumulator(serviceInfo.getXmlSchemaCollection());
         for (SchemaInfo schema : schemata) {
             SchemaJavascriptBuilder builder = new SchemaJavascriptBuilder(serviceInfo
-                .getXmlSchemaCollection(), nameManager, schema);
+                .getXmlSchemaCollection(), prefixAccumulator, nameManager, schema);
             String allThatJavascript = builder.generateCodeForSchema(schema);
             assertNotNull(allThatJavascript);
             testUtilities.readStringIntoRhino(allThatJavascript, schema.toString() + ".js");

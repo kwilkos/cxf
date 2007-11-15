@@ -164,7 +164,7 @@ CxfApacheOrgUtil.prototype.beginSoap11Message = org_apache_cxf_begin_soap11_mess
 
 function org_apache_cxf_end_soap11_message()
 {
-	return '</soap-env:Body>';
+	return '</soap-env:Body></soap-env:Envelope>';
 }
 	
 CxfApacheOrgUtil.prototype.endSoap11Message = org_apache_cxf_end_soap11_message; 

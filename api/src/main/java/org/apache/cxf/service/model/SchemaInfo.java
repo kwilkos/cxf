@@ -137,17 +137,6 @@ public final class SchemaInfo extends AbstractPropertiesHolder {
     }    
     
     public XmlSchemaElement getElementByQName(QName qname) {
-/*        String uri = qname.getNamespaceURI();
-        if (namespaceUri.equals(uri)) {
-            NodeList nodes = element.getElementsByTagName(qname.getLocalPart());
-            for (int i = 0; i < nodes.getLength(); i++) {
-                if (nodes.item(i) instanceof Element) {
-                    return (Element)nodes.item(i);
-                }
-
-            }
-        }
-        return null;*/
         String uri = qname.getNamespaceURI();
         if (schema != null 
             && schema.getTargetNamespace() != null

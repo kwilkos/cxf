@@ -31,6 +31,7 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.RhinoException;
 import org.mozilla.javascript.ScriptableObject;
+import org.mozilla.javascript.tools.debugger.Main;
 
 /**
  * Test utilities class with some Javascript capability included. 
@@ -85,6 +86,11 @@ public class JavascriptTestUtilities extends TestUtilities {
     }
     
     public void initializeRhino() {
+        
+        if (System.getProperty("cxf.jsdebug") != null) {
+            Main.mainEmbedded("Debug embedded JavaScript.");
+        }
+
         rhinoContext = Context.enter();
         rhinoScope = rhinoContext.initStandardObjects();
         try {
@@ -117,6 +123,10 @@ public class JavascriptTestUtilities extends TestUtilities {
 
     public Context getRhinoContext() {
         return rhinoContext;
+    }
+    
+    public Object javaToJS(Object value) {
+        return Context.javaToJS(value, rhinoScope);
     }
     
     public Object rhinoEvaluate(String jsExpression) {

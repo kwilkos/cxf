@@ -68,13 +68,18 @@ class ServiceJavascriptBuilder extends ServiceModelVisitor {
     private SchemaCollection xmlSchemaCollection;
     private SchemaInfo serviceSchemaInfo;
     private XmlSchemaElement wrapperElement;
+    private NamespacePrefixAccumulator prefixAccumulator;
 
-    public ServiceJavascriptBuilder(ServiceInfo serviceInfo, NameManager nameManager) {
+
+    public ServiceJavascriptBuilder(ServiceInfo serviceInfo, 
+                                    NamespacePrefixAccumulator prefixAccumulator,
+                                    NameManager nameManager) {
         super(serviceInfo);
         code = new StringBuilder();
         utils = new JavascriptUtils(code);
         this.nameManager = nameManager;
         xmlSchemaCollection = serviceInfo.getXmlSchemaCollection();
+        this.prefixAccumulator = prefixAccumulator;
     }
 
     public String getCode() {
@@ -203,7 +208,6 @@ class ServiceJavascriptBuilder extends ServiceModelVisitor {
         String serializerFunctionName = nameManager.getJavascriptName(op.getName()) + "_serializeInput";
         
         code.append("function " + serializerFunctionName + "(args) {\n");
-        NamespacePrefixAccumulator prefixAccumulator = new NamespacePrefixAccumulator(serviceSchemaInfo);
         for (MessagePartInfo mpi : parts) {
             XmlSchemaElement element;
             if (mpi.isElement()) {
@@ -226,7 +230,7 @@ class ServiceJavascriptBuilder extends ServiceModelVisitor {
             assert element != null;
             assert element.getQName() != null;
             String partJavascriptVar = JavascriptUtils.javaScriptNameToken(element.getQName().getLocalPart());
-            String elementXmlRef = prefixAccumulator.xmlElementString(element);
+            String elementXmlRef = prefixAccumulator.xmlElementString(mpi.getConcreteName());
 
             elements.add(new ElementAndNames(element, partJavascriptVar, elementXmlRef));
         }

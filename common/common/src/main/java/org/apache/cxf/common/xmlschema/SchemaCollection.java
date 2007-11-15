@@ -37,6 +37,7 @@ import org.apache.ws.commons.schema.XmlSchemaElement;
 import org.apache.ws.commons.schema.XmlSchemaType;
 import org.apache.ws.commons.schema.extensions.ExtensionRegistry;
 import org.apache.ws.commons.schema.resolver.URIResolver;
+import org.apache.ws.commons.schema.utils.NamespaceMap;
 import org.apache.ws.commons.schema.utils.NamespacePrefixList;
 import org.apache.ws.commons.schema.utils.TargetNamespaceValidator;
 
@@ -55,6 +56,10 @@ public class SchemaCollection {
     public SchemaCollection(XmlSchemaCollection col) {
         schemaCollection = col;
         col.getExtReg().setDefaultExtensionDeserializer(new FixedExtensionDeserializer());
+        if (schemaCollection.getNamespaceContext() == null) {
+        //      an empty prefix map avoids extra checks for null.
+            schemaCollection.setNamespaceContext(new NamespaceMap());
+        }
     }
 
     public boolean equals(Object obj) {
@@ -141,6 +146,20 @@ public class SchemaCollection {
     public void setSchemaResolver(URIResolver schemaResolver) {
         schemaCollection.setSchemaResolver(schemaResolver);
     }
+    
+    /**
+     * This function is not part of the XmlSchema API. Who knows why?
+     * @param namespaceURI targetNamespace
+     * @return schema, or null.
+     */
+    public XmlSchema getSchemaByTargetNamespace(String namespaceURI) {
+        for (XmlSchema schema : schemaCollection.getXmlSchemas()) {
+            if (schema.getTargetNamespace().equals(namespaceURI)) {
+                return schema;
+            }
+        }
+        return null;
+    }
 
     /**
      * This is a really ugly trick to get around a bug or oversight in XmlSchema, which is that
@@ -157,7 +176,7 @@ public class SchemaCollection {
         StringReader reader = new StringReader(tinyXmlSchemaDocument.toString());
         return schemaCollection.read(reader, new ValidationEventHandler() { });
     }
-
+    
     /**
      * Validate that a qualified name points to some namespace in the schema.
      * @param qname

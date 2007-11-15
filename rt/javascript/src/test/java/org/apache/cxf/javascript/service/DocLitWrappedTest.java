@@ -37,6 +37,8 @@ import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.javascript.BasicNameManager;
 import org.apache.cxf.javascript.JavascriptTestUtilities;
 import org.apache.cxf.javascript.NameManager;
+import org.apache.cxf.javascript.NamespacePrefixAccumulator;
+import org.apache.cxf.javascript.fortest.BasicTypeFunctionReturnStringWrapper;
 import org.apache.cxf.javascript.types.SchemaJavascriptBuilder;
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
 import org.apache.cxf.service.model.MessageInfo;
@@ -47,7 +49,7 @@ import org.apache.cxf.test.AbstractCXFSpringTest;
 import org.junit.Test;
 import org.mozilla.javascript.Scriptable;
 
-@org.junit.Ignore
+//@org.junit.Ignore
 public class DocLitWrappedTest extends AbstractCXFSpringTest {
     private static final Logger LOG = LogUtils.getL7dLogger(DocLitWrappedTest.class);
     private static final String BASIC_TYPE_FUNCTION_RETURN_STRING_SERIALIZER_NAME 
@@ -60,6 +62,7 @@ public class DocLitWrappedTest extends AbstractCXFSpringTest {
     private NameManager nameManager;
     private JaxWsProxyFactoryBean clientProxyFactory;
     private XMLInputFactory xmlInputFactory;
+    private NamespacePrefixAccumulator prefixManager;
 
     public DocLitWrappedTest() {
         testUtilities = new JavascriptTestUtilities(getClass());
@@ -79,11 +82,11 @@ public class DocLitWrappedTest extends AbstractCXFSpringTest {
         assertNotNull(dataBinding);
         // the serialize function takes an array of the five parameters.
         Object[] params = new Object[5];
-        params[0] = new String("Hello<Dolly&sheep");
-        params[1] = new Integer(42);
-        params[2] = new Long(420000);
-        params[3] = new Float("3.14159");
-        params[4] = new Double("7.90834");
+        params[0] = testUtilities.javaToJS(new Float("3.14159"));
+        params[1] = testUtilities.javaToJS(new Double("7.90834"));
+        params[2] = testUtilities.javaToJS(new Integer(42));
+        params[3] = testUtilities.javaToJS(new Long(420000));
+        params[4] = testUtilities.javaToJS(new String("Hello<Dolly&sheep"));
         Scriptable jsParamArray = 
             testUtilities.getRhinoContext().newArray(testUtilities.getRhinoScope(), params);
         Object xmlString = null;
@@ -102,14 +105,20 @@ public class DocLitWrappedTest extends AbstractCXFSpringTest {
         XMLStreamReader xmlStreamReader = xmlInputFactory.createXMLStreamReader(stringReader);
         boolean gotToPart = false;
         do {
-            xmlStreamReader.nextTag();
-            if (xmlStreamReader.getName().equals(part.getElementQName())) {
-                gotToPart = true;
+            int item = xmlStreamReader.next();
+            if (item == XMLStreamReader.START_ELEMENT) { 
+                LOG.finest(xmlStreamReader.getName().toString());
+                if (xmlStreamReader.getName().equals(part.getConcreteName())) {
+                    gotToPart = true;
+                }
             }
         } while (!gotToPart && xmlStreamReader.hasNext());
         assertTrue(gotToPart);
         Object messageObject = reader.read(part, xmlStreamReader);
         assertNotNull(messageObject);
+        assertTrue(messageObject instanceof BasicTypeFunctionReturnStringWrapper);
+        BasicTypeFunctionReturnStringWrapper wrapper = (BasicTypeFunctionReturnStringWrapper)messageObject;
+        assertEquals(params[4], wrapper.getS());
     }
 
     private void setupClientAndRhino(String clientProxyFactoryBeanId) throws IOException {
@@ -126,22 +135,24 @@ public class DocLitWrappedTest extends AbstractCXFSpringTest {
         ServiceInfo serviceInfo = serviceInfos.get(0);
         schemata = serviceInfo.getSchemas();
         nameManager = new BasicNameManager(serviceInfo);
+        prefixManager = new NamespacePrefixAccumulator(serviceInfo.getXmlSchemaCollection());
         for (SchemaInfo schema : schemata) {
             SchemaJavascriptBuilder builder = 
-                new SchemaJavascriptBuilder(serviceInfo.getXmlSchemaCollection(), nameManager, schema);
+                new SchemaJavascriptBuilder(serviceInfo.getXmlSchemaCollection(), 
+                                            prefixManager, nameManager, schema);
             String allThatJavascript = builder.generateCodeForSchema(schema);
             assertNotNull(allThatJavascript);
-            LOG.info(schema.toString());
-            LOG.info(allThatJavascript);
+            LOG.fine(schema.toString());
+            LOG.fine(allThatJavascript);
             testUtilities.readStringIntoRhino(allThatJavascript, schema.toString() + ".js");
         }
         
         ServiceJavascriptBuilder serviceBuilder = 
-            new ServiceJavascriptBuilder(serviceInfo, nameManager);
+            new ServiceJavascriptBuilder(serviceInfo, prefixManager, nameManager);
         serviceBuilder.walk();
         String serviceJavascript = serviceBuilder.getCode();
-        LOG.info(serviceInfo.toString());
-        LOG.info(serviceJavascript);
+        LOG.fine(serviceInfo.toString());
+        LOG.fine(serviceJavascript);
         testUtilities.readStringIntoRhino(serviceJavascript, serviceInfo.getName() + ".js");
     }
 }
