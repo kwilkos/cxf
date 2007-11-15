@@ -16,14 +16,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.acme.customer;
+package demo.restful.client;
 
 import org.apache.cxf.binding.http.HttpBindingFactory;
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
 
+import demo.restful.server.CustomerService;
+import demo.restful.server.Customers;
+import demo.restful.server.Customer;
+
 public final class ClientMain {
     private ClientMain() { }
-    
+
     public static void main(String[] args) throws Exception {
         JaxWsProxyFactoryBean sf = new JaxWsProxyFactoryBean();
         sf.setServiceClass(CustomerService.class);
