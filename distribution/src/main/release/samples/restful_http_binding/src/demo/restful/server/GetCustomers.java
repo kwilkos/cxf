@@ -16,20 +16,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.acme.customer;
+package demo.restful.server;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
-@XmlRootElement(name = "GetCustomer")
-public class GetCustomer {
-    private long id;
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
+@XmlRootElement(name = "GetCustomers")
+public class GetCustomers {
 
 }

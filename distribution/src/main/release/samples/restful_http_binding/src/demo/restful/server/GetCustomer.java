@@ -16,15 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.acme.customer;
+package demo.restful.server;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
-// START SNIPPET: bean
-@XmlRootElement(name = "Customer")
-public class Customer {
+@XmlRootElement(name = "GetCustomer")
+public class GetCustomer {
     private long id;
-    private String name;
 
     public long getId() {
         return id;
@@ -34,12 +32,4 @@ public class Customer {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
 }
-// END SNIPPET: bean

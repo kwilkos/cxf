@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.acme.customer;
+package demo.restful.server;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -69,7 +69,7 @@ public class CustomerServiceImpl implements CustomerService {
 
     final Customer createCustomer() {
         Customer c = new Customer();
-        c.setName("Dan Diephouse");
+        c.setName("John");
         c.setId(123);
         return c;
     }
