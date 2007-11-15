@@ -44,8 +44,8 @@ import org.apache.cxf.transport.MessageObserver;
 import org.codehaus.jettison.mapped.MappedXMLInputFactory;
 import org.codehaus.jettison.mapped.MappedXMLOutputFactory;
 
-public final class Main {
-    private Main() { }
+public final class Server {
+    private Server() { }
 
     public static void main(String[] args) throws Exception {
         CustomerServiceImpl bs = new CustomerServiceImpl();

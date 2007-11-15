@@ -23,11 +23,11 @@
     <import file="../common_build.xml"/>        
         
     <target name="client" description="run demo client" depends="build">
-        <cxfrun classname="demo.restful.client.ClientMain"/>
+        <cxfrun classname="demo.restful.client.Client"/>
     </target> 
         
     <target name="server" description="run demo server" depends="build">
-        <cxfrun classname="demo.restful.server.Main"/>
+        <cxfrun classname="demo.restful.server.Server"/>
     </target>
 
 </project>
