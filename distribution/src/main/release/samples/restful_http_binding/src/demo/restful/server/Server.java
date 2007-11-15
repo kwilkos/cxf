@@ -109,7 +109,7 @@ public final class Server {
 
         // Set up the JSON StAX implementation
         Map<String, String> nstojns = new HashMap<String, String>();
-        nstojns.put("http://customer.acme.com", "acme");
+        nstojns.put("http://demo.restful.server", "acme");
 
         MappedXMLInputFactory xif = new MappedXMLInputFactory(nstojns);
         properties.put(XMLInputFactory.class.getName(), xif);
