@@ -23,7 +23,6 @@ import java.net.URI;
 
 import javax.xml.namespace.QName;
 
-public interface ServiceContactResolver {
+public interface ServiceContractResolver {
     URI getContractLocation(QName qname);
-
 }

@@ -29,9 +29,9 @@ import java.util.jar.JarFile;
 
 import javax.xml.namespace.QName;
 
-import org.apache.cxf.endpoint.ServiceContactResolver;
+import org.apache.cxf.endpoint.ServiceContractResolver;
 
-public class JarServiceContactResolver implements ServiceContactResolver {
+public class JarServiceContractResolver implements ServiceContractResolver {
 
     private URI uri;
     
