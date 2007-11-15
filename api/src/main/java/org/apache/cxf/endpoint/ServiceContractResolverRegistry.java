@@ -25,8 +25,8 @@ import javax.xml.namespace.QName;
 
 public interface ServiceContractResolverRegistry {
     URI getContractLocation(QName qname);
-    void register(ServiceContactResolver resolver);
-    void unregister(ServiceContactResolver resolver);
-    boolean isRegistered(ServiceContactResolver resolver);
+    void register(ServiceContractResolver resolver);
+    void unregister(ServiceContractResolver resolver);
+    boolean isRegistered(ServiceContractResolver resolver);
 
 }

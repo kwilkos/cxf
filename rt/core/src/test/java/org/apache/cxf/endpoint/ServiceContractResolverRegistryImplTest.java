@@ -34,8 +34,8 @@ import org.junit.Test;
 
 public class ServiceContractResolverRegistryImplTest extends Assert {
     private ServiceContractResolverRegistryImpl registry;
-    private ServiceContactResolver resolver1;
-    private ServiceContactResolver resolver2;
+    private ServiceContractResolver resolver1;
+    private ServiceContractResolver resolver2;
     private URI uri1;
     private URI uri2;
     private IMocksControl control;
@@ -45,8 +45,8 @@ public class ServiceContractResolverRegistryImplTest extends Assert {
     public void setUp() throws URISyntaxException {
         registry = new ServiceContractResolverRegistryImpl();
         control = EasyMock.createNiceControl();
-        resolver1 = control.createMock(ServiceContactResolver.class);
-        resolver2 = control.createMock(ServiceContactResolver.class);
+        resolver1 = control.createMock(ServiceContractResolver.class);
+        resolver2 = control.createMock(ServiceContractResolver.class);
         uri1 = new URI("http://mock");
         uri2 = new URI("file:///foo/bar");
 
