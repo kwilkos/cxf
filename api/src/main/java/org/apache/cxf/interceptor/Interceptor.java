@@ -24,7 +24,7 @@ import org.apache.cxf.message.Message;
 public interface Interceptor<T extends Message> {
     /**
      * Intercepts a message. 
-     * Interceptors need NOT invoke handleMessage or handleFault
+     * Interceptors should NOT invoke handleMessage or handleFault
      * on the next interceptor - the interceptor chain will
      * take care of this.
      * 
