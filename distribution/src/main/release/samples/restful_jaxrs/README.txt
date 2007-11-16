@@ -1,5 +1,5 @@
 RESTful JAX-RS World Demo 
-========================
+=========================
 
 The demo shows REST based Web Services using JAX-RS (JSR-311). The REST server provides the following services: 
 
@@ -45,7 +45,7 @@ continuing.
 
 
 Prerequisites
-------------
+-------------
 
 If your environment already includes cxf-manifest-incubator.jar on the
 CLASSPATH, and the JDK and ant bin directories on the PATH
@@ -59,6 +59,7 @@ environment.
 
 Building and running the demo using Ant
 ---------------------------------------
+
 From the base directory of this sample (i.e., where this README file is
 located), the Ant build.xml file can be used to build and run the demo. 
 The server and client targets automatically build the demo.
