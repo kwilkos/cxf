@@ -59,8 +59,11 @@ public class ClientProxyFactoryBean extends AbstractBasicInterceptorProvider {
     private DataBinding dataBinding;
     
     public ClientProxyFactoryBean() {
+        this(new ClientFactoryBean());
+    }
+    public ClientProxyFactoryBean(ClientFactoryBean fact) {
         super();
-        this.clientFactoryBean = new ClientFactoryBean();
+        this.clientFactoryBean = fact;
     }
 
     public Object create() {
