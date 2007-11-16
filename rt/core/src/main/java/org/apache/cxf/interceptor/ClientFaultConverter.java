@@ -146,7 +146,17 @@ public class ClientFaultConverter extends AbstractPhaseInterceptor<Message> {
                     e = constructor.newInstance(new Object[]{fault.getMessage()});
                 } else {
                     Class<?> beanClass = e.getClass();
-                    Constructor constructor = exClass.getConstructor(new Class[]{String.class, beanClass});
+                    Constructor constructor = null;
+                    try {
+                        constructor = exClass.getConstructor(new Class[]{String.class, beanClass});
+                    } catch (NoSuchMethodException ex) {
+                        Class<?> cls = getPrimitiveClass(beanClass);
+                        if (cls != null) {
+                            constructor = exClass.getConstructor(new Class[]{String.class, cls});
+                        } else {
+                            throw ex;
+                        }
+                    }
                     e = constructor.newInstance(new Object[]{fault.getMessage(), e});
                 }
                 msg.setContent(Exception.class, e);
@@ -201,5 +211,22 @@ public class ClientFaultConverter extends AbstractPhaseInterceptor<Message> {
             }
         }
 
+    }
+    
+    private Class<?> getPrimitiveClass(Class<?> cls) {
+        if (cls.isPrimitive()) {
+            return cls;
+        }
+        try {
+            Field field = cls.getField("TYPE");
+            Object obj = (Object)cls;
+            Object type = field.get(obj);
+            if (type instanceof Class) {
+                return (Class)type;
+            }
+        } catch (Exception e) {
+            // do nothing
+        }
+        return null;
     }
 }

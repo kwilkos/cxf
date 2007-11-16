@@ -85,8 +85,7 @@ Examples:
                 </annotation>
                 <switch>sn</switch>
                 <associatedArgument placement="afterSpace">
-                    <valuetype>NamingSpacePackageString</valuetype>
-                    <annotation>[wsdl namespace =]Package Name</annotation>
+                    <annotation>service-name</annotation>
                 </associatedArgument>
             </option>
 
