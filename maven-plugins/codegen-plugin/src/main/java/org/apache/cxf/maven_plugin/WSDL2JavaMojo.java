@@ -73,8 +73,8 @@ public class WSDL2JavaMojo extends AbstractMojo {
     WsdlOption wsdlOptions[];
 
     /**
-     * Use the compile classspath rather than the test classpath for execution
-     * usefull if the test dependencies clash with thoes of wsdl2java
+     * Use the compile classpath rather than the test classpath for execution
+     * useful if the test dependencies clash with those of wsdl2java
      * @parameter
      */
     boolean useCompileClasspath;
