@@ -69,7 +69,7 @@ public abstract class AbstractEndpointSelectionInterceptor extends AbstractPhase
     }
 
     /**
-     * Select an Endpoint which will be used for the rest of the inocation.
+     * Select an Endpoint which will be used for the rest of the invocation.
      * 
      * @param message
      * @param eps
