@@ -1,8 +1,8 @@
 HELLO WORLD (SOAP OVER HTTP) CXF J2EE OUTBOUND DEMO
-============================================
-============================================
+===================================================
 
-This demo will show how to connect with an Apache CXF Web service using a
+
+This demo shows how to connect with an Apache CXF Web service using a
 Servlet deployed in an application server.
 
 

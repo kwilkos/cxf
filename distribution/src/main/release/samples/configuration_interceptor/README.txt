@@ -1,10 +1,12 @@
 Stream GZIP Interceptor Demo 
 ============================
+
 This demo shows how to develope an user interceptor and add
 the interceptor into the interceptor chain through configuration.
 
 Please review the README in the samples directory before
 continuing.
+
 
 Prerequisite
 ------------
@@ -20,6 +22,7 @@ environment.
 
 Building and running the demo using Ant
 ---------------------------------------
+
 From the base directory of this sample (i.e., where this README file is
 located), the Ant build.xml file can be used to build and run the demo. 
 The server and client targets automatically build the demo.
@@ -36,8 +39,9 @@ files, run "ant clean".
 Building the demo using wsdl2java and javac
 -------------------------------------------
 
-From the samples/configuration_interceptor directory, first create the target
-directory build/classes and then generate code from the WSDL file.
+From the base directory of this sample (i.e., where this README file is
+located) first create the target directory build/classes and then 
+generate code from the WSDL file.
 
 For UNIX:
   mkdir -p build/classes
@@ -67,12 +71,11 @@ For Windows:
   javac -d build\classes src\demo\stream\server\*.java
 
 
-
 Running the demo using java
 ---------------------------
 
-From the samples/configuration_interceptor directory run the commands, entered on a
-single command line:
+From the base directory of this sample (i.e., where this README file is
+located) run the commands, entered on a single command line:
 
 For UNIX (must use forward slashes):
     java -Dcxf.config.file=server.xml

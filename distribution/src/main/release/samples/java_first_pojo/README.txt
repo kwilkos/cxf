@@ -1,5 +1,5 @@
 Java First POJO DEMO
-=============================================
+====================
 
 This demo illustrates how to develop a service use the "code first", pojo based.
 This demo uses the JAXB Data binding by default, but you can use Aegis Data binding by 
@@ -13,6 +13,7 @@ uncomment below four lines:
 //import org.apache.cxf.aegis.databinding.AegisDatabinding;
 //svrFactory.getServiceFactory().setDataBinding(new AegisDatabinding());
 
+
 Prerequisite
 ------------
 
@@ -25,9 +26,9 @@ javac, and java to build and run the demos, you must set the
 environment.
 
 
-
 Building and running the demo using Ant
 ---------------------------------------
+
 From the base directory of this sample (i.e., where this README file is
 located), the Ant build.xml file can be used to build and run the demo. 
 The server and client targets automatically build the demo.
@@ -42,12 +43,11 @@ To remove the code generated from the WSDL file and the .class
 files, run "ant clean"
 
 
+Building the demo using javac
+------------------------------
 
-Building the demo using  javac
--------------------------------------------
-
-From the samples/java_first_pojo directory, first create the target
-directory build/classes.
+From the base directory of this sample (i.e., where this README file is
+located), first create the target directory build/classes:
 
 For UNIX:
   mkdir -p build/classes
@@ -70,12 +70,11 @@ For Windows:
   javac -d build\classes src\demo\hw\server\*.java
 
 
-
 Running the demo using java
 ---------------------------
 
-From the samples/java_first_pojo directory run the commands, entered on a
-single command line:
+From the base directory of this sample (i.e., where this README file is
+located) run the commands, entered on a single command line:
 
 For UNIX (must use forward slashes):
     java -Djava.util.logging.config.file=$CXF_HOME/etc/logging.properties
@@ -102,7 +101,6 @@ To remove the code generated from the WSDL file and the .class
 files, either delete the build directory and its contents or run:
 
   ant clean
-
 
 
 Building and running the demo in a servlet container

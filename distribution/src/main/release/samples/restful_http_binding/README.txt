@@ -1,5 +1,5 @@
 RESTful HTTP Binding Demo 
-========================
+=========================
 
 This demo shows how to create RESTful services using CXF's HTTP binding.
 The server in the demo creates 3 different endpoints: a RESTful XML

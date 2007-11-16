@@ -4,6 +4,7 @@ Java First demo using jax-ws APIs and jsr-181
 This demo illustrates how to develop a service use the "code first"
 approach using the JAX-WS APIs.
 
+
 Prerequisite
 ------------
 
@@ -14,7 +15,6 @@ the samples directory README.  If your environment is not
 properly configured, or if you are planning on using wsdl2java,
 javac, and java to build and run the demos, you must set the
 environment.
-
 
 
 Building and running the demo using ant
@@ -29,11 +29,13 @@ Using either UNIX or Windows:
   ant server  (from one command line window)
   ant client  (from a second command line window)
 
-Building the demo using javac
--------------------------------------------
 
-From the samples/java_first_jaxws directory, first create the target
-directory build/classes and then compile the provided client and server code.
+Building the demo using javac
+-----------------------------
+
+From the base directory of this sample (i.e., where this README file is
+located), first create the target directory build/classes and then compile 
+the provided client and server code.
 
 For UNIX:  
   
@@ -49,12 +51,11 @@ For Windows:
   javac -d build\classes src\demo\hw\server\*.java
 
 
-
 Running the demo using java
 ---------------------------
 
-From the samples/java_first_jaxws directory run the commands, entered on a
-single command line:
+From the base directory of this sample (i.e., where this README file is
+located) run the commands, entered on a single command line:
 
 For UNIX (must use forward slashes):
     java -Djava.util.logging.config.file=$CXF_HOME/etc/logging.properties
