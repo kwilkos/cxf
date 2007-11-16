@@ -27,8 +27,7 @@ import org.apache.cxf.jaxws.support.JaxWsEndpointImpl;
 
 public class JaxWsProxyFactoryBean extends ClientProxyFactoryBean {
     public JaxWsProxyFactoryBean() {
-        super();
-        setClientFactoryBean(new JaxWsClientFactoryBean());
+        super(new JaxWsClientFactoryBean());
     }
 
     @Override
