@@ -61,8 +61,9 @@ files, run "ant clean".
 Buildng the demo using wsdl2java and javac
 ------------------------------------------
 
-From the samples/ws_policy directory, first create the target directory
-build/classes and then generate code from the WSDL file.
+From the base directory of this sample (i.e., where this README file is
+located) first create the target directory build/classes and then 
+generate code from the WSDL file.
 
 For UNIX:
   mkdir -p build/classes
@@ -91,10 +92,12 @@ For Windows:
   javac -d build\classes src\demo\ws_policy\client\*.java
   javac -d build\classes src\demo\ws_policy\server\*.java
 
+
 Running the demo using java
 ---------------------------
 
-From the samples/ws_policy directory run the commands (entered on a single command line):
+From the base directory of this sample (i.e., where this README file is
+located) run the commands, entered on a single command line:
 
 For UNIX (must use forward slashes):
     java -Djava.util.logging.config.file=./logging.properties

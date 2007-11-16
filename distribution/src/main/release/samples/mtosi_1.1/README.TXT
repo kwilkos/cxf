@@ -1,6 +1,5 @@
 MTOSI 1.1 Samples
 =================
-=================
 
 mtosi_1.1 contains the following subdirectories:
 

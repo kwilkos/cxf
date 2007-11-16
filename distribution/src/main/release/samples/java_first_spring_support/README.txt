@@ -1,5 +1,6 @@
 Spring HTTP demo
-=============================================
+================
+
 This example will lead you through creating your first service with
 Spring. You'll learn how to:
 
@@ -21,7 +22,6 @@ the samples directory README.  If your environment is not
 properly configured, or if you are planning on using wsdl2java,
 javac, and java to build and run the demos, you must set the
 environment.
-
 
 
 Building and running the demo using Ant

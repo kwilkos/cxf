@@ -56,8 +56,10 @@ If your environment is not properly configured, or if you are planning
 on using wsdl2java, javac, and java to build and run the demos, you must
 set the environment by running the script.
 
+
 Building and running the demo using Ant
 ---------------------------------------
+
 From the base directory of this sample (i.e., where this README file is
 located), the Ant build.xml file can be used to build and run the demo. 
 The server and client targets automatically build the demo.
@@ -82,8 +84,10 @@ files, run "ant clean".
 Building the demo using wsdl2java and javac
 -------------------------------------------
 
-From the samples/ws_rm directory, first create the target directory
-build/classes and then generate code from the WSDL file.
+From the base directory of this sample (i.e., where this README file is
+located) first create the target directory build/classes and then 
+generate code from the WSDL file.
+
 
 For UNIX:
   mkdir -p build/classes
@@ -112,10 +116,12 @@ For Windows:
   javac -d build\classes src\demo\ws_rm\client\*.java
   javac -d build\classes src\demo\ws_rm\server\*.java
 
+
 Running the demo using java
 ---------------------------
 
-From the samples/ws_rm directory run the commands (entered on a single command line):
+From the base directory of this sample (i.e., where this README file is
+located) run the commands, entered on a single command line:
 
 For UNIX (must use forward slashes):
     java -Djava.util.logging.config.file=./logging.properties
