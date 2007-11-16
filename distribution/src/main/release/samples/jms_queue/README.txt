@@ -1,5 +1,5 @@
 JMS Transport Demo using Document-Literal Style
-==========================================================
+===============================================
 
 This sample demonstrates use of the Document-Literal style 
 binding over JMS Transport using the queue mechanism.
@@ -13,6 +13,7 @@ such as Apache Qpid could also be used in the same way.
 For details on how to use this demo on non-ActiveMQ 
 implementations please check "Using other JMS implementaions"
 below.
+
 
 Prerequisite
 ------------
@@ -81,12 +82,12 @@ To remove the code generated from the WSDL file and the .class
 files, run "ant clean".
 
 
-
 Building the demo using wsdl2java and javac
 -------------------------------------------
 
-From the samples/jms_queue directory, first create the target
-directory build/classes and then generate code from the WSDL file.
+From the base directory of this sample (i.e., where this README file is
+located) first create the target directory build/classes and then 
+generate code from the WSDL file.
 
 For UNIX:
   mkdir -p build/classes
@@ -116,12 +117,11 @@ For Windows:
   javac -d build\classes src\demo\jms_greeter\server\*.java
 
 
-
 Running the demo using java
 ---------------------------
 
-From the samples/jms_queue directory run the commands, entered on a
-single command line:
+From the base directory of this sample (i.e., where this README file is
+located) run the commands, entered on a single command line:
 
 For UNIX (must use forward slashes):
     java -Djava.util.logging.config.file=$CXF_HOME/etc/logging.properties
@@ -152,11 +152,14 @@ files, either delete the build directory and its contents or run:
 
   ant clean
 
+
 Using other JMS implementations:
 -------------------------------
 
+
 Using it with Apache Qpid:  
 -------------------------
+
 Before running the run, you will have to set QPID_HOME in your environment, 
 and also have to start the Qpid broker. 
 

@@ -5,7 +5,6 @@ Please review the README in the samples directory before
 continuing.
 
 
-
 Prerequisite
 ------------
 
@@ -16,7 +15,6 @@ the samples directory README.  If your environment is not
 properly configured, or if you are planning on using wsdl2java,
 javac, and java to build and run the demos, you must set the
 environment.
-
 
 
 Building and running the demo using Ant
@@ -34,12 +32,12 @@ To remove the code generated from the WSDL file and the .class
 files, run "ant clean".
 
 
-
 Building the demo using wsdl2java and javac
 -------------------------------------------
 
-From the samples/in_jvm_transport directory, first create the target
-directory build/classes and then generate code from the WSDL file.
+From the base directory of this sample (i.e., where this README file is
+located) first create the target directory build/classes and then 
+generate code from the WSDL file.
 
 For UNIX:
   mkdir -p build/classes
@@ -67,12 +65,11 @@ For Windows:
   javac -d build\classes src\demo\colocated\client\*.java
 
 
-
 Running the demo using java
 ---------------------------
 
-From the samples/in_jvm_transport directory run the commands, entered on a
-single command line:
+From the base directory of this sample (i.e., where this README file is
+located) run the commands, entered on a single command line:
 
 For UNIX (must use forward slashes):
     java -Djava.util.logging.config.file=$CXF_HOME/etc/logging.properties

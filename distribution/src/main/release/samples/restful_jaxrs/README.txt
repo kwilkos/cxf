@@ -56,7 +56,6 @@ javac, and java to build and run the demos, you must set the
 environment.
 
 
-
 Building and running the demo using Ant
 ---------------------------------------
 
@@ -74,13 +73,12 @@ To remove the code generated from the WSDL file and the .class
 files, run "ant clean".
 
 
-
 Building the demo using wsdl2java and javac
 -------------------------------------------
 
-From the samples/restful_jaxrs directory, first create the target
-directory build/classes and then compile the provided client 
-and server applications with the commands:
+From the base directory of this sample (i.e., where this README file is
+located), first create the target directory build/classes and then 
+compile the provided client and server applications with the commands:
 
 For UNIX:  
   mkdir -p build/classes

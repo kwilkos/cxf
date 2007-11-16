@@ -8,7 +8,6 @@ Please review the README in the samples directory before
 continuing.
 
 
-
 Prerequisite
 ------------
 
@@ -19,7 +18,6 @@ the samples directory README.  If your environment is not
 properly configured, or if you are planning on using wsdl2java,
 javac, and java to build and run the demos, you must set the
 environment by running the script.
-
 
 
 Building and running the demo using Ant

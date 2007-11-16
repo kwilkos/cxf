@@ -1,5 +1,5 @@
 Hello World Demo using BARE Style in XML Binding (pure XML over HTTP)
-=============================================
+=====================================================================
 
 This demo illustrates the use of Apache CXF's xml binding. This 
 specific demo shows you how xml binding works with the 
@@ -21,7 +21,6 @@ javac, and java to build and run the demos, you must set the
 environment.
 
 
-
 Building and running the demo using Ant
 ---------------------------------------
 From the base directory of this sample (i.e., where this README file is
@@ -38,12 +37,12 @@ To remove the code generated from the WSDL file and the .class
 files, run "ant clean".
 
 
-
 Building the demo using wsdl2java and javac
 -------------------------------------------
 
-From the samples/wsdl_first_pure_xml directory, first create the target
-directory build/classes and then generate code from the WSDL file.
+From the base directory of this sample (i.e., where this README file is
+located) first create the target directory build/classes and then 
+generate code from the WSDL file.
 
 For UNIX:
   mkdir -p build/classes
@@ -71,12 +70,11 @@ For Windows:
   javac -d build\classes src\demo\hw\server\*.java
 
 
-
 Running the demo using java
 ---------------------------
 
-From the samples/wsdl_first_pure_xml directory run the following 
-commands. They are entered on a single command line.
+From the base directory of this sample (i.e., where this README file is
+located) run the commands, entered on a single command line:
 
 For UNIX (must use forward slashes):
     java -Djava.util.logging.config.file=$CXF_HOME/etc/logging.properties
@@ -103,7 +101,6 @@ To remove the code generated from the WSDL file and the .class
 files, either delete the build directory and its contents or run:
 
   ant clean
-
 
 
 Building and running the demo in a servlet container
@@ -140,7 +137,8 @@ e.g., 8080.
 
 
 Running demo with HTTP GET
-----------------------------------------------------
+--------------------------
+
 APACHE CXF support HTTP GET to invoke the service, instead of running 
 
    ant client

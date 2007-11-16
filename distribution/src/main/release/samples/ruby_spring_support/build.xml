@@ -20,7 +20,7 @@
 <project name="Spring HTTP Servlet demo" default="build" basedir=".">
 
     <property name="maven.repo" value="http://repo1.maven.org/maven2"/>
-    <property name="spring.version" value="2.0.4"/>
+    <property name="spring.version" value="2.0.6"/>
     
     <property name="spring-aop.jar" value="spring-aop-${spring.version}.jar"/>
     <property name="spring-support.jar" value="spring-support-${spring.version}.jar"/>

@@ -19,15 +19,15 @@
 
 package demo.jaxrs.server;
 
-import org.apache.cxf.jaxrs.JAXRSBindingFactory;
 import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
+import org.apache.cxf.jaxrs.lifecycle.SingletonResourceProvider;
 
 public class Server {
 
     protected Server() throws Exception {
         JAXRSServerFactoryBean sf = new JAXRSServerFactoryBean();
         sf.setResourceClasses(CustomerService.class);
-        sf.setBindingId(JAXRSBindingFactory.JAXRS_BINDING_ID);
+        sf.setResourceProvider(CustomerService.class, new SingletonResourceProvider());
         sf.setAddress("http://localhost:9000/");
 
         sf.create();
