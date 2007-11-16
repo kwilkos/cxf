@@ -1,5 +1,5 @@
 JAX-WS Dispatch/Provider Demo 
-======================================================
+=============================
 
 The demo demonstrates the use of JAX-WS Dispatch and Provider interface.
 The client side Dispatch instance invokes upon an endpoint using a JAX-WS 
@@ -25,9 +25,9 @@ javac, and java to build and run the demos, you must set the
 environment.
 
 
-
 Building and running the demo using Ant
 ---------------------------------------
+
 From the base directory of this sample (i.e., where this README file is
 located), the Ant build.xml file can be used to build and run the demo. 
 The server and client targets automatically build the demo.
@@ -42,12 +42,13 @@ To remove the code generated from the WSDL file and the .class
 files, run "ant clean".
 
 
-
 Building the demo using wsdl2java and javac
 -------------------------------------------
 
-From the samples/jaxws_dispatch_provider directory, first create the target
-directory build/classes and then generate code from the WSDL file.
+From the base directory of this sample (i.e., where this README file is
+located) first create the target directory build/classes and then 
+generate code from the WSDL file.
+
 
 For UNIX:
   mkdir -p build/classes
@@ -85,12 +86,11 @@ For Windows:
   copy src\demo\hwDispatch\server\*.xml build\classes\demo\hwDispatch\server
 
 
-
 Running the demo using java
 ---------------------------
 
-From the samples/jaxws_dispatch directory run the commands, entered on a
-single command line:
+From the base directory of this sample (i.e., where this README file is
+located) run the commands, entered on a single command line:
 
 For UNIX (must use forward slashes):
     java -Djava.util.logging.config.file=$CXF_HOME/etc/logging.properties

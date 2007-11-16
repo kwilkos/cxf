@@ -1,19 +1,19 @@
 Hello World Client Demo using JavaScript 
-=========================================================
+========================================
+
 The client demo demonstrates the use of (non-browser)
 JavaScript to call a CXF server.
 
-The client side makes call by JAXWS. It uses the Mozilla Rhino library 
+The client side makes call using JAX-WS APIs. It uses the Mozilla Rhino library 
 to read the JavaScript file and run it.
 
 
-
 Building and running the demo server using ant
----------------------------------------
+----------------------------------------------
 
-From the samples/wsdl_first directory, the ant build script
-can be used to build and run the demo.
-
+From the base directory of this sample (i.e., where this README file is
+located), the Ant build.xml file can be used to build and run the demo. 
+The server and client targets automatically build the demo.
 Using either UNIX or Windows:
 
   ant build
@@ -24,8 +24,10 @@ files, run:
 
   ant clean
 
+
 Running the JavaScript client
 -----------------------------
+
 In another command line window, run the ant "client" target from 
 the build.xml file located in the same directory as this README.
 

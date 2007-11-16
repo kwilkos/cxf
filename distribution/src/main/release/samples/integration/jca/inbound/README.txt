@@ -1,9 +1,8 @@
 INBOUND CONNECTION CXF J2EE DEMO
-==================================
-==================================
+================================
 
  
-This demo will show how to expose an Enterprise Java Bean over
+This demo shows how to expose an Enterprise Java Bean over
 SOAP/HTTP using CXF. 
 
 

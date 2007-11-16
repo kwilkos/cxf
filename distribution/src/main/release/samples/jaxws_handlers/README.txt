@@ -1,5 +1,5 @@
 JAX-WS Handler Demo
-============
+===================
 
 This demo shows how JAX-WS handlers are used.  The server uses a
 SOAP protocol handler which logs incoming and outgoing messages
@@ -67,8 +67,10 @@ files, run "ant clean".
 Building the demo using wsdl2java and javac
 -------------------------------------------
 
-From the samples/jaxws_handlers directory, first create the target directory
-build/classes and then generate code from the WSDL file.
+From the base directory of this sample (i.e., where this README file is
+located) first create the target directory build/classes and then 
+generate code from the WSDL file.
+
 
 For UNIX:
   mkdir -p build/classes
@@ -110,7 +112,8 @@ For Windows:
 Running the demo using java
 ---------------------------
 
-From the samples/jaxws_handlers directory run the commands (entered on a single command line):
+From the base directory of this sample (i.e., where this README file is
+located) run the commands, entered on a single command line:
 
 For UNIX (must use forward slashes):
     java -Djava.util.logging.config.file=$CXF_HOME%/etc/logging.properties

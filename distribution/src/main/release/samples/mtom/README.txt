@@ -1,12 +1,11 @@
 MTOM Demo for SWA & XOP
-=============================================
+=======================
 
 This demo illustrates the use of a SOAP message 
 with an attachment and XML-binary Optimized Packaging.
 
 Please review the README in the samples directory before
 continuing.
-
 
 
 Prerequisite
@@ -19,7 +18,6 @@ the samples directory's README.  If your environment is not
 properly configured, or if you are planning on using wsdl2java,
 javac, and java to build and run the demos, you must set the
 environment.
-
 
 
 Building and running the demo using Ant
@@ -37,12 +35,12 @@ To remove the code generated from the WSDL file and the .class
 files, run "ant clean".
 
 
-
 Building the demo using wsdl2java and javac
 -------------------------------------------
 
-From the samples/mtom directory, first create the target
-directory build/classes and then generate code from the WSDL file.
+From the base directory of this sample (i.e., where this README file is
+located), first create the target directory build/classes and then 
+generate code from the WSDL file.
 
 For UNIX:
   mkdir -p build/classes
@@ -75,8 +73,8 @@ For Windows:
 Running the demo using java
 ---------------------------
 
-From the samples/mtom directory run the following commands. 
-They are entered on a single command line.
+From the base directory of this sample (i.e., where this README file is
+located) run the commands, entered on a single command line:
 
 For UNIX (must use forward slashes):
     java -Djava.util.logging.config.file=$CXF_HOME/etc/logging.properties
@@ -105,13 +103,12 @@ files, either delete the build directory and its contents or run:
   ant clean
 
 
-
 Building and running the demo in a servlet container
 ----------------------------------------------------
 
-From the samples/mtom directory, the ant build script
-can be used to create the war file that is deployed into the
-servlet container.
+From the base directory of this sample (i.e., where this README file is
+located), the ant build script can be used to create the war file that 
+is deployed into the servlet container.
 
 Build the war file with the command:
 
