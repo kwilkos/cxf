@@ -1,8 +1,8 @@
 RESTful Hello World Demo 
 ========================
 
-The demo shows REST based Web Services using the HTTP binding and 
-JAX-WS Provider/Dispatch. The REST server provides the following services: 
+The demo shows REST based Web Services using the JAX-WS Provider/Dispatch. 
+The REST server provides the following services: 
 
 A RESTful customer service is provided on URL http://localhost:9000/customerservice/customer. 
 Users access this URI to query or update customer info.
