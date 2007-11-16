@@ -26,6 +26,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import javax.jws.WebService;
 import javax.xml.namespace.QName;
+import javax.xml.ws.WebFault;
 import javax.xml.ws.WebServiceClient;
 
 import org.apache.cxf.common.i18n.Message;
@@ -888,5 +889,18 @@ public class CodeGenBugTest extends ProcessorTestBase {
         assertNotNull("Customized SEI class is not found", clz);
         Method customizedMethod = clz.getMethod("myGreetMe", new Class[] {String.class});
         assertNotNull("Customized method 'myGreetMe' in MyGreeter.class is not found", customizedMethod);
-    }  
+    }
+    
+    
+    @Test
+    public void testCXF964() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, 
+                getLocation("/wsdl2java_wsdl/cxf964/hello_world_fault.wsdl"));      
+        processor.setContext(env);
+        processor.execute();
+        Class<?> clz = classLoader.loadClass("org.apache.intfault.BadRecordLitFault");
+        WebFault webFault = AnnotationUtil.getPrivClassAnnotation(clz, WebFault.class);
+        assertEquals("int", webFault.name());
+    }
+    
 }
