@@ -59,7 +59,7 @@ public class ResponseWrapperTest extends Assert {
         Method method = (Method)opInfo.getProperty("operation.method");
 
         JavaField field  = responseWrapper.buildFields(method, message).get(0);
-        assertEquals("_return", field.getName());
+        assertEquals("_return", field.getParaName());
         assertEquals("String[]", field.getType());
 
         // Test int[]
@@ -71,7 +71,7 @@ public class ResponseWrapperTest extends Assert {
         method = (Method) opInfo.getProperty("operation.method");
 
         field = responseWrapper.buildFields(method, message).get(0);
-        assertEquals("_return", field.getName());
+        assertEquals("_return", field.getParaName());
         assertEquals("int[]", field.getType());
 
         // Test TestDataBean[]
@@ -83,7 +83,7 @@ public class ResponseWrapperTest extends Assert {
         method = (Method) opInfo.getProperty("operation.method");
 
         field = responseWrapper.buildFields(method, message).get(0);
-        assertEquals("_return", field.getName());
+        assertEquals("_return", field.getParaName());
         assertEquals("org.apache.cxf.tools.fortest.withannotation.doc.TestDataBean[]", field.getType());
     }
 

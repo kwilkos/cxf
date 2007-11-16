@@ -62,9 +62,9 @@ public class JavaField extends JavaType implements JavaAnnotatable {
     }
 
     public String getName() {
-        if (URIParserUtil.containsReservedKeywords(this.name)) {
+        /*if (URIParserUtil.containsReservedKeywords(this.name)) {
             return "_" + this.name;
-        }
+        }*/
         return this.name;
     }
     
@@ -77,6 +77,13 @@ public class JavaField extends JavaType implements JavaAnnotatable {
             return new Annotation[]{};
         } 
         return jaxbAnnotations;
+    }
+    
+    public String getParaName() {
+        if (URIParserUtil.containsReservedKeywords(this.name)) {
+            return "_" + this.name;
+        }
+        return this.name;
     }
     
 }

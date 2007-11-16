@@ -26,6 +26,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import javax.jws.WebService;
 import javax.xml.namespace.QName;
+import javax.xml.ws.WebFault;
 import javax.xml.ws.WebServiceClient;
 
 import org.apache.cxf.common.i18n.Message;
@@ -898,5 +899,17 @@ public class CodeGenBugTest extends ProcessorTestBase {
                 getLocation("/wsdl2java_wsdl/cxf1209/hello_world_fault.wsdl"));        
         processor.setContext(env);
         processor.execute();
-    }    
+    }
+    
+    @Test
+    public void testCXF964() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, 
+                getLocation("/wsdl2java_wsdl/cxf964/hello_world_fault.wsdl"));      
+        processor.setContext(env);
+        processor.execute();
+        Class<?> clz = classLoader.loadClass("org.apache.intfault.BadRecordLitFault");
+        WebFault webFault = AnnotationUtil.getPrivClassAnnotation(clz, WebFault.class);
+        assertEquals("int", webFault.name());
+    }
+    
 }

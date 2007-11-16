@@ -44,16 +44,16 @@ public class JavaClass extends JavaInterface {
     }
 
     public JavaMethod appendGetter(JavaField field) {
-        String getterName = "get" + StringUtils.capitalize(field.getName());
+        String getterName = "get" + StringUtils.capitalize(field.getParaName());
         JavaMethod jMethod = new JavaMethod(this);
         jMethod.setName(getterName);
-        jMethod.setReturn(new JavaReturn(field.getName(),
+        jMethod.setReturn(new JavaReturn(field.getParaName(),
                                          field.getType(),
                                          field.getTargetNamespace()));
 
         JavaCodeBlock block = new JavaCodeBlock();
         JavaExpression exp = new JavaExpression();
-        exp.setValue("return this." + field.getName());
+        exp.setValue("return this." + field.getParaName());
         block.getExpressions().add(exp);
 
         jMethod.setJavaCodeBlock(block);
@@ -63,16 +63,16 @@ public class JavaClass extends JavaInterface {
     }
 
     public JavaMethod appendSetter(JavaField field) {
-        String setterName = "set" + StringUtils.capitalize(field.getName());
+        String setterName = "set" + StringUtils.capitalize(field.getParaName());
         JavaMethod jMethod = new JavaMethod(this);
         jMethod.setReturn(new JavaReturn("return", "void", null));
-        String paramName = getSetterParamName(field.getName());
+        String paramName = getSetterParamName(field.getParaName());
         jMethod.addParameter(new JavaParameter(paramName,
                                                field.getType(),
                                                field.getTargetNamespace()));
         JavaCodeBlock block = new JavaCodeBlock();
         JavaExpression exp = new JavaExpression();
-        exp.setValue("this." + field.getName() + " = " + paramName);
+        exp.setValue("this." + field.getParaName() + " = " + paramName);
         block.getExpressions().add(exp);
 
         jMethod.setJavaCodeBlock(block);
