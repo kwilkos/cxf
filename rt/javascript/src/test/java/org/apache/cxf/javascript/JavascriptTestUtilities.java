@@ -129,6 +129,10 @@ public class JavascriptTestUtilities extends TestUtilities {
         return Context.javaToJS(value, rhinoScope);
     }
     
+    public Object rhinoNewObject(String constructorName) {
+        return rhinoContext.newObject(rhinoScope, constructorName);
+    }
+    
     public Object rhinoEvaluate(String jsExpression) {
         return rhinoContext.evaluateString(rhinoScope, jsExpression, "<testcase>", 1, null);
     }

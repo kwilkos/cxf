@@ -26,19 +26,29 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamReader;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.databinding.DataBinding;
 import org.apache.cxf.databinding.DataReader;
+import org.apache.cxf.databinding.DataWriter;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.javascript.BasicNameManager;
 import org.apache.cxf.javascript.JavascriptTestUtilities;
+import org.apache.cxf.javascript.JsSimpleDomNode;
 import org.apache.cxf.javascript.NameManager;
 import org.apache.cxf.javascript.NamespacePrefixAccumulator;
 import org.apache.cxf.javascript.fortest.BasicTypeFunctionReturnStringWrapper;
+import org.apache.cxf.javascript.fortest.StringWrapper;
 import org.apache.cxf.javascript.types.SchemaJavascriptBuilder;
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
 import org.apache.cxf.service.model.MessageInfo;
@@ -48,9 +58,12 @@ import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.test.AbstractCXFSpringTest;
 import org.junit.Test;
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.ScriptableObject;
 
 //@org.junit.Ignore
 public class DocLitWrappedTest extends AbstractCXFSpringTest {
+    private static final String WHAT_ROUGH_BEAST_ITS_HOUR_COME_AT_LAST = 
+        "What rough beast, its hour come at last, ...";
     private static final Logger LOG = LogUtils.getL7dLogger(DocLitWrappedTest.class);
     private static final String BASIC_TYPE_FUNCTION_RETURN_STRING_SERIALIZER_NAME 
         = "org_apache_cxf_javascript_fortest_basicTypeFunctionReturnString_serializeInput";
@@ -63,11 +76,17 @@ public class DocLitWrappedTest extends AbstractCXFSpringTest {
     private JaxWsProxyFactoryBean clientProxyFactory;
     private XMLInputFactory xmlInputFactory;
     private NamespacePrefixAccumulator prefixManager;
+    private DocumentBuilder documentBuilder;
 
     public DocLitWrappedTest() {
         testUtilities = new JavascriptTestUtilities(getClass());
         testUtilities.addDefaultNamespaces();
         xmlInputFactory = XMLInputFactory.newInstance();
+        try {
+            documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+        } catch (ParserConfigurationException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -119,6 +138,37 @@ public class DocLitWrappedTest extends AbstractCXFSpringTest {
         assertTrue(messageObject instanceof BasicTypeFunctionReturnStringWrapper);
         BasicTypeFunctionReturnStringWrapper wrapper = (BasicTypeFunctionReturnStringWrapper)messageObject;
         assertEquals(params[4], wrapper.getS());
+    }
+    
+    @Test
+    public void testResponseDeserialization() throws Exception {
+        setupClientAndRhino("simple-dlwu-proxy-factory");
+        DataBinding dataBinding = clientProxyFactory.getServiceFactory().getDataBinding();
+        assertNotNull(dataBinding);
+        StringWrapper responseObject = new StringWrapper();
+        responseObject.setReturnValue(WHAT_ROUGH_BEAST_ITS_HOUR_COME_AT_LAST);
+        DataWriter<Node> writer = dataBinding.createWriter(Node.class);
+        ServiceInfo serviceInfo = serviceInfos.get(0); // assume we only have one.
+        QName messageName = 
+            new QName("uri:org.apache.cxf.javascript.fortest", "basicTypeFunctionReturnString");
+        MessageInfo outputMessage = serviceInfo.getMessage(messageName);
+        assertNotNull(outputMessage);
+        MessagePartInfo part = outputMessage.getMessagePartByIndex(0); // has only one part.
+        Document document = documentBuilder.newDocument();
+        writer.write(responseObject, part, document);
+        Element messageElement = document.getDocumentElement();
+        Object jsUtils = testUtilities.rhinoNewObject("CxfApacheOrgUtil");
+        Object jsResult = testUtilities.rhinoCall("org_apache_cxf_javascript_fortest_"
+                                                  + "basicTypeFunctionReturnString_deserializeResponse",
+                                                  jsUtils,
+                                                  JsSimpleDomNode.wrapNode(testUtilities.getRhinoScope(), 
+                                                                           messageElement));
+        assertNotNull(jsResult);
+        ScriptableObject jsResultObject = (ScriptableObject)jsResult;
+        Object returnValue = ScriptableObject.callMethod(jsResultObject, 
+                                                         "getReturnValue", 
+                                                          new Object[0]);
+        assertEquals(WHAT_ROUGH_BEAST_ITS_HOUR_COME_AT_LAST, returnValue);
     }
 
     private void setupClientAndRhino(String clientProxyFactoryBeanId) throws IOException {

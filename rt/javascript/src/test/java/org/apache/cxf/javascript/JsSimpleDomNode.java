@@ -27,6 +27,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import org.mozilla.javascript.Context;
+import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 
 /**
@@ -123,6 +124,13 @@ public class JsSimpleDomNode extends ScriptableObject {
     }
 
     //CHECKSTYLE:ON
+    
+    public static JsSimpleDomNode wrapNode(Scriptable scope, Node node) {
+        Context cx = Context.enter();
+        JsSimpleDomNode newObject = (JsSimpleDomNode)cx.newObject(scope, "Node");
+        newObject.initialize(node, null);
+        return newObject;
+    }
     
     private JsSimpleDomNode newObject(Node node, JsSimpleDomNode prev) {
         Context cx = Context.enter();

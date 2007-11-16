@@ -144,7 +144,9 @@ class ServiceJavascriptBuilder extends ServiceModelVisitor {
 
     @Override
     public void begin(OperationInfo op) {
-        assert !isRPC;
+        if (isRPC) {
+            unsupportedConstruct("RPC", op.getInterface().getName().toString());
+        }
         boolean isWrapped = op.isUnwrappedCapable();
         // we only process the wrapped operation, not the unwrapped alternative.
         if (op.isUnwrapped()) {
@@ -164,10 +166,6 @@ class ServiceJavascriptBuilder extends ServiceModelVisitor {
         String wrapperClassName = null;
         StringBuilder parameterList = new StringBuilder();
 
-        // the message content is a set of elements. Perhaps they come from the
-        // parts,
-        // or perhaps we invent them.
-        List<ElementAndNames> elements = new ArrayList<ElementAndNames>();
         List<MessagePartInfo> parts = null;
 
         if (inputMessage != null) {
@@ -198,42 +196,40 @@ class ServiceJavascriptBuilder extends ServiceModelVisitor {
         code.append(currentInterfaceClassName + ".prototype." + opFunctionName + " = " + opGlobalFunctionName
                     + ";\n\n");
 
-        createInputSerializer(op, isWrapped, inputParameterNames, wrapperClassName, elements,
-                              parts);
+        createInputSerializer(op, isWrapped, inputParameterNames, wrapperClassName, parts);
+        
+        MessageInfo outputMessage = op.getOutput();
+        if (outputMessage != null) {
+            createResponseDeserializer(op, outputMessage.getMessageParts());
+        }
+    }
+    
+    private void createResponseDeserializer(OperationInfo op, List<MessagePartInfo> parts) {
+        if (parts.size() != 1) {
+            unsupportedConstruct("MULTIPLE_OUTPUTS", op.getName().toString());
+        }
+        List<ElementAndNames> elements = new ArrayList<ElementAndNames>();
+        String functionName = nameManager.getJavascriptName(op.getName()) + "_deserializeResponse";
+        code.append("function " + functionName + "(cxfjsutils, partElement) {\n");
+        getElementsForParts(elements, parts);
+        ElementAndNames element = elements.get(0);
+        XmlSchemaComplexType type = (XmlSchemaComplexType)element.getElement().getSchemaType();
+        assert type != null;
+        String typeObjectName = nameManager.getJavascriptName(type);
+        utils.appendLine("var returnObject = " 
+                         + typeObjectName + "_deserialize (cxfjsutils, partElement);\n");
+        utils.appendLine("return returnObject;");
+        code.append("}\n");
     }
 
     private void createInputSerializer(OperationInfo op, boolean isWrapped,
                                        List<String> inputParameterNames, String wrapperClassName,
-                                       List<ElementAndNames> elements, List<MessagePartInfo> parts) {
+                                       List<MessagePartInfo> parts) {
+        List<ElementAndNames> elements = new ArrayList<ElementAndNames>();
         String serializerFunctionName = nameManager.getJavascriptName(op.getName()) + "_serializeInput";
         
         code.append("function " + serializerFunctionName + "(args) {\n");
-        for (MessagePartInfo mpi : parts) {
-            XmlSchemaElement element;
-            if (mpi.isElement()) {
-                element = (XmlSchemaElement)mpi.getXmlSchema();
-                if (element == null) {
-                    element = XmlSchemaUtils.findElementByRefName(xmlSchemaCollection, mpi.getElementQName(),
-                                                                  serviceInfo.getTargetNamespace());
-                }
-            } else {
-                // there is still an element in there, but it's not a very
-                // interesting element
-                element = new XmlSchemaElement();
-                XmlSchemaElement dummyElement = (XmlSchemaElement)mpi.getXmlSchema();
-                element.setMaxOccurs(dummyElement.getMaxOccurs());
-                element.setMinOccurs(dummyElement.getMinOccurs());
-                element.setNillable(dummyElement.isNillable());
-                element.setSchemaType(xmlSchemaCollection.getTypeByQName(mpi.getTypeQName()));
-                element.setQName(mpi.getName());
-            }
-            assert element != null;
-            assert element.getQName() != null;
-            String partJavascriptVar = JavascriptUtils.javaScriptNameToken(element.getQName().getLocalPart());
-            String elementXmlRef = prefixAccumulator.xmlElementString(mpi.getConcreteName());
-
-            elements.add(new ElementAndNames(element, partJavascriptVar, elementXmlRef));
-        }
+        getElementsForParts(elements, parts);
 
         // if not wrapped, the param array matches up with the parts. If wrapped, the members
         // of it have to be packed into an object.
@@ -275,6 +271,40 @@ class ServiceJavascriptBuilder extends ServiceModelVisitor {
         code.append(currentInterfaceClassName + ".prototype.serializeInputMessage = " 
                     + serializerFunctionName
                     + ";\n\n");
+    }
+
+    private void getElementsForParts(List<ElementAndNames> elements, List<MessagePartInfo> parts) {
+        for (MessagePartInfo mpi : parts) {
+            XmlSchemaElement element;
+            if (mpi.isElement()) {
+                element = (XmlSchemaElement)mpi.getXmlSchema();
+                if (element == null) {
+                    element = XmlSchemaUtils.findElementByRefName(xmlSchemaCollection, mpi.getElementQName(),
+                                                                  serviceInfo.getTargetNamespace());
+                }
+            } else {
+                // dkulp may have fixed the problem that caused me to write this code.
+                // aside from the fact that in the !isElement case (rpc) we have other work to do.
+                LOG.severe("Missing element " 
+                           + mpi.getElementQName().toString() 
+                           + " in " + mpi.getName().toString());
+                // there is still an element in there, but it's not a very
+                // interesting element
+                element = new XmlSchemaElement();
+                XmlSchemaElement dummyElement = (XmlSchemaElement)mpi.getXmlSchema();
+                element.setMaxOccurs(dummyElement.getMaxOccurs());
+                element.setMinOccurs(dummyElement.getMinOccurs());
+                element.setNillable(dummyElement.isNillable());
+                element.setSchemaType(xmlSchemaCollection.getTypeByQName(mpi.getTypeQName()));
+                element.setQName(mpi.getName());
+            }
+            assert element != null;
+            assert element.getQName() != null;
+            String partJavascriptVar = JavascriptUtils.javaScriptNameToken(element.getQName().getLocalPart());
+            String elementXmlRef = prefixAccumulator.xmlElementString(mpi.getConcreteName());
+
+            elements.add(new ElementAndNames(element, partJavascriptVar, elementXmlRef));
+        }
     }
 
     private String setupWrapperElement(OperationInfo op, List<String> inputParameterNames,

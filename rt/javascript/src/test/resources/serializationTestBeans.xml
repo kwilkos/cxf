@@ -33,11 +33,11 @@ under the License.
 	
 	<!--  We use a client for the service for basic tests. We don't need a server at all. -->
 	<bean id="simple-dlwu-proxy-factory" class="org.apache.cxf.jaxws.JaxWsProxyFactoryBean" >
-    <property name="serviceClass" value="org.apache.cxf.javascript.fortest.SimpleDocLitWrappedUnqualified"/>
+    <property name="serviceClass" value="org.apache.cxf.javascript.fortest.SimpleDocLitWrapped"/>
     <property name="address" value="local://SimpleDocLitWrappedUnqualified"/>
   </bean>
    
-  <bean id="simple-dlwu-client" class="org.apache.cxf.javascript.fortest.SimpleDocLitWrappedUnqualified" scope='prototype'
+  <bean id="simple-dlwu-client" class="org.apache.cxf.javascript.fortest.SimpleDocLitWrapped" scope='prototype'
     factory-bean="simple-dlwu-proxy-factory" factory-method="create"/>
 	
 	<!-- Services. We use the JAXB test server which handles a lot of types. -->

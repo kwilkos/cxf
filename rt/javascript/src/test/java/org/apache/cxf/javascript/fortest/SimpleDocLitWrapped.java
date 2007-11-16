@@ -19,26 +19,32 @@
 
 package org.apache.cxf.javascript.fortest;
 
+import javax.jws.WebMethod;
 import javax.jws.WebParam;
 import javax.jws.WebService;
 import javax.xml.ws.RequestWrapper;
+import javax.xml.ws.ResponseWrapper;
 
 /**
  * 
  */
 @WebService(targetNamespace = "uri:org.apache.cxf.javascript.fortest")
-public interface SimpleDocLitWrappedUnqualified {
+public interface SimpleDocLitWrapped {
     @RequestWrapper(className = "org.apache.cxf.javascript.fortest.BasicTypeFunctionReturnStringWrapper")
+    @ResponseWrapper(className = "org.apache.cxf.javascript.fortest.StringWrapper")
     String basicTypeFunctionReturnString(@WebParam(name = "s") String s, 
                                          @WebParam(name = "i") int i, 
                                          @WebParam(name = "l") long l, 
                                          @WebParam(name = "f") float f, 
                                          @WebParam(name = "d") double d);
+    @WebMethod
+    TestBean1 functionReturnTestBean1();
     int basicTypeFunctionReturnInt(@WebParam(name = "s") String s, 
                                    @WebParam(name = "i") int i, 
                                    @WebParam(name = "l") long l, 
                                    @WebParam(name = "f") float f, 
                                    @WebParam(name = "d") double d);
+    @WebMethod
     void beanFunction(@WebParam(name = "bean1") TestBean1 bean, 
                       @WebParam(name = "beanArray") TestBean1[] beans);
 }
