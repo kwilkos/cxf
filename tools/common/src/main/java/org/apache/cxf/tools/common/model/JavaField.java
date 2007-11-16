@@ -54,6 +54,13 @@ public class JavaField extends JavaType implements JavaAnnotatable {
     }
 
     public String getName() {
+        /*if (URIParserUtil.containsReservedKeywords(this.name)) {
+            return "_" + this.name;
+        }*/
+        return this.name;
+    }
+    
+    public String getParaName() {
         if (URIParserUtil.containsReservedKeywords(this.name)) {
             return "_" + this.name;
         }

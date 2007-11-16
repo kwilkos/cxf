@@ -38,7 +38,7 @@ public class $bean.Name {
 #if($field.Annotation)
 $field.Annotation
 #end
-    private $field.Type $field.Name;
+    private $field.Type $field.ParaName;
 #end
 
 #foreach ($method in $bean.Methods)

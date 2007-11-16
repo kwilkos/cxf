@@ -370,6 +370,9 @@
                                 <wsdlOption>
                                     <wsdl>${basedir}/src/main/resources/wsdl/inherit.wsdl</wsdl>
                                 </wsdlOption>
+                                <wsdlOption>
+                                    <wsdl>${basedir}/src/main/resources/wsdl/hello_world_fault.wsdl</wsdl>
+                                </wsdlOption>                                
 
                             </wsdlOptions>
                         </configuration>
