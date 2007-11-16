@@ -11,7 +11,7 @@ This demo uses ActiveMQ as the JMS implementation for
 illustration purposes only. Other JMS implementations 
 such as Apache Qpid could also be used in the same way.
 For details on how to use this demo on non-ActiveMQ 
-implementations please check "Using other JMS implementaions"
+implementations please check "Using other JMS implementations"
 below.
 
 
