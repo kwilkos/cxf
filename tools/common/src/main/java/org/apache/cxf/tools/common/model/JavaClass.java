@@ -22,7 +22,7 @@ package org.apache.cxf.tools.common.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.cxf.tools.util.AnnotationUtil;
+import org.apache.cxf.common.util.StringUtils;
 
 public class JavaClass extends JavaInterface {
     
@@ -83,7 +83,7 @@ public class JavaClass extends JavaInterface {
     }
 
     private String getSetterParamName(String fieldName) {
-        return "new" + AnnotationUtil.capitalize(fieldName);
+        return "new" + StringUtils.capitalize(fieldName);
     }
     
 }
