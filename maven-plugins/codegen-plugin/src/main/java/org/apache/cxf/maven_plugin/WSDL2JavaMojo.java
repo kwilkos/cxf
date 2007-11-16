@@ -72,6 +72,13 @@ public class WSDL2JavaMojo extends AbstractMojo {
      */
     WsdlOption wsdlOptions[];
 
+    /**
+     * Use the compile classspath rather than the test classpath for execution
+     * usefull if the test dependencies clash with thoes of wsdl2java
+     * @parameter
+     */
+    boolean useCompileClasspath;
+
     public void execute() throws MojoExecutionException {
         String outputDir = testSourceRoot == null ? sourceRoot : testSourceRoot;
         File outputDirFile = new File(outputDir);
@@ -97,7 +104,9 @@ public class WSDL2JavaMojo extends AbstractMojo {
         buf.append(classesDir.getAbsolutePath());
         buf.append(File.pathSeparatorChar);
 
-        for (Artifact a : CastUtils.cast(project.getTestArtifacts(), Artifact.class)) {
+
+        List artifacts = useCompileClasspath ? project.getCompileArtifacts() : project.getTestArtifacts();
+        for (Artifact a : CastUtils.cast(artifacts, Artifact.class)) {
             try {
                 if (a.getFile() != null
                     && a.getFile().exists()) {
