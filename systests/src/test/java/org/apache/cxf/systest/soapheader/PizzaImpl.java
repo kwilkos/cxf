@@ -28,7 +28,11 @@ public class PizzaImpl implements Pizza {
 
     public OrderPizzaResponseType orderPizza(OrderPizzaType body, CallerIDHeaderType callerID) {
         OrderPizzaResponseType resp = new OrderPizzaResponseType();
-        resp.setMinutesUntilReady(100 + Integer.parseInt(callerID.getPhoneNumber()));
+        if (body.getToppings().getTopping().get(0).contains("NoHeader")) {
+            resp.setMinutesUntilReady(100);
+        } else {
+            resp.setMinutesUntilReady(100 + Integer.parseInt(callerID.getPhoneNumber()));
+        }
         return resp;
     }
 
