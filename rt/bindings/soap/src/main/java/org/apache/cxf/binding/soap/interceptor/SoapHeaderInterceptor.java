@@ -97,7 +97,7 @@ public class SoapHeaderInterceptor extends AbstractInDatabindingInterceptor {
                 }
                 
             }
-            if (object != null && mpi.getTypeClass() != null) {
+            if (mpi.getTypeClass() != null) {
                 parameters.put(mpi, object);
             }
         }
