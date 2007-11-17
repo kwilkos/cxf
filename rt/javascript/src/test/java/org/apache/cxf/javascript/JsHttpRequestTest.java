@@ -25,6 +25,7 @@ import java.util.Properties;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.test.AbstractCXFSpringTest;
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 import org.springframework.context.support.GenericApplicationContext;
@@ -59,8 +60,8 @@ public class JsHttpRequestTest extends AbstractCXFSpringTest {
     }
     
     
-    
-    private
+    @Before
+    public 
     void setupRhino() throws Exception {
         testUtilities.setBus(getBean(Bus.class, "cxf"));
         testUtilities.initializeRhino();
@@ -70,7 +71,6 @@ public class JsHttpRequestTest extends AbstractCXFSpringTest {
     
     @Test
     public void testInvalidURI() throws Exception {
-        setupRhino();
         testUtilities.rhinoCallExpectingException("SYNTAX_ERR", "testOpaqueURI");
         testUtilities.rhinoCallExpectingException("SYNTAX_ERR", "testNonAbsolute");
         testUtilities.rhinoCallExpectingException("SYNTAX_ERR", "testNonHttp");
@@ -78,7 +78,6 @@ public class JsHttpRequestTest extends AbstractCXFSpringTest {
     
     @Test
     public void testSequencing() throws Exception {
-        setupRhino();
         testUtilities.rhinoCallExpectingException("INVALID_STATE_ERR", "testSendNotOpenError");
     }
     
