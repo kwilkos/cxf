@@ -82,7 +82,7 @@ public class JsHttpRequestTest extends AbstractCXFSpringTest {
         testUtilities.rhinoCallExpectingException("INVALID_STATE_ERR", "testSendNotOpenError");
     }
     
-    @org.junit.Ignore
+    //@org.junit.Ignore
     @Test
     public void testSyncHttpFetch() throws Exception {
         setupRhino();
