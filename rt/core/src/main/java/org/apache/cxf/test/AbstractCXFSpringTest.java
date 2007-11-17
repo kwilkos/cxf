@@ -19,6 +19,7 @@
 
 package org.apache.cxf.test;
 
+import org.junit.Before;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.GenericApplicationContext;
@@ -31,14 +32,23 @@ import org.springframework.core.io.Resource;
  * doesn't inject into the test itself from the beans.
  */
 public abstract class AbstractCXFSpringTest extends AbstractCXFTest {
-    
-    private GenericApplicationContext applicationContext;
+    // subvert JUnit. We want to set up the application context ONCE, since it
+    // is likely to include a Jetty or something else that we can't get rid of.
+    private static GenericApplicationContext applicationContext;
     private DefaultResourceLoader resourceLoader;
 
     /**
      * Load up all the beans from the XML files returned by the getConfigLocations method.
+     * @throws Exception 
      */
-    protected AbstractCXFSpringTest() {
+    protected AbstractCXFSpringTest() throws Exception {
+    }
+    
+    @Before
+    public void setupBeans() throws Exception {
+        if (applicationContext != null) {
+            return;
+        }
         applicationContext = new GenericApplicationContext();
         resourceLoader = new DefaultResourceLoader(getClass().getClassLoader());
         for (String beanDefinitionPath : getConfigLocations()) {
@@ -46,6 +56,7 @@ public abstract class AbstractCXFSpringTest extends AbstractCXFTest {
             Resource resource = resourceLoader.getResource(beanDefinitionPath);
             reader.loadBeanDefinitions(resource);
         }
+        additionalSpringConfiguration(applicationContext);
         applicationContext.refresh();
     }
     
@@ -60,6 +71,13 @@ public abstract class AbstractCXFSpringTest extends AbstractCXFTest {
         return applicationContext;
     }
     
+    /**
+     * subclasses may override this.
+     * @param context
+     * @throws Exception 
+     */
+    protected abstract void additionalSpringConfiguration(GenericApplicationContext context) throws Exception;
+
     /**
      * Convenience method for the common case of retrieving a bean from the context.
      * One would expect Spring to have this. 

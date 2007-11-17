@@ -63,6 +63,10 @@ public class JsSimpleDomNode extends ScriptableObject {
         return "Node";
     }
     
+    public Node getWrappedNode() {
+        return wrappedNode;
+    }
+    
     //CHECKSTYLE:OFF
     public String jsGet_localName() {
         return wrappedNode.getLocalName();       

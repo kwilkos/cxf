@@ -59,6 +59,7 @@ import org.apache.cxf.test.AbstractCXFSpringTest;
 import org.junit.Test;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
+import org.springframework.context.support.GenericApplicationContext;
 
 //@org.junit.Ignore
 public class DocLitWrappedTest extends AbstractCXFSpringTest {
@@ -78,7 +79,7 @@ public class DocLitWrappedTest extends AbstractCXFSpringTest {
     private NamespacePrefixAccumulator prefixManager;
     private DocumentBuilder documentBuilder;
 
-    public DocLitWrappedTest() {
+    public DocLitWrappedTest() throws Exception {
         testUtilities = new JavascriptTestUtilities(getClass());
         testUtilities.addDefaultNamespaces();
         xmlInputFactory = XMLInputFactory.newInstance();
@@ -204,5 +205,9 @@ public class DocLitWrappedTest extends AbstractCXFSpringTest {
         LOG.fine(serviceInfo.toString());
         LOG.fine(serviceJavascript);
         testUtilities.readStringIntoRhino(serviceJavascript, serviceInfo.getName() + ".js");
+    }
+
+    @Override
+    protected void additionalSpringConfiguration(GenericApplicationContext context) throws Exception {
     }
 }

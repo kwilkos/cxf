@@ -48,6 +48,7 @@ import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.test.AbstractCXFSpringTest;
 import org.apache.cxf.wsdl.EndpointReferenceUtils;
 import org.junit.Test;
+import org.springframework.context.support.GenericApplicationContext;
 
 //@org.junit.Ignore
 public class SerializationTest extends AbstractCXFSpringTest {
@@ -60,7 +61,7 @@ public class SerializationTest extends AbstractCXFSpringTest {
     private NameManager nameManager;
     private JaxWsProxyFactoryBean clientProxyFactory;
 
-    public SerializationTest() {
+    public SerializationTest() throws Exception {
         testUtilities = new JavascriptTestUtilities(getClass());
         testUtilities.addDefaultNamespaces();
         xmlInputFactory = XMLInputFactory.newInstance();
@@ -203,5 +204,9 @@ public class SerializationTest extends AbstractCXFSpringTest {
             assertNotNull(allThatJavascript);
             testUtilities.readStringIntoRhino(allThatJavascript, schema.toString() + ".js");
         }
+    }
+
+    @Override
+    protected void additionalSpringConfiguration(GenericApplicationContext context) throws Exception {
     }
 }

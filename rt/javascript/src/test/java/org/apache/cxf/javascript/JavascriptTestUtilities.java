@@ -29,6 +29,7 @@ import org.apache.cxf.test.TestUtilities;
 import org.junit.Assert;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
+import org.mozilla.javascript.JavaScriptException;
 import org.mozilla.javascript.RhinoException;
 import org.mozilla.javascript.ScriptableObject;
 import org.mozilla.javascript.tools.debugger.Main;
@@ -137,7 +138,18 @@ public class JavascriptTestUtilities extends TestUtilities {
         return rhinoContext.evaluateString(rhinoScope, jsExpression, "<testcase>", 1, null);
     }
     
-    public Object rhinoCall(String functionName, Object ... args) {
+    /**
+     * Call a JavaScript function. Optionally, require it to throw an exception equal to
+     * a supplied object. If the exception is called for, this function will either return null
+     * or Assert.
+     * @param expectingException Exception desired, or null.
+     * @param functionName Function to call.
+     * @param args args for the function. Be sure to Javascript-ify them as appropriate.
+     * @return
+     */
+    public Object rhinoCallExpectingException(Object expectingException, 
+                                              String functionName, 
+                                              Object ... args) {
         Object fObj = rhinoScope.get(functionName, rhinoScope);
         if (!(fObj instanceof Function)) {
             throw new RuntimeException("Missing test function " + functionName);
@@ -146,12 +158,20 @@ public class JavascriptTestUtilities extends TestUtilities {
         try {
             return function.call(rhinoContext, rhinoScope, rhinoScope, args);
         } catch (RhinoException angryRhino) {
+            if (expectingException != null && angryRhino instanceof JavaScriptException) {
+                JavaScriptException jse = (JavaScriptException)angryRhino;
+                Assert.assertEquals(jse.getValue(), expectingException);
+                return null;
+            }
             String trace = angryRhino.getScriptStackTrace();
             Assert.fail("JavaScript error: " + angryRhino.toString() + " " + trace);
         } catch (JavaScriptAssertionFailed assertion) {
             Assert.fail(assertion.getMessage());
         }
-        // we never reach here, but Eclipse doesn't know about Assert.fail.
         return null;
+    }
+    
+    public Object rhinoCall(String functionName, Object ... args) {
+        return rhinoCallExpectingException(null, functionName, args);
     }
 }
