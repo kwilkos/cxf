@@ -34,6 +34,7 @@ import org.springframework.context.support.GenericApplicationContext;
 /**
  * 
  */
+@org.junit.Ignore
 public class JsHttpRequestTest extends AbstractCXFSpringTest {
 
     // shadow declaration from base class.
