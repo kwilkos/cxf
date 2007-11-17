@@ -19,6 +19,7 @@
 
 package org.apache.cxf.test;
 
+import org.junit.After;
 import org.junit.Before;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.context.ApplicationContext;
@@ -58,6 +59,13 @@ public abstract class AbstractCXFSpringTest extends AbstractCXFTest {
         }
         additionalSpringConfiguration(applicationContext);
         applicationContext.refresh();
+    }
+    
+    @After
+    public void teardownBeans() {
+        applicationContext.close();
+        applicationContext.destroy();
+        applicationContext = null;
     }
     
     /**
