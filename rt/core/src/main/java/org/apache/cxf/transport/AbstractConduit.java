@@ -48,7 +48,7 @@ public abstract class AbstractConduit
     }
 
     /**
-     * Retreive the back-channel Destination.
+     * Retrieve the back-channel Destination.
      * 
      * @return the backchannel Destination (or null if the backchannel is
      * built-in)
