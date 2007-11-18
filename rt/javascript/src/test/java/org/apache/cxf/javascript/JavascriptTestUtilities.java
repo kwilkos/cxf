@@ -79,7 +79,38 @@ public class JavascriptTestUtilities extends TestUtilities {
             LOG.fine(message);
         }
         //CHECKSTYLE:ON
+    }
+    
+    public static class Notifier extends ScriptableObject {
         
+        private boolean notified;
+        
+        public Notifier() {
+        }
+
+        @Override
+        public String getClassName() {
+            return "org_apache_cxf_notifier";
+        }
+        
+        public synchronized boolean waitForJavascript(long timeout) {
+            while (!notified) {
+                try {
+                    wait(timeout);
+                    return notified; 
+                } catch (InterruptedException e) {
+                    // do nothing.
+                }
+            }
+            return true; // only here if true on entry.
+        }
+        
+        //CHECKSTYLE:OFF
+        public synchronized void jsFunction_notify() {
+            notified = true;
+            notifyAll();
+        }
+        //CHECKSTYLE:ON
     }
 
     public JavascriptTestUtilities(Class<?> classpathReference) {
@@ -97,6 +128,7 @@ public class JavascriptTestUtilities extends TestUtilities {
         try {
             ScriptableObject.defineClass(rhinoScope, JsAssert.class);
             ScriptableObject.defineClass(rhinoScope, Trace.class);
+            ScriptableObject.defineClass(rhinoScope, Notifier.class);
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         } catch (InstantiationException e) {
@@ -134,8 +166,24 @@ public class JavascriptTestUtilities extends TestUtilities {
         return rhinoContext.newObject(rhinoScope, constructorName);
     }
     
+    /**
+     * Evaluate a javascript expression, returning the raw Rhino object.
+     * @param jsExpression the javascript expression.
+     * @return return value.
+     */
     public Object rhinoEvaluate(String jsExpression) {
         return rhinoContext.evaluateString(rhinoScope, jsExpression, "<testcase>", 1, null);
+    }
+    
+    /**
+     * Evaluate a Javascript expression, converting the return value to a convenient Java type.
+     * @param <T> The desired type
+     * @param jsExpression the javascript expression.
+     * @param clazz the Class object for the desired type.
+     * @return the result.
+     */
+    public <T> T rhinoEvaluateConvert(String jsExpression, Class<T> clazz) {
+        return clazz.cast(Context.jsToJava(rhinoEvaluate(jsExpression), clazz));
     }
     
     /**
@@ -173,5 +221,9 @@ public class JavascriptTestUtilities extends TestUtilities {
     
     public Object rhinoCall(String functionName, Object ... args) {
         return rhinoCallExpectingException(null, functionName, args);
+    }
+    
+    public <T> T rhinoCallConvert(String functionName, Class<T> clazz, Object ... args) {
+        return clazz.cast(Context.jsToJava(rhinoCall(functionName, args), clazz));
     }
 }

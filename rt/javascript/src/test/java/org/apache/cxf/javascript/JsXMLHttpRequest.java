@@ -456,6 +456,10 @@ public class JsXMLHttpRequest extends ScriptableObject {
         // 3 pile up the headers.
         StringBuilder builder = new StringBuilder();
         for (Map.Entry<String, List<String>> headersEntry : responseHeaders.entrySet()) {
+            if (headersEntry.getKey() == null) {
+                // why does the HTTP connection return a null key with the response code and text?
+                continue;
+            }
             builder.append(headersEntry.getKey());
             builder.append(": ");
             for (String value : headersEntry.getValue()) {
@@ -501,7 +505,7 @@ public class JsXMLHttpRequest extends ScriptableObject {
     public String doGetResponseText() {
         // 1 check state.
         if (readyState == jsGet_UNSENT() || readyState == jsGet_OPENED()) {
-            LOG.severe("invalid state");
+            LOG.severe("invalid state " + readyState);
             throwError("INVALID_STATE_ERR");
         }
         

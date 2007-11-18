@@ -24,6 +24,7 @@ import java.net.URL;
 import java.util.Properties;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.javascript.JavascriptTestUtilities.Notifier;
 import org.apache.cxf.test.AbstractCXFSpringTest;
 import org.junit.Before;
 import org.junit.Test;
@@ -79,6 +80,28 @@ public class JsHttpRequestTest extends AbstractCXFSpringTest {
     @Test
     public void testSequencing() throws Exception {
         testUtilities.rhinoCallExpectingException("INVALID_STATE_ERR", "testSendNotOpenError");
+        testUtilities.rhinoCall("testStateNotificationSync");
+    }
+    
+    @Test public void testAsync() throws Exception {
+        Notifier notifier = testUtilities.rhinoCallConvert("testAsyncHttpFetch1", Notifier.class);
+        testUtilities.rhinoCall("testAsyncHttpFetch2");
+        boolean notified = notifier.waitForJavascript(10);
+        assertTrue(notified);
+        assertEquals("HEADERS_RECEIVED", Boolean.TRUE, 
+                     testUtilities.rhinoEvaluateConvert("asyncGotHeadersReceived", Boolean.class));
+        assertEquals("LOADING", Boolean.TRUE, 
+                     testUtilities.rhinoEvaluateConvert("asyncGotLoading", Boolean.class));
+        assertEquals("DONE", Boolean.TRUE, 
+                     testUtilities.rhinoEvaluateConvert("asyncGotDone", Boolean.class));
+        String outOfOrder = testUtilities.rhinoEvaluateConvert("outOfOrderError", String.class);
+        assertEquals("OutOfOrder", null, outOfOrder); 
+        assertEquals("status 200", Integer.valueOf(200), 
+                     testUtilities.rhinoEvaluateConvert("asyncStatus", Integer.class));
+        assertEquals("status text", "OK",
+                     testUtilities.rhinoEvaluateConvert("asyncStatusText", String.class));
+        assertTrue("headers", testUtilities.rhinoEvaluateConvert("asyncResponseHeaders", String.class)
+                   .contains("Content-Type: text/html"));
     }
     
     @Test
@@ -88,6 +111,7 @@ public class JsHttpRequestTest extends AbstractCXFSpringTest {
         assertNotNull(httpObj);
         assertTrue(httpObj instanceof String);
         String httpResponse = (String) httpObj;
+        // check for 'Shalom' in Hebrew as a charset check.
         assertTrue(httpResponse.contains("\u05e9\u05dc\u05d5\u05dd"));
     }
     
