@@ -83,7 +83,7 @@ function testStateNotificationSync() {
 		assertionFailed("state not DONE after sync send.")
 	}
 	if(globalState != r.DONE) {
-		assertionFailed("global state not DONE after sync send (event handler didn't run?)");
+		assertionFailed("global state not DONE after sync send (event handler didn't run?) :" + globalState);
 	}
 }
 

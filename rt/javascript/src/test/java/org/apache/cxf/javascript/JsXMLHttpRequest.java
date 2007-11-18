@@ -78,6 +78,8 @@ public class JsXMLHttpRequest extends ScriptableObject {
         validMethods.add("OPTIONS");
         validMethods.add("DELETE");
     }
+
+    
     private static String[] invalidHeaders = {"Accept-Charset", "Accept-Encoding", "Connection",
                                               "Content-Length", "Content-Transfer-Encoding", "Date",
                                               "Expect", "Host", "Keep-Alive", "Referer", "TE", "Trailer",
@@ -576,19 +578,17 @@ public class JsXMLHttpRequest extends ScriptableObject {
         return readyState;
     }
 
-    public void jsFunction_open(String method, String url) {
-        doOpen(method, url, true, null, null);
-    }
-
-    public void jsFunction_open(String method, String url, boolean async) {
-        doOpen(method, url, async, null, null);
-    }
-
-    public void jsFunction_open(String method, String url, boolean async, String user) {
-        doOpen(method, url, async, user, null);
-    }
-
-    public void jsFunction_open(String method, String url, boolean async, String user, String password) {
+    public void jsFunction_open(String method, String url, Boolean async, String user, String password) {
+        if (async == Context.getUndefinedValue()) {
+            async = Boolean.TRUE;
+        }
+        if (user == Context.getUndefinedValue()) {
+            user = null;
+        }
+        if (password == Context.getUndefinedValue()) {
+            user = null;
+        }
+        
         doOpen(method, url, async, user, password);
     }
 
@@ -637,3 +637,36 @@ public class JsXMLHttpRequest extends ScriptableObject {
         return doGetStatusText();
     }
 }
+
+// fodder for local transport.
+//       return invoke("local://" + service, LocalTransportFactory.TRANSPORT_ID, message);
+//EndpointInfo ei = new EndpointInfo(null, "http://schemas.xmlsoap.org/soap/http");
+//ei.setAddress(address);
+//
+//ConduitInitiatorManager conduitMgr = getBus().getExtension(ConduitInitiatorManager.class);
+//ConduitInitiator conduitInit = conduitMgr.getConduitInitiator(transport);
+//Conduit conduit = conduitInit.getConduit(ei);
+//
+//TestMessageObserver obs = new TestMessageObserver();
+//conduit.setMessageObserver(obs);
+//
+//Message m = new MessageImpl();
+//conduit.prepare(m);
+//
+//OutputStream os = m.getContent(OutputStream.class);
+//InputStream is = getResourceAsStream(message);
+//if (is == null) {
+//    throw new RuntimeException("Could not find resource " + message);
+//}
+//
+//IOUtils.copy(is, os);
+//
+//// TODO: shouldn't have to do this. IO caching needs cleaning
+//// up or possibly removal...
+//os.flush();
+//is.close();
+//os.close();
+//
+//byte[] bs = obs.getResponseStream().toByteArray();
+//
+//return bs; 

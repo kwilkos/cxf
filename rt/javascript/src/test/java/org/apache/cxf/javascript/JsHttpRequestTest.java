@@ -122,7 +122,6 @@ public class JsHttpRequestTest extends AbstractCXFSpringTest {
         assertTrue(httpResponse.contains("\u05e9\u05dc\u05d5\u05dd"));
     }
     
-    @org.junit.Ignore
     @Test
     public void testSyncWebServiceInteraction() throws Exception {
         Reader r = getResourceAsReader("/org/apache/cxf/javascript/XML_GreetMeDocLiteralReq.xml");
