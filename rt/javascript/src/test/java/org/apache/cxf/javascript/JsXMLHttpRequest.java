@@ -374,7 +374,9 @@ public class JsXMLHttpRequest extends ScriptableObject {
                 || contentType.endsWith("+xml")) {
                 
                 try {
-                    DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+                    DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+                    documentBuilderFactory.setNamespaceAware(true);
+                    DocumentBuilder builder = documentBuilderFactory.newDocumentBuilder();
                     ByteArrayInputStream bais = new ByteArrayInputStream(contentBytes);
                     InputSource inputSource = new InputSource(bais);
                     inputSource.setEncoding(contentEncoding);
@@ -413,7 +415,7 @@ public class JsXMLHttpRequest extends ScriptableObject {
 
     private byte[] utf8Bytes(String data) {
         ByteBuffer bb = utf8.encode(data);
-        byte[] val = new byte[bb.capacity()];
+        byte[] val = new byte[bb.limit()];
         bb.get(val);
         return val;
     }

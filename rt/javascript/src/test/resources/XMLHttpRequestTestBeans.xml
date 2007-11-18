@@ -37,6 +37,7 @@
               
   <import resource="classpath:META-INF/cxf/cxf.xml" />
   <import resource="classpath:META-INF/cxf/cxf-extension-soap.xml" />
+  <import resource="classpath:META-INF/cxf/cxf-extension-xml.xml" />
   <import resource="classpath:META-INF/cxf/cxf-extension-http.xml" />
   <import resource="classpath:META-INF/cxf/cxf-extension-http-jetty.xml" />
               
@@ -61,7 +62,7 @@
  </httpj:engine-factory>
  
  <jaxws:endpoint id="greeter-service-endpoint" 
-    implementor="org.apache.hello_world_doc_lit.GreeterImplDoc" 
+    implementor="org.apache.hello_world_xml_http.wrapped.GreeterImpl" 
     address="http://localhost:8808/Greeter">
  </jaxws:endpoint>
  

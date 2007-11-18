@@ -20,12 +20,19 @@
 package org.apache.cxf.javascript;
 
 import java.io.File;
+import java.io.Reader;
+import java.io.StringWriter;
 import java.net.URL;
 import java.util.Properties;
 
+import org.w3c.dom.Document;
+
 import org.apache.cxf.Bus;
 import org.apache.cxf.javascript.JavascriptTestUtilities.Notifier;
+import org.apache.cxf.jaxws.EndpointImpl;
 import org.apache.cxf.test.AbstractCXFSpringTest;
+import org.jaxen.XPath;
+import org.jaxen.dom.DOMXPath;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
@@ -103,7 +110,7 @@ public class JsHttpRequestTest extends AbstractCXFSpringTest {
         assertTrue("headers", testUtilities.rhinoEvaluateConvert("asyncResponseHeaders", String.class)
                    .contains("Content-Type: text/html"));
     }
-    
+
     @Test
     public void testSyncHttpFetch() throws Exception {
         setupRhino();
@@ -113,6 +120,30 @@ public class JsHttpRequestTest extends AbstractCXFSpringTest {
         String httpResponse = (String) httpObj;
         // check for 'Shalom' in Hebrew as a charset check.
         assertTrue(httpResponse.contains("\u05e9\u05dc\u05d5\u05dd"));
+    }
+    
+    @Test
+    public void testSyncWebServiceInteraction() throws Exception {
+        Reader r = getResourceAsReader("/org/apache/cxf/javascript/XML_GreetMeDocLiteralReq.xml");
+        StringWriter writer = new StringWriter();
+        char[] buffer = new char[1024];
+        int readCount;
+        while ((readCount = r.read(buffer, 0, 1024)) > 0) {
+            writer.write(buffer, 0, readCount);
+        }
+        String xml = writer.toString();
+        EndpointImpl endpoint = this.getBean(EndpointImpl.class, "greeter-service-endpoint");
+        JsSimpleDomNode xmlResponse = 
+            testUtilities.rhinoCallConvert("testSyncXml", 
+                                           JsSimpleDomNode.class, 
+                                           testUtilities.javaToJS(endpoint.getAddress()),
+                                           testUtilities.javaToJS(xml));
+        assertNotNull(xmlResponse);
+        Document doc = (Document)xmlResponse.getWrappedNode();
+        XPath echoStringPath = new DOMXPath("//t:responseType/text()");
+        echoStringPath.addNamespace("t", "http://apache.org/hello_world_xml_http/wrapped/types");
+        String nodeText = echoStringPath.stringValueOf(echoStringPath.selectSingleNode(doc));
+        assertEquals(nodeText, "Hello \u05e9\u05dc\u05d5\u05dd");
     }
     
     public String getStaticResourceURL() throws Exception {

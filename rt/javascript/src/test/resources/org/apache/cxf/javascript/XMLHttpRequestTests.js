@@ -150,3 +150,18 @@ function testAsyncHttpFetch1() {
 function testAsyncHttpFetch2() {
 	globalAsyncRequest.send();
 }
+// this tests XML in both directions.
+function testSyncXml(address, request) {
+	
+	var r = new XMLHttpRequest();
+	r.open("POST", address, false);
+	if (r.readyState != r.OPENED) {
+		assertionFailed("state not OPENED after OPEN");
+	}
+	// just send it as text (or, really, whatever the Java code set up for us).
+	r.send(request);
+	if (r.readyState != r.DONE) {
+		assertionFailed("state not DONE after sync send.")
+	}
+	return r.responseXML;
+}
