@@ -578,18 +578,26 @@ public class JsXMLHttpRequest extends ScriptableObject {
         return readyState;
     }
 
-    public void jsFunction_open(String method, String url, Boolean async, String user, String password) {
-        if (async == Context.getUndefinedValue()) {
+    public void jsFunction_open(String method, String url, Object asyncObj, Object user, Object password) {
+        Boolean async;
+        if (asyncObj == Context.getUndefinedValue()) {
             async = Boolean.TRUE;
-        }
-        if (user == Context.getUndefinedValue()) {
-            user = null;
-        }
-        if (password == Context.getUndefinedValue()) {
-            user = null;
+        } else {
+            async = (Boolean)asyncObj;
         }
         
-        doOpen(method, url, async, user, password);
+        if (user == Context.getUndefinedValue()) {
+            user = null;
+        } else {
+            user = Context.jsToJava(user, String.class);
+        }
+        if (password == Context.getUndefinedValue()) {
+            password = null;
+        } else {
+            password = Context.jsToJava(password, String.class);
+        }
+        
+        doOpen(method, url, async, (String)user, (String)password);
     }
 
     public void jsFunction_setRequestHeader(String header, String value) {
