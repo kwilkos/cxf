@@ -19,6 +19,10 @@
 
 package org.apache.hello_world_xml_http.wrapped;
 
+import java.util.logging.Logger;
+
+import org.apache.cxf.common.logging.LogUtils;
+
 
 @javax.jws.WebService(serviceName = "XMLService", 
                       portName = "XMLFaultPort",
@@ -29,15 +33,16 @@ package org.apache.hello_world_xml_http.wrapped;
 @javax.xml.ws.BindingType(value = "http://cxf.apache.org/bindings/xformat")
 
 public class GreeterFaultImpl implements Greeter {
-
     public static final String RUNTIME_EXCEPTION_MESSAGE = "test throw out runtime exception";
+    private static final Logger LOG = LogUtils.getL7dLogger(GreeterFaultImpl.class); 
+
     public String greetMe(String me) {        
         return "Hello " + me;
     }
 
     public void greetMeOneWay(String me) {
-        System.out.println("Executing operation greetMeOneWay\n");
-        System.out.println("Hello there " + me);
+        LOG.info("Executing operation greetMeOneWay");
+        LOG.info("Hello there " + me);
     }
 
     public String sayHi() {
