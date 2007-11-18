@@ -590,19 +590,18 @@ public class JsXMLHttpRequest extends ScriptableObject {
         doSetRequestHeader(header, value);
     }
 
-    public void jsFunction_send() {
-        doSend(null, false);
-
+    public void jsFunction_send(Object arg) {
+        if (arg == Context.getUndefinedValue()) {
+            doSend(null, false);
+        } else if (arg instanceof String) {
+            doSend(utf8Bytes((String)arg), false);
+        } else if (arg instanceof JsSimpleDomNode) {
+            doSend(domToUtf8((JsSimpleDomNode)arg), true);
+        } else {
+            throwError("INVALID_ARG_TO_SEND");
+        }
     }
 
-    public void jsFunction_send(String data) {
-        doSend(utf8Bytes(data), false);
-
-    }
-
-    public void jsFunction_send(JsSimpleDomNode xml) {
-        doSend(domToUtf8(xml), true);
-    }
 
     public void jsFunction_abort() {
         doAbort();
