@@ -26,6 +26,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Reader;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -62,6 +63,8 @@ import org.apache.cxf.wsdl11.ServiceWSDLBuilder;
  * contents, as well as some test methods for invoking services.
  */
 public class TestUtilities {
+    
+    private static final Charset UTF8 = Charset.forName("utf-8");
 
     private static String basedirPath;
     protected Bus bus;
@@ -184,7 +187,7 @@ public class TestUtilities {
     }
 
     public Reader getResourceAsReader(String resource) {
-        return new InputStreamReader(getResourceAsStream(resource));
+        return new InputStreamReader(getResourceAsStream(resource), UTF8);
     }
 
     public File getTestFile(String relativePath) {
