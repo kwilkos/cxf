@@ -34,7 +34,6 @@ import org.springframework.context.support.GenericApplicationContext;
 /**
  * 
  */
-@org.junit.Ignore
 public class JsHttpRequestTest extends AbstractCXFSpringTest {
 
     // shadow declaration from base class.
@@ -82,7 +81,6 @@ public class JsHttpRequestTest extends AbstractCXFSpringTest {
         testUtilities.rhinoCallExpectingException("INVALID_STATE_ERR", "testSendNotOpenError");
     }
     
-    //@org.junit.Ignore
     @Test
     public void testSyncHttpFetch() throws Exception {
         setupRhino();
