@@ -38,7 +38,6 @@ import org.junit.Test;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 import org.springframework.context.support.GenericApplicationContext;
 
-
 /**
  * 
  */
@@ -77,20 +76,15 @@ public class JsHttpRequestTest extends AbstractCXFSpringTest {
         testUtilities.readResourceIntoRhino("/org/apache/cxf/javascript/XMLHttpRequestTests.js");
     }
     
+    
+    // just one test function to avoid muddles with engine startup/shutdown
     @Test
-    public void testInvalidURI() throws Exception {
+    public void runTests() throws Exception {
         testUtilities.rhinoCallExpectingException("SYNTAX_ERR", "testOpaqueURI");
         testUtilities.rhinoCallExpectingException("SYNTAX_ERR", "testNonAbsolute");
         testUtilities.rhinoCallExpectingException("SYNTAX_ERR", "testNonHttp");
-    }
-    
-    @Test
-    public void testSequencing() throws Exception {
         testUtilities.rhinoCallExpectingException("INVALID_STATE_ERR", "testSendNotOpenError");
         testUtilities.rhinoCall("testStateNotificationSync");
-    }
-    
-    @Test public void testAsync() throws Exception {
         Notifier notifier = testUtilities.rhinoCallConvert("testAsyncHttpFetch1", Notifier.class);
         testUtilities.rhinoCall("testAsyncHttpFetch2");
         boolean notified = notifier.waitForJavascript(10);
@@ -109,22 +103,12 @@ public class JsHttpRequestTest extends AbstractCXFSpringTest {
                      testUtilities.rhinoEvaluateConvert("asyncStatusText", String.class));
         assertTrue("headers", testUtilities.rhinoEvaluateConvert("asyncResponseHeaders", String.class)
                    .contains("Content-Type: text/html"));
-    }
-
-    @Test
-    public void testSyncHttpFetch() throws Exception {
-        setupRhino();
         Object httpObj = testUtilities.rhinoCall("testSyncHttpFetch");
         assertNotNull(httpObj);
         assertTrue(httpObj instanceof String);
         String httpResponse = (String) httpObj;
         // check for 'Shalom' in Hebrew as a charset check.
         assertTrue(httpResponse.contains("\u05e9\u05dc\u05d5\u05dd"));
-    }
-    
-    @org.junit.Ignore
-    @Test
-    public void testSyncWebServiceInteraction() throws Exception {
         Reader r = getResourceAsReader("/org/apache/cxf/javascript/XML_GreetMeDocLiteralReq.xml");
         StringWriter writer = new StringWriter();
         char[] buffer = new char[1024];
