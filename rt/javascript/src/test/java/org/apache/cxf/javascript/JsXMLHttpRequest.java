@@ -583,7 +583,7 @@ public class JsXMLHttpRequest extends ScriptableObject {
         if (asyncObj == Context.getUndefinedValue()) {
             async = Boolean.TRUE;
         } else {
-            async = (Boolean)asyncObj;
+            async = (Boolean)Context.jsToJava(asyncObj, Boolean.class);
         }
         
         if (user == Context.getUndefinedValue()) {
