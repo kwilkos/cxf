@@ -28,7 +28,6 @@ import javax.jws.WebParam;
 import javax.jws.WebResult;
 import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
-import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.pizza.Pizza;
@@ -107,8 +106,7 @@ public class HeaderClientServerTest extends AbstractBusClientServerTestBase {
     }
     
     
-    @WebService(targetNamespace = "http://cxf.apache.org/pizza", name = "Pizza")
-    @XmlSeeAlso({ org.apache.cxf.pizza.types.ObjectFactory.class })
+    @WebService(targetNamespace = "http://cxf.apache.org/pizza", name = "Pizza")    
     @SOAPBinding(parameterStyle = SOAPBinding.ParameterStyle.BARE)
     public interface PizzaNoHeader {
 
