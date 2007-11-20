@@ -236,12 +236,10 @@ public class VersionTransformer {
             exposed.setValue(internal.getValue());
             String internalRelationshipType = internal.getRelationshipType();
             if (internalRelationshipType != null) {
-                QName exposedRelationshipType = 
-                    Names.WSA_RELATIONSHIP_REPLY.equals(
-                                                    internalRelationshipType)
-                    ? new QName(Names200408.WSA_NAMESPACE_NAME,
-                                Names.WSA_REPLY_NAME)
-                    : new QName(internalRelationshipType);
+                QName exposedRelationshipType = null;
+                if (!Names.WSA_RELATIONSHIP_REPLY.equals(internalRelationshipType)) {
+                    exposedRelationshipType = new QName(internalRelationshipType);
+                }
                 exposed.setRelationshipType(exposedRelationshipType);
             }
             putAll(exposed.getOtherAttributes(), internal.getOtherAttributes());
