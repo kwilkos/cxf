@@ -19,6 +19,8 @@
 
 package org.apache.cxf.test;
 
+import org.apache.cxf.Bus;
+import org.apache.cxf.BusException;
 import org.junit.After;
 import org.junit.Before;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
@@ -59,6 +61,16 @@ public abstract class AbstractCXFSpringTest extends AbstractCXFTest {
         }
         additionalSpringConfiguration(applicationContext);
         applicationContext.refresh();
+        super.setUpBus();
+    }
+    
+    @Before
+    public void setUpBus() throws Exception {
+        // override the super before method
+    }
+    
+    public Bus createBus() throws BusException {        
+        return getBean(Bus.class, "cxf");
     }
     
     @After
