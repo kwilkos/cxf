@@ -53,7 +53,6 @@ public class JAXRSClientServerBookTest extends AbstractBusClientServerTestBase {
         InputStream expected = getClass()
             .getResourceAsStream("resources/expected_get_book123.txt");
 
-        //System.out.println("---" + getStringFromInputStream(in));
         assertEquals(getStringFromInputStream(expected), getStringFromInputStream(in)); 
     }
     
@@ -68,9 +67,6 @@ public class JAXRSClientServerBookTest extends AbstractBusClientServerTestBase {
         try {
             int result = httpclient.executeMethod(get);
             assertEquals(500, result);
-            //System.out.println("Response status code: " + result);
-            //System.out.println("Response body: ");
-            //System.out.println(get.getResponseBodyAsString());
             
             InputStream expected = getClass().getResourceAsStream("resources/expected_get_book_notfound.txt");
             
@@ -96,9 +92,6 @@ public class JAXRSClientServerBookTest extends AbstractBusClientServerTestBase {
         try {
             int result = httpclient.executeMethod(post);
             assertEquals(200, result);
-            //System.out.println("Response status code: " + result);
-            //System.out.println("Response body: ");
-            //System.out.println(post.getResponseBodyAsString());
             
             InputStream expected = getClass().getResourceAsStream("resources/expected_add_book.txt");
             
@@ -123,9 +116,6 @@ public class JAXRSClientServerBookTest extends AbstractBusClientServerTestBase {
         try {
             int result = httpclient.executeMethod(put);
             assertEquals(200, result);
-            System.out.println("Response status code: " + result);
-            System.out.println("Response body: ");
-            System.out.println(put.getResponseBodyAsString());
         } finally {
             // Release current connection to the connection pool once you are
             // done
@@ -140,7 +130,6 @@ public class JAXRSClientServerBookTest extends AbstractBusClientServerTestBase {
 
         InputStream expected = getClass().getResourceAsStream("resources/expected_update_book.txt");
 
-        // System.out.println("---" + getStringFromInputStream(in));
         assertEquals(getStringFromInputStream(expected), getStringFromInputStream(in));
 
         // Roll back changes:
@@ -154,9 +143,6 @@ public class JAXRSClientServerBookTest extends AbstractBusClientServerTestBase {
         try {
             int result = httpclient1.executeMethod(put);
             assertEquals(200, result);
-            System.out.println("Response status code: " + result);
-            System.out.println("Response body: ");
-            System.out.println(put.getResponseBodyAsString());
         } finally {
             // Release current connection to the connection pool once you are
             // done
@@ -179,10 +165,6 @@ public class JAXRSClientServerBookTest extends AbstractBusClientServerTestBase {
         try {
             int result = httpclient.executeMethod(post);
             assertEquals(304, result);
-            System.out.println("Response status code: " + result);
-            System.out.println("Response body: ");
-            System.out.println(post.getResponseBodyAsString());
-           
         } finally {
             // Release current connection to the connection pool once you are done
             post.releaseConnection();
@@ -211,12 +193,10 @@ public class JAXRSClientServerBookTest extends AbstractBusClientServerTestBase {
         URL url = new URL(endpointAddress);
         InputStream in = url.openStream();
         assertNotNull(in);           
-        //System.out.println("---" + getStringFromInputStream(in));
 
         InputStream expected = getClass()
             .getResourceAsStream("resources/expected_get_cdjson.txt");
 
-        //System.out.println("---" + getStringFromInputStream(in));
         assertEquals(getStringFromInputStream(expected), getStringFromInputStream(in)); 
     }
     
@@ -225,7 +205,6 @@ public class JAXRSClientServerBookTest extends AbstractBusClientServerTestBase {
         IOUtils.copy(in, bos);
         in.close();
         bos.close();
-        //System.out.println(bos.getOut().toString());        
         return bos.getOut().toString();        
     }
 
