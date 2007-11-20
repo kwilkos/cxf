@@ -31,6 +31,8 @@ import javax.annotation.PostConstruct;
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.endpoint.Server;
+import org.apache.cxf.endpoint.ServerLifeCycleListener;
 import org.apache.cxf.extension.BusExtension;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.service.model.BindingFaultInfo;
@@ -52,7 +54,7 @@ import org.apache.neethi.PolicyRegistry;
 /**
  * 
  */
-public class PolicyEngineImpl implements PolicyEngine, BusExtension {
+public class PolicyEngineImpl implements PolicyEngine, BusExtension, ServerLifeCycleListener {
     
     private Bus bus;
     private PolicyRegistry registry;
@@ -521,7 +523,15 @@ public class PolicyEngineImpl implements PolicyEngine, BusExtension {
         }
         return true;
     }
-    
+
+    public void startServer(Server server) {
+        // emptry
+    }
+
+    public void stopServer(Server server) {
+        EndpointInfo ei = server.getEndpoint().getEndpointInfo();
+        endpointInfo.remove(ei);
+    }
     
     /**
      * Class used as key in the client request policy and server response policy maps.
