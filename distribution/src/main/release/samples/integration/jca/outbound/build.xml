@@ -81,7 +81,7 @@
                 <include name="*ws-metadata*" />
                 <include name="jaxb*" />
                 <include name="stax*" />
-                <include name="jsr181*" />
+                <include name="geronimo-stax-api*" />
                 <include name="saaj*" />
                 <include name="wsdl4j*" />
             </fileset>
