@@ -19,6 +19,8 @@
 
 package org.apache.cxf.systest.ws.addr_feature;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintWriter;
 import java.net.URL;
 import javax.xml.namespace.QName;
 import javax.xml.ws.soap.AddressingFeature;
@@ -37,17 +39,9 @@ public class WSAClientServerTest extends AbstractBusClientServerTestBase {
     private final QName serviceName = new QName("http://apache.org/cxf/systest/ws/addr_feature/",
                                                 "AddNumbersService");
 
-    private LoggingInInterceptor in;
-    private LoggingOutInterceptor out;
-
     @Before
     public void setUp() throws Exception {
         createBus();
-
-        in = new LoggingInInterceptor(true);
-        this.bus.getInInterceptors().add(in);
-        out = new LoggingOutInterceptor(true);
-        this.bus.getOutInterceptors().add(out);
     }
 
     @BeforeClass
@@ -55,8 +49,29 @@ public class WSAClientServerTest extends AbstractBusClientServerTestBase {
         assertTrue("server did not launch correctly", launchServer(Server.class));
     }
 
+    private ByteArrayOutputStream setupInLogging() {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        PrintWriter writer = new PrintWriter(bos);
+        LoggingInInterceptor in = new LoggingInInterceptor(writer);
+        this.bus.getInInterceptors().add(in);
+        return bos;
+    }
+
+    private ByteArrayOutputStream setupOutLogging() {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        PrintWriter writer = new PrintWriter(bos);
+
+        LoggingOutInterceptor out = new LoggingOutInterceptor(writer);
+        this.bus.getOutInterceptors().add(out);
+
+        return bos;
+    }
+
     @Test
     public void testNoWsaFeature() throws Exception {
+        ByteArrayOutputStream input = setupInLogging();
+        ByteArrayOutputStream output = setupOutLogging();
+
         JaxWsProxyFactoryBean factory = new JaxWsProxyFactoryBean();
         factory.setServiceClass(AddNumbersPortType.class);
         factory.setAddress("http://localhost:9091/jaxws/add");
@@ -64,17 +79,18 @@ public class WSAClientServerTest extends AbstractBusClientServerTestBase {
 
         assertEquals(3, port.addNumbers(1, 2));
         
-        /*
         String expectedOut = "<Address>http://www.w3.org/2005/08/addressing/anonymous</Address>";
         String expectedIn = "<RelatesTo xmlns=\"http://www.w3.org/2005/08/addressing\">";
 
-        assertTrue(out.getBuffer().getPayload().toString().indexOf(expectedOut) == -1);
-        assertTrue(in.getBuffer().getPayload().toString().indexOf(expectedIn) == -1);
-        */
+        assertTrue(output.toString().indexOf(expectedOut) == -1);
+        assertTrue(input.toString().indexOf(expectedIn) == -1);
     }
 
     @Test
     public void testCxfWsaFeature() throws Exception {
+        ByteArrayOutputStream input = setupInLogging();
+        ByteArrayOutputStream output = setupOutLogging();
+
         JaxWsProxyFactoryBean factory = new JaxWsProxyFactoryBean();
         factory.setServiceClass(AddNumbersPortType.class);
         factory.setAddress("http://localhost:9091/jaxws/add");
@@ -82,29 +98,28 @@ public class WSAClientServerTest extends AbstractBusClientServerTestBase {
         AddNumbersPortType port = (AddNumbersPortType) factory.create();
 
         assertEquals(3, port.addNumbers(1, 2));
-        
-        /*
+
         String expectedOut = "<Address>http://www.w3.org/2005/08/addressing/anonymous</Address>";
         String expectedIn = "<RelatesTo xmlns=\"http://www.w3.org/2005/08/addressing\">";
 
-        assertTrue(out.getBuffer().getPayload().toString().indexOf(expectedOut) != -1);
-        assertTrue(in.getBuffer().getPayload().toString().indexOf(expectedIn) != -1);
-        */
+        assertTrue(output.toString().indexOf(expectedOut) == -1);
+        assertTrue(input.toString().indexOf(expectedIn) == -1);
     }
 
     @Test
     public void testJaxwsWsaFeature() throws Exception {
+        ByteArrayOutputStream input = setupInLogging();
+        ByteArrayOutputStream output = setupOutLogging();
+
         AddNumbersPortType port = getPort();
 
         assertEquals(3, port.addNumbers(1, 2));
 
-        /*
         String expectedOut = "<Address>http://www.w3.org/2005/08/addressing/anonymous</Address>";
         String expectedIn = "<RelatesTo xmlns=\"http://www.w3.org/2005/08/addressing\">";
 
-        assertTrue(out.getBuffer().getPayload().toString().indexOf(expectedOut) != -1);
-        assertTrue(in.getBuffer().getPayload().toString().indexOf(expectedIn) != -1);
-        */
+        assertTrue(output.toString().indexOf(expectedOut) == -1);
+        assertTrue(input.toString().indexOf(expectedIn) == -1);
     }
 
     private AddNumbersPortType getPort() {
