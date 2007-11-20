@@ -183,7 +183,7 @@ public class JettyHTTPServerEngine
         //if we shutdown the port, on SOME OS's/JVM's, if a client
         //in the same jvm had been talking to it at some point and keep alives
         //are on, then the port is held open for about 60 seconds
-        //afterword and if we restart, connections will then 
+        //afterwards and if we restart, connections will then 
         //get sent into the old stuff where there are 
         //no longer any servant registered.   They pretty much just hang.
         
