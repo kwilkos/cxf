@@ -1,0 +1,9 @@
+<wsa:EndpointReference>
+    <wsa:Address>http://localhost:8080/test</wsa:Address>
+    <wsa:ReferenceProperties></wsa:ReferenceProperties> 
+    <wsa:ReferenceParameters></wsa:ReferenceParameters>
+    <wsa:PortType></wsa:PortType> 
+    <wsa:ServiceName></wsa:ServiceName>
+    <wsa:Policies></wsa:Policies>
+    <xs:any/>
+</wsa:EndpointReference>
