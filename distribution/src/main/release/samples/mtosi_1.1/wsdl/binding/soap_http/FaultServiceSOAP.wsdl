@@ -11,7 +11,7 @@
 				<soap:body parts="mtosiBody" use="literal" />
 			</wsdl:input>
 			<wsdl:output>
-				<soap:header message="tmf854WS:tmf854XSD:getActiveAlarmsCountResponse" part="mtosiHeader" use="literal" />
+				<soap:header message="tmf854WS:getActiveAlarmsCountResponse" part="mtosiHeader" use="literal" />
 				<soap:body parts="mtosiBody" use="literal" />
 			</wsdl:output>
 			<wsdl:fault name="ProcessingFailureException">
