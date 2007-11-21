@@ -122,7 +122,7 @@ public class GreeterImpl implements Greeter {
 
     public void greetMeOneWay(String requestType) {
         invocationCount++;
-        System.out.println("*********  greetMeOneWay: " + requestType);
+        //System.out.println("*********  greetMeOneWay: " + requestType);
     }
 
     public String greetMeSometime(String me) {
