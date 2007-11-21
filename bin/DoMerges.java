@@ -22,24 +22,24 @@ import java.util.*;
 
 
 /* dkulp - Stupid little program I use to help merge changes from 
- trunk to the fixes branches.   It requires the svnmerge.py be 
- available on the path.   Grab the latest from:
- http://svn.collab.net/repos/svn/trunk/contrib/client-side/svnmerge/
- (of course, that then requries python installed and whatever else svnmerge.py
- needs.)   It also requires the command line version of svn.
+   trunk to the fixes branches.   It requires the svnmerge.py be 
+   available on the path.   Grab the latest from:
+   http://svn.collab.net/repos/svn/trunk/contrib/client-side/svnmerge/
+   (of course, that then requries python installed and whatever else svnmerge.py
+   needs.)   It also requires the command line version of svn.
 
- Basically, svnmerge.py does all the work, but this little wrapper 
- thing will display the commit logs, prompt if you want to merge/block/ignore
- each commit, prompt for commit (so you can resolve any conflicts first), 
- etc....
+   Basically, svnmerge.py does all the work, but this little wrapper 
+   thing will display the commit logs, prompt if you want to merge/block/ignore
+   each commit, prompt for commit (so you can resolve any conflicts first), 
+   etc....
 
- Yes - doing this in python itself (or perl or even bash itself or ruby or ...) 
- would probably be better.  However, I'd then need to spend time 
- learning python/ruby/etc... that I just don't have time to do right now.
- What is more productive: Taking 30 minutes to bang this out in Java or
- spending a couple days learning another language that would allow me to
- bang it out in 15 minutes?
- */
+   Yes - doing this in python itself (or perl or even bash itself or ruby or ...) 
+   would probably be better.  However, I'd then need to spend time 
+   learning python/ruby/etc... that I just don't have time to do right now.
+   What is more productive: Taking 30 minutes to bang this out in Java or
+   spending a couple days learning another language that would allow me to
+   bang it out in 15 minutes?
+*/
 
 public class DoMerges {
     public static boolean auto = false;
@@ -94,7 +94,7 @@ public class DoMerges {
         p.waitFor();
 
 
-        p = Runtime.getRuntime().exec(new String[] {"svnmerge.py", "avail"});
+        p = Runtime.getRuntime().exec(getCommandLine(new String[] {"svnmerge.py", "avail"}));
 
         reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
         line = reader.readLine();
@@ -163,7 +163,7 @@ public class DoMerges {
 
             switch (c) {
             case 'M':
-                p = Runtime.getRuntime().exec(new String[] {"svnmerge.py", "merge", "-r", ver});
+                p = Runtime.getRuntime().exec(getCommandLine(new String[] {"svnmerge.py", "merge", "-r", ver}));
                 reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
                 line = reader.readLine();
                 while (line != null) {
@@ -184,7 +184,7 @@ public class DoMerges {
                 doCommit();
                 break;
             case 'B':
-                p = Runtime.getRuntime().exec(new String[] {"svnmerge.py", "block", "-r", ver});
+                p = Runtime.getRuntime().exec(getCommandLine(new String[] {"svnmerge.py", "block", "-r", ver}));
                 reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
                 line = reader.readLine();
                 while (line != null) {
@@ -208,5 +208,21 @@ public class DoMerges {
                 break;
             }
         }
+    }
+
+    private static String[] getCommandLine(String[] args) {
+        List<String> argLine = new ArrayList<String>();
+        if (isWindows()) {
+            argLine.add("cmd.exe");
+            argLine.add("/c");
+        }
+
+        argLine.addAll(Arrays.asList(args));
+        System.out.println("Running " + argLine + "...");
+        return argLine.toArray(new String[argLine.size()]);
+    }
+
+    private static boolean isWindows() {
+        return System.getProperty("os.name").toLowerCase().indexOf("windows") != -1;
     }
 }
