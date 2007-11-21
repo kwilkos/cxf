@@ -1,9 +1,8 @@
-<wsa:EndpointReference>
+<wsa:EndpointReference xmlns:wsa="http://www.w3.org/2005/08/addressing">
     <wsa:Address>http://localhost:8080/test</wsa:Address>
     <wsa:ReferenceProperties></wsa:ReferenceProperties> 
     <wsa:ReferenceParameters></wsa:ReferenceParameters>
     <wsa:PortType></wsa:PortType> 
     <wsa:ServiceName></wsa:ServiceName>
     <wsa:Policies></wsa:Policies>
-    <xs:any/>
 </wsa:EndpointReference>

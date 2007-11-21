@@ -22,6 +22,10 @@ package org.apache.cxf.jaxws.spi;
 import java.net.URL;
 import java.util.List;
 import java.util.logging.Logger;
+
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
 import javax.xml.namespace.QName;
 import javax.xml.transform.Source;
 import javax.xml.ws.Endpoint;
@@ -46,6 +50,8 @@ public class ProviderImpl extends javax.xml.ws.spi.Provider {
     public static final String JAXWS_PROVIDER = ProviderImpl.class.getName();
     
     private static final Logger LOG = LogUtils.getL7dLogger(ProviderImpl.class);
+    
+    private static JAXBContext jaxbContext;
 
     @Override
     public ServiceDelegate createServiceDelegate(URL url,
@@ -93,7 +99,24 @@ public class ProviderImpl extends javax.xml.ws.spi.Provider {
     }
 
     public EndpointReference readEndpointReference(Source eprInfoset) {
-        throw new UnsupportedOperationException();
+        try {
+            Unmarshaller unmarshaller = getJAXBContext().createUnmarshaller();
+            return (EndpointReference)unmarshaller.unmarshal(eprInfoset);
+        } catch (JAXBException e) {
+            throw new WebServiceException(
+                new Message("ERROR_UNMARSHAL_ENDPOINTREFERENCE", LOG).toString(), e);
+        }
+    }
+    
+    private JAXBContext getJAXBContext() {
+        if (jaxbContext == null) {
+            try {
+                jaxbContext = JAXBContext.newInstance(W3CEndpointReference.class);
+            } catch (JAXBException e) {
+                throw new WebServiceException(new Message("JAXBCONTEXT_CREATION_FAILED", LOG).toString(), e);
+            }
+        }
+        return jaxbContext;
     }
 
 }

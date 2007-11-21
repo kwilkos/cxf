@@ -249,7 +249,6 @@ public class EndpointReferenceTest extends AbstractJaxWsTest {
     }
     
     @Test
-    @Ignore("Not implemented yet")
     public void testProviderReadEndpointReference() throws Exception {
         ProviderImpl provider = new ProviderImpl();
 
