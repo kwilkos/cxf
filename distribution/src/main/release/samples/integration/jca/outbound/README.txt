@@ -3,7 +3,7 @@ HELLO WORLD (SOAP OVER HTTP) CXF J2EE OUTBOUND DEMO
 
 
 This demo shows how to connect with an Apache CXF Web service using a
-Servlet deployed in an application server.
+Servlet deployed in an application server. This demo is based on JBoss4.0.5GA.
 
 
 Running the Demo
@@ -127,7 +127,7 @@ To launch the service:
   (Windows) > ant server
 
 
-See hello_world/README.txt file for full details.
+See wsdl_first/README.txt file for full details.
 
 
 Deploying the demo WAR archive
@@ -137,6 +137,8 @@ How to deploy a WAR archive is dependent on your
 application server. Please consult your vendor documentation
 on application deployment. Here are basic instructions to deploy
 the demo application for JBoss application servers.
+
+Run the command in outbound directory.
 
   (Unix)    % ant deploy.war
   (Windows) > ant deploy.war

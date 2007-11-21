@@ -73,7 +73,7 @@
                 <include name="*activation*" />
                 <include name="jaxb*" />
                 <include name="stax*" />
-                <include name="jsr181*" />
+                <include name="geronimo-stax-api*" />
                 <include name="saaj*" />
             </fileset>
         </copy>
