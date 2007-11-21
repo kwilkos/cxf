@@ -106,7 +106,7 @@ public class LoggingOutInterceptor extends AbstractPhaseInterceptor {
             }
 
             if (writer != null) {
-                writer.write(buffer.toString());
+                writer.println(buffer.toString());
             } else if (LOG.isLoggable(Level.INFO)) {
                 LOG.info(buffer.toString());
             }

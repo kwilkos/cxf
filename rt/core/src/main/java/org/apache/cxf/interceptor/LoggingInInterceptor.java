@@ -46,6 +46,7 @@ public class LoggingInInterceptor extends AbstractPhaseInterceptor<Message> {
     public LoggingInInterceptor() {
         super(Phase.RECEIVE);
     }
+
     public LoggingInInterceptor(int lim) {
         this();
         limit = lim;
@@ -114,7 +115,7 @@ public class LoggingInInterceptor extends AbstractPhaseInterceptor<Message> {
         }
 
         if (writer != null) {
-            writer.write(buffer.toString());
+            writer.println(buffer.toString());
         } else if (LOG.isLoggable(Level.INFO)) {
             LOG.info(buffer.toString());
         }

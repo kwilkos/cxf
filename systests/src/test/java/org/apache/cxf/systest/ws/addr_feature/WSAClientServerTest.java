@@ -51,7 +51,7 @@ public class WSAClientServerTest extends AbstractBusClientServerTestBase {
 
     private ByteArrayOutputStream setupInLogging() {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        PrintWriter writer = new PrintWriter(bos);
+        PrintWriter writer = new PrintWriter(bos, true);
         LoggingInInterceptor in = new LoggingInInterceptor(writer);
         this.bus.getInInterceptors().add(in);
         return bos;
@@ -59,7 +59,7 @@ public class WSAClientServerTest extends AbstractBusClientServerTestBase {
 
     private ByteArrayOutputStream setupOutLogging() {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        PrintWriter writer = new PrintWriter(bos);
+        PrintWriter writer = new PrintWriter(bos, true);
 
         LoggingOutInterceptor out = new LoggingOutInterceptor(writer);
         this.bus.getOutInterceptors().add(out);
@@ -102,8 +102,8 @@ public class WSAClientServerTest extends AbstractBusClientServerTestBase {
         String expectedOut = "<Address>http://www.w3.org/2005/08/addressing/anonymous</Address>";
         String expectedIn = "<RelatesTo xmlns=\"http://www.w3.org/2005/08/addressing\">";
 
-        assertTrue(output.toString().indexOf(expectedOut) == -1);
-        assertTrue(input.toString().indexOf(expectedIn) == -1);
+        assertTrue(output.toString().indexOf(expectedOut) != -1);
+        assertTrue(input.toString().indexOf(expectedIn) != -1);
     }
 
     @Test
@@ -118,8 +118,8 @@ public class WSAClientServerTest extends AbstractBusClientServerTestBase {
         String expectedOut = "<Address>http://www.w3.org/2005/08/addressing/anonymous</Address>";
         String expectedIn = "<RelatesTo xmlns=\"http://www.w3.org/2005/08/addressing\">";
 
-        assertTrue(output.toString().indexOf(expectedOut) == -1);
-        assertTrue(input.toString().indexOf(expectedIn) == -1);
+        assertTrue(output.toString().indexOf(expectedOut) != -1);
+        assertTrue(input.toString().indexOf(expectedIn) != -1);
     }
 
     private AddNumbersPortType getPort() {
