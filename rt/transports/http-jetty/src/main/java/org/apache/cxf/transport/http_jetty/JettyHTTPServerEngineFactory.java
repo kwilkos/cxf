@@ -138,6 +138,35 @@ public class JettyHTTPServerEngineFactory implements BusLifeCycleListener {
     public Map<String, ThreadingParameters> getThreadingParametersMap() {
         return threadingParametersMap;
     }
+    
+    /**
+     * This call sets TLSServerParameters for a JettyHTTPServerEngine
+     * that will be subsequently created. It will not alter an engine
+     * that has already been created for that network port.
+     * @param port       The network port number to bind to the engine.
+     * @param tlsParams  The tls server parameters. Cannot be null.
+     * @throws IOException 
+     * @throws GeneralSecurityException 
+     */
+    public void setTLSServerParametersForPort(
+        int port, 
+        TLSServerParameters tlsParams) throws GeneralSecurityException, IOException {
+        if (tlsParams == null) {
+            throw new IllegalArgumentException("tlsParams cannot be null");
+        }
+        JettyHTTPServerEngine ref = retrieveJettyHTTPServerEngine(port);
+        if (null == ref) {
+            ref = new JettyHTTPServerEngine(this, bus, port);
+            ref.setTlsServerParameters(tlsParams);
+            portMap.put(port, ref);
+            ref.finalizeConfig();
+        } else {
+            if (ref.getConnector() != null && ref.getConnector().isRunning()) {
+                throw new IOException("can't set the TLS params on the opened connector");
+            }
+            ref.setTlsServerParameters(tlsParams);            
+        }
+    }
             
     
     /**
