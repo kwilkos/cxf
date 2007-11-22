@@ -237,7 +237,7 @@ public class EndpointReferenceTest extends AbstractJaxWsTest {
             Document doc = XMLUtils.parse(is);
             Element referenceParameters = XMLUtils.fetchElementByNameAttribute(doc.getDocumentElement(),
                                                                                "wsa:ReferenceParameters",
-                                                                               "wsa:ReferenceParameters");
+                                                                               "");
             endpoint.getEndpointReference(MyEndpointReference.class, referenceParameters);
 
             fail("Did not get expected WebServiceException");
@@ -262,7 +262,6 @@ public class EndpointReferenceTest extends AbstractJaxWsTest {
     }
     
     @Test
-    @Ignore("Not implemented yet")
     public void testProviderCreateW3CEndpointReference() throws Exception {
         ProviderImpl provider = new ProviderImpl();
 
@@ -270,14 +269,17 @@ public class EndpointReferenceTest extends AbstractJaxWsTest {
         Document doc = XMLUtils.parse(is);
         Element referenceParameter = XMLUtils.fetchElementByNameAttribute(doc.getDocumentElement(),
                                                                           "wsa:ReferenceParameters",
-                                                                          "wsa:ReferenceParameters");
+                                                                          "");
         List<Element> referenceParameters = new ArrayList<Element>();
-        referenceParameters.add(referenceParameter);
+        if (referenceParameter != null) {
+            referenceParameters.add(referenceParameter);
+        }
 
-        Element metadata = XMLUtils.fetchElementByNameAttribute(doc.getDocumentElement(), "wsa:metadata",
-                                                                "wsa:metadata");
+        Element metadata = XMLUtils.fetchElementByNameAttribute(doc.getDocumentElement(), "wsa:metadata", "");
         List<Element> metadataList = new ArrayList<Element>();
-        metadataList.add(metadata);
+        if (metadata != null) {
+            metadataList.add(metadata);
+        }
 
         W3CEndpointReference endpointReference = provider
             .createW3CEndpointReference("http://localhost:8080/test", serviceName, portName, metadataList,
