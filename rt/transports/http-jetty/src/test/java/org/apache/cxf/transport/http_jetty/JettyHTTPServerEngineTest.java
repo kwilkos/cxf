@@ -104,8 +104,14 @@ public class JettyHTTPServerEngineTest extends Assert {
         assertTrue("Protocol must be https", 
                    "https".equals(engine.getProtocol()));
         
+        factory.setTLSServerParametersForPort(9236, new TLSServerParameters());
+        engine = factory.createJettyHTTPServerEngine(9236, "https");
+        assertTrue("Protocol must be https", 
+                   "https".equals(engine.getProtocol()));
+        
         factory.destroyForPort(9234);
         factory.destroyForPort(9235);
+        factory.destroyForPort(9236);
     }
     
     
