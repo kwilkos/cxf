@@ -21,7 +21,6 @@ package org.apache.cxf.javascript.service;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.Collection;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -42,27 +41,25 @@ import org.apache.cxf.databinding.DataBinding;
 import org.apache.cxf.databinding.DataReader;
 import org.apache.cxf.databinding.DataWriter;
 import org.apache.cxf.endpoint.Client;
-import org.apache.cxf.javascript.BasicNameManager;
 import org.apache.cxf.javascript.JavascriptTestUtilities;
+import org.apache.cxf.javascript.JavascriptTestUtilities.JSRunnable;
 import org.apache.cxf.javascript.JsSimpleDomNode;
-import org.apache.cxf.javascript.NameManager;
-import org.apache.cxf.javascript.NamespacePrefixAccumulator;
 import org.apache.cxf.javascript.fortest.BasicTypeFunctionReturnStringWrapper;
 import org.apache.cxf.javascript.fortest.StringWrapper;
-import org.apache.cxf.javascript.types.SchemaJavascriptBuilder;
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
 import org.apache.cxf.service.model.MessageInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
-import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.test.AbstractCXFSpringTest;
 import org.junit.Test;
+import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 import org.springframework.context.support.GenericApplicationContext;
 
-//@org.junit.Ignore
 public class DocLitWrappedTest extends AbstractCXFSpringTest {
+    private static final String BASIC_TYPE_FUNCTION_RETURN_STRING_RESPONSE_DESERIALIZE_RESPONSE = 
+        "org_apache_cxf_javascript_fortest_basicTypeFunctionReturnStringResponse_deserializeResponse";
     private static final String WHAT_ROUGH_BEAST_ITS_HOUR_COME_AT_LAST = 
         "What rough beast, its hour come at last, ...";
     private static final Logger LOG = LogUtils.getL7dLogger(DocLitWrappedTest.class);
@@ -72,11 +69,8 @@ public class DocLitWrappedTest extends AbstractCXFSpringTest {
     private JavascriptTestUtilities testUtilities;
     private Client client;
     private List<ServiceInfo> serviceInfos;
-    private Collection<SchemaInfo> schemata;
-    private NameManager nameManager;
     private JaxWsProxyFactoryBean clientProxyFactory;
     private XMLInputFactory xmlInputFactory;
-    private NamespacePrefixAccumulator prefixManager;
     private DocumentBuilder documentBuilder;
 
     public DocLitWrappedTest() throws Exception {
@@ -101,14 +95,18 @@ public class DocLitWrappedTest extends AbstractCXFSpringTest {
         DataBinding dataBinding = clientProxyFactory.getServiceFactory().getDataBinding();
         assertNotNull(dataBinding);
         // the serialize function takes an array of the five parameters.
-        Object[] params = new Object[5];
+        final Object[] params = new Object[5];
         params[0] = testUtilities.javaToJS(new Float("3.14159"));
         params[1] = testUtilities.javaToJS(new Double("7.90834"));
         params[2] = testUtilities.javaToJS(new Integer(42));
         params[3] = testUtilities.javaToJS(new Long(420000));
         params[4] = testUtilities.javaToJS(new String("Hello<Dolly&sheep"));
-        Scriptable jsParamArray = 
-            testUtilities.getRhinoContext().newArray(testUtilities.getRhinoScope(), params);
+        Scriptable jsParamArray =
+            testUtilities.runInsideContext(Scriptable.class, new JSRunnable<Scriptable>() {
+                public Scriptable run(Context context) {
+                    return context.newArray(testUtilities.getRhinoScope(), params);
+                }
+            });
         Object xmlString = null;
         xmlString = testUtilities.rhinoCall(BASIC_TYPE_FUNCTION_RETURN_STRING_SERIALIZER_NAME,
                                                     jsParamArray);
@@ -159,11 +157,11 @@ public class DocLitWrappedTest extends AbstractCXFSpringTest {
         writer.write(responseObject, part, document);
         Element messageElement = document.getDocumentElement();
         Object jsUtils = testUtilities.rhinoNewObject("CxfApacheOrgUtil");
-        Object jsResult = testUtilities.rhinoCall("org_apache_cxf_javascript_fortest_"
-                                                  + "basicTypeFunctionReturnString_deserializeResponse",
-                                                  jsUtils,
-                                                  JsSimpleDomNode.wrapNode(testUtilities.getRhinoScope(), 
-                                                                           messageElement));
+        Object jsResult = 
+            testUtilities.rhinoCall(BASIC_TYPE_FUNCTION_RETURN_STRING_RESPONSE_DESERIALIZE_RESPONSE,
+                                    jsUtils,
+                                    JsSimpleDomNode.wrapNode(testUtilities.getRhinoScope(), 
+                                                             messageElement));
         assertNotNull(jsResult);
         ScriptableObject jsResultObject = (ScriptableObject)jsResult;
         Object returnValue = ScriptableObject.callMethod(jsResultObject, 
@@ -184,27 +182,7 @@ public class DocLitWrappedTest extends AbstractCXFSpringTest {
         // there can only be one.
         assertEquals(1, serviceInfos.size());
         ServiceInfo serviceInfo = serviceInfos.get(0);
-        schemata = serviceInfo.getSchemas();
-        nameManager = new BasicNameManager(serviceInfo);
-        prefixManager = new NamespacePrefixAccumulator(serviceInfo.getXmlSchemaCollection());
-        for (SchemaInfo schema : schemata) {
-            SchemaJavascriptBuilder builder = 
-                new SchemaJavascriptBuilder(serviceInfo.getXmlSchemaCollection(), 
-                                            prefixManager, nameManager, schema);
-            String allThatJavascript = builder.generateCodeForSchema(schema);
-            assertNotNull(allThatJavascript);
-            LOG.fine(schema.toString());
-            LOG.fine(allThatJavascript);
-            testUtilities.readStringIntoRhino(allThatJavascript, schema.toString() + ".js");
-        }
-        
-        ServiceJavascriptBuilder serviceBuilder = 
-            new ServiceJavascriptBuilder(serviceInfo, prefixManager, nameManager);
-        serviceBuilder.walk();
-        String serviceJavascript = serviceBuilder.getCode();
-        LOG.fine(serviceInfo.toString());
-        LOG.fine(serviceJavascript);
-        testUtilities.readStringIntoRhino(serviceJavascript, serviceInfo.getName() + ".js");
+        testUtilities.loadJavascriptForService(serviceInfo);
     }
 
     @Override

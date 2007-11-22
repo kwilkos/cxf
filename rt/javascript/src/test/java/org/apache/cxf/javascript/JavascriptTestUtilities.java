@@ -22,12 +22,18 @@ package org.apache.cxf.javascript;
 import java.io.IOException;
 import java.io.Reader;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Collection;
 import java.util.logging.Logger;
 
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.javascript.service.ServiceJavascriptBuilder;
+import org.apache.cxf.javascript.types.SchemaJavascriptBuilder;
+import org.apache.cxf.service.model.SchemaInfo;
+import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.test.TestUtilities;
 import org.junit.Assert;
 import org.mozilla.javascript.Context;
+import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.JavaScriptException;
 import org.mozilla.javascript.RhinoException;
@@ -35,35 +41,39 @@ import org.mozilla.javascript.ScriptableObject;
 import org.mozilla.javascript.tools.debugger.Main;
 
 /**
- * Test utilities class with some Javascript capability included. 
+ * Test utilities class with some Javascript capability included.
  */
 public class JavascriptTestUtilities extends TestUtilities {
-    
+
     private static final Logger LOG = LogUtils.getL7dLogger(JavascriptTestUtilities.class);
 
+    private ContextFactory rhinoContextFactory;
     private ScriptableObject rhinoScope;
     private Context rhinoContext;
-    
+
     public static class JavaScriptAssertionFailed extends RuntimeException {
 
         public JavaScriptAssertionFailed(String what) {
             super(what);
         }
     }
-    
+
     public static class JsAssert extends ScriptableObject {
 
-        public JsAssert() { }
+        public JsAssert() {
+        }
+
         public void jsConstructor(String exp) {
             LOG.severe("Assertion failed: " + exp);
             throw new JavaScriptAssertionFailed(exp);
         }
+
         @Override
         public String getClassName() {
             return "Assert";
         }
     }
-    
+
     public static class Trace extends ScriptableObject {
 
         public Trace() {
@@ -73,18 +83,18 @@ public class JavascriptTestUtilities extends TestUtilities {
         public String getClassName() {
             return "org_apache_cxf_trace";
         }
-        
-        //CHECKSTYLE:OFF
+
+        // CHECKSTYLE:OFF
         public static void jsStaticFunction_trace(String message) {
             LOG.fine(message);
         }
-        //CHECKSTYLE:ON
+        // CHECKSTYLE:ON
     }
-    
+
     public static class Notifier extends ScriptableObject {
-        
+
         private boolean notified;
-        
+
         public Notifier() {
         }
 
@@ -92,39 +102,41 @@ public class JavascriptTestUtilities extends TestUtilities {
         public String getClassName() {
             return "org_apache_cxf_notifier";
         }
-        
+
         public synchronized boolean waitForJavascript(long timeout) {
             while (!notified) {
                 try {
                     wait(timeout);
-                    return notified; 
+                    return notified;
                 } catch (InterruptedException e) {
                     // do nothing.
                 }
             }
             return true; // only here if true on entry.
         }
-        
-        //CHECKSTYLE:OFF
+
+        // CHECKSTYLE:OFF
         public synchronized void jsFunction_notify() {
             notified = true;
             notifyAll();
         }
-        //CHECKSTYLE:ON
+        // CHECKSTYLE:ON
     }
 
     public JavascriptTestUtilities(Class<?> classpathReference) {
         super(classpathReference);
     }
-    
+
     public void initializeRhino() {
-        
+
+        rhinoContextFactory = new ContextFactory();
         if (System.getProperty("cxf.jsdebug") != null) {
-            Main.mainEmbedded("Debug embedded JavaScript.");
+            Main.mainEmbedded(rhinoContextFactory, rhinoScope, "Debug embedded JavaScript.");
         }
 
-        rhinoContext = Context.enter();
+        rhinoContext = rhinoContextFactory.enter();
         rhinoScope = rhinoContext.initStandardObjects();
+
         try {
             ScriptableObject.defineClass(rhinoScope, JsAssert.class);
             ScriptableObject.defineClass(rhinoScope, Trace.class);
@@ -135,48 +147,85 @@ public class JavascriptTestUtilities extends TestUtilities {
             throw new RuntimeException(e);
         } catch (InvocationTargetException e) {
             throw new RuntimeException(e);
+        } finally {
+            rhinoContextFactory.exit();
         }
         JsSimpleDomNode.register(rhinoScope);
         JsSimpleDomParser.register(rhinoScope);
+        JsXMLHttpRequest.register(rhinoScope);
     }
-    
+
     public void readResourceIntoRhino(String resourceClasspath) throws IOException {
         Reader js = getResourceAsReader(resourceClasspath);
-        rhinoContext.evaluateReader(rhinoScope, js, resourceClasspath, 1, null);
+        rhinoContextFactory.enter(rhinoContext);
+        try {
+            rhinoContext.evaluateReader(rhinoScope, js, resourceClasspath, 1, null);
+        } finally {
+            rhinoContextFactory.exit();
+        }
     }
-    
+
     public void readStringIntoRhino(String js, String sourceName) {
         LOG.fine(sourceName + ":\n" + js);
-        rhinoContext.evaluateString(rhinoScope, js, sourceName, 1, null);
+        rhinoContextFactory.enter(rhinoContext);
+        try {
+            rhinoContext.evaluateString(rhinoScope, js, sourceName, 1, null);
+        } finally {
+            rhinoContextFactory.exit();
+        }
     }
-    
+
     public ScriptableObject getRhinoScope() {
         return rhinoScope;
     }
 
-    public Context getRhinoContext() {
-        return rhinoContext;
+    public ContextFactory getRhinoContextFactory() {
+        return rhinoContextFactory;
     }
-    
+
+    public static interface JSRunnable<T> {
+        T run(Context context);
+    }
+
+    public <T> T runInsideContext(Class<T> clazz, JSRunnable<?> runnable) {
+        rhinoContextFactory.enter(rhinoContext);
+        try {
+            return clazz.cast(runnable.run(rhinoContext));
+        } finally {
+            rhinoContextFactory.exit();
+        }
+    }
+
     public Object javaToJS(Object value) {
         return Context.javaToJS(value, rhinoScope);
     }
-    
-    public Object rhinoNewObject(String constructorName) {
-        return rhinoContext.newObject(rhinoScope, constructorName);
+
+    public Object rhinoNewObject(final String constructorName) {
+        return runInsideContext(Object.class, new JSRunnable<Object>() {
+            public Object run(Context context) {
+                return context.newObject(rhinoScope, constructorName);
+            }
+        });
     }
-    
+
     /**
      * Evaluate a javascript expression, returning the raw Rhino object.
+     * 
      * @param jsExpression the javascript expression.
      * @return return value.
      */
-    public Object rhinoEvaluate(String jsExpression) {
-        return rhinoContext.evaluateString(rhinoScope, jsExpression, "<testcase>", 1, null);
+    public Object rhinoEvaluate(final String jsExpression) {
+        return runInsideContext(Object.class, new JSRunnable<Object>() {
+            public Object run(Context context) {
+                return rhinoContext.evaluateString(rhinoScope, jsExpression, "<testcase>", 1, null);
+            }
+        });
     }
-    
+
     /**
-     * Evaluate a Javascript expression, converting the return value to a convenient Java type.
+     * Evaluate a Javascript expression, converting the return value to a
+     * convenient Java type.
+     * 
      * @param <T> The desired type
      * @param jsExpression the javascript expression.
      * @param clazz the Class object for the desired type.
@@ -185,45 +234,69 @@ public class JavascriptTestUtilities extends TestUtilities {
     public <T> T rhinoEvaluateConvert(String jsExpression, Class<T> clazz) {
         return clazz.cast(Context.jsToJava(rhinoEvaluate(jsExpression), clazz));
     }
-    
+
     /**
-     * Call a JavaScript function. Optionally, require it to throw an exception equal to
-     * a supplied object. If the exception is called for, this function will either return null
-     * or Assert.
+     * Call a JavaScript function. Optionally, require it to throw an exception
+     * equal to a supplied object. If the exception is called for, this function
+     * will either return null or Assert.
+     * 
      * @param expectingException Exception desired, or null.
      * @param functionName Function to call.
-     * @param args args for the function. Be sure to Javascript-ify them as appropriate.
+     * @param args args for the function. Be sure to Javascript-ify them as
+     *                appropriate.
      * @return
      */
-    public Object rhinoCallExpectingException(Object expectingException, 
-                                              String functionName, 
-                                              Object ... args) {
-        Object fObj = rhinoScope.get(functionName, rhinoScope);
-        if (!(fObj instanceof Function)) {
-            throw new RuntimeException("Missing test function " + functionName);
-        }
-        Function function = (Function)fObj;
-        try {
-            return function.call(rhinoContext, rhinoScope, rhinoScope, args);
-        } catch (RhinoException angryRhino) {
-            if (expectingException != null && angryRhino instanceof JavaScriptException) {
-                JavaScriptException jse = (JavaScriptException)angryRhino;
-                Assert.assertEquals(jse.getValue(), expectingException);
+    public Object rhinoCallExpectingException(final Object expectingException, final String functionName,
+                                              final Object... args) {
+        return runInsideContext(Object.class, new JSRunnable<Object>() {
+            public Object run(Context context) {
+                Object fObj = rhinoScope.get(functionName, rhinoScope);
+                if (!(fObj instanceof Function)) {
+                    throw new RuntimeException("Missing test function " + functionName);
+                }
+                Function function = (Function)fObj;
+                try {
+                    return function.call(rhinoContext, rhinoScope, rhinoScope, args);
+                } catch (RhinoException angryRhino) {
+                    if (expectingException != null && angryRhino instanceof JavaScriptException) {
+                        JavaScriptException jse = (JavaScriptException)angryRhino;
+                        Assert.assertEquals(jse.getValue(), expectingException);
+                        return null;
+                    }
+                    String trace = angryRhino.getScriptStackTrace();
+                    Assert.fail("JavaScript error: " + angryRhino.toString() + " " + trace);
+                } catch (JavaScriptAssertionFailed assertion) {
+                    Assert.fail(assertion.getMessage());
+                }
                 return null;
             }
-            String trace = angryRhino.getScriptStackTrace();
-            Assert.fail("JavaScript error: " + angryRhino.toString() + " " + trace);
-        } catch (JavaScriptAssertionFailed assertion) {
-            Assert.fail(assertion.getMessage());
-        }
-        return null;
+        });
     }
-    
-    public Object rhinoCall(String functionName, Object ... args) {
+
+    public Object rhinoCall(String functionName, Object... args) {
         return rhinoCallExpectingException(null, functionName, args);
     }
-    
-    public <T> T rhinoCallConvert(String functionName, Class<T> clazz, Object ... args) {
+
+    public <T> T rhinoCallConvert(String functionName, Class<T> clazz, Object... args) {
         return clazz.cast(Context.jsToJava(rhinoCall(functionName, args), clazz));
+    }
+
+    public void loadJavascriptForService(ServiceInfo serviceInfo) {
+        Collection<SchemaInfo> schemata = serviceInfo.getSchemas();
+        BasicNameManager nameManager = new BasicNameManager(serviceInfo);
+        NamespacePrefixAccumulator prefixManager = new NamespacePrefixAccumulator(serviceInfo
+            .getXmlSchemaCollection());
+        for (SchemaInfo schema : schemata) {
+            SchemaJavascriptBuilder builder = new SchemaJavascriptBuilder(serviceInfo
+                .getXmlSchemaCollection(), prefixManager, nameManager, schema);
+            String allThatJavascript = builder.generateCodeForSchema(schema);
+            readStringIntoRhino(allThatJavascript, schema.toString() + ".js");
+        }
+
+        ServiceJavascriptBuilder serviceBuilder = new ServiceJavascriptBuilder(serviceInfo, prefixManager,
+                                                                               nameManager);
+        serviceBuilder.walk();
+        String serviceJavascript = serviceBuilder.getCode();
+        readStringIntoRhino(serviceJavascript, serviceInfo.getName() + ".js");
     }
 }

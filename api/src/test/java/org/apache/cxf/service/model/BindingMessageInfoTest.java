@@ -28,20 +28,21 @@ import org.junit.Test;
 public class BindingMessageInfoTest extends Assert {
 
     private BindingMessageInfo bindingMessageInfo;
-    
+
     @Before
     public void setUp() throws Exception {
-        MessageInfo messageInfo = new MessageInfo(null, new QName(
-              "http://apache.org/hello_world_soap_http", "testMessage"));
+        MessageInfo messageInfo = new MessageInfo(null, MessageInfo.Type.INPUT,
+                                                  new QName("http://apache.org/hello_world_soap_http",
+                                                            "testMessage"));
         bindingMessageInfo = new BindingMessageInfo(messageInfo, null);
     }
-    
+
     @Test
     public void testMessage() {
         assertNotNull(bindingMessageInfo.getMessageInfo());
         assertEquals(bindingMessageInfo.getMessageInfo().getName().getLocalPart(), "testMessage");
         assertEquals(bindingMessageInfo.getMessageInfo().getName().getNamespaceURI(),
-              "http://apache.org/hello_world_soap_http");
+                     "http://apache.org/hello_world_soap_http");
         assertNull(bindingMessageInfo.getBindingOperation());
     }
 }

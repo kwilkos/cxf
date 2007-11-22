@@ -406,14 +406,18 @@ public class SoapBindingFactory extends AbstractBindingFactory {
     private void addOutOfBandParts(final BindingOperationInfo bop, final javax.wsdl.Message msg,
                                    final SchemaCollection schemas, boolean isInput) {
         MessageInfo minfo = null;
+        MessageInfo.Type type;
+
         if (isInput) {
+            type = MessageInfo.Type.INPUT;
             minfo = bop.getOperationInfo().getInput();
         } else {
+            type = MessageInfo.Type.OUTPUT;
             minfo = bop.getOperationInfo().getOutput();
         }
 
         if (minfo == null) {
-            minfo = new MessageInfo(null, msg.getQName());
+            minfo = new MessageInfo(null, type, msg.getQName());
         }
         buildMessage(minfo, msg, schemas);
 
@@ -422,14 +426,17 @@ public class SoapBindingFactory extends AbstractBindingFactory {
         if (unwrapped == null) {
             return;
         }
+        
         if (isInput) {
             minfo = unwrapped.getInput();
+            type = MessageInfo.Type.INPUT;
         } else {
             minfo = unwrapped.getOutput();
+            type = MessageInfo.Type.OUTPUT;
         }
 
         if (minfo == null) {
-            minfo = new MessageInfo(unwrapped, msg.getQName());
+            minfo = new MessageInfo(unwrapped, type, msg.getQName());
         }
         buildMessage(minfo, msg, schemas);
     }

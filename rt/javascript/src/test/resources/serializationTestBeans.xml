@@ -31,8 +31,8 @@ under the License.
 	<import resource="classpath:META-INF/cxf/cxf-extension-jaxws.xml" />
 	<import resource="classpath:META-INF/cxf/cxf-extension-local.xml" />
 	
-	<!--  We use a client for the service for basic tests. We don't need a server at all. -->
-	<bean id="simple-dlwu-proxy-factory" class="org.apache.cxf.jaxws.JaxWsProxyFactoryBean" >
+<!--  We use a client for the service for basic tests. We don't need a server at all. -->
+  <bean id="simple-dlwu-proxy-factory" class="org.apache.cxf.jaxws.JaxWsProxyFactoryBean" >
     <property name="serviceClass" value="org.apache.cxf.javascript.fortest.SimpleDocLitWrapped"/>
     <property name="address" value="local://SimpleDocLitWrappedUnqualified"/>
   </bean>

@@ -267,7 +267,7 @@ public class JsXMLHttpRequest extends ScriptableObject {
         // 4 preprocess data. Handled on the way in here, we're called with
         // UTF-8 bytes.
         if (xml && !requestHeaders.containsKey("Content-Type")) {
-            requestHeaders.put("ContentType", "application/xml");
+            requestHeaders.put("Content-Type", "application/xml;charset=utf-8");
         }
         
         // 5 talk to the server.
@@ -645,36 +645,4 @@ public class JsXMLHttpRequest extends ScriptableObject {
         return doGetStatusText();
     }
 }
-
-// fodder for local transport.
-//       return invoke("local://" + service, LocalTransportFactory.TRANSPORT_ID, message);
-//EndpointInfo ei = new EndpointInfo(null, "http://schemas.xmlsoap.org/soap/http");
-//ei.setAddress(address);
-//
-//ConduitInitiatorManager conduitMgr = getBus().getExtension(ConduitInitiatorManager.class);
-//ConduitInitiator conduitInit = conduitMgr.getConduitInitiator(transport);
-//Conduit conduit = conduitInit.getConduit(ei);
-//
-//TestMessageObserver obs = new TestMessageObserver();
-//conduit.setMessageObserver(obs);
-//
-//Message m = new MessageImpl();
-//conduit.prepare(m);
-//
-//OutputStream os = m.getContent(OutputStream.class);
-//InputStream is = getResourceAsStream(message);
-//if (is == null) {
-//    throw new RuntimeException("Could not find resource " + message);
-//}
-//
-//IOUtils.copy(is, os);
-//
-//// TODO: shouldn't have to do this. IO caching needs cleaning
-//// up or possibly removal...
-//os.flush();
-//is.close();
-//os.close();
-//
-//byte[] bs = obs.getResponseStream().toByteArray();
-//
-//return bs; 
+ 

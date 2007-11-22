@@ -77,8 +77,8 @@ public class OperationInfo extends AbstractPropertiesHolder {
     }
 
     
-    public MessageInfo createMessage(QName nm) {
-        return new MessageInfo(this, nm);
+    public MessageInfo createMessage(QName nm, MessageInfo.Type type) {
+        return new MessageInfo(this, type, nm);
     }
 
     public MessageInfo getOutput() {

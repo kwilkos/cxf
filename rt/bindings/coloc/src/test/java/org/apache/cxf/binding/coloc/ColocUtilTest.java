@@ -205,8 +205,8 @@ public class ColocUtilTest extends Assert {
         QName mn1 = new QName("A", "B");
         QName mn2 = new QName("C", "D");
 
-        MessageInfo mi1 = new MessageInfo(oi, mn1);
-        MessageInfo mi2 = new MessageInfo(oi, mn2);
+        MessageInfo mi1 = new MessageInfo(oi, MessageInfo.Type.INPUT, mn1);
+        MessageInfo mi2 = new MessageInfo(oi, MessageInfo.Type.INPUT, mn2);
         match = ColocUtil.isSameMessageInfo(mi1, null);
         assertEquals("Should not find a match", false, match);
         match = ColocUtil.isSameMessageInfo(null, mi2);

@@ -33,11 +33,13 @@ public class BindingOperationInfoTest extends Assert {
     public void setUp() throws Exception {
         OperationInfo operationInfo = new OperationInfo(null, new QName(TEST_NS, "operationTest"));
         MessageInfo inputMessage = operationInfo.createMessage(new QName(
-            "http://apache.org/hello_world_soap_http", "testInputMessage"));
+            "http://apache.org/hello_world_soap_http", "testInputMessage"),
+            MessageInfo.Type.INPUT);
         operationInfo.setInput("input", inputMessage);
         
         MessageInfo outputMessage = operationInfo.createMessage(new QName(
-            "http://apache.org/hello_world_soap_http", "testOutputMessage"));
+            "http://apache.org/hello_world_soap_http", "testOutputMessage"),
+            MessageInfo.Type.OUTPUT);
         operationInfo.setOutput("output", outputMessage);
         operationInfo.addFault(new QName(TEST_NS, "fault"), new QName(
             "http://apache.org/hello_world_soap_http", "faultMessage"));

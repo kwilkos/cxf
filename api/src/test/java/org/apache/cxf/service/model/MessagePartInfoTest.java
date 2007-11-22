@@ -34,7 +34,8 @@ public class MessagePartInfoTest extends Assert {
     @Before
     public void setUp() throws Exception {
         
-        MessageInfo msg = new MessageInfo(null, 
+        MessageInfo msg = new MessageInfo(null,
+                                          MessageInfo.Type.INPUT,
                                           new QName("http://apache.org/hello_world_soap_http/types",
                                                     "testMessage"));
         messagePartInfo = new MessagePartInfo(new QName(

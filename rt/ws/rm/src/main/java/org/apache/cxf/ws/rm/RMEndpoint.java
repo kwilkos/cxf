@@ -326,14 +326,16 @@ public class RMEndpoint {
         MessageInfo messageInfo = null;
 
         operationInfo = ii.addOperation(RMConstants.getCreateSequenceOperationName());
-        messageInfo = operationInfo.createMessage(RMConstants.getCreateSequenceOperationName());
+        messageInfo = operationInfo.createMessage(RMConstants.getCreateSequenceOperationName(),
+                                                  MessageInfo.Type.INPUT);
         operationInfo.setInput(messageInfo.getName().getLocalPart(), messageInfo);
         partInfo = messageInfo.addMessagePart(CREATE_PART_NAME);
         partInfo.setElementQName(RMConstants.getCreateSequenceOperationName());
         partInfo.setElement(true);
         partInfo.setTypeClass(CreateSequenceType.class);
 
-        messageInfo = operationInfo.createMessage(RMConstants.getCreateSequenceResponseOperationName());
+        messageInfo = operationInfo.createMessage(RMConstants.getCreateSequenceResponseOperationName(),
+                                                  MessageInfo.Type.OUTPUT);
         operationInfo.setOutput(messageInfo.getName().getLocalPart(), messageInfo);
         partInfo = messageInfo.addMessagePart(CREATE_RESPONSE_PART_NAME);
         partInfo.setElementQName(RMConstants.getCreateSequenceResponseOperationName());
@@ -342,7 +344,8 @@ public class RMEndpoint {
         partInfo.setIndex(0);
 
         operationInfo = ii.addOperation(RMConstants.getCreateSequenceOnewayOperationName());
-        messageInfo = operationInfo.createMessage(RMConstants.getCreateSequenceOperationName());
+        messageInfo = operationInfo.createMessage(RMConstants.getCreateSequenceOperationName(),
+                                                  MessageInfo.Type.INPUT);
         operationInfo.setInput(messageInfo.getName().getLocalPart(), messageInfo);
         partInfo = messageInfo.addMessagePart(CREATE_PART_NAME);
         partInfo.setElementQName(RMConstants.getCreateSequenceOperationName());
@@ -350,7 +353,8 @@ public class RMEndpoint {
         partInfo.setTypeClass(CreateSequenceType.class);
 
         operationInfo = ii.addOperation(RMConstants.getCreateSequenceResponseOnewayOperationName());
-        messageInfo = operationInfo.createMessage(RMConstants.getCreateSequenceResponseOperationName());
+        messageInfo = operationInfo.createMessage(RMConstants.getCreateSequenceResponseOperationName(),
+                                                  MessageInfo.Type.INPUT);
         operationInfo.setInput(messageInfo.getName().getLocalPart(), messageInfo);
         partInfo = messageInfo.addMessagePart(CREATE_RESPONSE_PART_NAME);
         partInfo.setElementQName(RMConstants.getCreateSequenceResponseOperationName());
@@ -365,7 +369,8 @@ public class RMEndpoint {
         MessageInfo messageInfo = null;
 
         operationInfo = ii.addOperation(RMConstants.getTerminateSequenceOperationName());
-        messageInfo = operationInfo.createMessage(RMConstants.getTerminateSequenceOperationName());
+        messageInfo = operationInfo.createMessage(RMConstants.getTerminateSequenceOperationName(),
+                                                  MessageInfo.Type.INPUT);
         operationInfo.setInput(messageInfo.getName().getLocalPart(), messageInfo);
         partInfo = messageInfo.addMessagePart(TERMINATE_PART_NAME);
         partInfo.setElementQName(RMConstants.getTerminateSequenceOperationName());
@@ -379,7 +384,8 @@ public class RMEndpoint {
         MessageInfo messageInfo = null;
 
         operationInfo = ii.addOperation(RMConstants.getSequenceAckOperationName());
-        messageInfo = operationInfo.createMessage(RMConstants.getSequenceAckOperationName());
+        messageInfo = operationInfo.createMessage(RMConstants.getSequenceAckOperationName(),
+                                                  MessageInfo.Type.INPUT);
         operationInfo.setInput(messageInfo.getName().getLocalPart(), messageInfo);
     }
 
@@ -389,7 +395,8 @@ public class RMEndpoint {
         MessageInfo messageInfo = null;
 
         operationInfo = ii.addOperation(RMConstants.getLastMessageOperationName());
-        messageInfo = operationInfo.createMessage(RMConstants.getLastMessageOperationName());
+        messageInfo = operationInfo.createMessage(RMConstants.getLastMessageOperationName(),
+                                                  MessageInfo.Type.INPUT);
         operationInfo.setInput(messageInfo.getName().getLocalPart(), messageInfo);
     }
 
@@ -399,7 +406,8 @@ public class RMEndpoint {
         MessageInfo messageInfo = null;
 
         operationInfo = ii.addOperation(RMConstants.getAckRequestedOperationName());
-        messageInfo = operationInfo.createMessage(RMConstants.getAckRequestedOperationName());
+        messageInfo = operationInfo.createMessage(RMConstants.getAckRequestedOperationName(),
+                                                  MessageInfo.Type.INPUT);
         operationInfo.setInput(messageInfo.getName().getLocalPart(), messageInfo);
     }
 

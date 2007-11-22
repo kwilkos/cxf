@@ -65,8 +65,10 @@ public class JaxWsServiceConfigurationTest extends Assert {
         jwsc.setServiceFactory(bean);
         
         OperationInfo op = si.getInterface().getOperation(opName);
-        op.setInput("input", new MessageInfo(op, new QName("http://cxf.com/", "input")));
-        op.setOutput("output", new MessageInfo(op, new QName("http://cxf.com/", "output")));
+        op.setInput("input", new MessageInfo(op, MessageInfo.Type.INPUT, 
+                                             new QName("http://cxf.com/", "input")));
+        op.setOutput("output", new MessageInfo(op, MessageInfo.Type.OUTPUT, 
+                                               new QName("http://cxf.com/", "output")));
         
         QName partName = jwsc.getInPartName(op, sayHelloMethod, 0);
         assertEquals("get wrong in partName for first param", new QName("http://cxf.com/", "arg0"), partName);
@@ -133,7 +135,9 @@ public class JaxWsServiceConfigurationTest extends Assert {
         
         // clear the output
         OperationInfo op = si.getInterface().getOperation(opName);
-        op.setOutput("output", new MessageInfo(op, new QName("http://cxf.com/", "output")));
+        op.setOutput("output", new MessageInfo(op, 
+                                               MessageInfo.Type.OUTPUT,
+                                               new QName("http://cxf.com/", "output")));
         
         QName partName = jwsc.getOutPartName(op, sayHiMethod, -1);
         assertEquals("get wrong return partName", new QName("http://cxf.com/", "return"), partName);

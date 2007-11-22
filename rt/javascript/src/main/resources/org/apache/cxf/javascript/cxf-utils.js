@@ -168,4 +168,112 @@ function org_apache_cxf_end_soap11_message()
 }
 	
 CxfApacheOrgUtil.prototype.endSoap11Message = org_apache_cxf_end_soap11_message; 
+
+/*
+ * Client object sends requests and calls back with responses.
+ */
 	
+function CxfApacheOrgClient(utils) {
+    this.utils = utils;
+    this.soapAction = "";
+    this.messageType = "CALL";
+    // handler functions
+    this.onsuccess = null;
+    this.onerror = null;
+}
+
+// Caller must avoid stupid mistakes like 'GET' with a request body.
+// This does not support attempts to cross-script.
+// This imposes a relatively straightforward set of HTTP options.
+function org_apache_cxf_client_request(url, requestXML, method, sync, headers)
+{
+    this.url = url;
+    this.onSuccess = onSuccess;
+    this.onError = onError;
+    this.sync = sync;
+
+    this.req = null;
+
+    if (method) {
+        this.method = method;
+    } else {
+        if(!requestXML) 
+            this.method = "POST";
+        else
+            this.method="GET";
+    } 
+
+    try {
+        this.req = new XMLHttpRequest();
+    } catch(err) {
+        this.utils.trace("Error creating XMLHttpRequest " + err);
+        this.req = null;
+    }
+
+    if(this.req == null) {
+        if(window.ActiveXObject) {
+            this.req = new ActiveXObject("MSXML2.XMLHTTP.6.0"); // Microsoft's recommended version
+        }
+    }
+
+    if(this.req == null) {
+        this.utils.trace("Unable to create request object.");
+        throw "ORG_APACHE_CXF_NO_REQUEST_OBJECT";
+    }
+
+    this.req.open(this.method, this.url, !this.sync);
+
+    this.req.setRequestHeader("Content-Type", "application/xml");   
+
+    if (headers) { // must be array indexed by header field.
+        for (var h in headers) {
+            this.req.setRequestHeader(h,headers[h]);
+        }
+    }
+
+    this.req.setRequestHeader("SOAPAction", this.soapAction);
+    this.req.setRequestHeader("MessageType", this.messageType);
+
+    var requester = this; /* setup a closure */
+            
+    this.req.onreadystatechange = function() {
+        requester.onReadyState();
+    }
+
+    // NOTE: we do not call the onerror callback for a synchronous error
+    // at request time. We let the request object throw as it will. 
+    // onError will only be called for asynchronous errors.
+    this.req.send(requestXML);
+}
+
+CxfApacheOrgClient.prototype.request = org_apache_cxf_client_request;
+
+function org_apache_cxf_client_onReadyState() {
+    var req = this.req;
+    var ready = req.readyState;
+
+    this.utils.trace("onreadystatechange " + ready);
+
+    if (ready == req.DONE) {
+        var httpStatus=req.status;
+        this.utils.trace("onreadystatechange DONE " + httpStatus);
+
+        if (httpStatus==200 || httpStatus==0) {
+            if(this.onSuccess != null) {
+                // the onSuccess function is generated, and picks apart the response.
+                this.onSuccess(req.responseXML);
+            }
+		} else {
+            this.utils.trace("onreadystatechange DONE ERROR " + 
+                             req.getAllResponseHeaders() 
+                             + " " 
+                             + req.statusText 
+                             + " " 
+                             + req.responseText);
+            if(this.onError != null) 
+                this.onError(this);
+		}
+	}
+}
+
+CxfApacheOrgClient.prototype.onReadyState = org_apache_cxf_client_onReadyState; 

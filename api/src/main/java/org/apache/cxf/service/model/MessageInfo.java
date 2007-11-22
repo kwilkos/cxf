@@ -30,8 +30,18 @@ import javax.xml.namespace.QName;
 import org.apache.cxf.common.util.StringUtils;
 
 public class MessageInfo extends AbstractMessageContainer {
-    public MessageInfo(OperationInfo op, QName nm) {
+    
+    public static enum Type {
+        INPUT,
+        OUTPUT,
+        FAULT;
+    }
+    
+    private Type type;
+    
+    public MessageInfo(OperationInfo op, Type type, QName nm) {
         super(op, nm);
+        this.type = type;
     }
     
     public void setName(QName qn) {
@@ -59,4 +69,19 @@ public class MessageInfo extends AbstractMessageContainer {
         }
         return orderedParts;
     }
+
+    @Override
+    public String toString() {
+        return "[MessageInfo " + type + mName.toString() + "]";
+    }
+
+    public Type getType() {
+        return type;
+    }
+
+    public void setType(Type type) {
+        this.type = type;
+    }
+    
+    
 }

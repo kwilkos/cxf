@@ -458,7 +458,7 @@ public class WSDLServiceBuilder {
         this.copyExtensionAttributes(opInfo, op);
         Input input = op.getInput();
         if (input != null) {
-            MessageInfo minfo = opInfo.createMessage(input.getMessage().getQName());
+            MessageInfo minfo = opInfo.createMessage(input.getMessage().getQName(), MessageInfo.Type.INPUT);
             opInfo.setInput(input.getName(), minfo);
             buildMessage(minfo, input.getMessage());
             copyExtensors(minfo, input.getExtensibilityElements());
@@ -466,7 +466,7 @@ public class WSDLServiceBuilder {
         }
         Output output = op.getOutput();
         if (output != null) {
-            MessageInfo minfo = opInfo.createMessage(output.getMessage().getQName());
+            MessageInfo minfo = opInfo.createMessage(output.getMessage().getQName(), MessageInfo.Type.OUTPUT);
             opInfo.setOutput(output.getName(), minfo);
             buildMessage(minfo, output.getMessage());
             copyExtensors(minfo, output.getExtensibilityElements());
@@ -548,7 +548,8 @@ public class WSDLServiceBuilder {
         // Now lets see if we have any attributes...
         // This should probably look at the restricted and substitute types too.
         OperationInfo unwrapped = new UnwrappedOperationInfo(opInfo);
-        MessageInfo unwrappedInput = new MessageInfo(unwrapped, inputMessage.getName());
+        MessageInfo unwrappedInput = new MessageInfo(unwrapped, MessageInfo.Type.INPUT,
+                                                     inputMessage.getName()); 
         MessageInfo unwrappedOutput = null;
 
         XmlSchemaComplexType xsct = null;
@@ -568,7 +569,7 @@ public class WSDLServiceBuilder {
         }
 
         if (outputMessage != null) {
-            unwrappedOutput = new MessageInfo(unwrapped, outputMessage.getName());
+            unwrappedOutput = new MessageInfo(unwrapped, MessageInfo.Type.OUTPUT, outputMessage.getName());
 
             if (outputEl != null && outputEl.getSchemaType() instanceof XmlSchemaComplexType) {
                 xsct = (XmlSchemaComplexType)outputEl.getSchemaType();

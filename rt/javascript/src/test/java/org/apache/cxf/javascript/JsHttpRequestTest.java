@@ -72,10 +72,8 @@ public class JsHttpRequestTest extends AbstractCXFSpringTest {
     void setupRhino() throws Exception {
         testUtilities.setBus(getBean(Bus.class, "cxf"));
         testUtilities.initializeRhino();
-        JsXMLHttpRequest.register(testUtilities.getRhinoScope());
         testUtilities.readResourceIntoRhino("/org/apache/cxf/javascript/XMLHttpRequestTests.js");
     }
-    
     
     // just one test function to avoid muddles with engine startup/shutdown
     @Test

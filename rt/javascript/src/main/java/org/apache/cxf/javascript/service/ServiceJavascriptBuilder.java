@@ -27,6 +27,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
+import javax.xml.namespace.QName;
+
 import org.apache.cxf.binding.soap.SoapBindingConstants;
 import org.apache.cxf.binding.soap.SoapVersion;
 import org.apache.cxf.binding.soap.model.SoapBindingInfo;
@@ -55,7 +57,7 @@ import org.apache.ws.commons.schema.XmlSchemaElement;
 import org.apache.ws.commons.schema.XmlSchemaObject;
 import org.apache.ws.commons.schema.XmlSchemaSequence;
 
-class ServiceJavascriptBuilder extends ServiceModelVisitor {
+public class ServiceJavascriptBuilder extends ServiceModelVisitor {
     private static final Logger LOG = LogUtils.getL7dLogger(ServiceJavascriptBuilder.class);
 
     private boolean isRPC;
@@ -64,15 +66,23 @@ class ServiceJavascriptBuilder extends ServiceModelVisitor {
     private NameManager nameManager;
     private StringBuilder code;
     private String currentInterfaceClassName;
+    private OperationInfo currentOperation;
     private Set<OperationInfo> operationsWithNameConflicts;
+    private Set<MessageInfo> inputMessagesWithNameConflicts;
+    private Set<MessageInfo> outputMessagesWithNameConflicts;
     private SchemaCollection xmlSchemaCollection;
     private SchemaInfo serviceSchemaInfo;
     private XmlSchemaElement wrapperElement;
     private NamespacePrefixAccumulator prefixAccumulator;
+    private BindingInfo xmlBindingInfo;
+    private Map<String, OperationInfo> localOperationsNameMap;
+    private Map<String, MessageInfo> localInputMessagesNameMap;
+    private Map<String, MessageInfo> localOutputMessagesNameMap;
 
+    private String opFunctionPropertyName;
+    private String opFunctionGlobalName;
 
-    public ServiceJavascriptBuilder(ServiceInfo serviceInfo, 
-                                    NamespacePrefixAccumulator prefixAccumulator,
+    public ServiceJavascriptBuilder(ServiceInfo serviceInfo, NamespacePrefixAccumulator prefixAccumulator,
                                     NameManager nameManager) {
         super(serviceInfo);
         code = new StringBuilder();
@@ -93,25 +103,28 @@ class ServiceJavascriptBuilder extends ServiceModelVisitor {
     @Override
     public void begin(InterfaceInfo intf) {
         code.append("\n// Javascript for " + intf.getName() + "\n\n");
-        
+
         currentInterfaceClassName = nameManager.getJavascriptName(intf.getName());
         operationsWithNameConflicts = new HashSet<OperationInfo>();
-        code.append("function " + currentInterfaceClassName + " () {\n");
-        code.append("}\n\n");
-        Map<String, OperationInfo> localNameMap = new HashMap<String, OperationInfo>();
-        for (OperationInfo operation : intf.getOperations()) {
-            OperationInfo conflict = localNameMap.get(operation.getName().getLocalPart());
-            if (conflict != null) {
-                operationsWithNameConflicts.add(conflict);
-                operationsWithNameConflicts.add(operation);
-            }
-            localNameMap.put(operation.getName().getLocalPart(), operation);
-        }
-        serviceSchemaInfo = serviceInfo.getSchema(serviceInfo.getTargetNamespace());
-    }
+        inputMessagesWithNameConflicts = new HashSet<MessageInfo>();
+        outputMessagesWithNameConflicts = new HashSet<MessageInfo>();
+        localOperationsNameMap = new HashMap<String, OperationInfo>();
+        localInputMessagesNameMap = new HashMap<String, MessageInfo>();
+        localOutputMessagesNameMap = new HashMap<String, MessageInfo>();
 
-    @Override
-    public void begin(MessageInfo msg) {
+        code.append("function " + currentInterfaceClassName + " () {\n");
+        utils.appendLine("this.jsutils = new CxfApacheOrgUtil();");
+        utils.appendLine("this.synchronous = false;");
+        utils.appendLine("this.url = null;");
+        utils.appendLine("this.client = null;");
+        utils.appendLine("this.response = null;");
+        // the callback functions for a pending operation are stored in these.
+        // thus, only one pending operation at a time.
+        utils.appendLine("this._onsuccess = null;");
+        utils.appendLine("this._onerror = null;");
+        code.append("}\n\n");
+
+        serviceSchemaInfo = serviceInfo.getSchema(serviceInfo.getTargetNamespace());
     }
 
     @Override
@@ -141,26 +154,36 @@ class ServiceJavascriptBuilder extends ServiceModelVisitor {
             return javascriptName;
         }
     }
-
-    @Override
-    public void begin(OperationInfo op) {
-        if (isRPC) {
-            unsupportedConstruct("RPC", op.getInterface().getName().toString());
+    
+    private String getFunctionGlobalName(QName itemName, String itemType) {
+        return nameManager.getJavascriptName(itemName) + "_" + itemType; 
+    }
+    
+    
+    private<T> String getFunctionPropertyName(Set<T> conflictMap, T object, QName fullName) {
+        boolean needsLongName = conflictMap.contains(object);
+        String functionName;
+        if (needsLongName) {
+            functionName = nameManager.getJavascriptName(fullName);
+        } else {
+            functionName = JavascriptUtils.javaScriptNameToken(fullName.getLocalPart());
         }
-        boolean isWrapped = op.isUnwrappedCapable();
+        return functionName;
+        
+    }
+
+    // we do this at the end so we can inventory name conflicts sooner.
+    @Override
+    public void end(OperationInfo op) {
         // we only process the wrapped operation, not the unwrapped alternative.
         if (op.isUnwrapped()) {
             return;
         }
 
-        boolean needsLongName = operationsWithNameConflicts.contains(op);
-        String opFunctionName;
-        String opGlobalFunctionName = nameManager.getJavascriptName(op.getName()) + "_op";
-        if (needsLongName) {
-            opFunctionName = opGlobalFunctionName;
-        } else {
-            opFunctionName = JavascriptUtils.javaScriptNameToken(op.getName().getLocalPart());
+        if (isRPC) {
+            unsupportedConstruct("RPC", op.getInterface().getName().toString());
         }
+        boolean isWrapped = op.isUnwrappedCapable();
         List<String> inputParameterNames = new ArrayList<String>();
         MessageInfo inputMessage = op.getInput();
         String wrapperClassName = null;
@@ -174,14 +197,31 @@ class ServiceJavascriptBuilder extends ServiceModelVisitor {
                 wrapperClassName = setupWrapperElement(op, inputParameterNames, parts);
             }
 
-            for (String param : inputParameterNames) {
-                parameterList.append(param);
-                parameterList.append(", ");
-            }
+            buildParameterList(inputParameterNames, parameterList);
         }
 
-        code.append("function " + opGlobalFunctionName + "(" + parameterList
-                    + "responseCallback, errorCallback) {\n");
+        MessageInfo outputMessage = op.getOutput();
+        buildSuccessFunction(outputMessage);
+
+        buildErrorFunction(); // fault part some day.
+
+        buildOperationFunction(inputParameterNames, inputMessage, parameterList);
+
+        createInputSerializer(inputMessage, isWrapped, inputParameterNames, wrapperClassName, parts);
+
+        if (outputMessage != null) {
+            createResponseDeserializer(outputMessage);
+        }
+    }
+
+    private void buildOperationFunction(List<String> inputParameterNames,
+                                        MessageInfo inputMessage, 
+                                        StringBuilder parameterList) {
+        code.append("function " 
+                    +  opFunctionGlobalName
+                    + "(successCallback, errorCallback"
+                    + ((parameterList.length() > 0) ? ", " + parameterList : "") + ") {\n");
+        utils.appendLine("var xml = null;");
         if (inputMessage != null) {
             utils.appendLine("var args = new Array(" + inputParameterNames.size() + ");");
             int px = 0;
@@ -189,49 +229,144 @@ class ServiceJavascriptBuilder extends ServiceModelVisitor {
                 utils.appendLine("args[" + px + "] = " + param + ";");
                 px++;
             }
-            utils.appendLine("var xml = this.serializeInputMessage(args);");
-            // more to come ...
+            utils.appendLine("xml = this."
+                             + getFunctionPropertyName(inputMessagesWithNameConflicts,
+                                                       inputMessage, 
+                                                       inputMessage.getName())
+                             + "_serializeInput"
+                             + "(args);");
         }
-        code.append("}\n\n");
-        code.append(currentInterfaceClassName + ".prototype." + opFunctionName + " = " + opGlobalFunctionName
-                    + ";\n\n");
+        utils.appendLine("this.client = new CxfApacheOrgClient(jsutils);");
+        // we need to pass the caller's callback functions to our callback
+        // functions.
+        utils.appendLine("this._onsuccess = successCallback;");
+        utils.appendLine("this._onerror = errorCallback;");
+        utils.appendLine("this.client.onsuccess = this." 
+                         + opFunctionPropertyName
+                         + "_onsuccess");
+        utils.appendLine("this.client.onerror = this."
+                         + opFunctionPropertyName
+                         + "_error");
 
-        createInputSerializer(op, isWrapped, inputParameterNames, wrapperClassName, parts);
+        utils.appendLine("var requestHeaders = [];");
+
+        if (soapBindingInfo != null) {
+            String action = soapBindingInfo.getSoapAction(currentOperation);
+            utils.appendLine("requestHeaders['SOAPAction'] = '" + action + "';");
+        }
+
+        // default method by passing null. Is there some place this lives in the
+        // service model?
+        utils.appendLine("this.client.request(this.url, xml, null, this.synchronous, requestHeaders);");
+
+        code.append("}\n\n");
+        code.append(currentInterfaceClassName + ".prototype." 
+                    + opFunctionPropertyName 
+                    + " = " 
+                    + opFunctionGlobalName
+                    + ";\n\n");
+    }
+
+    private void buildErrorFunction() {
+        String errorFunctionPropertyName = opFunctionPropertyName + "_onerror";
+        String errorFunctionGlobalName = opFunctionGlobalName + "_onerror";
         
-        MessageInfo outputMessage = op.getOutput();
+        code.append("function " + errorFunctionGlobalName + "() {\n");
+        utils.startIf("this._onerror");
+        // Is this a good set of parameters for the error function?
+        // Not if we want to process faults, it isn't. To be revisited.
+        utils.appendLine("this._onerror(this.client.req.status, this.client.req.statusText);");
+        utils.endBlock();
+        code.append("}\n\n");
+        code.append(currentInterfaceClassName + ".prototype." 
+                    + errorFunctionPropertyName 
+                    + " = "
+                    + errorFunctionGlobalName 
+                    + ";\n\n");
+    }
+
+    private void buildSuccessFunction(MessageInfo outputMessage) {
+        // Here are the success and error callbacks. They have the job of
+        // calling
+        // the callbacks provided to the operation function with appropriate
+        // parameters.
+        String successFunctionGlobalName = opFunctionGlobalName + "_onsuccess"; 
+        String successFunctionPropertyName = opFunctionPropertyName + "_onsuccess"; 
+        code.append("function " + successFunctionGlobalName + "(responseXml) {\n");
+        utils.startIf("_onsuccess");
+        utils.appendLine("var responseObject = null;");
         if (outputMessage != null) {
-            createResponseDeserializer(op, outputMessage.getMessageParts());
+            if (soapBindingInfo != null) { // soap
+                // The following code is probably only right for basic
+                // Doc/Literal/Wrapped services.
+                // the top element should be the Envelope, then the Body, then
+                // the actual response item.
+                utils.appendLine("var element = this.jsutils.getFirstElementChild(responseXml);");
+                // Go down one more from the body to the response item.
+                utils.appendLine("element = this.jsutils.getFirstElementChild(responseXml);");
+            } else if (xmlBindingInfo != null) {
+                utils.appendLine("var element = responseXml;");
+            }
+
+            String deserializerFunctionName = outputDeserializerFunctionName(outputMessage);
+            utils.appendLine("responseObject = " + deserializerFunctionName + "(this.jsutils, element);");
+        }
+        utils.appendLine("this._onsuccess(responseObject);");
+        utils.endBlock();
+        code.append("}\n\n");
+        code.append(currentInterfaceClassName + ".prototype." 
+                    + successFunctionPropertyName 
+                    + " = "
+                    + successFunctionGlobalName + ";\n\n");
+    }
+
+    private void buildParameterList(List<String> inputParameterNames, StringBuilder parameterList) {
+        for (String param : inputParameterNames) {
+            parameterList.append(param);
+            parameterList.append(", ");
+        }
+        // trim last comma.
+        if (parameterList.length() > 2) {
+            parameterList.setLength(parameterList.length() - 2);
         }
     }
-    
-    private void createResponseDeserializer(OperationInfo op, List<MessagePartInfo> parts) {
+
+    private String outputDeserializerFunctionName(MessageInfo message) {
+        return getFunctionGlobalName(message.getName(), "deserializeResponse");
+    }
+
+    private void createResponseDeserializer(MessageInfo outputMessage) {
+        List<MessagePartInfo> parts = outputMessage.getMessageParts();
         if (parts.size() != 1) {
-            unsupportedConstruct("MULTIPLE_OUTPUTS", op.getName().toString());
+            unsupportedConstruct("MULTIPLE_OUTPUTS", outputMessage.getName().toString());
         }
         List<ElementAndNames> elements = new ArrayList<ElementAndNames>();
-        String functionName = nameManager.getJavascriptName(op.getName()) + "_deserializeResponse";
+        String functionName = outputDeserializerFunctionName(outputMessage);
         code.append("function " + functionName + "(cxfjsutils, partElement) {\n");
         getElementsForParts(elements, parts);
         ElementAndNames element = elements.get(0);
         XmlSchemaComplexType type = (XmlSchemaComplexType)element.getElement().getSchemaType();
         assert type != null;
         String typeObjectName = nameManager.getJavascriptName(type);
-        utils.appendLine("var returnObject = " 
-                         + typeObjectName + "_deserialize (cxfjsutils, partElement);\n");
+        utils
+            .appendLine("var returnObject = " + typeObjectName + "_deserialize (cxfjsutils, partElement);\n");
         utils.appendLine("return returnObject;");
         code.append("}\n");
     }
 
-    private void createInputSerializer(OperationInfo op, boolean isWrapped,
-                                       List<String> inputParameterNames, String wrapperClassName,
-                                       List<MessagePartInfo> parts) {
+    private void createInputSerializer(MessageInfo msg, boolean isWrapped, List<String> inputParameterNames,
+                                       String wrapperClassName, List<MessagePartInfo> parts) {
         List<ElementAndNames> elements = new ArrayList<ElementAndNames>();
-        String serializerFunctionName = nameManager.getJavascriptName(op.getName()) + "_serializeInput";
         
-        code.append("function " + serializerFunctionName + "(args) {\n");
+        String serializerFunctionGlobalName = getFunctionGlobalName(msg.getName(), "serializeInput");
+        String serializerFunctionPropertyName = 
+            getFunctionPropertyName(inputMessagesWithNameConflicts, msg, msg.getName());
+
+        code.append("function " + serializerFunctionGlobalName + "(args) {\n");
         getElementsForParts(elements, parts);
 
-        // if not wrapped, the param array matches up with the parts. If wrapped, the members
+        // if not wrapped, the param array matches up with the parts. If
+        // wrapped, the members
         // of it have to be packed into an object.
 
         if (isWrapped) {
@@ -249,17 +384,22 @@ class ServiceJavascriptBuilder extends ServiceModelVisitor {
 
         utils.appendLine("var cxfutils = new CxfApacheOrgUtil();");
 
-        SoapVersion soapVersion = soapBindingInfo.getSoapVersion();
-        assert soapVersion.getVersion() == 1.1;
-        utils.appendLine("var xml;");
-        utils.appendLine("xml = cxfutils.beginSoap11Message(\"" + prefixAccumulator.getAttributes() + "\");");
+        if (soapBindingInfo != null) {
+            SoapVersion soapVersion = soapBindingInfo.getSoapVersion();
+            assert soapVersion.getVersion() == 1.1;
+            utils.appendLine("var xml;");
+            utils.appendLine("xml = cxfutils.beginSoap11Message(\"" + prefixAccumulator.getAttributes()
+                             + "\");");
+        } else {
+            // other alternative is XML, which isn't really all here yet.
+            unsupportedConstruct("XML_BINDING", currentInterfaceClassName, xmlBindingInfo.getName());
+        }
 
         utils.setXmlStringAccumulator("xml");
 
         int px = 0;
         for (ElementAndNames partElement : elements) {
-            utils.generateCodeToSerializeElement("cxfutils",
-                                                 partElement.getElement(), "args[" + px + "]",
+            utils.generateCodeToSerializeElement("cxfutils", partElement.getElement(), "args[" + px + "]",
                                                  partElement.getXmlName(), xmlSchemaCollection,
                                                  serviceSchemaInfo.getNamespaceURI(), null);
             px++;
@@ -268,9 +408,10 @@ class ServiceJavascriptBuilder extends ServiceModelVisitor {
         utils.appendLine("xml = xml + cxfutils.endSoap11Message();");
         utils.appendLine("return xml;");
         code.append("}\n\n");
-        code.append(currentInterfaceClassName + ".prototype.serializeInputMessage = " 
-                    + serializerFunctionName
-                    + ";\n\n");
+        code.append(currentInterfaceClassName + ".prototype."
+                    + serializerFunctionPropertyName 
+                    + " = "
+                    + serializerFunctionGlobalName + ";\n\n");
     }
 
     private void getElementsForParts(List<ElementAndNames> elements, List<MessagePartInfo> parts) {
@@ -283,11 +424,12 @@ class ServiceJavascriptBuilder extends ServiceModelVisitor {
                                                                   serviceInfo.getTargetNamespace());
                 }
             } else {
-                // dkulp may have fixed the problem that caused me to write this code.
-                // aside from the fact that in the !isElement case (rpc) we have other work to do.
-                LOG.severe("Missing element " 
-                           + mpi.getElementQName().toString() 
-                           + " in " + mpi.getName().toString());
+                // dkulp may have fixed the problem that caused me to write this
+                // code.
+                // aside from the fact that in the !isElement case (rpc) we have
+                // other work to do.
+                LOG.severe("Missing element " + mpi.getElementQName().toString() + " in "
+                           + mpi.getName().toString());
                 // there is still an element in there, but it's not a very
                 // interesting element
                 element = new XmlSchemaElement();
@@ -334,11 +476,9 @@ class ServiceJavascriptBuilder extends ServiceModelVisitor {
     }
 
     @Override
-    public void end(OperationInfo op) {
-    }
-
-    @Override
     public void begin(ServiceInfo service) {
+
+        BindingInfo xml = null;
         // assume only one soap binding.
         // until further consideration.
         // hypothetically, we could generate two different JavaScript classes,
@@ -354,13 +494,21 @@ class ServiceJavascriptBuilder extends ServiceModelVisitor {
                     soapBindingInfo = sbi;
                     break;
                 }
+            } else if (WSDLConstants.NS_BINDING_XML.equals(bindingInfo.getBindingId())) {
+                xml = bindingInfo;
             }
         }
-        if (soapBindingInfo == null) {
-            unsupportedConstruct("NO_SOAP_BINDING", service.getName());
+
+        // For now, we use soap if its available, and XML if it isn't.\
+        if (soapBindingInfo == null && xml == null) {
+            unsupportedConstruct("NO_USABLE_BINDING", service.getName());
         }
 
-        isRPC = soapBindingInfo.getStyle().equals(WSDLConstants.RPC);
+        if (soapBindingInfo != null) {
+            isRPC = soapBindingInfo.getStyle().equals(WSDLConstants.RPC);
+        } else if (xml != null) {
+            xmlBindingInfo = xml;
+        }
     }
 
     @Override
@@ -381,10 +529,49 @@ class ServiceJavascriptBuilder extends ServiceModelVisitor {
 
     @Override
     public void end(ServiceInfo service) {
+        LOG.fine(getCode());
     }
 
     private void unsupportedConstruct(String messageKey, Object... args) {
         Message message = new Message(messageKey, LOG, args);
         throw new UnsupportedConstruct(message);
     }
+
+    @Override
+    public void begin(OperationInfo op) {
+        if (op.isUnwrapped()) {
+            return;
+        }
+        currentOperation = op;
+        OperationInfo conflict = localOperationsNameMap.get(op.getName().getLocalPart());
+        if (conflict != null) {
+            operationsWithNameConflicts.add(conflict);
+            operationsWithNameConflicts.add(op);
+        }
+        localOperationsNameMap.put(op.getName().getLocalPart(), op);
+        opFunctionPropertyName = getFunctionPropertyName(operationsWithNameConflicts, op, op.getName());
+        opFunctionGlobalName = getFunctionGlobalName(op.getName(), "op");
+    }
+    
+    @Override
+    public void begin(MessageInfo msg) {
+        Map<String, MessageInfo> nameMap;
+        Set<MessageInfo> conflicts;
+        if (msg.getType() == MessageInfo.Type.INPUT) {
+            nameMap = localInputMessagesNameMap;
+            conflicts = inputMessagesWithNameConflicts;
+        } else {
+            nameMap = localOutputMessagesNameMap;
+            conflicts = outputMessagesWithNameConflicts;
+
+        }
+        MessageInfo conflict = nameMap.get(msg.getName().getLocalPart());
+        if (conflict != null) {
+            conflicts.add(conflict);
+            conflicts.add(msg);
+        }
+        nameMap.put(msg.getName().getLocalPart(), msg);
+    }
+
+
 }

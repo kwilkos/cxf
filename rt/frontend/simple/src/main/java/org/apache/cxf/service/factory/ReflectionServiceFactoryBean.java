@@ -542,7 +542,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
             createMessageParts(intf, uOp, m);
 
             if (uOp.hasInput()) {
-                MessageInfo msg = new MessageInfo(op, uOp.getInput().getName());
+                MessageInfo msg = new MessageInfo(op, MessageInfo.Type.INPUT, uOp.getInput().getName());
                 op.setInput(uOp.getInputName(), msg);
 
                 createInputWrappedMessageParts(uOp, m, msg);
@@ -555,7 +555,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
             if (uOp.hasOutput()) {
 
                 QName name = uOp.getOutput().getName();
-                MessageInfo msg = new MessageInfo(op, name);
+                MessageInfo msg = new MessageInfo(op, MessageInfo.Type.OUTPUT, name);
                 op.setOutput(uOp.getOutputName(), msg);
 
                 createOutputWrappedMessageParts(uOp, m, msg);
@@ -1024,7 +1024,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         final Class[] paramClasses = method.getParameterTypes();
         // Setup the input message
         op.setProperty(METHOD, method);
-        MessageInfo inMsg = op.createMessage(this.getInputMessageName(op, method));
+        MessageInfo inMsg = op.createMessage(this.getInputMessageName(op, method), MessageInfo.Type.INPUT);
         op.setInput(inMsg.getName().getLocalPart(), inMsg);
         for (int j = 0; j < paramClasses.length; j++) {
             if (isInParam(method, j)) {
@@ -1051,7 +1051,8 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
 
         if (hasOutMessage(method)) {
             // Setup the output message
-            MessageInfo outMsg = op.createMessage(createOutputMessageName(op, method));
+            MessageInfo outMsg = op.createMessage(createOutputMessageName(op, method), 
+                                                  MessageInfo.Type.OUTPUT);
             op.setOutput(outMsg.getName().getLocalPart(), outMsg);
             final Class<?> returnType = method.getReturnType();
             if (!returnType.isAssignableFrom(void.class)) {
@@ -1078,7 +1079,8 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
             for (int j = 0; j < paramClasses.length; j++) {
                 if (isOutParam(method, j)) {
                     if (outMsg == null) {
-                        outMsg = op.createMessage(createOutputMessageName(op, method));
+                        outMsg = op.createMessage(createOutputMessageName(op, method),
+                                                  MessageInfo.Type.OUTPUT);
                     }
                     QName q = getOutPartName(op, method, j);
                     QName q2 = getOutParameterName(op, method, j);

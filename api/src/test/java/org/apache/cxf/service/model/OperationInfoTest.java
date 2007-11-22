@@ -52,7 +52,8 @@ public class OperationInfoTest extends Assert {
     public void testInput() throws Exception {
         assertFalse(operationInfo.hasInput());
         MessageInfo inputMessage = operationInfo.createMessage(new QName(
-            "http://apache.org/hello_world_soap_http", "testInputMessage"));
+            "http://apache.org/hello_world_soap_http", "testInputMessage"),
+            MessageInfo.Type.INPUT);
         operationInfo.setInput("input", inputMessage);
         assertTrue(operationInfo.hasInput());
         inputMessage = operationInfo.getInput();
@@ -66,7 +67,8 @@ public class OperationInfoTest extends Assert {
     public void testOutput() throws Exception {
         assertFalse(operationInfo.hasOutput());
         MessageInfo outputMessage = operationInfo.createMessage(new QName(
-            "http://apache.org/hello_world_soap_http", "testOutputMessage"));
+            "http://apache.org/hello_world_soap_http", "testOutputMessage"),
+            MessageInfo.Type.OUTPUT);
         operationInfo.setOutput("output", outputMessage);
         assertTrue(operationInfo.hasOutput());
         outputMessage = operationInfo.getOutput();
@@ -80,7 +82,8 @@ public class OperationInfoTest extends Assert {
     public void testOneWay() throws Exception {
         assertFalse(operationInfo.isOneWay());
         MessageInfo inputMessage = operationInfo.createMessage(new QName(
-            "http://apache.org/hello_world_soap_http", "testInputMessage"));
+            "http://apache.org/hello_world_soap_http", "testInputMessage"),
+            MessageInfo.Type.INPUT);
         operationInfo.setInput("input", inputMessage);
         assertTrue(operationInfo.isOneWay());
     }

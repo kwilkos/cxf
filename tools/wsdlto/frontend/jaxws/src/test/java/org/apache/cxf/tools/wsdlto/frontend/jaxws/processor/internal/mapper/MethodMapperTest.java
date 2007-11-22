@@ -53,7 +53,8 @@ public class MethodMapperTest extends Assert {
     public void testMapOneWayOperation() throws Exception {
         OperationInfo operation = getOperation();
 
-        MessageInfo inputMessage = operation.createMessage(new QName("urn:test:ns", "testInputMessage"));
+        MessageInfo inputMessage = operation.createMessage(new QName("urn:test:ns", "testInputMessage"),
+                                                           MessageInfo.Type.INPUT);
         operation.setInput("input", inputMessage);
 
         JavaMethod method = new MethodMapper().map(operation);
