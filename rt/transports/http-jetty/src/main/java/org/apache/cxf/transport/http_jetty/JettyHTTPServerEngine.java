@@ -513,7 +513,7 @@ public class JettyHTTPServerEngine
      * This method is called after configure on this object.
      */
     @PostConstruct
-    protected void finalizeConfig() 
+    public void finalizeConfig() 
         throws GeneralSecurityException,
                IOException {
         retrieveEngineFactory();
