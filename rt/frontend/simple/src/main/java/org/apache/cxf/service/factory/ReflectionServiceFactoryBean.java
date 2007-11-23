@@ -42,6 +42,7 @@ import java.util.concurrent.Executor;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.xml.bind.annotation.XmlList;
 import javax.xml.bind.annotation.XmlMimeType;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Holder;
@@ -94,6 +95,8 @@ import org.apache.ws.commons.schema.XmlSchemaImport;
 import org.apache.ws.commons.schema.XmlSchemaObject;
 import org.apache.ws.commons.schema.XmlSchemaObjectTable;
 import org.apache.ws.commons.schema.XmlSchemaSequence;
+import org.apache.ws.commons.schema.XmlSchemaSimpleType;
+import org.apache.ws.commons.schema.XmlSchemaSimpleTypeList;
 import org.apache.ws.commons.schema.XmlSchemaType;
 import org.apache.ws.commons.schema.constants.Constants;
 import org.apache.ws.commons.schema.utils.NamespaceMap;
@@ -842,7 +845,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     }
 
 
-    private void createWrappedMessageSchema(ServiceInfo serviceInfo,
+    private void createWrappedMessageSchema(ServiceInfo serviceInfo, 
                                             AbstractMessageContainer wrappedMessage,
                                             AbstractMessageContainer unwrappedMessage,
                                             XmlSchema schema,
@@ -876,12 +879,13 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                 addImport(schema, mpi.getElementQName().getNamespaceURI());
                 el.setRefName(mpi.getElementQName());
             } else {
-                if (mpi.getTypeQName() != null) {
+                if (mpi.getTypeQName() != null && !existXmlListAnno(mpi)) {
                     el.setSchemaTypeName(mpi.getTypeQName());
                     addImport(schema, mpi.getTypeQName().getNamespaceURI());
                 }
-
+                
                 el.setSchemaType((XmlSchemaType)mpi.getXmlSchema());
+                
                 if (schema.getElementFormDefault().getValue().equals(XmlSchemaForm.UNQUALIFIED)) {
                     mpi.setConcreteName(new QName(null, mpi.getName().getLocalPart()));
                 } else {
@@ -896,9 +900,8 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                     mpi.setElementQName(el.getQName());
                     mpi.setConcreteName(concreteName);
                 }
-                mpi.setXmlSchema(el);
-                addMimeType(el, getMethodParameterAnnotations(mpi));
                 
+                addMimeType(el, getMethodParameterAnnotations(mpi));               
                 Annotation[] methodAnnotations = getMethodAnnotations(mpi);
                 if (methodAnnotations != null) {
                     addMimeType(el, methodAnnotations);
@@ -906,19 +909,19 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                                 
                 if (mpi.getTypeClass() != null && mpi.getTypeClass().isArray()
                     && !Byte.TYPE.equals(mpi.getTypeClass().getComponentType())) {
-                    String min = (String)mpi.getProperty("minOccurs");
-                    String max = (String)mpi.getProperty("maxOccurs");
-                    if (min == null) {
-                        min = "0";
-                    }
-                    if (max == null) {
-                        max = "unbounded";
-                    }
-                    el.setMinOccurs(Long.parseLong(min));
-                    el.setMaxOccurs("unbounded".equals(max) ? Long.MAX_VALUE : Long.parseLong(max));
-                    Boolean b = (Boolean)mpi.getProperty("nillable");
-                    if (b != null && b.booleanValue()) {
-                        el.setNillable(b.booleanValue());
+                    if (existXmlListAnno(mpi)) {
+                        setSimpleTypeList(schema, el, mpi);                         
+                    } else {
+                        String min = (String)mpi.getProperty("minOccurs");
+                        String max = (String)mpi.getProperty("maxOccurs");
+                        min = min == null ? "0" : min;
+                        max = max == null ? "unbounded" : max;
+                        el.setMinOccurs(Long.parseLong(min));
+                        el.setMaxOccurs("unbounded".equals(max) ? Long.MAX_VALUE : Long.parseLong(max));
+                        Boolean b = (Boolean)mpi.getProperty("nillable");
+                        if (b != null && b.booleanValue()) {
+                            el.setNillable(b.booleanValue());
+                        }
                     }
                 } else if (Collection.class.isAssignableFrom(mpi.getTypeClass())
                            && mpi.getTypeClass().isInterface()) {
@@ -938,6 +941,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                     }
                 }
                 seq.getItems().add(el);
+                mpi.setXmlSchema(el);
             }
             if (Boolean.TRUE.equals(mpi.getProperty(HEADER))) {
                 QName qn = (QName)mpi.getProperty(ELEMENT_NAME);
@@ -981,6 +985,30 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         }
     }
 
+    private boolean existXmlListAnno(MessagePartInfo mpi) {
+        Annotation[] anns = getMethodParameterAnnotations(mpi);
+        if (anns != null) {
+            for (Annotation anno : anns) {
+                if (anno instanceof XmlList) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    
+    private void setSimpleTypeList(XmlSchema schema, XmlSchemaElement el, MessagePartInfo mpi) {
+        XmlSchemaSimpleType simpleType = new XmlSchemaSimpleType(schema);                       
+        XmlSchemaSimpleTypeList simpleList = new XmlSchemaSimpleTypeList();
+        if (mpi.getXmlSchema() instanceof XmlSchemaType) {
+            XmlSchemaType type = (XmlSchemaType)mpi.getXmlSchema();
+            simpleList.setItemTypeName(type.getQName());
+        } else {
+            simpleList.setItemTypeName(mpi.getTypeQName());
+        }
+        simpleType.setContent(simpleList);
+        el.setSchemaType(simpleType); 
+    }
     
     private SchemaInfo getOrCreateSchema(ServiceInfo serviceInfo,
                                          String namespaceURI, 

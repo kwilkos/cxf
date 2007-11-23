@@ -242,7 +242,20 @@ public class JavaToWSTest extends ToolTestBase {
         File server = outputFile("org/apache/cxf/tools/fortest/GreeterImpl_PortTypeServer.java");
         assertTrue("Failed to generate SEI file : GreeterImpl_PortTypeServer.java", server.exists());
     }
+    
+    @Test
+    public void testXmlList() throws Exception {
+        String[] args = new String[] {"-o", output.getPath() + "/xml-list.wsdl", "-verbose",
+                                      "-wsdl", "org.apache.cxf.tools.fortest.xmllist.AddNumbersPortType"};
+        JavaToWS.main(args);
         
+        File file = new File(output.getPath() + "/xml-list.wsdl");
+        String str = FileUtils.getStringFromFile(file);
+        assertTrue("Java2wsdl did not generate xsd:list element", 
+                   str.indexOf("<xsd:list  itemType=") > -1);       
+
+    }
+    
     protected String getClassPath() throws URISyntaxException {
         ClassLoader loader = getClass().getClassLoader();
         StringBuffer classPath = new StringBuffer();
