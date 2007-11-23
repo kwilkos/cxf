@@ -236,7 +236,8 @@ public class JavascriptTestUtilities extends TestUtilities {
     }
 
     /**
-     * Call a method on a Javascript object and convert result to specified class.
+     * Call a method on a Javascript object and convert result to specified class. Convert to the
+     * requested class.
      * @param <T> type
      * @param clazz class object.
      * @param that Javascript object.
@@ -245,7 +246,7 @@ public class JavascriptTestUtilities extends TestUtilities {
      * @return return value.
      */
     public <T> T rhinoCallMethodConvert(Class<T> clazz, Scriptable that, String methodName, Object... args) {
-        return clazz.cast(rhinoCallMethod(that, methodName, args));
+        return clazz.cast(Context.jsToJava(rhinoCallMethod(that, methodName, args), clazz));
     }
 
     /**
@@ -263,7 +264,7 @@ public class JavascriptTestUtilities extends TestUtilities {
         // we end up performing the cast twice to make the compiler happy.
         return runInsideContext(clazz, new JSRunnable<T>() {
             public T run(Context context) {
-                return clazz.cast(rhinoCallMethod(that, methodName, args));
+                return rhinoCallMethodConvert(clazz, that, methodName, args);
             }
         });
     }
@@ -362,5 +363,18 @@ public class JavascriptTestUtilities extends TestUtilities {
         serviceBuilder.walk();
         String serviceJavascript = serviceBuilder.getCode();
         readStringIntoRhino(serviceJavascript, serviceInfo.getName() + ".js");
+    }
+    
+    public static String scriptableToString(Scriptable scriptable) {
+        StringBuilder builder = new StringBuilder();
+        for (Object propid : scriptable.getIds()) {
+            String propIdString = Context.toString(propid);
+            String propValue = Context.toString(scriptable.get(propIdString, scriptable));
+            builder.append(propIdString);
+            builder.append(": ");
+            builder.append(propValue);
+            builder.append("; ");
+        }
+        return builder.toString();
     }
 }

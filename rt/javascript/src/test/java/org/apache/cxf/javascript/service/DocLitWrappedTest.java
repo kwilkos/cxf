@@ -29,6 +29,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
 import org.w3c.dom.Document;
@@ -41,11 +42,14 @@ import org.apache.cxf.databinding.DataBinding;
 import org.apache.cxf.databinding.DataReader;
 import org.apache.cxf.databinding.DataWriter;
 import org.apache.cxf.endpoint.Client;
+import org.apache.cxf.javascript.DocLitWrappedClientTest;
 import org.apache.cxf.javascript.JavascriptTestUtilities;
 import org.apache.cxf.javascript.JavascriptTestUtilities.JSRunnable;
 import org.apache.cxf.javascript.JsSimpleDomNode;
 import org.apache.cxf.javascript.fortest.BasicTypeFunctionReturnStringWrapper;
 import org.apache.cxf.javascript.fortest.StringWrapper;
+import org.apache.cxf.javascript.fortest.TestBean1;
+import org.apache.cxf.javascript.fortest.TestBean2;
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
 import org.apache.cxf.service.model.MessageInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
@@ -65,6 +69,8 @@ public class DocLitWrappedTest extends AbstractCXFSpringTest {
     private static final Logger LOG = LogUtils.getL7dLogger(DocLitWrappedTest.class);
     private static final String BASIC_TYPE_FUNCTION_RETURN_STRING_SERIALIZER_NAME 
         = "org_apache_cxf_javascript_fortest_basicTypeFunctionReturnString_serializeInput";
+    private static final String BEAN_FUNCTION_SERIALIZER_NAME 
+        = "org_apache_cxf_javascript_fortest_beanFunctionWithWrapper_serializeInput";
     
     private JavascriptTestUtilities testUtilities;
     private Client client;
@@ -139,6 +145,21 @@ public class DocLitWrappedTest extends AbstractCXFSpringTest {
         assertEquals(params[4], wrapper.getS());
     }
     
+    @Test 
+    public void testBeanFunctionSerialization() throws Exception {
+        setupClientAndRhino("simple-dlwu-proxy-factory");
+        final DataBinding dataBinding = clientProxyFactory.getServiceFactory().getDataBinding();
+        assertNotNull(dataBinding);
+        
+        testUtilities.runInsideContext(Void.class, new JSRunnable<Void>() {
+            public Void run(Context context) {
+                return runBeanSerializationTest(dataBinding, context);
+            } 
+        }
+        );
+    }
+    
+    
     @Test
     public void testResponseDeserialization() throws Exception {
         setupClientAndRhino("simple-dlwu-proxy-factory");
@@ -187,5 +208,65 @@ public class DocLitWrappedTest extends AbstractCXFSpringTest {
 
     @Override
     protected void additionalSpringConfiguration(GenericApplicationContext context) throws Exception {
+    }
+
+    private Void runBeanSerializationTest(final DataBinding dataBinding, Context context) {
+        
+        TestBean1 b1 = new TestBean1();
+        b1.stringItem = "strung";
+        TestBean1[] beans = new TestBean1[3];
+        beans[0] = new TestBean1();
+        beans[0].beanTwoNotRequiredItem = new TestBean2("bean2");
+        beans[1] = null;
+        beans[2] = new TestBean1();
+        beans[2].optionalIntArrayItem = new int[2];
+        beans[2].optionalIntArrayItem[0] = 4;
+        beans[2].optionalIntArrayItem[1] = 6;
+        
+        Object[] jsBeans = new Object[3];
+        jsBeans[0] = DocLitWrappedClientTest.testBean1ToJS(testUtilities, context, beans[0]);
+        jsBeans[1] = DocLitWrappedClientTest.testBean1ToJS(testUtilities, context, beans[1]);
+        jsBeans[2] = DocLitWrappedClientTest.testBean1ToJS(testUtilities, context, beans[2]);
+        
+        Scriptable jsBean1 = DocLitWrappedClientTest.testBean1ToJS(testUtilities, context, b1);
+        Scriptable jsBeanArray = context.newArray(testUtilities.getRhinoScope(), jsBeans);
+        Scriptable paramsArray = context.newArray(testUtilities.getRhinoScope(), 
+                                                  new Object[] {jsBean1, jsBeanArray });
+        
+        String xmlString = testUtilities.rhinoCallConvert(BEAN_FUNCTION_SERIALIZER_NAME, 
+                                                          String.class,
+                                                          paramsArray);
+        DataReader<XMLStreamReader> reader = dataBinding.createReader(XMLStreamReader.class);
+        ServiceInfo serviceInfo = serviceInfos.get(0); // assume we only have one.
+        QName messageName = new QName("uri:org.apache.cxf.javascript.fortest", 
+                                      "beanFunctionWithWrapper");
+        MessageInfo inputMessage = serviceInfo.getMessage(messageName);
+        assertNotNull(inputMessage);
+        MessagePartInfo part = inputMessage.getMessagePartByIndex(0); // has only one part.
+        LOG.info(part.getConcreteName().toString());
+        // Read into the full message to find the part.
+        StringReader stringReader = new StringReader(xmlString);
+        XMLStreamReader xmlStreamReader;
+        boolean gotToPart = false;
+        Object messageObject = null;
+        try {
+            xmlStreamReader = xmlInputFactory.createXMLStreamReader(stringReader);
+            gotToPart = false;
+            do {
+                int item = xmlStreamReader.next();
+                if (item == XMLStreamReader.START_ELEMENT) { 
+                    LOG.finest(xmlStreamReader.getName().toString());
+                    if (xmlStreamReader.getName().equals(part.getConcreteName())) {
+                        gotToPart = true;
+                    }
+                }
+            } while (!gotToPart && xmlStreamReader.hasNext());
+            assertTrue("Found element " + part.getConcreteName().toString(), gotToPart);
+            messageObject = reader.read(part, xmlStreamReader);
+        } catch (XMLStreamException e) {
+            throw new RuntimeException(e);
+        }
+        assertNotNull(messageObject);
+        return null;
     }
 }

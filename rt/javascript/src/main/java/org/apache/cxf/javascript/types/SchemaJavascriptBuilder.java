@@ -201,7 +201,7 @@ public class SchemaJavascriptBuilder {
         utils.appendExpression("elementName");
         utils.appendString(">");
         utils.endBlock();
-        code.append("return xml;\n");
+        utils.appendLine("return xml;");
         code.append("}\n");
 
         code.append(nameManager.getJavascriptName(type) + ".prototype.serialize = " + functionName + ";\n");

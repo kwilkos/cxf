@@ -72,6 +72,12 @@ public class SimpleDocLitWrappedImpl implements SimpleDocLitWrapped {
     }
 
     /** {@inheritDoc}*/
+    public void beanFunctionWithWrapper(TestBean1 bean, TestBean1[] beans) {
+        lastBean1 = bean;
+        lastBean1Array = beans;
+    }
+
+    /** {@inheritDoc}*/
     public TestBean1 functionReturnTestBean1() {
         TestBean1 bean1 = new TestBean1();
         bean1.intItem = 42;

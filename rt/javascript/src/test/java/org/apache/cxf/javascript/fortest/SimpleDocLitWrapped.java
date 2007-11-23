@@ -34,12 +34,14 @@ public interface SimpleDocLitWrapped {
     @RequestWrapper(className = "org.apache.cxf.javascript.fortest.BasicTypeFunctionReturnStringWrapper")
     @ResponseWrapper(className = "org.apache.cxf.javascript.fortest.StringWrapper")
     @WebResult(name = "returnValue", targetNamespace = "uri:org.apache.cxf.javascript.testns")
+    @WebMethod
     String basicTypeFunctionReturnString(@WebParam(name = "s") String s, 
                                          @WebParam(name = "i") int i, 
                                          @WebParam(name = "l") long l, 
                                          @WebParam(name = "f") float f, 
                                          @WebParam(name = "d") double d);
     
+    @WebMethod
     String basicTypeFunctionReturnStringNoWrappers(@WebParam(name = "s") String s, 
                                                    @WebParam(name = "i") int i, 
                                                    @WebParam(name = "l") long l, 
@@ -48,11 +50,19 @@ public interface SimpleDocLitWrapped {
 
     @WebMethod
     TestBean1 functionReturnTestBean1();
+    
+    @WebMethod
     int basicTypeFunctionReturnInt(@WebParam(name = "s") String s, 
                                    @WebParam(name = "i") int i, 
                                    @WebParam(name = "l") long l, 
                                    @WebParam(name = "f") float f, 
                                    @WebParam(name = "d") double d);
+    
+    @RequestWrapper(className = "org.apache.cxf.javascript.fortest.BeanRequestWrapper")
+    @WebMethod
+    void beanFunctionWithWrapper(@WebParam(name = "bean1") TestBean1 bean, 
+                                 @WebParam(name = "beanArray") TestBean1[] beans);
+    
     @WebMethod
     void beanFunction(@WebParam(name = "bean1") TestBean1 bean, 
                       @WebParam(name = "beanArray") TestBean1[] beans);

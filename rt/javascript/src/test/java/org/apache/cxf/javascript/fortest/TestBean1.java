@@ -31,6 +31,8 @@ import javax.xml.bind.annotation.XmlType;
 public class TestBean1 {
     
     public TestBean1() {
+        intItem = 43;
+        doubleItem = -1.0;
         beanTwoItem = new TestBean2("required=true");
         beanTwoNotRequiredItem = null;
     }
@@ -55,4 +57,28 @@ public class TestBean1 {
     @XmlElement(required = false)
     public TestBean2 beanTwoNotRequiredItem;
     //CHECKSTYLE:ON
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof TestBean1)) {
+            return false;
+        }
+        TestBean1 other = (TestBean1) obj;
+        return stringItem.equals(other.stringItem) 
+            && intItem == other.intItem
+            && longItem == other.longItem
+            && base64Item == other.base64Item
+            && optionalIntItem == other.optionalIntItem
+            && optionalIntArrayItem == other.optionalIntArrayItem
+            && doubleItem == other.doubleItem
+            && beanTwoItem.equals(other.beanTwoItem)
+            && beanTwoNotRequiredItem.equals(other.beanTwoNotRequiredItem);
+    }
+
+    @Override
+    public int hashCode() {
+        // intentionally stupid. We don't use this object in collections.
+        return super.hashCode();
+    }
+    
 }

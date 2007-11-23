@@ -487,6 +487,10 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
 
     @Override
     public void begin(ServiceInfo service) {
+        
+        code.append("//\n");
+        code.append("// Definitions for service: " + service.toString() + "\n");
+        code.append("//\n");
 
         BindingInfo xml = null;
         // assume only one soap binding.

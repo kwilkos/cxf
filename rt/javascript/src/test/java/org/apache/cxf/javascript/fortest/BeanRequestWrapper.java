@@ -19,37 +19,30 @@
 
 package org.apache.cxf.javascript.fortest;
 
+import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 /**
- * A second test class to test references.
+ * Wrapper class.
  */
-@XmlType(namespace = "uri:org.apache.cxf.javascript.testns3")
-public class TestBean2 {
-    public TestBean2() {
-        stringItem = "testBean2.stringItem";
-    }
+@XmlRootElement(namespace = "uri:org.apache.cxf.javascript.testns")
+// specify alphabetical order explicitly to remind us that there is JavaScript code that knows this order!
+@XmlType(namespace = "uri:org.apache.cxf.javascript.testns", 
+         propOrder = {"bean1", "beanArray" })
+public class BeanRequestWrapper {
+    private TestBean1 bean1;
+    private TestBean1[] beanArray;
     
-    public TestBean2(String id) {
-        stringItem = id;
+    public TestBean1 getBean1() {
+        return bean1;
     }
-    //CHECKSTYLE:OFF
-    public String stringItem;
-    //CHECKSTYLE:ON
-    @Override
-    public boolean equals(Object obj) {
-        if (!(obj instanceof TestBean2)) {
-            return false;
-        }
-        TestBean2 other = (TestBean2) obj;
-        return stringItem.equals(other.stringItem);
-    
+    public void setBean1(TestBean1 bean1) {
+        this.bean1 = bean1;
     }
-
-    @Override
-    public int hashCode() {
-        return stringItem.hashCode();
+    public TestBean1[] getBeanArray() {
+        return beanArray;
     }
-    
-    
+    public void setBeanArray(TestBean1[] beanArray) {
+        this.beanArray = beanArray;
+    }
 }

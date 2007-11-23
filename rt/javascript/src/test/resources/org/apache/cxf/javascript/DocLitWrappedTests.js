@@ -27,9 +27,16 @@ var globalErrorStatus = null;
 var globalErrorStatusText = null;
 var globalResponseObject = null;
 
+function resetGlobals() {
+	globalNotifier = null;
+	globalErrorStatus = null;
+	globalErrorStatusText = null;
+	globalResponseObject = null;
+}
+
 function test1ErrorCallback(httpStatus, httpStatusText) 
 {
-    org_apache_cxf_trace.trace("test1/2 error");
+    org_apache_cxf_trace.trace("test1/2/3 error");
 	globalErrorStatus = httpStatus;
 	globalStatusText = httpStatusText;
 	globalNotifier.notify();
@@ -40,7 +47,7 @@ function test1ErrorCallback(httpStatus, httpStatusText)
 // from Java, I think.
 function test1SuccessCallback(responseObject) 
 {
-    org_apache_cxf_trace.trace("test1/2 success");
+    org_apache_cxf_trace.trace("test1/2/3 success");
 	globalResponseObject = responseObject;
 	globalNotifier.notify();
 }
@@ -48,6 +55,7 @@ function test1SuccessCallback(responseObject)
 function test1(url, doubleArg, floatArg, intArg, longArg, stringArg) 
 {
 	org_apache_cxf_trace.trace("Enter test1.");
+	resetGlobals();
 	globalNotifier = new org_apache_cxf_notifier();
 	
 	var intf = new org_apache_cxf_javascript_fortest_SimpleDocLitWrapped();
@@ -63,6 +71,7 @@ function test1(url, doubleArg, floatArg, intArg, longArg, stringArg)
 function test2(url, doubleArg, floatArg, intArg, longArg, stringArg) 
 {
 	org_apache_cxf_trace.trace("Enter test2.");
+	resetGlobals();
 	globalNotifier = new org_apache_cxf_notifier();
 	
 	var intf = new org_apache_cxf_javascript_fortest_SimpleDocLitWrapped();
@@ -70,6 +79,35 @@ function test2(url, doubleArg, floatArg, intArg, longArg, stringArg)
 	// param order from the interface
 	intf.basicTypeFunctionReturnStringNoWrappers(test1SuccessCallback, test1ErrorCallback, 
 	                                   			 stringArg, intArg, longArg, floatArg, doubleArg);
+    // Return the notifier as a convenience to the Java code.
+	return globalNotifier;
+}
+
+function test3(url, doubleArg, floatArg, intArg, longArg, stringArg) 
+{
+	org_apache_cxf_trace.trace("Enter test3.");
+	resetGlobals();
+	globalNotifier = new org_apache_cxf_notifier();
+	
+	var intf = new org_apache_cxf_javascript_fortest_SimpleDocLitWrapped();
+	intf.url = url;
+	// param order from the interface
+	intf.basicTypeFunctionReturnInt(test1SuccessCallback, test1ErrorCallback, 
+	                                stringArg, intArg, longArg, floatArg, doubleArg);
+    // Return the notifier as a convenience to the Java code.
+	return globalNotifier;
+}
+
+function test4(url, beanArg, beansArg)
+{
+	org_apache_cxf_trace.trace("Enter test4.");
+	resetGlobals();
+	globalNotifier = new org_apache_cxf_notifier();
+	
+	var intf = new org_apache_cxf_javascript_fortest_SimpleDocLitWrapped();
+	intf.url = url;
+	// param order from the interface
+	intf.beanFunction(test1SuccessCallback, test1ErrorCallback, beanArg, beansArg); 
     // Return the notifier as a convenience to the Java code.
 	return globalNotifier;
 }
