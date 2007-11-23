@@ -235,7 +235,7 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
                              + "_serializeInput"
                              + "(args);");
         }
-        utils.appendLine("this.client = new CxfApacheOrgClient(jsutils);");
+        utils.appendLine("this.client = new CxfApacheOrgClient(this.jsutils);");
         // we need to pass the caller's callback functions to our callback
         // functions.
         utils.appendLine("this._onsuccess = successCallback;");
@@ -359,7 +359,8 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
         
         String serializerFunctionGlobalName = getFunctionGlobalName(msg.getName(), "serializeInput");
         String serializerFunctionPropertyName = 
-            getFunctionPropertyName(inputMessagesWithNameConflicts, msg, msg.getName());
+            getFunctionPropertyName(inputMessagesWithNameConflicts, msg, msg.getName())
+            + "_serializeInput";
 
         code.append("function " + serializerFunctionGlobalName + "(args) {\n");
         getElementsForParts(elements, parts);

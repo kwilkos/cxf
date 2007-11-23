@@ -174,6 +174,7 @@ CxfApacheOrgUtil.prototype.endSoap11Message = org_apache_cxf_end_soap11_message;
  */
 	
 function CxfApacheOrgClient(utils) {
+	utils.trace("Client constructor");
     this.utils = utils;
     this.soapAction = "";
     this.messageType = "CALL";
@@ -187,9 +188,9 @@ function CxfApacheOrgClient(utils) {
 // This imposes a relatively straightforward set of HTTP options.
 function org_apache_cxf_client_request(url, requestXML, method, sync, headers)
 {
+	this.utils.trace("request " + url);
+	
     this.url = url;
-    this.onSuccess = onSuccess;
-    this.onError = onError;
     this.sync = sync;
 
     this.req = null;
@@ -197,7 +198,7 @@ function org_apache_cxf_client_request(url, requestXML, method, sync, headers)
     if (method) {
         this.method = method;
     } else {
-        if(!requestXML) 
+        if(requestXML) 
             this.method = "POST";
         else
             this.method="GET";
@@ -221,6 +222,7 @@ function org_apache_cxf_client_request(url, requestXML, method, sync, headers)
         throw "ORG_APACHE_CXF_NO_REQUEST_OBJECT";
     }
 
+	this.utils.trace("about to open " + this.method + " " + this.url);
     this.req.open(this.method, this.url, !this.sync);
 
     this.req.setRequestHeader("Content-Type", "application/xml");   
@@ -243,6 +245,9 @@ function org_apache_cxf_client_request(url, requestXML, method, sync, headers)
     // NOTE: we do not call the onerror callback for a synchronous error
     // at request time. We let the request object throw as it will. 
     // onError will only be called for asynchronous errors.
+    this.utils.trace("about to send " + this.method + " " + this.url);
+    this.utils.trace(requestXML);
+    
     this.req.send(requestXML);
 }
 
@@ -259,9 +264,9 @@ function org_apache_cxf_client_onReadyState() {
         this.utils.trace("onreadystatechange DONE " + httpStatus);
 
         if (httpStatus==200 || httpStatus==0) {
-            if(this.onSuccess != null) {
+            if(this.onsuccess != null) {
                 // the onSuccess function is generated, and picks apart the response.
-                this.onSuccess(req.responseXML);
+                this.onsuccess(req.responseXML);
             }
 		} else {
             this.utils.trace("onreadystatechange DONE ERROR " + 
@@ -270,8 +275,8 @@ function org_apache_cxf_client_onReadyState() {
                              + req.statusText 
                              + " " 
                              + req.responseText);
-            if(this.onError != null) 
-                this.onError(this);
+            if(this.onerror != null) 
+                this.onerror(this);
 		}
 	}
 }

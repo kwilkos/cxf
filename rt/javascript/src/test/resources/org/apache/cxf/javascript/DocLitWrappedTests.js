@@ -29,6 +29,7 @@ var globalResponseObject = null;
 
 function test1ErrorCallback(httpStatus, httpStatusText) 
 {
+    org_apache_cxf_trace.trace("test1 error");
 	globalErrorStatus = httpStatus;
 	globalStatusText = httpStatusText;
 	globalNotifier.notify();
@@ -39,6 +40,7 @@ function test1ErrorCallback(httpStatus, httpStatusText)
 // from Java, I think.
 function test1SuccessCallback(responseObject) 
 {
+    org_apache_cxf_trace.trace("test1 success");
 	globalResponseObject = responseObject;
 	globalNotifier.notify();
 }
@@ -46,7 +48,6 @@ function test1SuccessCallback(responseObject)
 function test1(url, doubleArg, floatArg, intArg, longArg, stringArg) 
 {
 	org_apache_cxf_trace.trace("Enter test1.");
-	throw "frustration";
 	globalNotifier = new org_apache_cxf_notifier();
 	
 	var intf = new org_apache_cxf_javascript_fortest_SimpleDocLitWrapped();

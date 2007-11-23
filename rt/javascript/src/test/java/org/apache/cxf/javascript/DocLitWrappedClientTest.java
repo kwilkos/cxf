@@ -22,8 +22,10 @@ package org.apache.cxf.javascript;
 import java.io.File;
 import java.net.URL;
 import java.util.List;
+import java.util.logging.Logger;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.javascript.JavascriptTestUtilities.JSRunnable;
 import org.apache.cxf.javascript.JavascriptTestUtilities.Notifier;
@@ -38,6 +40,8 @@ import org.springframework.context.support.GenericApplicationContext;
 
 @org.junit.Ignore
 public class DocLitWrappedClientTest extends AbstractCXFSpringTest {
+    
+    private static final Logger LOG = LogUtils.getL7dLogger(DocLitWrappedClientTest.class);
 
     // shadow declaration from base class.
     private JavascriptTestUtilities testUtilities;
@@ -74,6 +78,8 @@ public class DocLitWrappedClientTest extends AbstractCXFSpringTest {
         testUtilities.runInsideContext(Void.class, new JSRunnable<Void>() {
             public Void run(Context context) {
                 EndpointImpl endpoint = getBean(EndpointImpl.class, "dlw-service-endpoint");
+                LOG.info("About to call test1 " + endpoint.getAddress());
+
                 Notifier notifier = 
                     testUtilities.rhinoCallConvert("test1", Notifier.class, 
                                                    testUtilities.javaToJS(endpoint.getAddress()), 
@@ -82,7 +88,7 @@ public class DocLitWrappedClientTest extends AbstractCXFSpringTest {
                                                    testUtilities.javaToJS(Integer.valueOf(42)),
                                                    testUtilities.javaToJS(Long.valueOf(240000)),
                                                    "This is the cereal shot from guns");
-                boolean notified = notifier.waitForJavascript(0 /* 1000 * 10 */);
+                boolean notified = notifier.waitForJavascript(1000 * 10);
                 assertTrue(notified);
                 Integer errorStatus = testUtilities.rhinoEvaluateConvert("globalErrorStatus", Integer.class);
                 assertNull(errorStatus);
