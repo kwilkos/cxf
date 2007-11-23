@@ -93,8 +93,7 @@ public class ProviderImpl extends javax.xml.ws.spi.Provider {
         XMLStreamWriter writer = StaxUtils.createXMLStreamWriter(cos);
 
         try {
-            //TODO: when serviceName/portName is null
-            
+            //TODO: when serviceName/portName is null            
             writer.setPrefix("wsa", W3C_NS);
 
             String portNamePrefix = null;

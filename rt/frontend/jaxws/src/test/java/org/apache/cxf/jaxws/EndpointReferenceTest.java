@@ -151,7 +151,6 @@ public class EndpointReferenceTest extends AbstractJaxWsTest {
     }    
     
     @Test
-    @Ignore("Not implemented yet")
     public void testEndpointGetEndpointReferenceSOAPBinding() throws Exception {
         GreeterImpl greeter = new GreeterImpl();
         EndpointImpl endpoint = new EndpointImpl(getBus(), greeter, (String)null);
@@ -162,10 +161,9 @@ public class EndpointReferenceTest extends AbstractJaxWsTest {
         Document doc = XMLUtils.parse(is);
         Element referenceParameters = XMLUtils.fetchElementByNameAttribute(doc.getDocumentElement(),
                                                                            "wsa:ReferenceParameters",
-                                                                           "wsa:ReferenceParameters");
+                                                                           "");
         EndpointReference endpointReference = endpoint.getEndpointReference(referenceParameters);
         assertNotNull(endpointReference);
-
         assertTrue(endpointReference instanceof W3CEndpointReference);
 
         //A returned W3CEndpointReferenceMUST also contain the specified referenceParameters.
@@ -177,7 +175,8 @@ public class EndpointReferenceTest extends AbstractJaxWsTest {
     @Test
     @Ignore("Not implemented yet")
     public void testEndpointGetEndpointReferenceXMLBinding() throws Exception {
-        GreeterImpl greeter = new GreeterImpl();
+        org.apache.hello_world_xml_http.bare.Greeter greeter = 
+            new org.apache.hello_world_xml_http.bare.GreeterImpl();
         EndpointImpl endpoint = new EndpointImpl(getBus(), greeter, (String)null);
 
         endpoint.publish("http://localhost:8080/test");
@@ -187,7 +186,7 @@ public class EndpointReferenceTest extends AbstractJaxWsTest {
             Document doc = XMLUtils.parse(is);
             Element referenceParameters = XMLUtils.fetchElementByNameAttribute(doc.getDocumentElement(),
                                                                                "wsa:ReferenceParameters",
-                                                                               "wsa:ReferenceParameters");
+                                                                               "");
             endpoint.getEndpointReference(referenceParameters);
 
             fail("Did not get expected UnsupportedOperationException");
@@ -199,7 +198,6 @@ public class EndpointReferenceTest extends AbstractJaxWsTest {
     }
     
     @Test
-    @Ignore("Not implemented yet")
     public void testEndpointGetEndpointReferenceW3C() throws Exception {
         GreeterImpl greeter = new GreeterImpl();
         EndpointImpl endpoint = new EndpointImpl(getBus(), greeter, (String)null);
@@ -210,7 +208,7 @@ public class EndpointReferenceTest extends AbstractJaxWsTest {
         Document doc = XMLUtils.parse(is);
         Element referenceParameters = XMLUtils.fetchElementByNameAttribute(doc.getDocumentElement(),
                                                                            "wsa:ReferenceParameters",
-                                                                           "wsa:ReferenceParameters");
+                                                                           "");
         EndpointReference endpointReference = endpoint.getEndpointReference(W3CEndpointReference.class,
                                                                             referenceParameters);
         assertNotNull(endpointReference);
@@ -225,7 +223,6 @@ public class EndpointReferenceTest extends AbstractJaxWsTest {
     
     
     @Test
-    @Ignore("Not implemented yet")
     public void testEndpointGetEndpointReferenceInvalid() throws Exception {
         GreeterImpl greeter = new GreeterImpl();
         EndpointImpl endpoint = new EndpointImpl(getBus(), greeter, (String)null);

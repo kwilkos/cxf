@@ -24,23 +24,29 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
+import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
 import javax.xml.transform.Source;
 import javax.xml.ws.Binding;
 import javax.xml.ws.EndpointReference;
+import javax.xml.ws.WebServiceException;
 import javax.xml.ws.WebServiceFeature;
 import javax.xml.ws.WebServicePermission;
 import javax.xml.ws.soap.Addressing;
 import javax.xml.ws.soap.AddressingFeature;
 import javax.xml.ws.soap.MTOM;
 import javax.xml.ws.soap.MTOMFeature;
+import javax.xml.ws.wsaddressing.W3CEndpointReference;
+import javax.xml.ws.wsaddressing.W3CEndpointReferenceBuilder;
 
 import org.w3c.dom.Element;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.binding.BindingConfiguration;
+import org.apache.cxf.common.i18n.Message;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.ModCountCopyOnWriteArrayList;
 import org.apache.cxf.configuration.Configurable;
 import org.apache.cxf.configuration.Configurer;
@@ -67,6 +73,7 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
 
     private static final WebServicePermission PUBLISH_PERMISSION =
         new WebServicePermission("publishEndpoint");
+    private static final Logger LOG = LogUtils.getL7dLogger(EndpointImpl.class);
     
     private Bus bus;
     private Object implementor;
@@ -251,6 +258,7 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
         ServerImpl serv = getServer(addr);
         if (addr != null) {
             serv.getEndpoint().getEndpointInfo().setAddress(addr);
+            this.address = addr;
         }
         serv.start();
     }
@@ -336,6 +344,11 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
                 //hold onto the wsdl location so cache won't clear till we go away
                 setWsdlLocation(serverFactory.getWsdlURL());
             }
+            
+            if (serviceName == null) {
+                setServiceName(serverFactory.getServiceFactory().getServiceQName());
+            }
+
         }
         return (ServerImpl) server;
     }
@@ -474,13 +487,38 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
         this.schemaLocations = schemaLocations;
     }
     
-    //TODO JAX-WS 2.1
     public EndpointReference getEndpointReference(Element... referenceParameters) {
-        throw new UnsupportedOperationException();
+        if (!isPublished()) {
+            throw new WebServiceException(new Message("ENDPOINT_NOT_PUBLISHED", LOG).toString());
+        }
+        
+        String bindingId = getBinding().getBindingID();        
+        if (!"http://schemas.xmlsoap.org/soap/".equals(bindingId)) {
+            throw new UnsupportedOperationException(new Message("GET_ENDPOINTREFERENCE_UNSUPPORTED_BINDING",
+                                                                LOG).toString());
+        }
+        
+        W3CEndpointReferenceBuilder builder = new W3CEndpointReferenceBuilder();
+        builder.address(address);
+        builder.serviceName(serviceName);
+        builder.endpointName(endpointName);
+        if (referenceParameters != null) {
+            for (Element referenceParameter : referenceParameters) {
+                builder.referenceParameter(referenceParameter);
+            }
+        }
+        builder.wsdlDocumentLocation(wsdlLocation);        
+        
+        return builder.build();
     }
 
     public <T extends EndpointReference> T getEndpointReference(Class<T> clazz,
                                                                 Element... referenceParameters) {
-        throw new UnsupportedOperationException();
+        if (W3CEndpointReference.class.isAssignableFrom(clazz)) {
+            return clazz.cast(getEndpointReference(referenceParameters));
+        } else {
+            throw new WebServiceException(new Message("ENDPOINTREFERENCE_TYPE_NOT_SUPPORTED", LOG, clazz
+                .getName()).toString());
+        }
     }
 }

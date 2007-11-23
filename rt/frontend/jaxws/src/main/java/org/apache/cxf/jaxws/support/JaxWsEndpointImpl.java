@@ -34,7 +34,6 @@ import org.apache.cxf.endpoint.EndpointException;
 import org.apache.cxf.endpoint.EndpointImpl;
 import org.apache.cxf.feature.AbstractFeature;
 import org.apache.cxf.interceptor.Interceptor;
-import org.apache.cxf.jaxws.binding.BindingImpl;
 import org.apache.cxf.jaxws.binding.http.HTTPBindingImpl;
 import org.apache.cxf.jaxws.binding.soap.SOAPBindingImpl;
 import org.apache.cxf.jaxws.handler.logical.DispatchLogicalHandlerInterceptor;
@@ -214,8 +213,6 @@ public class JaxWsEndpointImpl extends EndpointImpl {
             }
         } else if (getBinding() instanceof XMLBinding) {
             jaxwsBinding = new HTTPBindingImpl(getEndpointInfo().getBinding());
-        } else {
-            jaxwsBinding = new BindingImpl();
-        }
+        } 
     }
 }

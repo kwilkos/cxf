@@ -25,7 +25,7 @@ import java.util.List;
 import javax.xml.ws.Binding;
 import javax.xml.ws.handler.Handler;
 
-public class BindingImpl implements Binding {
+public abstract class BindingImpl implements Binding {
     private List<Handler> handlerChain = new ArrayList<Handler>();
     
     public List<Handler> getHandlerChain() {
@@ -36,8 +36,5 @@ public class BindingImpl implements Binding {
         handlerChain = hc;
     }
 
-    public String getBindingID() {
-        // TODO
-        throw new UnsupportedOperationException();
-    }   
+    public abstract String getBindingID();
 }
