@@ -65,10 +65,12 @@ import org.apache.cxf.wsdl11.ServiceWSDLBuilder;
 public class TestUtilities {
     
     private static final Charset UTF8 = Charset.forName("utf-8");
-
+    private static String keepAlive;
+    
     private static String basedirPath;
     protected Bus bus;
     protected Class<?> classpathAnchor;
+    
 
     /**
      * Namespaces for the XPath expressions.
@@ -85,6 +87,19 @@ public class TestUtilities {
      */
     public TestUtilities(Class<?> classpathReference) {
         classpathAnchor = classpathReference;
+    }
+    
+    public static void setKeepAliveSystemProperty(boolean setAlive) {
+        keepAlive = System.getProperty("http.keepAlive");
+        System.setProperty("http.keepAlive", Boolean.toString(setAlive));
+    }
+    
+    public static void recoverKeepAliveSystemProperty() {
+        if (keepAlive != null) {
+            System.setProperty("http.keepAlive", keepAlive);
+        } else {
+            System.clearProperty("http.keepAlive");
+        }
     }
 
     public void addDefaultNamespaces() {
