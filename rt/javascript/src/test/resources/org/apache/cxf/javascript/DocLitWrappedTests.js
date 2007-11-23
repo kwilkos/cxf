@@ -98,13 +98,17 @@ function test3(url, doubleArg, floatArg, intArg, longArg, stringArg)
 	return globalNotifier;
 }
 
-function test4(url, beanArg, beansArg)
+function test4(url, wrap, beanArg, beansArg)
 {
 	org_apache_cxf_trace.trace("Enter test4.");
 	resetGlobals();
 	globalNotifier = new org_apache_cxf_notifier();
 	
-	var intf = new org_apache_cxf_javascript_fortest_SimpleDocLitWrapped();
+	var intf;
+    intf = new org_apache_cxf_javascript_fortest_SimpleDocLitWrapped();
+	else
+	  intf = new org_apache_cxf_javascript_fortest_SimpleDocLitWrapped();
+	  
 	intf.url = url;
 	// param order from the interface
 	intf.beanFunction(test1SuccessCallback, test1ErrorCallback, beanArg, beansArg); 

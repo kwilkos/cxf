@@ -66,9 +66,9 @@ public class DocLitWrappedClientTest extends AbstractCXFSpringTest {
     }
 
     // just one test function to avoid muddles with engine startup/shutdown
-    @Test
+    //@Test
     public void runTests() throws Exception {
-        endpoint = getBean(EndpointImpl.class, "dlw-service-endpoint");
+
         callMethodWithWrappers();
         callMethodWithoutWrappers();
         callTest2WithNullString();
@@ -89,6 +89,7 @@ public class DocLitWrappedClientTest extends AbstractCXFSpringTest {
         ServiceInfo serviceInfo = serviceInfos.get(0);
         testUtilities.loadJavascriptForService(serviceInfo);
         testUtilities.readResourceIntoRhino("/org/apache/cxf/javascript/DocLitWrappedTests.js");
+        endpoint = getBean(EndpointImpl.class, "dlw-service-endpoint");
     }
     
     @Override
@@ -100,7 +101,7 @@ public class DocLitWrappedClientTest extends AbstractCXFSpringTest {
         return new String[] {"classpath:DocLitWrappedClientTestBeans.xml"};
     }
 
-    private Void beanFunctionCaller(Context context) {
+    private Void beanFunctionCaller(Context context, boolean useWrapper) {
         TestBean1 b1 = new TestBean1(); 
         b1.stringItem = "strung";
         TestBean1[] beans = new TestBean1[3];
@@ -123,7 +124,8 @@ public class DocLitWrappedClientTest extends AbstractCXFSpringTest {
         LOG.info("About to call test4 " + endpoint.getAddress());
         Notifier notifier = 
             testUtilities.rhinoCallConvert("test4", Notifier.class, 
-                                           testUtilities.javaToJS(endpoint.getAddress()), 
+                                           testUtilities.javaToJS(endpoint.getAddress()),
+                                           testUtilities.javaToJS(Boolean.valueOf(useWrapper)),
                                            jsBean1,
                                            jsBeanArray);
         boolean notified = notifier.waitForJavascript(1000 * 10);
@@ -144,16 +146,28 @@ public class DocLitWrappedClientTest extends AbstractCXFSpringTest {
         return null;
     }
     
-    private void callFunctionWithBeans() {
+    @Test
+    public void callFunctionWithBeans() {
         LOG.info("about to call test4/beanFunction");
         testUtilities.runInsideContext(Void.class, new JSRunnable<Void>() {
             public Void run(Context context) {
-                return beanFunctionCaller(context);
+                return beanFunctionCaller(context, false);
+            }
+        });
+    }
+
+    @Test
+    public void callFunctionWithBeansWrapped() {
+        LOG.info("about to call test4/beanFunction");
+        testUtilities.runInsideContext(Void.class, new JSRunnable<Void>() {
+            public Void run(Context context) {
+                return beanFunctionCaller(context, true);
             }
         });
     }
     
-    private void callIntReturnMethod() {
+    @Test
+    public void callIntReturnMethod() {
         testUtilities.runInsideContext(Void.class, new JSRunnable<Void>() {
             public Void run(Context context) {
                 LOG.info("About to call test3/IntFunction" + endpoint.getAddress());
@@ -185,7 +199,8 @@ public class DocLitWrappedClientTest extends AbstractCXFSpringTest {
         });
     }
 
-    private void callMethodWithoutWrappers() {
+    @Test
+    public void callMethodWithoutWrappers() {
         testUtilities.runInsideContext(Void.class, new JSRunnable<Void>() {
             public Void run(Context context) {
                 LOG.info("About to call test2 " + endpoint.getAddress());
@@ -217,7 +232,8 @@ public class DocLitWrappedClientTest extends AbstractCXFSpringTest {
         });
     }
 
-    private void callMethodWithWrappers() {
+    @Test
+    public void callMethodWithWrappers() {
         testUtilities.runInsideContext(Void.class, new JSRunnable<Void>() {
             public Void run(Context context) {
                 LOG.info("About to call test1 " + endpoint.getAddress());
@@ -247,7 +263,8 @@ public class DocLitWrappedClientTest extends AbstractCXFSpringTest {
         });
     }
 
-    private void callTest2WithNullString() {
+    @Test
+    public void callTest2WithNullString() {
         testUtilities.runInsideContext(Void.class, new JSRunnable<Void>() {
             public Void run(Context context) {
                 LOG.info("About to call test2 with null string" + endpoint.getAddress());

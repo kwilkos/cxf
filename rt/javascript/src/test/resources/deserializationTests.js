@@ -36,7 +36,7 @@ function deserializeTestBean1_1(xml)
 	var bean = org_apache_cxf_javascript_testns_testBean1_deserialize(jsutils, dom);
 	if(bean.getStringItem() != "bean1>stringItem")
 		assertionFailed("deserializeTestBean1_1 stringItem " + bean.getStringItem());
-	if(bean.getIntItem() != 0)
+	if(bean.getIntItem() != 43)
 		assertionFailed("deserializeTestBean1_1 intItem " + bean.getIntItem());
 	if(bean.getLongItem() != 0)
 		assertionFailed("deserializeTestBean1_1 longItem " + bean.getLongItem());
