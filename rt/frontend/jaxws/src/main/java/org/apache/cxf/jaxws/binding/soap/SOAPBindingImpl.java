@@ -35,11 +35,11 @@ import org.apache.cxf.binding.soap.Soap11;
 import org.apache.cxf.binding.soap.Soap12;
 import org.apache.cxf.binding.soap.model.SoapBindingInfo;
 import org.apache.cxf.common.logging.LogUtils;
-import org.apache.cxf.jaxws.binding.BindingImpl;
+import org.apache.cxf.jaxws.binding.AbstractBindingImpl;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.service.model.BindingInfo;
 
-public class SOAPBindingImpl extends BindingImpl implements SOAPBinding {
+public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding {
     
     private static final Logger LOG = LogUtils.getL7dLogger(SOAPBindingImpl.class);
     private static final ResourceBundle BUNDLE = LOG.getResourceBundle();
