@@ -240,12 +240,13 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
         // functions.
         utils.appendLine("this._onsuccess = successCallback;");
         utils.appendLine("this._onerror = errorCallback;");
-        utils.appendLine("this.client.onsuccess = this." 
+        utils.appendLine("var closureThis = this;");
+        utils.appendLine("this.client.onsuccess = function(that) { closureThis." 
                          + opFunctionPropertyName
-                         + "_onsuccess");
-        utils.appendLine("this.client.onerror = this."
+                         + "_onsuccess(that); };");
+        utils.appendLine("this.client.onerror = function(that) { closureThis."
                          + opFunctionPropertyName
-                         + "_error");
+                         + "_onerror(that); };");
 
         utils.appendLine("var requestHeaders = [];");
 
@@ -292,7 +293,9 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
         String successFunctionGlobalName = opFunctionGlobalName + "_onsuccess"; 
         String successFunctionPropertyName = opFunctionPropertyName + "_onsuccess"; 
         code.append("function " + successFunctionGlobalName + "(responseXml) {\n");
-        utils.startIf("_onsuccess");
+        utils.appendLine("this.jsutils.trace('" + successFunctionGlobalName + " _onsuccess: ' " 
+                         + " + this._onsuccess);");
+        utils.startIf("this._onsuccess");
         utils.appendLine("var responseObject = null;");
         if (outputMessage != null) {
             if (soapBindingInfo != null) { // soap
@@ -308,6 +311,7 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
             }
 
             String deserializerFunctionName = outputDeserializerFunctionName(outputMessage);
+            utils.appendLine("this.jsutils.trace('calling " + deserializerFunctionName + "');");
             utils.appendLine("responseObject = " + deserializerFunctionName + "(this.jsutils, element);");
         }
         utils.appendLine("this._onsuccess(responseObject);");

@@ -38,7 +38,6 @@ import org.junit.Test;
 import org.mozilla.javascript.Context;
 import org.springframework.context.support.GenericApplicationContext;
 
-@org.junit.Ignore
 public class DocLitWrappedClientTest extends AbstractCXFSpringTest {
     
     private static final Logger LOG = LogUtils.getL7dLogger(DocLitWrappedClientTest.class);
