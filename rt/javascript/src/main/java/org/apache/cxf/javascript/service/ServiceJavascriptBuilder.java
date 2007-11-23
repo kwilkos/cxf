@@ -285,6 +285,8 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
                     + ";\n\n");
     }
 
+    // Note: the response XML that we get from the XMLHttpRequest is the document element,
+    // not the root element.
     private void buildSuccessFunction(MessageInfo outputMessage) {
         // Here are the success and error callbacks. They have the job of
         // calling
@@ -298,18 +300,23 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
         utils.startIf("this._onsuccess");
         utils.appendLine("var responseObject = null;");
         if (outputMessage != null) {
+            utils.appendLine("var element = responseXml.documentElement;");
+            utils.appendLine("this.jsutils.trace('responseXml: ' "
+                             + "+ this.jsutils.traceElementName(element));");
+
             if (soapBindingInfo != null) { // soap
                 // The following code is probably only right for basic
                 // Doc/Literal/Wrapped services.
                 // the top element should be the Envelope, then the Body, then
                 // the actual response item.
-                utils.appendLine("var element = this.jsutils.getFirstElementChild(responseXml);");
+                utils.appendLine("element = this.jsutils.getFirstElementChild(element);");
+                utils.appendLine("this.jsutils.trace('first element child: ' "
+                                 + "+ this.jsutils.traceElementName(element));");
                 // Go down one more from the body to the response item.
-                utils.appendLine("element = this.jsutils.getFirstElementChild(responseXml);");
-            } else if (xmlBindingInfo != null) {
-                utils.appendLine("var element = responseXml;");
-            }
-
+                utils.appendLine("element = this.jsutils.getFirstElementChild(element);");
+                utils.appendLine("this.jsutils.trace('part element: ' "
+                                 + "+ this.jsutils.traceElementName(element));");
+            } 
             String deserializerFunctionName = outputDeserializerFunctionName(outputMessage);
             utils.appendLine("this.jsutils.trace('calling " + deserializerFunctionName + "');");
             utils.appendLine("responseObject = " + deserializerFunctionName + "(this.jsutils, element);");
@@ -533,7 +540,7 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
 
     @Override
     public void end(ServiceInfo service) {
-        LOG.fine(getCode());
+        LOG.finer(getCode());
     }
 
     private void unsupportedConstruct(String messageKey, Object... args) {

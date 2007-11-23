@@ -108,7 +108,7 @@ public class DocLitWrappedTest extends AbstractCXFSpringTest {
                 }
             });
         Object xmlString = null;
-        xmlString = testUtilities.rhinoCall(BASIC_TYPE_FUNCTION_RETURN_STRING_SERIALIZER_NAME,
+        xmlString = testUtilities.rhinoCallInContext(BASIC_TYPE_FUNCTION_RETURN_STRING_SERIALIZER_NAME,
                                                     jsParamArray);
         assertTrue(xmlString instanceof String);
         DataReader<XMLStreamReader> reader = dataBinding.createReader(XMLStreamReader.class);
@@ -158,7 +158,7 @@ public class DocLitWrappedTest extends AbstractCXFSpringTest {
         Element messageElement = document.getDocumentElement();
         Object jsUtils = testUtilities.rhinoNewObject("CxfApacheOrgUtil");
         Object jsResult = 
-            testUtilities.rhinoCall(BASIC_TYPE_FUNCTION_RETURN_STRING_RESPONSE_DESERIALIZE_RESPONSE,
+            testUtilities.rhinoCallInContext(BASIC_TYPE_FUNCTION_RETURN_STRING_RESPONSE_DESERIALIZE_RESPONSE,
                                     jsUtils,
                                     JsSimpleDomNode.wrapNode(testUtilities.getRhinoScope(), 
                                                              messageElement));

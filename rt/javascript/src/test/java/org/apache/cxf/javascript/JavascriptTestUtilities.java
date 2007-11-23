@@ -37,6 +37,7 @@ import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.JavaScriptException;
 import org.mozilla.javascript.RhinoException;
+import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 import org.mozilla.javascript.tools.debugger.Main;
 
@@ -223,6 +224,51 @@ public class JavascriptTestUtilities extends TestUtilities {
     }
 
     /**
+     * Call a method on a Javascript object.
+     * 
+     * @param that the object.
+     * @param methodName method name.
+     * @param args arguments.
+     * @return
+     */
+    public Object rhinoCallMethod(Scriptable that, String methodName, Object... args) {
+        return ScriptableObject.callMethod(rhinoContext, that, methodName, args);
+    }
+
+    /**
+     * Call a method on a Javascript object and convert result to specified class.
+     * @param <T> type
+     * @param clazz class object.
+     * @param that Javascript object.
+     * @param methodName method
+     * @param args arguments
+     * @return return value.
+     */
+    public <T> T rhinoCallMethodConvert(Class<T> clazz, Scriptable that, String methodName, Object... args) {
+        return clazz.cast(rhinoCallMethod(that, methodName, args));
+    }
+
+    /**
+     * Call a method on a Javascript object inside context brackets.
+     * @param <T> return type.
+     * @param clazz class for the return type.
+     * @param that object
+     * @param methodName method
+     * @param args arguments. Caller must run javaToJS as appropriate
+     * @return return value.
+     */
+    public <T> T rhinoCallMethodInContext(final Class<T> clazz, final Scriptable that, 
+                                          final String methodName, 
+                                          final Object... args) {
+        // we end up performing the cast twice to make the compiler happy.
+        return runInsideContext(clazz, new JSRunnable<T>() {
+            public T run(Context context) {
+                return clazz.cast(rhinoCallMethod(that, methodName, args));
+            }
+        });
+    }
+
+    /**
      * Evaluate a Javascript expression, converting the return value to a
      * convenient Java type.
      * 
@@ -236,9 +282,9 @@ public class JavascriptTestUtilities extends TestUtilities {
     }
 
     /**
-     * Call a JavaScript function. Optionally, require it to throw an exception
-     * equal to a supplied object. If the exception is called for, this function
-     * will either return null or Assert.
+     * Call a JavaScript function within the Context. Optionally, require it to
+     * throw an exception equal to a supplied object. If the exception is called
+     * for, this function will either return null or Assert.
      * 
      * @param expectingException Exception desired, or null.
      * @param functionName Function to call.
@@ -246,31 +292,49 @@ public class JavascriptTestUtilities extends TestUtilities {
      *                appropriate.
      * @return
      */
-    public Object rhinoCallExpectingException(final Object expectingException, final String functionName,
-                                              final Object... args) {
+    public Object rhinoCallExpectingExceptionInContext(final Object expectingException,
+                                                       final String functionName, final Object... args) {
         return runInsideContext(Object.class, new JSRunnable<Object>() {
             public Object run(Context context) {
-                Object fObj = rhinoScope.get(functionName, rhinoScope);
-                if (!(fObj instanceof Function)) {
-                    throw new RuntimeException("Missing test function " + functionName);
-                }
-                Function function = (Function)fObj;
-                try {
-                    return function.call(rhinoContext, rhinoScope, rhinoScope, args);
-                } catch (RhinoException angryRhino) {
-                    if (expectingException != null && angryRhino instanceof JavaScriptException) {
-                        JavaScriptException jse = (JavaScriptException)angryRhino;
-                        Assert.assertEquals(jse.getValue(), expectingException);
-                        return null;
-                    }
-                    String trace = angryRhino.getScriptStackTrace();
-                    Assert.fail("JavaScript error: " + angryRhino.toString() + " " + trace);
-                } catch (JavaScriptAssertionFailed assertion) {
-                    Assert.fail(assertion.getMessage());
-                }
-                return null;
+                return rhinoCallExpectingException(expectingException, functionName, args);
             }
         });
+    }
+
+    /**
+     * Call a Javascript function, identified by name, on a set of arguments.
+     * Optionally, expect it to throw an exception.
+     * 
+     * @param expectingException
+     * @param functionName
+     * @param args
+     * @return
+     */
+    public Object rhinoCallExpectingException(final Object expectingException, final String functionName,
+                                              final Object... args) {
+        Object fObj = rhinoScope.get(functionName, rhinoScope);
+        if (!(fObj instanceof Function)) {
+            throw new RuntimeException("Missing test function " + functionName);
+        }
+        Function function = (Function)fObj;
+        try {
+            return function.call(rhinoContext, rhinoScope, rhinoScope, args);
+        } catch (RhinoException angryRhino) {
+            if (expectingException != null && angryRhino instanceof JavaScriptException) {
+                JavaScriptException jse = (JavaScriptException)angryRhino;
+                Assert.assertEquals(jse.getValue(), expectingException);
+                return null;
+            }
+            String trace = angryRhino.getScriptStackTrace();
+            Assert.fail("JavaScript error: " + angryRhino.toString() + " " + trace);
+        } catch (JavaScriptAssertionFailed assertion) {
+            Assert.fail(assertion.getMessage());
+        }
+        return null;
+    }
+
+    public Object rhinoCallInContext(String functionName, Object... args) {
+        return rhinoCallExpectingExceptionInContext(null, functionName, args);
     }
 
     public Object rhinoCall(String functionName, Object... args) {
@@ -278,7 +342,7 @@ public class JavascriptTestUtilities extends TestUtilities {
     }
 
     public <T> T rhinoCallConvert(String functionName, Class<T> clazz, Object... args) {
-        return clazz.cast(Context.jsToJava(rhinoCall(functionName, args), clazz));
+        return clazz.cast(Context.jsToJava(rhinoCallInContext(functionName, args), clazz));
     }
 
     public void loadJavascriptForService(ServiceInfo serviceInfo) {

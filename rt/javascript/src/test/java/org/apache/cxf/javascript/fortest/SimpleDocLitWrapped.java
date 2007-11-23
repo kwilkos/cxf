@@ -21,6 +21,7 @@ package org.apache.cxf.javascript.fortest;
 
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
+import javax.jws.WebResult;
 import javax.jws.WebService;
 import javax.xml.ws.RequestWrapper;
 import javax.xml.ws.ResponseWrapper;
@@ -32,6 +33,7 @@ import javax.xml.ws.ResponseWrapper;
 public interface SimpleDocLitWrapped {
     @RequestWrapper(className = "org.apache.cxf.javascript.fortest.BasicTypeFunctionReturnStringWrapper")
     @ResponseWrapper(className = "org.apache.cxf.javascript.fortest.StringWrapper")
+    @WebResult(name = "returnValue", targetNamespace = "uri:org.apache.cxf.javascript.testns")
     String basicTypeFunctionReturnString(@WebParam(name = "s") String s, 
                                          @WebParam(name = "i") int i, 
                                          @WebParam(name = "l") long l, 

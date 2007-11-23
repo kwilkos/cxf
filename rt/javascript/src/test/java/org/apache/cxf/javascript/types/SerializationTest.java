@@ -90,7 +90,7 @@ public class SerializationTest extends AbstractCXFSpringTest {
         bean.stringItem = "bean1>stringItem";
         bean.doubleItem = -1.0;
         String serialized = serializeObject(dataBinding, bean);
-        testUtilities.rhinoCall("deserializeTestBean1_1", serialized);
+        testUtilities.rhinoCallInContext("deserializeTestBean1_1", serialized);
 
         bean = new TestBean1();
         bean.stringItem = null;
@@ -104,7 +104,7 @@ public class SerializationTest extends AbstractCXFSpringTest {
         bean.optionalIntArrayItem[3] = 1;
         bean.doubleItem = -1.0;
         serialized = serializeObject(dataBinding, bean);
-        testUtilities.rhinoCall("deserializeTestBean1_2", serialized);
+        testUtilities.rhinoCallInContext("deserializeTestBean1_2", serialized);
     }
 
     private String serializeObject(DataBinding dataBinding, TestBean1 bean) throws XMLStreamException {
@@ -125,7 +125,7 @@ public class SerializationTest extends AbstractCXFSpringTest {
         DataBinding dataBinding = clientProxyFactory.getServiceFactory().getDataBinding();
         assertNotNull(dataBinding);
 
-        Object serialized = testUtilities.rhinoCall("serializeTestBean1_1");
+        Object serialized = testUtilities.rhinoCallInContext("serializeTestBean1_1");
         assertTrue(serialized instanceof String);
         String xml = (String)serialized;
         DataReader<XMLStreamReader> reader = dataBinding.createReader(XMLStreamReader.class);
@@ -144,7 +144,7 @@ public class SerializationTest extends AbstractCXFSpringTest {
         assertEquals(1, testBean.optionalIntArrayItem.length);
         assertEquals(543, testBean.optionalIntArrayItem[0]);
 
-        serialized = testUtilities.rhinoCall("serializeTestBean1_2");
+        serialized = testUtilities.rhinoCallInContext("serializeTestBean1_2");
         assertTrue(serialized instanceof String);
         xml = (String)serialized;
         reader = dataBinding.createReader(XMLStreamReader.class);
@@ -164,7 +164,7 @@ public class SerializationTest extends AbstractCXFSpringTest {
         assertEquals(0, testBean.optionalIntArrayItem[1]);
         assertEquals(345, testBean.optionalIntArrayItem[2]);
 
-        serialized = testUtilities.rhinoCall("serializeTestBean1_3");
+        serialized = testUtilities.rhinoCallInContext("serializeTestBean1_3");
         assertTrue(serialized instanceof String);
         xml = (String)serialized;
         reader = dataBinding.createReader(XMLStreamReader.class);

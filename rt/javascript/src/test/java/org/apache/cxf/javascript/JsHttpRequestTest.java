@@ -78,13 +78,13 @@ public class JsHttpRequestTest extends AbstractCXFSpringTest {
     // just one test function to avoid muddles with engine startup/shutdown
     @Test
     public void runTests() throws Exception {
-        testUtilities.rhinoCallExpectingException("SYNTAX_ERR", "testOpaqueURI");
-        testUtilities.rhinoCallExpectingException("SYNTAX_ERR", "testNonAbsolute");
-        testUtilities.rhinoCallExpectingException("SYNTAX_ERR", "testNonHttp");
-        testUtilities.rhinoCallExpectingException("INVALID_STATE_ERR", "testSendNotOpenError");
-        testUtilities.rhinoCall("testStateNotificationSync");
+        testUtilities.rhinoCallExpectingExceptionInContext("SYNTAX_ERR", "testOpaqueURI");
+        testUtilities.rhinoCallExpectingExceptionInContext("SYNTAX_ERR", "testNonAbsolute");
+        testUtilities.rhinoCallExpectingExceptionInContext("SYNTAX_ERR", "testNonHttp");
+        testUtilities.rhinoCallExpectingExceptionInContext("INVALID_STATE_ERR", "testSendNotOpenError");
+        testUtilities.rhinoCallInContext("testStateNotificationSync");
         Notifier notifier = testUtilities.rhinoCallConvert("testAsyncHttpFetch1", Notifier.class);
-        testUtilities.rhinoCall("testAsyncHttpFetch2");
+        testUtilities.rhinoCallInContext("testAsyncHttpFetch2");
         boolean notified = notifier.waitForJavascript(10);
         assertTrue(notified);
         assertEquals("HEADERS_RECEIVED", Boolean.TRUE, 
@@ -101,7 +101,7 @@ public class JsHttpRequestTest extends AbstractCXFSpringTest {
                      testUtilities.rhinoEvaluateConvert("asyncStatusText", String.class));
         assertTrue("headers", testUtilities.rhinoEvaluateConvert("asyncResponseHeaders", String.class)
                    .contains("Content-Type: text/html"));
-        Object httpObj = testUtilities.rhinoCall("testSyncHttpFetch");
+        Object httpObj = testUtilities.rhinoCallInContext("testSyncHttpFetch");
         assertNotNull(httpObj);
         assertTrue(httpObj instanceof String);
         String httpResponse = (String) httpObj;

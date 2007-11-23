@@ -266,8 +266,9 @@ public class SchemaJavascriptBuilder {
         code.append("function " + typeObjectName + "_deserialize (cxfjsutils, element) {\n");
         // create the object we are deserializing into.
         utils.appendLine("var newobject = new " + typeObjectName + "();");
-        
+        utils.appendLine("cxfjsutils.trace('element: ' + cxfjsutils.traceElementName(element));");
         utils.appendLine("var curElement = cxfjsutils.getFirstElementChild(element);");
+        
         utils.appendLine("var item;");
         
         for (int i = 0; i < sequence.getItems().getCount(); i++) {

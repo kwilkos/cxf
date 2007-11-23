@@ -367,6 +367,7 @@ public class JsXMLHttpRequest extends ScriptableObject {
             CharBuffer contentChars = 
                 contentCharset.decode(ByteBuffer.wrap(contentBytes)); // not the most efficient way.
             responseText = contentChars.toString();
+            LOG.fine(responseText);
             
             // throw away any encoding modifier.
             String contentType = connection.getContentType().split(";")[0];

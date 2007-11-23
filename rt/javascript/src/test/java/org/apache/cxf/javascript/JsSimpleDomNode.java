@@ -100,6 +100,16 @@ public class JsSimpleDomNode extends ScriptableObject {
         return wrappedNode.getNodeValue();
     }
     
+    // in a more complete version of this, we'd use a different object type to wrap documents.
+    public Object jsGet_documentElement() {
+        if(9 /* Document */ != wrappedNode.getNodeType()) {
+            return null;
+        } else {
+            establishChildren();
+            return children[0]; // it is, after all, just a convenience feature.
+        }
+    }
+    
     public Object[] jsGet_childNodes() {
         establishChildren();
         return children;

@@ -36,6 +36,7 @@ import org.apache.cxf.test.AbstractCXFSpringTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.mozilla.javascript.Context;
+import org.mozilla.javascript.Scriptable;
 import org.springframework.context.support.GenericApplicationContext;
 
 public class DocLitWrappedClientTest extends AbstractCXFSpringTest {
@@ -94,8 +95,11 @@ public class DocLitWrappedClientTest extends AbstractCXFSpringTest {
                 String errorText = testUtilities.rhinoEvaluateConvert("globalErrorStatusText", String.class);
                 assertNull(errorText);
 
-                Object responseObject = testUtilities.rhinoEvaluate("globalResponseObject");
+                Scriptable responseObject = (Scriptable)testUtilities.rhinoEvaluate("globalResponseObject");
                 assertNotNull(responseObject);
+                String returnString = 
+                    testUtilities.rhinoCallMethodInContext(String.class, responseObject, "getReturnValue");
+                assertEquals("eels", returnString);
                 return null; // well, null AND void.
             }
         });

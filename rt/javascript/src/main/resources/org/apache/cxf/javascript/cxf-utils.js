@@ -50,9 +50,9 @@ CxfApacheOrgUtil.prototype.getNodeLocalName = org_apache_cxf_getNodeLocalName;
 function org_apache_cxf_element_name_for_trace(node)
 {
 	if(node == null)
-		return "null";
+		return "Null";
 	else if(node == undefined)
-		return "undefined";
+		return "Undefined";
 	else {
 	    var n = '';
 	    if(node.namespaceURI != null && node.namespaceURI != '') {
