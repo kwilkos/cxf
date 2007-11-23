@@ -40,7 +40,7 @@ import org.mozilla.javascript.Scriptable;
 import org.springframework.context.support.GenericApplicationContext;
 
 public class DocLitWrappedClientTest extends AbstractCXFSpringTest {
-    
+
     private static final Logger LOG = LogUtils.getL7dLogger(DocLitWrappedClientTest.class);
 
     // shadow declaration from base class.
@@ -75,19 +75,24 @@ public class DocLitWrappedClientTest extends AbstractCXFSpringTest {
     // just one test function to avoid muddles with engine startup/shutdown
     @Test
     public void runTests() throws Exception {
+        callMethodWithWrappers();
+        
+        callMethodWithoutWrappers();
+    }
+
+    private void callMethodWithoutWrappers() {
         testUtilities.runInsideContext(Void.class, new JSRunnable<Void>() {
             public Void run(Context context) {
                 EndpointImpl endpoint = getBean(EndpointImpl.class, "dlw-service-endpoint");
-                LOG.info("About to call test1 " + endpoint.getAddress());
-
+                LOG.info("About to call test2 " + endpoint.getAddress());
                 Notifier notifier = 
-                    testUtilities.rhinoCallConvert("test1", Notifier.class, 
+                    testUtilities.rhinoCallConvert("test2", Notifier.class, 
                                                    testUtilities.javaToJS(endpoint.getAddress()), 
-                                                   testUtilities.javaToJS(Double.valueOf(7.0)),
-                                                   testUtilities.javaToJS(Float.valueOf((float)11.0)), 
-                                                   testUtilities.javaToJS(Integer.valueOf(42)),
-                                                   testUtilities.javaToJS(Long.valueOf(240000)),
-                                                   "This is the cereal shot from guns");
+                                                   testUtilities.javaToJS(Double.valueOf(17.0)),
+                                                   testUtilities.javaToJS(Float.valueOf((float)111.0)),
+                                                   testUtilities.javaToJS(Integer.valueOf(142)),
+                                                   testUtilities.javaToJS(Long.valueOf(1240000)),
+                                                   "This is the cereal shot from gnus");
                 boolean notified = notifier.waitForJavascript(1000 * 10);
                 assertTrue(notified);
                 Integer errorStatus = testUtilities.rhinoEvaluateConvert("globalErrorStatus", Integer.class);
@@ -97,10 +102,44 @@ public class DocLitWrappedClientTest extends AbstractCXFSpringTest {
 
                 Scriptable responseObject = (Scriptable)testUtilities.rhinoEvaluate("globalResponseObject");
                 assertNotNull(responseObject);
-                String returnString = 
-                    testUtilities.rhinoCallMethodInContext(String.class, responseObject, "getReturnValue");
-                assertEquals("eels", returnString);
+                // by default, for doc/lit/wrapped, we end up with a part object with a slot named 
+                // 'return'.
+                String returnString = testUtilities.rhinoCallMethodInContext(String.class, responseObject,
+                                                                             "getReturn");
+                assertEquals("cetaceans", returnString);
+
                 return null; // well, null AND void.
+            }
+        });
+    }
+
+    private void callMethodWithWrappers() {
+        testUtilities.runInsideContext(Void.class, new JSRunnable<Void>() {
+            public Void run(Context context) {
+                EndpointImpl endpoint = getBean(EndpointImpl.class, "dlw-service-endpoint");
+                LOG.info("About to call test1 " + endpoint.getAddress());
+
+                Notifier notifier = testUtilities.rhinoCallConvert("test1", Notifier.class, testUtilities
+                    .javaToJS(endpoint.getAddress()), testUtilities.javaToJS(Double.valueOf(7.0)),
+                                                                   testUtilities.javaToJS(Float
+                                                                       .valueOf((float)11.0)), testUtilities
+                                                                       .javaToJS(Integer.valueOf(42)),
+                                                                   testUtilities.javaToJS(Long
+                                                                       .valueOf(240000)),
+                                                                   "This is the cereal shot from guns");
+                boolean notified = notifier.waitForJavascript(1000 * 10);
+                assertTrue(notified);
+                Integer errorStatus = testUtilities.rhinoEvaluateConvert("globalErrorStatus", Integer.class);
+                assertNull(errorStatus);
+                String errorText = testUtilities.rhinoEvaluateConvert("globalErrorStatusText", String.class);
+                assertNull(errorText);
+
+                Scriptable responseObject = (Scriptable)testUtilities.rhinoEvaluate("globalResponseObject");
+                assertNotNull(responseObject);
+                String returnString = testUtilities.rhinoCallMethodInContext(String.class, responseObject,
+                                                                             "getReturnValue");
+                assertEquals("eels", returnString);
+                return null;
             }
         });
     }

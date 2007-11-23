@@ -26,7 +26,8 @@ import javax.xml.bind.annotation.XmlType;
  * Wrapper class.
  */
 @XmlRootElement(namespace = "uri:org.apache.cxf.javascript.testns")
-@XmlType(namespace = "uri:org.apache.cxf.javascript.testns")
+// specify alphabetical order explicitly to remind us that there is JavaScript code that knows this order!
+@XmlType(namespace = "uri:org.apache.cxf.javascript.testns", propOrder = {"d", "f", "i", "l", "s" })
 public class BasicTypeFunctionReturnStringWrapper {
     private String s;
     private int i;

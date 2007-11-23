@@ -377,8 +377,7 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
         getElementsForParts(elements, parts);
 
         // if not wrapped, the param array matches up with the parts. If
-        // wrapped, the members
-        // of it have to be packed into an object.
+        // wrapped, the members of it have to be packed into an object.
 
         if (isWrapped) {
             String partJavascriptVar = elements.get(0).getJavascriptName();

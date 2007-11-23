@@ -39,6 +39,13 @@ public interface SimpleDocLitWrapped {
                                          @WebParam(name = "l") long l, 
                                          @WebParam(name = "f") float f, 
                                          @WebParam(name = "d") double d);
+    
+    String basicTypeFunctionReturnStringNoWrappers(@WebParam(name = "s") String s, 
+                                                   @WebParam(name = "i") int i, 
+                                                   @WebParam(name = "l") long l, 
+                                                   @WebParam(name = "f") float f, 
+                                                   @WebParam(name = "d") double d);
+
     @WebMethod
     TestBean1 functionReturnTestBean1();
     int basicTypeFunctionReturnInt(@WebParam(name = "s") String s, 

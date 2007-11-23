@@ -29,7 +29,7 @@ var globalResponseObject = null;
 
 function test1ErrorCallback(httpStatus, httpStatusText) 
 {
-    org_apache_cxf_trace.trace("test1 error");
+    org_apache_cxf_trace.trace("test1/2 error");
 	globalErrorStatus = httpStatus;
 	globalStatusText = httpStatusText;
 	globalNotifier.notify();
@@ -40,7 +40,7 @@ function test1ErrorCallback(httpStatus, httpStatusText)
 // from Java, I think.
 function test1SuccessCallback(responseObject) 
 {
-    org_apache_cxf_trace.trace("test1 success");
+    org_apache_cxf_trace.trace("test1/2 success");
 	globalResponseObject = responseObject;
 	globalNotifier.notify();
 }
@@ -52,8 +52,24 @@ function test1(url, doubleArg, floatArg, intArg, longArg, stringArg)
 	
 	var intf = new org_apache_cxf_javascript_fortest_SimpleDocLitWrapped();
 	intf.url = url;
-	intf.basicTypeFunctionReturnString(test1SuccessCallback, test1ErrorCallback, 
-	                                   doubleArg, floatArg, intArg, longArg, stringArg);
+	// param order is from propOrder on the wrapper class.
+	intf.basicTypeFunctionReturnString(test1SuccessCallback, test1ErrorCallback,
+									   doubleArg, floatArg, intArg, longArg, stringArg
+									   ); 
+    // Return the notifier as a convenience to the Java code.
+	return globalNotifier;
+}
+
+function test2(url, doubleArg, floatArg, intArg, longArg, stringArg) 
+{
+	org_apache_cxf_trace.trace("Enter test2.");
+	globalNotifier = new org_apache_cxf_notifier();
+	
+	var intf = new org_apache_cxf_javascript_fortest_SimpleDocLitWrapped();
+	intf.url = url;
+	// param order from the interface
+	intf.basicTypeFunctionReturnStringNoWrappers(test1SuccessCallback, test1ErrorCallback, 
+	                                   			 stringArg, intArg, longArg, floatArg, doubleArg);
     // Return the notifier as a convenience to the Java code.
 	return globalNotifier;
 }

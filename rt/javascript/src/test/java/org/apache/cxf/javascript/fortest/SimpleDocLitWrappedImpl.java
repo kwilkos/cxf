@@ -56,6 +56,16 @@ public class SimpleDocLitWrappedImpl implements SimpleDocLitWrapped {
     }
 
     /** {@inheritDoc}*/
+    public String basicTypeFunctionReturnStringNoWrappers(String s, int i, long l, float f, double d) {
+        lastString = s;
+        lastInt = i;
+        lastLong = l;
+        lastFloat = f;
+        lastDouble = d;
+        return "cetaceans"; 
+    }
+
+    /** {@inheritDoc}*/
     public void beanFunction(TestBean1 bean, TestBean1[] beans) {
         lastBean1 = bean;
         lastBean1Array = beans;
