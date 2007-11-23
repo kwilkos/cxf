@@ -31,7 +31,7 @@ import javax.xml.namespace.QName;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 
-public class OperationInfo extends AbstractPropertiesHolder {
+public class OperationInfo extends AbstractPropertiesHolder implements NamedItem {
     private static final Logger LOG = LogUtils.getL7dLogger(OperationInfo.class);
     InterfaceInfo intf;
     QName opName;

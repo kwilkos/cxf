@@ -82,6 +82,8 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
     private String opFunctionPropertyName;
     private String opFunctionGlobalName;
 
+    private boolean isInUnwrappedOperation;
+
     public ServiceJavascriptBuilder(ServiceInfo serviceInfo, NamespacePrefixAccumulator prefixAccumulator,
                                     NameManager nameManager) {
         super(serviceInfo);
@@ -125,10 +127,6 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
         code.append("}\n\n");
 
         serviceSchemaInfo = serviceInfo.getSchema(serviceInfo.getTargetNamespace());
-    }
-
-    @Override
-    public void begin(MessagePartInfo part) {
     }
 
     private static class ElementAndNames {
@@ -177,6 +175,7 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
     public void end(OperationInfo op) {
         // we only process the wrapped operation, not the unwrapped alternative.
         if (op.isUnwrapped()) {
+            isInUnwrappedOperation = false;
             return;
         }
 
@@ -540,6 +539,7 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
     @Override
     public void begin(OperationInfo op) {
         if (op.isUnwrapped()) {
+            isInUnwrappedOperation = true;
             return;
         }
         currentOperation = op;
@@ -555,6 +555,10 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
     
     @Override
     public void begin(MessageInfo msg) {
+        if (isInUnwrappedOperation) {
+            return;
+        }
+        LOG.fine("Message " + msg.getName().toString());
         Map<String, MessageInfo> nameMap;
         Set<MessageInfo> conflicts;
         if (msg.getType() == MessageInfo.Type.INPUT) {

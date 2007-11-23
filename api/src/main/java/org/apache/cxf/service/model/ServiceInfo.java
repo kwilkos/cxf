@@ -30,7 +30,7 @@ import javax.xml.namespace.QName;
 
 import org.apache.cxf.common.xmlschema.SchemaCollection;
 
-public class ServiceInfo extends AbstractDescriptionElement {
+public class ServiceInfo extends AbstractDescriptionElement implements NamedItem {
     QName name;
     String targetNamespace;
     InterfaceInfo intf;

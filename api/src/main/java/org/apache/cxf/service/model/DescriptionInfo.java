@@ -24,7 +24,7 @@ import java.util.List;
 
 import javax.xml.namespace.QName;
 
-public class DescriptionInfo extends AbstractPropertiesHolder {
+public class DescriptionInfo extends AbstractPropertiesHolder implements NamedItem {
     QName name;
     String uri;
 

@@ -29,12 +29,14 @@ import javax.xml.namespace.QName;
 
 import org.apache.cxf.common.util.StringUtils;
 
+/**
+ * A message for an operation.
+ */
 public class MessageInfo extends AbstractMessageContainer {
     
     public static enum Type {
         INPUT,
-        OUTPUT,
-        FAULT;
+        OUTPUT;
     }
     
     private Type type;

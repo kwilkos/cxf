@@ -28,7 +28,7 @@ import java.util.Map;
 import javax.xml.namespace.QName;
 
 
-public abstract class AbstractMessageContainer extends AbstractPropertiesHolder {
+public abstract class AbstractMessageContainer extends AbstractPropertiesHolder implements NamedItem {
     protected QName mName;
     private OperationInfo operation;
     private Map<QName, MessagePartInfo> messageParts 
@@ -47,7 +47,6 @@ public abstract class AbstractMessageContainer extends AbstractPropertiesHolder 
     public QName getName() {
         return mName;
     }
-    
     
     /**
      * Returns the operation of this container.

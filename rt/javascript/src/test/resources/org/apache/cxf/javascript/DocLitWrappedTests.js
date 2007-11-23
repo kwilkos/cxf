@@ -45,6 +45,8 @@ function test1SuccessCallback(responseObject)
 
 function test1(url, doubleArg, floatArg, intArg, longArg, stringArg) 
 {
+	org_apache_cxf_trace.trace("Enter test1.");
+	throw "frustration";
 	globalNotifier = new org_apache_cxf_notifier();
 	
 	var intf = new org_apache_cxf_javascript_fortest_SimpleDocLitWrapped();

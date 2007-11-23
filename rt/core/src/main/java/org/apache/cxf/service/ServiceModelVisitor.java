@@ -28,7 +28,29 @@ import org.apache.cxf.service.model.UnwrappedOperationInfo;
 
 /**
  * Implements the Visitor pattern for the Service model.
- *
+ * The visit order is as follows:
+ * <pre>
+ * 1) Begin the overall service info.
+ * 2) Begin the service's interface.
+ * 3) For each operation, begin the operation.
+ * 3.1) begin the input message.
+ * 3.1.1) begin and end each part of the input message.
+ * 3.2) end the input message.
+ * 3.3) begin the output message.
+ * 3.3.1) begin and end each part of the output message.
+ * 3.4) end the output message
+ * 3.5) begin each fault. (3.5-3.6 repeated for each fault)
+ * 3.5.1) begin and end each part of each fault
+ * 3.6) end each fault.
+ * 3.7) if a wrapped operation, begin the corresponding unwrapped operation.
+ * 3.8) process the entire unwrapped operation starting at (3).
+ * 3.9) end the unwrapped operation.
+ * 4) end the operation.
+ * 5) end the interface.
+ * 6) end the service info.
+ * </pre>
+ * Unwrapped operations <i>share messages</i> with their corresponding wrapped messages,
+ * so beware of processing the same messages twice as if unique.
  */
 public class ServiceModelVisitor {
     protected ServiceInfo serviceInfo;
@@ -50,6 +72,7 @@ public class ServiceModelVisitor {
             end(o);
         }
         
+        end(serviceInfo.getInterface());
         end(serviceInfo);
     }
 

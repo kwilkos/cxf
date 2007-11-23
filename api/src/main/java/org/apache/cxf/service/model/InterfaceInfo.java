@@ -30,7 +30,7 @@ import javax.xml.namespace.QName;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 
-public class InterfaceInfo extends AbstractDescriptionElement {
+public class InterfaceInfo extends AbstractDescriptionElement implements NamedItem {
     private static final Logger LOG = LogUtils.getL7dLogger(InterfaceInfo.class);
     
     QName name;

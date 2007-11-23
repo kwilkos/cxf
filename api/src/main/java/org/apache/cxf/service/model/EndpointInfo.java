@@ -24,7 +24,7 @@ import javax.xml.namespace.QName;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
 import org.apache.cxf.wsdl.EndpointReferenceUtils;
 
-public class EndpointInfo extends AbstractDescriptionElement {
+public class EndpointInfo extends AbstractDescriptionElement implements NamedItem {
     String transportId;
     ServiceInfo service;
     BindingInfo binding;

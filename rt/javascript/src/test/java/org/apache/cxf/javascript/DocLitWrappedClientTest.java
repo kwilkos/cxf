@@ -82,7 +82,7 @@ public class DocLitWrappedClientTest extends AbstractCXFSpringTest {
                                                    testUtilities.javaToJS(Integer.valueOf(42)),
                                                    testUtilities.javaToJS(Long.valueOf(240000)),
                                                    "This is the cereal shot from guns");
-                boolean notified = notifier.waitForJavascript(10);
+                boolean notified = notifier.waitForJavascript(0 /* 1000 * 10 */);
                 assertTrue(notified);
                 Integer errorStatus = testUtilities.rhinoEvaluateConvert("globalErrorStatus", Integer.class);
                 assertNull(errorStatus);
