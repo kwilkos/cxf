@@ -193,7 +193,7 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
         if (inputMessage != null) {
             parts = inputMessage.getMessageParts();
             if (isWrapped) {
-                wrapperClassName = setupWrapperElement(op, inputParameterNames, parts);
+                wrapperClassName = setupWrapperElement(inputParameterNames, parts);
             }
 
             buildParameterList(inputParameterNames, parameterList);
@@ -428,7 +428,7 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
 
     private void getElementsForParts(List<ElementAndNames> elements, List<MessagePartInfo> parts) {
         for (MessagePartInfo mpi : parts) {
-            XmlSchemaElement element;
+            XmlSchemaElement element = null;
             if (mpi.isElement()) {
                 element = (XmlSchemaElement)mpi.getXmlSchema();
                 if (element == null) {
@@ -442,15 +442,8 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
                 // other work to do.
                 LOG.severe("Missing element " + mpi.getElementQName().toString() + " in "
                            + mpi.getName().toString());
-                // there is still an element in there, but it's not a very
-                // interesting element
-                element = new XmlSchemaElement();
-                XmlSchemaElement dummyElement = (XmlSchemaElement)mpi.getXmlSchema();
-                element.setMaxOccurs(dummyElement.getMaxOccurs());
-                element.setMinOccurs(dummyElement.getMinOccurs());
-                element.setNillable(dummyElement.isNillable());
-                element.setSchemaType(xmlSchemaCollection.getTypeByQName(mpi.getTypeQName()));
-                element.setQName(mpi.getName());
+                unsupportedConstruct("MISSING_PART_ELEMENT", mpi.getName().toString());
+               
             }
             assert element != null;
             assert element.getQName() != null;
@@ -461,8 +454,7 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
         }
     }
 
-    private String setupWrapperElement(OperationInfo op, List<String> inputParameterNames,
-                                       List<MessagePartInfo> parts) {
+    private String setupWrapperElement(List<String> inputParameterNames, List<MessagePartInfo> parts) {
         String wrapperClassName;
         // expect one input part.
         assert parts.size() == 1;
@@ -471,7 +463,8 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
         assert wrapperPart.isElement();
         wrapperElement = (XmlSchemaElement)wrapperPart.getXmlSchema();
         XmlSchemaComplexType wrapperType = (XmlSchemaComplexType)XmlSchemaUtils
-            .getElementType(xmlSchemaCollection, op.getName().getNamespaceURI(), wrapperElement, null);
+            .getElementType(xmlSchemaCollection, 
+                            currentOperation.getName().getNamespaceURI(), wrapperElement, null);
         wrapperClassName = nameManager.getJavascriptName(wrapperType);
         XmlSchemaSequence wrapperTypeSequence = XmlSchemaUtils.getSequence(wrapperType);
         for (int i = 0; i < wrapperTypeSequence.getItems().getCount(); i++) {
@@ -482,7 +475,11 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
             }
 
             XmlSchemaElement elChild = (XmlSchemaElement)thing;
-            inputParameterNames.add(elChild.getName());
+            if (elChild.getRefName() != null) {
+                inputParameterNames.add(elChild.getRefName().getLocalPart());
+            } else {
+                inputParameterNames.add(elChild.getQName().getLocalPart());
+            }
         }
         return wrapperClassName;
     }

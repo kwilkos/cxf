@@ -36,7 +36,8 @@ import org.apache.ws.commons.schema.XmlSchemaSequence;
 import org.apache.ws.commons.schema.XmlSchemaType;
 
 /**
- * 
+ * There are a number of pitfalls in Commons Xml Schema. This class contains some utilities
+ * that avoid some of the problems and centralizes some repetitive tasks. 
  */
 public final class XmlSchemaUtils {
     public static final XmlSchemaForm QUALIFIED = new XmlSchemaForm(XmlSchemaForm.QUALIFIED);
@@ -94,7 +95,8 @@ public final class XmlSchemaUtils {
     }
     
     /**
-     * This copes with an observed phenomenon in the schema built by the ReflectionServiceFactoryBean. It 
+     * This copes with an observed phenomenon in the schema built by the 
+     * ReflectionServiceFactoryBean. It 
      * is creating element such that: (a) the type is not set. (b) the refName is set. 
      * (c) the namespaceURI in the refName is set empty. This apparently indicates 
      * 'same Schema' to everyone else, so thus function implements
