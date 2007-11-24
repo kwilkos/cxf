@@ -49,7 +49,6 @@ import org.apache.cxf.service.Service;
 import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.EndpointInfo;
-import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.staxutils.StaxUtils;
 import org.apache.cxf.wsdl11.WSDLServiceFactory;
 import org.apache.hello_world_doc_lit_bare.types.TradePriceData;
@@ -67,7 +66,6 @@ public class DocLiteralInInterceptorTest extends Assert {
     PhaseInterceptorChain chain;
     MessageImpl message;
     Bus bus;
-    ServiceInfo serviceInfo;
     BindingInfo bindingInfo;
     Service service;
     EndpointInfo endpointInfo;

@@ -64,17 +64,6 @@ public class DocLitWrappedClientTest extends AbstractCXFSpringTest {
         return furl.toString();
     }
 
-    // just one test function to avoid muddles with engine startup/shutdown
-    //@Test
-    public void runTests() throws Exception {
-
-        callMethodWithWrappers();
-        callMethodWithoutWrappers();
-        callTest2WithNullString();
-        callIntReturnMethod();
-        callFunctionWithBeans();
-    }
-
     @Before
     public void setupRhino() throws Exception {
         testUtilities.setBus(getBean(Bus.class, "cxf"));

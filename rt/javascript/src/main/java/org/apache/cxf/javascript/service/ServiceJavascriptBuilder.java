@@ -409,7 +409,9 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
 
         int px = 0;
         for (ElementAndNames partElement : elements) {
-            utils.generateCodeToSerializeElement("cxfutils", partElement.getElement(), "args[" + px + "]",
+            LOG.fine("Serialize part - message " + msg.getName() + " part " + partElement.getXmlName()); 
+            utils.generateCodeToSerializeElement("cxfutils", partElement.getElement(),
+                                                 "args[" + px + "]",
                                                  partElement.getXmlName(), xmlSchemaCollection,
                                                  serviceSchemaInfo.getNamespaceURI(), null);
             px++;

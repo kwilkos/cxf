@@ -82,7 +82,7 @@ public class DocLiteralInInterceptor extends AbstractInDatabindingInterceptor {
             return;
         }
 
-        //bop might be a unwrpped, wrap it back so that we can get correct info 
+        //bop might be a unwrapped, wrap it back so that we can get correct info 
         if (bop != null && bop.isUnwrapped()) {
             bop = bop.getWrappedOperation();
         }
