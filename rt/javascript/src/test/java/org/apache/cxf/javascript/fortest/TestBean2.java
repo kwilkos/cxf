@@ -26,6 +26,7 @@ import javax.xml.bind.annotation.XmlType;
  */
 @XmlType(namespace = "uri:org.apache.cxf.javascript.testns3")
 public class TestBean2 {
+ 
     public TestBean2() {
         stringItem = "testBean2.stringItem";
     }
@@ -33,6 +34,12 @@ public class TestBean2 {
     public TestBean2(String id) {
         stringItem = id;
     }
+    
+    @Override
+    public String toString() {
+        return "TestBean2 " + stringItem;
+    }
+
     //CHECKSTYLE:OFF
     public String stringItem;
     //CHECKSTYLE:ON

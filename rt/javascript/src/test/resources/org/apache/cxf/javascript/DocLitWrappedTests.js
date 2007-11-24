@@ -106,12 +106,13 @@ function test4(url, wrap, beanArg, beansArg)
 	
 	var intf;
     intf = new org_apache_cxf_javascript_fortest_SimpleDocLitWrapped();
-	else
-	  intf = new org_apache_cxf_javascript_fortest_SimpleDocLitWrapped();
 	  
 	intf.url = url;
 	// param order from the interface
-	intf.beanFunction(test1SuccessCallback, test1ErrorCallback, beanArg, beansArg); 
+	if(wrap)
+		intf.beanFunctionWithWrapper(test1SuccessCallback, test1ErrorCallback, beanArg, beansArg); 
+    else	
+	  intf.beanFunction(test1SuccessCallback, test1ErrorCallback, beanArg, beansArg); 
     // Return the notifier as a convenience to the Java code.
 	return globalNotifier;
 }

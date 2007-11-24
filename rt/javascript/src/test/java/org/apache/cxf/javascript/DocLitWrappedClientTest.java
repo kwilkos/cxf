@@ -42,7 +42,6 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
 import org.springframework.context.support.GenericApplicationContext;
 
-@org.junit.Ignore
 public class DocLitWrappedClientTest extends AbstractCXFSpringTest {
 
     private static final Logger LOG = LogUtils.getL7dLogger(DocLitWrappedClientTest.class);
@@ -146,6 +145,7 @@ public class DocLitWrappedClientTest extends AbstractCXFSpringTest {
         return null;
     }
     
+    @org.junit.Ignore
     @Test
     public void callFunctionWithBeans() {
         LOG.info("about to call test4/beanFunction");

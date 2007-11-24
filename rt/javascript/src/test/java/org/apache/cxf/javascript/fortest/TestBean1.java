@@ -19,6 +19,8 @@
 
 package org.apache.cxf.javascript.fortest;
 
+import java.util.Arrays;
+
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
@@ -64,21 +66,105 @@ public class TestBean1 {
             return false;
         }
         TestBean1 other = (TestBean1) obj;
-        return stringItem.equals(other.stringItem) 
-            && intItem == other.intItem
+        boolean equalSoFar = 
+            intItem == other.intItem
             && longItem == other.longItem
-            && base64Item == other.base64Item
             && optionalIntItem == other.optionalIntItem
-            && optionalIntArrayItem == other.optionalIntArrayItem
             && doubleItem == other.doubleItem
-            && beanTwoItem.equals(other.beanTwoItem)
-            && beanTwoNotRequiredItem.equals(other.beanTwoNotRequiredItem);
+            && beanTwoItem.equals(other.beanTwoItem);
+        if (!equalSoFar) {
+            return false;
+        }
+        
+        if (null == base64Item) {
+            if (null != other.base64Item) {
+                return false;
+            }
+        } else {
+            if (!base64Item.equals(other.base64Item)) {
+                return false;
+            }
+        }
+
+        if (null == stringItem) {
+            if (null != other.stringItem) {
+                return false;
+            }
+        } else {
+            if (!stringItem.equals(other.stringItem)) {
+                return false;
+            }
+        }
+
+        if (null == optionalIntArrayItem) {
+            if (null != other.optionalIntArrayItem) {
+                return false;
+            }
+        } else {
+            if (!Arrays.equals(optionalIntArrayItem, other.optionalIntArrayItem)) {
+                return false;
+            }
+        }
+
+        // decisions are simpler for the last one.
+        if (null == beanTwoNotRequiredItem) {
+            return other.beanTwoNotRequiredItem == null;
+        } else {
+            return beanTwoNotRequiredItem.equals(other.beanTwoNotRequiredItem);
+        }
     }
 
     @Override
     public int hashCode() {
         // intentionally stupid. We don't use this object in collections.
         return super.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("TestBean1");
+        builder.append(" stringItem ");
+        builder.append(stringItem == null ? "Null" : stringItem);
+        builder.append(" intItem ");
+        builder.append(intItem);
+        builder.append(" longItem ");
+        builder.append(longItem);
+        builder.append(" base64Item ");
+        if (base64Item == null) {
+            builder.append("Null");
+        } else {
+            for (byte b : base64Item) {
+                builder.append(" ");
+                builder.append(Integer.toHexString(b));
+            }
+        }
+        
+        builder.append(" optionalIntItem ");
+        builder.append(optionalIntItem);
+        builder.append(" optionalIntArrayItem ");
+        if (optionalIntArrayItem == null) {
+            builder.append("Null");
+        } else {
+            for (int i : optionalIntArrayItem) {
+                builder.append(" ");
+                builder.append(i);
+            }
+        }
+        builder.append(" beanTwoItem ");
+        if (beanTwoItem == null) {
+            builder.append("Null");
+        } else {
+            builder.append(beanTwoItem.toString()); 
+        }
+        builder.append(" beanTwoNotRequiredItem ");
+        if (beanTwoNotRequiredItem == null) {
+            builder.append("Null");
+        } else {
+            builder.append(beanTwoNotRequiredItem.toString()); 
+        }
+        
+        return builder.toString();
     }
     
 }

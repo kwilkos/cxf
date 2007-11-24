@@ -369,7 +369,18 @@ public class JavascriptTestUtilities extends TestUtilities {
         StringBuilder builder = new StringBuilder();
         for (Object propid : scriptable.getIds()) {
             String propIdString = Context.toString(propid);
-            String propValue = Context.toString(scriptable.get(propIdString, scriptable));
+            int propIntKey = -1;
+            try {
+                propIntKey = Integer.parseInt(propIdString);
+            } catch (NumberFormatException nfe) {
+                // dummy.
+            }
+            String propValue;
+            if (propIntKey >= 0) {
+                propValue = Context.toString(scriptable.get(propIntKey, scriptable));
+            } else {
+                propValue = Context.toString(scriptable.get(propIdString, scriptable));
+            }
             builder.append(propIdString);
             builder.append(": ");
             builder.append(propValue);
