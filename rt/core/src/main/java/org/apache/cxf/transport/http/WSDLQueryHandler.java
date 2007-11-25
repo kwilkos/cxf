@@ -24,10 +24,8 @@ import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.StringTokenizer;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -88,14 +86,20 @@ public class WSDLQueryHandler implements StemMatchingQueryHandler {
                 || baseUri.toLowerCase().contains("xsd=")))) {
             
             int idx = baseUri.indexOf("?");
-            Map<String, String> map = parseQueryString(baseUri.substring(idx + 1));
+            Map<String, String> map = UrlUtilities.parseQueryString(baseUri.substring(idx + 1));
             if (map.containsKey("wsdl")
                 || map.containsKey("xsd")) {
                 if (contextMatchExact) {
                     return endpointInfo.getAddress().contains(ctx);
                 } else {
                     // contextMatchStrategy will be "stem"
-                    return endpointInfo.getAddress().contains(getStem(baseUri.substring(0, idx)));
+                    try {
+                        return endpointInfo.getAddress().
+                            contains(UrlUtilities.getStem(baseUri.substring(0, idx)));
+                    } catch (MalformedURLException mue) {
+                        LOG.log(Level.WARNING, "URL creation failed: ", mue);
+                        return false;
+                    }
                 }
             }
         }
@@ -106,7 +110,7 @@ public class WSDLQueryHandler implements StemMatchingQueryHandler {
                               EndpointInfo endpointInfo, OutputStream os) {
         try {
             int idx = baseUri.toLowerCase().indexOf("?");
-            Map<String, String> params = parseQueryString(baseUri.substring(idx + 1));
+            Map<String, String> params = UrlUtilities.parseQueryString(baseUri.substring(idx + 1));
             String base = baseUri.substring(0, baseUri.toLowerCase().indexOf("?"));
             String wsdl = params.get("wsdl");
             String xsd =  params.get("xsd");
@@ -344,40 +348,4 @@ public class WSDLQueryHandler implements StemMatchingQueryHandler {
     public boolean isRecognizedQuery(String baseUri, String ctx, EndpointInfo endpointInfo) {
         return isRecognizedQuery(baseUri, ctx, endpointInfo, false);
     }
-    
-      
-    private String getStem(String baseURI) {
-        
-        URL url = null;
-        try {
-            url = new URL(baseURI);
-        } catch (MalformedURLException e) {
-            LOG.log(Level.WARNING, "URL creation failed: ", e);
-        }
-        if (url != null) {
-            baseURI = url.getPath();
-            int idx = baseURI.lastIndexOf('/');
-            if (idx != -1) {
-                baseURI = baseURI.substring(0, idx);
-            }
-        }        
-        return baseURI;
-    }
-    
-    static Map<String, String> parseQueryString(String s) {
-        Map<String, String> ht = new HashMap<String, String>();
-        StringTokenizer st = new StringTokenizer(s, "&");
-        while (st.hasMoreTokens()) {
-            String pair = (String)st.nextToken();
-            int pos = pair.indexOf('=');
-            if (pos == -1) {
-                ht.put(pair.toLowerCase(), "");
-            } else {
-                ht.put(pair.substring(0, pos).toLowerCase(),
-                       pair.substring(pos + 1));
-            }
-        }
-        return ht;
-    }
-     
 }
