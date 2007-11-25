@@ -54,6 +54,8 @@ import org.apache.cxf.transport.local.LocalTransportFactory;
 import org.apache.cxf.wsdl.WSDLConstants;
 import org.apache.ws.commons.schema.XmlSchemaComplexType;
 import org.apache.ws.commons.schema.XmlSchemaElement;
+import org.apache.ws.commons.schema.XmlSchemaSimpleType;
+import org.apache.ws.commons.schema.XmlSchemaType;
 
 public class ServiceJavascriptBuilder extends ServiceModelVisitor {
     private static final Logger LOG = LogUtils.getL7dLogger(ServiceJavascriptBuilder.class);
@@ -79,13 +81,14 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
     private XmlSchemaComplexType inputWrapperComplexType;
 
     private MessagePartInfo outputWrapperPartInfo;
-    private String outputWrapperClassName;
     private XmlSchemaElement outputWrapperElement;
     private XmlSchemaComplexType outputWrapperComplexType;
 
     // Javascript parameter names for the input parameters,
     // derived from the parts.
     private List<String> inputParameterNames = new ArrayList<String>();
+    // when not wrapped, we use this to keep track of the bits.
+    private List<ElementAndNames> unwrappedElementsAndNames;
     
     private NamespacePrefixAccumulator prefixAccumulator;
     private BindingInfo xmlBindingInfo;
@@ -206,13 +209,10 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
         if (isWrapped) {
             collectWrapperElementInfo();
         } else {
-            //TODO:
-            // build parameter list from parts
+            collectUnwrappedInputInfo();
         }
 
-        if (op.getInput() != null) {
-            buildParameterList(parameterList);
-        }
+        buildParameterList(parameterList);
 
         MessageInfo outputMessage = op.getOutput();
         buildSuccessFunction(outputMessage);
@@ -223,8 +223,22 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
 
         createInputSerializer();
 
-        if (outputMessage != null) {
+        if (outputMessage != null && outputMessage.getMessageParts().size() != 0) {
             createResponseDeserializer(outputMessage);
+        }
+    }
+
+    /**
+     * visit the input message parts and collect relevant data.
+     */
+    private void collectUnwrappedInputInfo() {
+        unwrappedElementsAndNames = new ArrayList<ElementAndNames>();
+        if (currentOperation.getInput() != null) {
+            getElementsForParts(currentOperation.getInput(), unwrappedElementsAndNames);
+        }
+        
+        for (ElementAndNames ean : unwrappedElementsAndNames) {
+            inputParameterNames.add(ean.getJavascriptName());
         }
     }
 
@@ -369,21 +383,31 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
         List<ElementAndNames> elements = new ArrayList<ElementAndNames>();
         String functionName = outputDeserializerFunctionName(outputMessage);
         code.append("function " + functionName + "(cxfjsutils, partElement) {\n");
-        getElementsForParts(elements, parts);
+        getElementsForParts(outputMessage, elements);
         ElementAndNames element = elements.get(0);
-        XmlSchemaComplexType type = (XmlSchemaComplexType)element.getElement().getSchemaType();
+        XmlSchemaType type = element.getElement().getSchemaType();
         assert type != null;
-        String typeObjectName = nameManager.getJavascriptName(type);
-        assert outputWrapperClassName.equals(typeObjectName);
-        utils
-            .appendLine("var returnObject = " + typeObjectName + "_deserialize (cxfjsutils, partElement);\n");
+        if (type instanceof XmlSchemaComplexType) {
+            XmlSchemaComplexType complexType = (XmlSchemaComplexType)type;
+            String typeObjectName = nameManager.getJavascriptName(complexType);
+            utils
+                .appendLine("var returnObject = " 
+                            + typeObjectName 
+                            + "_deserialize (cxfjsutils, partElement);\n");
+        } else {
+            XmlSchemaSimpleType simpleType = (XmlSchemaSimpleType)type;
+            utils.appendLine("var returnText = cxfjsutils.getNodeText(partElement);");
+            utils.appendLine("var returnObject = " 
+                             + utils.javascriptParseExpression(simpleType, "returnText") + ";");
+        }
+
         utils.appendLine("return returnObject;");
         code.append("}\n");
     }
 
     private void createInputSerializer() {
         
-        // We are working on a wrapped method, then we use the wrapper element.
+        // If are working on a wrapped method, then we use the wrapper element.
         // If we are working on an unwrapped method, we will have to work from the unwrapped parts.
         
         MessageInfo message = currentOperation.getInput();
@@ -407,8 +431,6 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
                                  + "]);");
                 px++;
             }
-        } else {
-            // TODO: implement unwrapped.
         }
 
         if (soapBindingInfo != null) {
@@ -433,7 +455,16 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
                                                  serviceSchemaInfo.getNamespaceURI(),
                                                  null);
         } else {
-            // TODO: code unwrapped.
+            // Multiple parts violates WS-I, but we can still do them.
+            for (ElementAndNames ean : unwrappedElementsAndNames) {
+                utils.generateCodeToSerializeElement("cxfutils",
+                                                     ean.getElement(),
+                                                     ean.getJavascriptName(),
+                                                     ean.getXmlName(),
+                                                     xmlSchemaCollection,
+                                                     serviceSchemaInfo.getNamespaceURI(),
+                                                     null);
+            }
         }
 
 //        int px = 0;
@@ -455,8 +486,13 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
                     + serializerFunctionGlobalName + ";\n\n");
     }
 
-    private void getElementsForParts(List<ElementAndNames> elements, List<MessagePartInfo> parts) {
-        for (MessagePartInfo mpi : parts) {
+    /**
+     * Collect information about the parts of an unwrapped message.
+     * @param parts 
+     * @param elements
+     */
+    private void getElementsForParts(MessageInfo message, List<ElementAndNames> elements) {
+        for (MessagePartInfo mpi : message.getMessageParts()) {
             XmlSchemaElement element = null;
             if (mpi.isElement()) {
                 element = (XmlSchemaElement)mpi.getXmlSchema();
@@ -536,7 +572,6 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
                                                   outputWrapperElement, 
                                                   null);
             }
-            outputWrapperClassName = nameManager.getJavascriptName(outputWrapperComplexType);
         }
     }
 
