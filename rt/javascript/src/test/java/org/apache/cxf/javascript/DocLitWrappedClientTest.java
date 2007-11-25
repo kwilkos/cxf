@@ -134,7 +134,7 @@ public class DocLitWrappedClientTest extends AbstractCXFSpringTest {
         return null;
     }
     
-    @org.junit.Ignore
+    @org.junit.Ignore // problems with names on auto-generated wrappers!
     @Test
     public void callFunctionWithBeans() {
         LOG.info("about to call test4/beanFunction");
@@ -251,7 +251,7 @@ public class DocLitWrappedClientTest extends AbstractCXFSpringTest {
             }
         });
     }
-
+    
     @Test
     public void callTest2WithNullString() {
         testUtilities.runInsideContext(Void.class, new JSRunnable<Void>() {

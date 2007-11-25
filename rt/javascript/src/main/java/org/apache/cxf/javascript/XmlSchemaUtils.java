@@ -64,7 +64,6 @@ public final class XmlSchemaUtils {
         Message message = new Message(messageKey, LOG, subject.getQName(), 
                                       cleanedUpSchemaSource(subject));
         throw new UnsupportedConstruct(message);
-        
     }
     
     public static void unsupportedConstruct(String messageKey, String what, XmlSchemaType subject) {
@@ -129,6 +128,15 @@ public final class XmlSchemaUtils {
                                                String referencingURI, 
                                                XmlSchemaElement element,
                                                XmlSchemaType containingType) {
+        if (element.getSchemaTypeName() != null) {
+            XmlSchemaType type = xmlSchemaCollection.getTypeByQName(element.getSchemaTypeName());
+            if (type == null) {
+                Message message = new Message("ELEMENT_TYPE_MISSING", LOG, element.getQName(),
+                                              element.getSchemaTypeName().toString());
+                throw new UnsupportedConstruct(message);
+            }
+            return type;
+        }
         assert element != null;
         if (referencingURI == null && containingType != null) {
             referencingURI = containingType.getQName().getNamespaceURI();

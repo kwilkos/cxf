@@ -250,7 +250,7 @@ public class JsXMLHttpRequest extends ScriptableObject {
     private void doSend(byte[] dataToSend, boolean xml) {
         // avoid warnings on stuff we arent using yet.
         if (storedUser != null || storedPassword != null) {
-            LOG.finest(storedUser + storedPassword);
+            //
         }
         // 1 check state
         if (readyState != jsGet_OPENED()) {

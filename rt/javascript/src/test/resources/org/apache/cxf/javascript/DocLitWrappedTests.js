@@ -62,7 +62,7 @@ function test1(url, doubleArg, floatArg, intArg, longArg, stringArg)
 	intf.url = url;
 	// param order is from propOrder on the wrapper class.
 	intf.basicTypeFunctionReturnString(test1SuccessCallback, test1ErrorCallback,
-									   doubleArg, floatArg, intArg, longArg, stringArg
+									   stringArg, intArg, longArg, floatArg, doubleArg 
 									   ); 
     // Return the notifier as a convenience to the Java code.
 	return globalNotifier;

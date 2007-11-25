@@ -21,10 +21,13 @@ package org.apache.cxf.javascript.fortest;
 
 import javax.jws.WebService;
 
+import org.apache.cxf.feature.Features;
+
 /**
  * 
  */
 @WebService(endpointInterface = "org.apache.cxf.javascript.fortest.SimpleDocLitWrapped")
+@Features(features = "org.apache.cxf.feature.LoggingFeature")   
 public class SimpleDocLitWrappedImpl implements SimpleDocLitWrapped {
     
     private String lastString;

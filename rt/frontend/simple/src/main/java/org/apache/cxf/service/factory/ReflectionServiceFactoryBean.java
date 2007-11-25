@@ -604,7 +604,6 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                             mpi.setElement(true);
                             mpi.setElementQName(qn);
 
-
                             checkForElement(serviceInfo, mpi);
                         }
                     }
@@ -1158,7 +1157,6 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         }
         if (part.getElementQName() == null) {
             part.setElementQName(inMsg.getName());
-//Benson            checkForElement(op.getInterface().getService(), part);
         } else if (!part.getElementQName().equals(op.getInput().getName())) {
             op.getInput().setName(part.getElementQName());
         }
