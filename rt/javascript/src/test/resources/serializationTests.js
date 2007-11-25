@@ -23,6 +23,9 @@ function assertionFailed(explanation)
 {
  	var assert = new Assert(explanation); // this will throw out in Java.
 }
+
+var bean2 = new org_apache_cxf_javascript_testns3_testBean2();
+bean2.setStringItem("bleep");
  
 function serializeTestBean1_1()
 {
@@ -32,6 +35,7 @@ function serializeTestBean1_1()
  	bean1.setLongItem(64000000);
  	bean1.setBase64Item(''); // later
  	bean1.setOptionalIntItem(101);
+ 	bean1.setBeanTwoItem(bean2);
  	var a = [];
  	a.push(543);
  	bean1.setOptionalIntArrayItem(a);
@@ -46,6 +50,7 @@ function serializeTestBean1_1()
  	bean1.setLongItem(64000000);
  	bean1.setBase64Item(''); // later
  	bean1.setOptionalIntItem(null);
+ 	bean1.setBeanTwoItem(bean2);
  	var a = [];
  	a.push(543);
  	a.push(null);
@@ -62,5 +67,6 @@ function serializeTestBean1_1()
  	bean1.setBase64Item(''); // later
  	bean1.setOptionalIntItem(33);
  	bean1.setOptionalIntArrayItem(null);
-	return bean1.serialize(jsutils, "testBean1");
+ 	bean1.setBeanTwoItem(bean2);
+ 	return bean1.serialize(jsutils, "testBean1");
 } 
