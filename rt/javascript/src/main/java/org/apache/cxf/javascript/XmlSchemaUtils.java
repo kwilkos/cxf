@@ -198,6 +198,7 @@ public final class XmlSchemaUtils {
     }
     
     public static boolean isParticleArray(XmlSchemaParticle particle) {
+        // I don't know why maxOccurs=0 is popular.
         return particle.getMaxOccurs() > 1;
     }
     

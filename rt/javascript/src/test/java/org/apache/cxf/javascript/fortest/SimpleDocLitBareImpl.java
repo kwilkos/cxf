@@ -21,13 +21,13 @@ package org.apache.cxf.javascript.fortest;
 
 import javax.jws.WebService;
 
-//import org.apache.cxf.feature.Features;
+import org.apache.cxf.feature.Features;
 
 /**
  * 
  */
 @WebService(endpointInterface = "org.apache.cxf.javascript.fortest.SimpleDocLitBare")
-//@Features(features = "org.apache.cxf.feature.LoggingFeature")   
+@Features(features = "org.apache.cxf.feature.LoggingFeature")   
 public class SimpleDocLitBareImpl implements SimpleDocLitBare {
     
     private String lastString;

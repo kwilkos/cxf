@@ -455,27 +455,19 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
                                                  serviceSchemaInfo.getNamespaceURI(),
                                                  null);
         } else {
+            int px = 0;
             // Multiple parts violates WS-I, but we can still do them.
             for (ElementAndNames ean : unwrappedElementsAndNames) {
                 utils.generateCodeToSerializeElement("cxfutils",
                                                      ean.getElement(),
-                                                     ean.getJavascriptName(),
+                                                     "args[" + px + "]",
                                                      ean.getXmlName(),
                                                      xmlSchemaCollection,
                                                      serviceSchemaInfo.getNamespaceURI(),
                                                      null);
+                px++;
             }
         }
-
-//        int px = 0;
-//        for (ElementAndNames partElement : elements) {
-//            LOG.fine("Serialize part - message " + msg.getName() + " part " + partElement.getXmlName()); 
-//            utils.generateCodeToSerializeElement("cxfutils", partElement.getElement(),
-//                                                 "args[" + px + "]",
-//                                                 partElement.getXmlName(), xmlSchemaCollection,
-//                                                 serviceSchemaInfo.getNamespaceURI(), null);
-//            px++;
-//        }
 
         utils.appendLine("xml = xml + cxfutils.endSoap11Message();");
         utils.appendLine("return xml;");
@@ -579,7 +571,7 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
     public void begin(ServiceInfo service) {
         
         code.append("//\n");
-        code.append("// Definitions for service: " + service.toString() + "\n");
+        code.append("// Definitions for service: " + service.getName().toString() + "\n");
         code.append("//\n");
 
         BindingInfo xml = null;

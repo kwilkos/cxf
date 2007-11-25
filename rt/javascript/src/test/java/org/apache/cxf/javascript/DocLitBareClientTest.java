@@ -40,6 +40,11 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
 import org.springframework.context.support.GenericApplicationContext;
 
+/*
+ * We end up here with a part with isElement == true, a non-array element, 
+ * but a complex type for an array of the element.
+ */
+
 @org.junit.Ignore
 public class DocLitBareClientTest extends AbstractCXFSpringTest {
 

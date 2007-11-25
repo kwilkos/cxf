@@ -200,12 +200,13 @@ public class JavascriptUtils {
                                                String referencingURI,
                                                XmlSchemaType containingType) {
         boolean nillable = element.isNillable();
+        boolean optional = XmlSchemaUtils.isParticleOptional(element);
         
         XmlSchemaType elType = 
             XmlSchemaUtils.getElementType(xmlSchemaCollection, referencingURI, element, containingType);
         
         // first question: optional?
-        if (XmlSchemaUtils.isParticleOptional(element)) {
+        if (optional) {
             startIf(elementJavascriptName + " != null");
         }
         
@@ -216,7 +217,7 @@ public class JavascriptUtils {
             appendString("<" + elementXmlName + " " + XmlSchemaUtils.NIL_ATTRIBUTES + "/>");
             appendElse();
         }
-        
+
         if (XmlSchemaUtils.isParticleArray(element)) {
             // protected against null in arrays.
             startIf(elementJavascriptName + " != null");
@@ -225,27 +226,21 @@ public class JavascriptUtils {
             // we need an extra level of 'nil' testing here. Or do we, depending on the type structure?
             // Recode and fiddle appropriately.
             startIf(elementJavascriptName + " == null");
-            appendString("<" + elementXmlName + " " + XmlSchemaUtils.NIL_ATTRIBUTES + "/>");
+            if (nillable) {
+                appendString("<" + elementXmlName + " " + XmlSchemaUtils.NIL_ATTRIBUTES + "/>");
+            } else {
+                appendString("<" + elementXmlName + "/>");                    
+            }
             appendElse();
         }
         
         // now for the thing itself.
         if (elType instanceof XmlSchemaComplexType) {
-            if (element.getMinOccurs() != 0) { // required
-                startIf(elementJavascriptName + " == null");
-                appendString("<" + elementXmlName + " " + XmlSchemaUtils.NIL_ATTRIBUTES + "/>");
-                appendElse();
-                appendExpression(elementJavascriptName + ".serialize(" 
-                                 + utilsVarName + ", '" 
-                                 + elementXmlName + "')");
-                endBlock();
-            } else {
-                startIf(elementJavascriptName + " != null");
-                appendExpression(elementJavascriptName + ".serialize(cxfjsutils, '"  
-                                 + elementXmlName + "')");
-                endBlock();
-            }
-        } else {
+            // it has a value
+            appendExpression(elementJavascriptName + ".serialize(" 
+                                     + utilsVarName + ", '" 
+                                     + elementXmlName + "')");
+        } else { // simple type
             QName typeName = elType.getQName();
             appendString("<" + elementXmlName + ">");
             // warning: this assumes that ordinary Javascript serialization is all we need.
