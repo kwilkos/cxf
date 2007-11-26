@@ -30,6 +30,7 @@ import java.util.logging.Logger;
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.binding.soap.SoapBindingConstants;
+import org.apache.cxf.binding.soap.SoapBindingFactory;
 import org.apache.cxf.binding.soap.SoapVersion;
 import org.apache.cxf.binding.soap.model.SoapBindingInfo;
 import org.apache.cxf.common.i18n.Message;
@@ -144,6 +145,11 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
         code.append("}\n\n");
 
         serviceSchemaInfo = serviceInfo.getSchema(serviceInfo.getTargetNamespace());
+        if (serviceSchemaInfo == null) {
+            unsupportedConstruct("MISSING_SERVICE_SCHEMA",
+                                 serviceInfo.getTargetNamespace(),
+                                 serviceInfo.getName().toString());
+        }
     }
 
     private static class ElementAndNames {
@@ -580,8 +586,12 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
         // hypothetically, we could generate two different JavaScript classes,
         // one for each.
         for (BindingInfo bindingInfo : service.getBindings()) {
+            // there is a JIRA about the confusion / profusion of URLS here.
             if (SoapBindingConstants.SOAP11_BINDING_ID.equals(bindingInfo.getBindingId())
-                || SoapBindingConstants.SOAP11_BINDING_ID.equals(bindingInfo.getBindingId())) {
+                || SoapBindingConstants.SOAP12_BINDING_ID.equals(bindingInfo.getBindingId())
+                || SoapBindingFactory.SOAP_11_BINDING.equals(bindingInfo.getBindingId())
+                || SoapBindingFactory.SOAP_12_BINDING.equals(bindingInfo.getBindingId())
+                ) {
                 SoapBindingInfo sbi = (SoapBindingInfo)bindingInfo;
                 if (WSDLConstants.NS_SOAP11_HTTP_TRANSPORT.equals(sbi.getTransportURI())
                     || WSDLConstants.NS_SOAP12_HTTP_TRANSPORT.equals(sbi.getTransportURI())

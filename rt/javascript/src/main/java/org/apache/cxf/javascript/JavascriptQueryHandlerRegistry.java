@@ -19,7 +19,6 @@
 
 package org.apache.cxf.javascript;
 
-import javax.annotation.PostConstruct;
 import org.apache.cxf.Bus;
 import org.apache.cxf.transports.http.QueryHandlerRegistry;
 
@@ -32,12 +31,12 @@ public class JavascriptQueryHandlerRegistry {
     
     public JavascriptQueryHandlerRegistry() {
     }
+    
     public JavascriptQueryHandlerRegistry(Bus b) {
         bus = b;
     }
     
     
-    @PostConstruct
     public void register() {
         if (bus != null) {
             QueryHandlerRegistry registry = bus.getExtension(QueryHandlerRegistry.class);
