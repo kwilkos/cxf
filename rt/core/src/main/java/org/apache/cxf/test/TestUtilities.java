@@ -65,7 +65,7 @@ import org.apache.cxf.wsdl11.ServiceWSDLBuilder;
 public class TestUtilities {
     
     private static final Charset UTF8 = Charset.forName("utf-8");
-    private static String keepAlive;
+    private static String preKeepAlive;
     
     private static String basedirPath;
     protected Bus bus;
@@ -90,13 +90,13 @@ public class TestUtilities {
     }
     
     public static void setKeepAliveSystemProperty(boolean setAlive) {
-        keepAlive = System.getProperty("http.keepAlive");
+        preKeepAlive = System.getProperty("http.keepAlive");
         System.setProperty("http.keepAlive", Boolean.toString(setAlive));
     }
     
     public static void recoverKeepAliveSystemProperty() {
-        if (keepAlive != null) {
-            System.setProperty("http.keepAlive", keepAlive);
+        if (preKeepAlive != null) {
+            System.setProperty("http.keepAlive", preKeepAlive);
         } else {
             System.clearProperty("http.keepAlive");
         }
