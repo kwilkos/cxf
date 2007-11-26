@@ -42,7 +42,9 @@ import org.apache.cxf.mime.TestMtom;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
 import org.apache.cxf.service.model.EndpointInfo;
+import org.apache.cxf.test.TestUtilities;
 import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -54,7 +56,13 @@ public class ClientMtomXopTest extends AbstractBusClientServerTestBase {
 
     @BeforeClass
     public static void startServers() throws Exception {
+        TestUtilities.setKeepAliveSystemProperty(false);
         assertTrue("server did not launch correctly", launchServer(Server.class));
+    }
+    
+    @AfterClass
+    public static void cleanup() {
+        TestUtilities.recoverKeepAliveSystemProperty();
     }
 
     /*

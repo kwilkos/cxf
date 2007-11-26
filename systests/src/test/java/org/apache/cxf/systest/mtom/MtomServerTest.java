@@ -39,6 +39,7 @@ import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.test.AbstractCXFTest;
+import org.apache.cxf.test.TestUtilities;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.ConduitInitiator;
 import org.apache.cxf.transport.ConduitInitiatorManager;
@@ -46,11 +47,24 @@ import org.apache.cxf.transport.Destination;
 import org.apache.cxf.transport.DestinationFactory;
 import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.cxf.transport.MessageObserver;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class MtomServerTest extends AbstractCXFTest {
+   
     
     private static final String HTTP_ID = "http://schemas.xmlsoap.org/wsdl/http/";
+    
+    @BeforeClass
+    public static void setKeepAliveProperty() {
+        TestUtilities.setKeepAliveSystemProperty(false);
+    }
+    
+    @AfterClass
+    public static void cleanKeepAliveProperty() {
+        TestUtilities.recoverKeepAliveSystemProperty();
+    }
     
     @Test
     public void testMtomRequest() throws Exception {

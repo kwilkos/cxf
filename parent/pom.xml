@@ -47,7 +47,7 @@
         <jaxb.impl.version>2.0.5</jaxb.impl.version>
         <jaxb.xjc.version>2.0</jaxb.xjc.version>
         <jaxws.version>2.0</jaxws.version>
-        <jetty.version>6.1.5</jetty.version>
+        <jetty.version>6.1.6</jetty.version>
         <saaj.version>1.3</saaj.version>
         <saaj.impl.version>1.3</saaj.impl.version>
         <spring.version>2.0.6</spring.version>
@@ -241,7 +241,7 @@
                                 connection, on some Linux's, the socket remains consumed until
                                 some timeout occurs.   That may cause some tests to timeout/hang. -->
                                 <name>org.apache.cxf.transports.http_jetty.DontClosePort</name>
-                                <value>true</value>
+                                <value>false</value>
                             </property>
                         </systemProperties>
                     </configuration>
@@ -983,11 +983,11 @@
                                     <value>${spring.validation.mode}</value>
                                 </property>
                                 <property>
-                                  <!-- If we close the port after a client in the same JVM has oppened a keep-alive
-                                   connection, on some Linux's, the socket remains consumed until
-                                   some timeout occurs.   That may cause some tests to timeout/hang. -->
-                                   <name>org.apache.cxf.transports.http_jetty.DontClosePort</name>
-                                   <value>true</value>
+                                   <!-- If we close the port after a client in the same JVM has oppened a keep-alive
+                                    connection, on some Linux's, the socket remains consumed until
+                                    some timeout occurs.   That may cause some tests to timeout/hang. -->
+                                    <name>org.apache.cxf.transports.http_jetty.DontClosePort</name>
+                                    <value>false</value>
                                 </property>                                 
                             </systemProperties>
                         </configuration>
