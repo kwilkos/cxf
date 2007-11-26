@@ -62,9 +62,13 @@ import org.apache.cxf.wsdl11.ServiceWSDLBuilder;
  */
 public class TestUtilities {
     
+   
+    private static String preKeepAlive;
+    
     private static String basedirPath;
     protected Bus bus;
     protected Class<?> classpathAnchor;
+    
 
     /**
      * Namespaces for the XPath expressions.
@@ -81,6 +85,19 @@ public class TestUtilities {
         classpathAnchor = classpathReference;
     }
     
+    public static void setKeepAliveSystemProperty(boolean setAlive) {
+        preKeepAlive = System.getProperty("http.keepAlive");
+        System.setProperty("http.keepAlive", Boolean.toString(setAlive));
+    }
+    
+    public static void recoverKeepAliveSystemProperty() {
+        if (preKeepAlive != null) {
+            System.setProperty("http.keepAlive", preKeepAlive);
+        } else {
+            System.clearProperty("http.keepAlive");
+        }
+    }
+
     public void addDefaultNamespaces() {
         addNamespace("s", "http://schemas.xmlsoap.org/soap/envelope/");
         addNamespace("xsd", "http://www.w3.org/2001/XMLSchema");

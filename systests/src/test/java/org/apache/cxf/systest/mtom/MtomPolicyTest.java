@@ -42,6 +42,7 @@ import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.test.AbstractCXFTest;
+import org.apache.cxf.test.TestUtilities;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.ConduitInitiator;
 import org.apache.cxf.transport.ConduitInitiatorManager;
@@ -49,10 +50,23 @@ import org.apache.cxf.ws.policy.PolicyConstants;
 import org.apache.cxf.ws.policy.PolicyEngine;
 import org.apache.cxf.ws.policy.WSPolicyFeature;
 import org.apache.cxf.ws.policy.selector.FirstAlternativeSelector;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class MtomPolicyTest extends AbstractCXFTest {
+    
     String address = "http://localhost:9036/EchoService";
+    
+    @BeforeClass
+    public static void setKeepAliveProperty() {
+        TestUtilities.setKeepAliveSystemProperty(false);
+    }
+    
+    @AfterClass
+    public static void cleanKeepAliveProperty() {
+        TestUtilities.recoverKeepAliveSystemProperty();
+    }
     
     @Test
     public void testRequiredMtom() throws Exception {
