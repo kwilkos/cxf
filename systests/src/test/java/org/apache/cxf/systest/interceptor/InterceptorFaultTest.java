@@ -48,12 +48,14 @@ import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.phase.PhaseComparator;
 import org.apache.cxf.phase.PhaseManager;
+import org.apache.cxf.test.TestUtilities;
 import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
 import org.apache.cxf.testutil.common.AbstractBusTestServerBase;
 import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 import org.apache.cxf.ws.addressing.MAPAggregator;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -125,7 +127,13 @@ public class InterceptorFaultTest extends AbstractBusClientServerTestBase {
 
     @BeforeClass
     public static void startServers() throws Exception {
+        TestUtilities.setKeepAliveSystemProperty(false);
         assertTrue("server did not launch correctly", launchServer(Server.class, true));
+    }
+    
+    @AfterClass
+    public static void cleanup() {
+        TestUtilities.recoverKeepAliveSystemProperty();
     }
     
     @After

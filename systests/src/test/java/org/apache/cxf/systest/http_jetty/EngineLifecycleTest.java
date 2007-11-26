@@ -86,6 +86,7 @@ public class EngineLifecycleTest extends Assert {
     
     public void setUpBus(boolean includeService) throws Exception {
         applicationContext = new GenericApplicationContext();
+        readBeans(new ClassPathResource("cxf.xml"));
         readBeans(new ClassPathResource("META-INF/cxf/cxf.xml"));
         readBeans(new ClassPathResource("META-INF/cxf/cxf-extension-soap.xml"));
         readBeans(new ClassPathResource("META-INF/cxf/cxf-extension-http.xml"));
@@ -158,9 +159,7 @@ public class EngineLifecycleTest extends Assert {
         bus.shutdown(true);
         applicationContext.destroy();
         applicationContext.close();
-        //Waiting for the releasing of the socket
-        Thread.sleep(2000);
-        
+                
     }
     
     
@@ -221,9 +220,7 @@ public class EngineLifecycleTest extends Assert {
         shutdownService();
         verifyNoServer(8808);
         verifyNoServer(8801);
-        // For some multicores linux box
-        // It will take more time to release the socket
-        Thread.sleep(4000);
+        
         
         setUpBus(true);
        
