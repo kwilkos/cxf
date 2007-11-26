@@ -19,8 +19,7 @@
 
 package org.apache.cxf.transport.http;
 
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
@@ -32,7 +31,13 @@ public final class UrlUtilities {
     
     private UrlUtilities() {
     }
-    
+
+    /**
+     * Create a map from String to String that represents the contents of the query
+     * portion of a URL. For each x=y, x is the key and y is the value.
+     * @param s the query part of the URI.
+     * @return the map.
+     */
     public static Map<String, String> parseQueryString(String s) {
         Map<String, String> ht = new HashMap<String, String>();
         StringTokenizer st = new StringTokenizer(s, "&");
@@ -49,19 +54,18 @@ public final class UrlUtilities {
         return ht;
     }
     
-    
-    
-    public static String getStem(String baseURI) throws MalformedURLException {
-        URL url = null;
-        url = new URL(baseURI);
-        if (url != null) {
-            baseURI = url.getPath();
-            int idx = baseURI.lastIndexOf('/');
-            if (idx != -1) {
-                baseURI = baseURI.substring(0, idx);
-            }
-        }        
+    /**
+     * Return everything in the path up to the last slash in a URI.
+     * @param baseURI
+     * @return the trailing 
+     */
+    public static String getStem(String baseURI) {
+        URI uri = URI.create(baseURI);
+        baseURI = uri.getPath();
+        int idx = baseURI.lastIndexOf('/');
+        if (idx != -1) {
+            baseURI = baseURI.substring(0, idx);
+        }
         return baseURI;
     }
-
 }

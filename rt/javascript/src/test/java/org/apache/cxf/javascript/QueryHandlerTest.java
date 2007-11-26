@@ -23,6 +23,7 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.net.URLConnection;
 import java.nio.charset.Charset;
 import java.util.logging.Logger;
 
@@ -93,7 +94,9 @@ public class QueryHandlerTest extends AbstractCXFSpringTest {
     public void dlbQueryTest() throws Exception {
         LOG.finest("logged to avoid warning on LOG");
         URL endpointURL = new URL(dlbEndpoint.getAddress()  + "?js");
-        InputStream jsStream = endpointURL.openStream();
+        URLConnection connection = endpointURL.openConnection();
+        assertEquals("application/javascript;charset=UTF-8", connection.getContentType());
+        InputStream jsStream = connection.getInputStream();
         InputStreamReader isr = new InputStreamReader(jsStream, UTF8);
         BufferedReader in = new BufferedReader(isr);
         String line = in.readLine();
@@ -108,5 +111,28 @@ public class QueryHandlerTest extends AbstractCXFSpringTest {
             line = in.readLine();
         }
         assertNotSame(0, js.length());
+    }
+    
+    @Test
+    public void utilsTest() throws Exception {
+        URL endpointURL = new URL(dlbEndpoint.getAddress()  + "?jsutils");
+        URLConnection connection = endpointURL.openConnection();
+        assertEquals("application/javascript;charset=UTF-8", connection.getContentType());
+        InputStream jsStream = connection.getInputStream(); 
+        InputStreamReader isr = new InputStreamReader(jsStream, UTF8);
+        BufferedReader in = new BufferedReader(isr);
+        String line = in.readLine();
+        StringBuilder js = new StringBuilder();
+        while (line != null) {
+            String[] tok = line.split("\\s");
+
+            for (int x = 0; x < tok.length; x++) {
+                String token = tok[x];
+                js.append("  " + token);
+            }
+            line = in.readLine();
+        }
+        String jsString = js.toString();
+        assertTrue(jsString.contains("CxfApacheOrgUtil"));
     }
 }

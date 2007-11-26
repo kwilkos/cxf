@@ -27,7 +27,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.wsdl.Definition;
@@ -93,13 +92,8 @@ public class WSDLQueryHandler implements StemMatchingQueryHandler {
                     return endpointInfo.getAddress().contains(ctx);
                 } else {
                     // contextMatchStrategy will be "stem"
-                    try {
-                        return endpointInfo.getAddress().
-                            contains(UrlUtilities.getStem(baseUri.substring(0, idx)));
-                    } catch (MalformedURLException mue) {
-                        LOG.log(Level.WARNING, "URL creation failed: ", mue);
-                        return false;
-                    }
+                    return endpointInfo.getAddress().
+                                contains(UrlUtilities.getStem(baseUri.substring(0, idx)));
                 }
             }
         }
