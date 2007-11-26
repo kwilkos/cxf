@@ -45,7 +45,6 @@ import org.springframework.context.support.GenericApplicationContext;
  * but a complex type for an array of the element.
  */
 
-@org.junit.Ignore
 public class DocLitBareClientTest extends AbstractCXFSpringTest {
 
     private static final Logger LOG = LogUtils.getL7dLogger(DocLitBareClientTest.class);
@@ -121,7 +120,7 @@ public class DocLitBareClientTest extends AbstractCXFSpringTest {
         // this method returns void, which translated into a Javascript object with no properties. 
         Scriptable responseObject = (Scriptable)testUtilities.rhinoEvaluate("globalResponseObject");
         assertNotNull(responseObject);
-        SimpleDocLitWrappedImpl impl = getBean(SimpleDocLitWrappedImpl.class, "dlw-service");
+        SimpleDocLitWrappedImpl impl = getBean(SimpleDocLitWrappedImpl.class, "dlb-service");
         TestBean1 b1returned = impl.getLastBean1();
         assertEquals(b1, b1returned);
         TestBean1[] beansReturned = impl.getLastBean1Array();
@@ -129,12 +128,78 @@ public class DocLitBareClientTest extends AbstractCXFSpringTest {
         return null;
     }
     
+    private Void compliantCaller(Context context) {
+        TestBean1 b1 = new TestBean1(); 
+        b1.stringItem = "strung";
+
+        b1.beanTwoNotRequiredItem = new TestBean2("bean2");
+        
+        Scriptable jsBean1 = testBean1ToJS(testUtilities, context, b1);
+        
+        LOG.info("About to call compliant" + endpoint.getAddress());
+        Notifier notifier = 
+            testUtilities.rhinoCallConvert("compliantTest", Notifier.class, 
+                                           testUtilities.javaToJS(endpoint.getAddress()),
+                                           jsBean1);
+        boolean notified = notifier.waitForJavascript(1000 * 10);
+        assertTrue(notified);
+        Integer errorStatus = testUtilities.rhinoEvaluateConvert("globalErrorStatus", Integer.class);
+        assertNull(errorStatus);
+        String errorText = testUtilities.rhinoEvaluateConvert("globalErrorStatusText", String.class);
+        assertNull(errorText);
+
+        //This method returns a String
+        String response = (String)testUtilities.rhinoEvaluate("globalResponseObject");
+        assertEquals("strung", response);
+        return null;
+    }
+    
+    private Void compliantNoArgsCaller(Context context) {
+        LOG.info("About to call compliantNoArgs " + endpoint.getAddress());
+        Notifier notifier = 
+            testUtilities.rhinoCallConvert("compliantNoArgsTest", Notifier.class, 
+                                           testUtilities.javaToJS(endpoint.getAddress()));
+
+        boolean notified = notifier.waitForJavascript(1000 * 10);
+        assertTrue(notified);
+        Integer errorStatus = testUtilities.rhinoEvaluateConvert("globalErrorStatus", Integer.class);
+        assertNull(errorStatus);
+        String errorText = testUtilities.rhinoEvaluateConvert("globalErrorStatusText", String.class);
+        assertNull(errorText);
+
+        //This method returns a String
+        Scriptable response = (Scriptable)testUtilities.rhinoEvaluate("globalResponseObject");
+        String item = testUtilities.rhinoCallMethodConvert(String.class, response, "getStringItem");
+        assertEquals("horsefeathers", item);
+        return null;
+    }
+    @org.junit.Ignore
     @Test
     public void callFunctionWithBeans() {
         LOG.info("about to call beanFunctionTest");
         testUtilities.runInsideContext(Void.class, new JSRunnable<Void>() {
             public Void run(Context context) {
                 return beanFunctionCaller(context);
+            }
+        });
+    }
+
+    @Test
+    public void callCompliant() {
+        LOG.info("about to call compliant");
+        testUtilities.runInsideContext(Void.class, new JSRunnable<Void>() {
+            public Void run(Context context) {
+                return compliantCaller(context);
+            }
+        });
+    }
+
+    @Test
+    public void callCompliantNoArgs() {
+        LOG.info("about to call compliantNoArg");
+        testUtilities.runInsideContext(Void.class, new JSRunnable<Void>() {
+            public Void run(Context context) {
+                return compliantNoArgsCaller(context);
             }
         });
     }

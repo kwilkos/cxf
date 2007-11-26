@@ -65,6 +65,11 @@ public class SimpleDocLitBareImpl implements SimpleDocLitBare {
         lastBean1 = green;
         return green.stringItem;
     }
+    
+
+    public TestBean2 compliantNoArgs() {
+        return new TestBean2("horsefeathers");
+    }
 
     public String getLastString() {
         return lastString;

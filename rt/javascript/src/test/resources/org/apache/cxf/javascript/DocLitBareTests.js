@@ -67,3 +67,37 @@ function beanFunctionTest(url, beanArg, beansArg)
     // Return the notifier as a convenience to the Java code.
 	return globalNotifier;
 }
+
+function compliantTest(url, beanArg)
+{
+	org_apache_cxf_trace.trace("Enter compliantTest.");
+	resetGlobals();
+	globalNotifier = new org_apache_cxf_notifier();
+	
+	var intf;
+    intf = new org_apache_cxf_javascript_fortest_SimpleDocLitBare();
+	  
+	intf.url = url;
+	// param order from the interface
+    intf.compliant(test1SuccessCallback, test1ErrorCallback, beanArg); 
+    // Return the notifier as a convenience to the Java code.
+	return globalNotifier;
+}
+
+function compliantNoArgsTest(url)
+{
+	org_apache_cxf_trace.trace("Enter compliantArgsTest.");
+	resetGlobals();
+	globalNotifier = new org_apache_cxf_notifier();
+	
+	var intf;
+    intf = new org_apache_cxf_javascript_fortest_SimpleDocLitBare();
+	  
+	intf.url = url;
+	// param order from the interface
+    intf.compliantNoArgs(test1SuccessCallback, test1ErrorCallback); 
+    // Return the notifier as a convenience to the Java code.
+	return globalNotifier;
+}
+
+    

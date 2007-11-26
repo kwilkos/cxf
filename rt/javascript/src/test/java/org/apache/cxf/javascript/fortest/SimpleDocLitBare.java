@@ -47,4 +47,7 @@ public interface SimpleDocLitBare {
     
     @WebMethod 
     String compliant(@WebParam(name = "beanParam") TestBean1 green);
+    
+    @WebMethod
+    TestBean2 compliantNoArgs();
 }
