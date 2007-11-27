@@ -71,7 +71,7 @@ public class WSAFromWSDLTest extends AbstractBusClientServerTestBase {
     }
 
     @Test
-
+    @org.junit.Ignore
     public void testAddNumbers() throws Exception {
         ByteArrayOutputStream input = setupInLogging();
         ByteArrayOutputStream output = setupOutLogging();
@@ -88,6 +88,7 @@ public class WSAFromWSDLTest extends AbstractBusClientServerTestBase {
     }
 
     @Test
+    @org.junit.Ignore
     public void testAddNumbers2() throws Exception {
         ByteArrayOutputStream input = setupInLogging();
         ByteArrayOutputStream output = setupOutLogging();

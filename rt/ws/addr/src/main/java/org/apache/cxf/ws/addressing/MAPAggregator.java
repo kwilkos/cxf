@@ -379,13 +379,13 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
             maps.setAction(ContextUtils.getAction(message));
         }
 
-        if (ContextUtils.isOutbound(message)) {
-            maps.setAction(ContextUtils.getAttributedURI(getActionUri(message)));
-        }
+//         if (ContextUtils.isOutbound(message)) {
+//             maps.setAction(ContextUtils.getAttributedURI(getActionUri(message)));
+//         }
         return maps;
     }
 
-    private String getActionUri(Message message) {
+    protected String getActionUri(Message message) {
         OperationInfo op = message.getExchange().get(OperationInfo.class);
         String interfaceName = op.getInterface().getName().getLocalPart();
 
