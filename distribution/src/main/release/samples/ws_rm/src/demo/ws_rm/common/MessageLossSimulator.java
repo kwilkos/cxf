@@ -63,10 +63,12 @@ public class MessageLossSimulator extends AbstractPhaseInterceptor<Message> {
             return;
         }
         appMessageCount++;
+        // do not discard odd-numbered messages
         if (0 != (appMessageCount % 2)) {
             return;
         }
         
+        // discard even-numbered message
         InterceptorChain chain = message.getInterceptorChain();
         ListIterator it = chain.getIterator();
         while (it.hasNext()) {

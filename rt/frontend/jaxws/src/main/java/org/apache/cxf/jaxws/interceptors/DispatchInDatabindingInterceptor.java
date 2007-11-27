@@ -115,6 +115,7 @@ public class DispatchInDatabindingInterceptor extends AbstractInDatabindingInter
      
         try {
             InputStream is = message.getContent(InputStream.class);
+            boolean msgRead = false;
             Object obj = null;
             ex.put(Service.Mode.class, mode);            
             
@@ -123,7 +124,8 @@ public class DispatchInDatabindingInterceptor extends AbstractInDatabindingInter
                 PostDispatchSOAPHandlerInterceptor postSoap = new PostDispatchSOAPHandlerInterceptor();
                 message.getInterceptorChain().add(postSoap);
                 
-                message.setContent(SOAPMessage.class, soapMessage);               
+                message.setContent(SOAPMessage.class, soapMessage); 
+                msgRead = true;
             } else if (message instanceof XMLMessage) {
                 if (type.equals(DataSource.class)) {
                     try {
@@ -145,18 +147,22 @@ public class DispatchInDatabindingInterceptor extends AbstractInDatabindingInter
                     obj = dataReader.read(null, message.getContent(XMLStreamReader.class), readType);
                     message.setContent(Source.class, obj); 
                 }
+                msgRead = true;
             }
-    
-            PostDispatchLogicalHandlerInterceptor postLogical = new PostDispatchLogicalHandlerInterceptor();
-            message.getInterceptorChain().add(postLogical);      
             
-            is.close();
-            message.removeContent(InputStream.class);
+            if (msgRead) {
+                PostDispatchLogicalHandlerInterceptor postLogical = 
+                    new PostDispatchLogicalHandlerInterceptor();
+                message.getInterceptorChain().add(postLogical);      
+                
+                is.close();
+                message.removeContent(InputStream.class);
+            }
         } catch (Exception e) {
             throw new Fault(e);
         }
     }
-
+    
     private SOAPMessage newSOAPMessage(InputStream is, SoapMessage msg) throws Exception {
         SoapVersion version = msg.getVersion();
 
