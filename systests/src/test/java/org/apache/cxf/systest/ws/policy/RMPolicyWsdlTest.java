@@ -101,6 +101,7 @@ public class RMPolicyWsdlTest extends AbstractBusClientServerTestBase {
     }
          
     @Test
+    @org.junit.Ignore
     public void testUsingRM() throws Exception {
         SpringBusFactory bf = new SpringBusFactory();
         bus = bf.createBus("org/apache/cxf/systest/ws/policy/rmwsdl.xml");
