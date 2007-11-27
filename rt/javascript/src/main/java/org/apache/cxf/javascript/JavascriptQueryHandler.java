@@ -32,11 +32,15 @@ import java.util.logging.Logger;
 import org.apache.cxf.Bus;
 import org.apache.cxf.common.i18n.UncheckedException;
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.endpoint.Endpoint;
+import org.apache.cxf.endpoint.Server;
+import org.apache.cxf.endpoint.ServerRegistry;
 import org.apache.cxf.javascript.service.ServiceJavascriptBuilder;
 import org.apache.cxf.javascript.types.SchemaJavascriptBuilder;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.service.model.ServiceInfo;
+import org.apache.cxf.transport.DestinationWithEndpoint;
 import org.apache.cxf.transport.http.UrlUtilities;
 import org.apache.cxf.transports.http.StemMatchingQueryHandler;
 
@@ -95,6 +99,21 @@ public class JavascriptQueryHandler implements StemMatchingQueryHandler {
             throw new RuntimeException("Failed to write javascript utils to HTTP response.", e);
         }
     }
+    
+    private Endpoint findEndpoint(EndpointInfo endpointInfo) {
+        ServerRegistry serverRegistry = bus.getExtension(ServerRegistry.class);
+        for (Server server : serverRegistry.getServers()) {
+            // Hypothetically, not all destinations have an endpoint.
+            // There has to be a better way to do this.
+            if (server.getDestination() instanceof DestinationWithEndpoint
+                &&
+                endpointInfo.
+                    equals(((DestinationWithEndpoint)server.getDestination()).getEndpointInfo())) {
+                return server.getEndpoint();
+            }
+        }
+        return null;
+    }
 
     public void writeResponse(String fullQueryString, String ctx, EndpointInfo endpoint, OutputStream os) {
         URI uri = URI.create(fullQueryString);
@@ -106,7 +125,8 @@ public class JavascriptQueryHandler implements StemMatchingQueryHandler {
         } else if (map.containsKey(CODE_QUERY_KEY)) {
             ServiceInfo serviceInfo = endpoint.getService();
             Collection<SchemaInfo> schemata = serviceInfo.getSchemas();
-            BasicNameManager nameManager = new BasicNameManager(serviceInfo);
+            Endpoint serverEndpoint = findEndpoint(endpoint);
+            BasicNameManager nameManager = new BasicNameManager(serviceInfo, serverEndpoint);
             NamespacePrefixAccumulator prefixManager = new NamespacePrefixAccumulator(serviceInfo
                 .getXmlSchemaCollection());
             try {

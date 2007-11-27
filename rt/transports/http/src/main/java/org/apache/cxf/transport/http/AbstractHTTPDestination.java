@@ -90,7 +90,7 @@ public abstract class AbstractHTTPDestination extends AbstractMultiplexDestinati
      * @param b the associated Bus
      * @param ci the associated conduit initiator
      * @param ei the endpoint info of the destination 
-     * @param dp ture for adding the default port if it is missing
+     * @param dp true for adding the default port if it is missing
      * @throws IOException
      */    
     public AbstractHTTPDestination(Bus b,

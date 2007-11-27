@@ -36,7 +36,7 @@ import org.apache.cxf.wsdl.EndpointReferenceUtils;
  * regard for the decoupled back-channel or partial response logic.
  */
 public abstract class AbstractDestination
-    extends AbstractObservable implements Destination {
+    extends AbstractObservable implements Destination, DestinationWithEndpoint {
 
     protected final EndpointReferenceType reference;
     protected final EndpointInfo endpointInfo;
@@ -169,5 +169,12 @@ public abstract class AbstractDestination
         protected Logger getLogger() {
             return AbstractDestination.this.getLogger();
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public EndpointInfo getEndpointInfo() {
+        return endpointInfo;
     }
 }

@@ -26,20 +26,33 @@ import java.util.Set;
 
 import javax.xml.namespace.QName;
 
+import org.apache.cxf.endpoint.Endpoint;
+import org.apache.cxf.feature.AbstractFeature;
 import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.ws.commons.schema.XmlSchemaComplexType;
 import org.apache.ws.commons.schema.utils.NamespacePrefixList;
 
 /**
- * 
+ * Generate JavaScript names for QNames. 
+ * This might belong on the CXF bus. 
  */
 public class BasicNameManager implements NameManager {
     
     private Map<String, String> nsPrefixMap;
     
     public BasicNameManager(ServiceInfo service) {
+        this(service, null);
+    }
+    
+    public BasicNameManager(ServiceInfo service, Endpoint endpoint) {
         nsPrefixMap = new HashMap<String, String>();
+        JavascriptOptionsFeature options = getOptions(endpoint);
+        
+        if (options.getNamespacePrefixMap() != null) {
+            nsPrefixMap.putAll(options.getNamespacePrefixMap());
+        }
+        
         Set<String> poorPrefixURIs = new HashSet<String>();
         for (SchemaInfo schemaInfo : service.getSchemas()) {
             NamespacePrefixList schemaPrefixList = schemaInfo.getSchema().getNamespaceContext();
@@ -59,6 +72,17 @@ public class BasicNameManager implements NameManager {
         for (String uri : poorPrefixURIs) {
             defineFallbackPrefix(uri);
         }
+    }
+    
+    private JavascriptOptionsFeature getOptions(Endpoint endpoint) {
+        if (endpoint != null) {
+            for (AbstractFeature feature : endpoint.getActiveFeatures()) {
+                if (feature instanceof JavascriptOptionsFeature) {
+                    return (JavascriptOptionsFeature) feature;
+                }
+            }
+        }
+        return new JavascriptOptionsFeature(); // save work and return a default set of options.
     }
 
     private String defineFallbackPrefix(String uri) {

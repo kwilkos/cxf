@@ -20,6 +20,7 @@
 package org.apache.cxf.javascript;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -42,6 +43,7 @@ public class QueryHandlerTest extends AbstractCXFSpringTest {
     private static final Logger LOG = LogUtils.getL7dLogger(QueryHandlerTest.class);
     private EndpointImpl hwEndpoint;
     private EndpointImpl dlbEndpoint;
+    private EndpointImpl hwgEndpoint;
 
     public QueryHandlerTest() throws Exception {
         super();
@@ -57,23 +59,25 @@ public class QueryHandlerTest extends AbstractCXFSpringTest {
     @Override
     protected String[] getConfigLocations() {
         return new String[] {"classpath:HelloWorldDocLitBeans.xml",
-                             "classpath:DocLitBareClientTestBeans.xml"};
+                             "classpath:DocLitBareClientTestBeans.xml",
+                             "classpath:HelloWorldGreeterBeans.xml"};
 
     }
     
     @Before
     public void before() {
         hwEndpoint = getBean(EndpointImpl.class, "hw-service-endpoint");
+        hwgEndpoint = getBean(EndpointImpl.class, "hwg-service-endpoint");
         dlbEndpoint = getBean(EndpointImpl.class, "dlb-service-endpoint");
 
     }
     
-    // This service runs into yet another RFSB/JAXB bug.
-    @org.junit.Ignore
-    @Test
-    public void hwQueryTest() throws Exception {
-        URL endpointURL = new URL(hwEndpoint.getAddress()  + "?js");
-        InputStream jsStream = endpointURL.openStream();
+    private String getStringFromURL(URL url) throws IOException {
+        InputStream jsStream = url.openStream();
+        return readStringFromStream(jsStream);
+    }
+
+    private String readStringFromStream(InputStream jsStream) throws IOException {
         InputStreamReader isr = new InputStreamReader(jsStream, UTF8);
         BufferedReader in = new BufferedReader(isr);
         String line = in.readLine();
@@ -87,6 +91,13 @@ public class QueryHandlerTest extends AbstractCXFSpringTest {
             }
             line = in.readLine();
         }
+        return js.toString();
+    }
+    
+    @Test
+    public void hwQueryTest() throws Exception {
+        URL endpointURL = new URL(hwEndpoint.getAddress()  + "?js");
+        String js = getStringFromURL(endpointURL); 
         assertNotSame(0, js.length());
     }
     
@@ -97,20 +108,8 @@ public class QueryHandlerTest extends AbstractCXFSpringTest {
         URLConnection connection = endpointURL.openConnection();
         assertEquals("application/javascript;charset=UTF-8", connection.getContentType());
         InputStream jsStream = connection.getInputStream();
-        InputStreamReader isr = new InputStreamReader(jsStream, UTF8);
-        BufferedReader in = new BufferedReader(isr);
-        String line = in.readLine();
-        StringBuilder js = new StringBuilder();
-        while (line != null) {
-            String[] tok = line.split("\\s");
-
-            for (int x = 0; x < tok.length; x++) {
-                String token = tok[x];
-                js.append("  " + token);
-            }
-            line = in.readLine();
-        }
-        assertNotSame(0, js.length());
+        String js = readStringFromStream(jsStream);
+        assertNotSame("", js);
     }
     
     @Test
@@ -118,21 +117,16 @@ public class QueryHandlerTest extends AbstractCXFSpringTest {
         URL endpointURL = new URL(dlbEndpoint.getAddress()  + "?jsutils");
         URLConnection connection = endpointURL.openConnection();
         assertEquals("application/javascript;charset=UTF-8", connection.getContentType());
-        InputStream jsStream = connection.getInputStream(); 
-        InputStreamReader isr = new InputStreamReader(jsStream, UTF8);
-        BufferedReader in = new BufferedReader(isr);
-        String line = in.readLine();
-        StringBuilder js = new StringBuilder();
-        while (line != null) {
-            String[] tok = line.split("\\s");
-
-            for (int x = 0; x < tok.length; x++) {
-                String token = tok[x];
-                js.append("  " + token);
-            }
-            line = in.readLine();
-        }
-        String jsString = js.toString();
+        InputStream jsStream = connection.getInputStream();
+        String jsString = readStringFromStream(jsStream);
         assertTrue(jsString.contains("CxfApacheOrgUtil"));
+    }
+    
+    // this is in here since we need to use the query handler to perform the test.
+    @Test 
+    public void namespacePrefixTest() throws Exception {
+        URL endpointURL = new URL(hwgEndpoint.getAddress()  + "?js");
+        String js = getStringFromURL(endpointURL);
+        assertTrue(js.contains("hg_Greeter"));
     }
 }

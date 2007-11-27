@@ -23,6 +23,21 @@ import org.apache.cxf.interceptor.InterceptorProvider;
 import org.apache.cxf.interceptor.LoggingInInterceptor;
 import org.apache.cxf.interceptor.LoggingOutInterceptor;
 
+/**
+ * This class is used to control message-on-the-wire logging. 
+ * By attaching this feature to an endpoint, you
+ * can specify logging. If this feature is present, an endpoint will log input
+ * and output of ordinary and log messages.
+ * <pre>
+ * <![CDATA[
+    <jaxws:endpoint ...>
+      <jaxws:features>
+       <bean class="org.apache.cxf.feature.LoggingFeature"/>
+      </jaxws:features>
+    </jaxws:endpoint>
+  ]]>
+  </pre>
+ */
 public class LoggingFeature extends AbstractFeature {
     private static final int DEFAULT_LIMIT = 100 * 1024;
     private static final LoggingInInterceptor IN = new LoggingInInterceptor(DEFAULT_LIMIT);
@@ -47,10 +62,18 @@ public class LoggingFeature extends AbstractFeature {
         }
     }
 
+    /**
+     * This function has no effect at this time.
+     * @param lim
+     */
     public void setLimit(int lim) {
         limit = lim;
     }
     
+    /**
+     * Retrieve the value set with {@link #setLimit(int)}.
+     * @return
+     */
     public int getLimit() {
         return limit;
     }    

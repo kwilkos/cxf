@@ -166,7 +166,7 @@ public class WSDLServiceBuilderTest extends Assert {
         assertTrue(serviceInfo.getProperty(WSDLServiceBuilder.WSDL_DEFINITION) == def);
         assertTrue(serviceInfo.getProperty(WSDLServiceBuilder.WSDL_SERVICE) == service);
 
-        assertEquals("Incorrect number of endpoints", serviceInfo.getEndpoints().size(), 1);
+        assertEquals("Incorrect number of endpoints", 1, serviceInfo.getEndpoints().size());
         EndpointInfo ei = serviceInfo.getEndpoint(new QName("http://apache.org/hello_world_soap_http",
                 "SoapPort"));
         assertNotNull(ei);
@@ -184,7 +184,7 @@ public class WSDLServiceBuilderTest extends Assert {
     @Test
     public void testOperationInfo() throws Exception {
         QName name = new QName(serviceInfo.getName().getNamespaceURI(), "sayHi");
-        assertEquals(serviceInfo.getInterface().getOperations().size(), 4);
+        assertEquals(4, serviceInfo.getInterface().getOperations().size());
         OperationInfo sayHi = serviceInfo.getInterface().getOperation(
                 new QName(serviceInfo.getName().getNamespaceURI(), "sayHi"));
         assertNotNull(sayHi);
@@ -365,7 +365,7 @@ public class WSDLServiceBuilderTest extends Assert {
     public void testSchema() {
         SchemaCollection schemas = serviceInfo.getXmlSchemaCollection();
         assertNotNull(schemas);
-        assertEquals(serviceInfo.getSchemas().size(), 1);
+        assertEquals(1, serviceInfo.getSchemas().size());
         SchemaInfo schemaInfo = serviceInfo.getSchemas().iterator().next();
         assertNotNull(schemaInfo);
         assertEquals(schemaInfo.getNamespaceURI(), "http://apache.org/hello_world_soap_http/types");

@@ -124,7 +124,7 @@ public class ServiceWSDLBuilderTest extends Assert {
     
     @Test    
     public void testDefinition() throws Exception {
-        assertEquals("http://apache.org/hello_world_soap_http", newDef.getTargetNamespace());
+        assertEquals(newDef.getTargetNamespace(), "http://apache.org/hello_world_soap_http");
         Service serv = newDef.getService(new QName("http://apache.org/hello_world_soap_http",
                                                    "SOAPService"));
         assertNotNull(serv);
@@ -133,7 +133,7 @@ public class ServiceWSDLBuilderTest extends Assert {
     
     @Test
     public void testPortType() throws Exception {
-        assertEquals(newDef.getPortTypes().size(), 1);
+        assertEquals(1, newDef.getPortTypes().size());
         PortType portType = (PortType)newDef.getPortTypes().values().iterator().next();
         assertNotNull(portType);
         assertTrue(portType.getQName().equals(new QName(newDef.getTargetNamespace(), "Greeter")));
@@ -148,29 +148,29 @@ public class ServiceWSDLBuilderTest extends Assert {
             CastUtils.cast(
                 portType.getOperations(), Operation.class);
         
-        assertEquals(operations.size(), 4);
+        assertEquals(4, operations.size());
         Operation sayHi = portType.getOperation("sayHi", "sayHiRequest", "sayHiResponse");
         assertNotNull(sayHi);
-        assertEquals("sayHi", sayHi.getName());
+        assertEquals(sayHi.getName(), "sayHi");
         Input input = sayHi.getInput();
         assertNotNull(input);
-        assertEquals(input.getName(), "sayHiRequest");
+        assertEquals("sayHiRequest", input.getName());
         Message message = input.getMessage();
         assertNotNull(message);
-        assertEquals(message.getQName().getLocalPart(), "sayHiRequest");
-        assertEquals(message.getQName().getNamespaceURI(), newDef.getTargetNamespace());
-        assertEquals(message.getParts().size(), 1);
-        assertEquals(message.getPart("in").getName(), "in");
+        assertEquals("sayHiRequest", message.getQName().getLocalPart());
+        assertEquals(newDef.getTargetNamespace(), message.getQName().getNamespaceURI());
+        assertEquals(1, message.getParts().size());
+        assertEquals("in", message.getPart("in").getName());
         Output output = sayHi.getOutput();
         assertNotNull(output);
-        assertEquals(output.getName(), "sayHiResponse");
+        assertEquals("sayHiResponse", output.getName());
         message = output.getMessage();
         assertNotNull(message);
-        assertEquals(message.getQName().getLocalPart(), "sayHiResponse");
-        assertEquals(message.getQName().getNamespaceURI(), newDef.getTargetNamespace());
-        assertEquals(message.getParts().size(), 1);
-        assertEquals(message.getPart("out").getName(), "out");
-        assertTrue(sayHi.getFaults().size() == 0);
+        assertEquals("sayHiResponse", message.getQName().getLocalPart());
+        assertEquals(newDef.getTargetNamespace(), message.getQName().getNamespaceURI());
+        assertEquals(1, message.getParts().size());
+        assertEquals("out", message.getPart("out").getName());
+        assertEquals(0, sayHi.getFaults().size());
               
     }
     
@@ -183,23 +183,23 @@ public class ServiceWSDLBuilderTest extends Assert {
         assertEquals("greetMe", greetMe.getName());
         Input input = greetMe.getInput();
         assertNotNull(input);
-        assertEquals(input.getName(), "greetMeRequest");
+        assertEquals("greetMeRequest", input.getName());
         Message message = input.getMessage();
         assertNotNull(message);
-        assertEquals(message.getQName().getLocalPart(), "greetMeRequest");
-        assertEquals(message.getQName().getNamespaceURI(), newDef.getTargetNamespace());
-        assertEquals(message.getParts().size(), 1);
-        assertEquals(message.getPart("in").getName(), "in");
+        assertEquals("greetMeRequest", message.getQName().getLocalPart());
+        assertEquals(newDef.getTargetNamespace(), message.getQName().getNamespaceURI());
+        assertEquals(1, message.getParts().size());
+        assertEquals("in", message.getPart("in").getName());
         Output output = greetMe.getOutput();
         assertNotNull(output);
-        assertEquals(output.getName(), "greetMeResponse");
+        assertEquals("greetMeResponse", output.getName());
         message = output.getMessage();
         assertNotNull(message);
-        assertEquals(message.getQName().getLocalPart(), "greetMeResponse");
-        assertEquals(message.getQName().getNamespaceURI(), newDef.getTargetNamespace());
-        assertEquals(message.getParts().size(), 1);
-        assertEquals(message.getPart("out").getName(), "out");
-        assertTrue(greetMe.getFaults().size() == 0);
+        assertEquals("greetMeResponse", message.getQName().getLocalPart());
+        assertEquals(newDef.getTargetNamespace(), message.getQName().getNamespaceURI());
+        assertEquals(1, message.getParts().size());
+        assertEquals("out", message.getPart("out").getName());
+        assertEquals(0, greetMe.getFaults().size());
         
     }
     
@@ -212,16 +212,16 @@ public class ServiceWSDLBuilderTest extends Assert {
         assertEquals("greetMeOneWay", greetMeOneWay.getName());
         Input input = greetMeOneWay.getInput();
         assertNotNull(input);
-        assertEquals(input.getName(), "greetMeOneWayRequest");
+        assertEquals("greetMeOneWayRequest", input.getName());
         Message message = input.getMessage();
         assertNotNull(message);
-        assertEquals(message.getQName().getLocalPart(), "greetMeOneWayRequest");
-        assertEquals(message.getQName().getNamespaceURI(), newDef.getTargetNamespace());
-        assertEquals(message.getParts().size(), 1);
-        assertEquals(message.getPart("in").getName(), "in");
+        assertEquals("greetMeOneWayRequest", message.getQName().getLocalPart());
+        assertEquals(newDef.getTargetNamespace(), message.getQName().getNamespaceURI());
+        assertEquals(1, message.getParts().size());
+        assertEquals("in", message.getPart("in").getName());
         Output output = greetMeOneWay.getOutput();
         assertNull(output);
-        assertTrue(greetMeOneWay.getFaults().size() == 0);
+        assertEquals(0, greetMeOneWay.getFaults().size());
     }
     
     @Test
@@ -233,32 +233,32 @@ public class ServiceWSDLBuilderTest extends Assert {
         assertEquals("pingMe", pingMe.getName());
         Input input = pingMe.getInput();
         assertNotNull(input);
-        assertEquals(input.getName(), "pingMeRequest");
+        assertEquals("pingMeRequest", input.getName());
         Message message = input.getMessage();
         assertNotNull(message);
-        assertEquals(message.getQName().getLocalPart(), "pingMeRequest");
-        assertEquals(message.getQName().getNamespaceURI(), newDef.getTargetNamespace());
-        assertEquals(message.getParts().size(), 1);
-        assertEquals(message.getPart("in").getName(), "in");
+        assertEquals("pingMeRequest", message.getQName().getLocalPart());
+        assertEquals(newDef.getTargetNamespace(), message.getQName().getNamespaceURI());
+        assertEquals(1, message.getParts().size());
+        assertEquals("in", message.getPart("in").getName());
         Output output = pingMe.getOutput();
         assertNotNull(output);
-        assertEquals(output.getName(), "pingMeResponse");
+        assertEquals("pingMeResponse", output.getName());
         message = output.getMessage();
         assertNotNull(message);
-        assertEquals(message.getQName().getLocalPart(), "pingMeResponse");
-        assertEquals(message.getQName().getNamespaceURI(), newDef.getTargetNamespace());
+        assertEquals("pingMeResponse", message.getQName().getLocalPart());
+        assertEquals(newDef.getTargetNamespace(), message.getQName().getNamespaceURI());
         assertEquals(message.getParts().size(), 1);
-        assertEquals(message.getPart("out").getName(), "out");
-        assertTrue(pingMe.getFaults().size() == 1);
+        assertEquals("out", message.getPart("out").getName());
+        assertEquals(1, pingMe.getFaults().size());
         Fault fault = pingMe.getFault("pingMeFault");
         assertNotNull(fault);
-        assertEquals(fault.getName(), "pingMeFault");
+        assertEquals("pingMeFault", fault.getName());
         message = fault.getMessage();
         assertNotNull(message);
-        assertEquals(message.getQName().getLocalPart(), "pingMeFault");
-        assertEquals(message.getQName().getNamespaceURI(), newDef.getTargetNamespace());
-        assertEquals(message.getParts().size(), 1);
-        assertEquals(message.getPart("faultDetail").getName(), "faultDetail");
+        assertEquals("pingMeFault", message.getQName().getLocalPart());
+        assertEquals(newDef.getTargetNamespace(), message.getQName().getNamespaceURI());
+        assertEquals(1, message.getParts().size());
+        assertEquals("faultDetail", message.getPart("faultDetail").getName());
         assertNull(message.getPart("faultDetail").getTypeName());
     }
     
@@ -267,7 +267,7 @@ public class ServiceWSDLBuilderTest extends Assert {
         assertEquals(newDef.getBindings().size(), 1);
         Binding binding = newDef.getBinding(new QName(newDef.getTargetNamespace(), "Greeter_SOAPBinding"));
         assertNotNull(binding);
-        assertEquals(binding.getBindingOperations().size(), 4);
+        assertEquals(4, binding.getBindingOperations().size());
     }
     
     @Test
@@ -276,11 +276,12 @@ public class ServiceWSDLBuilderTest extends Assert {
         assertNotNull(types);
         Collection<ExtensibilityElement> schemas = 
             CastUtils.cast(types.getExtensibilityElements(), ExtensibilityElement.class);
-        assertEquals(schemas.size(), 1);
+        assertEquals(1, schemas.size());
         XmlSchemaCollection schemaCollection = new XmlSchemaCollection();
         Element schemaElem = ((Schema)schemas.iterator().next()).getElement();
-        assertEquals(schemaCollection.read(schemaElem).getTargetNamespace(), 
-                     "http://apache.org/hello_world_soap_http/types");
+        assertEquals("http://apache.org/hello_world_soap_http/types",
+                     schemaCollection.read(schemaElem).getTargetNamespace() 
+                     );
     }
     
 }

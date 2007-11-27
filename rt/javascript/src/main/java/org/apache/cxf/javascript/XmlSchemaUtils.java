@@ -138,9 +138,16 @@ public final class XmlSchemaUtils {
             return type;
         }
         assert element != null;
+        // The referencing URI only helps if there is a schema that points to it.
+        // It might be the URI for the wsdl TNS, which might have no schema.
+        if (xmlSchemaCollection.getSchemaByTargetNamespace(referencingURI) == null) {
+            referencingURI = null;
+        }
+        
         if (referencingURI == null && containingType != null) {
             referencingURI = containingType.getQName().getNamespaceURI();
         }
+        
         XmlSchemaElement originalElement = element;
         while (element.getSchemaType() == null && element.getRefName() != null) {
             XmlSchemaElement nextElement = findElementByRefName(xmlSchemaCollection,

@@ -124,6 +124,14 @@ public class ServiceInfo extends AbstractDescriptionElement implements NamedItem
     public void addSchema(SchemaInfo schemaInfo) {
         schemas.add(schemaInfo);
     }
+    
+    public SchemaInfo addNewSchema(String namespaceURI) {
+        SchemaInfo schemaInfo = new SchemaInfo(this, namespaceURI);
+        schemaInfo.setSchema(getXmlSchemaCollection().
+                                newXmlSchemaInCollection(namespaceURI));
+        schemas.add(schemaInfo);
+        return schemaInfo;
+    }
 
     public SchemaInfo getSchema(String namespaceURI) {
         for (SchemaInfo s : schemas) {

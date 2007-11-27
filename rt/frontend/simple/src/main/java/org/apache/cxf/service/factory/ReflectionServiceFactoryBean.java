@@ -864,7 +864,6 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         }
         el.setSchemaType(ct);
 
-
         XmlSchemaSequence seq = new XmlSchemaSequence();
         ct.setParticle(seq);
 

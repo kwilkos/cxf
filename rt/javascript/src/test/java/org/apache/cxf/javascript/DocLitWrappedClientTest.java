@@ -123,9 +123,11 @@ public class DocLitWrappedClientTest extends AbstractCXFSpringTest {
         String errorText = testUtilities.rhinoEvaluateConvert("globalErrorStatusText", String.class);
         assertNull(errorText);
 
-        // this method returns void, which translated into a Javascript object with no properties. 
-        Scriptable responseObject = (Scriptable)testUtilities.rhinoEvaluate("globalResponseObject");
+        // This method returns void, which translated into a Javascript object with no properties.
+        // really. Void.
+        Object responseObject = testUtilities.rhinoEvaluate("globalResponseObject");
         assertNotNull(responseObject);
+        assertEquals(Context.getUndefinedValue(), responseObject);
         SimpleDocLitWrappedImpl impl = getBean(SimpleDocLitWrappedImpl.class, "dlw-service");
         TestBean1 b1returned = impl.getLastBean1();
         assertEquals(b1, b1returned);

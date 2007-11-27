@@ -49,12 +49,14 @@ import org.apache.cxf.service.model.InterfaceInfo;
 import org.apache.cxf.service.model.MessageInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.OperationInfo;
-import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.transport.local.LocalTransportFactory;
 import org.apache.cxf.wsdl.WSDLConstants;
 import org.apache.ws.commons.schema.XmlSchemaComplexType;
 import org.apache.ws.commons.schema.XmlSchemaElement;
+import org.apache.ws.commons.schema.XmlSchemaObject;
+import org.apache.ws.commons.schema.XmlSchemaObjectCollection;
+import org.apache.ws.commons.schema.XmlSchemaSequence;
 import org.apache.ws.commons.schema.XmlSchemaSimpleType;
 import org.apache.ws.commons.schema.XmlSchemaType;
 
@@ -72,7 +74,7 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
     private Set<MessageInfo> inputMessagesWithNameConflicts;
     private Set<MessageInfo> outputMessagesWithNameConflicts;
     private SchemaCollection xmlSchemaCollection;
-    private SchemaInfo serviceSchemaInfo;
+    private String serviceTargetNamespace;
     
     private boolean isWrapped;
     // facts about the wrapper when there is one.
@@ -144,23 +146,23 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
         utils.appendLine("this._onerror = null;");
         code.append("}\n\n");
 
-        serviceSchemaInfo = serviceInfo.getSchema(serviceInfo.getTargetNamespace());
-        if (serviceSchemaInfo == null) {
-            unsupportedConstruct("MISSING_SERVICE_SCHEMA",
-                                 serviceInfo.getTargetNamespace(),
-                                 serviceInfo.getName().toString());
-        }
+        serviceTargetNamespace = serviceInfo.getTargetNamespace();
     }
 
     private static class ElementAndNames {
         private XmlSchemaElement element;
         private String javascriptName;
         private String xmlName;
+        private boolean empty;
 
-        public ElementAndNames(XmlSchemaElement element, String javascriptName, String xmlName) {
+        public ElementAndNames(XmlSchemaElement element, 
+                               String javascriptName, 
+                               String xmlName, 
+                               boolean empty) {
             this.element = element;
             this.javascriptName = javascriptName;
             this.xmlName = xmlName;
+            this.empty = empty;
         }
 
         public XmlSchemaElement getElement() {
@@ -173,6 +175,10 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
 
         public String getJavascriptName() {
             return javascriptName;
+        }
+        
+        public boolean isEmpty() {
+            return empty;
         }
     }
     
@@ -378,6 +384,8 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
     private String outputDeserializerFunctionName(MessageInfo message) {
         return getFunctionGlobalName(message.getName(), "deserializeResponse");
     }
+    
+
 
     // This ignores 'wrapped', because it assumes one part that we can use one way or 
     // the other. For simple cases, this is certainly OK.
@@ -392,22 +400,25 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
         getElementsForParts(outputMessage, elements);
         ElementAndNames element = elements.get(0);
         XmlSchemaType type = element.getElement().getSchemaType();
-        assert type != null;
-        if (type instanceof XmlSchemaComplexType) {
-            XmlSchemaComplexType complexType = (XmlSchemaComplexType)type;
-            String typeObjectName = nameManager.getJavascriptName(complexType);
-            utils
-                .appendLine("var returnObject = " 
-                            + typeObjectName 
-                            + "_deserialize (cxfjsutils, partElement);\n");
-        } else {
-            XmlSchemaSimpleType simpleType = (XmlSchemaSimpleType)type;
-            utils.appendLine("var returnText = cxfjsutils.getNodeText(partElement);");
-            utils.appendLine("var returnObject = " 
-                             + utils.javascriptParseExpression(simpleType, "returnText") + ";");
+        if (!element.isEmpty()) {
+            if (type instanceof XmlSchemaComplexType) {
+                // if there are no response items, the type is likely to have no name and no particle.
+                XmlSchemaComplexType complexType = (XmlSchemaComplexType)type;
+                // if it is anonymous but not empty, we're in trouble here, as we have no way to talk
+                // about it. The code in getElementsForParts should have dealt with this.
+                String typeObjectName = nameManager.getJavascriptName(complexType);
+                utils
+                    .appendLine("var returnObject = " 
+                                + typeObjectName 
+                                + "_deserialize (cxfjsutils, partElement);\n");
+            } else if (type instanceof XmlSchemaSimpleType) {
+                XmlSchemaSimpleType simpleType = (XmlSchemaSimpleType)type;
+                utils.appendLine("var returnText = cxfjsutils.getNodeText(partElement);");
+                utils.appendLine("var returnObject = " 
+                                 + utils.javascriptParseExpression(simpleType, "returnText") + ";");
+            } 
+            utils.appendLine("return returnObject;");
         }
-
-        utils.appendLine("return returnObject;");
         code.append("}\n");
     }
 
@@ -458,7 +469,7 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
                                                  "wrapperObj",
                                                  wrapperXmlElementName,
                                                  xmlSchemaCollection, 
-                                                 serviceSchemaInfo.getNamespaceURI(),
+                                                 serviceTargetNamespace,
                                                  null);
         } else {
             int px = 0;
@@ -469,7 +480,7 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
                                                      "args[" + px + "]",
                                                      ean.getXmlName(),
                                                      xmlSchemaCollection,
-                                                     serviceSchemaInfo.getNamespaceURI(),
+                                                     serviceTargetNamespace,
                                                      null);
                 px++;
             }
@@ -482,6 +493,44 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
                     + serializerFunctionPropertyName 
                     + " = "
                     + serializerFunctionGlobalName + ";\n\n");
+    }
+    
+    private XmlSchemaSequence getTypeSequence(XmlSchemaComplexType type, 
+                                              XmlSchemaElement parentElement) {
+        if (!(type.getParticle() instanceof XmlSchemaSequence)) {
+            unsupportedConstruct("NON_SEQUENCE_PARTICLE", 
+                                 type.getQName() != null ? type.getQName() 
+                                     :
+                                     parentElement.getQName());
+        }
+        return (XmlSchemaSequence)type.getParticle();
+    }
+    
+    private boolean isEmptyType(XmlSchemaType type, XmlSchemaElement parentElement) {
+        if (type instanceof XmlSchemaComplexType) {
+            XmlSchemaComplexType complexType = (XmlSchemaComplexType)type;
+            if (complexType.getParticle() == null) {
+                return true;
+            } 
+            XmlSchemaSequence sequence = getTypeSequence(complexType, parentElement);
+            if (sequence.getItems().getCount() == 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    private XmlSchemaElement getBuriedElement(XmlSchemaComplexType type, 
+                                              XmlSchemaElement parentElement) {
+        XmlSchemaSequence sequence = getTypeSequence(type, parentElement);
+        XmlSchemaObjectCollection insides = sequence.getItems();
+        if (insides.getCount() == 1) {
+            XmlSchemaObject item = insides.getItem(0);
+            if (item instanceof XmlSchemaElement) {
+                return (XmlSchemaElement) item;
+            }
+        }
+        return null;
     }
 
     /**
@@ -510,13 +559,35 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
             }
             assert element != null;
             assert element.getQName() != null;
+            XmlSchemaType type = element.getSchemaType();
+            if (type == null) {
+                type = XmlSchemaUtils.getElementType(xmlSchemaCollection, 
+                                                     null, 
+                                                     element, 
+                                                     null);
+            }
+            
+            boolean empty = isEmptyType(type, element);
+            if (!empty && type instanceof XmlSchemaComplexType && type.getName() == null) {
+                XmlSchemaElement betterElement = getBuriedElement((XmlSchemaComplexType) type,
+                                                                  element);
+                if (betterElement != null) {
+                    element = betterElement;
+                    if (element.getSchemaType() == null) {
+                        element.setSchemaType(xmlSchemaCollection
+                                                  .getTypeByQName(element.getSchemaTypeName()));
+                    }
+                }
+                
+            }
+            
             String partJavascriptVar = JavascriptUtils.javaScriptNameToken(element.getQName().getLocalPart());
             String elementXmlRef = prefixAccumulator.xmlElementString(mpi.getConcreteName());
 
-            elements.add(new ElementAndNames(element, partJavascriptVar, elementXmlRef));
+            elements.add(new ElementAndNames(element, partJavascriptVar, elementXmlRef, empty));
         }
     }
-
+    
     // This function generated Javascript names for the parameters. 
     private void collectWrapperElementInfo() {
         
@@ -541,6 +612,7 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
                                                         serviceInfo.getTargetNamespace());
             }
             inputWrapperComplexType = (XmlSchemaComplexType)inputWrapperElement.getSchemaType();
+            // the null name is probably something awful in RFSB.
             if (inputWrapperComplexType == null) {
                 inputWrapperComplexType = (XmlSchemaComplexType)
                     XmlSchemaUtils.getElementType(xmlSchemaCollection, 
@@ -548,7 +620,19 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
                                                   inputWrapperElement, 
                                                   null);
             }
-            inputWrapperClassName = nameManager.getJavascriptName(inputWrapperComplexType);
+            if (inputWrapperComplexType == null) {
+                unsupportedConstruct("MISSING_WRAPPER_TYPE",
+                                     currentOperation.getInterface().getName(),
+                                     currentOperation.getName(), 
+                                     inputWrapperPartInfo.getName());
+            }
+            
+            if (inputWrapperComplexType.getQName() == null) {
+                // we should be ignoring this for zero-argument wrappers.
+                inputWrapperClassName = nameManager.getJavascriptName(inputWrapperPartInfo.getName());
+            } else {
+                inputWrapperClassName = nameManager.getJavascriptName(inputWrapperComplexType);
+            }
         }
 
         if (currentOperation.getOutput() != null) {
