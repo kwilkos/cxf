@@ -19,7 +19,6 @@
 
 package org.apache.cxf.ws.addressing;
 
-
 import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.Iterator;
@@ -29,7 +28,6 @@ import java.util.ResourceBundle;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import javax.wsdl.extensions.ExtensibilityElement;
 import javax.xml.namespace.QName;
 
@@ -41,6 +39,7 @@ import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.model.EndpointInfo;
+import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.Destination;
 import org.apache.cxf.ws.addressing.policy.MetadataConstants;
@@ -379,9 +378,46 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
         if (ContextUtils.hasEmptyAction(maps)) {
             maps.setAction(ContextUtils.getAction(message));
         }
+
+        if (ContextUtils.isOutbound(message)) {
+            maps.setAction(ContextUtils.getAttributedURI(getActionUri(message)));
+        }
         return maps;
     }
 
+    private String getActionUri(Message message) {
+        OperationInfo op = message.getExchange().get(OperationInfo.class);
+        String interfaceName = op.getInterface().getName().getLocalPart();
+
+        String actionUri = null;
+        String opNamespace = addPath(op.getName().getNamespaceURI(), interfaceName);
+        
+        if (ContextUtils.isRequestor(message)) {
+            if (null == op.getInputName()) {
+                actionUri = addPath(opNamespace, op.getName().getLocalPart() + "Request");
+            } else {
+                actionUri = addPath(opNamespace, op.getInputName());
+            }
+        } else {
+            if (null == op.getOutputName()) {
+                actionUri = addPath(opNamespace, op.getOutput().getName().getLocalPart());
+            } else {
+                actionUri = addPath(opNamespace, op.getOutputName());
+            }
+        }
+        return actionUri;
+    }
+
+    private String addPath(String uri, String path) {
+        StringBuffer buffer = new StringBuffer();
+        buffer.append(uri);
+        if (!uri.endsWith("/") && !path.startsWith("/")) {
+            buffer.append("/");
+        }
+        buffer.append(path);
+        return buffer.toString();
+    }
+    
     /**
      * Add MAPs which are specific to the requestor or responder role.
      *
