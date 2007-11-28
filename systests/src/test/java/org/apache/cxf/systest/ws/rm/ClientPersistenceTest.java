@@ -60,8 +60,10 @@ import org.junit.Test;
  */
 public class ClientPersistenceTest extends AbstractBusClientServerTestBase {
 
-    public static final String GREETMEONEWAY_ACTION = null;
-    public static final String GREETME_ACTION = null;
+    public static final String GREETMEONEWAY_ACTION 
+        = "http://cxf.apache.org/greeter_control/Greeter/greetMeOneWayRequest";
+    public static final String GREETME_ACTION
+        = "http://cxf.apache.org/greeter_control/Greeter/greetMeRequest";
     private static final Logger LOG = LogUtils.getLogger(ClientPersistenceTest.class);
     
     private Greeter greeter;

@@ -369,19 +369,22 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
      */
     private AddressingPropertiesImpl assembleGeneric(Message message) {
         AddressingPropertiesImpl maps = getMAPs(message, true, true);
-        // MessageID        
+        // MessageID
         if (maps.getMessageID() == null) {
             String messageID = ContextUtils.generateUUID();
             maps.setMessageID(ContextUtils.getAttributedURI(messageID));
         }
+
         // Action
         if (ContextUtils.hasEmptyAction(maps)) {
             maps.setAction(ContextUtils.getAction(message));
+
+            if (ContextUtils.hasEmptyAction(maps)
+                && ContextUtils.isOutbound(message)) {
+                maps.setAction(ContextUtils.getAttributedURI(getActionUri(message)));
+            }
         }
 
-//         if (ContextUtils.isOutbound(message)) {
-//             maps.setAction(ContextUtils.getAttributedURI(getActionUri(message)));
-//         }
         return maps;
     }
 
@@ -408,11 +411,20 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
         return actionUri;
     }
 
+
+    private String getDelimiter(String uri) {
+        if (uri.startsWith("urn")) {
+            return ".";
+        }
+        return "/";
+    }
+
     private String addPath(String uri, String path) {
         StringBuffer buffer = new StringBuffer();
         buffer.append(uri);
-        if (!uri.endsWith("/") && !path.startsWith("/")) {
-            buffer.append("/");
+        String delimiter = getDelimiter(uri);
+        if (!uri.endsWith(delimiter) && !path.startsWith(delimiter)) {
+            buffer.append(delimiter);
         }
         buffer.append(path);
         return buffer.toString();
