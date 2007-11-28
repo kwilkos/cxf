@@ -19,6 +19,9 @@
 
 package org.apache.cxf.jaxb.io;
 
+import java.util.Collections;
+import java.util.Map;
+
 import javax.xml.bind.JAXBContext;
 
 import org.apache.cxf.databinding.DataWriter;
@@ -29,8 +32,16 @@ import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.ws.commons.schema.XmlSchemaElement;
 
 public class DataWriterImpl<T> extends JAXBDataBase implements DataWriter<T> {
+    
+    private Map<String, Object> marshallerProperties = Collections.emptyMap();
+    
     public DataWriterImpl(JAXBContext ctx) {
         super(ctx);
+    }
+    
+    public DataWriterImpl(JAXBContext ctx, Map<String, Object> marshallerProperties) {
+        super(ctx);
+        this.marshallerProperties = marshallerProperties;
     }
     
     public void write(Object obj, T output) {
@@ -46,13 +57,16 @@ public class DataWriterImpl<T> extends JAXBDataBase implements DataWriter<T> {
                 && Boolean.TRUE.equals(part.getProperty(JAXBDataBinding.class.getName() 
                                                         + ".CUSTOM_EXCEPTION"))) {
                 JAXBEncoderDecoder.marshallException(getJAXBContext(), getSchema(), (Exception)obj,
-                                                     part, output, getAttachmentMarshaller());                
+                                                     part, output, getAttachmentMarshaller(),
+                                                     marshallerProperties);                
             } else {
                 JAXBEncoderDecoder.marshall(getJAXBContext(), getSchema(), obj, part, output, 
-                                        getAttachmentMarshaller());
+                                        getAttachmentMarshaller(),
+                                        marshallerProperties);
             }
         } else if (obj == null && needToRender(obj, part)) {
-            JAXBEncoderDecoder.marshallNullElement(getJAXBContext(), getSchema(), output, part);
+            JAXBEncoderDecoder.marshallNullElement(getJAXBContext(), getSchema(), output, part,
+                                                   marshallerProperties);
         }
     }
 
@@ -62,5 +76,13 @@ public class DataWriterImpl<T> extends JAXBDataBase implements DataWriter<T> {
             return element.isNillable() && element.getMinOccurs() > 0;
         }
         return false;
+    }
+
+    public Map<String, Object> getMarshallerProperties() {
+        return marshallerProperties;
+    }
+
+    public void setMarshallerProperties(Map<String, Object> marshallerProperties) {
+        this.marshallerProperties = marshallerProperties;
     }
 }

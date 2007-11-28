@@ -27,6 +27,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -97,6 +98,9 @@ public final class JAXBDataBinding extends AbstractDataBinding implements DataBi
 
     Class<?> cls;
 
+    private Map<String, Object> contextProperties = Collections.emptyMap();
+    private Map<String, Object> marshallerProperties = Collections.emptyMap();
+
     
     public JAXBDataBinding() {
     }
@@ -123,13 +127,14 @@ public final class JAXBDataBinding extends AbstractDataBinding implements DataBi
     @SuppressWarnings("unchecked")
     public <T> DataWriter<T> createWriter(Class<T> c) {
         if (c == XMLStreamWriter.class) {
-            return (DataWriter<T>)new DataWriterImpl<XMLStreamWriter>(context);
+            return (DataWriter<T>)new DataWriterImpl<XMLStreamWriter>(context, marshallerProperties);
         } else if (c == OutputStream.class) {
-            return (DataWriter<T>)new DataWriterImpl<OutputStream>(context);            
+            return (DataWriter<T>)new DataWriterImpl<OutputStream>(context, marshallerProperties);            
         } else if (c == XMLEventWriter.class) {
-            return (DataWriter<T>)new DataWriterImpl<XMLEventWriter>(context);           
+            return (DataWriter<T>)new DataWriterImpl<XMLEventWriter>(context,
+                                                                     marshallerProperties);           
         } else if (c == Node.class) {
-            return (DataWriter<T>)new DataWriterImpl<Node>(context);      
+            return (DataWriter<T>)new DataWriterImpl<Node>(context, marshallerProperties);      
         }
         
         return null;
@@ -312,6 +317,11 @@ public final class JAXBDataBinding extends AbstractDataBinding implements DataBi
             map.put("com.sun.xml.bind.defaultNamespaceRemap", defaultNs);
         }
         
+        if (contextProperties != null) {
+            //add any specified context properties into the properties map
+            map.putAll(contextProperties);
+        }
+        
         //try and read any jaxb.index files that are with the other classes.  This should 
         //allow loading of extra classes (such as subclasses for inheritance reasons) 
         //that are in the same package.
@@ -425,6 +435,27 @@ public final class JAXBDataBinding extends AbstractDataBinding implements DataBi
      */
     public Map<String, String> getDeclaredNamespaceMappings() {
         return null;
+    }
+
+    /**
+     * Return a map of properties. These properties are passed to
+     * JAXBContext.newInstance when this object creates a context.
+     * @return the map of JAXB context properties.
+     */
+    public Map<String, Object> getContextProperties() {
+        return contextProperties;
+    }
+
+    /**
+     * Set a map of JAXB context properties. These properties are passed
+     * to JAXBContext.newInstance when this object creates a context.
+     * Note that if you create a JAXB context elsewhere, you will 
+     * not respect these properties unless you handle it manually. 
+     * 
+     * @param contextProperties map of properties.
+     */
+    public void setContextProperties(Map<String, Object> contextProperties) {
+        this.contextProperties = contextProperties;
     }
     
     
