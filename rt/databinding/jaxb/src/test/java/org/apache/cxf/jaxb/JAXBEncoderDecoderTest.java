@@ -25,6 +25,9 @@ import java.io.InputStream;
 import java.io.StringWriter;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
@@ -45,6 +48,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
+import com.sun.xml.bind.marshaller.NamespacePrefixMapper;
+
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.jaxb_form.ObjectWithQualifiedElementElement;
@@ -58,6 +63,7 @@ import org.apache.hello_world_soap_http.types.GreetMe;
 import org.apache.hello_world_soap_http.types.GreetMeResponse;
 import org.apache.hello_world_soap_http.types.StringStruct;
 import org.apache.type_test.doc.TypeTestPortType;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -76,13 +82,8 @@ public class JAXBEncoderDecoderTest extends Assert {
     JAXBContext context;
     Schema schema;
     
-    public JAXBEncoderDecoderTest() {
-    }
-
+    private Map<String, Object> emptyMarshallerProperties = Collections.emptyMap();
     
-    public JAXBEncoderDecoderTest(String arg0) {
-    }
-
     @Before
     public void setUp() throws Exception {
         
@@ -118,7 +119,7 @@ public class JAXBEncoderDecoderTest extends Assert {
 
         Node node;
         try {
-            JAXBEncoderDecoder.marshall(context, null, null, part, elNode);
+            JAXBEncoderDecoder.marshall(context, null, null, part, elNode, emptyMarshallerProperties);
             fail("Should have thrown a Fault");
         } catch (Fault ex) {
             //expected - not a valid object
@@ -129,7 +130,7 @@ public class JAXBEncoderDecoderTest extends Assert {
         QName elName = new QName(wrapperAnnotation.targetNamespace(),
                                  wrapperAnnotation.localName());
         part.setElementQName(elName);
-        JAXBEncoderDecoder.marshall(context, null, obj, part, elNode);
+        JAXBEncoderDecoder.marshall(context, null, obj, part, elNode, emptyMarshallerProperties);
         node = elNode.getLastChild();
         //The XML Tree Looks like
         //<GreetMe><requestType>Hello</requestType></GreetMe>
@@ -146,10 +147,11 @@ public class JAXBEncoderDecoderTest extends Assert {
         //stringStruct.setArg0("hello");
         stringStruct.setArg1("world");
         // Marshal without the schema should work.
-        JAXBEncoderDecoder.marshall(context, null, stringStruct, part,  elNode);
+        JAXBEncoderDecoder.marshall(context, null, stringStruct, part,  elNode, emptyMarshallerProperties);
         try {
             // Marshal with the schema should get an exception.
-            JAXBEncoderDecoder.marshall(context, schema, stringStruct, part,  elNode);
+            JAXBEncoderDecoder.marshall(context, schema, stringStruct, part,  elNode, 
+                                        emptyMarshallerProperties);
             fail("Marshal with schema should have thrown a Fault");
         } catch (Fault ex) {
             //expected - not a valid object
@@ -172,13 +174,52 @@ public class JAXBEncoderDecoderTest extends Assert {
         XMLOutputFactory opFactory = XMLOutputFactory.newInstance();
         opFactory.setProperty(XMLOutputFactory.IS_REPAIRING_NAMESPACES, Boolean.TRUE);
         XMLEventWriter writer = opFactory.createXMLEventWriter(stringWriter);
-        JAXBEncoderDecoder.marshall(context, null, testObject, part, writer);
+        JAXBEncoderDecoder.marshall(context, null, testObject, part, writer, emptyMarshallerProperties);
         writer.flush();
         writer.close();
         String xmlResult = stringWriter.toString();
         // the following is a bit of a crock, but, to tell the truth, this test case most exists
         // so that it could be examined inside the debugger to see how JAXB works.
         assertTrue(xmlResult.contains("ns3:string2"));
+    }
+    
+    @Test
+    public void testCustomNamespaces() throws Exception {
+        Map<String, Object> marshallProps = new HashMap<String, Object>();
+        NamespacePrefixMapper mapper = new NamespacePrefixMapper() {
+
+            @Override
+            public String getPreferredPrefix(String namespaceUri, String suggestion, boolean requirePrefix) {
+                if ("http://apache.org/hello_world_soap_http/types".equals(namespaceUri)) {
+                    return "Omnia";
+                } else if ("http://cxf.apache.org/jaxb_form".equals(namespaceUri)) {
+                    return "Gallia";
+                }
+                return suggestion;
+            } 
+        };
+        marshallProps.put("com.sun.xml.bind.namespacePrefixMapper", mapper);
+        ObjectWithQualifiedElementElement testObject = new ObjectWithQualifiedElementElement();
+        testObject.setString1("twine");
+        testObject.setString2("cord");
+        
+        QName elName = new QName(wrapperAnnotation.targetNamespace(),
+                                 wrapperAnnotation.localName());
+        MessagePartInfo part = new MessagePartInfo(elName, null);
+        part.setElement(true);
+        part.setElementQName(elName);
+        
+        StringWriter stringWriter = new StringWriter();
+        XMLOutputFactory opFactory = XMLOutputFactory.newInstance();
+        opFactory.setProperty(XMLOutputFactory.IS_REPAIRING_NAMESPACES, Boolean.TRUE);
+        XMLEventWriter writer = opFactory.createXMLEventWriter(stringWriter);
+        JAXBEncoderDecoder.marshall(context, null, testObject, part, writer, marshallProps);
+        writer.flush();
+        writer.close();
+        String xmlResult = stringWriter.toString();
+        // the following is a bit of a crock, but, to tell the truth, this test case most exists
+        // so that it could be examined inside the debugger to see how JAXB works.
+        assertTrue(xmlResult.contains("Gallia:string2"));
     }
 
     @Test
@@ -198,7 +239,7 @@ public class JAXBEncoderDecoderTest extends Assert {
 
         //STARTDOCUMENT/ENDDOCUMENT is not required
         //writer.add(eFactory.createStartDocument("utf-8", "1.0"));        
-        JAXBEncoderDecoder.marshall(context, null, obj, part, writer);
+        JAXBEncoderDecoder.marshall(context, null, obj, part, writer, emptyMarshallerProperties);
         //writer.add(eFactory.createEndDocument());
         writer.flush();
         writer.close();
@@ -256,7 +297,8 @@ public class JAXBEncoderDecoderTest extends Assert {
         Document doc = DOMUtils.createDocument();
         Element elNode = doc.createElementNS(elName.getNamespaceURI(), 
                                              elName.getLocalPart());
-        JAXBEncoderDecoder.marshall(context, null, new String("TestSOAPMessage"), part,  elNode);
+        JAXBEncoderDecoder.marshall(context, null, 
+                                    new String("TestSOAPMessage"), part,  elNode, emptyMarshallerProperties);
         
         assertNotNull(elNode.getChildNodes());
         assertEquals("TestSOAPMessage", elNode.getFirstChild().getFirstChild().getNodeValue());
@@ -366,7 +408,7 @@ public class JAXBEncoderDecoderTest extends Assert {
 
         //STARTDOCUMENT/ENDDOCUMENT is not required
         //writer.add(eFactory.createStartDocument("utf-8", "1.0"));        
-        JAXBEncoderDecoder.marshall(context, null, obj, writer);
+        JAXBEncoderDecoder.marshall(context, null, obj, writer, emptyMarshallerProperties);
         //writer.add(eFactory.createEndDocument());
         writer.flush();
         writer.close();
