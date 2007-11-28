@@ -102,6 +102,23 @@ public class WSAFromWSDLTest extends AbstractBusClientServerTestBase {
         assertTrue(input.toString().indexOf(expectedIn) != -1);
     }
 
+
+    @Test
+    public void testAddNumbers3() throws Exception {
+        ByteArrayOutputStream input = setupInLogging();
+        ByteArrayOutputStream output = setupOutLogging();
+
+        AddNumbersPortType port = getPort();
+
+        assertEquals(3, port.addNumbers3(1, 2));
+
+        String expectedOut = "3in";
+        String expectedIn = "3out";
+
+        assertTrue(output.toString().indexOf(expectedOut) != -1);
+        assertTrue(input.toString().indexOf(expectedIn) != -1);
+    }
+
     private AddNumbersPortType getPort() {
         URL wsdl = getClass().getResource("/wsdl/add_numbers.wsdl");
         assertNotNull("WSDL is null", wsdl);

@@ -59,6 +59,9 @@ public class ServerPersistenceTest extends AbstractBusClientServerTestBase {
         = "http://cxf.apache.org/greeter_control/Greeter/greetMeOneWayRequest";
     public static final String GREETME_ACTION
         = "http://cxf.apache.org/greeter_control/Greeter/greetMeRequest";
+    private static final String GREETME_RESPONSE_ACTION
+        = "http://cxf.apache.org/greeter_control/Greeter/greetMeResponse";
+
     private static final Logger LOG = LogUtils.getLogger(ServerPersistenceTest.class);
     private static final String CFG = "/org/apache/cxf/systest/ws/rm/persistent.xml";
     private static final String SERVER_LOSS_CFG 
@@ -179,8 +182,8 @@ public class ServerPersistenceTest extends AbstractBusClientServerTestBase {
         mf.verifyPartialResponses(4);
         mf.purgePartialResponses();
         expectedActions = new String[] {RMConstants.getCreateSequenceResponseAction(),
-                                        GREETME_ACTION,
-                                        GREETME_ACTION};
+                                        GREETME_RESPONSE_ACTION,
+                                        GREETME_RESPONSE_ACTION};
         mf.verifyActions(expectedActions, false);
         // mf.verifyMessageNumbers(new String[] {null, "1", "3"}, false);
         // mf.verifyAcknowledgements(new boolean[] {false, true, true}, false);    
@@ -216,7 +219,7 @@ public class ServerPersistenceTest extends AbstractBusClientServerTestBase {
             assertTrue(nIn >= 1);
             String[] expectedActions = new String[nIn];
             for (int i = 0; i < nIn; i++) {
-                expectedActions[i] = GREETME_ACTION;
+                expectedActions[i] = GREETME_RESPONSE_ACTION;
             }
             mf.verifyActions(expectedActions, false);
         }

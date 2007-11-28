@@ -39,6 +39,7 @@ import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.model.EndpointInfo;
+import org.apache.cxf.service.model.MessageInfo;
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.Destination;
@@ -56,6 +57,9 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
     private static final Logger LOG = 
         LogUtils.getL7dLogger(MAPAggregator.class);
     private static final ResourceBundle BUNDLE = LOG.getResourceBundle();
+
+    private static final QName WSAW_ACTION_QNAME = new QName("http://www.w3.org/2006/05/addressing/wsdl", 
+                                                             "Action");
     
 
     /**
@@ -388,6 +392,29 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
         return maps;
     }
 
+    private String getActionFromInputMessage(final OperationInfo operation) {
+        MessageInfo inputMessage = operation.getInput();
+
+        if (inputMessage.getExtensionAttributes() != null) {
+            QName inputAction = (QName)inputMessage.getExtensionAttribute(WSAW_ACTION_QNAME);
+            if (inputAction != null) {
+                return inputAction.getLocalPart();
+            }
+        }
+        return null;
+    }
+    
+    private String getActionFromOutputMessage(final OperationInfo operation) {
+        MessageInfo outputMessage = operation.getOutput();
+        if (outputMessage != null && outputMessage.getExtensionAttributes() != null) {
+            QName outputAction = (QName)outputMessage.getExtensionAttribute(WSAW_ACTION_QNAME);
+            if (outputAction != null) {
+                return outputAction.getLocalPart();
+            }
+        }
+        return null;
+    }
+
     protected String getActionUri(Message message) {
         OperationInfo op = message.getExchange().get(OperationInfo.class);
         String interfaceName = op.getInterface().getName().getLocalPart();
@@ -396,13 +423,19 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
         String opNamespace = addPath(op.getName().getNamespaceURI(), interfaceName);
         
         if (ContextUtils.isRequestor(message)) {
-            if (null == op.getInputName()) {
+            String explicitAction = getActionFromInputMessage(op);
+            if (explicitAction != null) {
+                actionUri = explicitAction;
+            } else if (null == op.getInputName()) {
                 actionUri = addPath(opNamespace, op.getName().getLocalPart() + "Request");
             } else {
                 actionUri = addPath(opNamespace, op.getInputName());
             }
         } else {
-            if (null == op.getOutputName()) {
+            String explicitAction = getActionFromOutputMessage(op);
+            if (explicitAction != null) {
+                actionUri = explicitAction;
+            } else if (null == op.getOutputName()) {
                 actionUri = addPath(opNamespace, op.getOutput().getName().getLocalPart());
             } else {
                 actionUri = addPath(opNamespace, op.getOutputName());

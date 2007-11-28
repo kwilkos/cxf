@@ -36,4 +36,8 @@ public class AddNumberImpl implements AddNumbersPortType {
     public int addNumbers2(int number1, int number2) {
         return number1 + number2;
     }
+
+    public int addNumbers3(int number1, int number2) {
+        return number1 + number2;
+    }
 }
