@@ -26,6 +26,7 @@ import java.util.logging.Logger;
 
 import javax.annotation.Resource;
 
+import javax.jws.WebMethod;
 import javax.jws.WebService;
 import javax.xml.ws.AsyncHandler;
 import javax.xml.ws.BindingProvider;
@@ -131,6 +132,7 @@ public class GreeterImpl implements Greeter {
         return "How are you " + me;
     }
 
+    @WebMethod
     public BareDocumentResponse testDocLitBare(String in) {
         invocationCount++;
         BareDocumentResponse res = new BareDocumentResponse();
