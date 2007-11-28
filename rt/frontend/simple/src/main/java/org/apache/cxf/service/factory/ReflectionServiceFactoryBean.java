@@ -38,12 +38,16 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.activation.DataHandler;
+import javax.xml.bind.annotation.XmlAttachmentRef;
 import javax.xml.bind.annotation.XmlList;
 import javax.xml.bind.annotation.XmlMimeType;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Holder;
 
@@ -120,7 +124,8 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     public static final String METHOD = "operation.method";
     public static final String METHOD_PARAM_ANNOTATIONS = "method.parameters.annotations";
     public static final String METHOD_ANNOTATONS = "method.return.annotations";
-
+    public static final QName SWA_REF  = new QName("http://ws-i.org/profiles/basic/1.1/xsd", "swaRef");
+    public static final String SWA_REF_LOCATION = "http://ws-i.org/profiles/basic/1.1/swaref.xsd";
     private static final Logger LOG = LogUtils.getL7dLogger(ReflectionServiceFactoryBean.class,
                                                             "SimpleMessages");
 
@@ -515,7 +520,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         QName intfName = getInterfaceName();
         InterfaceInfo intf = new InterfaceInfo(serviceInfo, intfName);
 
-        Method[] methods = serviceClass.getMethods();
+        Method[] methods = getServiceClass().getMethods();
 
         // The BP profile states we can't have operations of the same name
         // so we have to append numbers to the name. Different JVMs sort methods
@@ -870,12 +875,13 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         for (MessagePartInfo mpi : unwrappedMessage.getMessageParts()) {
             el = new XmlSchemaElement();
             XmlSchemaTools.setElementQName(el, mpi.getName());
+            Map<Class, Boolean> jaxbAnnoMap = getJaxbAnnoMap(mpi);
             if (mpi.isElement()) {
                 addImport(schema, mpi.getElementQName().getNamespaceURI());
                 XmlSchemaTools.setElementQName(el, null);
                 XmlSchemaTools.setElementRefName(el, mpi.getElementQName());
             } else {
-                if (mpi.getTypeQName() != null && !existXmlListAnno(mpi)) {
+                if (mpi.getTypeQName() != null && !jaxbAnnoMap.containsKey(XmlList.class)) {
                     el.setSchemaTypeName(mpi.getTypeQName());
                     addImport(schema, mpi.getTypeQName().getNamespaceURI());
                 }
@@ -905,7 +911,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                                 
                 if (mpi.getTypeClass() != null && mpi.getTypeClass().isArray()
                     && !Byte.TYPE.equals(mpi.getTypeClass().getComponentType())) {
-                    if (existXmlListAnno(mpi)) {
+                    if (jaxbAnnoMap.containsKey(XmlList.class)) {
                         setSimpleTypeList(schema, el, mpi);                         
                     } else {
                         String min = (String)mpi.getProperty("minOccurs");
@@ -934,6 +940,12 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                     el.setMaxOccurs(1);
                     if (mpi.getTypeClass() != null && !mpi.getTypeClass().isPrimitive()) {
                         el.setMinOccurs(0);
+                    }
+                    if (jaxbAnnoMap.containsKey(XmlAttachmentRef.class) 
+                        && mpi.getTypeClass() != null 
+                        && mpi.getTypeClass().isAssignableFrom(DataHandler.class)) {
+                        setSwaRefType(schema, el);
+
                     }
                 }
                 seq.getItems().add(el);
@@ -980,20 +992,27 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         }
     }
 
-    private boolean existXmlListAnno(MessagePartInfo mpi) {
+    private Map<Class, Boolean> getJaxbAnnoMap(MessagePartInfo mpi) {
+        Map<Class, Boolean> map = new ConcurrentHashMap<Class, Boolean>();
         Annotation[] anns = getMethodParameterAnnotations(mpi);
-        if (anns != null) {
+        if (anns != null) {           
             for (Annotation anno : anns) {
                 if (anno instanceof XmlList) {
-                    return true;
+                    map.put(XmlList.class, true);
+                }
+                if (anno instanceof XmlAttachmentRef) {
+                    map.put(XmlAttachmentRef.class, true);
+                }
+                if (anno instanceof XmlJavaTypeAdapter) {
+                    map.put(XmlJavaTypeAdapter.class, true);
                 }
             }
         }
-        return false;
+        return map;
     }
     
     private void setSimpleTypeList(XmlSchema schema, XmlSchemaElement el, MessagePartInfo mpi) {
-        XmlSchemaSimpleType simpleType = new XmlSchemaSimpleType(schema);                       
+        XmlSchemaSimpleType simpleType = new XmlSchemaSimpleType(schema);
         XmlSchemaSimpleTypeList simpleList = new XmlSchemaSimpleTypeList();
         if (mpi.getXmlSchema() instanceof XmlSchemaType) {
             XmlSchemaType type = (XmlSchemaType)mpi.getXmlSchema();
@@ -1003,6 +1022,16 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         }
         simpleType.setContent(simpleList);
         el.setSchemaType(simpleType); 
+    }
+    
+    
+    private void setSwaRefType(XmlSchema schema, XmlSchemaElement  el) {
+        el.setSchemaType(null);
+        el.setSchemaTypeName(SWA_REF);
+        XmlSchemaImport swaImport = new XmlSchemaImport();
+        swaImport.setNamespace(SWA_REF.getNamespaceURI());
+        swaImport.setSchemaLocation(SWA_REF_LOCATION);
+        schema.getItems().add(swaImport);
     }
     
     private SchemaInfo getOrCreateSchema(ServiceInfo serviceInfo,

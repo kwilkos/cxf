@@ -22,6 +22,7 @@ package org.apache.cxf.tools.java2wsdl.processor.internal.jaxws;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.Collection;
+
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.BusFactory;
@@ -41,12 +42,13 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 public class JaxwsServiceBuilderTest extends ProcessorTestBase {
-    JaxwsServiceBuilder builder = new JaxwsServiceBuilder();
+    JaxwsServiceBuilder builder;
     WSDL11Generator generator = new WSDL11Generator();
 
     @Before
     public void setUp() throws Exception {
         super.setUp();
+        builder = new JaxwsServiceBuilder();
         builder.setBus(BusFactory.getDefaultBus());
         generator.setBus(builder.getBus());
     }
@@ -60,7 +62,6 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
     public void testGetOutputFile() {
         builder.setServiceClass(Stock.class);
         assertNull(builder.getOutputFile());
-
         builder.setServiceClass(Hello.class);
         assertNotNull(builder.getOutputFile());
         File expected = new File("file:///c:/tmp.wsdl");

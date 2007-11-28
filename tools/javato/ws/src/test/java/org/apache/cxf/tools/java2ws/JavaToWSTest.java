@@ -256,6 +256,22 @@ public class JavaToWSTest extends ToolTestBase {
 
     }
     
+    @Test
+    public void testXmlAttachementRef() throws Exception {
+        String[] args = new String[] {"-o", output.getPath() + "/swa-ref.wsdl", "-verbose",
+                                      "-wsdl", "org.apache.attachment.AddNumbersImpl"};
+        JavaToWS.main(args);
+        File file = new File(output.getPath() + "/AddNumbers.wsdl");
+        String str = FileUtils.getStringFromFile(file);
+        String swaImport = "<xsd:import  namespace=\"http://ws-i.org/profiles/basic/1.1/xsd\"" 
+            + "  schemaLocation=\"http://ws-i.org/profiles/basic/1.1/swaref.xsd\"";
+        
+        assertTrue("Java2wsdl did not generate swaRef type element", 
+                   str.indexOf(":swaRef") > -1 && str.indexOf(swaImport) > -1);
+        
+    }
+    
+    
     protected String getClassPath() throws URISyntaxException {
         ClassLoader loader = getClass().getClassLoader();
         StringBuffer classPath = new StringBuffer();
