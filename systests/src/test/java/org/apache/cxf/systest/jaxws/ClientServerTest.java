@@ -49,7 +49,8 @@ import javax.xml.xpath.XPathConstants;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-//import org.apache.cxf.Bus;
+import com.sun.xml.bind.api.JAXBRIContext;
+
 import org.apache.cxf.Bus;
 import org.apache.cxf.binding.soap.Soap11;
 import org.apache.cxf.bus.CXFBusFactory;
@@ -838,28 +839,30 @@ public class ClientServerTest extends AbstractBusClientServerTestBase {
     }
     
     @Test
-    public void testDynamicClientFactory()  {
+    public void testDynamicClientFactory() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
         assertNotNull(wsdl);
         String wsdlUrl = null;
-        try {
-            wsdlUrl = wsdl.toURI().toString();
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-            fail("Can't get the hello_world.wsdl url");            
-        }
-        try {
-            //TODO test fault exceptions 
-            DynamicClientFactory dcf = DynamicClientFactory.newInstance();
-            Client client = dcf.createClient(wsdlUrl, serviceName, portName);
-            client.invoke("greetMe", "test");        
-            Object[] result = client.invoke("sayHi");
-            assertNotNull("no response received from service", result);
-            assertEquals("Bonjour", result[0]);
-        } catch (Exception e) {            
-            e.printStackTrace();
-            fail("There is some excpetion happened ");
-        }    
+        wsdlUrl = wsdl.toURI().toString();
+
+        //TODO test fault exceptions 
+        DynamicClientFactory dcf = DynamicClientFactory.newInstance();
+        Client client = dcf.createClient(wsdlUrl, serviceName, portName);
+        client.invoke("greetMe", "test");        
+        Object[] result = client.invoke("sayHi");
+        assertNotNull("no response received from service", result);
+        assertEquals("Bonjour", result[0]);
+        //TODO: the following isn't a real test. We need to test against a service
+        // that would actually notice the difference. At least it ensures that 
+        // specifying the property does not explode.
+        Map<String, Object> jaxbContextProperties = new HashMap<String, Object>();
+        jaxbContextProperties.put(JAXBRIContext.DEFAULT_NAMESPACE_REMAP, "uri:ultima:thule");
+        dcf.setJaxbContextProperties(jaxbContextProperties);
+        client = dcf.createClient(wsdlUrl, serviceName, portName);
+        client.invoke("greetMe", "test");        
+        result = client.invoke("sayHi");
+        assertNotNull("no response received from service", result);
+        assertEquals("Bonjour", result[0]);
     }
     
     @Test

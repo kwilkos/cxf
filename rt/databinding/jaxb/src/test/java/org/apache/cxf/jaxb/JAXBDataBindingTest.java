@@ -21,9 +21,12 @@ package org.apache.cxf.jaxb;
 
 
 import java.io.OutputStream;
+import java.io.StringWriter;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -34,11 +37,13 @@ import javax.wsdl.xml.WSDLReader;
 import javax.xml.bind.JAXBContext;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLEventWriter;
+import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 
 import org.w3c.dom.Node;
 
+import com.sun.xml.bind.api.JAXBRIContext;
 import com.sun.xml.bind.v2.runtime.JAXBContextImpl;
 
 import org.apache.cxf.Bus;
@@ -47,6 +52,7 @@ import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.databinding.DataReader;
 import org.apache.cxf.databinding.DataWriter;
 import org.apache.cxf.helpers.CastUtils;
+import org.apache.cxf.jaxb.fortest.unqualified.UnqualifiedBean;
 import org.apache.cxf.jaxb.io.DataReaderImpl;
 import org.apache.cxf.jaxb.io.DataWriterImpl;
 import org.apache.cxf.jaxb_misc.ObjectFactory;
@@ -191,6 +197,27 @@ public class JAXBDataBindingTest extends Assert {
             JAXBContextImpl rictx = (JAXBContextImpl)ctx;
             assertNotNull(rictx.getBeanInfo(TestJAXBClass.class));
         }
+    }
+    
+    @Test 
+    public void testContextProperties() throws Exception {
+        JAXBDataBinding db = new JAXBDataBinding();
+        Map<String, Object> contextProperties = new HashMap<String, Object>();
+        contextProperties.put(JAXBRIContext.DEFAULT_NAMESPACE_REMAP, "uri:ultima:thule");
+        db.setContextProperties(contextProperties);
+        Set<Class<?>> classes = new HashSet<Class<?>>();
+        classes.add(UnqualifiedBean.class);
+        db.setContext(db.createJAXBContext(classes));
+        DataWriter<XMLStreamWriter> writer = db.createWriter(XMLStreamWriter.class);
+        XMLOutputFactory writerFactory = XMLOutputFactory.newInstance();
+        StringWriter stringWriter = new StringWriter();
+        XMLStreamWriter xmlWriter = writerFactory.createXMLStreamWriter(stringWriter);
+        UnqualifiedBean bean = new UnqualifiedBean();
+        bean.setAriadne("spider");
+        writer.write(bean, xmlWriter);
+        xmlWriter.flush();
+        String xml = stringWriter.toString();
+        assertTrue(xml.contains("uri:ultima:thule"));
     }
     
 }
