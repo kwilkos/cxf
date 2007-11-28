@@ -66,7 +66,6 @@ public class EndpointReferenceTest extends AbstractJaxWsTest {
     }
 
     @Test
-    @Ignore("Not implemented yet")
     public void testBindingProviderSOAPBinding() throws Exception {
         javax.xml.ws.Service s = javax.xml.ws.Service
             .create(new QName("http://apache.org/hello_world_soap_http", "SoapPort"));
@@ -82,15 +81,28 @@ public class EndpointReferenceTest extends AbstractJaxWsTest {
         //1.2/HTTP, then a W3CEndpointReference MUST be returned.
         assertTrue(er instanceof W3CEndpointReference);
     }
-
+    
     @Test
-    @Ignore("Not implemented yet")
-    public void testBindingProviderXMLBinding() throws Exception {
-        javax.xml.ws.Service s = javax.xml.ws.Service
-            .create(new QName("http://apache.org/hello_world_soap_http", "SoapPort"));
-        assertNotNull(s);
+    public void testBindingProviderSOAPBindingStaicService() throws Exception {
+        org.apache.hello_world_soap_http.SOAPService s = new org.apache.hello_world_soap_http.SOAPService();
 
         Greeter greeter = s.getPort(Greeter.class);
+        BindingProvider bindingProvider = (BindingProvider)greeter;
+
+        EndpointReference er = bindingProvider.getEndpointReference();
+        assertNotNull(er);
+
+        //If the BindingProvider instance has a binding that is either SOAP 1.1/HTTP or SOAP
+        //1.2/HTTP, then a W3CEndpointReference MUST be returned.
+        assertTrue(er instanceof W3CEndpointReference);
+    }
+
+    @Test
+    public void testBindingProviderXMLBindingStaticService() throws Exception {
+        org.apache.hello_world_xml_http.bare.XMLService s = 
+            new org.apache.hello_world_xml_http.bare.XMLService();
+
+        org.apache.hello_world_xml_http.bare.Greeter greeter = s.getXMLPort();
         BindingProvider bindingProvider = (BindingProvider)greeter;
 
         //If the binding is XML/HTTP an java.lang.UnsupportedOperationException MUST be thrown.
@@ -98,8 +110,8 @@ public class EndpointReferenceTest extends AbstractJaxWsTest {
             bindingProvider.getEndpointReference();
             fail("Did not get expected UnsupportedOperationException");
         } catch (UnsupportedOperationException e) {
-            // do nothing
-        }
+            //do nothing
+        } 
     }
 
     /*

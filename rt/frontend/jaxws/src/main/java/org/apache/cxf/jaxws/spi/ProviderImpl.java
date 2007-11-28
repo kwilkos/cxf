@@ -116,7 +116,9 @@ public class ProviderImpl extends javax.xml.ws.spi.Provider {
             }
 
             writer.writeStartElement("wsa", "Address", W3C_NS);
-            writer.writeCharacters(address);
+            if (address != null) {
+                writer.writeCharacters(address);
+            }
             writer.writeEndElement();
             
             writer.writeStartElement("wsa", "portName", W3C_NS);
@@ -138,6 +140,8 @@ public class ProviderImpl extends javax.xml.ws.spi.Provider {
                     StaxUtils.writeElement(meta, writer, true);
                 }
             }   
+            
+            //TODO: Write wsdlDocumentLocation
             
             writer.writeEndElement();
             writer.flush();

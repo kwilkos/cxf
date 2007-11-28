@@ -20,6 +20,7 @@
 package org.apache.cxf.jaxws;
 
 import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
 import java.util.HashMap;
@@ -41,6 +42,7 @@ import javax.xml.ws.http.HTTPBinding;
 import javax.xml.ws.http.HTTPException;
 import javax.xml.ws.soap.SOAPBinding;
 import javax.xml.ws.soap.SOAPFaultException;
+import javax.xml.ws.wsaddressing.W3CEndpointReferenceBuilder;
 
 import org.w3c.dom.Node;
 
@@ -94,7 +96,11 @@ public class JaxWsClientProxy extends org.apache.cxf.frontend.ClientProxy implem
             if (method.getDeclaringClass().equals(BindingProvider.class)
                 || method.getDeclaringClass().equals(BindingProviderImpl.class)
                 || method.getDeclaringClass().equals(Object.class)) {
-                return method.invoke(this);
+                try {
+                    return method.invoke(this);
+                } catch (InvocationTargetException e) {
+                    throw e.fillInStackTrace().getCause();
+                }
             }
 
             Message msg = new Message("NO_OPERATION_INFO", LOG, method.getName());
@@ -249,9 +255,24 @@ public class JaxWsClientProxy extends org.apache.cxf.frontend.ClientProxy implem
         return binding;
     }
 
-    //  TODO JAX-WS 2.1
     public EndpointReference getEndpointReference() {
-        throw new UnsupportedOperationException();
+        String bindingId = getBinding().getBindingID();        
+        if (!"http://schemas.xmlsoap.org/soap/".equals(bindingId)) {
+            throw new UnsupportedOperationException(new Message("GET_ENDPOINTREFERENCE_UNSUPPORTED_BINDING",
+                                                                LOG).toString());
+        }
+        
+        W3CEndpointReferenceBuilder builder = new W3CEndpointReferenceBuilder();
+        
+        Endpoint endpoint = getClient().getEndpoint();
+        builder.address(endpoint.getEndpointInfo().getAddress());
+        builder.serviceName(endpoint.getService().getName());
+        builder.endpointName(endpoint.getEndpointInfo().getName());
+        
+        //TODO: get wsdlDocumentLocation
+        //builder.wsdlDocumentLocation(endpoint.getService().getServiceInfos().toString());        
+        
+        return builder.build();
     }
 
     public <T extends EndpointReference> T getEndpointReference(Class<T> clazz) {
