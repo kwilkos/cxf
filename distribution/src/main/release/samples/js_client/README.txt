@@ -7,13 +7,16 @@ JavaScript to call a CXF server.
 The client side makes call using JAX-WS APIs. It uses the Mozilla Rhino library 
 to read the JavaScript file and run it.
 
+This demo only implements the client-side logic, and relies on the server
+provided by the wsdl_first demo.
+
 
 Building and running the demo server using ant
 ----------------------------------------------
 
-From the base directory of this sample (i.e., where this README file is
-located), the Ant build.xml file can be used to build and run the demo. 
-The server and client targets automatically build the demo.
+From the samples/wsdl_first directory, the Ant build.xml file
+can be used to build and run the demo.
+
 Using either UNIX or Windows:
 
   ant build
