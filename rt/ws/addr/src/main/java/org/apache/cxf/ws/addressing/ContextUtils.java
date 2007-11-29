@@ -152,10 +152,8 @@ public final class ContextUtils {
     * @return true iff the current messaging role is that of requestor
     */
     public static boolean isRequestor(Message message) {
-        if (message.get(REQUESTOR_ROLE) instanceof Boolean) {
-            return ((Boolean)message.get(REQUESTOR_ROLE)).booleanValue();
-        }
-        return false;
+        Boolean requestor = (Boolean)message.get(REQUESTOR_ROLE);
+        return requestor != null && requestor.booleanValue();
     }
 
     /**
