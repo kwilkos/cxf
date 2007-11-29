@@ -27,6 +27,7 @@ import javax.xml.ws.soap.AddressingFeature;
 
 import org.apache.cxf.interceptor.LoggingInInterceptor;
 import org.apache.cxf.interceptor.LoggingOutInterceptor;
+import org.apache.cxf.systest.ws.addr_feature.AddNumbersFault_Exception;
 import org.apache.cxf.systest.ws.addr_feature.AddNumbersPortType;
 import org.apache.cxf.systest.ws.addr_feature.AddNumbersService;
 import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
@@ -81,7 +82,7 @@ public class WSAFromWSDLTest extends AbstractBusClientServerTestBase {
 
         String expectedOut = BASE_URI + "addNumbersRequest";
         String expectedIn = BASE_URI + "addNumbersResponse";
-
+        
         assertTrue(output.toString().indexOf(expectedOut) != -1);
         assertTrue(input.toString().indexOf(expectedIn) != -1);
     }
@@ -114,6 +115,53 @@ public class WSAFromWSDLTest extends AbstractBusClientServerTestBase {
 
         String expectedOut = "3in";
         String expectedIn = "3out";
+
+        assertTrue(output.toString().indexOf(expectedOut) != -1);
+        assertTrue(input.toString().indexOf(expectedIn) != -1);
+    }
+
+
+    @Test
+    public void testAddNumbersFault() throws Exception {
+        ByteArrayOutputStream input = setupInLogging();
+        ByteArrayOutputStream output = setupOutLogging();
+
+        AddNumbersPortType port = getPort();
+
+        try {
+            port.addNumbers(-1, 2);
+        } catch (AddNumbersFault_Exception ex) {
+            assert true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            assert false;
+        }
+
+        String expectedOut = BASE_URI + "addNumbersRequest";
+        String expectedIn = BASE_URI + "Fault/addNumbersFault";
+
+        assertTrue(output.toString().indexOf(expectedOut) != -1);
+        assertTrue(input.toString().indexOf(expectedIn) != -1);
+    }
+
+    @Test
+    public void testAddNumbersFault3() throws Exception {
+        ByteArrayOutputStream input = setupInLogging();
+        ByteArrayOutputStream output = setupOutLogging();
+
+        AddNumbersPortType port = getPort();
+
+        try {
+            port.addNumbers3(-1, 2);
+        } catch (AddNumbersFault_Exception ex) {
+            assert true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            assert false;
+        }
+
+        String expectedOut = "3in";
+        String expectedIn = "3fault";
 
         assertTrue(output.toString().indexOf(expectedOut) != -1);
         assertTrue(input.toString().indexOf(expectedIn) != -1);

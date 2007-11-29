@@ -163,7 +163,7 @@ public class RMPolicyTest extends AbstractBusClientServerTestBase {
             RMConstants.getCreateSequenceResponseAction(),
             GREETME_RESPONSE_ACTION,
             PINGME_RESPONSE_ACTION,
-            PINGME_RESPONSE_ACTION
+            null
         };
         mf.verifyActions(expectedActions, false);
         mf.verifyMessageNumbers(new String[] {null, "1", "2", "3"}, false);

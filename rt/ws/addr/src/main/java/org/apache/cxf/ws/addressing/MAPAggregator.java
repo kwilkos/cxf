@@ -30,15 +30,19 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.wsdl.extensions.ExtensibilityElement;
 import javax.xml.namespace.QName;
+import javax.xml.ws.WebFault;
 
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.endpoint.Endpoint;
+import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.FaultMode;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.model.EndpointInfo;
+import org.apache.cxf.service.model.FaultInfo;
 import org.apache.cxf.service.model.MessageInfo;
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.transport.Conduit;
@@ -415,12 +419,49 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
         return null;
     }
 
+    private boolean isSameFault(final FaultInfo faultInfo, String faultName) {
+        String faultInfoName = faultInfo.getName().getLocalPart();
+        return faultInfoName.equals(faultName) 
+            || faultInfoName.equals(StringUtils.uncapitalize(faultName));
+    }
+
+    private String getActionBaseUri(final OperationInfo operation) {
+        String interfaceName = operation.getInterface().getName().getLocalPart();
+        return addPath(operation.getName().getNamespaceURI(), interfaceName);
+    }
+
+    private String getActionFromFaultMessage(final OperationInfo operation, final String faultName) {
+        if (operation.getFaults() != null) {
+            for (FaultInfo faultInfo : operation.getFaults()) {
+                if (isSameFault(faultInfo, faultName)) {
+                    if (faultInfo.getExtensionAttributes() != null) {
+                        QName faultAction = (QName)faultInfo.getExtensionAttribute(WSAW_ACTION_QNAME);
+                        return faultAction.getLocalPart();
+                    }
+                    return addPath(addPath(getActionBaseUri(operation), "Fault"), 
+                                   faultInfo.getName().getLocalPart());
+                }
+            }
+        }
+        return null;
+    }
+
+    private String getFaultNameFromMessage(final Message message) {
+        Exception e = message.getContent(Exception.class);
+        if (e instanceof Fault) {
+            WebFault t = e.getCause().getClass().getAnnotation(WebFault.class);
+            if (t != null) {
+                return t.name();
+            }
+        }
+        return null;    
+    }
+
     protected String getActionUri(Message message) {
         OperationInfo op = message.getExchange().get(OperationInfo.class);
-        String interfaceName = op.getInterface().getName().getLocalPart();
 
         String actionUri = null;
-        String opNamespace = addPath(op.getName().getNamespaceURI(), interfaceName);
+        String opNamespace = getActionBaseUri(op);
         
         if (ContextUtils.isRequestor(message)) {
             String explicitAction = getActionFromInputMessage(op);
@@ -431,6 +472,9 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
             } else {
                 actionUri = addPath(opNamespace, op.getInputName());
             }
+        } else if (ContextUtils.isFault(message)) {
+            String faultName = getFaultNameFromMessage(message);
+            actionUri = getActionFromFaultMessage(op, faultName);
         } else {
             String explicitAction = getActionFromOutputMessage(op);
             if (explicitAction != null) {

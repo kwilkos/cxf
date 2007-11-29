@@ -21,6 +21,9 @@ package org.apache.cxf.systest.ws.addr_fromwsdl;
 
 import javax.jws.WebService;
 import javax.xml.ws.soap.Addressing;
+
+import org.apache.cxf.systest.ws.addr_feature.AddNumbersFault;
+import org.apache.cxf.systest.ws.addr_feature.AddNumbersFault_Exception;
 import org.apache.cxf.systest.ws.addr_feature.AddNumbersPortType;
 
 // Jax-WS 2.1 WS-Addressing FromWsdl
@@ -29,15 +32,27 @@ import org.apache.cxf.systest.ws.addr_feature.AddNumbersPortType;
 @WebService(serviceName = "AddNumbersService",
             targetNamespace = "http://apache.org/cxf/systest/ws/addr_feature/")
 public class AddNumberImpl implements AddNumbersPortType {
-    public int addNumbers(int number1, int number2) {
-        return number1 + number2;
+    public int addNumbers(int number1, int number2) throws AddNumbersFault_Exception {
+        return execute(number1, number2);
     }
 
     public int addNumbers2(int number1, int number2) {
         return number1 + number2;
     }
 
-    public int addNumbers3(int number1, int number2) {
+    public int addNumbers3(int number1, int number2) throws AddNumbersFault_Exception {
+        return execute(number1, number2);
+    }
+
+    int execute(int number1, int number2) throws AddNumbersFault_Exception {
+        if (number1 < 0 || number2 < 0) {
+            AddNumbersFault fb = new AddNumbersFault();
+            fb.setDetail("Negative numbers cant be added!");
+            fb.setMessage("Numbers: " + number1 + ", " + number2);
+
+            throw new AddNumbersFault_Exception(fb.getMessage(), fb);
+        }
+
         return number1 + number2;
     }
 }

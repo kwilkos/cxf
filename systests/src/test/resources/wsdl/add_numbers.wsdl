@@ -82,7 +82,7 @@ under the License.
 	<operation name="addNumbers">
 	    <input message="tns:addNumbers"/>
 	    <output message="tns:addNumbersResponse"/>
-	    <!-- <fault name="addNumbersFault" message="tns:addNumbersFault"/> -->
+	    <fault name="addNumbersFault" message="tns:addNumbersFault"/>
 	</operation>
 	<operation name="addNumbers2">
 	    <input message="tns:addNumbers2" name="add2In"/>
@@ -92,7 +92,7 @@ under the License.
 	<operation name="addNumbers3">
 	    <input message="tns:addNumbers3" wsaw:Action="3in"/>
 	    <output message="tns:addNumbers3Response" wsaw:Action="3out"/>
-<!-- 	    <fault name="addNumbersFault" message="tns:addNumbersFault" wsaw:Action="3fault"/> -->
+	    <fault name="addNumbersFault" message="tns:addNumbersFault" wsaw:Action="3fault"/>
 	</operation>
     </portType>
     <binding name="AddNumbersBinding" type="tns:AddNumbersPortType">
@@ -106,11 +106,9 @@ under the License.
 	    <output>
 		<soap:body use="literal" />
 	    </output>
-	    <!--
 	    <fault name="addNumbersFault">
 		<soap:fault name="addNumbersFault" use="literal" />
 	    </fault>
-	    -->
 	</operation>
 	<operation name="addNumbers2">
 	    <soap:operation soapAction="" />
@@ -132,9 +130,9 @@ under the License.
 	    <output>
 		<soap:body use="literal" />
 	    </output>
-<!-- 	    <fault name="addNumbersFault"> -->
-<!-- 		<soap:fault name="addNumbersFault" use="literal" /> -->
-<!-- 	    </fault> -->
+	    <fault name="addNumbersFault">
+		<soap:fault name="addNumbersFault" use="literal" />
+	    </fault>
 	</operation>
     </binding>
     <service name="AddNumbersService">
