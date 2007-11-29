@@ -37,6 +37,7 @@ import javax.ws.rs.core.HttpContext;
 import javax.ws.rs.ext.EntityProvider;
 import javax.ws.rs.ext.ProviderFactory;
 
+import org.apache.cxf.common.util.PrimitiveUtils;
 import org.apache.cxf.jaxrs.JAXRSServiceImpl;
 import org.apache.cxf.jaxrs.model.ClassResourceInfo;
 import org.apache.cxf.jaxrs.model.OperationResourceInfo;
@@ -200,7 +201,7 @@ public class JAXRSDispatchInterceptor extends AbstractPhaseInterceptor<Message> 
         return result;
     }
 
-    private String readFromUriParam(UriParam uriParamAnnotation,
+    private Object readFromUriParam(UriParam uriParamAnnotation,
                                     Class<?> parameter,
                                     Type parameterType,
                                     Annotation[] parameterAnnotations,
@@ -212,8 +213,11 @@ public class JAXRSDispatchInterceptor extends AbstractPhaseInterceptor<Message> 
             return null;
         }
 
-        String result = values.get(parameterName);
-
+        Object result = values.get(parameterName);
+        
+        if (parameter.isPrimitive()) {
+            result = PrimitiveUtils.read((String)result, parameter);
+        }
         return result;
     }
 }

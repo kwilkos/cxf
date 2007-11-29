@@ -57,6 +57,20 @@ public class JAXRSClientServerBookTest extends AbstractBusClientServerTestBase {
     }
     
     @Test
+    public void testGetBook123Int() throws Exception {
+        String endpointAddress =
+            "http://localhost:9080/bookstore/booknames/123"; 
+        URL url = new URL(endpointAddress);
+        InputStream in = url.openStream();
+        assertNotNull(in);           
+
+        InputStream expected = getClass()
+            .getResourceAsStream("resources/expected_get_book123.txt");
+
+        assertEquals(getStringFromInputStream(expected), getStringFromInputStream(in)); 
+    }
+    
+    @Test
     public void testGetBookNotFound() throws Exception {
         String endpointAddress =
             "http://localhost:9080/bookstore/books/126"; 
