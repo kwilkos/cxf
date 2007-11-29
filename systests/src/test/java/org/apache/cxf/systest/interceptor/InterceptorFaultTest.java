@@ -281,12 +281,8 @@ public class InterceptorFaultTest extends AbstractBusClientServerTestBase {
         } catch (WebServiceException ex) {
             Throwable cause = ex.getCause();
             SoapFault sf = (SoapFault)cause;
-            if (!expectedMsg.equals(sf.getReason())) {
-                // TODO, the FromJava WS-A action is not supported yet
-            } else {
-                assertEquals(expectedMsg, sf.getReason());
-                assertEquals(SOAP_FAULT_CODE, sf.getFaultCode());
-            }            
+            assertEquals(expectedMsg, sf.getReason());
+            assertEquals(SOAP_FAULT_CODE, sf.getFaultCode());
         }  
     }
    

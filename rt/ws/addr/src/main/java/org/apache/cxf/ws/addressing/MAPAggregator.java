@@ -420,6 +420,9 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
     }
 
     private boolean isSameFault(final FaultInfo faultInfo, String faultName) {
+        if (faultInfo.getName() == null || faultName == null) {
+            return false;
+        }
         String faultInfoName = faultInfo.getName().getLocalPart();
         return faultInfoName.equals(faultName) 
             || faultInfoName.equals(StringUtils.uncapitalize(faultName));
