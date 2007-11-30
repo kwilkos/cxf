@@ -34,6 +34,7 @@ import com.sun.xml.bind.v2.runtime.JaxBeanInfo;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.xmlschema.SchemaCollection;
+import org.apache.cxf.common.xmlschema.XmlSchemaTools;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.service.ServiceModelVisitor;
 import org.apache.cxf.service.model.FaultInfo;
@@ -190,8 +191,7 @@ class JAXBSchemaInitializer extends ServiceModelVisitor {
 
     private XmlSchemaElement createXsElement(MessagePartInfo part, QName typeName, SchemaInfo schemaInfo) {
         XmlSchemaElement el = new XmlSchemaElement();
-        el.setQName(part.getElementQName());
-        el.setName(part.getElementQName().getLocalPart());
+        XmlSchemaTools.setElementQName(el, part.getElementQName());
         el.setNillable(true);
         el.setSchemaTypeName(typeName);
         part.setXmlSchema(el);
@@ -214,8 +214,7 @@ class JAXBSchemaInitializer extends ServiceModelVisitor {
                 && !isExistSchemaElement(schemaInfo.getSchema(), part.getElementQName())) {
                     
                 XmlSchemaElement el = new XmlSchemaElement();
-                el.setQName(part.getElementQName());
-                el.setName(part.getElementQName().getLocalPart());
+                XmlSchemaTools.setElementQName(el, part.getElementQName());
                 el.setNillable(true);
                 
                 schemaInfo.getSchema().getItems().add(el);
@@ -248,8 +247,7 @@ class JAXBSchemaInitializer extends ServiceModelVisitor {
             }
                 
             XmlSchemaElement el = new XmlSchemaElement();
-            el.setQName(part.getElementQName());
-            el.setName(part.getElementQName().getLocalPart());
+            XmlSchemaTools.setElementQName(el, part.getElementQName());
             
             schemaInfo.getSchema().getItems().add(el);
             schemaInfo.getSchema().getElements().add(el.getQName(), el);
@@ -278,8 +276,8 @@ class JAXBSchemaInitializer extends ServiceModelVisitor {
                             String ns = schemaInfo.getSchema().getElementFormDefault()
                                 .getValue().equals(XmlSchemaForm.UNQUALIFIED) 
                                 ? "" : part.getElementQName().getLocalPart();
-                            el.setQName(new QName(ns, m.getName().substring(beginIdx)));
-                            
+                            XmlSchemaTools.setElementQName(el, 
+                                                           new QName(ns, m.getName().substring(beginIdx)));
                             Iterator<QName> itr = beanInfo.getTypeNames().iterator();
                             if (!itr.hasNext()) {
                                 return;
@@ -334,8 +332,7 @@ class JAXBSchemaInitializer extends ServiceModelVisitor {
         }
         
         XmlSchemaElement el = new XmlSchemaElement();
-        el.setQName(part.getElementQName());
-        el.setName(part.getElementQName().getLocalPart());
+        XmlSchemaTools.setElementQName(el, part.getElementQName());
         schema.getItems().add(el);
         schema.getElements().add(el.getQName(), el);
         part.setXmlSchema(el);
@@ -382,7 +379,7 @@ class JAXBSchemaInitializer extends ServiceModelVisitor {
     public void addElement(XmlSchemaSequence seq, JaxBeanInfo<?> beanInfo, QName name) {    
         XmlSchemaElement el = new XmlSchemaElement();
         el.setName(name.getLocalPart());
-        el.setQName(name);
+        XmlSchemaTools.setElementQName(el, name);
 
         el.setMinOccurs(1);
         el.setMaxOccurs(1);
@@ -392,7 +389,8 @@ class JAXBSchemaInitializer extends ServiceModelVisitor {
             QName ename = new QName(beanInfo.getElementNamespaceURI(null), 
                                    beanInfo.getElementLocalName(null));
             XmlSchemaElement el2 = schemas.getElementByQName(ename);
-            el.setRefName(el2.getRefName());
+            XmlSchemaTools.setElementQName(el, null);
+            XmlSchemaTools.setElementRefName(el, el2.getRefName());
         } else {
             Iterator<QName> itr = beanInfo.getTypeNames().iterator();
             if (!itr.hasNext()) {
