@@ -49,6 +49,7 @@ import org.apache.cxf.binding.BindingFactoryManager;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.xmlschema.SchemaCollection;
+import org.apache.cxf.common.xmlschema.XmlSchemaTools;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.EndpointException;
 import org.apache.cxf.endpoint.EndpointImpl;
@@ -639,8 +640,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         XmlSchema schema = si.getSchema();
 
         XmlSchemaElement el = new XmlSchemaElement();
-        el.setQName(mpi.getElementQName());
-        el.setName(mpi.getElementQName().getLocalPart());
+        XmlSchemaTools.setElementQName(el, mpi.getElementQName());
         if (!isExistSchemaElement(schema, mpi.getElementQName())) {
             SchemaCollection.addGlobalElementToSchema(schema, el);
         }
@@ -744,8 +744,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
             }
 
             XmlSchemaElement el = new XmlSchemaElement();
-            el.setQName(qname);
-            el.setName(qname.getLocalPart());
+            XmlSchemaTools.setElementQName(el, qname);
             el.setMinOccurs(1);
             el.setMaxOccurs(0);
             el.setNillable(true);
@@ -835,8 +834,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                                             XmlSchema schema,
                                             QName wrapperName) {
         XmlSchemaElement el = new XmlSchemaElement();
-        el.setQName(wrapperName);
-        el.setName(wrapperName.getLocalPart());
+        XmlSchemaTools.setElementQName(el, wrapperName);
         SchemaCollection.addGlobalElementToSchema(schema, el);
 
         wrappedMessage.getMessageParts().get(0).setXmlSchema(el);
@@ -857,11 +855,11 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         for (MessagePartInfo mpi : unwrappedMessage.getMessageParts()) {
 
             el = new XmlSchemaElement();
-            el.setName(mpi.getName().getLocalPart());
-            el.setQName(mpi.getName());
+            XmlSchemaTools.setElementQName(el, mpi.getName());
             if (mpi.isElement()) {
                 addImport(schema, mpi.getElementQName().getNamespaceURI());
-                el.setRefName(mpi.getElementQName());
+                XmlSchemaTools.setElementQName(el, null);
+                XmlSchemaTools.setElementRefName(el, mpi.getElementQName());
             } else {
                 if (mpi.getTypeQName() != null) {
                     el.setSchemaTypeName(mpi.getTypeQName());
@@ -923,8 +921,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
             if (Boolean.TRUE.equals(mpi.getProperty(HEADER))) {
                 QName qn = (QName)mpi.getProperty(ELEMENT_NAME);
 
-                el.setName(qn.getLocalPart());
-                el.setQName(qn);
+                XmlSchemaTools.setElementQName(el, qn);
 
                 SchemaInfo headerSchemaInfo = getOrCreateSchema(serviceInfo, 
                                                                 qn.getNamespaceURI(),
