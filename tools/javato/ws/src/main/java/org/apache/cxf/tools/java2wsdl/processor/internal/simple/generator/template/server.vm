@@ -35,7 +35,7 @@ import org.apache.cxf.aegis.databinding.AegisDatabinding;
     public static void main(String[] args) {
         ServerFactoryBean svrBean = new ServerFactoryBean();
         svrBean.setBus(CXFBusFactory.getDefaultBus());
-        svrBean.setAddress("http://localhost:8080/Hello");
+        svrBean.setAddress("${address}");
         svrBean.setTransportId("http://schemas.xmlsoap.org/wsdl/http/");
         svrBean.setBindingId("http://schemas.xmlsoap.org/soap/");
         svrBean.setServiceBean(new ${implClass}());
