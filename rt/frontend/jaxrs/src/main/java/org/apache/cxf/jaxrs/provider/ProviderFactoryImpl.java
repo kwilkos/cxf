@@ -66,7 +66,7 @@ public class ProviderFactoryImpl extends ProviderFactory {
     }
 
     @SuppressWarnings("unchecked")
-    public <T> EntityProvider<T> createEntityProvider(Class<T> type, String[] requestedMineTypes,
+    public <T> EntityProvider<T> createEntityProvider(Class<T> type, String[] requestedMimeTypes,
                                                       boolean isConsumeMime) {
 
         for (EntityProvider<T> ep : entityProviders) {
@@ -83,7 +83,7 @@ public class ProviderFactoryImpl extends ProviderFactory {
                 }                  
             }
             
-            if (matchMineTypes(supportedMimeTypes, requestedMineTypes) && ep.supports(type)) {
+            if (matchMimeTypes(supportedMimeTypes, requestedMimeTypes) && ep.supports(type)) {
                 return ep;
             }
         }     
@@ -116,11 +116,11 @@ public class ProviderFactoryImpl extends ProviderFactory {
         return entityProviders;
     }
     
-    private boolean matchMineTypes(String[] supportedMimeTypes, String[] requestedMimeTypes) {
+    private boolean matchMimeTypes(String[] supportedMimeTypes, String[] requestedMimeTypes) {
         //TODO:
         for (String supportedMimeType : supportedMimeTypes) {
             for (String requestedMimeType : requestedMimeTypes) {
-                if (isMineTypeSupported(requestedMimeType, supportedMimeType)) {
+                if (isMimeTypeSupported(requestedMimeType, supportedMimeType)) {
                     return true;
                 }
             }
@@ -129,7 +129,7 @@ public class ProviderFactoryImpl extends ProviderFactory {
         return false;
     }
     
-    private boolean isMineTypeSupported(String requestedMimeType, String supportedMimeType) {
+    private boolean isMimeTypeSupported(String requestedMimeType, String supportedMimeType) {
         // REVISIT: better algorithm
         if (supportedMimeType.equals(requestedMimeType)) {
             return true;
@@ -158,18 +158,18 @@ public class ProviderFactoryImpl extends ProviderFactory {
     private static class EntityProviderComparator implements Comparator<EntityProvider> {
         public int compare(EntityProvider e1, EntityProvider e2) {
             ConsumeMime c = e1.getClass().getAnnotation(ConsumeMime.class);
-            String[] mineType1 = {"*/*"};
+            String[] mimeType1 = {"*/*"};
             if (c != null) {
-                mineType1 = c.value();               
+                mimeType1 = c.value();               
             }
             
             ConsumeMime c2 = e2.getClass().getAnnotation(ConsumeMime.class);
-            String[] mineType2 = {"*/*"};
+            String[] mimeType2 = {"*/*"};
             if (c2 != null) {
-                mineType2 = c2.value();               
+                mimeType2 = c2.value();               
             }
 
-            return compareString(mineType1[0], mineType2[0]);
+            return compareString(mimeType1[0], mimeType2[0]);
             
         }
         
