@@ -48,47 +48,7 @@ public class ServiceModelSchemaValidator extends ServiceModelVisitor {
     }
 
     @Override
-    public void begin(FaultInfo fault) {
-        try {
-            schemaCollection.validateQNameNamespace(fault.getFaultName());
-            schemaCollection.validateQNameNamespace(fault.getName());
-        } catch (InvalidXmlSchemaReferenceException ixsre) {
-            complaints.append(fault.getName() + " fault name " + ixsre.getMessage() + "\n");
-        }
-    }
-
-    @Override
-    public void begin(InterfaceInfo intf) {
-        try {
-            schemaCollection.validateQNameNamespace(intf.getName());
-        } catch (InvalidXmlSchemaReferenceException ixsre) {
-            complaints.append(intf.getName() + " interface name " + ixsre.getMessage() + "\n");
-        }
-    }
-
-    @Override
-    public void begin(MessageInfo msg) {
-        try {
-            schemaCollection.validateQNameNamespace(msg.getName());
-        } catch (InvalidXmlSchemaReferenceException ixsre) {
-            complaints.append(msg.getName() + " message name " + ixsre.getMessage() + "\n");
-        }
-    }
-
-    @Override
     public void begin(MessagePartInfo part) {
-        try {
-            schemaCollection.validateQNameNamespace(part.getConcreteName());
-        } catch (InvalidXmlSchemaReferenceException ixsre) {
-            complaints.append(part.getName() + " part concrete name " + ixsre.getMessage() + "\n");
-        }
-
-        try {
-            schemaCollection.validateQNameNamespace(part.getName());
-        } catch (InvalidXmlSchemaReferenceException ixsre) {
-            complaints.append(part.getName() + " part name " + ixsre.getMessage() + "\n");
-        }
-
         if (part.isElement()) {
             try {
                 schemaCollection.validateElementName(part.getName(), part.getElementQName());
@@ -105,33 +65,6 @@ public class ServiceModelSchemaValidator extends ServiceModelVisitor {
                     complaints.append(part.getName() + " part type name " + ixsre.getMessage() + "\n");
                 }
             }
-        }
-    }
-
-    @Override
-    public void begin(OperationInfo op) {
-        try {
-            schemaCollection.validateQNameNamespace(op.getName());
-        } catch (InvalidXmlSchemaReferenceException ixsre) {
-            complaints.append(op.getName() + " operation " + ixsre.getMessage() + "\n");
-        }
-    }
-
-    @Override
-    public void begin(ServiceInfo service) {
-        try {
-            schemaCollection.validateQNameNamespace(service.getName());
-        } catch (InvalidXmlSchemaReferenceException ixsre) {
-            complaints.append(service.getName() + " service " + ixsre.getMessage() + "\n");
-        }
-    }
-
-    @Override
-    public void begin(UnwrappedOperationInfo op) {
-        try {
-            schemaCollection.validateQNameNamespace(op.getName());
-        } catch (InvalidXmlSchemaReferenceException ixsre) {
-            complaints.append(op.getName() + " unwrapped operation " + ixsre.getMessage() + "\n");
         }
     }
 }
