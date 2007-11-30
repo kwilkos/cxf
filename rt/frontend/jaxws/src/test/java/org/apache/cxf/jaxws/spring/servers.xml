@@ -67,9 +67,40 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
         </constructor-arg>
       </bean>
     </jaxws:invoker>
-    
+    <jaxws:dataBinding>
+      <bean class="org.apache.cxf.jaxb.JAXBDataBinding"/>
+    </jaxws:dataBinding>
   </jaxws:server>
-  
+ 
+  <jaxws:server id="bookServer"
+  	serviceClass="org.apache.cxf.anonymous_complex_type.AnonymousComplexTypeImpl"
+    address="http://localhost:8080/act" 
+    bus="cxf">
+    <jaxws:invoker>
+      <bean class="org.apache.cxf.service.invoker.BeanInvoker">
+        <constructor-arg>
+          <bean class="org.apache.cxf.anonymous_complex_type.AnonymousComplexTypeImpl"/>
+        </constructor-arg>
+      </bean>
+    </jaxws:invoker>
+     <jaxws:dataBinding>
+      <bean class="org.apache.cxf.jaxb.JAXBDataBinding">
+        <property name="namespaceMap">
+    		<map>
+   			<entry>
+      			<key><value>http://cxf.apache.org/anonymous_complex_type/</value></key>
+      			<value>BeepBeep</value>
+   			</entry>
+      		</map>
+        </property>
+      </bean>
+      </jaxws:dataBinding>
+  </jaxws:server>
+
+   <jaxws:client id="bookClient" 
+    serviceClass="org.apache.cxf.anonymous_complex_type.AnonymousComplexType"
+    address="http://localhost:8080/act"/>
+
   <jaxws:server id="inlineSoapBinding" 
     serviceClass="org.apache.cxf.jaxws.service.Hello"
     address="http://localhost:8080/test">

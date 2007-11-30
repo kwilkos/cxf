@@ -57,6 +57,7 @@ import com.sun.tools.xjc.api.XJC;
 import org.apache.cxf.Bus;
 import org.apache.cxf.bus.CXFBusFactory;
 import org.apache.cxf.common.i18n.Message;
+import org.apache.cxf.common.i18n.UncheckedException;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.endpoint.Client;
@@ -379,9 +380,8 @@ public final class DynamicClientFactory {
                                 classPath.addFileset(fs);
                             }
                         } catch (URISyntaxException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
-                        } 
+                            throw new UncheckedException(e);
+                        }
                     }
                 }
             }

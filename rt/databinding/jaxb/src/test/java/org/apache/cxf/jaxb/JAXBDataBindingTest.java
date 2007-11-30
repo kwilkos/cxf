@@ -52,6 +52,7 @@ import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.databinding.DataReader;
 import org.apache.cxf.databinding.DataWriter;
 import org.apache.cxf.helpers.CastUtils;
+import org.apache.cxf.jaxb.fortest.QualifiedBean;
 import org.apache.cxf.jaxb.fortest.unqualified.UnqualifiedBean;
 import org.apache.cxf.jaxb.io.DataReaderImpl;
 import org.apache.cxf.jaxb.io.DataWriterImpl;
@@ -220,4 +221,27 @@ public class JAXBDataBindingTest extends Assert {
         assertTrue(xml.contains("uri:ultima:thule"));
     }
     
+    @Test
+    public void testDeclaredNamespaceMapping() throws Exception {
+        JAXBDataBinding db = new JAXBDataBinding();
+        Map<String, String> nsMap = new HashMap<String, String>();
+        nsMap.put("uri:ultima:thule", "greenland");
+        db.setNamespaceMap(nsMap);
+        Map<String, Object> contextProperties = new HashMap<String, Object>();
+        contextProperties.put(JAXBRIContext.DEFAULT_NAMESPACE_REMAP, "uri:ultima:thule");
+        db.setContextProperties(contextProperties);
+        Set<Class<?>> classes = new HashSet<Class<?>>();
+        classes.add(QualifiedBean.class);
+        db.setContext(db.createJAXBContext(classes));
+        DataWriter<XMLStreamWriter> writer = db.createWriter(XMLStreamWriter.class);
+        XMLOutputFactory writerFactory = XMLOutputFactory.newInstance();
+        StringWriter stringWriter = new StringWriter();
+        XMLStreamWriter xmlWriter = writerFactory.createXMLStreamWriter(stringWriter);
+        QualifiedBean bean = new QualifiedBean();
+        bean.setAriadne("spider");
+        writer.write(bean, xmlWriter);
+        xmlWriter.flush();
+        String xml = stringWriter.toString();
+        assertTrue(xml.contains("greenland=\"uri:ultima:thule"));
+    }
 }
