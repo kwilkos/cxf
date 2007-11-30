@@ -17,16 +17,24 @@
  * under the License.
  */
 
-package org.apache.cxf.jaxws.binding.http;
+package org.apache.cxf.jaxws.binding;
 
-import javax.xml.ws.http.HTTPBinding;
+import java.util.ArrayList;
+import java.util.List;
 
-import org.apache.cxf.jaxws.binding.AbstractBindingImpl;
-import org.apache.cxf.service.model.BindingInfo;
+import javax.xml.ws.Binding;
+import javax.xml.ws.handler.Handler;
 
-public class HTTPBindingImpl extends AbstractBindingImpl implements HTTPBinding {
-        
-    public HTTPBindingImpl(BindingInfo sb) {       
-    }
+public abstract class AbstractBindingImpl implements Binding {
+    private List<Handler> handlerChain = new ArrayList<Handler>();
     
+    public List<Handler> getHandlerChain() {
+        return handlerChain;
+    }
+
+    public void setHandlerChain(List<Handler> hc) {
+        handlerChain = hc;
+    }
+
+    public abstract String getBindingID();
 }
