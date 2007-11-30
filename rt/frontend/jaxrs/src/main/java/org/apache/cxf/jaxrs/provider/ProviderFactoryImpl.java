@@ -42,6 +42,7 @@ public class ProviderFactoryImpl extends ProviderFactory {
         //TODO: search for EntityProviders from classpath or config file.
         entityProviders.add(new JAXBElementProvider());
         entityProviders.add(new JSONProvider());
+        entityProviders.add(new StringProvider());
 
         sort();
     }
@@ -101,11 +102,25 @@ public class ProviderFactoryImpl extends ProviderFactory {
         return null;
     }
     
+    public boolean registerEntityProvider(EntityProvider e) {
+        entityProviders.add(e);
+        sort();
+        return true;
+    }
+    
+    public boolean deregisterEntityProvider(EntityProvider e) {
+        return entityProviders.remove(e);
+    }
+    
+    public List<EntityProvider> getEntityProviders() {
+        return entityProviders;
+    }
+    
     private boolean matchMineTypes(String[] supportedMimeTypes, String[] requestedMimeTypes) {
         //TODO:
         for (String supportedMimeType : supportedMimeTypes) {
             for (String requestedMimeType : requestedMimeTypes) {
-                if (supportedMimeType.equals(requestedMimeType)) {
+                if (isMineTypeSupported(requestedMimeType, supportedMimeType)) {
                     return true;
                 }
             }
@@ -114,11 +129,26 @@ public class ProviderFactoryImpl extends ProviderFactory {
         return false;
     }
     
+    private boolean isMineTypeSupported(String requestedMimeType, String supportedMimeType) {
+        // REVISIT: better algorithm
+        if (supportedMimeType.equals(requestedMimeType)) {
+            return true;
+        } else if (supportedMimeType.startsWith("*/")) {
+            return true;
+        } else if (supportedMimeType.regionMatches(0, requestedMimeType, 0, supportedMimeType.indexOf("/"))
+                   && supportedMimeType.endsWith("/*")) {
+            return true;
+        } 
+
+        return false;
+    }
+    
     /*
-     * sorts the available providers according to the media types they declare support for. 
-     * Sorting of media types follows the general rule: x/y < * x < *, i.e. a provider that 
-     * explicitly lists a media types is sorted before a provider that lists *. 
-     * Quality parameter values are also used such that x/y;q=1.0 < x/y;q=0.7.
+     * sorts the available providers according to the media types they declare
+     * support for. Sorting of media types follows the general rule: x/y < * x < *,
+     * i.e. a provider that explicitly lists a media types is sorted before a
+     * provider that lists *. Quality parameter values are also used such that
+     * x/y;q=1.0 < x/y;q=0.7.
      */    
     private void sort() {
         Collections.sort(entityProviders, new EntityProviderComparator());

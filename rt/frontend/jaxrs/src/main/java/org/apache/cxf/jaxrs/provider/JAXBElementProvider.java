@@ -88,6 +88,7 @@ public final class JAXBElementProvider implements EntityProvider<Object>  {
             //TODO: support Calendar type
             //}
         } catch (JAXBException e) {
+            //TODO: better exception handling
             e.printStackTrace();
         }
     }

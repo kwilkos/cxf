@@ -70,11 +70,12 @@ public class BookStore {
     
     @HttpMethod("GET")
     @UriTemplate("/booknames/{bookId}/")
-    public Book getBookName(@UriParam("bookId") int id) throws BookNotFoundFault {
+    @ProduceMime("text/plain")
+    public String getBookName(@UriParam("bookId") int id) throws BookNotFoundFault {
         System.out.println("----invoking getBookName with id: " + id);
         Book book = books.get(new Long(id));
         if (book != null) {
-            return book;
+            return book.getName();
         } else {
             BookNotFoundDetails details = new BookNotFoundDetails();
             details.setId(id);
