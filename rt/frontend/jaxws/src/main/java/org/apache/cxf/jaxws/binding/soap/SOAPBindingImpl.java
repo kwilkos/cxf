@@ -120,5 +120,10 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
         }
         return null;
     }
-    
+
+    public String getBindingID() {
+        //REVISIT: JIRA CXF-613
+        return "http://schemas.xmlsoap.org/soap/";
+    }
+
 }
