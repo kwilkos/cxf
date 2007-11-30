@@ -20,6 +20,7 @@
 package org.apache.cxf.interceptor;
 
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -39,7 +40,7 @@ public class LoggingOutInterceptor extends AbstractPhaseInterceptor {
     private static final Logger LOG = LogUtils.getL7dLogger(LoggingOutInterceptor.class); 
 
     private int limit = 100 * 1024;
-    private boolean enabled;
+    private PrintWriter writer;
     
     public LoggingOutInterceptor() {
         super(Phase.PRE_STREAM);
@@ -50,9 +51,9 @@ public class LoggingOutInterceptor extends AbstractPhaseInterceptor {
         limit = lim;
     }
 
-    public LoggingOutInterceptor(boolean b) {
+    public LoggingOutInterceptor(PrintWriter w) {
         this();
-        this.enabled = b;
+        this.writer = w;
     }
     
     public void setLimit(int lim) {
@@ -69,7 +70,7 @@ public class LoggingOutInterceptor extends AbstractPhaseInterceptor {
             return;
         }
 
-        if (LOG.isLoggable(Level.INFO) || enabled) {
+        if (LOG.isLoggable(Level.INFO) || writer != null) {
             // Write the output while caching it for the log message
             final CacheAndWriteOutputStream newOut = new CacheAndWriteOutputStream(os);
             message.setContent(OutputStream.class, newOut);
@@ -104,7 +105,9 @@ public class LoggingOutInterceptor extends AbstractPhaseInterceptor {
                 //ignore
             }
 
-            if (LOG.isLoggable(Level.INFO)) {
+            if (writer != null) {
+                writer.println(buffer.toString());
+            } else if (LOG.isLoggable(Level.INFO)) {
                 LOG.info(buffer.toString());
             }
         }
