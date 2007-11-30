@@ -28,5 +28,10 @@ public class HTTPBindingImpl extends AbstractBindingImpl implements HTTPBinding 
         
     public HTTPBindingImpl(BindingInfo sb) {       
     }
-    
+
+    public String getBindingID() {
+        //REVISIT: JIRA CXF-613
+        return "http://cxf.apache.org/bindings/xformat";
+    }
+
 }
