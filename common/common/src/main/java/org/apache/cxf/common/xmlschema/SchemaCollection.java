@@ -164,6 +164,9 @@ public class SchemaCollection {
      */
     public void validateQNameNamespace(QName qname) {
         // astonishingly, xmlSchemaCollection has no accessor by target URL.
+        if ("".equals(qname.getNamespaceURI())) {
+            return; // references to the 'unqualified' namespace are OK even if there is no schema for it. 
+        }
         for (XmlSchema schema : schemaCollection.getXmlSchemas()) {
             if (schema.getTargetNamespace().equals(qname.getNamespaceURI())) {
                 return;
