@@ -221,7 +221,7 @@ public class JAXBEncoderDecoderTest extends Assert {
         // so that it could be examined inside the debugger to see how JAXB works.
         assertTrue(xmlResult.contains("Gallia:string2"));
     }
-
+    
     @Test
     public void testMarshallIntoStax() throws Exception {
         GreetMe obj = new GreetMe();

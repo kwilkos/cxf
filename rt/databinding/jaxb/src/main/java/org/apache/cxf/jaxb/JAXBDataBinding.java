@@ -52,6 +52,7 @@ import javax.xml.transform.dom.DOMSource;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
+import com.sun.xml.bind.marshaller.NamespacePrefixMapper;
 import com.sun.xml.bind.v2.ContextFactory;
 import com.sun.xml.bind.v2.runtime.JAXBContextImpl;
 
@@ -124,17 +125,46 @@ public final class JAXBDataBinding extends AbstractDataBinding implements DataBi
         context = ctx;
     }    
     
+    private NamespacePrefixMapper getNamespacePrefixMapper() {
+        Map<String, String> mappings = getDeclaredNamespaceMappings();
+        if (mappings == null) {
+            mappings = Collections.emptyMap();
+        }
+        
+        final Map<String, String> closedMappings = mappings;
+        
+        NamespacePrefixMapper mapper = new NamespacePrefixMapper() {
+            @Override
+            public String getPreferredPrefix(String namespaceUri, String suggestion, boolean requirePrefix) {
+                String prefix = closedMappings.get(namespaceUri);
+                if (prefix != null) {
+                    return prefix;
+                }
+                return suggestion;
+            } 
+        };
+        return mapper;
+    }
+
+
     @SuppressWarnings("unchecked")
     public <T> DataWriter<T> createWriter(Class<T> c) {
+        Map<String, Object> currentMarshallerProperties = new HashMap<String, Object>();
+        if (!marshallerProperties.containsKey("com.sun.xml.bind.namespacePrefixMapper")) {
+            currentMarshallerProperties.put("com.sun.xml.bind.namespacePrefixMapper",
+                                            getNamespacePrefixMapper());
+        }
+        currentMarshallerProperties.putAll(marshallerProperties);
         if (c == XMLStreamWriter.class) {
-            return (DataWriter<T>)new DataWriterImpl<XMLStreamWriter>(context, marshallerProperties);
+            return (DataWriter<T>)new DataWriterImpl<XMLStreamWriter>(context, currentMarshallerProperties);
         } else if (c == OutputStream.class) {
-            return (DataWriter<T>)new DataWriterImpl<OutputStream>(context, marshallerProperties);            
+            return (DataWriter<T>)new DataWriterImpl<OutputStream>(context, 
+                currentMarshallerProperties);            
         } else if (c == XMLEventWriter.class) {
             return (DataWriter<T>)new DataWriterImpl<XMLEventWriter>(context,
-                                                                     marshallerProperties);           
+                                                                     currentMarshallerProperties);           
         } else if (c == Node.class) {
-            return (DataWriter<T>)new DataWriterImpl<Node>(context, marshallerProperties);      
+            return (DataWriter<T>)new DataWriterImpl<Node>(context, currentMarshallerProperties);      
         }
         
         return null;
@@ -427,14 +457,6 @@ public final class JAXBDataBinding extends AbstractDataBinding implements DataBi
             
         }
         return added;
-    }
-
-    /**
-     * Jaxb has no declared namespace prefixes.
-     * {@inheritDoc}
-     */
-    public Map<String, String> getDeclaredNamespaceMappings() {
-        return null;
     }
 
     /**

@@ -20,6 +20,9 @@
 package org.apache.cxf.databinding.source;
 
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import javax.xml.transform.dom.DOMSource;
 
@@ -36,6 +39,7 @@ import org.apache.ws.commons.schema.XmlSchema;
 
 public class AbstractDataBinding {
     private Collection<DOMSource> schemas;
+    private Map<String, String> namespaceMap;
 
     public Collection<DOMSource> getSchemas() {
         return schemas;
@@ -69,5 +73,48 @@ public class AbstractDataBinding {
         schema.setSchema(xmlSchema);
         serviceInfo.addSchema(schema);
         return xmlSchema;
+    }
+    
+    /**
+      * @return Returns the namespaceMap.
+     */
+    public Map<String, String> getNamespaceMap() {
+        return namespaceMap;
+    }
+
+    /**
+     * @param namespaceMap The namespaceMap to set.
+     */
+    public void setNamespaceMap(Map<String, String> namespaceMap) {
+        // make some checks. This is a map from namespace to prefix, but we want unique prefixes.
+        if (namespaceMap != null) {
+            Set<String> prefixesSoFar = new HashSet<String>();
+            for (Map.Entry<String, String> mapping : namespaceMap.entrySet()) {
+                if (prefixesSoFar.contains(mapping.getValue())) {
+                    throw new IllegalArgumentException("Duplicate prefix " + mapping.getValue());
+                }
+            }
+        }
+        this.namespaceMap = namespaceMap;
+    }
+
+    /** 
+     * Provide explicit mappings to ReflectionServiceFactory.
+     * {@inheritDoc}
+     * */
+    public Map<String, String> getDeclaredNamespaceMappings() {
+        return this.namespaceMap;
+    }
+
+    protected static void checkNamespaceMap(Map<String, String> namespaceMap) {
+        // make some checks. This is a map from namespace to prefix, but we want unique prefixes.
+        if (namespaceMap != null) {
+            Set<String> prefixesSoFar = new HashSet<String>();
+            for (Map.Entry<String, String> mapping : namespaceMap.entrySet()) {
+                if (prefixesSoFar.contains(mapping.getValue())) {
+                    throw new IllegalArgumentException("Duplicate prefix " + mapping.getValue());
+                }
+            }
+        }
     }
 }
