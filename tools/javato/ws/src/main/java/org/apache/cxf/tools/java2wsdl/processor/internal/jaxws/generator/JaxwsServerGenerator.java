@@ -59,7 +59,7 @@ public class JaxwsServerGenerator extends AbstractJaxwsGenerator {
         for (JavaInterface intf : interfaces.values()) {
             clearAttributes();
             setAttributes("intf", intf);
-            setAttributes("address", "http://localhost:9090/hello");
+            setAttributes("address", (String)penv.get(ToolConstants.CFG_ADDRESS));
             setAttributes("implClass", (String)env.get(ToolConstants.IMPL_CLASS));
             setCommonAttributes();
             doWrite(SERVER_TEMPLATE, parseOutputName(intf.getPackageName(), intf.getName() + "Server"));
