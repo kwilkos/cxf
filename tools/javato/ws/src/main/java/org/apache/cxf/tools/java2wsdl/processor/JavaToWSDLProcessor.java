@@ -81,6 +81,14 @@ public class JavaToWSDLProcessor implements Processor {
             String svName = getServiceName();
             service.setName(new QName(service.getName().getNamespaceURI(), svName));
         }
+        EndpointInfo endpointInfo = service.getEndpoints().iterator().next();
+        String address = ToolConstants.DEFAULT_ADDRESS + "/" + endpointInfo.getName().getLocalPart();
+        if (context.get(ToolConstants.CFG_ADDRESS) != null) {
+            address = (String)context.get(ToolConstants.CFG_ADDRESS);          
+        }
+        endpointInfo.setAddress(address);
+        context.put(ToolConstants.CFG_ADDRESS, address);
+        
     }
     
     /**
@@ -120,6 +128,7 @@ public class JavaToWSDLProcessor implements Processor {
         ServiceInfo service = builder.createService();
 
         customize(service);
+        
 
         File wsdlFile = getOutputFile(builder.getOutputFile(),
                                       service.getName().getLocalPart() + ".wsdl");

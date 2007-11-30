@@ -72,6 +72,8 @@ public final class ToolConstants {
     public static final String CFG_FRONTEND = "frontend";
 
     public static final String CFG_DATABINDING = "databinding";
+    
+    public static final String DEFAULT_ADDRESS = "http://localhost:9090";
 
     // WSDL2Java Constants
 

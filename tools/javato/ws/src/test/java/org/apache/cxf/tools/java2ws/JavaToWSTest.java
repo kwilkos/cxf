@@ -89,28 +89,63 @@ public class JavaToWSTest extends ToolTestBase {
     }
 
     @Test
-    public void testSimple() throws Exception {
+    public void testJaxwsFrontend() throws Exception {
         File wsdlFile = outputFile("tmp.wsdl");
-        String[] args = new String[] {"-wsdl", "-o", output.getPath() + "/tmp.wsdl", "-verbose", "-s",
+        String[] args = new String[] {"-wsdl", "-o", output.getPath() + "/tmp.wsdl", "-s",
                                       output.getPath(), "-frontend", "jaxws", "-client", "-server",
+                                      "-address", "http://localhost:1234/test",
                                       "org.apache.hello_world_doc_lit.Greeter"};
         JavaToWS.main(args);
-        checkStdErr();
+        //checkStdErr();
         assertTrue("Failed to generate WSDL file", wsdlFile.exists());
+        String str = FileUtils.getStringFromFile(wsdlFile);
+        assertTrue("Port address in generated wsdl is not correct", 
+                   str.indexOf("http://localhost:1234/test") > -1);
+        File client = outputFile("org/apache/hello_world_doc_lit/GreeterClient.java");
+        str = FileUtils.getStringFromFile(client);
+        assertTrue("Address generated in client side code is not correct", 
+                   str.indexOf("http://localhost:1234/test") > -1);
+        
+        File server = outputFile("org/apache/hello_world_doc_lit/GreeterServer.java");
+        str = FileUtils.getStringFromFile(server);
+        assertTrue("Address generated in server side code is not correct", 
+                   str.indexOf("http://localhost:1234/test") > -1); 
+        
+        File impl = outputFile("org/apache/hello_world_doc_lit/GreeterImpl.java");
+        Compiler compiler = new Compiler();
+        String[] files = new String[]{client.getAbsoluteFile().toString(),
+                                     server.getAbsoluteFile().toString(), 
+                                     impl.getAbsoluteFile().toString()};
+        compiler.compileFiles(files, this.classDir);
     }
     
     @Test
     public void testSimpleFrontend() throws Exception {
-        String[] args = new String[] {"-wsdl", "-o", output.getPath() + "/tmp.wsdl", "-verbose", "-s",
+        String[] args = new String[] {"-wsdl", "-o", output.getPath() + "/tmp.wsdl", "-s",
                                       output.getPath(), "-frontend", "simple", "-client", "-server",
+                                      "-address", "http://localhost:1234/test",
                                       "org.apache.cxf.tools.fortest.simple.Hello"};
         JavaToWS.main(args);
         File client = outputFile("org/apache/cxf/tools/fortest/simple/HelloPortTypeClient.java");
         File server = outputFile("org/apache/cxf/tools/fortest/simple/HelloPortTypeServer.java");
         File impl = outputFile("org/apache/cxf/tools/fortest/simple/HelloPortTypeImpl.java");
-        assertTrue("Failed to generate client file for simple front end ", client.exists());
+        File wsdl = outputFile("tmp.wsdl");
+        assertTrue("Failed to generate client file for simple front end ", client.exists());        
         assertTrue("Failed to generate server file for simple front end ", server.exists());
         assertTrue("Failed to generate impl file for simple front end ", impl.exists());
+        assertTrue("Failed to generate wsdl file for simple front end ", wsdl.exists());
+        
+        String str = FileUtils.getStringFromFile(client);
+        assertTrue("Address generated in client side code is not correct", 
+                   str.indexOf("http://localhost:1234/test") > -1); 
+        str = FileUtils.getStringFromFile(server);
+        assertTrue("Address generated in server side code is not correct", 
+                   str.indexOf("http://localhost:1234/test") > -1); 
+        str = FileUtils.getStringFromFile(wsdl);
+        assertTrue("Address generated in wsdl is not correct", 
+                   str.indexOf("http://localhost:1234/test") > -1); 
+        
+        
         Compiler compiler = new Compiler();
         String[] files = new String[]{client.getAbsoluteFile().toString(),
                                      server.getAbsoluteFile().toString(), 

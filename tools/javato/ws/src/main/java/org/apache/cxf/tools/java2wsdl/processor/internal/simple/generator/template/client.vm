@@ -35,7 +35,7 @@ import org.apache.cxf.aegis.databinding.AegisDatabinding;
     public static void main(String[] args) {
         ClientProxyFactoryBean proxyFactory = new ClientProxyFactoryBean();
         ClientFactoryBean clientBean = proxyFactory.getClientFactoryBean();
-        clientBean.setAddress("http://localhost:8088/Hello");
+        clientBean.setAddress("${address}");
         clientBean.setBus(CXFBusFactory.getDefaultBus());
         clientBean.setTransportId("http://schemas.xmlsoap.org/wsdl/http/");
         clientBean.setServiceClass(${seiClass}.class);

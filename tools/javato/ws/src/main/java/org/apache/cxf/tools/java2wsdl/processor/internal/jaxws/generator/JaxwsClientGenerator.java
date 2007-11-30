@@ -58,7 +58,7 @@ public class JaxwsClientGenerator extends AbstractJaxwsGenerator {
             setAttributes("intf", intf);
             setAttributes("service", service);
             setAttributes("port", port);
-            setAttributes("address", "http://localhost:9090/hello");
+            setAttributes("address", (String)penv.get(ToolConstants.CFG_ADDRESS));
             setAttributes("seiClass", (String)env.get(ToolConstants.SEI_CLASS));
             setCommonAttributes();
             doWrite(CLIENT_TEMPLATE, parseOutputName(intf.getPackageName(), intf.getName() + "Client"));

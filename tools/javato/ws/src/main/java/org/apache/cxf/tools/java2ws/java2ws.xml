@@ -184,6 +184,17 @@
 					<annotation>port-name</annotation>
 				</associatedArgument>
 			</option>
+			
+			<option id="address" maxOccurs="1">
+				<annotation>
+					Specify the port address 
+				</annotation>
+				<switch>address</switch>
+				<associatedArgument placement="afterSpace">
+					<annotation>address</annotation>
+				</associatedArgument>
+			</option>			
+			
 
 			<option id="createxsdimports" maxOccurs="1">
 				<annotation>
