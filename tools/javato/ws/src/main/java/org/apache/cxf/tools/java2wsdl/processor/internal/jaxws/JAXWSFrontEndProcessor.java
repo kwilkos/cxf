@@ -72,7 +72,7 @@ public class JAXWSFrontEndProcessor implements Processor {
         jinf.setJavaModel(jm);
         context.put(JavaModel.class, jm);
         context.put(ToolConstants.SERVICE_NAME, serviceInfo.getName());
-        EndpointInfo endpointInfo = serviceInfo.getEndpoints().iterator().next();
+        EndpointInfo endpointInfo = serviceInfo.getEndpoints().iterator().next();        
         context.put(ToolConstants.PORT_NAME, endpointInfo.getName());
         generators.add(new JaxwsSEIGenerator());
         generators.add(new JaxwsImplGenerator());

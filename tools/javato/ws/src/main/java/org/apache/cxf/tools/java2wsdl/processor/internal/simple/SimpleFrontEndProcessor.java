@@ -48,8 +48,6 @@ public class SimpleFrontEndProcessor implements Processor {
         jm.addInterface("inf", jinf);
         jinf.setJavaModel(jm);
         context.put(JavaModel.class, jm);
-        
-        
         generators.add(new SimpleSEIGenerator());
         generators.add(new SimpleImplGenerator());
         generators.add(new SimpleServerGenerator());
