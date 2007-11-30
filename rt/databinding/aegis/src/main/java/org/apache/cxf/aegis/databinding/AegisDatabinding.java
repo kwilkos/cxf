@@ -92,8 +92,6 @@ public class AegisDatabinding extends AbstractDataBinding implements DataBinding
     private Map<MessagePartInfo, Type> part2Type;
     private List overrideTypes;
     private Service service;
-    // allow applications to express an opinion about the namespace prefixes.
-    private Map<String, String> namespaceMap;
     
     public AegisDatabinding() {
         super();
@@ -318,6 +316,8 @@ public class AegisDatabinding extends AbstractDataBinding implements DataBinding
             }
         }
 
+        Map<String, String> namespaceMap = getDeclaredNamespaceMappings();
+        
         for (Map.Entry<String, Set<Type>> entry : tns2Type.entrySet()) {
             String xsdPrefix = XmlConstants.XSD_PREFIX;
             if (namespaceMap != null && namespaceMap.containsKey(XmlConstants.XSD)) {
@@ -474,37 +474,6 @@ public class AegisDatabinding extends AbstractDataBinding implements DataBinding
 
     public Service getService() {
         return service;
-    }
-
-    /**
-      * @return Returns the namespaceMap.
-     */
-    public Map<String, String> getNamespaceMap() {
-        return namespaceMap;
-    }
-
-    /**
-     * @param namespaceMap The namespaceMap to set.
-     */
-    public void setNamespaceMap(Map<String, String> namespaceMap) {
-        // make some checks. This is a map from namespace to prefix, but we want unique prefixes.
-        if (namespaceMap != null) {
-            Set<String> prefixesSoFar = new HashSet<String>();
-            for (Map.Entry<String, String> mapping : namespaceMap.entrySet()) {
-                if (prefixesSoFar.contains(mapping.getValue())) {
-                    throw new IllegalArgumentException("Duplicate prefix " + mapping.getValue());
-                }
-            }
-        }
-        this.namespaceMap = namespaceMap;
-    }
-
-    /** 
-     * Provide explicit mappings to ReflectionServiceFactory.
-     * {@inheritDoc}
-     * */
-    public Map<String, String> getDeclaredNamespaceMappings() {
-        return this.namespaceMap;
     }
 
     /** 
