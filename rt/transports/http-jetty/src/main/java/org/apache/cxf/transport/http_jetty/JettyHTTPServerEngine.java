@@ -354,17 +354,19 @@ public class JettyHTTPServerEngine
      */
     public synchronized void removeServant(URL url) {        
         
-        String contextName = HttpUriMapper.getContextName(url.getPath());
-
+        final String contextName = HttpUriMapper.getContextName(url.getPath());
+        final String smap = HttpUriMapper.getResourceBase(url.getPath());
         boolean found = false;
-        // REVISIT:After a stop(), the server is null, and therefore this 
-        // operation shouldn't find a handler
-        if (server != null) {
+        
+        if (server != null && server.isRunning()) {
             for (Handler handler : contexts.getChildHandlersByClass(ContextHandler.class)) {
-                ContextHandler contextHandler = null;
+                ContextHandler contextHandler = null;                
                 if (handler instanceof ContextHandler) {
                     contextHandler = (ContextHandler) handler;
-                    if (contextName.equals(contextHandler.getContextPath())) {
+                    Handler jh = contextHandler.getHandler();
+                    if (jh instanceof JettyHTTPHandler
+                        && contextName.equals(contextHandler.getContextPath())
+                        && ((JettyHTTPHandler)jh).getName().equals(smap)) {
                         try {
                             contexts.removeHandler(handler);                            
                             handler.stop();
@@ -373,9 +375,9 @@ public class JettyHTTPServerEngine
                             LOG.log(Level.WARNING, "REMOVE_HANDLER_FAILED_MSG", 
                                     new Object[] {ex.getMessage()}); 
                         }
-                        
-                    }
-                    found = true;
+                        found = true;
+                        break;                        
+                    }                    
                 }
             }
         }
@@ -384,12 +386,7 @@ public class JettyHTTPServerEngine
         }
         
         --servantCount;
-        /* Bug in Jetty, we cannot do this.  If we restart later, data goes off
-         * someplace unknown
-        if (servantCount == 0) {
-            server.removeListener(listener);
-        }
-        */
+       
     }
 
     /**
