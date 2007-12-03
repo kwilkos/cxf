@@ -112,12 +112,17 @@ public class XMLTypeCreator extends AbstractTypeCreator {
         InputStream is = XMLTypeCreator.class.getResourceAsStream(path);
         if (is != null) {
             try {
+                aegisDocumentBuilderFactory = DocumentBuilderFactory.newInstance();
+
+                
                 SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
                 aegisSchema = schemaFactory.newSchema(new StreamSource(is));
                 is.close();
-
-                aegisDocumentBuilderFactory = DocumentBuilderFactory.newInstance();
+                
                 aegisDocumentBuilderFactory.setSchema(aegisSchema);
+            } catch (UnsupportedOperationException e) {
+                //Parsers that don't support schema validation
+                LOG.info("Parser doesn't support setSchema.  Not validating.", e);
             } catch (IOException ie) {
                 LOG.error("Error reading Aegis schema", ie);
             } catch (FactoryConfigurationError e) {
