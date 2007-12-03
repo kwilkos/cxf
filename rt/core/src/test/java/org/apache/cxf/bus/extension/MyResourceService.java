@@ -16,15 +16,31 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.apache.cxf.bus.extension;
 
 import java.util.Collection;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 
-public interface MyService {
-        
-    Collection<String> getActivationNamespaces();
+public class MyResourceService implements MyService {
+    @Resource(name = "activationNamespaces")
+    Collection<String> activationNamespaces;
     
-    void registerMyselfAsExtension(); 
+    @Resource(name = "extensionManagerTest")
+    ExtensionManagerTest extensionManagerTest;
+    
+    
+    public MyResourceService() {
+    }
+    
+    public Collection<String> getActivationNamespaces() {
+        return activationNamespaces;
+    }
+    
+    @PostConstruct
+    public void registerMyselfAsExtension() {
+        extensionManagerTest.setMyService(this);
+    }
+
 }

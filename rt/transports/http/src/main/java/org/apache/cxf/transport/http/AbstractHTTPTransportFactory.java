@@ -78,9 +78,7 @@ public abstract class AbstractHTTPTransportFactory
   
     /**
      * This collection contains "activationNamespaces" which is synominous
-     * with "transportId"s. TransportIds are already part of 
-     * AbstractTransportFactory.
-     * TODO: Change these to "transportIds"?
+     * with "transportId"s. 
      */
     protected Collection<String> activationNamespaces;
 
@@ -102,11 +100,10 @@ public abstract class AbstractHTTPTransportFactory
     }
 
     /**
-     * This call is used by spring to "inject" the transport ids.
-     * TODO: Change this to "setTransportIds"?
+     * This call is used by CXF ExtensionManager to inject the activationNamespaces
      * @param ans The transport ids.
      */
-    @Resource(name = "activationNamespaces")
+    
     public void setActivationNamespaces(Collection<String> ans) {
         activationNamespaces = ans;
     }

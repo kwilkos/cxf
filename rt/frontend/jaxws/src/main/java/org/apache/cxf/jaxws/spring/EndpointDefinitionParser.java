@@ -57,6 +57,7 @@ public class EndpointDefinitionParser extends AbstractBeanDefinitionParser {
 
     @Override
     protected void doParse(Element element, ParserContext ctx, BeanDefinitionBuilder bean) {
+        boolean isAbstract = false;
         NamedNodeMap atts = element.getAttributes();
         String bus = element.getAttribute("bus");
         if (StringUtils.isEmpty(bus)) {
@@ -76,6 +77,7 @@ public class EndpointDefinitionParser extends AbstractBeanDefinitionParser {
 
             if ("createdFromAPI".equals(name)) {
                 bean.setAbstract(true);
+                isAbstract = true;
             } else if (isAttribute(pre, name) && !"publish".equals(name) && !"bus".equals(name)) {
                 if ("endpointName".equals(name) || "serviceName".equals(name)) {
                     QName q = parseQName(element, val);
@@ -89,6 +91,7 @@ public class EndpointDefinitionParser extends AbstractBeanDefinitionParser {
                 }
             } else if ("abstract".equals(name)) {
                 bean.setAbstract(true);
+                isAbstract = true;
             }
         }
         
@@ -115,10 +118,10 @@ public class EndpointDefinitionParser extends AbstractBeanDefinitionParser {
                 }
             }
         }
-
-        bean.setInitMethodName("publish");
-        bean.setDestroyMethodName("stop");
-
+        if (!isAbstract) {
+            bean.setInitMethodName("publish");
+            bean.setDestroyMethodName("stop");
+        }
         // We don't want to delay the registration of our Server
         bean.setLazyInit(false);
     }

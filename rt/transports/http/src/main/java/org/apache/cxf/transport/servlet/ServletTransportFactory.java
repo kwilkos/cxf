@@ -72,6 +72,9 @@ public class ServletTransportFactory extends AbstractHTTPTransportFactory
         if (null == bus) {
             return;
         }
+        if (activationNamespaces == null) {
+            activationNamespaces = getTransportIds();
+        }
         DestinationFactoryManager dfm = bus.getExtension(DestinationFactoryManager.class);
         if (null != dfm && null != activationNamespaces) {
             for (String ns : activationNamespaces) {

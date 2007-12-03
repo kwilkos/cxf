@@ -77,11 +77,15 @@ public class ExtensionManagerTest extends Assert {
     }
     
     @Test
-    public void testActivateViaNS() {        
+    public void testActivateViaNS() {
+        verifyActivateViaNS(MyResourceService.class.getName(), "http://cxf.apache.org/resource");
+        verifyActivateViaNS(MySetterService.class.getName(), "http://cxf.apache.org/setter");
+    }
+    
+    public void verifyActivateViaNS(String extensionClass, String ns) {        
         
         Extension e = new Extension();
-        e.setClassname(MyService.class.getName());
-        String ns = "http://cxf.apache.org/integer";
+        e.setClassname(MyResourceService.class.getName());       
         e.getNamespaces().add(ns);
         e.setDeferred(true);
         manager.processExtension(e);
@@ -96,6 +100,7 @@ public class ExtensionManagerTest extends Assert {
         MyService first = myService;
         manager.activateViaNS(ns);
         assertSame(first, myService);
+        myService = null;
     }
     
     public void setMyService(MyService m) {
