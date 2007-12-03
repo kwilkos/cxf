@@ -47,11 +47,12 @@ public class ErrorContextSerletTest extends AbstractServletTest {
         try {
             sr = new ServletRunner(getResourceAsStream(getConfiguration()), CONTEXT);
             sr.newClient().getResponse(CONTEXT_URL + "/services");
-            // there expect a class not found exception
-            fail("we expect a CannotLoadBeanClassException here");
+            // there expect a spring bean exception
+            fail("we expect a spring bean Exception here");
         } catch (Exception ex) {
-            assertTrue("we expect a CannotLoadBeanClassException here",
-                      ex instanceof org.springframework.beans.factory.CannotLoadBeanClassException);
+            // supprot spring 2.0.x and sping 2.5
+            assertTrue("we expect a Bean Exception here",
+                      ex instanceof org.springframework.beans.FatalBeanException);
         } 
     }
 

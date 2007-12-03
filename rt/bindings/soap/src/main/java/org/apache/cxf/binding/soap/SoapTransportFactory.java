@@ -158,8 +158,7 @@ public class SoapTransportFactory extends AbstractTransportFactory implements De
     public void setBus(Bus bus) {
         this.bus = bus;
     }
-
-    @Resource(name = "activationNamespaces")
+    
     public void setActivationNamespaces(Collection<String> ans) {
         activationNamespaces = ans;
     }
