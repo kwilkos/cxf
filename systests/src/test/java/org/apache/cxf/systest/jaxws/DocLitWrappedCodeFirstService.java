@@ -31,6 +31,8 @@ import javax.xml.ws.Holder;
 import javax.xml.ws.RequestWrapper;
 import javax.xml.ws.ResponseWrapper;
 
+import org.apache.cxf.message.Exchange;
+
 @WebService(name = "DocLitWrappedCodeFirstService",
             targetNamespace = "http://cxf.apache.org/systest/jaxws/DocLitWrappedCodeFirstService")
 @SOAPBinding(style = SOAPBinding.Style.DOCUMENT,
@@ -48,7 +50,7 @@ public interface DocLitWrappedCodeFirstService {
     Vector<String> listOutput();
     
     @WebMethod
-    int[] echoIntArray(int[] ar);
+    int[] echoIntArray(int[] ar, Exchange ex);
     
     @WebMethod
     @WebResult(partName = "parameters")
@@ -110,4 +112,5 @@ public interface DocLitWrappedCodeFirstService {
             return name;
         }
     }
+    
 }

@@ -71,6 +71,7 @@ import org.apache.cxf.helpers.MethodComparator;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.interceptor.FaultOutInterceptor;
 import org.apache.cxf.jaxb.JAXBDataBinding;
+import org.apache.cxf.message.Exchange;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.ServiceImpl;
 import org.apache.cxf.service.ServiceModelSchemaValidator;
@@ -1079,6 +1080,9 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         MessageInfo inMsg = op.createMessage(this.getInputMessageName(op, method), MessageInfo.Type.INPUT);
         op.setInput(inMsg.getName().getLocalPart(), inMsg);
         for (int j = 0; j < paramClasses.length; j++) {
+            if (Exchange.class.equals(paramClasses[j])) {
+                continue;
+            }
             if (isInParam(method, j)) {
                 final QName q = getInParameterName(op, method, j);
                 final QName q2 = getInPartName(op, method, j);
@@ -1129,6 +1133,9 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
             }
 
             for (int j = 0; j < paramClasses.length; j++) {
+                if (Exchange.class.equals(paramClasses[j])) {
+                    continue;
+                }
                 if (isOutParam(method, j)) {
                     if (outMsg == null) {
                         outMsg = op.createMessage(createOutputMessageName(op, method),

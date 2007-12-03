@@ -25,6 +25,8 @@ import java.util.Vector;
 import javax.jws.WebService;
 import javax.xml.ws.Holder;
 
+import org.apache.cxf.message.Exchange;
+
 @WebService(endpointInterface = "org.apache.cxf.systest.jaxws.DocLitWrappedCodeFirstService",
             serviceName = "DocLitWrappedCodeFirstService",
             portName = "DocLitWrappedCodeFirstServicePort",
@@ -52,7 +54,7 @@ public class DocLitWrappedCodeFirstServiceImpl implements DocLitWrappedCodeFirst
         return buf.toString();
     }
     
-    public int[] echoIntArray(int[] ar) {
+    public int[] echoIntArray(int[] ar, Exchange ex) {
         return ar;
     }
 
