@@ -45,6 +45,7 @@ import org.apache.cxf.jaxws.JAXWSMethodDispatcher;
 import org.apache.cxf.jaxws.interceptors.DispatchInDatabindingInterceptor;
 import org.apache.cxf.jaxws.interceptors.DispatchOutDatabindingInterceptor;
 import org.apache.cxf.jaxws.interceptors.WebFaultOutInterceptor;
+import org.apache.cxf.message.Exchange;
 import org.apache.cxf.service.factory.AbstractServiceConfiguration;
 import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
 import org.apache.cxf.service.factory.ServiceConstructionException;
@@ -350,6 +351,9 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
         Class<?>[] paramTypes = method.getParameterTypes();
         Type[] genericTypes = method.getGenericParameterTypes();
         for (int i = 0; i < paramTypes.length; i++) {
+            if (Exchange.class.equals(paramTypes[i])) {
+                continue;
+            }
             Class paramType = paramTypes[i];
             Type genericType = genericTypes[i];
             initializeParameter(o, method, i, paramType, genericType);
