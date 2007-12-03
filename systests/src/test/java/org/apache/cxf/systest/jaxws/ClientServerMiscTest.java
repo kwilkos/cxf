@@ -317,7 +317,7 @@ public class ClientServerMiscTest extends AbstractBusClientServerTestBase {
         assertEquals(2, foos2.get(0).length);
         assertEquals(2, foos2.get(1).length);
         
-        int ints[] = port.echoIntArray(new int[] {1, 2 , 3});
+        int ints[] = port.echoIntArray(new int[] {1, 2 , 3}, null);
         assertEquals(3, ints.length);
         assertEquals(1, ints[0]);
         
