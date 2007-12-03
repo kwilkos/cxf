@@ -70,11 +70,16 @@ public class LocalTransportFactoryTest extends Assert {
         conduit.prepare(m);
         
         OutputStream out = m.getContent(OutputStream.class);
-        out.write("hello".getBytes());
+        
+        StringBuilder builder = new StringBuilder();
+        for (int x = 0; x < 1000; x++) {
+            builder.append("hello");
+        }
+        out.write(builder.toString().getBytes());
         out.close();
         conduit.close(m);
 
-        assertEquals("hello", obs.getResponseStream().toString());
+        assertEquals(builder.toString(), obs.getResponseStream().toString());
     }
     static class EchoObserver implements MessageObserver {
 

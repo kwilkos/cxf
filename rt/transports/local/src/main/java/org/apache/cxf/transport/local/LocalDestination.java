@@ -27,6 +27,7 @@ import java.io.PipedOutputStream;
 import java.util.logging.Logger;
 
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.io.CachedOutputStream;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
@@ -94,9 +95,8 @@ public class LocalDestination extends AbstractDestination {
                 new Thread(receiver).start();
                 
             } else {
-                PipedInputStream stream = new PipedInputStream();
-                message.setContent(InputStream.class, stream);
-                message.setContent(OutputStream.class, new PipedOutputStream(stream));
+                CachedOutputStream stream = new CachedOutputStream();
+                message.setContent(OutputStream.class, stream);
             }
         }
 
@@ -104,10 +104,12 @@ public class LocalDestination extends AbstractDestination {
         public void close(Message message) throws IOException {
             if (Boolean.TRUE.equals(message.getExchange().get(LocalConduit.DIRECT_DISPATCH))) {
                 final Exchange exchange = (Exchange)message.getExchange().get(LocalConduit.IN_EXCHANGE);
+                
                 MessageImpl copy = new MessageImpl();
                 copy.putAll(message);
                 MessageImpl.copyContent(message, copy);
-                
+                CachedOutputStream stream = (CachedOutputStream)message.getContent(OutputStream.class);
+                copy.setContent(InputStream.class, stream.getInputStream());
                 if (exchange != null && exchange.getInMessage() == null) {
                     exchange.setInMessage(copy);
                 }                

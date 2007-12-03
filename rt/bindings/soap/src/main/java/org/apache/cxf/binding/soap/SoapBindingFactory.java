@@ -305,6 +305,8 @@ public class SoapBindingFactory extends AbstractBindingFactory {
         String parameterStyle = SoapBindingConstants.PARAMETER_STYLE_WRAPPED;
         String bindingStyle = SoapBindingConstants.BINDING_STYLE_DOC;
 
+        boolean hasWrapped = false;
+        
         org.apache.cxf.binding.soap.SoapBinding sb = null;
         SoapVersion version = null;
         if (binding instanceof SoapBindingInfo) {
@@ -323,6 +325,8 @@ public class SoapBindingFactory extends AbstractBindingFactory {
                 }
                 if (boi.getUnwrappedOperation() == null) {
                     parameterStyle = SoapBindingConstants.PARAMETER_STYLE_BARE;
+                } else {
+                    hasWrapped = true;
                 }
             }
         } else {
@@ -349,6 +353,9 @@ public class SoapBindingFactory extends AbstractBindingFactory {
                             && SoapBindingConstants.PARAMETER_STYLE_BARE.equalsIgnoreCase(parameterStyle)) {
                 //sb.getInInterceptors().add(new BareInInterceptor());
                 sb.getInInterceptors().add(new DocLiteralInInterceptor());
+                if (hasWrapped) {
+                    sb.getOutInterceptors().add(new WrappedOutInterceptor());                    
+                }
                 sb.getOutInterceptors().add(new BareOutInterceptor());
             } else {
                 //sb.getInInterceptors().add(new WrappedInInterceptor());

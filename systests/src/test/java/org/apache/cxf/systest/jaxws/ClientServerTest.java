@@ -837,7 +837,24 @@ public class ClientServerTest extends AbstractBusClientServerTestBase {
         assertEquals("Bonjour", reply);
                                    
     }
-    
+
+    /*
+    @Test
+    public void testDynamicClientFactory2() throws Exception {
+        String wsdlUrl = "http://sdpwsparam.strikeiron.com/sdpNFLTeams?WSDL";
+
+        //TODO test fault exceptions 
+        DynamicClientFactory dcf = DynamicClientFactory.newInstance();
+        Client client = dcf.createClient(wsdlUrl);
+        Object o = Class.forName("com.strikeiron.GetTeamInfoByCity", true, 
+                                 Thread.currentThread().getContextClassLoader()).newInstance();
+        Object[] result = client.invoke("GetTeamInfoByCity", "a", "b", "New England");
+        
+        
+        //System.out.println(Arrays.asList(result));
+        
+    }
+    */
     @Test
     public void testDynamicClientFactory() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
