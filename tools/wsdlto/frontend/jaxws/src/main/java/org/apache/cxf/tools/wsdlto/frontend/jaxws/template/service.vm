@@ -43,10 +43,10 @@ $annotation
 #end
 public class ${service.Name} extends Service {
 
-    private final static URL WSDL_LOCATION;
-    private final static QName SERVICE = new QName("$service.Namespace", "$service.ServiceName");
+    public final static URL WSDL_LOCATION;
+    public final static QName SERVICE = new QName("$service.Namespace", "$service.ServiceName");
 #foreach ($port in ${service.Ports})
-    private final static QName $port.Name = new QName("$service.Namespace", "$port.PortName");
+    public final static QName $port.Name = new QName("$service.Namespace", "$port.PortName");
 #end
     static {
         URL url = null;
