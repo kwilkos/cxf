@@ -30,6 +30,7 @@ import java.util.logging.Logger;
 
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.helpers.CastUtils;
+import org.apache.cxf.io.CachedOutputStream;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.ExchangeImpl;
 import org.apache.cxf.message.Message;
@@ -60,9 +61,8 @@ public class LocalConduit extends AbstractConduit {
             dispatchViaPipe(message);
         } else {
             // prepare the stream here
-            PipedInputStream stream = new PipedInputStream();
-            message.setContent(InputStream.class, stream);
-            message.setContent(OutputStream.class, new PipedOutputStream(stream));
+            CachedOutputStream stream = new CachedOutputStream();
+            message.setContent(OutputStream.class, stream);
         }
     }
 
@@ -76,7 +76,7 @@ public class LocalConduit extends AbstractConduit {
         super.close(message);
     }
 
-    private void dispatchDirect(Message message) {
+    private void dispatchDirect(Message message) throws IOException {
         if (destination.getMessageObserver() == null) {
             throw new IllegalStateException("Local destination does not have a MessageObserver on address " 
                                             + destination.getAddress().getAddress().getValue());
@@ -88,6 +88,9 @@ public class LocalConduit extends AbstractConduit {
         
         copy(message, copy, transportFactory.getMessageFilterProperties());
         
+        CachedOutputStream stream = (CachedOutputStream)message.getContent(OutputStream.class);
+        copy.setContent(InputStream.class, stream.getInputStream());
+
         // Create a new incoming exchange and store the original exchange for the response
         ExchangeImpl ex = new ExchangeImpl();
         ex.setInMessage(copy);
