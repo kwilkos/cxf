@@ -83,8 +83,8 @@ public class JavascriptQueryHandler implements StemMatchingQueryHandler {
         return false;
     }
     
-    private void writeUtilsToResponseStream(OutputStream outputStream) {
-        InputStream utils = getClass().getResourceAsStream(JS_UTILS_PATH);
+    public static void writeUtilsToResponseStream(Class<?> referenceClass, OutputStream outputStream) {
+        InputStream utils = referenceClass.getResourceAsStream(JS_UTILS_PATH);
         if (utils == null) {
             throw new RuntimeException("Unable to get stream for " + JS_UTILS_PATH);
         }
@@ -121,7 +121,7 @@ public class JavascriptQueryHandler implements StemMatchingQueryHandler {
         Map<String, String> map = UrlUtilities.parseQueryString(query);
         OutputStreamWriter writer = new OutputStreamWriter(os, UTF8);
         if (map.containsKey(UTILS_QUERY_KEY)) {
-            writeUtilsToResponseStream(os);
+            writeUtilsToResponseStream(JavascriptQueryHandler.class, os);
         } else if (map.containsKey(CODE_QUERY_KEY)) {
             ServiceInfo serviceInfo = endpoint.getService();
             Collection<SchemaInfo> schemata = serviceInfo.getSchemas();

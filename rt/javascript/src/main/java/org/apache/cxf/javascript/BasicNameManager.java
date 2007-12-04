@@ -47,10 +47,11 @@ public class BasicNameManager implements NameManager {
     
     public BasicNameManager(ServiceInfo service, Endpoint endpoint) {
         nsPrefixMap = new HashMap<String, String>();
-        JavascriptOptionsFeature options = getOptions(endpoint);
-        
-        if (options.getNamespacePrefixMap() != null) {
-            nsPrefixMap.putAll(options.getNamespacePrefixMap());
+        if (endpoint != null) {
+            JavascriptOptionsFeature options = getOptions(endpoint);
+            if (options.getNamespacePrefixMap() != null) {
+                nsPrefixMap.putAll(options.getNamespacePrefixMap());
+            }
         }
         
         Set<String> poorPrefixURIs = new HashSet<String>();

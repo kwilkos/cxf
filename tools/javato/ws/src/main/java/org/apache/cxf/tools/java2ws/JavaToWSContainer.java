@@ -32,6 +32,7 @@ import org.apache.cxf.tools.common.toolspec.ToolSpec;
 import org.apache.cxf.tools.common.toolspec.parser.BadUsageException;
 import org.apache.cxf.tools.common.toolspec.parser.CommandDocument;
 import org.apache.cxf.tools.common.toolspec.parser.ErrorVisitor;
+import org.apache.cxf.tools.java2js.processor.JavaToJSProcessor;
 import org.apache.cxf.tools.java2wsdl.processor.JavaToWSDLProcessor;
 import org.apache.cxf.tools.java2wsdl.processor.internal.jaxws.JAXWSFrontEndProcessor;
 import org.apache.cxf.tools.java2wsdl.processor.internal.simple.SimpleFrontEndProcessor;
@@ -46,7 +47,6 @@ public class JavaToWSContainer extends AbstractCXFToolContainer {
     }
 
     public void execute(boolean exitOnFinish) throws ToolException {
-        Processor processor = null;
         ErrorVisitor errors = new ErrorVisitor();
         try {
             super.execute(exitOnFinish);
@@ -73,22 +73,11 @@ public class JavaToWSContainer extends AbstractCXFToolContainer {
                     //use aegis databinding for simple front end by default
                     env.put(ToolConstants.CFG_DATABINDING, ToolConstants.AEGIS_DATABINDING);
                 }
-                env.put(ToolConstants.CFG_FRONTEND, ft); 
-                processor = new JavaToWSDLProcessor();
-                processor.setEnvironment(env);
-                processor.process();
-                
-                
-                if (ft.equals(ToolConstants.JAXWS_FRONTEND)) {
-                    if (env.optionSet(ToolConstants.CFG_SERVER) || env.optionSet(ToolConstants.CFG_CLIENT)) {
-                        processor = new JAXWSFrontEndProcessor();
-                        processor.setEnvironment(env);
-                        processor.process();
-                    }
-                } else {               
-                    processor = new SimpleFrontEndProcessor();
-                    processor.setEnvironment(env);
-                    processor.process();
+                env.put(ToolConstants.CFG_FRONTEND, ft);
+                if (null != env.get(ToolConstants.CFG_JAVASCRIPT_OUTPUT)) {
+                    processJavascript(env);
+                } else {
+                    processWSDL(env, ft);
                 }
             }
         } catch (ToolException ex) {
@@ -109,6 +98,31 @@ public class JavaToWSContainer extends AbstractCXFToolContainer {
             throw new ToolException(ex.getMessage(), ex.getCause());
         } finally {
             tearDown();
+        }
+    }
+
+    private void processJavascript(ToolContext env) {
+        Processor processor = new JavaToJSProcessor();
+        processor.setEnvironment(env);
+        processor.process();
+    }
+
+    private void processWSDL(ToolContext env, String ft) {
+        Processor processor = new JavaToWSDLProcessor();
+        processor.setEnvironment(env);
+        processor.process();
+        
+        
+        if (ft.equals(ToolConstants.JAXWS_FRONTEND)) {
+            if (env.optionSet(ToolConstants.CFG_SERVER) || env.optionSet(ToolConstants.CFG_CLIENT)) {
+                processor = new JAXWSFrontEndProcessor();
+                processor.setEnvironment(env);
+                processor.process();
+            }
+        } else {               
+            processor = new SimpleFrontEndProcessor();
+            processor.setEnvironment(env);
+            processor.process();
         }
     }
 

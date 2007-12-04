@@ -32,6 +32,7 @@
    java2ws -o hello.wsdl -wsdl org.apache.hello_world_soap_http.Greeter 
    java2ws -client -server org.apache.hello_world_soap_http.Greeter
    java2ws -wrapperbean org.apache.hello_world_soap_http.Greeter
+   java2ws -javascript org.apache.hello_world_soap_http.Greeter -o bloop.js
 	</annotation>
 	<usage>
 		<optionGroup id="options">
@@ -54,6 +55,20 @@
 				<associatedArgument placement="afterSpace">
 					<annotation>jaxws or simple</annotation>
 				</associatedArgument>
+			</option>
+			
+			<option id="javascriptOutput" maxOccurs="1">
+				<annotation>
+					Request output of a JavaScript client.
+				</annotation>
+				<switch>js</switch>
+			</option>
+			
+			<option id="javascriptUtils" maxOccurs="1">
+				<annotation>
+					Write the JavaScript common utilities at the beginning of the output.
+				</annotation>
+				<switch>jsutils</switch>
 			</option>
 
 			<option id="wsdl" maxOccurs="1">

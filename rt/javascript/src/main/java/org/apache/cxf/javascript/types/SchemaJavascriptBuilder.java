@@ -69,7 +69,10 @@ public class SchemaJavascriptBuilder {
     public String generateCodeForSchema(SchemaInfo schema) {
         StringBuffer code = new StringBuffer();
         code.append("//\n");
-        code.append("// Definitions for schema: " + schema.toString() + "\n");
+        code.append("// Definitions for schema: " + schema.getNamespaceURI());
+        if (schema.getSystemId() != null) {
+            code.append("//  " + schema.getSystemId());
+        }
         code.append("//\n");
 
         XmlSchemaObjectTable schemaTypes = schema.getSchema().getSchemaTypes();
