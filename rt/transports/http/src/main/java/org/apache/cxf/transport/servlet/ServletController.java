@@ -245,8 +245,16 @@ public class ServletController {
             if (enc != null && enc.endsWith("\"")) {
                 enc = enc.substring(0, enc.length() - 1);
             }
+
+            String normalizedEncoding = HttpHeaderHelper.mapCharset(enc);
+            if (normalizedEncoding == null) {
+                String m = new org.apache.cxf.common.i18n.Message("INVALID_ENCODING_MSG",
+                                                                  LOG, enc).toString();
+                LOG.log(Level.WARNING, m);
+                throw new IOException(m);   
+            }
             
-            inMessage.put(Message.ENCODING, HttpHeaderHelper.mapCharset(enc));
+            inMessage.put(Message.ENCODING, normalizedEncoding);
             SSLUtils.propogateSecureSession(request, inMessage);
             
             ExchangeImpl exchange = new ExchangeImpl();

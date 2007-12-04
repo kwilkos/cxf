@@ -17,29 +17,24 @@
  * under the License.
  */
 
-package org.apache.cxf.helpers;
+package org.apache.cxf.javascript;
 
-import java.nio.charset.Charset;
-import org.junit.Test;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * 
+ * Use this annotation to control the names of Javascript objects associated with this package.
+ * Use this with a JAXB XmlSchema annotation or the equivalent for another data binding to associate
+ * a namespace with the package.
  */
-public class HttpHeaderHelperTest {
-    
-    @Test 
-    public void testMapCharset() {
-        String cs = HttpHeaderHelper.mapCharset("utf-8");
-        assertEquals(Charset.forName("utf-8").name(), cs);
-        cs = HttpHeaderHelper.mapCharset(null);
-        assertNull(cs);
-        cs = HttpHeaderHelper.mapCharset("\"utf-8\"");
-        assertEquals(Charset.forName("utf-8").name(), cs);
-        cs = HttpHeaderHelper.mapCharset("'utf-8'");
-        assertEquals(Charset.forName("utf-8").name(), cs);
-    }
-
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.PACKAGE)
+public @interface JavascriptPrefix {
+    /**
+     * The name prefix for this package's namespace. 
+     * @return
+     */
+    String prefix() default "";
 }

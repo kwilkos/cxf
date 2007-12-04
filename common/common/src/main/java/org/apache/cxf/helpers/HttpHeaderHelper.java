@@ -74,6 +74,10 @@ public final class HttpHeaderHelper {
         if (enc == null) {
             return null;
         }
+        // Charsets can be quoted. But it's quite certain that they can't have escaped quoted or
+        // anything like that.
+        enc = enc.replace("\"", "");
+        enc = enc.replace("'", "");
         String newenc = encodings.get(enc);
         if (newenc == null) {
             try {
