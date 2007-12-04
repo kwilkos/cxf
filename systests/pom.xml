@@ -87,6 +87,14 @@
                                     <wsdl>${basedir}/src/test/resources/wsdl/add_numbers.wsdl</wsdl>
                                 </wsdlOption>
 
+                                <wsdlOption>
+                                    <wsdl>${basedir}/src/test/resources/wsdl/add_numbers-fromjava.wsdl</wsdl>
+                                    <extraargs>
+                                        <extraarg>-p</extraarg>
+                                        <extraarg>org.apache.cxf.systest.ws.addr_fromjava.client</extraarg>
+                                    </extraargs>
+                                </wsdlOption>
+
                             </wsdlOptions>
                         </configuration>
                         <goals>

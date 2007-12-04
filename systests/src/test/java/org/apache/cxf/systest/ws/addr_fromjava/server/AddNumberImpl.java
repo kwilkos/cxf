@@ -17,20 +17,22 @@
  * under the License.
  */
 
-package org.apache.cxf.systest.ws.addr_fromwsdl;
+package org.apache.cxf.systest.ws.addr_fromjava.server;
 
 import javax.jws.WebService;
+import javax.xml.ws.Action;
+import javax.xml.ws.FaultAction;
+import javax.xml.ws.soap.Addressing;
 
-import org.apache.cxf.systest.ws.addr_feature.AddNumbersFault;
-import org.apache.cxf.systest.ws.addr_feature.AddNumbersFault_Exception;
-import org.apache.cxf.systest.ws.addr_feature.AddNumbersPortType;
+// Jax-WS 2.1 WS-Addressing FromJava
 
-// Jax-WS 2.1 WS-Addressing FromWsdl
-
-@WebService(serviceName = "AddNumbersService",
-            targetNamespace = "http://apache.org/cxf/systest/ws/addr_feature/")
-public class AddNumberImpl implements AddNumbersPortType {
-    public int addNumbers(int number1, int number2) throws AddNumbersFault_Exception {
+@Addressing
+@WebService
+public class AddNumberImpl {
+    @Action(
+            input = "http://cxf.apache.org/input",
+            output = "http://cxf.apache.org/output")
+    public int addNumbers(int number1, int number2) throws AddNumbersException {
         return execute(number1, number2);
     }
 
@@ -38,19 +40,18 @@ public class AddNumberImpl implements AddNumbersPortType {
         return number1 + number2;
     }
 
-    public int addNumbers3(int number1, int number2) throws AddNumbersFault_Exception {
+    @Action(input = "http://cxf.apache.org/input3", output = "http://cxf.apache.org/output3",
+            fault = {@FaultAction(className = AddNumbersException.class, 
+                                  value = "http://cxf.apache.org/fault3") })
+    public int addNumbers3(int number1, int number2) throws AddNumbersException {
         return execute(number1, number2);
     }
 
-    int execute(int number1, int number2) throws AddNumbersFault_Exception {
+    int execute(int number1, int number2) throws AddNumbersException {
         if (number1 < 0 || number2 < 0) {
-            AddNumbersFault fb = new AddNumbersFault();
-            fb.setDetail("Negative numbers cant be added!");
-            fb.setMessage("Numbers: " + number1 + ", " + number2);
-
-            throw new AddNumbersFault_Exception(fb.getMessage(), fb);
+            throw new AddNumbersException("Negative numbers can't be added!",
+                                          "Numbers: " + number1 + ", " + number2);
         }
-
         return number1 + number2;
     }
 }
