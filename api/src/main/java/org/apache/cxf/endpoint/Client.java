@@ -44,6 +44,19 @@ public interface Client extends InterceptorProvider, MessageObserver {
 
     /**
      * Invokes an operation syncronously
+     * @param operationName The name of the operation to be invoked. The service namespace will be used
+     * when looking up the BindingOperationInfo.
+     * @param unwrapped If the operation supports unwrapping, this flag tells whether the params list
+     * is in unwrapped form (true) or wrapped form.
+     * @param params  The params that matches the parts of the input message of the operation
+     * @return The return values that matche the parts of the output message of the operation
+     */
+    Object[] invoke(String operationName,
+                    boolean unwrapped, 
+                    Object... params) throws Exception;
+    
+    /**
+     * Invokes an operation syncronously
      * @param operationName The name of the operation to be invoked
      * @param params  The params that matches the parts of the input message of the operation
      * @return The return values that matche the parts of the output message of the operation
@@ -51,6 +64,18 @@ public interface Client extends InterceptorProvider, MessageObserver {
     Object[] invoke(QName operationName,
                     Object... params) throws Exception;
 
+    /**
+     * Invokes an operation syncronously
+     * @param operationName The name of the operation to be invoked
+     * @param unwrapped If the operation supports unwrapping, this flag tells whether the params list
+     * is in unwrapped form (true) or wrapped form.
+     * @param params  The params that matches the parts of the input message of the operation
+     * @return The return values that matche the parts of the output message of the operation
+     */
+    Object[] invoke(QName operationName,
+                    boolean unwrapped, 
+                    Object... params) throws Exception;
+    
     /**
      * Invokes an operation syncronously
      * @param oi  The operation to be invoked
