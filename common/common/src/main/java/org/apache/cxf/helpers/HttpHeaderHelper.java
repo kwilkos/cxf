@@ -28,7 +28,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public final class HttpHeaderHelper {
-    private final static Charset UTF8 = Charset.forName("utf-8"); 
     public static final String CONTENT_TYPE = "Content-Type";
     public static final String CONTENT_ID = "Content-ID";
     public static final String CONTENT_TRANSFER_ENCODING = "Content-Transfer-Encoding";
@@ -38,6 +37,7 @@ public final class HttpHeaderHelper {
     public static final String CONNECTION = "Connection";
     public static final String CLOSE = "close";
     public static final String AUTHORIZATION = "Authorization";
+    private static final Charset UTF8 = Charset.forName("utf-8"); 
 
     
     private static Map<String, String> internalHeaders = new HashMap<String, String>();
