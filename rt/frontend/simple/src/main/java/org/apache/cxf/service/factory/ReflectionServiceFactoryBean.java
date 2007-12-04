@@ -124,7 +124,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     public static final String ELEMENT_NAME = "messagepart.elementName";
     public static final String METHOD = "operation.method";
     public static final String METHOD_PARAM_ANNOTATIONS = "method.parameters.annotations";
-    public static final String METHOD_ANNOTATONS = "method.return.annotations";
+    public static final String METHOD_ANNOTATIONS = "method.return.annotations";
     public static final QName SWA_REF  = new QName("http://ws-i.org/profiles/basic/1.1/xsd", "swaRef");
     public static final String SWA_REF_LOCATION = "http://ws-i.org/profiles/basic/1.1/swaref.xsd";
     private static final Logger LOG = LogUtils.getL7dLogger(ReflectionServiceFactoryBean.class,
@@ -694,10 +694,6 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         qualifiedSchemas = b;
     }
     
-    
-
-    
-    
     protected void createWrappedSchema(ServiceInfo serviceInfo, AbstractMessageContainer wrappedMessage,
                                        AbstractMessageContainer unwrappedMessage, QName wrapperBeanName) {
         SchemaInfo schemaInfo = getOrCreateSchema(serviceInfo,
@@ -978,7 +974,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     }
     
     private Annotation[] getMethodAnnotations(final MessagePartInfo mpi) {
-        return (Annotation[])mpi.getProperty(METHOD_ANNOTATONS);        
+        return (Annotation[])mpi.getProperty(METHOD_ANNOTATIONS);        
     }    
     
     private void addMimeType(final XmlSchemaElement element, final Annotation[] annotations) {
@@ -1119,7 +1115,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                 if (!isRPC(method) && !isWrapped(method)) {
                     part.setProperty(ELEMENT_NAME, q2);
                 }
-                part.setProperty(METHOD_ANNOTATONS, method.getAnnotations());
+                part.setProperty(METHOD_ANNOTATIONS, method.getAnnotations());
                 if (isHeader(method, -1)) {
                     part.setProperty(HEADER, Boolean.TRUE);
                     if (isRPC(method) || !isWrapped(method)) {

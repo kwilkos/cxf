@@ -19,25 +19,19 @@
 
 package org.apache.cxf.javascript;
 
+import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-
 /**
- * This annotation specifies the string prefix for names of JavaScript objects derived from a particular
- * namespace. It is used with {@link JavascriptPrefixes}. 
+ * Use this annotation to control the names of JavaScript objects associated with this package.
  */
-@Retention(RetentionPolicy.RUNTIME) 
-@Target({ })
-public @interface JavascriptPrefix {
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+public @interface JavascriptPrefixes {
     /**
-     * The namespace URI of the namespace.
-     */ 
-    String namespace();
-    /**
-     * The prefix for JavaScript object names.
+     * An array of namespaceURI/prefix pairs, specified as JavascriptPrefix annotations.
      */
-    String prefix();
-
+    JavascriptPrefix[] prefixes() default { };
 }
