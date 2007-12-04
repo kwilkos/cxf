@@ -32,10 +32,13 @@ import javax.xml.namespace.QName;
 import javax.xml.ws.AsyncHandler;
 import javax.xml.ws.Service;
 import javax.xml.ws.Service.Mode;
+import javax.xml.ws.WebFault;
 
 import org.apache.cxf.binding.AbstractBindingFactory;
+import org.apache.cxf.common.classloader.ClassLoaderUtils;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.databinding.source.SourceDataBinding;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.EndpointException;
@@ -302,8 +305,19 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
         } catch (SecurityException e) {
             throw new ServiceConstructionException(e);
         } catch (NoSuchMethodException e) {
-            return super.getBeanClass(exClass);
+            //ignore for now
         }
+        WebFault fault = exClass.getAnnotation(WebFault.class);
+        if (fault != null && !StringUtils.isEmpty(fault.faultBean())) {
+            try {
+                return ClassLoaderUtils.loadClass(fault.faultBean(),
+                                                   exClass);
+            } catch (ClassNotFoundException e1) {
+                //ignore
+            }
+        }
+        
+        return super.getBeanClass(exClass);
     }
 
     /**
