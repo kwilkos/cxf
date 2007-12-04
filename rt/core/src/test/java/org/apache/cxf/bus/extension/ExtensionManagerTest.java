@@ -85,7 +85,7 @@ public class ExtensionManagerTest extends Assert {
     public void verifyActivateViaNS(String extensionClass, String ns) {        
         
         Extension e = new Extension();
-        e.setClassname(MyResourceService.class.getName());       
+        e.setClassname(extensionClass);       
         e.getNamespaces().add(ns);
         e.setDeferred(true);
         manager.processExtension(e);
@@ -97,7 +97,7 @@ public class ExtensionManagerTest extends Assert {
         
         // second activation should be a no-op
         
-        MyService first = myService;
+        MyService first = myService;        
         manager.activateViaNS(ns);
         assertSame(first, myService);
         myService = null;

@@ -21,6 +21,7 @@ package org.apache.cxf.bus.extension;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -40,6 +41,7 @@ public class ExtensionManagerImpl implements ExtensionManager {
 
     public static final String EXTENSIONMANAGER_PROPERTY_NAME = "extensionManager";
     public static final String ACTIVATION_NAMESPACES_PROPERTY_NAME = "activationNamespaces";
+    public static final String ACTIVATION_NAMESPACES_SETTER_METHOD_NAME = "setActivationNamespaces";
     public static final String BUS_EXTENSION_RESOURCE = "META-INF/bus-extensions.xml";
     
     private final ClassLoader loader;
@@ -153,9 +155,13 @@ public class ExtensionManagerImpl implements ExtensionManager {
             resourceManager.addResourceResolver(namespacesResolver);
         }
         
+        // Since we need to support spring2.5 by removing @Resource("activationNamespaces")
+        // Now we call the setActivationNamespaces method directly here
+        invockSetterActivationNSMethod(obj, e.getNamespaces());
+        
         ResourceInjector injector = new ResourceInjector(resourceManager);
         
-        try {
+        try {            
             injector.inject(obj);
             injector.construct(obj);
         } finally {
@@ -195,6 +201,28 @@ public class ExtensionManagerImpl implements ExtensionManager {
         return null;
     }
     
-    
+    private void invockSetterActivationNSMethod(Object target, Object value) {
+        Class clazz = target.getClass();
+        String methodName = ACTIVATION_NAMESPACES_SETTER_METHOD_NAME;
+        while (clazz != Object.class) {
+            Method[] methods = clazz.getMethods();
+            for (int i = 0; i < methods.length; i++) {
+                Method method = methods[i];
+                Class params[] = method.getParameterTypes();
+                if (method.getName().equals(methodName) && params.length == 1) {
+                    Class paramType = params[0];
+                    if (paramType.isInstance(value)) {
+                        try {
+                            method.invoke(target, new Object[] {value});
+                        } catch (Exception e) {
+                            // do nothing here
+                        }
+                        return;
+                    }
+                }
+            }
+            clazz = clazz.getSuperclass();
+        }        
+    }
 
 }

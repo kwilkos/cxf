@@ -123,7 +123,7 @@ public class JettyHTTPServerEngineTest extends Assert {
         engine.setPort(9000);
         try {
             engine.finalizeConfig();
-            fail("We should get the connector not set with TSLServerParament exception ");
+            fail("We should get the connector not set with TSLServerParameter exception.");
         } catch (Exception ex) {
             // expect the excepion            
         }
@@ -135,9 +135,9 @@ public class JettyHTTPServerEngineTest extends Assert {
         engine.setPort(9000);
         try {
             engine.finalizeConfig();
-            fail("We should get the connector not set right port exception ");
+            fail("We should get the connector not set right port exception.");
         } catch (Exception ex) {
-            // expect the excepion            
+            // expect the exception            
         }
         
         engine = new JettyHTTPServerEngine();
@@ -146,14 +146,8 @@ public class JettyHTTPServerEngineTest extends Assert {
         engine.setConnector(conn);
         engine.setPort(9003);
         engine.setTlsServerParameters(new TLSServerParameters());
-        try {
-            engine.finalizeConfig();
-        } catch (Exception ex) {
-            fail("We should not throw exception here");
-        }
+        engine.finalizeConfig();
     }
-    
-       
     
     @Test 
     public void testaddServants() throws Exception {
@@ -165,28 +159,16 @@ public class JettyHTTPServerEngineTest extends Assert {
         JettyHTTPTestHandler handler2 = new JettyHTTPTestHandler("string2");        
         engine.addServant(new URL(urlStr), handler1);
         String response = null;
-        try {
-            response = getResponse(urlStr);
-        } catch (Exception ex) {
-            fail("Can't get the response from the server " + ex);
-        }
+        response = getResponse(urlStr);
         assertEquals("The jetty http handler did not take effect", response, "string1");
         
         engine.addServant(new URL(urlStr), handler2);
-        try {
-            response = getResponse(urlStr);
-        } catch (Exception ex) {
-            fail("Can't get the response from the server " + ex);
-        }
+        response = getResponse(urlStr);
         assertEquals("The jetty http handler did not take effect", response, "string1string2");
         engine.addServant(new URL(urlStr2), handler2);
         engine.removeServant(new URL(urlStr));
         engine.shutdown();
-        try {
-            response = getResponse(urlStr2);
-        } catch (Exception ex) {
-            fail("Server should still work, even if we call the shutdown" + ex);
-        }
+        response = getResponse(urlStr2);
         assertEquals("The jetty http handler did not take effect", response, "string2");
         // set the get request
         factory.destroyForPort(9234);       
@@ -256,5 +238,4 @@ public class JettyHTTPServerEngineTest extends Assert {
         IOUtils.copy(in, buffer);
         return buffer.toString();
     }
-    
 }
