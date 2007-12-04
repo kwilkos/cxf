@@ -35,7 +35,7 @@ public class HttpHeaderHelperTest {
         String cs = HttpHeaderHelper.mapCharset("utf-8");
         assertEquals(Charset.forName("utf-8").name(), cs);
         cs = HttpHeaderHelper.mapCharset(null);
-        assertNull(cs);
+        assertEquals("UTF-8", cs);
         cs = HttpHeaderHelper.mapCharset("\"utf-8\"");
         assertEquals(Charset.forName("utf-8").name(), cs);
         cs = HttpHeaderHelper.mapCharset("'utf-8'");
