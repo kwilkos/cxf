@@ -255,7 +255,14 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
             inMessage.put(HTTP_RESPONSE, resp);
             inMessage.put(Message.HTTP_REQUEST_METHOD, req.getMethod());
             inMessage.put(Message.PATH_INFO, req.getContextPath() + req.getPathInfo());
-            inMessage.put(Message.ENCODING, HttpHeaderHelper.mapCharset(req.getCharacterEncoding()));
+            String normalizedEncoding = HttpHeaderHelper.mapCharset(req.getCharacterEncoding());
+            if (normalizedEncoding == null) {
+                String m = new org.apache.cxf.common.i18n.Message("INVALID_ENCODING_MSG",
+                                                                  LOG, req.getCharacterEncoding()).toString();
+                LOG.log(Level.WARNING, m);
+                throw new IOException(m);   
+            }
+            inMessage.put(Message.ENCODING, normalizedEncoding);
             inMessage.put(Message.QUERY_STRING, req.getQueryString());
             inMessage.put(Message.CONTENT_TYPE, req.getContentType());
             if (!StringUtils.isEmpty(endpointInfo.getAddress())) {

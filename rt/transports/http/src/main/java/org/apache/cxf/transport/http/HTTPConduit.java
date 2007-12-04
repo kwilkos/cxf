@@ -1927,8 +1927,17 @@ public class HTTPConduit
                     enc = enc.substring(0, enc.indexOf(";"));
                 }
             }
-            inMessage.put(Message.ENCODING, HttpHeaderHelper.mapCharset(enc));
             
+            String normalizedEncoding = HttpHeaderHelper.mapCharset(enc);
+            if (normalizedEncoding == null) {
+                String m = new org.apache.cxf.common.i18n.Message("INVALID_ENCODING_MSG",
+                                                                   LOG, enc).toString();
+                LOG.log(Level.WARNING, m);
+                throw new IOException(m);   
+            } 
+            
+            inMessage.put(Message.ENCODING, normalizedEncoding);
+                        
             if (maintainSession) {
                 String cookieStr = connection.getHeaderField("Set-Cookie");
                 sessionCookies = Cookie.handleSetCookie(sessionCookies, cookieStr);

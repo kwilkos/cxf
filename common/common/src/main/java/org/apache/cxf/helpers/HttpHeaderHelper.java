@@ -28,7 +28,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public final class HttpHeaderHelper {
-    
     public static final String CONTENT_TYPE = "Content-Type";
     public static final String CONTENT_ID = "Content-ID";
     public static final String CONTENT_TRANSFER_ENCODING = "Content-Transfer-Encoding";
@@ -38,6 +37,7 @@ public final class HttpHeaderHelper {
     public static final String CONNECTION = "Connection";
     public static final String CLOSE = "close";
     public static final String AUTHORIZATION = "Authorization";
+    private static final Charset UTF8 = Charset.forName("utf-8"); 
 
     
     private static Map<String, String> internalHeaders = new HashMap<String, String>();
@@ -72,7 +72,14 @@ public final class HttpHeaderHelper {
     //into something that is actually supported by Java and the Stax parsers and such.
     public static String mapCharset(String enc) {
         if (enc == null) {
-            return null;
+            return UTF8.name();
+        }
+        // Charsets can be quoted. But it's quite certain that they can't have escaped quoted or
+        // anything like that.
+        enc = enc.replace("\"", "");
+        enc = enc.replace("'", "");
+        if ("".equals(enc)) {
+            return UTF8.name();
         }
         String newenc = encodings.get(enc);
         if (newenc == null) {
