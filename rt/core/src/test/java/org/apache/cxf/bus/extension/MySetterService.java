@@ -34,6 +34,7 @@ public class MySetterService implements MyService {
     public MySetterService() {
     }
     
+    
     public void setActivationNamespaces(Collection<String> avNamespaces) {
         activationNamespaces = avNamespaces;
     }
