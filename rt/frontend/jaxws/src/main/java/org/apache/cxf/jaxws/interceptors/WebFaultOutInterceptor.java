@@ -30,6 +30,7 @@ import javax.xml.ws.WebFault;
 
 import org.w3c.dom.Node;
 
+import org.apache.cxf.common.classloader.ClassLoaderUtils;
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.StringUtils;
@@ -91,10 +92,8 @@ public class WebFaultOutInterceptor extends FaultOutInterceptor {
                 Method method = cause.getClass().getMethod("getFaultInfo", new Class[0]);
                 faultInfo = method.invoke(cause, new Object[0]);
             } catch (NoSuchMethodException e) {
-                faultInfo = cause;
-                LOG.fine("Using @WebFault annotated class "
-                        + faultInfo.getClass().getName() 
-                        + " as faultInfo since getFaultInfo() was not found");
+                faultInfo = createFaultInfoBean(fault, cause);
+                
             } catch (InvocationTargetException e) {
                 throw new Fault(new org.apache.cxf.common.i18n.Message("INVOCATION_TARGET_EXC", BUNDLE), e);
             } catch (IllegalAccessException e) {
@@ -126,6 +125,52 @@ public class WebFaultOutInterceptor extends FaultOutInterceptor {
                 super.handleMessage(message);
             }
         }
+    }
+
+    private Object createFaultInfoBean(WebFault fault, Throwable cause) {
+        if (!StringUtils.isEmpty(fault.faultBean())) {
+            try {
+                Class cls = ClassLoaderUtils.loadClass(fault.faultBean(),
+                                                       cause.getClass());
+                if (cls != null) {
+                    Object ret = cls.newInstance();
+                    //copy props
+                    Method meth[] = cause.getClass().getMethods();
+                    for (Method m : meth) {
+                        if (m.getParameterTypes().length == 0
+                            && (m.getName().startsWith("get")
+                            || m.getName().startsWith("is"))) {
+                            try {
+                                Method m2 = cls.getMethod(m.getName(),
+                                                          m.getParameterTypes());
+                                String name;
+                                if (m.getName().startsWith("get")) {
+                                    name = "set" + m.getName().substring(3);
+                                } else {
+                                    name = "set" + m.getName().substring(2);
+                                }
+                                m2 = cls.getMethod(name, m.getReturnType());
+                                m2.invoke(ret, m.invoke(cause));
+                            } catch (Exception e) {
+                                //ignore
+                            }
+                        }
+                    }
+                    return ret;
+                }
+            } catch (ClassNotFoundException e1) {
+                //ignore
+            } catch (InstantiationException e) {
+                //ignore
+            } catch (IllegalAccessException e) {
+                //ignore
+            }
+        }
+
+        LOG.fine("Using @WebFault annotated class "
+                 + cause.getClass().getName() 
+                 + " as faultInfo since getFaultInfo() was not found");
+        return cause;
     }
 
     private MessagePartInfo getFaultMessagePart(QName qname, OperationInfo op) {

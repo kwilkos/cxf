@@ -181,19 +181,25 @@ public class ClientImpl
     }
 
     public Object[] invoke(String operationName, Object... params) throws Exception {
+        return invoke(operationName, true, params);
+    }
+    public Object[] invoke(String operationName, boolean unwrapped, Object... params) throws Exception {
         QName q = new QName(getEndpoint().getService().getName().getNamespaceURI(), operationName);
        
-        return invoke(q, params);
+        return invoke(q, unwrapped, params);
     }
     
     public Object[] invoke(QName operationName, Object... params) throws Exception {
+        return invoke(operationName, true, params);
+    }
+    public Object[] invoke(QName operationName, boolean unwrapped, Object... params) throws Exception {
         BindingOperationInfo op = getEndpoint().getEndpointInfo().getBinding().getOperation(operationName);
         if (op == null) {
             throw new UncheckedException(
                 new org.apache.cxf.common.i18n.Message("NO_OPERATION", LOG, operationName));
         }
         
-        if (op.isUnwrappedCapable()) {
+        if (op.isUnwrappedCapable() && unwrapped) {
             op = op.getUnwrappedOperation();
         }
         
