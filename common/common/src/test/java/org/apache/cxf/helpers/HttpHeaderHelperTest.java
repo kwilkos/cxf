@@ -22,8 +22,6 @@ package org.apache.cxf.helpers;
 import java.nio.charset.Charset;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-
 
 /**
  * 
