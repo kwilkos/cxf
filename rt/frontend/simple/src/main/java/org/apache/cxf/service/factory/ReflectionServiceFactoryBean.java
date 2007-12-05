@@ -666,8 +666,6 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
             SchemaCollection.addGlobalElementToSchema(schema, el);
         }
         
-        el.setMinOccurs(0);
-        el.setMaxOccurs(1);
         el.setNillable(true);
 
         XmlSchemaType tp = (XmlSchemaType)mpi.getXmlSchema();
@@ -763,8 +761,6 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
 
             XmlSchemaElement el = new XmlSchemaElement();
             XmlSchemaTools.setElementQName(el, qname);
-            el.setMinOccurs(0);
-            el.setMaxOccurs(1);
             el.setNillable(true);
             
             if (!isExistSchemaElement(schema, qname)) {

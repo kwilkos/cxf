@@ -181,31 +181,42 @@ public class ClientImpl
     }
 
     public Object[] invoke(String operationName, Object... params) throws Exception {
-        return invoke(operationName, true, params);
-    }
-    public Object[] invoke(String operationName, boolean unwrapped, Object... params) throws Exception {
         QName q = new QName(getEndpoint().getService().getName().getNamespaceURI(), operationName);
        
-        return invoke(q, unwrapped, params);
+        return invoke(q, params);
     }
     
     public Object[] invoke(QName operationName, Object... params) throws Exception {
-        return invoke(operationName, true, params);
-    }
-    public Object[] invoke(QName operationName, boolean unwrapped, Object... params) throws Exception {
         BindingOperationInfo op = getEndpoint().getEndpointInfo().getBinding().getOperation(operationName);
         if (op == null) {
             throw new UncheckedException(
                 new org.apache.cxf.common.i18n.Message("NO_OPERATION", LOG, operationName));
         }
         
-        if (op.isUnwrappedCapable() && unwrapped) {
+        if (op.isUnwrappedCapable()) {
             op = op.getUnwrappedOperation();
         }
         
         return invoke(op, params);
     }
 
+    public Object[] invokeWrapped(String operationName, Object... params) throws Exception {
+        QName q = new QName(getEndpoint().getService().getName().getNamespaceURI(), operationName);
+       
+        return invokeWrapped(q, params);
+    }
+    
+    public Object[] invokeWrapped(QName operationName, Object... params) throws Exception {
+        BindingOperationInfo op = getEndpoint().getEndpointInfo().getBinding().getOperation(operationName);
+        if (op == null) {
+            throw new UncheckedException(
+                new org.apache.cxf.common.i18n.Message("NO_OPERATION", LOG, operationName));
+        }
+        return invoke(op, params);
+    }
+
+    
+    
     public Object[] invoke(BindingOperationInfo oi, Object[] params, 
                            Map<String, Object> context) throws Exception {
         return invoke(oi, params, context, null);
