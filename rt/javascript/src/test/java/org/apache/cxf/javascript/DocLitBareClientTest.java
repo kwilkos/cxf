@@ -27,6 +27,7 @@ import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.javascript.JavascriptTestUtilities.JSRunnable;
 import org.apache.cxf.javascript.JavascriptTestUtilities.Notifier;
+import org.apache.cxf.javascript.fortest.SimpleDocLitBareImpl;
 import org.apache.cxf.javascript.fortest.SimpleDocLitWrappedImpl;
 import org.apache.cxf.javascript.fortest.TestBean1;
 import org.apache.cxf.javascript.fortest.TestBean2;
@@ -53,6 +54,7 @@ public class DocLitBareClientTest extends AbstractCXFSpringTest {
     private JavascriptTestUtilities testUtilities;
     private JaxWsProxyFactoryBean clientProxyFactory;
     private EndpointImpl endpoint;
+    private SimpleDocLitBareImpl implementor;
 
     public DocLitBareClientTest() throws Exception {
         testUtilities = new JavascriptTestUtilities(getClass());
@@ -73,6 +75,8 @@ public class DocLitBareClientTest extends AbstractCXFSpringTest {
         testUtilities.loadJavascriptForService(serviceInfo);
         testUtilities.readResourceIntoRhino("/org/apache/cxf/javascript/DocLitBareTests.js");
         endpoint = getBean(EndpointImpl.class, "dlb-service-endpoint");
+        implementor = (SimpleDocLitBareImpl)endpoint.getImplementor();
+        implementor.resetLastValues();
     }
     
     @Override
@@ -154,6 +158,34 @@ public class DocLitBareClientTest extends AbstractCXFSpringTest {
         return null;
     }
     
+    private Void actionMethodCaller(Context context) {
+        LOG.info("About to call actionMethod" + endpoint.getAddress());
+        Notifier notifier = 
+            testUtilities.rhinoCallConvert("actionMethodTest", Notifier.class, 
+                                           testUtilities.javaToJS(endpoint.getAddress()),
+                                           "wrong");
+        boolean notified = notifier.waitForJavascript(1000 * 10);
+        assertTrue(notified);
+        Integer errorStatus = testUtilities.rhinoEvaluateConvert("globalErrorStatus", Integer.class);
+        assertNull(errorStatus);
+        String errorText = testUtilities.rhinoEvaluateConvert("globalErrorStatusText", String.class);
+        assertNull(errorText);
+
+        //This method returns a String
+        String response = (String)testUtilities.rhinoEvaluate("globalResponseObject");
+        assertEquals("wrong", response);
+        return null;
+    }
+    
+    private Void onewayCaller(Context context) {
+        LOG.info("About to call actionMethod" + endpoint.getAddress());
+        testUtilities.rhinoCall("actionMethodTest",  
+                                testUtilities.javaToJS(endpoint.getAddress()),
+                                "corrigan");
+        assertEquals("corrigan", implementor.getLastString());
+        return null;
+    }
+    
     private Void compliantNoArgsCaller(Context context) {
         LOG.info("About to call compliantNoArgs " + endpoint.getAddress());
         Notifier notifier = 
@@ -173,7 +205,9 @@ public class DocLitBareClientTest extends AbstractCXFSpringTest {
         assertEquals("horsefeathers", item);
         return null;
     }
-    @org.junit.Ignore
+    
+    @org.junit.Ignore // This runs into a param name conflict since the JAXWS names
+    // are overriden by the XmlRootElement names.
     @Test
     public void callFunctionWithBeans() {
         LOG.info("about to call beanFunctionTest");
@@ -190,6 +224,26 @@ public class DocLitBareClientTest extends AbstractCXFSpringTest {
         testUtilities.runInsideContext(Void.class, new JSRunnable<Void>() {
             public Void run(Context context) {
                 return compliantCaller(context);
+            }
+        });
+    }
+
+    @Test
+    public void callActionMethod() {
+        LOG.info("about to call actionMethod");
+        testUtilities.runInsideContext(Void.class, new JSRunnable<Void>() {
+            public Void run(Context context) {
+                return actionMethodCaller(context);
+            }
+        });
+    }
+
+    @Test
+    public void callOneway() {
+        LOG.info("about to call oneway");
+        testUtilities.runInsideContext(Void.class, new JSRunnable<Void>() {
+            public Void run(Context context) {
+                return onewayCaller(context);
             }
         });
     }

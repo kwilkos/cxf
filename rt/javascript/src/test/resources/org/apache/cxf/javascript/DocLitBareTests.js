@@ -100,4 +100,31 @@ function compliantNoArgsTest(url)
 	return globalNotifier;
 }
 
-    
+function actionMethodTest(url, param)
+{
+	org_apache_cxf_trace.trace("Enter actionMethodTest.");
+	resetGlobals();
+	globalNotifier = new org_apache_cxf_notifier();
+	
+	var intf;
+    intf = new org_apache_cxf_javascript_fortest_SimpleDocLitBare();
+	  
+	intf.url = url;
+
+    intf.actionMethod(test1SuccessCallback, test1ErrorCallback, param); 
+    // Return the notifier as a convenience to the Java code.
+	return globalNotifier;
+}
+
+function onewayTest(url, param)
+{
+	org_apache_cxf_trace.trace("Enter onewayTest.");
+	resetGlobals();
+	globalNotifier = null; // no notifications.
+	var intf;
+    intf = new org_apache_cxf_javascript_fortest_SimpleDocLitBare();
+	  
+	intf.url = url;
+
+    intf.oneWay(param); 
+}

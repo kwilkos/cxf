@@ -35,6 +35,14 @@ public class SimpleDocLitBareImpl implements SimpleDocLitBare {
     private TestBean1 lastBean1;
     private TestBean1[] lastBean1Array;
     
+    public void resetLastValues() {
+        lastString = null;
+        lastInt = -1;
+        lastDouble = -1;
+        lastBean1 = null;
+        lastBean1Array = null;
+    }
+    
 
     public int basicTypeFunctionReturnInt(String s, double d) {
         lastString = s;
@@ -90,4 +98,12 @@ public class SimpleDocLitBareImpl implements SimpleDocLitBare {
         return lastBean1Array;
     }
 
+    public String actionMethod(String param) {
+        lastString = param;
+        return param;
+    }
+
+    public void oneWay(String param) {
+        lastString = param;
+    }
 }

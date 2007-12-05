@@ -227,9 +227,11 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
         buildParameterList(parameterList);
 
         MessageInfo outputMessage = op.getOutput();
-        buildSuccessFunction(outputMessage);
 
-        buildErrorFunction(); // fault part some day.
+        if (!op.isOneWay()) {
+            buildSuccessFunction(outputMessage);
+            buildErrorFunction(); // fault part some day.
+        }
 
         buildOperationFunction(parameterList);
 
@@ -255,10 +257,16 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
     }
 
     private void buildOperationFunction(StringBuilder parameterList) {
+        String responseCallbackParams = "";
+        if (!currentOperation.isOneWay()) {
+            responseCallbackParams = "successCallback, errorCallback";
+        }
+            
         code.append("function " 
                     +  opFunctionGlobalName
-                    + "(successCallback, errorCallback"
-                    + ((parameterList.length() > 0) ? ", " + parameterList : "") + ") {\n");
+                    + "("  + responseCallbackParams
+                    + ((parameterList.length() > 0 && !currentOperation.isOneWay()) 
+                        ? ", " + parameterList : "") + ") {\n");
         utils.appendLine("var xml = null;");
         MessageInfo inputMessage = currentOperation.getInput();
         if (inputMessage != null) {
@@ -278,16 +286,17 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
         utils.appendLine("this.client = new CxfApacheOrgClient(this.jsutils);");
         // we need to pass the caller's callback functions to our callback
         // functions.
-        utils.appendLine("this._onsuccess = successCallback;");
-        utils.appendLine("this._onerror = errorCallback;");
-        utils.appendLine("var closureThis = this;");
-        utils.appendLine("this.client.onsuccess = function(that) { closureThis." 
-                         + opFunctionPropertyName
-                         + "_onsuccess(that); };");
-        utils.appendLine("this.client.onerror = function(that) { closureThis."
-                         + opFunctionPropertyName
-                         + "_onerror(that); };");
-
+        if (!currentOperation.isOneWay()) {
+            utils.appendLine("this._onsuccess = successCallback;");
+            utils.appendLine("this._onerror = errorCallback;");
+            utils.appendLine("var closureThis = this;");
+            utils.appendLine("this.client.onsuccess = function(that) { closureThis." 
+                             + opFunctionPropertyName
+                             + "_onsuccess(that); };");
+            utils.appendLine("this.client.onerror = function(that) { closureThis."
+                             + opFunctionPropertyName
+                             + "_onerror(that); };");
+        }
         utils.appendLine("var requestHeaders = [];");
 
         if (soapBindingInfo != null) {
@@ -295,9 +304,16 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
             utils.appendLine("requestHeaders['SOAPAction'] = '" + action + "';");
         }
 
-        // default method by passing null. Is there some place this lives in the
+        // default 'method' by passing null. Is there some place this lives in the
         // service model?
-        utils.appendLine("this.client.request(this.url, xml, null, this.synchronous, requestHeaders);");
+        String syncAsyncFlag;
+        if (currentOperation.isOneWay()) {
+            syncAsyncFlag = "false";
+        } else {
+            syncAsyncFlag = "this.synchronous";
+        }
+        utils.appendLine("this.client.request(this.url, xml, null, "
+                         + syncAsyncFlag + ", requestHeaders);");
 
         code.append("}\n\n");
         code.append(currentInterfaceClassName + ".prototype." 
@@ -384,8 +400,6 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
     private String outputDeserializerFunctionName(MessageInfo message) {
         return getFunctionGlobalName(message.getName(), "deserializeResponse");
     }
-    
-
 
     // This ignores 'wrapped', because it assumes one part that we can use one way or 
     // the other. For simple cases, this is certainly OK.

@@ -19,6 +19,7 @@
 
 package org.apache.cxf.javascript.fortest;
 
+import javax.jws.Oneway;
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
 import javax.jws.WebService;
@@ -48,6 +49,13 @@ public interface SimpleDocLitBare {
     @WebMethod 
     String compliant(@WebParam(name = "beanParam") TestBean1 green);
     
+    @WebMethod(action = "lightsCamera") 
+    String actionMethod(@WebParam(name = "stringParam") String param);
+    
     @WebMethod
     TestBean2 compliantNoArgs();
+    
+    @Oneway
+    @WebMethod
+    void oneWay(@WebParam(name = "corrigan") String param);
 }
