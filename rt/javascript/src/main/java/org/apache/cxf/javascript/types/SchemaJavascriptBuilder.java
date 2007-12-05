@@ -24,6 +24,7 @@ import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
 
+import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.common.xmlschema.SchemaCollection;
@@ -84,9 +85,48 @@ public class SchemaJavascriptBuilder {
             if (xmlSchemaObject instanceof XmlSchemaComplexType) {
                 try {
                     XmlSchemaComplexType complexType = (XmlSchemaComplexType)xmlSchemaObject;
-                    code.append(complexTypeConstructorAndAccessors(complexType));
-                    code.append(complexTypeSerializerFunction(complexType));
-                    code.append(domDeserializerFunction(complexType));
+                    if (complexType.getName() != null) {
+                        code.append(complexTypeConstructorAndAccessors(complexType.getQName(), complexType));
+                        code.append(complexTypeSerializerFunction(complexType.getQName(), complexType));
+                        code.append(domDeserializerFunction(complexType.getQName(), complexType));
+                    }
+                } catch (UnsupportedConstruct usc) {
+                    LOG.warning(usc.toString());
+                    continue; // it could be empty, but the style checker would complain.
+                }
+            }
+        }
+        
+        // now add in global elements with anonymous types.        
+        schemaTypes = schema.getSchema().getElements();
+        namesIterator = schemaTypes.getNames();
+        while (namesIterator.hasNext()) {
+            QName name = (QName)namesIterator.next();
+            XmlSchemaObject xmlSchemaObject = (XmlSchemaObject)schemaTypes.getItem(name);
+            if (xmlSchemaObject instanceof XmlSchemaElement) { // the alternative is too wierd to contemplate.
+                try {
+                    XmlSchemaElement element = (XmlSchemaElement)xmlSchemaObject;
+                    if (element.getSchemaTypeName() == null) {
+                        Message message = new Message("ELEMENT_MISSING_TYPE", LOG, 
+                                                      element.getQName(),
+                                                      element.getSchemaTypeName(),
+                                                      schema.getNamespaceURI());
+                        LOG.warning(message.toString());
+                        continue;
+                    }
+                    XmlSchemaType type = schema.getSchema().getTypeByName(element.getSchemaTypeName());
+                    if (!(xmlSchemaObject instanceof XmlSchemaComplexType)) { 
+                        // we never make classes for simple type.
+                        continue;
+                    }
+
+                    XmlSchemaComplexType complexType = (XmlSchemaComplexType)type;
+                    // for named types we don't bother to generate for the element.
+                    if (complexType.getName() == null) {
+                        code.append(complexTypeConstructorAndAccessors(element.getQName(), complexType));
+                        code.append(complexTypeSerializerFunction(element.getQName(), complexType));
+                        code.append(domDeserializerFunction(element.getQName(), complexType));
+                    }
                 } catch (UnsupportedConstruct usc) {
                     continue; // it could be empty, but the style checker would complain.
                 }
@@ -98,9 +138,7 @@ public class SchemaJavascriptBuilder {
         return returnValue;
     }
     
-    
-    
-    public String complexTypeConstructorAndAccessors(XmlSchemaComplexType type) {
+    public String complexTypeConstructorAndAccessors(QName name, XmlSchemaComplexType type) {
         StringBuilder code = new StringBuilder();
         StringBuilder accessors = new StringBuilder();
         JavascriptUtils utils = new JavascriptUtils(code);
@@ -108,7 +146,7 @@ public class SchemaJavascriptBuilder {
         
         final String elementPrefix = "this._";
         
-        String typeObjectName = nameManager.getJavascriptName(type);
+        String typeObjectName = nameManager.getJavascriptName(name);
         code.append("function " + typeObjectName + " () {\n");
         
         for (int i = 0; i < sequence.getItems().getCount(); i++) {
@@ -175,7 +213,7 @@ public class SchemaJavascriptBuilder {
      * @param type
      * @return
      */
-    public String complexTypeSerializerFunction(XmlSchemaComplexType type) {
+    public String complexTypeSerializerFunction(QName name, XmlSchemaComplexType type) {
         
         StringBuilder bodyCode = new StringBuilder();
         JavascriptUtils bodyUtils = new JavascriptUtils(bodyCode);
@@ -185,7 +223,7 @@ public class SchemaJavascriptBuilder {
         
         StringBuilder code = new StringBuilder();
         JavascriptUtils utils = new JavascriptUtils(code);
-        String functionName = nameManager.getJavascriptName(type) + "_" + "serialize";
+        String functionName = nameManager.getJavascriptName(name) + "_" + "serialize";
         code.append("function " + functionName + "(cxfjsutils, elementName) {\n");
         utils.startXmlStringAccumulator("xml");
         utils.startIf("elementName != null");
@@ -248,7 +286,6 @@ public class SchemaJavascriptBuilder {
             elementInfo.setReferencingURI(null);
             elementInfo.setUtilsVarName("cxfjsutils");
             elementInfo.setXmlSchemaCollection(xmlSchemaCollection);
-            elementInfo.setPartElement(false);
             utils.generateCodeToSerializeElement(elementInfo);
         }
     }
@@ -258,7 +295,7 @@ public class SchemaJavascriptBuilder {
      * @param type schema type for the process
      * @return the string contents of the JavaScript.
      */
-    public String domDeserializerFunction(XmlSchemaComplexType type) {
+    public String domDeserializerFunction(QName name, XmlSchemaComplexType type) {
         StringBuilder code = new StringBuilder();
         JavascriptUtils utils = new JavascriptUtils(code);
         XmlSchemaParticle particle = type.getParticle();
@@ -274,7 +311,7 @@ public class SchemaJavascriptBuilder {
             XmlSchemaUtils.unsupportedConstruct("NON_SEQUENCE_PARTICLE", type);
         }
         
-        String typeObjectName = nameManager.getJavascriptName(type);
+        String typeObjectName = nameManager.getJavascriptName(name);
         code.append("function " + typeObjectName + "_deserialize (cxfjsutils, element) {\n");
         // create the object we are deserializing into.
         utils.appendLine("var newobject = new " + typeObjectName + "();");

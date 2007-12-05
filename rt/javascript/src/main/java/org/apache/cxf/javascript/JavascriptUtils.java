@@ -199,7 +199,6 @@ public class JavascriptUtils {
                                           elementInfo.getReferencingURI(),
                                           elementInfo.getElement(), 
                                           elementInfo.getContainingType());
-        
         // first question: optional?
         if (optional) {
             startIf(elementInfo.getElementJavascriptName() + " != null");
@@ -212,7 +211,7 @@ public class JavascriptUtils {
             appendString("<" + elementInfo.getElementXmlName() + " " + XmlSchemaUtils.NIL_ATTRIBUTES + "/>");
             appendElse();
         }
-
+        
         if (XmlSchemaUtils.isParticleArray(elementInfo.getElement())) {
             // protected against null in arrays.
             startIf(elementInfo.getElementJavascriptName() + " != null");

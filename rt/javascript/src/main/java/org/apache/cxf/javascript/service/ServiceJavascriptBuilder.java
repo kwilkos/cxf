@@ -487,7 +487,6 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
             elementInfo.setReferencingURI(serviceTargetNamespace);
             elementInfo.setUtilsVarName("cxfutils");
             elementInfo.setXmlSchemaCollection(xmlSchemaCollection);
-            elementInfo.setPartElement(true);
 
             utils.generateCodeToSerializeElement(elementInfo);
         } else {
@@ -508,7 +507,6 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
                 elementInfo.setReferencingURI(serviceTargetNamespace);
                 elementInfo.setUtilsVarName("cxfutils");
                 elementInfo.setXmlSchemaCollection(xmlSchemaCollection);
-                elementInfo.setPartElement(true);
                 utils.generateCodeToSerializeElement(elementInfo);
                 px++;
             }

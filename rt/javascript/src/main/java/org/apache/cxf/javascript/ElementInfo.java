@@ -34,7 +34,6 @@ public class ElementInfo {
     private SchemaCollection xmlSchemaCollection;
     private String referencingURI;
     private XmlSchemaType containingType;
-    private boolean partElement;
     
     public String getUtilsVarName() {
         return utilsVarName;
@@ -78,11 +77,4 @@ public class ElementInfo {
     public void setContainingType(XmlSchemaType containingType) {
         this.containingType = containingType;
     }
-    public boolean isPartElement() {
-        return partElement;
-    }
-    public void setPartElement(boolean partElement) {
-        this.partElement = partElement;
-    }
-
 }
