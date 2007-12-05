@@ -82,6 +82,7 @@ import org.apache.cxf.transport.DestinationFactory;
 import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.cxf.workqueue.OneShotAsyncExecutor;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
+import org.apache.cxf.ws.addressing.VersionTransformer;
 import org.apache.cxf.wsdl.EndpointReferenceUtils;
 import org.apache.cxf.wsdl11.WSDLServiceFactory;
 
@@ -297,18 +298,23 @@ public class ServiceImpl extends ServiceDelegate {
 
     public <T> T getPort(EndpointReferenceType endpointReference,
                             Class<T> type) {
+        return getPort(endpointReference, type, new WebServiceFeature[]{});
+    }    
+    
+    public <T> T getPort(EndpointReferenceType endpointReference, Class<T> type,
+                         WebServiceFeature... features) {
         endpointReference = EndpointReferenceUtils.resolve(endpointReference, bus);
         QName serviceQName = EndpointReferenceUtils.getServiceName(endpointReference);
         String portName = EndpointReferenceUtils.getPortName(endpointReference);
-        
+
         QName portQName = null;
         if (portName != null && serviceQName != null) {
             portQName = new QName(serviceQName.getNamespaceURI(), portName);
         }
-        
-        return createPort(portQName, endpointReference, type);
-    }    
 
+        return createPort(portQName, endpointReference, type, features);
+    } 
+    
     public Iterator<QName> getPorts() {
         return ports.iterator();
     }
@@ -550,9 +556,10 @@ public class ServiceImpl extends ServiceDelegate {
         throw new UnsupportedOperationException();
     }
 
-    public <T> T getPort(EndpointReference endpointReference,
-                         Class<T> serviceEndpointInterface,
+    public <T> T getPort(EndpointReference endpointReference, Class<T> serviceEndpointInterface,
                          WebServiceFeature... features) {
-        throw new UnsupportedOperationException();
+        return getPort(VersionTransformer.convertToInternal(endpointReference), serviceEndpointInterface,
+                       features);
+
     }
 }

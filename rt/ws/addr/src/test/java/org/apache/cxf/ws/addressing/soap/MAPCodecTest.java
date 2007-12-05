@@ -89,7 +89,7 @@ public class MAPCodecTest extends Assert {
     }
 
     @After
-    public void tearDown() {
+    public void tearDown() throws Exception {
         expectedNames = null;
         expectedDeclaredTypes = null;
         expectedValues = null;
@@ -97,6 +97,7 @@ public class MAPCodecTest extends Assert {
         expectedNamespaceURI = null;
         mimeHeaders = null;
         correlatedExchange = null;
+        ContextUtils.setJAXBContext(null);
     }
 
     @Test

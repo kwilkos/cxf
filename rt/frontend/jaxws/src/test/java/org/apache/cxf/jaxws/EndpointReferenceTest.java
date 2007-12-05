@@ -37,9 +37,9 @@ import javax.xml.ws.wsaddressing.W3CEndpointReference;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import org.apache.cxf.BusFactory;
 import org.apache.cxf.helpers.XMLUtils;
 import org.apache.cxf.jaxws.spi.ProviderImpl;
-import org.apache.cxf.service.model.EndpointInfo;
 
 import org.apache.hello_world_soap_http.Greeter;
 import org.apache.hello_world_soap_http.GreeterImpl;
@@ -50,19 +50,11 @@ import org.junit.Test;
 
 public class EndpointReferenceTest extends AbstractJaxWsTest {
 
-    private final String address = "http://localhost:9000/SoapContext/SoapPort";
-    //private Destination d;
     private final QName serviceName = new QName("http://apache.org/hello_world_soap_http", "SOAPService");
     private final QName portName = new QName("http://apache.org/hello_world_soap_http", "SoapPort");
 
     @Before
     public void setUp() throws Exception {
-        super.setUpBus();
-
-        EndpointInfo ei = new EndpointInfo(null, "http://schemas.xmlsoap.org/soap/http");
-        ei.setAddress(address);
-
-        //d = localTransport.getDestination(ei);
     }
 
     @Test
@@ -128,8 +120,12 @@ public class EndpointReferenceTest extends AbstractJaxWsTest {
      * WebServiceException MUST be thrown.
      */
     @Test
-    @Ignore("Not implemented yet")
     public void testServiceGetPortUsingEndpointReference() throws Exception {
+        BusFactory.setDefaultBus(getBus());
+        GreeterImpl greeter1 = new GreeterImpl();
+        EndpointImpl endpoint = new EndpointImpl(getBus(), greeter1, (String)null);
+        endpoint.publish("http://localhost:8080/test");
+        
         javax.xml.ws.Service s = javax.xml.ws.Service
             .create(new QName("http://apache.org/hello_world_soap_http", "SoapPort"));
 
@@ -143,12 +139,17 @@ public class EndpointReferenceTest extends AbstractJaxWsTest {
         Greeter greeter = s.getPort(endpointReference, Greeter.class, wfs);
 
         String response = greeter.greetMe("John");
+        
         assertEquals("Hello John", response);
     }
 
     @Test
-    @Ignore("Not implemented yet")
     public void testEndpointReferenceGetPort() throws Exception {
+        BusFactory.setDefaultBus(getBus());
+        GreeterImpl greeter1 = new GreeterImpl();
+        EndpointImpl endpoint = new EndpointImpl(getBus(), greeter1, (String)null);
+        endpoint.publish("http://localhost:8080/test");
+        
         InputStream is = getClass().getResourceAsStream("resources/hello_world_soap_http_infoset.xml");
         Document doc = XMLUtils.parse(is);
         DOMSource erXML = new DOMSource(doc);
@@ -166,7 +167,6 @@ public class EndpointReferenceTest extends AbstractJaxWsTest {
     public void testEndpointGetEndpointReferenceSOAPBinding() throws Exception {
         GreeterImpl greeter = new GreeterImpl();
         EndpointImpl endpoint = new EndpointImpl(getBus(), greeter, (String)null);
-
         endpoint.publish("http://localhost:8080/test");
 
         InputStream is = getClass().getResourceAsStream("resources/hello_world_soap_http_infoset.xml");
@@ -297,8 +297,12 @@ public class EndpointReferenceTest extends AbstractJaxWsTest {
     }
     
     @Test
-    @Ignore("Not implemented yet")
     public void testProviderGetPort() throws Exception {
+        BusFactory.setDefaultBus(getBus());
+        GreeterImpl greeter1 = new GreeterImpl();
+        EndpointImpl endpoint = new EndpointImpl(getBus(), greeter1, (String)null);
+        endpoint.publish("http://localhost:8080/test");
+        
         ProviderImpl provider = new ProviderImpl();
         
         InputStream is = getClass().getResourceAsStream("resources/hello_world_soap_http_infoset.xml");

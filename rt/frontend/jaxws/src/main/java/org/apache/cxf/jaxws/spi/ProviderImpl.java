@@ -167,7 +167,8 @@ public class ProviderImpl extends javax.xml.ws.spi.Provider {
 
     public <T> T getPort(EndpointReference endpointReference, Class<T> serviceEndpointInterface,
                          WebServiceFeature... features) {
-        throw new UnsupportedOperationException();
+        ServiceDelegate sd = createServiceDelegate(null, null, serviceEndpointInterface);
+        return sd.getPort(endpointReference, serviceEndpointInterface, features);
     }
 
     public EndpointReference readEndpointReference(Source eprInfoset) {

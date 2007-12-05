@@ -20,16 +20,23 @@
 package org.apache.cxf.ws.addressing;
 
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
+import javax.xml.transform.Result;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.ws.EndpointReference;
+import javax.xml.ws.wsaddressing.W3CEndpointReference;
 
 // importation convention: if the same class name is used for 
 // 2005/08 and 2004/08, then the former version is imported
 // and the latter is fully qualified when used
+import org.apache.cxf.io.CachedOutputStream;
 import org.apache.cxf.ws.addressing.v200408.AttributedQName;
 import org.apache.cxf.ws.addressing.v200408.AttributedURI;
 import org.apache.cxf.ws.addressing.v200408.ObjectFactory;
@@ -186,6 +193,41 @@ public class VersionTransformer {
         return internal; 
     }
 
+    /**
+     * Convert from EndpointReference to CXF internal 2005/08 EndpointReferenceType
+     * 
+     * @param external the javax.xml.ws.EndpointReference
+     * @return CXF internal 2005/08 EndpointReferenceType
+     */
+    public static EndpointReferenceType convertToInternal(EndpointReference external) {
+        if (external instanceof W3CEndpointReference) {
+            CachedOutputStream cos = new CachedOutputStream();
+            Result r = new StreamResult(cos);
+            external.writeTo(r);
+
+            JAXBContext jaxContext;
+            try {
+                // CXF internal 2005/08 EndpointReferenceType should be
+                // compatible with W3CEndpointReference
+                jaxContext = ContextUtils.getJAXBContext();
+                EndpointReferenceType internal = jaxContext.createUnmarshaller()
+                    .unmarshal(new StreamSource(cos.getInputStream()), EndpointReferenceType.class)
+                    .getValue();
+                return internal;
+            } catch (JAXBException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            return null;
+        } else {
+            //TODO: 200408
+        }
+        return null;
+    }
+    
     /**
      * Convert from 2005/08 ReferenceParametersType to 2004/08
      * ReferenceParametersType.

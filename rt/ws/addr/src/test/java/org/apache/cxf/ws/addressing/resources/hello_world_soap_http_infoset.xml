@@ -9,6 +9,7 @@
       xmlns:wsdli="http://www.w3.org/2006/01/wsdl-instance"
       xmlns:wsaw="http://www.w3.org/2005/02/addressing/wsdl"
       xmlns:ns="http://apache.org/hello_world_soap_http">
-        <wsaw:ServiceName EndpointName="SoapPort">ns:SOAPService</wsaw:ServiceName>
+        <wsaw:ServiceName>ns:SOAPService</wsaw:ServiceName>
     </wsa:Metadata>
+  
 </wsa:EndpointReference>
