@@ -30,19 +30,18 @@
   <import resource="classpath:META-INF/cxf/cxf-extension-soap.xml" />
   <import resource="classpath:META-INF/cxf/cxf-extension-http.xml" />
   <import resource="classpath:META-INF/cxf/cxf-extension-http-jetty.xml" />
-  <import resource="classpath:META-INF/cxf/cxf-extension-javascript-client.xml" />
   
-  <bean id='dlb-service' class='org.apache.cxf.javascript.fortest.SimpleDocLitBareImpl'/>
+  <bean id='rpc-service' class='org.apache.cxf.javascript.fortest.SimpleRPCImpl'/>
   
   <!-- use # so that we can pull state out of the service object in the tests. -->            
   <jaxws:endpoint id="dlb-service-endpoint" 
     implementor="#dlb-service" 
-    address="http://localhost:8808/SimpleDocLitBare" >
+    address="http://localhost:8808/SimpleRPC" >
   </jaxws:endpoint>
  
-  <bean id="dlb-proxy-factory" class="org.apache.cxf.jaxws.JaxWsProxyFactoryBean" >
-    <property name="serviceClass" value="org.apache.cxf.javascript.fortest.SimpleDocLitBare"/>
-    <property name="address" value="http://localhost:8808/SimpleDocLitBare"/>
+  <bean id="rpc-proxy-factory" class="org.apache.cxf.jaxws.JaxWsProxyFactoryBean" >
+    <property name="serviceClass" value="org.apache.cxf.javascript.fortest.SimpleRPC"/>
+    <property name="address" value="http://localhost:8808/SimpleRPC"/>
   </bean>
  
  </beans>

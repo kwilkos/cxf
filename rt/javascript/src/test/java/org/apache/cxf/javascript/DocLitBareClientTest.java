@@ -56,6 +56,9 @@ public class DocLitBareClientTest extends AbstractCXFSpringTest {
     private EndpointImpl endpoint;
     private SimpleDocLitBareImpl implementor;
 
+    private Client client;
+    private ServiceInfo serviceInfo;
+
     public DocLitBareClientTest() throws Exception {
         testUtilities = new JavascriptTestUtilities(getClass());
         testUtilities.addDefaultNamespaces();
@@ -67,11 +70,11 @@ public class DocLitBareClientTest extends AbstractCXFSpringTest {
         testUtilities.initializeRhino();
         testUtilities.readResourceIntoRhino("/org/apache/cxf/javascript/cxf-utils.js");
         clientProxyFactory = getBean(JaxWsProxyFactoryBean.class, "dlb-proxy-factory");
-        Client client = clientProxyFactory.getClientFactoryBean().create();
+        client = clientProxyFactory.getClientFactoryBean().create();
         List<ServiceInfo> serviceInfos = client.getEndpoint().getService().getServiceInfos();
         // there can only be one.
         assertEquals(1, serviceInfos.size());
-        ServiceInfo serviceInfo = serviceInfos.get(0);
+        serviceInfo = serviceInfos.get(0);
         testUtilities.loadJavascriptForService(serviceInfo);
         testUtilities.readResourceIntoRhino("/org/apache/cxf/javascript/DocLitBareTests.js");
         endpoint = getBean(EndpointImpl.class, "dlb-service-endpoint");
@@ -89,6 +92,7 @@ public class DocLitBareClientTest extends AbstractCXFSpringTest {
     }
 
     private Void beanFunctionCaller(Context context) {
+        
         TestBean1 b1 = new TestBean1(); 
         b1.stringItem = "strung";
         TestBean1[] beans = new TestBean1[3];
@@ -206,8 +210,7 @@ public class DocLitBareClientTest extends AbstractCXFSpringTest {
         return null;
     }
     
-    @org.junit.Ignore // This runs into a param name conflict since the JAXWS names
-    // are overriden by the XmlRootElement names.
+    @org.junit.Ignore
     @Test
     public void callFunctionWithBeans() {
         LOG.info("about to call beanFunctionTest");

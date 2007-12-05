@@ -143,6 +143,7 @@ public class JavascriptQueryHandler implements StemMatchingQueryHandler {
                 serviceBuilder.walk();
                 String serviceJavascript = serviceBuilder.getCode();
                 writer.append(serviceJavascript);
+                writer.flush();
             } catch (IOException e) {
                 throw new UncheckedException(e);
             }

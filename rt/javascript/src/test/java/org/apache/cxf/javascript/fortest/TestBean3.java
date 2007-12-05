@@ -22,17 +22,17 @@ package org.apache.cxf.javascript.fortest;
 import java.util.Arrays;
 
 import javax.xml.bind.annotation.XmlElement;
-//import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 /**
  * Bean with a selection of elements suitable for testing the JavaScript client.
  */
-//@XmlRootElement(namespace = "uri:org.apache.cxf.javascript.testns")
+@XmlRootElement(namespace = "uri:org.apache.cxf.javascript.testns")
 @XmlType(namespace = "uri:org.apache.cxf.javascript.testns")
-public class TestBean1 {
+public class TestBean3 {
     
-    public TestBean1() {
+    public TestBean3() {
         intItem = 43;
         doubleItem = -1.0;
         beanTwoItem = new TestBean2("required=true");
@@ -62,10 +62,10 @@ public class TestBean1 {
     
     @Override
     public boolean equals(Object obj) {
-        if (!(obj instanceof TestBean1)) {
+        if (!(obj instanceof TestBean3)) {
             return false;
         }
-        TestBean1 other = (TestBean1) obj;
+        TestBean3 other = (TestBean3) obj;
         boolean equalSoFar = 
             intItem == other.intItem
             && longItem == other.longItem

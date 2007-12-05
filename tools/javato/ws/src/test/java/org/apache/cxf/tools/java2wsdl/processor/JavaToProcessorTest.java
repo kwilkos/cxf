@@ -308,7 +308,7 @@ public class JavaToProcessorTest extends ProcessorTestBase {
 
     }
 
-
+    @org.junit.Ignore
     @Test
     public void testXMlBare() throws Exception {
         env.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/xml-bare.wsdl");

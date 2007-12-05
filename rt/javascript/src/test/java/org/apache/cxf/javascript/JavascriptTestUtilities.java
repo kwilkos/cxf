@@ -47,7 +47,7 @@ import org.mozilla.javascript.tools.debugger.Main;
 public class JavascriptTestUtilities extends TestUtilities {
 
     private static final Logger LOG = LogUtils.getL7dLogger(JavascriptTestUtilities.class);
-
+    private static boolean rhinoDebuggerUp;
     private ContextFactory rhinoContextFactory;
     private ScriptableObject rhinoScope;
     private Context rhinoContext;
@@ -131,8 +131,9 @@ public class JavascriptTestUtilities extends TestUtilities {
     public void initializeRhino() {
 
         rhinoContextFactory = new ContextFactory();
-        if (System.getProperty("cxf.jsdebug") != null) {
+        if (System.getProperty("cxf.jsdebug") != null && !rhinoDebuggerUp) {
             Main.mainEmbedded(rhinoContextFactory, rhinoScope, "Debug embedded JavaScript.");
+            rhinoDebuggerUp = true;
         }
 
         rhinoContext = rhinoContextFactory.enter();
