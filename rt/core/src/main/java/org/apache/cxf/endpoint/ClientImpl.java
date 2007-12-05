@@ -226,101 +226,109 @@ public class ClientImpl
                            Object[] params, 
                            Map<String, Object> context,
                            Exchange exchange) throws Exception {
-        if (exchange == null) {
-            exchange = new ExchangeImpl();
-        }
-        Endpoint endpoint = getEndpoint();
-
-        Map<String, Object> requestContext = null;
-        Map<String, Object> responseContext = null;
-        if (LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Invoke, operation info: " + oi + ", params: " + params);
-        }
-        Message message = endpoint.getBinding().createMessage();
-        if (null != context) {
-            requestContext = CastUtils.cast((Map)context.get(REQUEST_CONTEXT));
-            responseContext = CastUtils.cast((Map)context.get(RESPONSE_CONTEXT));
-            message.put(Message.INVOCATION_CONTEXT, context);
-        }    
-        //setup the message context
-        setContext(requestContext, message);
-        setParameters(params, message);
-
-        if (null != requestContext) {
-            exchange.putAll(requestContext);
-        }
-        exchange.setOneWay(oi.getOutput() == null);
-
-        exchange.setOutMessage(message);
+                
+        Bus origBus = BusFactory.getThreadDefaultBus(false);
+        BusFactory.setThreadDefaultBus(bus);
+        try {
         
-        setOutMessageProperties(message, oi);
-        setExchangeProperties(exchange, endpoint, oi);
-        
-        // setup chain
-
-        PhaseInterceptorChain chain = setupInterceptorChain(endpoint);
-        message.setInterceptorChain(chain);
-        
-        modifyChain(chain, requestContext);
-        chain.setFaultObserver(outFaultObserver);
-        
-        // setup conduit selector
-        prepareConduitSelector(message);
-        
-        // execute chain        
-        chain.doIntercept(message);
-
-        
-        // Check to see if there is a Fault from the outgoing chain
-        Exception ex = message.getContent(Exception.class);
-        boolean mepCompleteCalled = false;
-        if (ex != null) {
-            getConduitSelector().complete(exchange);
-            mepCompleteCalled = true;
-            if (message.getContent(Exception.class) != null) {
-                throw ex;
+            if (exchange == null) {
+                exchange = new ExchangeImpl();
             }
-        }
-        ex = message.getExchange().get(Exception.class);
-        if (ex != null) {
-            if (!mepCompleteCalled) {
+            Endpoint endpoint = getEndpoint();
+    
+            Map<String, Object> requestContext = null;
+            Map<String, Object> responseContext = null;
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.fine("Invoke, operation info: " + oi + ", params: " + params);
+            }
+            Message message = endpoint.getBinding().createMessage();
+            if (null != context) {
+                requestContext = CastUtils.cast((Map)context.get(REQUEST_CONTEXT));
+                responseContext = CastUtils.cast((Map)context.get(RESPONSE_CONTEXT));
+                message.put(Message.INVOCATION_CONTEXT, context);
+            }    
+            //setup the message context
+            setContext(requestContext, message);
+            setParameters(params, message);
+    
+            if (null != requestContext) {
+                exchange.putAll(requestContext);
+            }
+            exchange.setOneWay(oi.getOutput() == null);
+    
+            exchange.setOutMessage(message);
+            
+            setOutMessageProperties(message, oi);
+            setExchangeProperties(exchange, endpoint, oi);
+            
+            // setup chain
+    
+            PhaseInterceptorChain chain = setupInterceptorChain(endpoint);
+            message.setInterceptorChain(chain);
+            
+            modifyChain(chain, requestContext);
+            chain.setFaultObserver(outFaultObserver);
+            
+            // setup conduit selector
+            prepareConduitSelector(message);
+            
+            // execute chain        
+            chain.doIntercept(message);
+    
+            
+            // Check to see if there is a Fault from the outgoing chain
+            Exception ex = message.getContent(Exception.class);
+            boolean mepCompleteCalled = false;
+            if (ex != null) {
                 getConduitSelector().complete(exchange);
-            }
-            throw ex;
-        }
-        
-        // Wait for a response if we need to
-        if (!oi.getOperationInfo().isOneWay()) {
-            synchronized (exchange) {
-                waitResponse(exchange);
-            }
-        }
-        getConduitSelector().complete(exchange);
-
-        // Grab the response objects if there are any
-        List resList = null;
-        Message inMsg = exchange.getInMessage();
-        if (inMsg != null) {
-            if (null != responseContext) {                   
-                responseContext.putAll(inMsg);
-                if (LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("set responseContext to be" + responseContext);
+                mepCompleteCalled = true;
+                if (message.getContent(Exception.class) != null) {
+                    throw ex;
                 }
             }
-            resList = inMsg.getContent(List.class);
+            ex = message.getExchange().get(Exception.class);
+            if (ex != null) {
+                if (!mepCompleteCalled) {
+                    getConduitSelector().complete(exchange);
+                }
+                throw ex;
+            }
+            
+            // Wait for a response if we need to
+            if (!oi.getOperationInfo().isOneWay()) {
+                synchronized (exchange) {
+                    waitResponse(exchange);
+                }
+            }
+            getConduitSelector().complete(exchange);
+    
+            // Grab the response objects if there are any
+            List resList = null;
+            Message inMsg = exchange.getInMessage();
+            if (inMsg != null) {
+                if (null != responseContext) {                   
+                    responseContext.putAll(inMsg);
+                    if (LOG.isLoggable(Level.FINE)) {
+                        LOG.fine("set responseContext to be" + responseContext);
+                    }
+                }
+                resList = inMsg.getContent(List.class);
+            }
+            
+            // check for an incoming fault
+            ex = getException(exchange);
+            
+            if (ex != null) {
+                throw ex;
+            }
+            
+            if (resList != null) {
+                return resList.toArray();
+            }
+            return null;
+        } finally {
+            BusFactory.setThreadDefaultBus(origBus);
         }
-        
-        // check for an incoming fault
-        ex = getException(exchange);
-        
-        if (ex != null) {
-            throw ex;
-        }
-        
-        if (resList != null) {
-            return resList.toArray();
-        }
-        return null;
     }
 
     protected Exception getException(Exchange exchange) {
@@ -405,6 +413,8 @@ public class ClientImpl
         
         chain.setFaultObserver(outFaultObserver);
         
+        Bus origBus = BusFactory.getThreadDefaultBus(false);
+        BusFactory.setThreadDefaultBus(bus);
         // execute chain
         try {
             String startingAfterInterceptorID = (String) message.get(
@@ -426,6 +436,7 @@ public class ClientImpl
                     message.getExchange().notifyAll();
                 }
             }
+            BusFactory.setThreadDefaultBus(origBus);
         }
     }
 

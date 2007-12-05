@@ -24,6 +24,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.BusFactory;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.message.Exchange;
@@ -54,32 +55,38 @@ public class MultipleEndpointObserver implements MessageObserver {
     }
 
     public void onMessage(Message message) {
-        message = createMessage(message);
-        Exchange exchange = message.getExchange();
-        if (exchange == null) {
-            exchange = new ExchangeImpl();
-            exchange.setInMessage(message);
+        Bus origBus = BusFactory.getThreadDefaultBus(false);
+        BusFactory.setThreadDefaultBus(bus);
+        try {
+            message = createMessage(message);
+            Exchange exchange = message.getExchange();
+            if (exchange == null) {
+                exchange = new ExchangeImpl();
+                exchange.setInMessage(message);
+            }
+            setExchangeProperties(exchange, message);
+            
+            // setup chain
+            PhaseInterceptorChain chain = createChain();
+            
+            message.setInterceptorChain(chain);
+            
+            chain.add(bus.getInInterceptors());
+            if (bindingInterceptors != null) {
+                chain.add(bindingInterceptors);
+            }
+            if (routingInterceptors != null) {
+                chain.add(routingInterceptors);
+            }
+            
+            if (endpoints != null) {
+                exchange.put(ENDPOINTS, endpoints);
+            }
+            
+            chain.doIntercept(message);
+        } finally {
+            BusFactory.setThreadDefaultBus(origBus);
         }
-        setExchangeProperties(exchange, message);
-        
-        // setup chain
-        PhaseInterceptorChain chain = createChain();
-        
-        message.setInterceptorChain(chain);
-        
-        chain.add(bus.getInInterceptors());
-        if (bindingInterceptors != null) {
-            chain.add(bindingInterceptors);
-        }
-        if (routingInterceptors != null) {
-            chain.add(routingInterceptors);
-        }
-        
-        if (endpoints != null) {
-            exchange.put(ENDPOINTS, endpoints);
-        }
-        
-        chain.doIntercept(message);        
     }
 
     /**

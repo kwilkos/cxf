@@ -33,6 +33,7 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.BusFactory;
 import org.apache.cxf.bus.CXFBusImpl;
 import org.apache.cxf.common.util.Base64Utility;
 import org.apache.cxf.common.util.StringUtils;
@@ -81,6 +82,7 @@ public class JettyHTTPDestinationTest extends Assert {
     private static final String DIGEST_CHALLENGE = "Digest realm=luna";
     private static final String CUSTOM_CHALLENGE = "Custom realm=sol";
     private Bus bus;
+    private Bus threadDefaultBus;
     private Conduit decoupledBackChannel;
     private EndpointInfo endpointInfo;
     private EndpointReferenceType address;
@@ -137,6 +139,7 @@ public class JettyHTTPDestinationTest extends Assert {
         is = null;
         os = null;
         destination = null;
+        BusFactory.setDefaultBus(null); 
     }
     
     @Test
@@ -194,10 +197,17 @@ public class JettyHTTPDestinationTest extends Assert {
 
     @Test
     public void testDoService() throws Exception {
+        Bus defaultBus = new CXFBusImpl();
+        assertSame("Default thread bus has not been set",
+                   defaultBus, BusFactory.getThreadDefaultBus()); 
         destination = setUpDestination(false, false);
         setUpDoService(false);
+        assertSame("Default thread bus has been unexpectedly reset",
+                   defaultBus, BusFactory.getThreadDefaultBus());
         destination.doService(request, response);
         verifyDoService();
+        assertSame("Default thread bus has not been reset",
+                    defaultBus, BusFactory.getThreadDefaultBus());
     }
     
     @Test
@@ -491,6 +501,7 @@ public class JettyHTTPDestinationTest extends Assert {
         observer = new MessageObserver() {
             public void onMessage(Message m) {
                 inMessage = m;
+                threadDefaultBus = BusFactory.getThreadDefaultBus();
             }
         };
         dest.setMessageObserver(observer);
@@ -704,6 +715,8 @@ public class JettyHTTPDestinationTest extends Assert {
     }
 
     private void verifyDoService() throws Exception {
+        assertSame("Default thread bus has not been set for request",
+                    bus, threadDefaultBus);
         assertNotNull("unexpected null message", inMessage);
         assertSame("unexpected HTTP request",
                    inMessage.get(JettyHTTPDestination.HTTP_REQUEST),
