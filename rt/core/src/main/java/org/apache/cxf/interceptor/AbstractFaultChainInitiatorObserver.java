@@ -24,6 +24,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.BusFactory;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.message.Exchange;
@@ -47,50 +48,58 @@ public abstract class AbstractFaultChainInitiatorObserver implements MessageObse
     public void onMessage(Message message) {
       
         assert null != message;
-        Exchange exchange = message.getExchange();
-
-        Message faultMessage = null;
-
-        // now that we have switched over to the fault chain,
-        // prevent any further operations on the in/out message 
-
-        if (isOutboundObserver()) {
-            Exception ex = message.getContent(Exception.class);
-            if (!(ex instanceof Fault)) {
-                ex = new Fault(ex);
-            }
-            FaultMode mode = (FaultMode)message.get(FaultMode.class);
-            
-            faultMessage = exchange.getOutMessage();
-            if (null == faultMessage) {
-                faultMessage = exchange.get(Endpoint.class).getBinding().createMessage();
-            }
-            faultMessage.setContent(Exception.class, ex);
-            if (null != mode) {
-                faultMessage.put(FaultMode.class, mode);
-            }
-            exchange.setOutMessage(null);
-            exchange.setOutFaultMessage(faultMessage);
-            if (message.get(BindingFaultInfo.class) != null) {
-                faultMessage.put(BindingFaultInfo.class, message.get(BindingFaultInfo.class));
-            }
-        } else {
-            faultMessage = message;
-            exchange.setInMessage(null);
-            exchange.setInFaultMessage(faultMessage);
-        }          
-         
-       
-        // setup chain
-        PhaseInterceptorChain chain = new PhaseInterceptorChain(getPhases());
-        initializeInterceptors(faultMessage.getExchange(), chain);
         
-        faultMessage.setInterceptorChain(chain);
+        Bus origBus = BusFactory.getThreadDefaultBus(false);
+        BusFactory.setThreadDefaultBus(bus);
         try {
-            chain.doIntercept(faultMessage);
-        } catch (Exception exc) {
-            LogUtils.log(LOG, Level.SEVERE, "Error occurred during error handling, give up!", exc);
-            throw new RuntimeException(exc.getCause());
+            
+            Exchange exchange = message.getExchange();
+    
+            Message faultMessage = null;
+    
+            // now that we have switched over to the fault chain,
+            // prevent any further operations on the in/out message 
+    
+            if (isOutboundObserver()) {
+                Exception ex = message.getContent(Exception.class);
+                if (!(ex instanceof Fault)) {
+                    ex = new Fault(ex);
+                }
+                FaultMode mode = (FaultMode)message.get(FaultMode.class);
+                
+                faultMessage = exchange.getOutMessage();
+                if (null == faultMessage) {
+                    faultMessage = exchange.get(Endpoint.class).getBinding().createMessage();
+                }
+                faultMessage.setContent(Exception.class, ex);
+                if (null != mode) {
+                    faultMessage.put(FaultMode.class, mode);
+                }
+                exchange.setOutMessage(null);
+                exchange.setOutFaultMessage(faultMessage);
+                if (message.get(BindingFaultInfo.class) != null) {
+                    faultMessage.put(BindingFaultInfo.class, message.get(BindingFaultInfo.class));
+                }
+            } else {
+                faultMessage = message;
+                exchange.setInMessage(null);
+                exchange.setInFaultMessage(faultMessage);
+            }          
+             
+           
+            // setup chain
+            PhaseInterceptorChain chain = new PhaseInterceptorChain(getPhases());
+            initializeInterceptors(faultMessage.getExchange(), chain);
+            
+            faultMessage.setInterceptorChain(chain);
+            try {
+                chain.doIntercept(faultMessage);
+            } catch (Exception exc) {
+                LogUtils.log(LOG, Level.SEVERE, "Error occurred during error handling, give up!", exc);
+                throw new RuntimeException(exc.getCause());
+            }
+        } finally {
+            BusFactory.setThreadDefaultBus(origBus);
         }
     }
 

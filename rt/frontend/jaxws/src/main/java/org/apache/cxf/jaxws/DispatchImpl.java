@@ -54,6 +54,7 @@ import javax.xml.ws.soap.SOAPBinding;
 import javax.xml.ws.soap.SOAPFaultException;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.BusFactory;
 import org.apache.cxf.binding.soap.SoapBinding;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.endpoint.Client;
@@ -127,94 +128,100 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
             LOG.info("Dispatch: invoke called");
         }
 
-        Endpoint endpoint = getEndpoint();
-        Message message = endpoint.getBinding().createMessage();
-
-        if (context != null) {
-            message.setContent(JAXBContext.class, context);
-        }
-        
-        
-        Map<String, Object> reqContext = new HashMap<String, Object>(this.getRequestContext());
-        Map<String, Object> respContext = this.getResponseContext();
-        // clear the response context's hold information
-        // Not call the clear Context is to avoid the error 
-        // that getResponseContext() would be called by Client code first
-        respContext.clear();
-        
-        ContextPropertiesMapping.mapRequestfromJaxws2Cxf(reqContext);
-        message.putAll(reqContext);
-        //need to do context mapping from jax-ws to cxf message
-        
-        Exchange exchange = new ExchangeImpl();
-
-        exchange.setOutMessage(message);
-        setExchangeProperties(exchange, endpoint);
-
-        message.setContent(Object.class, obj);
-        
-        if (obj instanceof SOAPMessage) {
-            message.setContent(SOAPMessage.class, obj);
-        } else if (obj instanceof Source) {
-            message.setContent(Source.class, obj);
-        } else if (obj instanceof DataSource) {
-            message.setContent(DataSource.class, obj);
-        }
-  
-        message.put(Message.REQUESTOR_ROLE, Boolean.TRUE);
-
-        PhaseInterceptorChain chain = getDispatchOutChain(endpoint);
-        message.setInterceptorChain(chain);
-
-        // setup conduit selector
-        prepareConduitSelector(message);
-        
-        // execute chain
-        chain.doIntercept(message);
-        
-                
-        if (message.getContent(Exception.class) != null) {
-            getConduitSelector().complete(exchange);
-            if (getBinding() instanceof SOAPBinding) {
-                try {
-                    SOAPFault soapFault = SOAPFactory.newInstance().createFault();
-                    Fault fault = (Fault)message.getContent(Exception.class);
-                    soapFault.setFaultCode(fault.getFaultCode());
-                    soapFault.setFaultString(fault.getMessage());
-                    SOAPFaultException exception = new SOAPFaultException(soapFault);
-                    throw exception;
-                } catch (SOAPException e) {
-                    throw new WebServiceException(e);
-                }
-            } else if (getBinding() instanceof HTTPBinding) {
-                HTTPException exception = new HTTPException(HttpURLConnection.HTTP_INTERNAL_ERROR);
-                exception.initCause(message.getContent(Exception.class));
-                throw exception;
-            } else {
-                throw new WebServiceException(message.getContent(Exception.class));
+        Bus origBus = BusFactory.getThreadDefaultBus(false);
+        BusFactory.setThreadDefaultBus(bus);
+        try { 
+            Endpoint endpoint = getEndpoint();
+            Message message = endpoint.getBinding().createMessage();
+    
+            if (context != null) {
+                message.setContent(JAXBContext.class, context);
             }
-        }
-
-        // correlate response        
-        if (getConduitSelector().selectConduit(message).getBackChannel() != null) {
-            // process partial response and wait for decoupled response
-        } else {
-            // process response: send was synchronous so when we get here we can assume that the 
-            // Exchange's inbound message is set and had been passed through the inbound interceptor chain.
-        }
-
-        if (!isOneWay) {
-            synchronized (exchange) {
-                Message inMsg = waitResponse(exchange);
-                respContext.putAll(inMsg);
+            
+            
+            Map<String, Object> reqContext = new HashMap<String, Object>(this.getRequestContext());
+            Map<String, Object> respContext = this.getResponseContext();
+            // clear the response context's hold information
+            // Not call the clear Context is to avoid the error 
+            // that getResponseContext() would be called by Client code first
+            respContext.clear();
+            
+            ContextPropertiesMapping.mapRequestfromJaxws2Cxf(reqContext);
+            message.putAll(reqContext);
+            //need to do context mapping from jax-ws to cxf message
+            
+            Exchange exchange = new ExchangeImpl();
+    
+            exchange.setOutMessage(message);
+            setExchangeProperties(exchange, endpoint);
+    
+            message.setContent(Object.class, obj);
+            
+            if (obj instanceof SOAPMessage) {
+                message.setContent(SOAPMessage.class, obj);
+            } else if (obj instanceof Source) {
+                message.setContent(Source.class, obj);
+            } else if (obj instanceof DataSource) {
+                message.setContent(DataSource.class, obj);
+            }
+      
+            message.put(Message.REQUESTOR_ROLE, Boolean.TRUE);
+    
+            PhaseInterceptorChain chain = getDispatchOutChain(endpoint);
+            message.setInterceptorChain(chain);
+    
+            // setup conduit selector
+            prepareConduitSelector(message);
+            
+            // execute chain
+            chain.doIntercept(message);
+            
+                    
+            if (message.getContent(Exception.class) != null) {
                 getConduitSelector().complete(exchange);
-                //need to do context mapping from cxf message to jax-ws 
-                ContextPropertiesMapping.mapResponsefromCxf2Jaxws(respContext);
-                return cl.cast(inMsg.getContent(Object.class));
+                if (getBinding() instanceof SOAPBinding) {
+                    try {
+                        SOAPFault soapFault = SOAPFactory.newInstance().createFault();
+                        Fault fault = (Fault)message.getContent(Exception.class);
+                        soapFault.setFaultCode(fault.getFaultCode());
+                        soapFault.setFaultString(fault.getMessage());
+                        SOAPFaultException exception = new SOAPFaultException(soapFault);
+                        throw exception;
+                    } catch (SOAPException e) {
+                        throw new WebServiceException(e);
+                    }
+                } else if (getBinding() instanceof HTTPBinding) {
+                    HTTPException exception = new HTTPException(HttpURLConnection.HTTP_INTERNAL_ERROR);
+                    exception.initCause(message.getContent(Exception.class));
+                    throw exception;
+                } else {
+                    throw new WebServiceException(message.getContent(Exception.class));
+                }
             }
-        }
-        return null;
-        
+    
+            // correlate response        
+            if (getConduitSelector().selectConduit(message).getBackChannel() != null) {
+                // process partial response and wait for decoupled response
+            } else {
+                // process response: send was synchronous so when we get here we can assume that the 
+                // Exchange's inbound message is set and had been passed through the inbound
+                // interceptor chain.
+            }
+    
+            if (!isOneWay) {
+                synchronized (exchange) {
+                    Message inMsg = waitResponse(exchange);
+                    respContext.putAll(inMsg);
+                    getConduitSelector().complete(exchange);
+                    //need to do context mapping from cxf message to jax-ws 
+                    ContextPropertiesMapping.mapResponsefromCxf2Jaxws(respContext);
+                    return cl.cast(inMsg.getContent(Object.class));
+                }
+            }
+            return null;
+        } finally {
+            BusFactory.setThreadDefaultBus(origBus);
+        }        
     }
 
     private Message waitResponse(Exchange exchange) {
@@ -308,6 +315,8 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
         chain.add(inInterceptors);
 
         // execute chain
+        Bus origBus = BusFactory.getThreadDefaultBus(false);
+        BusFactory.setThreadDefaultBus(bus);
         try {
             chain.doIntercept(message);
         } finally {
@@ -316,6 +325,7 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
                 message.getExchange().setInMessage(message);
                 message.getExchange().notifyAll();
             }
+            BusFactory.setThreadDefaultBus(origBus);
         }
     }
 

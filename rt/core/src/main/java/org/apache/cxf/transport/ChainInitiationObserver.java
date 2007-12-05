@@ -26,6 +26,7 @@ import java.net.URISyntaxException;
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.BusFactory;
 import org.apache.cxf.binding.Binding;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.message.Exchange;
@@ -51,27 +52,33 @@ public class ChainInitiationObserver implements MessageObserver {
     }
 
     public void onMessage(Message m) {
-        Message message = getBinding().createMessage(m);
-        Exchange exchange = message.getExchange();
-        if (exchange == null) {
-            exchange = new ExchangeImpl();
-            exchange.setInMessage(message);
+        Bus origBus = BusFactory.getThreadDefaultBus(false);
+        BusFactory.setThreadDefaultBus(bus);
+        try {
+            Message message = getBinding().createMessage(m);
+            Exchange exchange = message.getExchange();
+            if (exchange == null) {
+                exchange = new ExchangeImpl();
+                exchange.setInMessage(message);
+            }
+            setExchangeProperties(exchange, message);
+    
+            // setup chain
+            PhaseInterceptorChain chain = chainCache.get(bus.getExtension(PhaseManager.class).getInPhases(),
+                                                         bus.getInInterceptors(),
+                                                         endpoint.getInInterceptors(),
+                                                         getBinding().getInInterceptors(),
+                                                         endpoint.getService().getInInterceptors());
+            
+            
+            message.setInterceptorChain(chain);
+            
+            chain.setFaultObserver(endpoint.getOutFaultObserver());
+           
+            chain.doIntercept(message);
+        } finally {
+            BusFactory.setThreadDefaultBus(origBus);
         }
-        setExchangeProperties(exchange, message);
-
-        // setup chain
-        PhaseInterceptorChain chain = chainCache.get(bus.getExtension(PhaseManager.class).getInPhases(),
-                                                     bus.getInInterceptors(),
-                                                     endpoint.getInInterceptors(),
-                                                     getBinding().getInInterceptors(),
-                                                     endpoint.getService().getInInterceptors());
-        
-        
-        message.setInterceptorChain(chain);
-        
-        chain.setFaultObserver(endpoint.getOutFaultObserver());
-       
-        chain.doIntercept(message);        
     }
 
 

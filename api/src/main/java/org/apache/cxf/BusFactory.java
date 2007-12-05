@@ -85,7 +85,7 @@ public abstract class BusFactory {
      * Sets the default bus for the thread.
      * @param bus the default bus.
      */
-    public static synchronized void setThreadDefaultBus(Bus bus) {
+    public static void setThreadDefaultBus(Bus bus) {
         localBus.set(bus);
     }
     
@@ -93,9 +93,17 @@ public abstract class BusFactory {
      * Gets the default bus for the thread.
      * @return the default bus.
      */
-    public static synchronized Bus getThreadDefaultBus() {
-        if (localBus.get() == null) {
-            Bus b = getDefaultBus();
+    public static Bus getThreadDefaultBus() {
+        return getThreadDefaultBus(true);
+    }
+    /**
+     * Gets the default bus for the thread, creating if needed
+     * @param createIfNeeded Set to true to create a default bus if one doesn't exist
+     * @return the default bus.
+     */
+    public static Bus getThreadDefaultBus(boolean createIfNeeded) {
+        if (createIfNeeded && localBus.get() == null) {
+            Bus b = getDefaultBus(createIfNeeded);
             localBus.set(b);
         }
         return localBus.get();
