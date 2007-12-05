@@ -645,8 +645,6 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         if (!isExistSchemaElement(schema, mpi.getElementQName())) {
             SchemaCollection.addGlobalElementToSchema(schema, el);
         }
-        el.setMinOccurs(1);
-        el.setMaxOccurs(0);
         el.setNillable(true);
 
         XmlSchemaType tp = (XmlSchemaType)mpi.getXmlSchema();
@@ -746,8 +744,6 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
 
             XmlSchemaElement el = new XmlSchemaElement();
             XmlSchemaTools.setElementQName(el, qname);
-            el.setMinOccurs(1);
-            el.setMaxOccurs(0);
             el.setNillable(true);
             
             if (!isExistSchemaElement(schema, qname)) {
