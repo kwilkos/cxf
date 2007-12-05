@@ -31,6 +31,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.BusFactory;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.helpers.HttpHeaderHelper;
@@ -237,7 +238,12 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
         }
 
         // REVISIT: service on executor if associated with endpoint
-        serviceRequest(req, resp);
+        try {
+            BusFactory.setThreadDefaultBus(bus); 
+            serviceRequest(req, resp);
+        } finally {
+            BusFactory.setThreadDefaultBus(null);  
+        }    
     }
 
     protected void serviceRequest(final HttpServletRequest req, final HttpServletResponse resp)

@@ -28,6 +28,7 @@ import java.util.logging.Logger;
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.BusFactory;
 import org.apache.cxf.binding.Binding;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.endpoint.Endpoint;
@@ -55,44 +56,50 @@ public class ColocMessageObserver extends ChainInitiationObserver {
     }
 
     public void onMessage(Message m) {
-        if (LOG.isLoggable(Level.FINER)) {
-            LOG.finer("Processing Message at collocated endpoint.  Request message: " + m);
+        Bus origBus = BusFactory.getThreadDefaultBus(false);
+        BusFactory.setThreadDefaultBus(bus);
+        try {
+            if (LOG.isLoggable(Level.FINER)) {
+                LOG.finer("Processing Message at collocated endpoint.  Request message: " + m);
+            }
+            Exchange ex = new ExchangeImpl();
+            setExchangeProperties(ex, m);
+            
+            Message inMsg = endpoint.getBinding().createMessage();
+            MessageImpl.copyContent(m, inMsg);
+            
+            //Copy Request Context to Server inBound Message
+            //TODO a Context Filter Strategy required. 
+            inMsg.putAll(m);
+    
+            inMsg.put(COLOCATED, Boolean.TRUE);
+            inMsg.put(Message.REQUESTOR_ROLE, Boolean.FALSE);
+            inMsg.put(Message.INBOUND_MESSAGE, Boolean.TRUE);
+            OperationInfo oi = ex.get(OperationInfo.class);
+            if (oi != null) {
+                inMsg.put(MessageInfo.class, oi.getInput());
+            }
+            ex.setInMessage(inMsg);
+            inMsg.setExchange(ex);
+            
+            if (LOG.isLoggable(Level.FINEST)) {
+                LOG.finest("Build inbound interceptor chain.");
+            }
+    
+            //Add all interceptors between USER_LOGICAL and INVOKE.
+            SortedSet<Phase> phases = new TreeSet<Phase>(bus.getExtension(PhaseManager.class).getInPhases());
+            ColocUtil.setPhases(phases, Phase.USER_LOGICAL, Phase.INVOKE);
+            InterceptorChain chain = ColocUtil.getInInterceptorChain(ex, phases);
+            chain.add(addColocInterceptors());
+            inMsg.setInterceptorChain(chain);
+    
+            chain.doIntercept(inMsg);
+    
+            //Set Server OutBound Message onto InBound Exchange.
+            setOutBoundMessage(ex, m.getExchange());
+        } finally {
+            BusFactory.setThreadDefaultBus(origBus);
         }
-        Exchange ex = new ExchangeImpl();
-        setExchangeProperties(ex, m);
-        
-        Message inMsg = endpoint.getBinding().createMessage();
-        MessageImpl.copyContent(m, inMsg);
-        
-        //Copy Request Context to Server inBound Message
-        //TODO a Context Filter Strategy required. 
-        inMsg.putAll(m);
-
-        inMsg.put(COLOCATED, Boolean.TRUE);
-        inMsg.put(Message.REQUESTOR_ROLE, Boolean.FALSE);
-        inMsg.put(Message.INBOUND_MESSAGE, Boolean.TRUE);
-        OperationInfo oi = ex.get(OperationInfo.class);
-        if (oi != null) {
-            inMsg.put(MessageInfo.class, oi.getInput());
-        }
-        ex.setInMessage(inMsg);
-        inMsg.setExchange(ex);
-        
-        if (LOG.isLoggable(Level.FINEST)) {
-            LOG.finest("Build inbound interceptor chain.");
-        }
-
-        //Add all interceptors between USER_LOGICAL and INVOKE.
-        SortedSet<Phase> phases = new TreeSet<Phase>(bus.getExtension(PhaseManager.class).getInPhases());
-        ColocUtil.setPhases(phases, Phase.USER_LOGICAL, Phase.INVOKE);
-        InterceptorChain chain = ColocUtil.getInInterceptorChain(ex, phases);
-        chain.add(addColocInterceptors());
-        inMsg.setInterceptorChain(chain);
-
-        chain.doIntercept(inMsg);
-
-        //Set Server OutBound Message onto InBound Exchange.
-        setOutBoundMessage(ex, m.getExchange());
     }
     
     protected void setOutBoundMessage(Exchange from, Exchange to) {

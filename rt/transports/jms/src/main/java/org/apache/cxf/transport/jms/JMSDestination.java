@@ -41,6 +41,7 @@ import javax.jms.TextMessage;
 import javax.naming.NamingException;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.BusFactory;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.configuration.Configurable;
 import org.apache.cxf.configuration.Configurer;
@@ -195,13 +196,17 @@ public class JMSDestination extends AbstractMultiplexDestination implements Conf
                         
             inMessage.setDestination(this);            
             
+            BusFactory.setThreadDefaultBus(bus);
+            
             //handle the incoming message
             incomingObserver.onMessage(inMessage);
            
         } catch (JMSException jmsex) {
             //TODO: need to revisit for which exception should we throw.
             throw new IOException(jmsex.getMessage());
-        } 
+        } finally {
+            BusFactory.setThreadDefaultBus(null);
+        }
     }
     
     public void connected(javax.jms.Destination target, 
