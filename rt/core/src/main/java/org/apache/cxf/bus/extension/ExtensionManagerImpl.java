@@ -157,7 +157,7 @@ public class ExtensionManagerImpl implements ExtensionManager {
         
         // Since we need to support spring2.5 by removing @Resource("activationNamespaces")
         // Now we call the setActivationNamespaces method directly here
-        invockSetterActivationNSMethod(obj, e.getNamespaces());
+        invokeSetterActivationNSMethod(obj, e.getNamespaces());
         
         ResourceInjector injector = new ResourceInjector(resourceManager);
         
@@ -201,7 +201,7 @@ public class ExtensionManagerImpl implements ExtensionManager {
         return null;
     }
     
-    private void invockSetterActivationNSMethod(Object target, Object value) {
+    private void invokeSetterActivationNSMethod(Object target, Object value) {
         Class clazz = target.getClass();
         String methodName = ACTIVATION_NAMESPACES_SETTER_METHOD_NAME;
         while (clazz != Object.class) {
