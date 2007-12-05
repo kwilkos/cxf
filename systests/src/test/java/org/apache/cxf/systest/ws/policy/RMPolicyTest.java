@@ -61,6 +61,8 @@ public class RMPolicyTest extends AbstractBusClientServerTestBase {
     private static final String PINGME_ACTION = "http://cxf.apache.org/greeter_control/Greeter/pingMeRequest";
     private static final String PINGME_RESPONSE_ACTION
         = "http://cxf.apache.org/greeter_control/Greeter/pingMeResponse";
+    private static final String GREETER_FAULT_ACTION 
+        = "http://cxf.apache.org/greeter_control/Greeter/Fault/faultDetail";
 
     public static class Server extends AbstractBusTestServerBase {
     
@@ -163,7 +165,7 @@ public class RMPolicyTest extends AbstractBusClientServerTestBase {
             RMConstants.getCreateSequenceResponseAction(),
             GREETME_RESPONSE_ACTION,
             PINGME_RESPONSE_ACTION,
-            null
+            GREETER_FAULT_ACTION
         };
         mf.verifyActions(expectedActions, false);
         mf.verifyMessageNumbers(new String[] {null, "1", "2", "3"}, false);
