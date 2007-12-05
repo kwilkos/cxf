@@ -155,7 +155,7 @@ under the License.
     </wsdl:binding>
     <wsdl:service name="AddNumberImplService">
 	<wsdl:port name="AddNumberImplPort" binding="tns:AddNumberImplServiceSoapBinding">
-	    <soap:address location="http://localhost:9092/AddNumberImplPort"/>
+	    <soap:address location="http://localhost:9093/AddNumberImplPort"/>
 	</wsdl:port>
     </wsdl:service>
 </wsdl:definitions>

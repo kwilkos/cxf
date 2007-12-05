@@ -62,8 +62,6 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
         LogUtils.getL7dLogger(MAPAggregator.class);
     private static final ResourceBundle BUNDLE = LOG.getResourceBundle();
 
-    private static final QName WSAW_ACTION_QNAME = new QName("http://www.w3.org/2006/05/addressing/wsdl", 
-                                                             "Action");
     
 
     /**
@@ -400,7 +398,7 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
         MessageInfo inputMessage = operation.getInput();
 
         if (inputMessage.getExtensionAttributes() != null) {
-            QName inputAction = (QName)inputMessage.getExtensionAttribute(WSAW_ACTION_QNAME);
+            QName inputAction = (QName)inputMessage.getExtensionAttribute(JAXWSAConstants.WSAW_ACTION_QNAME);
             if (inputAction != null) {
                 return inputAction.getLocalPart();
             }
@@ -411,7 +409,8 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
     private String getActionFromOutputMessage(final OperationInfo operation) {
         MessageInfo outputMessage = operation.getOutput();
         if (outputMessage != null && outputMessage.getExtensionAttributes() != null) {
-            QName outputAction = (QName)outputMessage.getExtensionAttribute(WSAW_ACTION_QNAME);
+            QName outputAction = 
+                (QName)outputMessage.getExtensionAttribute(JAXWSAConstants.WSAW_ACTION_QNAME);
             if (outputAction != null) {
                 return outputAction.getLocalPart();
             }
@@ -438,7 +437,8 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
             for (FaultInfo faultInfo : operation.getFaults()) {
                 if (isSameFault(faultInfo, faultName)) {
                     if (faultInfo.getExtensionAttributes() != null) {
-                        QName faultAction = (QName)faultInfo.getExtensionAttribute(WSAW_ACTION_QNAME);
+                        QName faultAction = 
+                            (QName)faultInfo.getExtensionAttribute(JAXWSAConstants.WSAW_ACTION_QNAME);
                         return faultAction.getLocalPart();
                     }
                     return addPath(addPath(getActionBaseUri(operation), "Fault"), 
@@ -446,7 +446,7 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
                 }
             }
         }
-        return null;
+        return addPath(addPath(getActionBaseUri(operation), "Fault"), faultName);
     }
 
     private String getFaultNameFromMessage(final Message message) {
@@ -457,7 +457,7 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
                 return t.name();
             }
         }
-        return null;    
+        return e.getCause().getClass().getSimpleName();    
     }
 
     protected String getActionUri(Message message) {

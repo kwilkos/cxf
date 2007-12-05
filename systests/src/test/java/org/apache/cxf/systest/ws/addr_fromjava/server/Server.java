@@ -27,7 +27,7 @@ public class Server extends AbstractBusTestServerBase {
 
     protected void run() {
         Object implementor = new AddNumberImpl();
-        String address = "http://localhost:9092/AddNumberImplPort";
+        String address = "http://localhost:9093/AddNumberImplPort";
         
         EndpointImpl ep = new EndpointImpl(implementor);
 

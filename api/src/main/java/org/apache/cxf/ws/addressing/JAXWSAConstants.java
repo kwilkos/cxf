@@ -20,11 +20,16 @@
 
 package org.apache.cxf.ws.addressing;
 
+import javax.xml.namespace.QName;
+
 
 /**
  * A container for WS-Addressing constants.
  */
 public final class JAXWSAConstants {
+
+    public static final QName WSAW_ACTION_QNAME = new QName("http://www.w3.org/2006/05/addressing/wsdl", 
+                                                            "Action");
 
     /**
      * Well-known Property names for AddressingProperties in BindingProvider

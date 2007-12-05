@@ -28,7 +28,9 @@ import java.util.List;
 import java.util.logging.Logger;
 import javax.wsdl.Operation;
 import javax.xml.namespace.QName;
+import javax.xml.ws.Action;
 import javax.xml.ws.AsyncHandler;
+import javax.xml.ws.FaultAction;
 import javax.xml.ws.Service;
 import javax.xml.ws.Service.Mode;
 import javax.xml.ws.WebFault;
@@ -60,6 +62,8 @@ import org.apache.cxf.service.model.InterfaceInfo;
 import org.apache.cxf.service.model.MessageInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.OperationInfo;
+import org.apache.cxf.service.model.ServiceInfo;
+import org.apache.cxf.ws.addressing.JAXWSAConstants;
 import org.apache.cxf.wsdl11.WSDLServiceBuilder;
 
 /**
@@ -467,5 +471,50 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
 
     public void setWsFeatures(List<WebServiceFeature> wsFeatures) {
         this.wsFeatures = wsFeatures;
+    }
+
+    private FaultInfo getFaultInfo(final OperationInfo operation, final Class expClass) {
+        for (FaultInfo fault : operation.getFaults()) {
+            if (fault.getProperty(Class.class.getName()) == expClass) {
+                return fault;
+            }
+        }
+        return null;
+    }
+    
+    private void buildWSAActions(OperationInfo operation, Method method) {
+        Action action = method.getAnnotation(Action.class);
+        if (action == null) {
+            return;
+        }
+        String ns = operation.getName().getNamespaceURI();
+        MessageInfo input = operation.getInput();
+        if (action.input() != null) {
+            input.addExtensionAttribute(JAXWSAConstants.WSAW_ACTION_QNAME, new QName(ns, action.input()));
+        }
+        
+        MessageInfo output = operation.getOutput();
+        if (output != null && action.output() != null) {
+            output.addExtensionAttribute(JAXWSAConstants.WSAW_ACTION_QNAME, new QName(ns, action.output()));
+        }
+        
+        FaultAction[] faultActions = action.fault();
+        if (faultActions != null && operation.getFaults() != null) {
+            for (FaultAction faultAction : faultActions) {                
+                FaultInfo faultInfo = getFaultInfo(operation, faultAction.className());
+                faultInfo.addExtensionAttribute(JAXWSAConstants.WSAW_ACTION_QNAME, 
+                                                new QName(ns, faultAction.value()));
+            }
+        }        
+    }
+    
+    @Override
+    protected OperationInfo createOperation(ServiceInfo serviceInfo, InterfaceInfo intf, Method m) {
+        OperationInfo op = super.createOperation(serviceInfo, intf, m);
+        if (op.getUnwrappedOperation() != null) {
+            op = op.getUnwrappedOperation();
+        }
+        buildWSAActions(op, m);
+        return op;
     }
 }
