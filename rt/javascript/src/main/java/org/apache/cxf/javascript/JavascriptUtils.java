@@ -27,10 +27,8 @@ import java.util.Stack;
 
 import javax.xml.namespace.QName;
 
-import org.apache.cxf.common.xmlschema.SchemaCollection;
 import org.apache.cxf.wsdl.WSDLConstants;
 import org.apache.ws.commons.schema.XmlSchemaComplexType;
-import org.apache.ws.commons.schema.XmlSchemaElement;
 import org.apache.ws.commons.schema.XmlSchemaSimpleType;
 import org.apache.ws.commons.schema.XmlSchemaType;
 
@@ -192,44 +190,42 @@ public class JavascriptUtils {
         return token;
     }
     
-    public void generateCodeToSerializeElement(String utilsVarName,
-                                               XmlSchemaElement element, 
-                                               String elementJavascriptName,
-                                               String elementXmlName,
-                                               SchemaCollection xmlSchemaCollection,
-                                               String referencingURI,
-                                               XmlSchemaType containingType) {
-        boolean nillable = element.isNillable();
-        boolean optional = XmlSchemaUtils.isParticleOptional(element);
+    public void generateCodeToSerializeElement(ElementInfo elementInfo) {
+        boolean nillable = elementInfo.getElement().isNillable();
+        boolean optional = XmlSchemaUtils.isParticleOptional(elementInfo.getElement());
         
         XmlSchemaType elType = 
-            XmlSchemaUtils.getElementType(xmlSchemaCollection, referencingURI, element, containingType);
+            XmlSchemaUtils.getElementType(elementInfo.getXmlSchemaCollection(),
+                                          elementInfo.getReferencingURI(),
+                                          elementInfo.getElement(), 
+                                          elementInfo.getContainingType());
         
         // first question: optional?
         if (optional) {
-            startIf(elementJavascriptName + " != null");
+            startIf(elementInfo.getElementJavascriptName() + " != null");
         }
         
         // nillable and optional would be very strange together.
         // and nillable in the array case applies to the elements.
-        if (nillable && !XmlSchemaUtils.isParticleArray(element)) {
-            startIf(elementJavascriptName + " == null");
-            appendString("<" + elementXmlName + " " + XmlSchemaUtils.NIL_ATTRIBUTES + "/>");
+        if (nillable && !XmlSchemaUtils.isParticleArray(elementInfo.getElement())) {
+            startIf(elementInfo.getElementJavascriptName() + " == null");
+            appendString("<" + elementInfo.getElementXmlName() + " " + XmlSchemaUtils.NIL_ATTRIBUTES + "/>");
             appendElse();
         }
 
-        if (XmlSchemaUtils.isParticleArray(element)) {
+        if (XmlSchemaUtils.isParticleArray(elementInfo.getElement())) {
             // protected against null in arrays.
-            startIf(elementJavascriptName + " != null");
-            startFor("var ax = 0", "ax < " +  elementJavascriptName + ".length", "ax ++");
-            elementJavascriptName = elementJavascriptName + "[ax]";
+            startIf(elementInfo.getElementJavascriptName() + " != null");
+            startFor("var ax = 0", "ax < " +  elementInfo.getElementJavascriptName() + ".length", "ax ++");
+            elementInfo.setElementJavascriptName(elementInfo.getElementJavascriptName() + "[ax]");
             // we need an extra level of 'nil' testing here. Or do we, depending on the type structure?
             // Recode and fiddle appropriately.
-            startIf(elementJavascriptName + " == null");
+            startIf(elementInfo.getElementJavascriptName() + " == null");
             if (nillable) {
-                appendString("<" + elementXmlName + " " + XmlSchemaUtils.NIL_ATTRIBUTES + "/>");
+                appendString("<" + elementInfo.getElementXmlName() 
+                             + " " + XmlSchemaUtils.NIL_ATTRIBUTES + "/>");
             } else {
-                appendString("<" + elementXmlName + "/>");                    
+                appendString("<" + elementInfo.getElementXmlName() + "/>");                    
             }
             appendElse();
         }
@@ -237,33 +233,35 @@ public class JavascriptUtils {
         // now for the thing itself.
         if (elType instanceof XmlSchemaComplexType) {
             // it has a value
-            appendExpression(elementJavascriptName + ".serialize(" 
-                                     + utilsVarName + ", '" 
-                                     + elementXmlName + "')");
+            appendExpression(elementInfo.getElementJavascriptName() + ".serialize(" 
+                             + elementInfo.getUtilsVarName() + ", '" 
+                             + elementInfo.getElementXmlName() + "')");
         } else { // simple type
             QName typeName = elType.getQName();
-            appendString("<" + elementXmlName + ">");
+            appendString("<" + elementInfo.getElementXmlName() + ">");
             // warning: this assumes that ordinary Javascript serialization is all we need.
             // except for &gt; ad all of that.
             if (isStringSimpleType(typeName)) {
-                appendExpression(utilsVarName + ".escapeXmlEntities(" + elementJavascriptName + ")");
+                appendExpression(elementInfo.getUtilsVarName() 
+                                 + ".escapeXmlEntities(" 
+                                 + elementInfo.getElementJavascriptName() + ")");
             } else {
-                appendExpression(elementJavascriptName);
+                appendExpression(elementInfo.getElementJavascriptName());
             }
-            appendString("</" + elementXmlName + ">");
+            appendString("</" + elementInfo.getElementXmlName() + ">");
         }
         
-        if (XmlSchemaUtils.isParticleArray(element)) {
+        if (XmlSchemaUtils.isParticleArray(elementInfo.getElement())) {
             endBlock(); // for the extra level of nil checking, which might be wrong.
             endBlock(); // for the for loop.
             endBlock(); // the null protection.
         }
         
-        if (nillable && !XmlSchemaUtils.isParticleArray(element)) {
+        if (nillable && !XmlSchemaUtils.isParticleArray(elementInfo.getElement())) {
             endBlock();
         }
         
-        if (XmlSchemaUtils.isParticleOptional(element)) {
+        if (XmlSchemaUtils.isParticleOptional(elementInfo.getElement())) {
             endBlock();
         }
 

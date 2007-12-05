@@ -37,6 +37,7 @@ import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.common.xmlschema.SchemaCollection;
+import org.apache.cxf.javascript.ElementInfo;
 import org.apache.cxf.javascript.JavascriptUtils;
 import org.apache.cxf.javascript.NameManager;
 import org.apache.cxf.javascript.NamespacePrefixAccumulator;
@@ -478,24 +479,37 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
         utils.setXmlStringAccumulator("xml");
         
         if (isWrapped) {
-            utils.generateCodeToSerializeElement("cxfutils", 
-                                                 inputWrapperElement, 
-                                                 "wrapperObj",
-                                                 wrapperXmlElementName,
-                                                 xmlSchemaCollection, 
-                                                 serviceTargetNamespace,
-                                                 null);
+            ElementInfo elementInfo = new ElementInfo();
+            elementInfo.setContainingType(null);
+            elementInfo.setElement(inputWrapperElement);
+            elementInfo.setElementJavascriptName("wrapperObj");
+            elementInfo.setElementXmlName(wrapperXmlElementName);
+            elementInfo.setReferencingURI(serviceTargetNamespace);
+            elementInfo.setUtilsVarName("cxfutils");
+            elementInfo.setXmlSchemaCollection(xmlSchemaCollection);
+            elementInfo.setPartElement(true);
+
+            utils.generateCodeToSerializeElement(elementInfo);
         } else {
             int px = 0;
             // Multiple parts violates WS-I, but we can still do them.
+            // Parts are top-level elements. As such, they cannot, directly, be arrays.
+            // If a part is declared as an array type, the schema has a non-array element
+            // with a complex type consisting of an element with array bounds. We don't 
+            // want the JavasSript programmer to have to concoct an extra level of object
+            // (though if the same sort of thing happens elsewhere due to an XmlRootElement,
+            // the JavaScript programmer is stuck with the situation). 
             for (ElementAndNames ean : unwrappedElementsAndNames) {
-                utils.generateCodeToSerializeElement("cxfutils",
-                                                     ean.getElement(),
-                                                     "args[" + px + "]",
-                                                     ean.getXmlName(),
-                                                     xmlSchemaCollection,
-                                                     serviceTargetNamespace,
-                                                     null);
+                ElementInfo elementInfo = new ElementInfo();
+                elementInfo.setContainingType(null);
+                elementInfo.setElement(ean.getElement());
+                elementInfo.setElementJavascriptName("args[" + px + "]");
+                elementInfo.setElementXmlName(ean.getXmlName());
+                elementInfo.setReferencingURI(serviceTargetNamespace);
+                elementInfo.setUtilsVarName("cxfutils");
+                elementInfo.setXmlSchemaCollection(xmlSchemaCollection);
+                elementInfo.setPartElement(true);
+                utils.generateCodeToSerializeElement(elementInfo);
                 px++;
             }
         }

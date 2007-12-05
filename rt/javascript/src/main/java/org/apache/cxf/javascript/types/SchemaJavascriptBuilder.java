@@ -27,6 +27,7 @@ import javax.xml.namespace.QName;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.common.xmlschema.SchemaCollection;
+import org.apache.cxf.javascript.ElementInfo;
 import org.apache.cxf.javascript.JavascriptUtils;
 import org.apache.cxf.javascript.NameManager;
 import org.apache.cxf.javascript.NamespacePrefixAccumulator;
@@ -239,8 +240,16 @@ public class SchemaJavascriptBuilder {
             String elementName = elementPrefix + elChild.getName();
             String elementXmlRef = prefixAccumulator.xmlElementString(schemaInfo, elChild);
             
-            utils.generateCodeToSerializeElement("cxfjsutils", elChild, elementName, 
-                                                 elementXmlRef, xmlSchemaCollection, null, type);
+            ElementInfo elementInfo = new ElementInfo();
+            elementInfo.setContainingType(type);
+            elementInfo.setElement(elChild);
+            elementInfo.setElementJavascriptName(elementName);
+            elementInfo.setElementXmlName(elementXmlRef);
+            elementInfo.setReferencingURI(null);
+            elementInfo.setUtilsVarName("cxfjsutils");
+            elementInfo.setXmlSchemaCollection(xmlSchemaCollection);
+            elementInfo.setPartElement(false);
+            utils.generateCodeToSerializeElement(elementInfo);
         }
     }
     /**
