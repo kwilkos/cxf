@@ -32,6 +32,7 @@ import org.apache.cxf.javascript.fortest.TestBean1;
 import org.apache.cxf.javascript.fortest.TestBean2;
 import org.apache.cxf.jaxws.EndpointImpl;
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
+import org.apache.cxf.message.Message;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.test.AbstractCXFSpringTest;
 import org.junit.Before;
@@ -77,6 +78,7 @@ public class DocLitBareClientTest extends AbstractCXFSpringTest {
         testUtilities.loadJavascriptForService(serviceInfo);
         testUtilities.readResourceIntoRhino("/org/apache/cxf/javascript/DocLitBareTests.js");
         endpoint = getBean(EndpointImpl.class, "dlb-service-endpoint");
+        endpoint.getService().put(Message.SCHEMA_VALIDATION_ENABLED, Boolean.TRUE);
         implementor = (SimpleDocLitBareImpl)endpoint.getImplementor();
         implementor.resetLastValues();
     }
