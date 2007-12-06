@@ -165,7 +165,7 @@ public class ServiceWSDLBuilder {
             ServiceInfo si = services.get(0);
             definition = newDefinition(si.getName(), si.getTargetNamespace());
             addNamespace(WSDLConstants.CONVENTIONAL_TNS_PREFIX, si.getTargetNamespace(), definition);
-            addExtensibiltyElements(definition, getWSDL11Extensors(si));
+            addExtensibilityElements(definition, getWSDL11Extensors(si));
 
             Collection<PortType> portTypes = new HashSet<PortType>();
             for (ServiceInfo service : services) {
@@ -219,7 +219,7 @@ public class ServiceWSDLBuilder {
         return holder.getExtensors(ExtensibilityElement.class);
     }
     
-    protected void addExtensibiltyElements(ElementExtensible elementExtensible, 
+    protected void addExtensibilityElements(ElementExtensible elementExtensible, 
         List<ExtensibilityElement> extensibilityElements) {
         if (extensibilityElements != null) {
             for (ExtensibilityElement element : extensibilityElements) {
@@ -336,7 +336,7 @@ public class ServiceWSDLBuilder {
             }
             binding.setQName(bindingInfo.getName());
             buildBindingOperation(definition, binding, bindingInfo.getOperations());
-            addExtensibiltyElements(binding, getWSDL11Extensors(bindingInfo));
+            addExtensibilityElements(binding, getWSDL11Extensors(bindingInfo));
             definition.addBinding(binding);
         }
     }
@@ -357,7 +357,7 @@ public class ServiceWSDLBuilder {
             buildBindingInput(def, bindingOperation, bindingOperationInfo.getInput());
             buildBindingOutput(def, bindingOperation, bindingOperationInfo.getOutput());
             buildBindingFault(def, bindingOperation, bindingOperationInfo.getFaults());
-            addExtensibiltyElements(bindingOperation, getWSDL11Extensors(bindingOperationInfo));
+            addExtensibilityElements(bindingOperation, getWSDL11Extensors(bindingOperationInfo));
             binding.addBindingOperation(bindingOperation);
         }
     }
@@ -370,7 +370,7 @@ public class ServiceWSDLBuilder {
             bindingFault = def.createBindingFault();
             bindingFault.setName(bindingFaultInfo.getFaultInfo().getFaultName().getLocalPart());
             bindingOperation.addBindingFault(bindingFault);
-            addExtensibiltyElements(bindingFault, getWSDL11Extensors(bindingFaultInfo));
+            addExtensibilityElements(bindingFault, getWSDL11Extensors(bindingFaultInfo));
         }
         
     }
@@ -382,7 +382,7 @@ public class ServiceWSDLBuilder {
             bindingInput = def.createBindingInput();
             bindingInput.setName(bindingMessageInfo.getMessageInfo().getName().getLocalPart());
             bindingOperation.setBindingInput(bindingInput);
-            addExtensibiltyElements(bindingInput, getWSDL11Extensors(bindingMessageInfo));
+            addExtensibilityElements(bindingInput, getWSDL11Extensors(bindingMessageInfo));
         }
     }
     
@@ -393,7 +393,7 @@ public class ServiceWSDLBuilder {
             bindingOutput = def.createBindingOutput();
             bindingOutput.setName(bindingMessageInfo.getMessageInfo().getName().getLocalPart());
             bindingOperation.setBindingOutput(bindingOutput);
-            addExtensibiltyElements(bindingOutput, getWSDL11Extensors(bindingMessageInfo));
+            addExtensibilityElements(bindingOutput, getWSDL11Extensors(bindingMessageInfo));
         }
     }
 
@@ -408,7 +408,7 @@ public class ServiceWSDLBuilder {
             Port port = definition.createPort();
             port.setName(ei.getName().getLocalPart());
             port.setBinding(definition.getBinding(ei.getBinding().getName()));
-            addExtensibiltyElements(port, getWSDL11Extensors(ei));
+            addExtensibilityElements(port, getWSDL11Extensors(ei));
             serv.addPort(port);
         }
     }
