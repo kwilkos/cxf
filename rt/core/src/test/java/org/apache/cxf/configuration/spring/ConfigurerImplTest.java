@@ -28,6 +28,7 @@ import javax.xml.namespace.QName;
 
 import com.sun.xml.bind.DatatypeConverterImpl;
 
+import org.apache.cxf.bus.spring.BusApplicationContext;
 import org.apache.cxf.configuration.Configurable;
 import org.junit.Assert;
 import org.junit.Test;
@@ -43,8 +44,12 @@ public class ConfigurerImplTest extends Assert {
     @Test
     public void testConfigureSimpleNoMatchingBean() {
         SimpleBean sb = new SimpleBean("unknown");
-        ConfigurerImpl configurer =
-            new ConfigurerImpl("/org/apache/cxf/configuration/spring/test-beans.xml");
+        
+        BusApplicationContext ac = 
+            new BusApplicationContext("/org/apache/cxf/configuration/spring/test-beans.xml",
+                                      false);
+
+        ConfigurerImpl configurer = new ConfigurerImpl(ac);
         configurer.configureBean(sb);
         assertEquals("Unexpected value for attribute stringAttr", 
                      "hello", sb.getStringAttr());
@@ -96,8 +101,13 @@ public class ConfigurerImplTest extends Assert {
     @Test
     public void testConfigureSimple() {
         SimpleBean sb = new SimpleBean("simple");
-        ConfigurerImpl configurer =
-            new ConfigurerImpl("/org/apache/cxf/configuration/spring/test-beans.xml");
+        BusApplicationContext ac = 
+            new BusApplicationContext("/org/apache/cxf/configuration/spring/test-beans.xml",
+                                      false);
+
+        ConfigurerImpl configurer = new ConfigurerImpl();
+        configurer.setApplicationContext(ac);
+        
         configurer.configureBean(sb);
         assertEquals("Unexpected value for attribute stringAttr", 
                      "hallo", sb.getStringAttr());
@@ -155,8 +165,12 @@ public class ConfigurerImplTest extends Assert {
     @Test
     public void testConfigureSimpleMatchingStarBeanId() {
         SimpleBean sb = new SimpleBean("simple2");
-        ConfigurerImpl configurer =
-            new ConfigurerImpl("/org/apache/cxf/configuration/spring/test-beans.xml");
+        BusApplicationContext ac = 
+            new BusApplicationContext("/org/apache/cxf/configuration/spring/test-beans.xml",
+                                      false);
+
+        ConfigurerImpl configurer = new ConfigurerImpl();
+        configurer.setApplicationContext(ac);
         configurer.configureBean(sb);
         assertTrue("Unexpected value for attribute booleanAttr", 
                    !sb.getBooleanAttr());
@@ -168,7 +182,7 @@ public class ConfigurerImplTest extends Assert {
     
     @Test
     public void testGetBeanName() {
-        ConfigurerImpl configurer = new ConfigurerImpl((String)null);
+        ConfigurerImpl configurer = new ConfigurerImpl();
         Object beanInstance = new Configurable() {
 
             public String getBeanName() {
