@@ -453,4 +453,21 @@ public class JavaToProcessorTest extends ProcessorTestBase {
         String expectedFile = getClass().getResource("expected/expected_send_image2.wsdl").getFile();
         assertWsdlEquals(new File(expectedFile), wsdlFile);
     }
+
+    @Test
+    public void testWSA() throws Exception {
+        env.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/add_numbers.wsdl");
+        env.put(ToolConstants.CFG_CLASSNAME, "org.apache.cxf.tools.fortest.AddNumbersImpl");
+        env.put(ToolConstants.CFG_VERBOSE, ToolConstants.CFG_VERBOSE);
+        try {
+            processor.setEnvironment(env);
+            processor.process();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        File wsdlFile = new File(output, "add_numbers.wsdl");
+        assertTrue("Generate Wsdl Fail", wsdlFile.exists());
+        String expectedFile = getClass().getResource("expected/add_numbers_expected.wsdl").getFile();
+        assertWsdlEquals(new File(expectedFile), wsdlFile);
+    }
 }

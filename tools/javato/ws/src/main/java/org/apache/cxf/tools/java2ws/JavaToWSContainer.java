@@ -126,11 +126,6 @@ public class JavaToWSContainer extends AbstractCXFToolContainer {
         }
     }
 
-    public Class getServiceClass(ToolContext context) {
-        return AnnotationUtil.loadClass((String)context.get(ToolConstants.CFG_CLASSNAME), getClass()
-            .getClassLoader());
-    }
-
     public void checkParams(ErrorVisitor errs) throws ToolException {
         super.checkParams(errs);
         CommandDocument doc = super.getCommandDocument();

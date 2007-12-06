@@ -21,8 +21,11 @@ package org.apache.cxf.jaxws.support;
 
 import java.util.List;
 
+import javax.wsdl.WSDLException;
+import javax.wsdl.extensions.ExtensionRegistry;
 import javax.xml.ws.Binding;
 import javax.xml.ws.WebServiceFeature;
+import javax.xml.ws.soap.Addressing;
 import javax.xml.ws.soap.AddressingFeature;
 import javax.xml.ws.soap.MTOMFeature;
 import javax.xml.ws.soap.SOAPBinding;
@@ -54,8 +57,11 @@ import org.apache.cxf.jaxws.interceptors.WrapperClassInInterceptor;
 import org.apache.cxf.jaxws.interceptors.WrapperClassOutInterceptor;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.Service;
+import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.EndpointInfo;
+import org.apache.cxf.ws.addressing.JAXWSAConstants;
 import org.apache.cxf.ws.addressing.WSAddressingFeature;
+import org.apache.cxf.wsdl.WSDLManager;
 
 /**
  * A JAX-WS specific implementation of the CXF {@link org.apache.cxf.endpoint.Endpoint} interface.
@@ -73,11 +79,11 @@ public class JaxWsEndpointImpl extends EndpointImpl {
     private List<AbstractFeature> features;
     
     public JaxWsEndpointImpl(Bus bus, Service s, EndpointInfo ei) throws EndpointException {
-        this(bus, s, ei, null, null, null);
+        this(bus, s, ei, null, null, null, true);
     }
 
     public JaxWsEndpointImpl(Bus bus, Service s, EndpointInfo ei, JaxWsImplementorInfo implementorInfo, 
-                             List<WebServiceFeature> wf, List<AbstractFeature> af)
+                             List<WebServiceFeature> wf, List<AbstractFeature> af, boolean isFromWsdl)
         throws EndpointException {
         super(bus, s, ei);
         this.implInfo = implementorInfo;
@@ -136,8 +142,39 @@ public class JaxWsEndpointImpl extends EndpointImpl {
         if (getBinding() instanceof SoapBinding) {
             inFault.add(new SOAPHandlerFaultInInterceptor(jaxwsBinding));
         }
+        
+        if (!isFromWsdl) {
+            buildWsdlExtensibilities(ei.getBinding());
+        }
     }
     
+    private void buildWsdlExtensibilities(BindingInfo bindingInfo) {
+        Addressing addressing = getAddressing();
+        if (addressing != null) {            
+            ExtensionRegistry extensionRegistry = getBus().getExtension(WSDLManager.class)
+            .getExtenstionRegistry();            
+            try {
+                bindingInfo.addExtensor(extensionRegistry.createExtension(javax.wsdl.Binding.class, 
+                                                                          JAXWSAConstants.
+                                                                          WSAW_USINGADDRESSING_QNAME));
+            } catch (WSDLException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }        
+    }
+
+    private Addressing getAddressing() {
+        Class<?> serviceClass = implInfo.getSEIClass();
+        if (serviceClass == null) {
+            serviceClass = implInfo.getImplementorClass();
+        }
+        if (serviceClass == null) {
+            return null;
+        }
+        return serviceClass.getAnnotation(Addressing.class);
+    }
+
     public Binding getJaxwsBinding() {
         return jaxwsBinding;
     }

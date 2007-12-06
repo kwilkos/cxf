@@ -355,11 +355,14 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         }
     }
 
-
+    protected boolean isFromWsdl() {
+        return !populateFromClass && getWsdlURL() != null;        
+    }
+    
     protected void initializeServiceModel() {
         String wsdlurl = getWsdlURL();
 
-        if (!populateFromClass && wsdlurl != null) {
+        if (isFromWsdl()) {
             buildServiceFromWSDL(wsdlurl);
         } else {
             buildServiceFromClass();

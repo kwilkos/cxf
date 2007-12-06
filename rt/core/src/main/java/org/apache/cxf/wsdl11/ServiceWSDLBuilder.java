@@ -45,6 +45,7 @@ import javax.wsdl.PortType;
 import javax.wsdl.Service;
 import javax.wsdl.Types;
 import javax.wsdl.WSDLException;
+import javax.wsdl.extensions.AttributeExtensible;
 import javax.wsdl.extensions.ElementExtensible;
 import javax.wsdl.extensions.ExtensibilityElement;
 import javax.xml.namespace.QName;
@@ -226,6 +227,17 @@ public class ServiceWSDLBuilder {
                 addNamespace(qn.getNamespaceURI());
                 elementExtensible.addExtensibilityElement(element);
             }
+        }
+    }
+    
+    private void addExtensibilityAttributes(AttributeExtensible attributeExtensible, 
+                                            Map<QName, Object> attributes) {
+        if (attributes == null) {
+            return;
+        }
+        for (QName qname : attributes.keySet()) {
+            addNamespace(qname.getNamespaceURI());
+            attributeExtensible.setExtensionAttribute(qname, attributes.get(qname));
         }
     }
     
@@ -437,6 +449,21 @@ public class ServiceWSDLBuilder {
         ns2prefix.put(namespaceURI, prefix);
         def.addNamespace(prefix, namespaceURI);
     }
+    
+    private OperationInfo getOperationInfo(OperationInfo operation) {
+        if (operation.getUnwrappedOperation() != null) {
+            return operation.getUnwrappedOperation();
+        }
+        return operation;
+    }
+    
+    private Map<QName, Object> getInputExtensionAttributes(OperationInfo operation) {
+        return getOperationInfo(operation).getInput().getExtensionAttributes();
+    }
+    
+    private Map<QName, Object> getOutputExtensionAttributes(OperationInfo operation) {
+        return getOperationInfo(operation).getOutput().getExtensionAttributes();
+    }    
 
     protected void buildPortTypeOperation(PortType portType,
                                           Collection<OperationInfo> operationInfos,
@@ -462,6 +489,7 @@ public class ServiceWSDLBuilder {
                 input.setName(operationInfo.getInputName());
                 Message message = def.createMessage();
                 buildMessage(message, operationInfo.getInput(), def);
+                this.addExtensibilityAttributes(input, getInputExtensionAttributes(operationInfo));
                 input.setMessage(message);
                 operation.setInput(input);
                 
@@ -470,6 +498,7 @@ public class ServiceWSDLBuilder {
                     output.setName(operationInfo.getOutputName());
                     message = def.createMessage();
                     buildMessage(message, operationInfo.getOutput(), def);
+                    this.addExtensibilityAttributes(output, getOutputExtensionAttributes(operationInfo));
                     output.setMessage(message);
                     operation.setOutput(output);
                 }
@@ -481,6 +510,7 @@ public class ServiceWSDLBuilder {
                     fault.setName(faultInfo.getFaultName().getLocalPart());
                     message = def.createMessage();
                     buildMessage(message, faultInfo, def);
+                    this.addExtensibilityAttributes(fault, faultInfo.getExtensionAttributes());
                     fault.setMessage(message);
                     operation.addFault(fault);
                 }
@@ -516,6 +546,7 @@ public class ServiceWSDLBuilder {
     protected void buildMessage(Message message,
                                 AbstractMessageContainer messageContainer,
                                 final Definition def) {
+                
         message.setQName(messageContainer.getName());
         message.setUndefined(false);
         def.addMessage(message);

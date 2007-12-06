@@ -27,9 +27,12 @@ import javax.xml.namespace.QName;
  * A container for WS-Addressing constants.
  */
 public final class JAXWSAConstants {
+    
+    public static final String WSAW = "http://www.w3.org/2006/05/addressing/wsdl"; 
 
-    public static final QName WSAW_ACTION_QNAME = new QName("http://www.w3.org/2006/05/addressing/wsdl", 
-                                                            "Action");
+    public static final QName WSAW_ACTION_QNAME = new QName(WSAW,  "Action");
+    
+    public static final QName WSAW_USINGADDRESSING_QNAME = new QName(WSAW, "UsingAddressing");
 
     /**
      * Well-known Property names for AddressingProperties in BindingProvider
