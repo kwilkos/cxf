@@ -165,6 +165,32 @@ public class JAXRSClientServerBookTest extends AbstractBusClientServerTestBase {
     }  
     
     @Test
+    public void testUpdateBookWithDom() throws Exception {
+        String endpointAddress = "http://localhost:9080/bookstore/bookswithdom";
+
+        String inputFile = getClass().getResource("resources/update_book.txt").getFile();
+        File input = new File(inputFile);
+        PutMethod put = new PutMethod(endpointAddress);
+        RequestEntity entity = new FileRequestEntity(input, "text/xml; charset=ISO-8859-1");
+        put.setRequestEntity(entity);
+        HttpClient httpclient = new HttpClient();
+
+        try {
+            int result = httpclient.executeMethod(put);
+            assertEquals(200, result);
+            System.out.println(put.getResponseBodyAsString());
+        } finally {
+            // Release current connection to the connection pool once you are
+            // done
+            put.releaseConnection();
+        }
+        
+        InputStream expected = getClass().getResourceAsStream("resources/update_book.txt");
+
+        assertTrue(put.getResponseBodyAsString().indexOf(getStringFromInputStream(expected)) >= 0);
+    }
+    
+    @Test
     public void testUpdateBookFailed() throws Exception {
         String endpointAddress =
             "http://localhost:9080/bookstore/books";

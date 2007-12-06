@@ -43,7 +43,7 @@ public class ProviderFactoryImpl extends ProviderFactory {
         entityProviders.add(new JAXBElementProvider());
         entityProviders.add(new JSONProvider());
         entityProviders.add(new StringProvider());
-
+        entityProviders.add(new DOMSourceProvider());
         sort();
     }
     

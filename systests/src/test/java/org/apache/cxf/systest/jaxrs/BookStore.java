@@ -29,9 +29,11 @@ import javax.ws.rs.ProduceMime;
 import javax.ws.rs.UriParam;
 import javax.ws.rs.UriTemplate;
 import javax.ws.rs.core.Response;
+import javax.xml.transform.dom.DOMSource;
 
 import org.apache.cxf.customer.book.BookNotFoundDetails;
 import org.apache.cxf.customer.book.BookNotFoundFault;
+import org.apache.cxf.helpers.XMLUtils;
 
 @UriTemplate("/bookstore/")
 public class BookStore {
@@ -109,7 +111,14 @@ public class BookStore {
 
         return r;
     }
-
+    
+    @HttpMethod("PUT")
+    @UriTemplate("/bookswithdom/")
+    public DOMSource updateBook(DOMSource ds) {
+        System.out.println("----invoking updateBook with DOMSource");
+        XMLUtils.printDOM(ds.getNode());
+        return ds;
+    }
 
     @HttpMethod("DELETE")
     @UriTemplate("/books/{bookId}/")
