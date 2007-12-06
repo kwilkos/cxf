@@ -182,7 +182,7 @@ public final class WrapperClassGenerator extends ASMHelper {
         String methodName = StringUtils.capitalize(name);
         
         MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC, 
-                                          "get" + methodName, "(" + classCode + ")V", null, null);
+                                          "get" + methodName, "()" + classCode , null, null);
         mv.visitCode();
         Label l2 = new Label();
         mv.visitLabel(l2);
