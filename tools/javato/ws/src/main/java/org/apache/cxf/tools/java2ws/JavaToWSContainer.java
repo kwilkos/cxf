@@ -36,7 +36,6 @@ import org.apache.cxf.tools.java2js.processor.JavaToJSProcessor;
 import org.apache.cxf.tools.java2wsdl.processor.JavaToWSDLProcessor;
 import org.apache.cxf.tools.java2wsdl.processor.internal.jaxws.JAXWSFrontEndProcessor;
 import org.apache.cxf.tools.java2wsdl.processor.internal.simple.SimpleFrontEndProcessor;
-import org.apache.cxf.tools.util.AnnotationUtil;
 
 public class JavaToWSContainer extends AbstractCXFToolContainer {
     private static final Logger LOG = LogUtils.getL7dLogger(JavaToWSContainer.class);
