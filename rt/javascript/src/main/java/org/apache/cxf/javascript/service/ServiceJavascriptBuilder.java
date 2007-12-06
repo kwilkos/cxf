@@ -105,6 +105,8 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
 
     private boolean isInUnwrappedOperation;
 
+    private boolean nonVoidOutput;
+
     public ServiceJavascriptBuilder(ServiceInfo serviceInfo, NamespacePrefixAccumulator prefixAccumulator,
                                     NameManager nameManager) {
         super(serviceInfo);
@@ -228,6 +230,7 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
         buildParameterList(parameterList);
 
         MessageInfo outputMessage = op.getOutput();
+        nonVoidOutput = outputMessage != null && outputMessage.getMessageParts().size() != 0; 
 
         if (!op.isOneWay()) {
             buildSuccessFunction(outputMessage);
@@ -238,9 +241,9 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
 
         createInputSerializer();
 
-        if (outputMessage != null && outputMessage.getMessageParts().size() != 0) {
+        if (nonVoidOutput) {
             createResponseDeserializer(outputMessage);
-        }
+        } 
     }
 
     /**
@@ -351,12 +354,17 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
         // parameters.
         String successFunctionGlobalName = opFunctionGlobalName + "_onsuccess"; 
         String successFunctionPropertyName = opFunctionPropertyName + "_onsuccess"; 
-        code.append("function " + successFunctionGlobalName + "(responseXml) {\n");
+        String arglist = "()";
+        if (nonVoidOutput) {
+            arglist = "(responseXml)";
+        }
+        
+        code.append("function " + successFunctionGlobalName + arglist + " {\n");
         utils.appendLine("this.jsutils.trace('" + successFunctionGlobalName + " _onsuccess: ' " 
                          + " + this._onsuccess);");
         utils.startIf("this._onsuccess");
         utils.appendLine("var responseObject = null;");
-        if (outputMessage != null) {
+        if (nonVoidOutput) {
             utils.appendLine("var element = responseXml.documentElement;");
             utils.appendLine("this.jsutils.trace('responseXml: ' "
                              + "+ this.jsutils.traceElementName(element));");

@@ -62,8 +62,11 @@ function beanFunctionTest(url, beanArg, beansArg)
     intf = new org_apache_cxf_javascript_fortest_SimpleDocLitBare();
 	  
 	intf.url = url;
+	// provide the extra layer of object for the array part, save the Java code the trouble.
+	var beanArrayHolder = new org_apache_cxf_javascript_testns_testBean1Array();
+	beanArrayHolder.setItem(beansArg);
 	// param order from the interface
-    intf.beanFunction(test1SuccessCallback, test1ErrorCallback, beanArg, beansArg); 
+    intf.beanFunction(test1SuccessCallback, test1ErrorCallback, beanArg, beanArrayHolder); 
     // Return the notifier as a convenience to the Java code.
 	return globalNotifier;
 }

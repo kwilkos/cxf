@@ -73,9 +73,9 @@ public class SchemaJavascriptBuilder {
         code.append("//\n");
         code.append("// Definitions for schema: " + schema.getNamespaceURI());
         if (schema.getSystemId() != null) {
-            code.append("//  " + schema.getSystemId());
+            code.append("\n//  " + schema.getSystemId());
         }
-        code.append("//\n");
+        code.append("\n//\n");
 
         XmlSchemaObjectTable schemaTypes = schema.getSchema().getSchemaTypes();
         Iterator namesIterator = schemaTypes.getNames();
