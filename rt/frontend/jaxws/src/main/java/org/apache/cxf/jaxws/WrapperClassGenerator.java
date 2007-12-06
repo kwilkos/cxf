@@ -216,14 +216,4 @@ public final class WrapperClassGenerator extends ASMHelper {
     
     }
     
-    
-    private static class TypeHelperClassLoader extends ClassLoader {
-        TypeHelperClassLoader(ClassLoader parent) {
-            super(parent);
-        }
-        public Class<?> defineClass(String name, byte bytes[]) {
-            return super.defineClass(name, bytes, 0, bytes.length);
-        }
-    }
-    
 }
