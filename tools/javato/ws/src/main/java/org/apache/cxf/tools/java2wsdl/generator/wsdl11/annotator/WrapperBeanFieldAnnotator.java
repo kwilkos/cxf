@@ -64,7 +64,7 @@ public class WrapperBeanFieldAnnotator implements Annotator {
                 jaxbAnn.addElement(new JAnnotationElement("type", ((XmlJavaTypeAdapter)ann).type()));
                 jField.addAnnotation(jaxbAnn);
             } else if (ann instanceof XmlAttachmentRef) {
-                JAnnotation jaxbAnn = new JAnnotation(XmlJavaTypeAdapter.class);
+                JAnnotation jaxbAnn = new JAnnotation(XmlAttachmentRef.class);
                 jField.addAnnotation(jaxbAnn);
             } else if (ann instanceof XmlList) {
                 JAnnotation jaxbAnn = new JAnnotation(XmlList.class);

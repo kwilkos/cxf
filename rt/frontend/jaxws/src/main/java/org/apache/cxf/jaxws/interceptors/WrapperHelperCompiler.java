@@ -18,46 +18,21 @@
  */
 package org.apache.cxf.jaxws.interceptors;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.xml.bind.JAXBElement;
 
+import org.apache.cxf.jaxws.util.ASMHelper;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
-final class WrapperHelperCompiler {
-    private static final Map<Class<?>, String> PRIMITIVE_MAP = new HashMap<Class<?>, String>();
-    private static final Map<Class<?>, String> NONPRIMITIVE_MAP = new HashMap<Class<?>, String>();
-    
-    private static boolean oldASM;
-    
-    static {
-        PRIMITIVE_MAP.put(Byte.TYPE, "B");
-        PRIMITIVE_MAP.put(Boolean.TYPE, "Z");
-        PRIMITIVE_MAP.put(Long.TYPE, "J");
-        PRIMITIVE_MAP.put(Integer.TYPE, "I");
-        PRIMITIVE_MAP.put(Short.TYPE, "S");
-        PRIMITIVE_MAP.put(Character.TYPE, "C");
-        PRIMITIVE_MAP.put(Float.TYPE, "F");
-        PRIMITIVE_MAP.put(Double.TYPE, "D");
-
-        NONPRIMITIVE_MAP.put(Byte.TYPE, Byte.class.getName().replaceAll("\\.", "/"));
-        NONPRIMITIVE_MAP.put(Boolean.TYPE, Boolean.class.getName().replaceAll("\\.", "/"));
-        NONPRIMITIVE_MAP.put(Long.TYPE, Long.class.getName().replaceAll("\\.", "/"));
-        NONPRIMITIVE_MAP.put(Integer.TYPE, Integer.class.getName().replaceAll("\\.", "/"));
-        NONPRIMITIVE_MAP.put(Short.TYPE, Short.class.getName().replaceAll("\\.", "/"));
-        NONPRIMITIVE_MAP.put(Character.TYPE, Character.class.getName().replaceAll("\\.", "/"));
-        NONPRIMITIVE_MAP.put(Float.TYPE, Float.class.getName().replaceAll("\\.", "/"));
-        NONPRIMITIVE_MAP.put(Double.TYPE, Double.class.getName().replaceAll("\\.", "/"));
-    }    
+final class WrapperHelperCompiler extends ASMHelper {
+  
     
     final Class<?> wrapperType;
     final Method setMethods[];
@@ -66,6 +41,7 @@ final class WrapperHelperCompiler {
     final Field fields[];
     final Object objectFactory;
     final ClassWriter cw;
+
     
     private WrapperHelperCompiler(Class<?> wrapperType,
                                   Method setMethods[],
@@ -79,40 +55,7 @@ final class WrapperHelperCompiler {
         this.jaxbMethods = jaxbMethods;
         this.fields = fields;
         this.objectFactory = objectFactory;
-        
-
-        ClassWriter newCw = null;
-        if (!oldASM) {
-            Class<ClassWriter> cls = ClassWriter.class;
-            try {
-                //ASM 1.5.x/2.x
-                Constructor<ClassWriter> cons = cls.getConstructor(new Class<?>[] {Boolean.TYPE});
-                
-                try {
-                    //got constructor, now check if it's 1.x which is very different from 2.x and 3.x 
-                    cls.getMethod("newConstInt", new Class<?>[] {Integer.TYPE});               
-                    //newConstInt was removed in 2.x, if we get this far, we're using 1.5.x,
-                    //set to null so we don't attempt to use it.
-                    newCw = null;    
-                    oldASM = true;
-                } catch (Throwable t) {
-                    newCw = cons.newInstance(new Object[] {Boolean.TRUE});
-                }
-                
-            } catch (Throwable e) {
-                //ASM 3.x
-                try {
-                    Constructor<ClassWriter> cons = cls.getConstructor(new Class<?>[] {Integer.TYPE});
-                    int i = cls.getField("COMPUTE_MAXS").getInt(null);
-                    i |= cls.getField("COMPUTE_FRAMES").getInt(null);
-                    newCw = cons.newInstance(new Object[] {Integer.valueOf(i)});
-                } catch (Throwable e1) {
-                    //ignore
-                }
-                
-            }
-        }
-        cw = newCw;
+        cw = createClassWriter();
     }
 
     static WrapperHelper compileWrapperHelper(Class<?> wrapperType,
@@ -129,11 +72,15 @@ final class WrapperHelperCompiler {
                                         fields,
                                         objectFactory).compile();
         } catch (Throwable t) {
-            //Some error - probably a bad version of ASM or similar
+            // Some error - probably a bad version of ASM or similar
             return null;
         }
     }
+    
 
+    
+    
+    
     public WrapperHelper compile() {
         if (cw == null) {
             return null;
@@ -160,28 +107,17 @@ final class WrapperHelperCompiler {
         try {
             if (b) {
                 cw.visitEnd();
-                byte bt[] = cw.toByteArray();
-                Class<?> cl = new TypeHelperClassLoader(wrapperType.getClassLoader())
-                    .defineClass(newClassName.replaceAll("/", "."), bt);
-                                 
+                byte bt[] = cw.toByteArray();                
+                Class<?> cl = loadClass(newClassName, wrapperType, bt);
                 Object o = cl.newInstance();
                 return WrapperHelper.class.cast(o);
             }
         } catch (Exception e) {
-            //ignore, we'll just fall down to reflection based
+            // ignore, we'll just fall down to reflection based
         }
         return null;
     }
     
-    
-    private static class TypeHelperClassLoader extends ClassLoader {
-        TypeHelperClassLoader(ClassLoader parent) {
-            super(parent);
-        }
-        public Class<?> defineClass(String name, byte bytes[]) {
-            return super.defineClass(name, bytes, 0, bytes.length);
-        }
-    }
     private static void addConstructor(String newClassName, ClassWriter cw,  Class<?> objectFactory) {
         
         if (objectFactory != null) {
@@ -246,7 +182,7 @@ final class WrapperHelperCompiler {
             if (getMethods[x] == null) { 
                 if (setMethods[x] == null
                     && fields[x] == null) {
-                    //null placeholder, just skip it
+                    // null placeholder, just skip it
                     continue;
                 } else {
                     return false;
@@ -304,13 +240,13 @@ final class WrapperHelperCompiler {
     }
     
     private void doCollection(MethodVisitor mv, int x) {
-        //List aVal = obj.getA();
-        //List newA = (List)lst.get(99);
-        //if (aVal == null) {
-        //    obj.setA(newA);
-        //} else {
-        //    aVal.addAll(newA);
-        //}
+        // List aVal = obj.getA();
+        // List newA = (List)lst.get(99);
+        // if (aVal == null) {
+        // obj.setA(newA);
+        // } else {
+        // aVal.addAll(newA);
+        // }
         
         mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
                            periodToSlashes(wrapperType.getName()),
@@ -372,7 +308,7 @@ final class WrapperHelperCompiler {
         Label lBegin = new Label();
         mv.visitLabel(lBegin);
                
-        //the ret List
+        // the ret List
         mv.visitTypeInsn(Opcodes.NEW, "java/util/ArrayList");
         mv.visitInsn(Opcodes.DUP);
         mv.visitMethodInsn(Opcodes.INVOKESPECIAL, "java/util/ArrayList", "<init>", "()V");
@@ -386,7 +322,7 @@ final class WrapperHelperCompiler {
         for (int x = 0; x < getMethods.length; x++) {
             Method method = getMethods[x];
             if (method == null && fields[x] != null) {
-                //fallback to reflection mode
+                // fallback to reflection mode
                 return false;
             }
             
@@ -404,7 +340,7 @@ final class WrapperHelperCompiler {
                                    method.getName(), 
                                    getMethodSignature(method));
                 if (method.getReturnType().isPrimitive()) {
-                    //wrap into Object type
+                    // wrap into Object type
                     createObjectWrapper(mv, method.getReturnType());
                 }
                 if (JAXBElement.class.isAssignableFrom(method.getReturnType())) {
@@ -418,7 +354,7 @@ final class WrapperHelperCompiler {
             }
         }
         
-        //return the list
+        // return the list
         Label l2 = new Label();
         mv.visitLabel(l2);
         mv.visitVarInsn(Opcodes.ALOAD, 2);
@@ -439,42 +375,18 @@ final class WrapperHelperCompiler {
     }
     
     
-    private static String getMethodSignature(Method m) {
-        StringBuffer buf = new StringBuffer("(");
-        for (Class<?> cl : m.getParameterTypes()) {
-            buf.append(getClassCode(cl));
-        }
-        buf.append(")");
-        buf.append(getClassCode(m.getReturnType()));
-        
-        return buf.toString();
-    }
-    private static String getClassCode(Class<?> cl) {
-        if (cl == Void.TYPE) {
-            return "V";
-        }
-        if (cl.isPrimitive()) {
-            return PRIMITIVE_MAP.get(cl);
-        }
-        if (cl.isArray()) {
-            return "[" + getClassCode(cl.getComponentType());
-        }
-        return "L" + periodToSlashes(cl.getName()) + ";";
-    }
+
+
     private static void createObjectWrapper(MethodVisitor mv, Class<?> cl) {
         mv.visitMethodInsn(Opcodes.INVOKESTATIC, NONPRIMITIVE_MAP.get(cl),
                            "valueOf", "(" + PRIMITIVE_MAP.get(cl) + ")L" 
                            + NONPRIMITIVE_MAP.get(cl) + ";");
     }
     
-    private static String periodToSlashes(String s) {
-        char ch[] = s.toCharArray();
-        for (int x = 0; x < ch.length; x++) {
-            if (ch[x] == '.') {
-                ch[x] = '/';
-            }
-        }
-        return new String(ch);
-    }
+
+    
+    
+        
+
 
 }
