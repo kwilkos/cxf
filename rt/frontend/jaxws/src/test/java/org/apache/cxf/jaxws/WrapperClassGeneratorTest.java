@@ -19,9 +19,15 @@
 
 package org.apache.cxf.jaxws;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Marshaller;
+
 import org.apache.cxf.BusFactory;
+import org.apache.cxf.jaxws.interceptors.WrapperHelper;
 import org.apache.cxf.jaxws.service.AddNumbersImpl;
 import org.apache.cxf.jaxws.support.JaxWsImplementorInfo;
 import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
@@ -39,7 +45,7 @@ public class WrapperClassGeneratorTest extends Assert {
     }
     
     @org.junit.Test
-    public void testForAttachementRef() {
+    public void testForXmlList() throws Exception {
         JaxWsImplementorInfo implInfo = 
             new JaxWsImplementorInfo(AddNumbersImpl.class);
         JaxWsServiceFactoryBean jaxwsFac = new JaxWsServiceFactoryBean(implInfo);
@@ -48,7 +54,75 @@ public class WrapperClassGeneratorTest extends Assert {
         ServiceInfo serviceInfo =  service.getServiceInfos().get(0);
         InterfaceInfo interfaceInfo = serviceInfo.getInterface();
         WrapperClassGenerator wrapperClassGenerator = new WrapperClassGenerator(interfaceInfo);
-        List<Class> list = wrapperClassGenerator.genearte();
-        assertEquals(2, list.size());       
+        List<Class> wrapperClassList = wrapperClassGenerator.genearte();
+        assertEquals(2, wrapperClassList.size());
+
+        Class requestClass = wrapperClassList.get(0);
+        Class responseClass = wrapperClassList.get(1);
+        if (!requestClass.getSimpleName().equals("AddNumbers")) {
+            Class tmp = requestClass;
+            requestClass = responseClass;
+            responseClass = tmp;
+        }
+                        
+        // Create request wrapper Object
+        List<String> partNames = Arrays.asList(new String[] {"arg0"});
+        List<String> elTypeNames = Arrays.asList(new String[] {"list"});
+        List<Class<?>> partClasses = Arrays.asList(new Class<?>[] {List.class});
+           
+        String className = requestClass.getName();
+        className = className.substring(0, className.lastIndexOf(".") + 1);
+        
+        WrapperHelper wh = WrapperHelper.createWrapperHelper(requestClass,
+                                                             partNames, elTypeNames, partClasses);        
+        
+        List<Object> paraList = new ArrayList<Object>();
+        List<String> valueList = new ArrayList<String>();
+        valueList.add("str1");
+        valueList.add("str2");
+        valueList.add("str3");
+        paraList.add(valueList);
+        Object requestObj = wh.createWrapperObject(paraList);
+        // Create response wrapper Object
+        
+        partNames = Arrays.asList(new String[] {"return"});
+        elTypeNames = Arrays.asList(new String[] {"list"});
+        partClasses = Arrays.asList(new Class<?>[] {List.class});
+           
+        className = responseClass.getName();
+        className = className.substring(0, className.lastIndexOf(".") + 1);
+        
+        wh = WrapperHelper.createWrapperHelper(responseClass,
+                                                             partNames, elTypeNames, partClasses);        
+        List<Object> resPara = new ArrayList<Object>();
+        List<Integer> intValueList = new ArrayList<Integer>();
+        intValueList.add(1);
+        intValueList.add(2);
+        intValueList.add(3);
+        resPara.add(intValueList);
+        Object responseObj = wh.createWrapperObject(resPara);
+              
+        JAXBContext jaxbContext = JAXBContext.newInstance(wrapperClassList.toArray(new Class[]{}));
+        java.io.ByteArrayOutputStream bout = new java.io.ByteArrayOutputStream();
+        Marshaller marshaller = jaxbContext.createMarshaller();
+        
+        //check marshall wrapper
+        marshaller.marshal(requestObj, bout);      
+        String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>" 
+            + "<ns2:addNumbers xmlns:ns2=\"http://service.jaxws.cxf.apache.org/\">" 
+            + "<arg0>str1 str2 str3</arg0></ns2:addNumbers>";
+
+        assertEquals("The generated request wrapper class does not contain the correct annotations", 
+                     expected, bout.toString());
+       
+        
+        bout.reset();
+        marshaller.marshal(responseObj, bout);       
+        expected = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>" 
+            + "<ns2:addNumbersResponse xmlns:ns2=\"http://service.jaxws.cxf.apache.org/\">" 
+            + "<return>1</return><return>2</return><return>3</return></ns2:addNumbersResponse>";
+        assertEquals("The generated response wrapper class is not correct", expected,  bout.toString());
+     
     }
+  
 }

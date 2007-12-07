@@ -117,6 +117,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
 
     public static final String ENDPOINT_CLASS = "endpoint.class";
     public static final String GENERIC_TYPE = "generic.type";
+    public static final String RAW_CLASS = "rawclass";
     public static final String MODE_OUT = "messagepart.mode.out";
     public static final String MODE_INOUT = "messagepart.mode.inout";
     public static final String HOLDER = "messagepart.isholder";
@@ -1264,6 +1265,11 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
             rawClass = getHolderClass(paramType);
         }
         part.setProperty(GENERIC_TYPE, type);
+        //if rawClass is List<String>, it will be converted to array 
+        //and set it to type class
+        if (Collection.class.isAssignableFrom(rawClass)) {
+            part.setProperty(RAW_CLASS, rawClass);
+        }
         part.setTypeClass(rawClass);
     }
 
@@ -1647,6 +1653,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         }
         return null;
     }
+    
     protected String getResponseWrapperClassName(Method selected) {
         for (AbstractServiceConfiguration c : serviceConfigurations) {
             String cls = c.getResponseWrapperClassName(selected);
