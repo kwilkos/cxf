@@ -19,8 +19,6 @@
 
 package org.apache.cxf.wsdl;
 
-import java.util.HashMap;
-import java.util.Map;
 import javax.xml.namespace.QName;
 
 public final class WSDLConstants {
@@ -50,24 +48,18 @@ public final class WSDLConstants {
 
 
 
-    public static final String NS_SOAP11 = "http://schemas.xmlsoap.org/wsdl/soap/";
+    public static final String NS_SOAP = "http://schemas.xmlsoap.org/wsdl/soap/";
     public static final String NS_SOAP12 = "http://schemas.xmlsoap.org/wsdl/soap12/";
-    public static final String NP_SOAP11 = "soap";
-    public static final String NP_SOAP12 = "soap12";
+    public static final String SOAP11_PREFIX = "soap";
+    public static final String SOAP12_PREFIX = "soap12";
     
-    public static final Map<String, String> NS_PREFIX_PAIR = new HashMap<String, String>(2);
-    static {
-        NS_PREFIX_PAIR.put(NS_SOAP11, NP_SOAP11);
-        NS_PREFIX_PAIR.put(NS_SOAP12, NP_SOAP12);
-    }
-
     public static final String NS_SOAP11_HTTP_TRANSPORT = "http://schemas.xmlsoap.org/soap/http";
     
-    public static final QName QNAME_SOAP_BINDING = new QName(NS_SOAP11, "binding");
-    public static final QName QNAME_SOAP_OPERATION = new QName(NS_SOAP11, "operation");
-    public static final QName QNAME_SOAP_BODY = new QName(NS_SOAP11, "body");
-    public static final QName QNAME_SOAP_FAULT = new QName(NS_SOAP11, "fault");
-    public static final QName QNAME_SOAP_BINDING_ADDRESS = new QName(NS_SOAP11, "address");
+    public static final QName QNAME_SOAP_BINDING = new QName(NS_SOAP, "binding");
+    public static final QName QNAME_SOAP_OPERATION = new QName(NS_SOAP, "operation");
+    public static final QName QNAME_SOAP_BODY = new QName(NS_SOAP, "body");
+    public static final QName QNAME_SOAP_FAULT = new QName(NS_SOAP, "fault");
+    public static final QName QNAME_SOAP_BINDING_ADDRESS = new QName(NS_SOAP, "address");
 
 
     public static final String NS_SOAP12_HTTP_TRANSPORT = "http://www.w3.org/2003/05/soap/bindings/HTTP/";

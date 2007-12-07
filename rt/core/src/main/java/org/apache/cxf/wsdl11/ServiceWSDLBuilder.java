@@ -58,6 +58,7 @@ import org.w3c.dom.Element;
 
 import com.ibm.wsdl.extensions.schema.SchemaImpl;
 import org.apache.cxf.Bus;
+import org.apache.cxf.NSManager;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.helpers.XMLUtils;
 import org.apache.cxf.helpers.XPathUtils;
@@ -96,6 +97,7 @@ public class ServiceWSDLBuilder {
     private String baseFileName;
     private int xsdCount;
     private final Bus bus;
+    private final NSManager nsMan;
     
     /**
      * Sets up the builder on a bus with a list of services.
@@ -106,6 +108,7 @@ public class ServiceWSDLBuilder {
         this.services = services;
         bus = b;
         ns2prefix = new HashMap<String, String>();
+        nsMan = new NSManager();
     }
     
     /**
@@ -520,9 +523,9 @@ public class ServiceWSDLBuilder {
     }
 
     private String getPrefix(String ns) {
-        for (String namespace : WSDLConstants.NS_PREFIX_PAIR.keySet()) {
+        for (String namespace : nsMan.getNamespaces()) {
             if (namespace.equals(ns)) {
-                return WSDLConstants.NS_PREFIX_PAIR.get(namespace);
+                return nsMan.getPrefixFromNS(namespace);
             }
         }
         String prefix = ns2prefix.get(ns);
