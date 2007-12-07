@@ -49,6 +49,7 @@ public final class WSDLConstants {
 
 
     public static final String NS_SOAP = "http://schemas.xmlsoap.org/wsdl/soap/";
+    public static final String NS_SOAP11 = NS_SOAP;
     public static final String NS_SOAP12 = "http://schemas.xmlsoap.org/wsdl/soap12/";
     public static final String SOAP11_PREFIX = "soap";
     public static final String SOAP12_PREFIX = "soap12";
