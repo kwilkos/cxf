@@ -23,9 +23,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import javax.xml.bind.annotation.XmlAttachmentRef;
 import javax.xml.bind.annotation.XmlList;
@@ -50,7 +48,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
 public final class WrapperClassGenerator extends ASMHelper {
-    private Set<Class<?>> wrapperBeans = new HashSet<Class<?>>();
+    private List<Class> wrapperBeanList = new java.util.concurrent.CopyOnWriteArrayList<Class>();
     private InterfaceInfo interfaceInfo;
 
     public WrapperClassGenerator(InterfaceInfo inf) {
@@ -91,7 +89,7 @@ public final class WrapperClassGenerator extends ASMHelper {
         return list;
     }
 
-    public Set<Class<?>> genearte() {
+    public List<Class> genearte() {
         for (OperationInfo opInfo : interfaceInfo.getOperations()) {
             if (opInfo.isUnwrappedCapable()) {
                 Method method = (Method)opInfo.getProperty(ReflectionServiceFactoryBean.METHOD);
@@ -106,7 +104,7 @@ public final class WrapperClassGenerator extends ASMHelper {
 
             }
         }
-        return wrapperBeans;
+        return wrapperBeanList;
     }
 
     private void createWrapperClass(MessageInfo messageInfo, Method method, boolean isRequest) {
@@ -158,7 +156,7 @@ public final class WrapperClassGenerator extends ASMHelper {
 
         Class<?> clz = loadClass(className, method.getDeclaringClass(), cw.toByteArray());
         messageInfo.getMessagePart(0).setTypeClass(clz);
-        wrapperBeans.add(clz);
+        wrapperBeanList.add(clz);
 
     }
 
