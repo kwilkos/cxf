@@ -106,7 +106,7 @@ public class SchemaJavascriptBuilder {
             if (xmlSchemaObject instanceof XmlSchemaElement) { // the alternative is too wierd to contemplate.
                 try {
                     XmlSchemaElement element = (XmlSchemaElement)xmlSchemaObject;
-                    if (element.getSchemaTypeName() == null) {
+                    if (element.getSchemaTypeName() == null && element.getSchemaType() == null) {
                         Message message = new Message("ELEMENT_MISSING_TYPE", LOG, 
                                                       element.getQName(),
                                                       element.getSchemaTypeName(),
@@ -114,7 +114,12 @@ public class SchemaJavascriptBuilder {
                         LOG.warning(message.toString());
                         continue;
                     }
-                    XmlSchemaType type = schema.getSchema().getTypeByName(element.getSchemaTypeName());
+                    XmlSchemaType type;
+                    if (element.getSchemaType() != null) {
+                        type = element.getSchemaType();
+                    } else {
+                        type = schema.getSchema().getTypeByName(element.getSchemaTypeName());
+                    }
                     if (!(xmlSchemaObject instanceof XmlSchemaComplexType)) { 
                         // we never make classes for simple type.
                         continue;

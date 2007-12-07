@@ -49,6 +49,7 @@ public final class ToolConstants {
     public static final String CFG_ALL = "all";
     public static final String CFG_IMPL = "impl";
     public static final String CFG_PACKAGENAME = "packagename";
+    public static final String CFG_JSPACKAGEPREFIX = "jspackageprefix";
     public static final String CFG_NINCLUDE = "ninclude";
     public static final String CFG_NEXCLUDE = "nexclude";
     public static final String CFG_CMD_ARG = "args";
@@ -238,4 +239,5 @@ public final class ToolConstants {
 
     public static final String CLIENT_CLASS = "clientClass";
     public static final String SERVER_CLASS = "serverClass";
+    public static final String CFG_JSPREFIXMAP = "javascriptPrefixMap";
 }

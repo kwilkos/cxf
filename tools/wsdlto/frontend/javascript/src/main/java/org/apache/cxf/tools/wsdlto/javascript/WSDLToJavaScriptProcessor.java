@@ -29,6 +29,7 @@ import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 import java.util.Collection;
 
+import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.javascript.BasicNameManager;
 import org.apache.cxf.javascript.JavascriptQueryHandler;
 import org.apache.cxf.javascript.NamespacePrefixAccumulator;
@@ -48,8 +49,7 @@ public class WSDLToJavaScriptProcessor extends WSDLToProcessor {
 
         ServiceInfo serviceInfo = context.get(ServiceInfo.class);
 
-        //File jsFile = getOutputFile(builder.getOutputFile(), serviceInfo.getName().getLocalPart() + ".js");
-        File jsFile = null;
+        File jsFile = getOutputFile(serviceInfo.getName().getLocalPart() + ".js");
 
         BasicNameManager nameManager = new BasicNameManager(serviceInfo, null);
         NamespacePrefixAccumulator prefixManager = new NamespacePrefixAccumulator(serviceInfo
@@ -83,6 +83,28 @@ public class WSDLToJavaScriptProcessor extends WSDLToProcessor {
         } catch (IOException e) {
             throw new ToolException(e);
         }
+    }
+    
+    private File getOutputFile(String defaultOutputFile) {
+        String output = (String)context.get(ToolConstants.CFG_OUTPUTFILE);
+        String dir = (String)context.get(ToolConstants.CFG_OUTPUTDIR);
+        if (dir == null) {
+            dir = "./";
+        }
 
+        File result;
+        if (output != null) {
+            result = new File(output);
+            if (!result.isAbsolute()) {
+                result = new File(new File(dir), output);
+            }
+        } else {
+            result = new File(new File(dir), defaultOutputFile);
+        }
+        // rename the exising js
+        if (result.exists() && !result.renameTo(new File(result.getParent(), result.getName()))) {
+            throw new ToolException(new Message("OUTFILE_EXISTS", LOG));
+        }
+        return result;
     }
 }

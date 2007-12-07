@@ -43,9 +43,8 @@ Examples:
             <option id="jspackageprefix" maxOccurs="unbounded">
                 <annotation>
                     The JavaScript function name prefix to use for the generated code.
-					By default, this specifies the JavaScript prefix for use with the 
-					WSDL's TNS. You may optionally specify a namespace URI to specif
-					a prefix for other namespaces mentioned in the WSDL.
+					Specify each prefix mapping with with the format
+					URI=prefix.
                 </annotation>
                 <switch>p</switch>
                 <associatedArgument placement="afterSpace">

@@ -140,7 +140,9 @@ public class JavaScriptContainer extends WSDLToJavaContainer {
                     if (sysId == null) {
                         sysId = serviceInfo.getTargetNamespace();
                     }
-                    schemas.put(sysId, schemaInfo.getElement());
+                    if (sysId != null) {
+                        schemas.put(sysId, schemaInfo.getElement());
+                    }
                 }
                 if (schemaInfo.getElement() != null && schemaInfo.getSystemId() != null) {
                     schemas.put(schemaInfo.getSystemId(), schemaInfo.getElement());
@@ -189,8 +191,9 @@ public class JavaScriptContainer extends WSDLToJavaContainer {
             try {
                 pns = (String[])env.get(ToolConstants.CFG_JSPACKAGEPREFIX);
             } catch (ClassCastException e) {
-                pns = new String[1];
-                pns[0] = (String)env.get(ToolConstants.CFG_JSPACKAGEPREFIX);
+                Message msg = new Message("INVALID_PREFIX_MAPPING", LOG, 
+                                          env.get(ToolConstants.CFG_JSPACKAGEPREFIX));
+                throw new ToolException(msg);
             }
             for (int j = 0; j < pns.length; j++) {
                 int pos = pns[j].indexOf("=");
@@ -199,8 +202,6 @@ public class JavaScriptContainer extends WSDLToJavaContainer {
                     String ns = pns[j].substring(0, pos);
                     jsprefix = pns[j].substring(pos + 1);
                     nsPrefixMap.put(ns, jsprefix);
-                } else {
-                    nsPrefixMap.put("&tns&", jsprefix);
                 }
             }
             env.put(ToolConstants.CFG_JSPREFIXMAP, nsPrefixMap);
@@ -264,11 +265,6 @@ public class JavaScriptContainer extends WSDLToJavaContainer {
 
         if (context.get(ToolConstants.CFG_OUTPUTDIR) == null) {
             context.put(ToolConstants.CFG_OUTPUTDIR, ".");
-        }
-
-        if (context.containsKey(ToolConstants.CFG_ANT)) {
-            setAntProperties(context);
-            setLibraryReferences(context);
         }
 
         if (!context.containsKey(ToolConstants.CFG_WSDL_VERSION)) {

@@ -104,6 +104,21 @@ public class ToolContext {
             return get(key);
         }
     }
+    
+    /**
+     * avoid need to suppress warnings on string->object cases.
+     * @param <T>
+     * @param key
+     * @param clazz
+     * @return
+     */
+    public <T> T get(String key, Class<T> clazz) {
+        return clazz.cast(get(key));
+    }
+
+    public <T> T get(String key, Class<T> clazz, Object defaultValue) {
+        return clazz.cast(get(key, defaultValue));
+    }
 
     public <T> T get(Class<T> key) {
         return key.cast(get(key.getName()));

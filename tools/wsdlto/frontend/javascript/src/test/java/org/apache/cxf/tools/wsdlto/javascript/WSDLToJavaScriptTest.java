@@ -19,18 +19,15 @@
 
 package org.apache.cxf.tools.wsdlto.javascript;
 
-import java.net.URISyntaxException;
-
+import org.apache.cxf.tools.common.ProcessorTestBase;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolContext;
-import org.junit.Assert;
 import org.junit.Test;
 
 /**
  * 
  */
-@org.junit.Ignore
-public class WSDLToJavaScriptTest extends Assert {
+public class WSDLToJavaScriptTest extends ProcessorTestBase {
     
     // just run with a minimum of fuss.
     @Test
@@ -39,12 +36,8 @@ public class WSDLToJavaScriptTest extends Assert {
 
         ToolContext context = new ToolContext();
         context.put(ToolConstants.CFG_WSDLURL, getLocation("hello_world.wsdl"));
+        context.put(ToolConstants.CFG_OUTPUTDIR, output.toString()); 
         container.setContext(context); 
         container.execute();
-    }
-    
-
-    private String getLocation(String wsdlFile) throws URISyntaxException {
-        return this.getClass().getResource(wsdlFile).toURI().getPath();
     }
 }
