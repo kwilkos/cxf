@@ -559,8 +559,12 @@ public class WSDLRefValidator extends AbstractDefinitionValidator {
                     schemaCollection.getElementByQName(new QName(WSDLConstants.NU_SCHEMA_XSD, name));
                 partvalid = schemaEle != null ? true : false;
             } else {
+                if ("anyType".equals(name)) {
+                    return true;
+                }
                 XmlSchemaType schemaType =
                     schemaCollection.getTypeByQName(new QName(WSDLConstants.NU_SCHEMA_XSD, name));
+
                 partvalid = schemaType != null ? true : false;
             }
 
