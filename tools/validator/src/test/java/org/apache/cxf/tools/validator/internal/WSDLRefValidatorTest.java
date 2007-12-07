@@ -140,4 +140,15 @@ public class WSDLRefValidatorTest extends Assert {
             assertEquals(expected, e.getMessage());
         }
     }
+
+    @Test
+    public void testXSDAnyType() throws Exception {
+        String wsdl = getClass().getResource("resources/anytype.wsdl").toURI().toString();
+        try {
+            WSDLRefValidator validator = new WSDLRefValidator(wsdl);
+            assertTrue(validator.isValid());
+        } catch (Exception e) {
+            fail("Valid wsdl, no exception should be thrown" + e.getMessage());
+        }
+    }
 }
