@@ -27,11 +27,7 @@ import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolException;
-import org.apache.cxf.tools.common.toolspec.ToolContainer;
 import org.apache.cxf.tools.common.toolspec.ToolRunner;
-import org.apache.cxf.tools.wsdlto.core.DataBindingProfile;
-import org.apache.cxf.tools.wsdlto.core.FrontEndProfile;
-import org.apache.cxf.tools.wsdlto.core.PluginLoader;
 
 public class WSDLToJavaScript {
 

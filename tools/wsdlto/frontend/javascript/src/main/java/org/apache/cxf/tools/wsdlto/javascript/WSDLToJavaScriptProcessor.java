@@ -27,15 +27,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import javax.xml.namespace.QName;
 
-import org.apache.cxf.common.i18n.Message;
-import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.javascript.BasicNameManager;
 import org.apache.cxf.javascript.JavascriptQueryHandler;
 import org.apache.cxf.javascript.NamespacePrefixAccumulator;
@@ -43,12 +36,8 @@ import org.apache.cxf.javascript.service.ServiceJavascriptBuilder;
 import org.apache.cxf.javascript.types.SchemaJavascriptBuilder;
 import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.service.model.ServiceInfo;
-import org.apache.cxf.tools.common.ClassNameProcessor;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolException;
-import org.apache.cxf.tools.common.model.JavaInterface;
-import org.apache.cxf.tools.common.model.JavaModel;
-import org.apache.cxf.tools.util.ClassCollector;
 import org.apache.cxf.tools.wsdlto.core.WSDLToProcessor;
 
 public class WSDLToJavaScriptProcessor extends WSDLToProcessor {
@@ -69,7 +58,8 @@ public class WSDLToJavaScriptProcessor extends WSDLToProcessor {
         try {
             FileOutputStream fileOutputStream = new FileOutputStream(jsFile);
             if (null != context.get(ToolConstants.CFG_JAVASCRIPT_UTILS)) {
-                JavascriptQueryHandler.writeUtilsToResponseStream(WSDLToJavaScriptProcessor.class, fileOutputStream);
+                JavascriptQueryHandler.writeUtilsToResponseStream(WSDLToJavaScriptProcessor.class, 
+                                                                  fileOutputStream);
             }
             
             OutputStreamWriter outputStreamWriter = new OutputStreamWriter(fileOutputStream, UTF8);
