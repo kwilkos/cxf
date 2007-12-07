@@ -93,9 +93,7 @@ public final class WrapperClassGenerator extends ASMHelper {
 
     public Set<Class<?>> genearte() {
         for (OperationInfo opInfo : interfaceInfo.getOperations()) {
-            if (opInfo.isUnwrappedCapable()
-                && opInfo.getUnwrappedOperation().getProperty(ReflectionServiceFactoryBean.WRAPPERGEN_NEEDED) 
-                != null) {
+            if (opInfo.isUnwrappedCapable()) {
                 Method method = (Method)opInfo.getProperty(ReflectionServiceFactoryBean.METHOD);
                 MessageInfo messageInfo = opInfo.getUnwrappedOperation().getInput();
                 createWrapperClass(messageInfo, method, true);
