@@ -19,7 +19,7 @@
 #
 #
 #!/bin/sh
-# run the CXF java2wsdl tool 
+# run the CXF java2js tool 
 #
 
 # Check for irritating 'operating systems'.

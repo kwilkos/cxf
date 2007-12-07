@@ -36,7 +36,7 @@ if not exist "%CXF_HOME%\lib\cxf-manifest-incubator.jar" goto no_cxf_jar
 
 set CXF_JAR=%CXF_HOME%\lib\cxf-manifest-incubator.jar
 
-"%JAVA_HOME%\bin\java" -cp "%CXF_JAR%;%SUN_TOOL_PATH%;%CLASSPATH%" -Djava.util.logging.config.file="%CXF_HOME%\etc\logging.properties" org.apache.cxf.tools.java2ws.JavaToWS %*
+"%JAVA_HOME%\bin\java" -cp "%CXF_JAR%;%SUN_TOOL_PATH%;%CLASSPATH%" -Djava.util.logging.config.file="%CXF_HOME%\etc\logging.properties" org.apache.cxf.tools.java2js.JavaToJS %*
 
 @endlocal
 
@@ -55,6 +55,3 @@ set CXF_HOME=%~dp0..
 goto cont
 
 :end
-
-
-
