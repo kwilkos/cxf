@@ -22,6 +22,7 @@ package org.apache.cxf.jaxws;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
@@ -51,14 +52,18 @@ public class WrapperClassGeneratorTest extends Assert {
         JaxWsServiceFactoryBean jaxwsFac = new JaxWsServiceFactoryBean(implInfo);
         jaxwsFac.setBus(BusFactory.getDefaultBus());
         Service service = jaxwsFac.create();
+        
+        
         ServiceInfo serviceInfo =  service.getServiceInfos().get(0);
+        
         InterfaceInfo interfaceInfo = serviceInfo.getInterface();
         WrapperClassGenerator wrapperClassGenerator = new WrapperClassGenerator(interfaceInfo);
-        List<Class> wrapperClassList = wrapperClassGenerator.genearte();
-        assertEquals(2, wrapperClassList.size());
+        Set<Class<?>> wrapperClassSet = wrapperClassGenerator.genearte();
+        assertEquals(2, wrapperClassSet.size());
 
-        Class requestClass = wrapperClassList.get(0);
-        Class responseClass = wrapperClassList.get(1);
+        Class[] wrapperClasses = wrapperClassSet.toArray(new Class[]{});
+        Class requestClass = wrapperClasses[0];
+        Class responseClass = wrapperClasses[1];
         if (!requestClass.getSimpleName().equals("AddNumbers")) {
             Class tmp = requestClass;
             requestClass = responseClass;
@@ -102,7 +107,7 @@ public class WrapperClassGeneratorTest extends Assert {
         resPara.add(intValueList);
         Object responseObj = wh.createWrapperObject(resPara);
               
-        JAXBContext jaxbContext = JAXBContext.newInstance(wrapperClassList.toArray(new Class[]{}));
+        JAXBContext jaxbContext = JAXBContext.newInstance(wrapperClasses);
         java.io.ByteArrayOutputStream bout = new java.io.ByteArrayOutputStream();
         Marshaller marshaller = jaxbContext.createMarshaller();
         

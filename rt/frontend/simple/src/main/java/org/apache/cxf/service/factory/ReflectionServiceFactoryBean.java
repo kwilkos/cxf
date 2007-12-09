@@ -38,12 +38,12 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.activation.DataHandler;
 import javax.xml.bind.annotation.XmlAttachmentRef;
 import javax.xml.bind.annotation.XmlList;
 import javax.xml.bind.annotation.XmlMimeType;
@@ -101,8 +101,7 @@ import org.apache.ws.commons.schema.XmlSchemaImport;
 import org.apache.ws.commons.schema.XmlSchemaObject;
 import org.apache.ws.commons.schema.XmlSchemaObjectTable;
 import org.apache.ws.commons.schema.XmlSchemaSequence;
-import org.apache.ws.commons.schema.XmlSchemaSimpleType;
-import org.apache.ws.commons.schema.XmlSchemaSimpleTypeList;
+
 import org.apache.ws.commons.schema.XmlSchemaType;
 import org.apache.ws.commons.schema.constants.Constants;
 import org.apache.ws.commons.schema.utils.NamespaceMap;
@@ -118,6 +117,8 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     public static final String ENDPOINT_CLASS = "endpoint.class";
     public static final String GENERIC_TYPE = "generic.type";
     public static final String RAW_CLASS = "rawclass";
+    public static final String WRAPPERGEN_NEEDED = "wrapper.gen.needed";
+    public static final String EXTRA_CLASS = "extra.class";
     public static final String MODE_OUT = "messagepart.mode.out";
     public static final String MODE_INOUT = "messagepart.mode.inout";
     public static final String HOLDER = "messagepart.isholder";
@@ -126,7 +127,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     public static final String METHOD = "operation.method";
     public static final String METHOD_PARAM_ANNOTATIONS = "method.parameters.annotations";
     public static final String METHOD_ANNOTATIONS = "method.return.annotations";
-    public static final QName SWA_REF  = new QName("http://ws-i.org/profiles/basic/1.1/xsd", "swaRef");
+    public static final QName SWA_REF = new QName("http://ws-i.org/profiles/basic/1.1/xsd", "swaRef");
     public static final String SWA_REF_LOCATION = "http://ws-i.org/profiles/basic/1.1/swaref.xsd";
     private static final Logger LOG = LogUtils.getL7dLogger(ReflectionServiceFactoryBean.class,
                                                             "SimpleMessages");
@@ -135,7 +136,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
 
     protected Class<?> serviceClass;
 
-    private List<AbstractServiceConfiguration> serviceConfigurations =
+    private List<AbstractServiceConfiguration> serviceConfigurations = 
         new ArrayList<AbstractServiceConfiguration>();
     private QName serviceName;
     private Invoker invoker;
@@ -149,7 +150,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     private boolean populateFromClass;
     private boolean anonymousWrappers;
     private boolean qualifiedSchemas = true;
-    
+
     private List<AbstractFeature> features;
 
     public ReflectionServiceFactoryBean() {
@@ -167,8 +168,8 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
 
     @Override
     public Service create() {
-//        System.setProperty(Constants.SystemConstants.EXTENSION_REGISTRY_KEY,
-//                           CustomExtensionRegistry.class.getName());
+        // System.setProperty(Constants.SystemConstants.EXTENSION_REGISTRY_KEY,
+        // CustomExtensionRegistry.class.getName());
 
         initializeServiceConfigurations();
 
@@ -192,27 +193,28 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         getService().put(MethodDispatcher.class.getName(), getMethodDispatcher());
 
         createEndpoints();
-        
+
         fillInSchemaCrossreferences();
 
         return getService();
     }
-    
+
     /**
-     * Code elsewhere in this function will fill in the name of the type of an element but not the reference
-     * to the type. This function fills in the type references.
-     * 
-     * This does not set the type reference for elements that are declared as refs to other elements.
-     * It is a giant pain to find them, since they are not (generally) root elements and the code would
-     * have to traverse all the types to find all of them. Users should look them up through the collection,
-     * that's what it is for.
+     * Code elsewhere in this function will fill in the name of the type of an
+     * element but not the reference to the type. This function fills in the
+     * type references. This does not set the type reference for elements that
+     * are declared as refs to other elements. It is a giant pain to find them,
+     * since they are not (generally) root elements and the code would have to
+     * traverse all the types to find all of them. Users should look them up
+     * through the collection, that's what it is for.
      */
     private void fillInSchemaCrossreferences() {
         Service service = getService();
         for (ServiceInfo serviceInfo : service.getServiceInfos()) {
             SchemaCollection schemaCollection = serviceInfo.getXmlSchemaCollection();
-            
-            // First pass, fill in any types for which we have a name but no type.
+
+            // First pass, fill in any types for which we have a name but no
+            // type.
             for (SchemaInfo schemaInfo : serviceInfo.getSchemas()) {
                 XmlSchemaObjectTable elementsTable = schemaInfo.getSchema().getElements();
                 Iterator elementsIterator = elementsTable.getNames();
@@ -224,10 +226,8 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                         if (typeName != null) {
                             XmlSchemaType type = schemaCollection.getTypeByQName(typeName);
                             if (type == null) {
-                                Message message = new Message("REFERENCE_TO_UNDEFINED_TYPE", LOG, 
-                                                              element.getQName(),
-                                                              typeName,
-                                                              service.getName());
+                                Message message = new Message("REFERENCE_TO_UNDEFINED_TYPE", LOG, element
+                                    .getQName(), typeName, service.getName());
                                 LOG.severe(message.toString());
                             } else {
                                 element.setSchemaType(type);
@@ -235,7 +235,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                         }
                     }
                 }
-                
+
             }
         }
     }
@@ -244,16 +244,16 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         Service service = getService();
 
         BindingFactoryManager bfm = getBus().getExtension(BindingFactoryManager.class);
-        
+
         for (ServiceInfo inf : service.getServiceInfos()) {
             for (EndpointInfo ei : inf.getEndpoints()) {
-                
+
                 try {
                     bfm.getBindingFactory(ei.getBinding().getBindingId());
                 } catch (BusException e1) {
                     continue;
                 }
-                
+
                 try {
                     Endpoint ep = createEndpoint(ei);
 
@@ -293,11 +293,11 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
 
     protected void buildServiceFromClass() {
         LOG.info("Creating Service " + getServiceQName() + " from class " + getServiceClass().getName());
-        
+
         if (Proxy.isProxyClass(this.getServiceClass())) {
             LOG.log(Level.WARNING, "USING_PROXY_FOR_SERVICE", getServiceClass());
         }
-        
+
         ServiceInfo serviceInfo = new ServiceInfo();
         SchemaCollection col = serviceInfo.getXmlSchemaCollection();
         col.getExtReg().registerSerializer(MimeAttribute.class, new MimeSerializer());
@@ -316,7 +316,9 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         serviceInfo.setTargetNamespace(serviceInfo.getName().getNamespaceURI());
 
         createInterface(serviceInfo);
-
+        if (getExtraClass() != null) {
+            serviceInfo.setProperty(EXTRA_CLASS, getExtraClass());
+        }
         getDataBinding().initialize(service);
 
         boolean isWrapped = isWrapped();
@@ -334,9 +336,9 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
             if (!isWrapped(m) && !isRPC(m) && opInfo.getOutput() != null) {
                 createBareMessage(serviceInfo, opInfo, true);
             }
-            
+
             if (opInfo.hasFaults()) {
-                //check to make sure the faults are elements
+                // check to make sure the faults are elements
                 for (FaultInfo fault : opInfo.getFaults()) {
                     QName qn = (QName)fault.getProperty("elementName");
                     MessagePartInfo part = fault.getMessagePart(0);
@@ -357,9 +359,9 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     }
 
     protected boolean isFromWsdl() {
-        return !populateFromClass && getWsdlURL() != null;        
+        return !populateFromClass && getWsdlURL() != null;
     }
-    
+
     protected void initializeServiceModel() {
         String wsdlurl = getWsdlURL();
 
@@ -368,9 +370,9 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         } else {
             buildServiceFromClass();
         }
-        //validateServiceModel();
+        // validateServiceModel();
     }
-    
+
     public void validateServiceModel() {
         for (ServiceInfo si : getService().getServiceInfos()) {
             for (OperationInfo opInfo : si.getInterface().getOperations()) {
@@ -414,7 +416,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                     }
                 }
                 if (opInfo.hasFaults()) {
-                    //check to make sure the faults are elements
+                    // check to make sure the faults are elements
                     for (FaultInfo fault : opInfo.getFaults()) {
                         MessagePartInfo mpi = fault.getMessagePart(0);
                         assert mpi != null;
@@ -487,13 +489,14 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
             intf.removeOperation(op);
         }
 
-        //Some of the operations may have switched from unwrapped to wrapped.  Update the bindings.
+        // Some of the operations may have switched from unwrapped to wrapped.
+        // Update the bindings.
         for (ServiceInfo service : getService().getServiceInfos()) {
             for (BindingInfo bi : service.getBindings()) {
                 List<BindingOperationInfo> biremoves = new ArrayList<BindingOperationInfo>();
                 for (BindingOperationInfo binfo : bi.getOperations()) {
                     if (removes.contains(binfo.getOperationInfo())) {
-                        biremoves.add(binfo); 
+                        biremoves.add(binfo);
                     } else {
                         binfo.updateUnwrappedOperation();
                     }
@@ -590,9 +593,9 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     protected void initializeWrappedSchema(ServiceInfo serviceInfo) {
         for (OperationInfo op : serviceInfo.getInterface().getOperations()) {
             if (op.getUnwrappedOperation() != null) {
-                if (op.hasInput()) { 
+                if (op.hasInput()) {
                     if (op.getInput().getMessageParts().get(0).getTypeClass() == null) {
-                    
+
                         QName wrapperBeanName = op.getInput().getMessageParts().get(0).getElementQName();
                         XmlSchemaElement e = null;
                         for (SchemaInfo s : serviceInfo.getSchemas()) {
@@ -603,8 +606,8 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                             }
                         }
                         if (e == null) {
-                            createWrappedSchema(serviceInfo, op.getInput(),
-                                                op.getUnwrappedOperation().getInput(), wrapperBeanName);
+                            createWrappedSchema(serviceInfo, op.getInput(), op.getUnwrappedOperation()
+                                .getInput(), wrapperBeanName);
                         }
                     }
 
@@ -618,11 +621,10 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                         }
                     }
 
-
                 }
                 if (op.hasOutput()) {
                     if (op.getOutput().getMessageParts().get(0).getTypeClass() == null) {
-                    
+
                         QName wrapperBeanName = op.getOutput().getMessageParts().get(0).getElementQName();
                         XmlSchemaElement e = null;
                         for (SchemaInfo s : serviceInfo.getSchemas()) {
@@ -659,8 +661,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                 return;
             }
         }
-        SchemaInfo si = getOrCreateSchema(serviceInfo, 
-                                          mpi.getElementQName().getNamespaceURI(),
+        SchemaInfo si = getOrCreateSchema(serviceInfo, mpi.getElementQName().getNamespaceURI(),
                                           getQualifyWrapperSchema());
         XmlSchema schema = si.getSchema();
 
@@ -669,7 +670,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         if (!isExistSchemaElement(schema, mpi.getElementQName())) {
             SchemaCollection.addGlobalElementToSchema(schema, el);
         }
-        
+
         el.setNillable(true);
 
         XmlSchemaType tp = (XmlSchemaType)mpi.getXmlSchema();
@@ -680,39 +681,41 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     public boolean getAnonymousWrapperTypes() {
         return anonymousWrappers;
     }
+
     public boolean isAnonymousWrapperTypes() {
         return anonymousWrappers;
     }
+
     public void setAnonymousWrapperTypes(boolean b) {
         anonymousWrappers = b;
     }
-    
+
     public boolean getQualifyWrapperSchema() {
         return qualifiedSchemas;
     }
+
     public boolean isQualifyWrapperSchema() {
         return qualifiedSchemas;
     }
+
     public void setQualifyWrapperSchema(boolean b) {
         qualifiedSchemas = b;
     }
-    
+
     protected void createWrappedSchema(ServiceInfo serviceInfo, AbstractMessageContainer wrappedMessage,
                                        AbstractMessageContainer unwrappedMessage, QName wrapperBeanName) {
-        SchemaInfo schemaInfo = getOrCreateSchema(serviceInfo,
-                                                  wrapperBeanName.getNamespaceURI(),
+        SchemaInfo schemaInfo = getOrCreateSchema(serviceInfo, wrapperBeanName.getNamespaceURI(),
                                                   getQualifyWrapperSchema());
 
-        createWrappedMessageSchema(serviceInfo, wrappedMessage, unwrappedMessage,
-                                   schemaInfo.getSchema(), wrapperBeanName);
+        createWrappedMessageSchema(serviceInfo, wrappedMessage, unwrappedMessage, schemaInfo.getSchema(),
+                                   wrapperBeanName);
     }
 
-    protected void createBareMessage(ServiceInfo serviceInfo,
-                                     OperationInfo opInfo, boolean isOut) {
+    protected void createBareMessage(ServiceInfo serviceInfo, OperationInfo opInfo, boolean isOut) {
 
         SchemaInfo schemaInfo = null;
         XmlSchema schema = null;
-        MessageInfo message = isOut ?  opInfo.getOutput() : opInfo.getInput();
+        MessageInfo message = isOut ? opInfo.getOutput() : opInfo.getInput();
 
         if (message.getMessageParts().size() == 0) {
             return;
@@ -766,11 +769,11 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
             XmlSchemaElement el = new XmlSchemaElement();
             XmlSchemaTools.setElementQName(el, qname);
             el.setNillable(true);
-            
+
             if (!isExistSchemaElement(schema, qname)) {
                 SchemaCollection.addGlobalElementToSchema(schema, el);
             } else {
-                el = getExistingSchemaElement(schema, qname);    
+                el = getExistingSchemaElement(schema, qname);
             }
 
             if (mpi.isElement()) {
@@ -803,15 +806,15 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     }
 
     private void addImport(XmlSchema schema, String ns) {
-        if (!ns.equals(schema.getTargetNamespace()) 
-            && !ns.equals(WSDLConstants.NS_SCHEMA_XSD)
+        if (!ns.equals(schema.getTargetNamespace()) && !ns.equals(WSDLConstants.NS_SCHEMA_XSD)
             && !isExistImport(schema, ns)) {
-            
+
             XmlSchemaImport is = new XmlSchemaImport();
             is.setNamespace(ns);
             schema.getItems().add(is);
         }
     }
+
     private boolean isExistImport(XmlSchema schema, String ns) {
         boolean isExist = false;
 
@@ -841,17 +844,15 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         }
         return null;
     }
+
     private boolean isExistSchemaElement(XmlSchema schema, QName qn) {
         return getExistingSchemaElement(schema, qn) != null;
     }
 
-
-    private void createWrappedMessageSchema(ServiceInfo serviceInfo, 
-                                            AbstractMessageContainer wrappedMessage,
-                                            AbstractMessageContainer unwrappedMessage,
-                                            XmlSchema schema,
+    private void createWrappedMessageSchema(ServiceInfo serviceInfo, AbstractMessageContainer wrappedMessage,
+                                            AbstractMessageContainer unwrappedMessage, XmlSchema schema,
                                             QName wrapperName) {
-        
+
         XmlSchemaElement el = new XmlSchemaElement();
         XmlSchemaTools.setElementQName(el, wrapperName);
         SchemaCollection.addGlobalElementToSchema(schema, el);
@@ -859,7 +860,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         wrappedMessage.getMessageParts().get(0).setXmlSchema(el);
 
         XmlSchemaComplexType ct = new XmlSchemaComplexType(schema);
-        
+
         if (!isAnonymousWrapperTypes()) {
             ct.setName(wrapperName.getLocalPart());
             el.setSchemaTypeName(wrapperName);
@@ -883,9 +884,9 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                     el.setSchemaTypeName(mpi.getTypeQName());
                     addImport(schema, mpi.getTypeQName().getNamespaceURI());
                 }
-                
+
                 el.setSchemaType((XmlSchemaType)mpi.getXmlSchema());
-                
+
                 if (schema.getElementFormDefault().getValue().equals(XmlSchemaForm.UNQUALIFIED)) {
                     mpi.setConcreteName(new QName(null, mpi.getName().getLocalPart()));
                 } else {
@@ -900,36 +901,33 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                     mpi.setElementQName(el.getQName());
                     mpi.setConcreteName(concreteName);
                 }
-                
-                addMimeType(el, getMethodParameterAnnotations(mpi));               
+
+                addMimeType(el, getMethodParameterAnnotations(mpi));
                 Annotation[] methodAnnotations = getMethodAnnotations(mpi);
                 if (methodAnnotations != null) {
                     addMimeType(el, methodAnnotations);
-                }                
-                                
+                }
+
                 if (mpi.getTypeClass() != null && mpi.getTypeClass().isArray()
                     && !Byte.TYPE.equals(mpi.getTypeClass().getComponentType())) {
-                    if (jaxbAnnoMap.containsKey(XmlList.class)) {
-                        setSimpleTypeList(schema, el, mpi);                         
-                    } else {
-                        String min = (String)mpi.getProperty("minOccurs");
-                        String max = (String)mpi.getProperty("maxOccurs");
-                        min = min == null ? "0" : min;
-                        max = max == null ? "unbounded" : max;
-                        el.setMinOccurs(Long.parseLong(min));
-                        el.setMaxOccurs("unbounded".equals(max) ? Long.MAX_VALUE : Long.parseLong(max));
-                        Boolean b = (Boolean)mpi.getProperty("nillable");
-                        if (b != null && b.booleanValue()) {
-                            el.setNillable(b.booleanValue());
-                        }
+
+                    String min = (String)mpi.getProperty("minOccurs");
+                    String max = (String)mpi.getProperty("maxOccurs");
+                    min = min == null ? "0" : min;
+                    max = max == null ? "unbounded" : max;
+                    el.setMinOccurs(Long.parseLong(min));
+                    el.setMaxOccurs("unbounded".equals(max) ? Long.MAX_VALUE : Long.parseLong(max));
+                    Boolean b = (Boolean)mpi.getProperty("nillable");
+                    if (b != null && b.booleanValue()) {
+                        el.setNillable(b.booleanValue());
                     }
+
                 } else if (Collection.class.isAssignableFrom(mpi.getTypeClass())
                            && mpi.getTypeClass().isInterface()) {
                     Type type = (Type)mpi.getProperty(GENERIC_TYPE);
-                    
+
                     if (!(type instanceof java.lang.reflect.ParameterizedType)
-                        && el.getSchemaTypeName() == null
-                        && el.getSchemaType() == null) {
+                        && el.getSchemaTypeName() == null && el.getSchemaType() == null) {
                         el.setMinOccurs(0);
                         el.setMaxOccurs(Long.MAX_VALUE);
                         el.setSchemaTypeName(Constants.XSD_ANYTYPE);
@@ -938,12 +936,6 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                     el.setMaxOccurs(1);
                     if (mpi.getTypeClass() != null && !mpi.getTypeClass().isPrimitive()) {
                         el.setMinOccurs(0);
-                    }
-                    if (jaxbAnnoMap.containsKey(XmlAttachmentRef.class) 
-                        && mpi.getTypeClass() != null 
-                        && mpi.getTypeClass().isAssignableFrom(DataHandler.class)) {
-                        setSwaRefType(schema, el);
-
                     }
                 }
                 seq.getItems().add(el);
@@ -954,8 +946,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
 
                 XmlSchemaTools.setElementQName(el, qn);
 
-                SchemaInfo headerSchemaInfo = getOrCreateSchema(serviceInfo, 
-                                                                qn.getNamespaceURI(),
+                SchemaInfo headerSchemaInfo = getOrCreateSchema(serviceInfo, qn.getNamespaceURI(),
                                                                 getQualifyWrapperSchema());
                 if (!isExistSchemaElement(headerSchemaInfo.getSchema(), qn)) {
                     headerSchemaInfo.getSchema().getItems().add(el);
@@ -964,7 +955,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         }
 
     }
-    
+
     private Annotation[] getMethodParameterAnnotations(final MessagePartInfo mpi) {
         Annotation[][] paramAnno = (Annotation[][])mpi.getProperty(METHOD_PARAM_ANNOTATIONS);
         int index = mpi.getIndex();
@@ -973,11 +964,11 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         }
         return null;
     }
-    
+
     private Annotation[] getMethodAnnotations(final MessagePartInfo mpi) {
-        return (Annotation[])mpi.getProperty(METHOD_ANNOTATIONS);        
-    }    
-    
+        return (Annotation[])mpi.getProperty(METHOD_ANNOTATIONS);
+    }
+
     private void addMimeType(final XmlSchemaElement element, final Annotation[] annotations) {
         if (annotations != null) {
             for (Annotation annotation : annotations) {
@@ -993,7 +984,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     private Map<Class, Boolean> getJaxbAnnoMap(MessagePartInfo mpi) {
         Map<Class, Boolean> map = new ConcurrentHashMap<Class, Boolean>();
         Annotation[] anns = getMethodParameterAnnotations(mpi);
-        if (anns != null) {           
+        if (anns != null) {
             for (Annotation anno : anns) {
                 if (anno instanceof XmlList) {
                     map.put(XmlList.class, true);
@@ -1008,33 +999,8 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         }
         return map;
     }
-    
-    private void setSimpleTypeList(XmlSchema schema, XmlSchemaElement el, MessagePartInfo mpi) {
-        XmlSchemaSimpleType simpleType = new XmlSchemaSimpleType(schema);
-        XmlSchemaSimpleTypeList simpleList = new XmlSchemaSimpleTypeList();
-        if (mpi.getXmlSchema() instanceof XmlSchemaType) {
-            XmlSchemaType type = (XmlSchemaType)mpi.getXmlSchema();
-            simpleList.setItemTypeName(type.getQName());
-        } else {
-            simpleList.setItemTypeName(mpi.getTypeQName());
-        }
-        simpleType.setContent(simpleList);
-        el.setSchemaType(simpleType); 
-    }
-    
-    
-    private void setSwaRefType(XmlSchema schema, XmlSchemaElement  el) {
-        el.setSchemaType(null);
-        el.setSchemaTypeName(SWA_REF);
-        XmlSchemaImport swaImport = new XmlSchemaImport();
-        swaImport.setNamespace(SWA_REF.getNamespaceURI());
-        swaImport.setSchemaLocation(SWA_REF_LOCATION);
-        schema.getItems().add(swaImport);
-    }
-    
-    private SchemaInfo getOrCreateSchema(ServiceInfo serviceInfo,
-                                         String namespaceURI, 
-                                         boolean qualified) {
+
+    private SchemaInfo getOrCreateSchema(ServiceInfo serviceInfo, String namespaceURI, boolean qualified) {
         for (SchemaInfo s : serviceInfo.getSchemas()) {
             if (s.getNamespaceURI().equals(namespaceURI)) {
                 return s;
@@ -1058,7 +1024,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         for (Map.Entry<String, String> mapping : explicitNamespaceMappings.entrySet()) {
             nsMap.add(mapping.getValue(), mapping.getKey());
         }
-        
+
         if (!explicitNamespaceMappings.containsKey(WSDLConstants.NS_SCHEMA_XSD)) {
             nsMap.add(WSDLConstants.NP_SCHEMA_XSD, WSDLConstants.NS_SCHEMA_XSD);
         }
@@ -1085,7 +1051,10 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                 final QName q2 = getInPartName(op, method, j);
                 MessagePartInfo part = inMsg.addMessagePart(q2);
                 initializeParameter(part, paramClasses[j], method.getGenericParameterTypes()[j]);
-                part.setProperty(METHOD_PARAM_ANNOTATIONS, method.getParameterAnnotations());                
+                part.setProperty(METHOD_PARAM_ANNOTATIONS, method.getParameterAnnotations());
+                if (getJaxbAnnoMap(part).size() > 0) {
+                    op.setProperty(WRAPPERGEN_NEEDED, true);
+                }
                 if (!isWrapped(method) && !isRPC(method)) {
                     part.setProperty(ELEMENT_NAME, q);
                 }
@@ -1104,7 +1073,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
 
         if (hasOutMessage(method)) {
             // Setup the output message
-            MessageInfo outMsg = op.createMessage(createOutputMessageName(op, method), 
+            MessageInfo outMsg = op.createMessage(createOutputMessageName(op, method),
                                                   MessageInfo.Type.OUTPUT);
             op.setOutput(outMsg.getName().getLocalPart(), outMsg);
             final Class<?> returnType = method.getReturnType();
@@ -1175,7 +1144,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
 
         initializeFaults(intf, op, method);
     }
-    
+
     protected void createInputWrappedMessageParts(OperationInfo op, Method method, MessageInfo inMsg) {
         MessagePartInfo part = inMsg.addMessagePart("parameters");
         part.setIndex(0);
@@ -1219,7 +1188,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         if (partName == null) {
             partName = "parameters";
         }
-        
+
         MessagePartInfo part = outMsg.addMessagePart(partName);
         part.setElement(true);
         part.setIndex(0);
@@ -1265,8 +1234,8 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
             rawClass = getHolderClass(paramType);
         }
         part.setProperty(GENERIC_TYPE, type);
-        //if rawClass is List<String>, it will be converted to array 
-        //and set it to type class
+        // if rawClass is List<String>, it will be converted to array
+        // and set it to type class
         if (Collection.class.isAssignableFrom(rawClass)) {
             part.setProperty(RAW_CLASS, rawClass);
         }
@@ -1442,7 +1411,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         return true;
     }
 
-    protected void initializeFaults(final InterfaceInfo service,
+    protected void initializeFaults(final InterfaceInfo service, 
                                     final OperationInfo op, final Method method) {
         // Set up the fault messages
         final Class[] exceptionClasses = method.getExceptionTypes();
@@ -1461,10 +1430,10 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
 
     protected void initializeDefaultInterceptors() {
         super.initializeDefaultInterceptors();
-        
+
         initializeFaultInterceptors();
     }
-    
+
     protected void initializeFaultInterceptors() {
         getService().getOutFaultInterceptors().add(new FaultOutInterceptor());
     }
@@ -1480,8 +1449,8 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                                    new QName(op.getName().getNamespaceURI(), exClass.getSimpleName()));
         fi.setProperty(Class.class.getName(), exClass);
         fi.setProperty("elementName", faultName);
-        MessagePartInfo mpi = fi.addMessagePart(new QName(faultName.getNamespaceURI(),
-                                                          exClass.getSimpleName()));
+        MessagePartInfo mpi = fi.addMessagePart(new QName(faultName.getNamespaceURI(), exClass
+            .getSimpleName()));
         mpi.setElementQName(faultName);
         mpi.setTypeClass(beanClass);
         return fi;
@@ -1503,7 +1472,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         if (java.rmi.RemoteException.class.isAssignableFrom(exClass)) {
             return null;
         }
-        
+
         if (FaultInfoException.class.isAssignableFrom(exClass)) {
             try {
                 Method m = exClass.getMethod("getFaultInfo");
@@ -1514,8 +1483,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                 throw new ServiceConstructionException(e);
             }
         }
-        
-        
+
         return exClass;
     }
 
@@ -1558,7 +1526,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
      * to the end. I.e. if there is already two methods named
      * <code>doSomething</code>, the first one will have an operation name of
      * "doSomething" and the second "doSomething1".
-     *
+     * 
      * @param service
      * @param method
      */
@@ -1653,7 +1621,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         }
         return null;
     }
-    
+
     protected String getResponseWrapperClassName(Method selected) {
         for (AbstractServiceConfiguration c : serviceConfigurations) {
             String cls = c.getResponseWrapperClassName(selected);
@@ -1673,6 +1641,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         }
         return null;
     }
+
     protected String getRequestWrapperClassName(Method selected) {
         for (AbstractServiceConfiguration c : serviceConfigurations) {
             String cls = c.getRequestWrapperClassName(selected);
@@ -1712,8 +1681,8 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                 }
             }
             if (null == wsdlURL && getBus() != null) {
-                ServiceContractResolverRegistry registry = 
-                    getBus().getExtension(ServiceContractResolverRegistry.class);
+                ServiceContractResolverRegistry registry = getBus()
+                    .getExtension(ServiceContractResolverRegistry.class);
                 if (null != registry) {
                     URI uri = registry.getContractLocation(this.getServiceQName());
                     if (null != uri) {
@@ -1726,18 +1695,18 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                 }
             }
             if (wsdlURL != null) {
-                //create a unique string so if its an interned string (like
-                //from an annotation), caches will clear
+                // create a unique string so if its an interned string (like
+                // from an annotation), caches will clear
                 wsdlURL = new String(wsdlURL);
             }
         }
-        
+
         return wsdlURL;
     }
 
     public void setWsdlURL(String wsdlURL) {
-        //create a unique string so if its an interned string (like
-        //from an annotation), caches will clear
+        // create a unique string so if its an interned string (like
+        // from an annotation), caches will clear
         this.wsdlURL = new String(wsdlURL);
     }
 
@@ -1781,6 +1750,10 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         this.ignoredClasses = ignoredClasses;
     }
 
+    protected Set<Class<?>> getExtraClass() {
+        return null;
+    }
+
     public boolean isWrapped() {
         if (this.wrappedStyle != null) {
             return this.wrappedStyle;
@@ -1819,7 +1792,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     }
 
     /**
-     *  Returns non-null if wrapped mode was explicitely disabled or enabled.
+     * Returns non-null if wrapped mode was explicitely disabled or enabled.
      */
     public Boolean getWrapped() {
         return this.wrappedStyle;

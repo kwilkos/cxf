@@ -23,7 +23,9 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.xml.bind.annotation.XmlAttachmentRef;
 import javax.xml.bind.annotation.XmlList;
@@ -48,7 +50,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
 public final class WrapperClassGenerator extends ASMHelper {
-    private List<Class> wrapperBeanList = new java.util.concurrent.CopyOnWriteArrayList<Class>();
+    private Set<Class<?>> wrapperBeans = new HashSet<Class<?>>();
     private InterfaceInfo interfaceInfo;
 
     public WrapperClassGenerator(InterfaceInfo inf) {
@@ -89,9 +91,11 @@ public final class WrapperClassGenerator extends ASMHelper {
         return list;
     }
 
-    public List<Class> genearte() {
+    public Set<Class<?>> genearte() {
         for (OperationInfo opInfo : interfaceInfo.getOperations()) {
-            if (opInfo.isUnwrappedCapable()) {
+            if (opInfo.isUnwrappedCapable()
+                && opInfo.getUnwrappedOperation().getProperty(ReflectionServiceFactoryBean.WRAPPERGEN_NEEDED) 
+                != null) {
                 Method method = (Method)opInfo.getProperty(ReflectionServiceFactoryBean.METHOD);
                 MessageInfo messageInfo = opInfo.getUnwrappedOperation().getInput();
                 createWrapperClass(messageInfo, method, true);
@@ -104,7 +108,7 @@ public final class WrapperClassGenerator extends ASMHelper {
 
             }
         }
-        return wrapperBeanList;
+        return wrapperBeans;
     }
 
     private void createWrapperClass(MessageInfo messageInfo, Method method, boolean isRequest) {
@@ -156,7 +160,7 @@ public final class WrapperClassGenerator extends ASMHelper {
 
         Class<?> clz = loadClass(className, method.getDeclaringClass(), cw.toByteArray());
         messageInfo.getMessagePart(0).setTypeClass(clz);
-        wrapperBeanList.add(clz);
+        wrapperBeans.add(clz);
 
     }
 

@@ -25,6 +25,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Logger;
 import javax.wsdl.Operation;
 import javax.xml.namespace.QName;
@@ -47,6 +48,7 @@ import org.apache.cxf.endpoint.EndpointException;
 import org.apache.cxf.frontend.SimpleMethodDispatcher;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.jaxws.JAXWSMethodDispatcher;
+import org.apache.cxf.jaxws.WrapperClassGenerator;
 import org.apache.cxf.jaxws.interceptors.DispatchInDatabindingInterceptor;
 import org.apache.cxf.jaxws.interceptors.DispatchOutDatabindingInterceptor;
 import org.apache.cxf.jaxws.interceptors.WebFaultOutInterceptor;
@@ -518,4 +520,13 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
         buildWSAActions(op, m);
         return op;
     }
+    
+    @Override
+    protected Set<Class<?>> getExtraClass() {
+        ServiceInfo serviceInfo = getService().getServiceInfos().get(0);
+        WrapperClassGenerator wrapperGen = new WrapperClassGenerator(serviceInfo.getInterface());
+        return wrapperGen.genearte();
+    }
+    
+    
 }

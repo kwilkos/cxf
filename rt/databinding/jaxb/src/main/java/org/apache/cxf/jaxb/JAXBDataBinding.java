@@ -192,6 +192,7 @@ public final class JAXBDataBinding extends AbstractDataBinding implements DataBi
         return SUPPORTED_READER_FORMATS;
     }
     
+    @SuppressWarnings("unchecked")
     public void initialize(Service service) {
         //context is already set, don't redo it
         if (context != null) {
@@ -203,6 +204,10 @@ public final class JAXBDataBinding extends AbstractDataBinding implements DataBi
             JAXBContextInitializer initializer = 
                 new JAXBContextInitializer(serviceInfo, contextClasses);
             initializer.walk();
+            if (serviceInfo.getProperty("extra.class") != null) {
+                Set<Class<?>> exClasses = serviceInfo.getProperty("extra.class", Set.class);
+                contextClasses.addAll(exClasses);
+            }
     
         }
                 
