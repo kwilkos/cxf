@@ -280,6 +280,16 @@ public class SchemaJavascriptBuilder {
             
             // assume that no lunatic has created multiple elements that differ only by namespace.
             // or, perhaps, detect that when generating the parser?
+            if (elChild.getRefName() != null) {
+                XmlSchemaElement refElement = xmlSchemaCollection.getElementByQName(elChild.getRefName());
+                if (refElement == null) {
+                    Message message = new Message("ELEMENT_DANGLING_REFERENCE", LOG,
+                                                  elChild.getQName(),
+                                                  elChild.getRefName());
+                    throw new UnsupportedConstruct(message.toString());
+                }
+                elChild = refElement;
+            }
             String elementName = elementPrefix + elChild.getName();
             String elementXmlRef = prefixAccumulator.xmlElementString(schemaInfo, elChild);
             
@@ -291,6 +301,7 @@ public class SchemaJavascriptBuilder {
             elementInfo.setReferencingURI(null);
             elementInfo.setUtilsVarName("cxfjsutils");
             elementInfo.setXmlSchemaCollection(xmlSchemaCollection);
+            elementInfo.setType(elChild.getSchemaType());
             utils.generateCodeToSerializeElement(elementInfo);
         }
     }

@@ -34,7 +34,22 @@ public class ElementInfo {
     private SchemaCollection xmlSchemaCollection;
     private String referencingURI;
     private XmlSchemaType containingType;
+    // in the RPC case, we can have a type and no element.
+    private XmlSchemaType type;
+    private boolean empty;
     
+    public ElementInfo(XmlSchemaElement element, XmlSchemaType type, String partJavascriptVar,
+                       String elementXmlRef, boolean empty) {
+        this.element = element;
+        this.type = type;
+        this.elementJavascriptName = partJavascriptVar;
+        this.elementXmlName = elementXmlRef;
+        this.empty = empty;
+    }
+    
+    public ElementInfo() {
+    }
+
     public String getUtilsVarName() {
         return utilsVarName;
     }
@@ -76,5 +91,17 @@ public class ElementInfo {
     }
     public void setContainingType(XmlSchemaType containingType) {
         this.containingType = containingType;
+    }
+    public XmlSchemaType getType() {
+        return type;
+    }
+    public void setType(XmlSchemaType type) {
+        this.type = type;
+    }
+    public boolean isEmpty() {
+        return empty;
+    }
+    public void setEmpty(boolean empty) {
+        this.empty = empty;
     }
 }

@@ -46,7 +46,7 @@ public class NamespacePrefixAccumulator {
     }
     
     public void collect(String prefix, String uri) {
-        if (!prefixes.contains(prefix)) {
+        if (!("".equals(uri)) && !prefixes.contains(prefix)) {
             attributes.append("xmlns:" + prefix + "='" + uri + "' ");
             prefixes.add(prefix);
         }
@@ -57,6 +57,9 @@ public class NamespacePrefixAccumulator {
     }
     
     private String getPrefix(String namespaceURI) {
+        if ("".equals(namespaceURI)) {
+            throw new RuntimeException("Prefix requested for default namespace.");
+        }
         String schemaPrefix = schemaCollection.getNamespaceContext().getPrefix(namespaceURI);
         // there could also be a namespace context on an individual schema info.
         // perhaps SchemaCollection should be enforcing some discipline there.
@@ -94,6 +97,10 @@ public class NamespacePrefixAccumulator {
     }
     
     public String xmlElementString(QName name) { // used with part concrete names
+        if ("".equals(name.getNamespaceURI())) {
+            return name.getLocalPart();
+        }
+
         String prefix = getPrefix(name.getNamespaceURI());
         collect(prefix, name.getNamespaceURI());
         return prefix + ":" + name.getLocalPart();

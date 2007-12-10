@@ -64,7 +64,6 @@ import org.apache.ws.commons.schema.XmlSchemaType;
 public class ServiceJavascriptBuilder extends ServiceModelVisitor {
     private static final Logger LOG = LogUtils.getL7dLogger(ServiceJavascriptBuilder.class);
 
-    private boolean isRPC;
     private SoapBindingInfo soapBindingInfo;
     private JavascriptUtils utils;
     private NameManager nameManager;
@@ -92,7 +91,7 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
     // derived from the parts.
     private List<String> inputParameterNames = new ArrayList<String>();
     // when not wrapped, we use this to keep track of the bits.
-    private List<ElementAndNames> unwrappedElementsAndNames;
+    private List<ElementInfo> unwrappedElementsAndNames;
     
     private NamespacePrefixAccumulator prefixAccumulator;
     private BindingInfo xmlBindingInfo;
@@ -106,6 +105,8 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
     private boolean isInUnwrappedOperation;
 
     private boolean nonVoidOutput;
+
+    private boolean isRPC;
 
     public ServiceJavascriptBuilder(ServiceInfo serviceInfo, NamespacePrefixAccumulator prefixAccumulator,
                                     NameManager nameManager) {
@@ -152,39 +153,6 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
         serviceTargetNamespace = serviceInfo.getTargetNamespace();
     }
 
-    private static class ElementAndNames {
-        private XmlSchemaElement element;
-        private String javascriptName;
-        private String xmlName;
-        private boolean empty;
-
-        public ElementAndNames(XmlSchemaElement element, 
-                               String javascriptName, 
-                               String xmlName, 
-                               boolean empty) {
-            this.element = element;
-            this.javascriptName = javascriptName;
-            this.xmlName = xmlName;
-            this.empty = empty;
-        }
-
-        public XmlSchemaElement getElement() {
-            return element;
-        }
-
-        public String getXmlName() {
-            return xmlName;
-        }
-
-        public String getJavascriptName() {
-            return javascriptName;
-        }
-        
-        public boolean isEmpty() {
-            return empty;
-        }
-    }
-    
     private String getFunctionGlobalName(QName itemName, String itemType) {
         return nameManager.getJavascriptName(itemName) + "_" + itemType; 
     }
@@ -211,10 +179,6 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
             return;
         }
 
-        if (isRPC) {
-            unsupportedConstruct("RPC", op.getInterface().getName().toString());
-        }
-        
         isWrapped = op.isUnwrappedCapable();
         
         StringBuilder parameterList = new StringBuilder();
@@ -250,13 +214,13 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
      * visit the input message parts and collect relevant data.
      */
     private void collectUnwrappedInputInfo() {
-        unwrappedElementsAndNames = new ArrayList<ElementAndNames>();
+        unwrappedElementsAndNames = new ArrayList<ElementInfo>();
         if (currentOperation.getInput() != null) {
             getElementsForParts(currentOperation.getInput(), unwrappedElementsAndNames);
         }
         
-        for (ElementAndNames ean : unwrappedElementsAndNames) {
-            inputParameterNames.add(ean.getJavascriptName());
+        for (ElementInfo ean : unwrappedElementsAndNames) {
+            inputParameterNames.add(ean.getElementJavascriptName());
         }
     }
 
@@ -417,12 +381,26 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
         if (parts.size() != 1) {
             unsupportedConstruct("MULTIPLE_OUTPUTS", outputMessage.getName().toString());
         }
-        List<ElementAndNames> elements = new ArrayList<ElementAndNames>();
+        List<ElementInfo> elements = new ArrayList<ElementInfo>();
         String functionName = outputDeserializerFunctionName(outputMessage);
         code.append("function " + functionName + "(cxfjsutils, partElement) {\n");
         getElementsForParts(outputMessage, elements);
-        ElementAndNames element = elements.get(0);
-        XmlSchemaType type = element.getElement().getSchemaType();
+        ElementInfo element = elements.get(0);
+        XmlSchemaType type;
+        
+        if (isRPC) {
+            // in the RPC case, there is an extra level of element for the output message.
+            utils.appendLine("cxfjsutils.trace('rpc element: ' + cxfjsutils.traceElementName(partElement));");
+            utils.appendLine("partElement = cxfjsutils.getFirstElementChild(partElement);");
+            utils.appendLine("cxfjsutils.trace('rpc element: ' + cxfjsutils.traceElementName(partElement));");
+        }
+        
+        if (element.getType() != null) {
+            type = element.getType();
+        } else {
+            type = element.getElement().getSchemaType();
+        }
+        
         if (!element.isEmpty()) {
             if (type instanceof XmlSchemaComplexType) {
                 // if there are no response items, the type is likely to have no name and no particle.
@@ -490,6 +468,7 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
             ElementInfo elementInfo = new ElementInfo();
             elementInfo.setContainingType(null);
             elementInfo.setElement(inputWrapperElement);
+            elementInfo.setType(inputWrapperElement.getSchemaType());
             elementInfo.setElementJavascriptName("wrapperObj");
             elementInfo.setElementXmlName(wrapperXmlElementName);
             elementInfo.setReferencingURI(serviceTargetNamespace);
@@ -498,25 +477,40 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
 
             utils.generateCodeToSerializeElement(elementInfo);
         } else {
+            String operationXmlElement = null;
+            if (isRPC) {
+                operationXmlElement = 
+                    prefixAccumulator.xmlElementString(currentOperation.getName());
+
+                // RPC has a level of element for the entire operation.
+                // we might have some schema to model this, but the following seems
+                // sufficient.
+                utils.appendString("<" + operationXmlElement + ">");                
+            }
             int px = 0;
-            // Multiple parts violates WS-I, but we can still do them.
+            // Multiple parts for doc/lit violates WS-I, but we can still do them.
+            // They are normal for RPC.
             // Parts are top-level elements. As such, they cannot, directly, be arrays.
             // If a part is declared as an array type, the schema has a non-array element
             // with a complex type consisting of an element with array bounds. We don't 
             // want the JavasSript programmer to have to concoct an extra level of object
             // (though if the same sort of thing happens elsewhere due to an XmlRootElement,
             // the JavaScript programmer is stuck with the situation). 
-            for (ElementAndNames ean : unwrappedElementsAndNames) {
+            for (ElementInfo ean : unwrappedElementsAndNames) {
                 ElementInfo elementInfo = new ElementInfo();
                 elementInfo.setContainingType(null);
                 elementInfo.setElement(ean.getElement());
+                elementInfo.setType(ean.getType());
                 elementInfo.setElementJavascriptName("args[" + px + "]");
-                elementInfo.setElementXmlName(ean.getXmlName());
+                elementInfo.setElementXmlName(ean.getElementXmlName());
                 elementInfo.setReferencingURI(serviceTargetNamespace);
                 elementInfo.setUtilsVarName("cxfutils");
                 elementInfo.setXmlSchemaCollection(xmlSchemaCollection);
                 utils.generateCodeToSerializeElement(elementInfo);
                 px++;
+            }
+            if (isRPC) {
+                utils.appendString("</" + operationXmlElement + ">");                
             }
         }
 
@@ -530,23 +524,23 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
     }
     
     private XmlSchemaSequence getTypeSequence(XmlSchemaComplexType type, 
-                                              XmlSchemaElement parentElement) {
+                                              QName parentName) {
         if (!(type.getParticle() instanceof XmlSchemaSequence)) {
             unsupportedConstruct("NON_SEQUENCE_PARTICLE", 
                                  type.getQName() != null ? type.getQName() 
                                      :
-                                     parentElement.getQName());
+                                     parentName);
         }
         return (XmlSchemaSequence)type.getParticle();
     }
     
-    private boolean isEmptyType(XmlSchemaType type, XmlSchemaElement parentElement) {
+    private boolean isEmptyType(XmlSchemaType type, QName parentName) {
         if (type instanceof XmlSchemaComplexType) {
             XmlSchemaComplexType complexType = (XmlSchemaComplexType)type;
             if (complexType.getParticle() == null) {
                 return true;
             } 
-            XmlSchemaSequence sequence = getTypeSequence(complexType, parentElement);
+            XmlSchemaSequence sequence = getTypeSequence(complexType, parentName);
             if (sequence.getItems().getCount() == 0) {
                 return true;
             }
@@ -555,8 +549,8 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
     }
     
     private XmlSchemaElement getBuriedElement(XmlSchemaComplexType type, 
-                                              XmlSchemaElement parentElement) {
-        XmlSchemaSequence sequence = getTypeSequence(type, parentElement);
+                                              QName parentName) {
+        XmlSchemaSequence sequence = getTypeSequence(type, parentName);
         XmlSchemaObjectCollection insides = sequence.getItems();
         if (insides.getCount() == 1) {
             XmlSchemaObject item = insides.getItem(0);
@@ -572,39 +566,39 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
      * @param parts 
      * @param elements
      */
-    private void getElementsForParts(MessageInfo message, List<ElementAndNames> elements) {
+    private void getElementsForParts(MessageInfo message, List<ElementInfo> elements) {
         for (MessagePartInfo mpi : message.getMessageParts()) {
             XmlSchemaElement element = null;
+            XmlSchemaType type = null; 
+            QName diagnosticName = mpi.getName();
             if (mpi.isElement()) {
                 element = (XmlSchemaElement)mpi.getXmlSchema();
                 if (element == null) {
                     element = XmlSchemaUtils.findElementByRefName(xmlSchemaCollection, mpi.getElementQName(),
                                                                   serviceInfo.getTargetNamespace());
                 }
+                diagnosticName = element.getQName();
+                type = element.getSchemaType();
+                if (type == null) {
+                    type = XmlSchemaUtils.getElementType(xmlSchemaCollection, 
+                                                         null, 
+                                                         element, 
+                                                         null);
+                }
             } else {
-                // dkulp may have fixed the problem that caused me to write this
-                // code.
-                // aside from the fact that in the !isElement case (rpc) we have
-                // other work to do.
-                LOG.severe("Missing element " + mpi.getElementQName().toString() + " in "
-                           + mpi.getName().toString());
-                unsupportedConstruct("MISSING_PART_ELEMENT", mpi.getName().toString());
+                // RPC (!isElement)
+                type = (XmlSchemaType)mpi.getXmlSchema();
+                if (type == null) {
+                    type = xmlSchemaCollection.getTypeByQName(mpi.getTypeQName());
+                    diagnosticName = type.getQName();
+                }
                
             }
-            assert element != null;
-            assert element.getQName() != null;
-            XmlSchemaType type = element.getSchemaType();
-            if (type == null) {
-                type = XmlSchemaUtils.getElementType(xmlSchemaCollection, 
-                                                     null, 
-                                                     element, 
-                                                     null);
-            }
             
-            boolean empty = isEmptyType(type, element);
+            boolean empty = isEmptyType(type, diagnosticName);
             if (!empty && type instanceof XmlSchemaComplexType && type.getName() == null) {
                 XmlSchemaElement betterElement = getBuriedElement((XmlSchemaComplexType) type,
-                                                                  element);
+                                                                  diagnosticName);
                 if (betterElement != null) {
                     element = betterElement;
                     if (element.getSchemaType() == null) {
@@ -612,17 +606,17 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
                                                   .getTypeByQName(element.getSchemaTypeName()));
                     }
                 }
-                
             }
             
-            String partJavascriptVar = JavascriptUtils.javaScriptNameToken(element.getQName().getLocalPart());
+            String partJavascriptVar = 
+                JavascriptUtils.javaScriptNameToken(mpi.getConcreteName().getLocalPart());
             String elementXmlRef = prefixAccumulator.xmlElementString(mpi.getConcreteName());
 
-            elements.add(new ElementAndNames(element, partJavascriptVar, elementXmlRef, empty));
+            elements.add(new ElementInfo(element, type, partJavascriptVar, elementXmlRef, empty));
         }
     }
     
-    // This function generated Javascript names for the parameters. 
+    // This function finds all the information for the wrapper.
     private void collectWrapperElementInfo() {
         
         if (currentOperation.getInput() != null) {

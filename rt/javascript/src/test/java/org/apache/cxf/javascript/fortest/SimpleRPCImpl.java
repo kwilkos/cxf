@@ -23,14 +23,17 @@ import javax.jws.WebService;
 
 @WebService(targetNamespace = "uri:cxf.apache.org.javascript.rpc",
             endpointInterface = "org.apache.cxf.javascript.fortest.SimpleRPC")
+@org.apache.cxf.feature.Features(features = "org.apache.cxf.feature.LoggingFeature")              
 public class SimpleRPCImpl implements SimpleRPC {
     
     private String lastString;
     private int lastInt;
+    private TestBean1 lastBean;
     
     public void resetLastValues() {
         lastString = null;
         lastInt = -1;
+        lastBean = null;
     }
 
     public void returnVoid(String p1, int p2) {
@@ -42,6 +45,10 @@ public class SimpleRPCImpl implements SimpleRPC {
         lastString = p1;
         lastInt = p2;
         return lastString;
+    }
+
+    public void beanType(TestBean1 p1) {
+        lastBean = p1;
     }
 
     public String getLastString() {
@@ -58,6 +65,14 @@ public class SimpleRPCImpl implements SimpleRPC {
 
     public void setLastInt(int lastInt) {
         this.lastInt = lastInt;
+    }
+
+    public TestBean1 getLastBean() {
+        return lastBean;
+    }
+
+    public void setLastBean(TestBean1 lastBean) {
+        this.lastBean = lastBean;
     }
 
 }

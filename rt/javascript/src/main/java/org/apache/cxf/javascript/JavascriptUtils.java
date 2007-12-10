@@ -29,6 +29,7 @@ import javax.xml.namespace.QName;
 
 import org.apache.cxf.wsdl.WSDLConstants;
 import org.apache.ws.commons.schema.XmlSchemaComplexType;
+import org.apache.ws.commons.schema.XmlSchemaElement;
 import org.apache.ws.commons.schema.XmlSchemaSimpleType;
 import org.apache.ws.commons.schema.XmlSchemaType;
 
@@ -191,28 +192,38 @@ public class JavascriptUtils {
     }
     
     public void generateCodeToSerializeElement(ElementInfo elementInfo) {
-        boolean nillable = elementInfo.getElement().isNillable();
-        boolean optional = XmlSchemaUtils.isParticleOptional(elementInfo.getElement());
+        XmlSchemaElement element = elementInfo.getElement();
+        XmlSchemaType type = elementInfo.getType();
+        boolean nillable = element == null || elementInfo.getElement().isNillable();
+        boolean optional = element == null || XmlSchemaUtils.isParticleOptional(elementInfo.getElement());
+        boolean array = element != null && XmlSchemaUtils.isParticleArray(elementInfo.getElement());
         
-        XmlSchemaType elType = 
+        XmlSchemaType elType = type;
+        // perhaps push this up into the callers.
+        if (elType == null) {
             XmlSchemaUtils.getElementType(elementInfo.getXmlSchemaCollection(),
                                           elementInfo.getReferencingURI(),
                                           elementInfo.getElement(), 
                                           elementInfo.getContainingType());
+            if (elType == null) {
+                throw new UnsupportedConstruct("Null type");
+            }
+        }
+
         // first question: optional?
         if (optional) {
             startIf(elementInfo.getElementJavascriptName() + " != null");
-        }
+        } 
         
         // nillable and optional would be very strange together.
         // and nillable in the array case applies to the elements.
-        if (nillable && !XmlSchemaUtils.isParticleArray(elementInfo.getElement())) {
+        if (nillable && !array) {
             startIf(elementInfo.getElementJavascriptName() + " == null");
             appendString("<" + elementInfo.getElementXmlName() + " " + XmlSchemaUtils.NIL_ATTRIBUTES + "/>");
             appendElse();
         }
         
-        if (XmlSchemaUtils.isParticleArray(elementInfo.getElement())) {
+        if (array) {
             // protected against null in arrays.
             startIf(elementInfo.getElementJavascriptName() + " != null");
             startFor("var ax = 0", "ax < " +  elementInfo.getElementJavascriptName() + ".length", "ax ++");
@@ -250,17 +261,17 @@ public class JavascriptUtils {
             appendString("</" + elementInfo.getElementXmlName() + ">");
         }
         
-        if (XmlSchemaUtils.isParticleArray(elementInfo.getElement())) {
+        if (array) {
             endBlock(); // for the extra level of nil checking, which might be wrong.
             endBlock(); // for the for loop.
             endBlock(); // the null protection.
         }
         
-        if (nillable && !XmlSchemaUtils.isParticleArray(elementInfo.getElement())) {
+        if (nillable && !array) {
             endBlock();
         }
         
-        if (XmlSchemaUtils.isParticleOptional(elementInfo.getElement())) {
+        if (optional) {
             endBlock();
         }
 

@@ -34,8 +34,8 @@
   <bean id='rpc-service' class='org.apache.cxf.javascript.fortest.SimpleRPCImpl'/>
   
   <!-- use # so that we can pull state out of the service object in the tests. -->            
-  <jaxws:endpoint id="dlb-service-endpoint" 
-    implementor="#dlb-service" 
+  <jaxws:endpoint id="rpc-service-endpoint" 
+    implementor="#rpc-service" 
     address="http://localhost:8808/SimpleRPC" >
   </jaxws:endpoint>
  
