@@ -120,6 +120,7 @@ public class SerializationTest extends AbstractCXFSpringTest {
     }
 
     @Test
+    @org.junit.Ignore
     public void testSerialization() throws Exception {
         setupClientAndRhino("simple-dlwu-proxy-factory");
 
