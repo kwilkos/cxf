@@ -25,24 +25,24 @@ import java.util.List;
 
 public class WsdlOption {
     String wsdl;
-    List packagenames;
-    List extraargs = new ArrayList();
+    List<String> packagenames;
+    List<String> extraargs = new ArrayList<String>();
     File dependencies[];
     File redundantDirs[];
 
-    public List getExtraargs() {
+    public List<String> getExtraargs() {
         return extraargs;
     }
 
-    public void setExtraargs(List ea) {
+    public void setExtraargs(List<String> ea) {
         this.extraargs = ea;
     }
 
-    public List getPackagenames() {
+    public List<String> getPackagenames() {
         return packagenames;
     }
 
-    public void setPackagenames(List pn) {
+    public void setPackagenames(List<String> pn) {
         this.packagenames = pn;
     }
 
