@@ -66,36 +66,7 @@
                         <phase>generate-test-sources</phase>
                         <configuration>
                             <testSourceRoot>${basedir}/target/generated/src/test/java</testSourceRoot>
-                            <wsdlOptions>
-                                <wsdlOption>
-                                    <wsdl>${basedir}/src/test/resources/wsdl/pizza_service.wsdl</wsdl>
-                                    <extraargs>
-                                        <extraarg>-exsh</extraarg>
-                                        <extraarg>true</extraarg>
-                                    </extraargs>
-                                </wsdlOption>
-
-                                <wsdlOption>
-                                    <wsdl>${basedir}/src/test/resources/wsdl/cxf-993.wsdl</wsdl>
-                                </wsdlOption>
-
-                                <wsdlOption>
-                                    <wsdl>${basedir}/src/test/resources/wsdl/mtom.wsdl</wsdl>
-                                </wsdlOption>
-
-                                <wsdlOption>
-                                    <wsdl>${basedir}/src/test/resources/wsdl/add_numbers.wsdl</wsdl>
-                                </wsdlOption>
-
-                                <wsdlOption>
-                                    <wsdl>${basedir}/src/test/resources/wsdl/add_numbers-fromjava.wsdl</wsdl>
-                                    <extraargs>
-                                        <extraarg>-p</extraarg>
-                                        <extraarg>org.apache.cxf.systest.ws.addr_fromjava.client</extraarg>
-                                    </extraargs>
-                                </wsdlOption>
-
-                            </wsdlOptions>
+			    <wsdlRoot>${basedir}/src/test/resources/wsdl</wsdlRoot>
                         </configuration>
                         <goals>
                             <goal>wsdl2java</goal>

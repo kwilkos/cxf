@@ -22,9 +22,13 @@ package org.apache.cxf.helpers;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileReader;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 public final class FileUtils {
@@ -231,5 +235,42 @@ public final class FileUtils {
         }
         return rtn;
     }
-    
+
+    public static List<File> getFiles(File dir, final String pattern) {
+        return getFiles(dir, pattern, null);
+    }
+
+    public static List<File> getFiles(File dir, final String pattern, File exclude) {
+        File[] files =  dir.listFiles(new FilenameFilter() {
+                public boolean accept(File dir, String name) {
+                    return name.matches(pattern);
+                }
+            });
+        if (files == null) {
+            return new ArrayList<File>();
+        }
+
+        List<File> fileList = new ArrayList<File>();
+        for (File file : files) {
+            if (file.equals(exclude)) {
+                continue;
+            }
+            fileList.add(file);
+        }
+        return fileList;
+    }
+
+    public static List<String> readLines(File file) throws Exception {
+        if (!file.exists()) {
+            return new ArrayList<String>();
+        }
+        BufferedReader reader = new BufferedReader(new FileReader(file));
+        List<String> results = new ArrayList<String>();
+        String line = reader.readLine();
+        while (line != null) {
+            results.add(line);
+            line = reader.readLine();
+        }
+        return results;
+    }
 }
