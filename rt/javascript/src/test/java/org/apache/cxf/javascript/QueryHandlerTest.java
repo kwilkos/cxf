@@ -94,6 +94,7 @@ public class QueryHandlerTest extends AbstractCXFSpringTest {
         return js.toString();
     }
     
+    @org.junit.Ignore
     @Test
     public void hwQueryTest() throws Exception {
         URL endpointURL = new URL(hwEndpoint.getAddress()  + "?js");
@@ -123,6 +124,7 @@ public class QueryHandlerTest extends AbstractCXFSpringTest {
     }
     
     // this is in here since we need to use the query handler to perform the test.
+    @org.junit.Ignore
     @Test 
     public void namespacePrefixTest() throws Exception {
         URL endpointURL = new URL(hwgEndpoint.getAddress()  + "?js");

@@ -407,7 +407,11 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
                 XmlSchemaComplexType complexType = (XmlSchemaComplexType)type;
                 // if it is anonymous but not empty, we're in trouble here, as we have no way to talk
                 // about it. The code in getElementsForParts should have dealt with this.
-                String typeObjectName = nameManager.getJavascriptName(complexType);
+                String typeObjectName = null;
+                if (null == complexType.getName()) {
+                    throw new RuntimeException("anonymous type unexpected.");
+                }
+                typeObjectName = nameManager.getJavascriptName(complexType);
                 utils
                     .appendLine("var returnObject = " 
                                 + typeObjectName 
