@@ -24,7 +24,7 @@ import java.io.File;
 import org.apache.cxf.tools.common.ProcessorTestBase;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolContext;
-import org.apache.cxf.tools.java2ws.JavaToWS;
+import org.apache.cxf.tools.java2js.JavaToJS;
 import org.apache.cxf.tools.wsdlto.core.DataBindingProfile;
 import org.apache.cxf.tools.wsdlto.core.FrontEndProfile;
 import org.apache.cxf.tools.wsdlto.core.PluginLoader;
@@ -40,7 +40,6 @@ public class JavaToJSProcessorTest extends ProcessorTestBase {
     @Before
     public void startUp() throws Exception {
         env = new ToolContext();
-        env.put(ToolConstants.CFG_JAVASCRIPT_OUTPUT, ToolConstants.CFG_JAVASCRIPT_OUTPUT); 
         classPath = System.getProperty("java.class.path");
         System.setProperty("java.class.path", getClassPath());
     }
@@ -89,15 +88,13 @@ public class JavaToJSProcessorTest extends ProcessorTestBase {
         //      test flag
         String[] args = new String[] {"-o",
                                       "java2wsdl.js",
-                                      "-js",
                                       "-jsutils",
                                       "-cp",
                                       classFile.getCanonicalPath(),
                                       "-d",
                                       output.getPath(),
-                                      "-wsdl",
                                       "org.apache.cxf.classpath.Greeter"};
-        JavaToWS.main(args);
+        JavaToJS.main(args);
         File jsFile = new File(output, "java2wsdl.js");
         assertTrue("Generate JS Fail", jsFile.exists());
     }

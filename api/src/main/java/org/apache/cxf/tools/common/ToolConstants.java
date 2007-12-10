@@ -63,7 +63,6 @@ public final class ToolConstants {
     public static final String CFG_XJC_ARGS = "xjc";
     public static final String CFG_CATALOG = "catalog";
     public static final String CFG_DEFAULT_VALUES = "defaultValues";
-    public static final String CFG_JAVASCRIPT_OUTPUT = "javascriptOutput";
     public static final String CFG_JAVASCRIPT_UTILS =  "javascriptUtils";
 
 

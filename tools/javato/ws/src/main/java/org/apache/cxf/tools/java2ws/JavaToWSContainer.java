@@ -32,7 +32,6 @@ import org.apache.cxf.tools.common.toolspec.ToolSpec;
 import org.apache.cxf.tools.common.toolspec.parser.BadUsageException;
 import org.apache.cxf.tools.common.toolspec.parser.CommandDocument;
 import org.apache.cxf.tools.common.toolspec.parser.ErrorVisitor;
-import org.apache.cxf.tools.java2js.processor.JavaToJSProcessor;
 import org.apache.cxf.tools.java2wsdl.processor.JavaToWSDLProcessor;
 import org.apache.cxf.tools.java2wsdl.processor.internal.jaxws.JAXWSFrontEndProcessor;
 import org.apache.cxf.tools.java2wsdl.processor.internal.simple.SimpleFrontEndProcessor;
@@ -73,11 +72,7 @@ public class JavaToWSContainer extends AbstractCXFToolContainer {
                     env.put(ToolConstants.CFG_DATABINDING, ToolConstants.AEGIS_DATABINDING);
                 }
                 env.put(ToolConstants.CFG_FRONTEND, ft);
-                if (null != env.get(ToolConstants.CFG_JAVASCRIPT_OUTPUT)) {
-                    processJavascript(env);
-                } else {
-                    processWSDL(env, ft);
-                }
+                processWSDL(env, ft);
             }
         } catch (ToolException ex) {
             if (ex.getCause() instanceof BadUsageException) {
@@ -98,12 +93,6 @@ public class JavaToWSContainer extends AbstractCXFToolContainer {
         } finally {
             tearDown();
         }
-    }
-
-    private void processJavascript(ToolContext env) {
-        Processor processor = new JavaToJSProcessor();
-        processor.setEnvironment(env);
-        processor.process();
     }
 
     private void processWSDL(ToolContext env, String ft) {
