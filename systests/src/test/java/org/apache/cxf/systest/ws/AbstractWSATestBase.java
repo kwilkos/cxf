@@ -26,7 +26,7 @@ import org.apache.cxf.interceptor.LoggingInInterceptor;
 import org.apache.cxf.interceptor.LoggingOutInterceptor;
 import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
 
-public class AbstractWSATest extends AbstractBusClientServerTestBase {
+public class AbstractWSATestBase extends AbstractBusClientServerTestBase {
 
     protected ByteArrayOutputStream setupInLogging() {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
