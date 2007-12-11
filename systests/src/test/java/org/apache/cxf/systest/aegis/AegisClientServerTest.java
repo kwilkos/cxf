@@ -21,6 +21,7 @@ package org.apache.cxf.systest.aegis;
 
 
 import java.net.URL;
+import java.util.Collection;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -131,5 +132,19 @@ public class AegisClientServerTest extends AbstractBusClientServerTestBase {
         dom = XMLUtils.parse(url.openStream());
         util.assertValid("//wsdl:definitions[@targetNamespace='http://foo.bar.com']",
                          dom);
+    }
+    
+    @Test
+    public void testCollection() throws Exception {
+        AegisDatabinding aegisBinding = new AegisDatabinding();
+        JaxWsProxyFactoryBean proxyFactory = new JaxWsProxyFactoryBean();
+        proxyFactory.setDataBinding(aegisBinding);
+        proxyFactory.setServiceClass(SportsService.class);
+        proxyFactory.setWsdlLocation("http://localhost:9002/jaxwsAndAegisSports?wsdl");
+        SportsService service = (SportsService) proxyFactory.create();
+        Collection<Team> teams = service.getTeams();
+        assertEquals(1, teams.size());
+        assertEquals("Patriots", teams.iterator().next().getName());
+
     }
 }
