@@ -354,7 +354,7 @@ public class JavascriptTestUtilities extends TestUtilities {
             .getXmlSchemaCollection());
         for (SchemaInfo schema : schemata) {
             SchemaJavascriptBuilder builder = new SchemaJavascriptBuilder(serviceInfo
-                .getXmlSchemaCollection(), prefixManager, nameManager, schema);
+                .getXmlSchemaCollection(), prefixManager, nameManager);
             String allThatJavascript = builder.generateCodeForSchema(schema);
             readStringIntoRhino(allThatJavascript, schema.toString() + ".js");
         }

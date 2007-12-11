@@ -120,7 +120,6 @@ public class SerializationTest extends AbstractCXFSpringTest {
     }
 
     @Test
-    @org.junit.Ignore
     public void testSerialization() throws Exception {
         setupClientAndRhino("simple-dlwu-proxy-factory");
 
@@ -202,7 +201,7 @@ public class SerializationTest extends AbstractCXFSpringTest {
             new NamespacePrefixAccumulator(serviceInfo.getXmlSchemaCollection());
         for (SchemaInfo schema : schemata) {
             SchemaJavascriptBuilder builder = new SchemaJavascriptBuilder(serviceInfo
-                .getXmlSchemaCollection(), prefixAccumulator, nameManager, schema);
+                .getXmlSchemaCollection(), prefixAccumulator, nameManager);
             String allThatJavascript = builder.generateCodeForSchema(schema);
             assertNotNull(allThatJavascript);
             testUtilities.readStringIntoRhino(allThatJavascript, schema.toString() + ".js");

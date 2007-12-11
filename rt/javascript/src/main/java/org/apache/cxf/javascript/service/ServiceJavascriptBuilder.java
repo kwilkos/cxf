@@ -74,7 +74,6 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
     private Set<MessageInfo> inputMessagesWithNameConflicts;
     private Set<MessageInfo> outputMessagesWithNameConflicts;
     private SchemaCollection xmlSchemaCollection;
-    private String serviceTargetNamespace;
     
     private boolean isWrapped;
     // facts about the wrapper when there is one.
@@ -149,8 +148,6 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
         utils.appendLine("this._onsuccess = null;");
         utils.appendLine("this._onerror = null;");
         code.append("}\n\n");
-
-        serviceTargetNamespace = serviceInfo.getTargetNamespace();
     }
 
     private String getFunctionGlobalName(QName itemName, String itemType) {
@@ -439,8 +436,8 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
             + "_serializeInput";
 
         code.append("function " + serializerFunctionGlobalName + "(cxfutils, args) {\n");
-        String wrapperXmlElementName = null; 
 
+        String wrapperXmlElementName = null; 
         // for the wrapped case, we can name the object for Javascript after whatever we like.
         // we could use the wrapped part, or we could use a conventional name.
         if (isWrapped) {
@@ -469,17 +466,14 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
         utils.setXmlStringAccumulator("xml");
         
         if (isWrapped) {
-            ElementInfo elementInfo = new ElementInfo();
-            elementInfo.setContainingType(null);
-            elementInfo.setElement(inputWrapperElement);
-            elementInfo.setType(inputWrapperElement.getSchemaType());
-            elementInfo.setElementJavascriptName("wrapperObj");
-            elementInfo.setElementXmlName(wrapperXmlElementName);
-            elementInfo.setReferencingURI(serviceTargetNamespace);
-            elementInfo.setUtilsVarName("cxfutils");
-            elementInfo.setXmlSchemaCollection(xmlSchemaCollection);
+            ElementInfo elementInfo = ElementInfo.forPartElement(inputWrapperElement,
+                                                                 xmlSchemaCollection,
+                                                                 "wrapperObj",
+                                                                 wrapperXmlElementName);
 
-            utils.generateCodeToSerializeElement(elementInfo);
+            elementInfo.setContainingType(null);
+            elementInfo.setUtilsVarName("cxfutils");
+            utils.generateCodeToSerializeElement(elementInfo, xmlSchemaCollection);
         } else {
             String operationXmlElement = null;
             if (isRPC) {
@@ -501,16 +495,14 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
             // (though if the same sort of thing happens elsewhere due to an XmlRootElement,
             // the JavaScript programmer is stuck with the situation). 
             for (ElementInfo ean : unwrappedElementsAndNames) {
-                ElementInfo elementInfo = new ElementInfo();
+                ElementInfo elementInfo = ElementInfo.forPartElement(ean.getElement(),
+                                                                     xmlSchemaCollection,
+                                                                     "args[" + px + "]",
+                                                                     ean.getElementXmlName());
                 elementInfo.setContainingType(null);
-                elementInfo.setElement(ean.getElement());
                 elementInfo.setType(ean.getType());
-                elementInfo.setElementJavascriptName("args[" + px + "]");
-                elementInfo.setElementXmlName(ean.getElementXmlName());
-                elementInfo.setReferencingURI(serviceTargetNamespace);
                 elementInfo.setUtilsVarName("cxfutils");
-                elementInfo.setXmlSchemaCollection(xmlSchemaCollection);
-                utils.generateCodeToSerializeElement(elementInfo);
+                utils.generateCodeToSerializeElement(elementInfo, xmlSchemaCollection);
                 px++;
             }
             if (isRPC) {
@@ -609,14 +601,21 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
                         element.setSchemaType(xmlSchemaCollection
                                                   .getTypeByQName(element.getSchemaTypeName()));
                     }
+                    type = element.getSchemaType();
                 }
             }
             
             String partJavascriptVar = 
                 JavascriptUtils.javaScriptNameToken(mpi.getConcreteName().getLocalPart());
             String elementXmlRef = prefixAccumulator.xmlElementString(mpi.getConcreteName());
-
-            elements.add(new ElementInfo(element, type, partJavascriptVar, elementXmlRef, empty));
+            ElementInfo elementInfo = ElementInfo.forPartElement(element,
+                                                                 xmlSchemaCollection,
+                                                                 partJavascriptVar, 
+                                                                 elementXmlRef);        
+            // the type may have been recalculated above.
+            elementInfo.setType(type);
+            elementInfo.setEmpty(empty);
+            elements.add(elementInfo);
         }
     }
     

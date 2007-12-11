@@ -27,14 +27,15 @@ import java.util.Stack;
 
 import javax.xml.namespace.QName;
 
+import org.apache.cxf.common.xmlschema.SchemaCollection;
 import org.apache.cxf.wsdl.WSDLConstants;
 import org.apache.ws.commons.schema.XmlSchemaComplexType;
-import org.apache.ws.commons.schema.XmlSchemaElement;
 import org.apache.ws.commons.schema.XmlSchemaSimpleType;
 import org.apache.ws.commons.schema.XmlSchemaType;
 
 /**
- * 
+ * A set of functions that assist in JavaScript generation. This includes functions
+ * for appending strings of JavaScript to a buffer as well as some type utilities.
  */
 public class JavascriptUtils {
     private static final String NL = "\n";
@@ -191,25 +192,14 @@ public class JavascriptUtils {
         return token;
     }
     
-    public void generateCodeToSerializeElement(ElementInfo elementInfo) {
-        XmlSchemaElement element = elementInfo.getElement();
+    public void generateCodeToSerializeElement(ElementInfo elementInfo,
+                                               SchemaCollection schemaCollection) {
         XmlSchemaType type = elementInfo.getType();
-        boolean nillable = element == null || elementInfo.getElement().isNillable();
-        boolean optional = element == null || XmlSchemaUtils.isParticleOptional(elementInfo.getElement());
-        boolean array = element != null && XmlSchemaUtils.isParticleArray(elementInfo.getElement());
+        boolean nillable = elementInfo.getElement() != null 
+            && elementInfo.getElement().isNillable();
+        boolean optional = elementInfo.isOptional();
+        boolean array = elementInfo.isArray();
         
-        XmlSchemaType elType = type;
-        // perhaps push this up into the callers.
-        if (elType == null) {
-            XmlSchemaUtils.getElementType(elementInfo.getXmlSchemaCollection(),
-                                          elementInfo.getReferencingURI(),
-                                          elementInfo.getElement(), 
-                                          elementInfo.getContainingType());
-            if (elType == null) {
-                throw new UnsupportedConstruct("Null type");
-            }
-        }
-
         // first question: optional?
         if (optional) {
             startIf(elementInfo.getElementJavascriptName() + " != null");
@@ -241,13 +231,13 @@ public class JavascriptUtils {
         }
         
         // now for the thing itself.
-        if (elType instanceof XmlSchemaComplexType) {
+        if (type instanceof XmlSchemaComplexType) {
             // it has a value
             appendExpression(elementInfo.getElementJavascriptName() + ".serialize(" 
                              + elementInfo.getUtilsVarName() + ", '" 
                              + elementInfo.getElementXmlName() + "')");
         } else { // simple type
-            QName typeName = elType.getQName();
+            QName typeName = type.getQName();
             appendString("<" + elementInfo.getElementXmlName() + ">");
             // warning: this assumes that ordinary Javascript serialization is all we need.
             // except for &gt; ad all of that.

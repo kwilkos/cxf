@@ -66,8 +66,9 @@ public class WSDLToJavaScriptProcessor extends WSDLToProcessor {
             BufferedWriter writer = new BufferedWriter(outputStreamWriter);
                 
             for (SchemaInfo schema : schemata) {
-                SchemaJavascriptBuilder jsBuilder = new SchemaJavascriptBuilder(serviceInfo
-                    .getXmlSchemaCollection(), prefixManager, nameManager, schema);
+                SchemaJavascriptBuilder jsBuilder = 
+                    new SchemaJavascriptBuilder(serviceInfo
+                    .getXmlSchemaCollection(), prefixManager, nameManager);
                 String allThatJavascript = jsBuilder.generateCodeForSchema(schema);
                 writer.append(allThatJavascript);
             }

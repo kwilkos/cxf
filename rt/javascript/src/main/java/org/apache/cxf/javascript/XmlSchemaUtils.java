@@ -26,8 +26,8 @@ import javax.xml.namespace.QName;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.xmlschema.SchemaCollection;
-import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.wsdl.WSDLConstants;
+import org.apache.ws.commons.schema.XmlSchema;
 import org.apache.ws.commons.schema.XmlSchemaComplexType;
 import org.apache.ws.commons.schema.XmlSchemaElement;
 import org.apache.ws.commons.schema.XmlSchemaForm;
@@ -167,40 +167,54 @@ public final class XmlSchemaUtils {
         return type instanceof XmlSchemaComplexType;
     }
     
-    public static boolean isElementNameQualified(XmlSchemaElement element, SchemaInfo schemaInfo) {
+    public static boolean isElementNameQualified(XmlSchemaElement element, XmlSchema schema) {
+        if (element.getRefName() != null) {
+            throw new RuntimeException("isElementNameQualified on element with ref=");
+        }
         if (element.getForm().equals(QUALIFIED)) {
             return true;
         }
         if (element.getForm().equals(UNQUALIFIED)) {
             return false;
         }
-        return schemaInfo.getSchema().getElementFormDefault().equals(QUALIFIED);
+        return schema.getElementFormDefault().equals(QUALIFIED);
     }
     
     /**
-     * Return an empty string if this element should be unqualified in XML
-     * or the namespace URI if it should be qualified. 
-     * @param element
-     * @return
+     * due to a bug, feature, or just plain oddity of JAXB, it isn't good enough to just check the 
+     * for of an element and of its schema. If schema 'a' (default unqualified) has a complex type
+     * with an element with a ref= to schema (b) (default unqualified), JAXB seems to expect to
+     * see a qualifier, anyway.
+     * <br/>
+     * So, if the element is local to a complex type, all we care about is the default element form of the
+     * schema and the local form of the element.
+     * <br/>
+     * If, on the other hand, the element is global, we might need to compare namespaces. 
+     * <br/>
+     * @param element the element.
+     * @param global if this element is a global element (complex type ref= to it, or in a part)
+     * @param localSchema the schema of the complex type containing the reference, 
+     * only used for the 'odd case'.
+     * @param elementSchema the schema for the element.
+     * @return if the element needs to be qualified.
      */
-    public static String getElementQualifier(SchemaInfo schemaInfo, XmlSchemaElement element) {
-        QName qname;
-        boolean forceQualification = false;
-        // JAXB ends up with no form='qualified', but we qualify anyway if the namespace don't
-        // match.
-        if (element.getRefName() != null) {
-            qname = element.getRefName();
-            forceQualification = !qname.getNamespaceURI().equals(schemaInfo.getNamespaceURI());
-        } else {
-            qname = element.getQName();
+    public static boolean isElementQualified(XmlSchemaElement element,
+                                             boolean global,
+                                             XmlSchema localSchema,
+                                             XmlSchema elementSchema) {
+        if (element.getQName() == null) {
+            throw new RuntimeException("getSchemaQualifier on anonymous element.");
         }
-        // some elements don't have qnames, only local names.
-        // one hopes that we aren't called upon to produce a qualified form for such an element, though
-        // perhaps we're supposed to pull the TNS out of a hat.
-        if (forceQualification || isElementNameQualified(element, schemaInfo)) {
-            return qname.getNamespaceURI();
+        if (element.getRefName() != null) {
+            throw new RuntimeException("getSchemaQualified on the 'from' side of ref=.");
+        }
+            
+
+        if (global) {
+            return isElementNameQualified(element, elementSchema)
+                || !(element.getQName().getNamespaceURI().equals(localSchema.getTargetNamespace()));
         } else {
-            return "";
+            return isElementNameQualified(element, elementSchema);
         }
     }
     

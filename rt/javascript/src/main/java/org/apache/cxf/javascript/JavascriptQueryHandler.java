@@ -132,7 +132,7 @@ public class JavascriptQueryHandler implements StemMatchingQueryHandler {
             try {
                 for (SchemaInfo schema : schemata) {
                     SchemaJavascriptBuilder builder = new SchemaJavascriptBuilder(serviceInfo
-                        .getXmlSchemaCollection(), prefixManager, nameManager, schema);
+                        .getXmlSchemaCollection(), prefixManager, nameManager);
                     String allThatJavascript = builder.generateCodeForSchema(schema);
                     writer.append(allThatJavascript);
                 }

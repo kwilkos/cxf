@@ -215,7 +215,6 @@ public class DocLitBareClientTest extends AbstractCXFSpringTest {
         return null;
     }
     
-    @org.junit.Ignore
     @Test
     public void callFunctionWithBeans() {
         LOG.info("about to call beanFunctionTest");
@@ -226,7 +225,6 @@ public class DocLitBareClientTest extends AbstractCXFSpringTest {
         });
     }
 
-    @org.junit.Ignore
     @Test
     public void callCompliant() {
         LOG.info("about to call compliant");

@@ -35,6 +35,7 @@ import org.apache.cxf.javascript.NamespacePrefixAccumulator;
 import org.apache.cxf.javascript.UnsupportedConstruct;
 import org.apache.cxf.javascript.XmlSchemaUtils;
 import org.apache.cxf.service.model.SchemaInfo;
+import org.apache.ws.commons.schema.XmlSchema;
 import org.apache.ws.commons.schema.XmlSchemaComplexType;
 import org.apache.ws.commons.schema.XmlSchemaElement;
 import org.apache.ws.commons.schema.XmlSchemaObject;
@@ -55,20 +56,19 @@ public class SchemaJavascriptBuilder {
     
     private SchemaCollection xmlSchemaCollection;
     private NameManager nameManager;
-    private SchemaInfo schemaInfo;
     private NamespacePrefixAccumulator prefixAccumulator;
+    private SchemaInfo schemaInfo;
     
     public SchemaJavascriptBuilder(SchemaCollection schemaCollection,
                                    NamespacePrefixAccumulator prefixAccumulator,
-                                   NameManager nameManager, 
-                                   SchemaInfo schemaInfo) {
+                                   NameManager nameManager) {
         this.xmlSchemaCollection = schemaCollection;
         this.nameManager = nameManager;
-        this.schemaInfo = schemaInfo;
         this.prefixAccumulator = prefixAccumulator;
     }
     
     public String generateCodeForSchema(SchemaInfo schema) {
+        schemaInfo = schema;
         StringBuffer code = new StringBuffer();
         code.append("//\n");
         code.append("// Definitions for schema: " + schema.getNamespaceURI());
@@ -273,36 +273,19 @@ public class SchemaJavascriptBuilder {
 
         // XML Schema, please meet Iterable (not).
         for (int i = 0; i < sequence.getItems().getCount(); i++) {
-            XmlSchemaElement elChild = (XmlSchemaElement)sequence.getItems().getItem(i);
-            if (elChild.isAbstract()) {
-                XmlSchemaUtils.unsupportedConstruct("ABSTRACT_ELEMENT", elChild.getName(), type);
+            XmlSchemaElement sequenceElement = (XmlSchemaElement)sequence.getItems().getItem(i);
+            if (sequenceElement.isAbstract()) {
+                XmlSchemaUtils.unsupportedConstruct("ABSTRACT_ELEMENT", sequenceElement.getName(), type);
             }
             
-            // assume that no lunatic has created multiple elements that differ only by namespace.
-            // or, perhaps, detect that when generating the parser?
-            if (elChild.getRefName() != null) {
-                XmlSchemaElement refElement = xmlSchemaCollection.getElementByQName(elChild.getRefName());
-                if (refElement == null) {
-                    Message message = new Message("ELEMENT_DANGLING_REFERENCE", LOG,
-                                                  elChild.getQName(),
-                                                  elChild.getRefName());
-                    throw new UnsupportedConstruct(message.toString());
-                }
-                elChild = refElement;
-            }
-            String elementName = elementPrefix + elChild.getName();
-            String elementXmlRef = prefixAccumulator.xmlElementString(schemaInfo, elChild);
-            
-            ElementInfo elementInfo = new ElementInfo();
+            ElementInfo elementInfo = ElementInfo.forLocalElement(sequenceElement, 
+                                                                  elementPrefix, 
+                                                                  schemaInfo.getSchema(),
+                                                                  xmlSchemaCollection, 
+                                                                  prefixAccumulator);
             elementInfo.setContainingType(type);
-            elementInfo.setElement(elChild);
-            elementInfo.setElementJavascriptName(elementName);
-            elementInfo.setElementXmlName(elementXmlRef);
-            elementInfo.setReferencingURI(null);
             elementInfo.setUtilsVarName("cxfjsutils");
-            elementInfo.setXmlSchemaCollection(xmlSchemaCollection);
-            elementInfo.setType(elChild.getSchemaType());
-            utils.generateCodeToSerializeElement(elementInfo);
+            utils.generateCodeToSerializeElement(elementInfo, xmlSchemaCollection);
         }
     }
     /**
@@ -344,27 +327,56 @@ public class SchemaJavascriptBuilder {
                                                     thing.getClass().getSimpleName(), type);
             }
             
-            XmlSchemaElement elChild = (XmlSchemaElement)thing;
-            XmlSchemaType elType = XmlSchemaUtils.getElementType(xmlSchemaCollection, null, elChild, type);
+            boolean global = false;
+            XmlSchemaElement sequenceElement = (XmlSchemaElement)thing;
+            XmlSchemaElement realElement = sequenceElement;
+            
+            if (sequenceElement.getRefName() != null) {
+                XmlSchemaElement refElement = 
+                    xmlSchemaCollection.getElementByQName(sequenceElement.getRefName());
+                if (refElement == null) {
+                    throw new RuntimeException("Dangling reference");
+                }
+                realElement = refElement;
+                global = true;
+            }
+            
+            XmlSchemaType elType = XmlSchemaUtils.getElementType(xmlSchemaCollection, 
+                                                                 null, realElement, type);
             boolean simple = elType instanceof XmlSchemaSimpleType;
 
-            String accessorName = "set" + StringUtils.capitalize(elChild.getName()); 
+            String accessorName = "set" + StringUtils.capitalize(realElement.getName()); 
             // For optional or an array, we need to check if the element is the 
             // one we want.
             
-            String elementName = elChild.getName();
+            String elementName = realElement.getName();
             utils.appendLine("cxfjsutils.trace('processing " + elementName + "');");
-            String elementNamespaceURI = XmlSchemaUtils.getElementQualifier(schemaInfo, elChild);
+            String elementNamespaceURI = realElement.getQName().getNamespaceURI();
+            boolean elementNoNamespace = "".equals(elementNamespaceURI);
+            XmlSchema elementSchema = null;
+            if (!elementNoNamespace) {
+                elementSchema = xmlSchemaCollection.getSchemaByTargetNamespace(elementNamespaceURI);
+            }
+            boolean qualified = !elementNoNamespace
+                && XmlSchemaUtils.isElementQualified(realElement, 
+                                                  global, 
+                                                  schemaInfo.getSchema(),
+                                                  elementSchema);
             
+            if (!qualified) {
+                elementNamespaceURI = "";
+            }
+                
             String valueTarget = "item";
 
-            if (XmlSchemaUtils.isParticleOptional(elChild) || XmlSchemaUtils.isParticleArray(elChild)) {
+            if (XmlSchemaUtils.isParticleOptional(sequenceElement) 
+                || XmlSchemaUtils.isParticleArray(sequenceElement)) {
                 utils.startIf("curElement != null && cxfjsutils.isNodeNamedNS(curElement, '" 
                               + elementNamespaceURI 
                               + "', '" 
                               + elementName
                               + "')");
-                if (XmlSchemaUtils.isParticleArray(elChild)) {
+                if (XmlSchemaUtils.isParticleArray(sequenceElement)) {
                     utils.appendLine("item = [];");
                     utils.startDo();
                     valueTarget = "arrayItem";
@@ -387,21 +399,22 @@ public class SchemaJavascriptBuilder {
             }
              
             utils.endBlock(); // the if for the nil.
-            if (XmlSchemaUtils.isParticleArray(elChild)) {
+            if (XmlSchemaUtils.isParticleArray(sequenceElement)) {
                 utils.appendLine("item.push(arrayItem);");
                 utils.appendLine("curElement = cxfjsutils.getNextElementSibling(curElement);");
                 utils.endBlock();
                 utils.appendLine("  while(curElement != null && cxfjsutils.isNodeNamedNS(curElement, '" 
                                   + elementNamespaceURI + "', '" 
-                                  + elChild.getName() + "'));");
+                                  + sequenceElement.getName() + "'));");
             }
             utils.appendLine("newobject." + accessorName + "(item);");
-            if (!XmlSchemaUtils.isParticleArray(elChild)) {
+            if (!XmlSchemaUtils.isParticleArray(sequenceElement)) {
                 utils.startIf("curElement != null");
                 utils.appendLine("curElement = cxfjsutils.getNextElementSibling(curElement);");
                 utils.endBlock();
             }
-            if (XmlSchemaUtils.isParticleOptional(elChild) || XmlSchemaUtils.isParticleArray(elChild)) {
+            if (XmlSchemaUtils.isParticleOptional(sequenceElement) 
+                || XmlSchemaUtils.isParticleArray(sequenceElement)) {
                 utils.endBlock();
             }
         }
