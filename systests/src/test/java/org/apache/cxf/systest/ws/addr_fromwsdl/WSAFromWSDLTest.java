@@ -24,7 +24,7 @@ import java.net.URL;
 import javax.xml.namespace.QName;
 import javax.xml.ws.soap.AddressingFeature;
 
-import org.apache.cxf.systest.ws.AbstractWSATest;
+import org.apache.cxf.systest.ws.AbstractWSATestBase;
 import org.apache.cxf.systest.ws.addr_feature.AddNumbersFault_Exception;
 import org.apache.cxf.systest.ws.addr_feature.AddNumbersPortType;
 import org.apache.cxf.systest.ws.addr_feature.AddNumbersService;
@@ -32,7 +32,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class WSAFromWSDLTest extends AbstractWSATest {
+public class WSAFromWSDLTest extends AbstractWSATestBase {
 
     private static final String BASE_URI = "http://apache.org/cxf/systest/ws/addr_feature/" 
         + "AddNumbersPortType/";

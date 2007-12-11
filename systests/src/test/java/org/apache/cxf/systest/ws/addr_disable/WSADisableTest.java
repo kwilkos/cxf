@@ -25,14 +25,14 @@ import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.soap.AddressingFeature;
 
-import org.apache.cxf.systest.ws.AbstractWSATest;
+import org.apache.cxf.systest.ws.AbstractWSATestBase;
 import org.apache.cxf.systest.ws.addr_feature.AddNumbersPortType;
 import org.apache.cxf.systest.ws.addr_feature.AddNumbersService;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class WSADisableTest extends AbstractWSATest {
+public class WSADisableTest extends AbstractWSATestBase {
 
     private final QName serviceName = new QName("http://apache.org/cxf/systest/ws/addr_feature/",
                                                 "AddNumbersService");

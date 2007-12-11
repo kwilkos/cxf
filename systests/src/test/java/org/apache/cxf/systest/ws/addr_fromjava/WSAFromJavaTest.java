@@ -22,7 +22,7 @@ package org.apache.cxf.systest.ws.addr_fromjava;
 import java.io.ByteArrayOutputStream;
 import java.net.URL;
 
-import org.apache.cxf.systest.ws.AbstractWSATest;
+import org.apache.cxf.systest.ws.AbstractWSATestBase;
 import org.apache.cxf.systest.ws.addr_fromjava.client.AddNumberImpl;
 import org.apache.cxf.systest.ws.addr_fromjava.client.AddNumberImplService;
 import org.apache.cxf.systest.ws.addr_fromjava.client.AddNumbersException_Exception;
@@ -31,7 +31,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class WSAFromJavaTest extends AbstractWSATest {
+public class WSAFromJavaTest extends AbstractWSATestBase {
 
     @Before
     public void setUp() throws Exception {

@@ -25,13 +25,13 @@ import javax.xml.namespace.QName;
 import javax.xml.ws.soap.AddressingFeature;
 
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
-import org.apache.cxf.systest.ws.AbstractWSATest;
+import org.apache.cxf.systest.ws.AbstractWSATestBase;
 import org.apache.cxf.ws.addressing.WSAddressingFeature;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class WSAClientServerTest extends AbstractWSATest {
+public class WSAClientServerTest extends AbstractWSATestBase {
 
     private final QName serviceName = new QName("http://apache.org/cxf/systest/ws/addr_feature/",
                                                 "AddNumbersService");
