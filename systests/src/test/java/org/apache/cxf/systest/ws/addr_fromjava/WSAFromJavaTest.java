@@ -22,7 +22,6 @@ package org.apache.cxf.systest.ws.addr_fromjava;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
 import java.net.URL;
-import javax.xml.ws.soap.AddressingFeature;
 
 import org.apache.cxf.interceptor.LoggingInInterceptor;
 import org.apache.cxf.interceptor.LoggingOutInterceptor;
