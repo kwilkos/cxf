@@ -19,9 +19,11 @@
 
 package org.apache.cxf.jaxws.support;
 
+import java.util.Iterator;
 import java.util.List;
 
 import javax.wsdl.WSDLException;
+import javax.wsdl.extensions.ExtensibilityElement;
 import javax.wsdl.extensions.ExtensionRegistry;
 import javax.xml.ws.Binding;
 import javax.xml.ws.WebServiceFeature;
@@ -89,7 +91,6 @@ public class JaxWsEndpointImpl extends EndpointImpl {
         this.implInfo = implementorInfo;
         this.wsFeatures = wf;
         this.features = af;
-        
         resolveFeatures();
         createJaxwsBinding();
         
@@ -143,11 +144,37 @@ public class JaxWsEndpointImpl extends EndpointImpl {
             inFault.add(new SOAPHandlerFaultInInterceptor(jaxwsBinding));
         }
         
-        if (!isFromWsdl) {
-            buildWsdlExtensibilities(ei.getBinding());
+        if (ei != null) {
+            if (!isFromWsdl) {
+                buildWsdlExtensibilities(ei.getBinding());
+            }
+            extractWsdlExtensibilities(ei);
         }
     }
     
+    private void extractWsdlExtensibilities(EndpointInfo endpoint) {
+        List<ExtensibilityElement> bindingExtensors 
+            = endpoint.getBinding().getExtensors(ExtensibilityElement.class);
+        List<ExtensibilityElement> portExtensors 
+            = endpoint.getExtensors(ExtensibilityElement.class);
+        if (hasUsingAddressing(bindingExtensors) || hasUsingAddressing(portExtensors)) {
+            addAddressingFeature(new WSAddressingFeature());
+        }
+    }
+    
+    private boolean hasUsingAddressing(List<ExtensibilityElement> exts) {
+        boolean found = false;
+        if (exts != null) {
+            Iterator<ExtensibilityElement> extensionElements = exts.iterator();
+            while (extensionElements.hasNext() && !found) {
+                ExtensibilityElement ext = 
+                    (ExtensibilityElement)extensionElements.next();
+                found = JAXWSAConstants.WSAW_USINGADDRESSING_QNAME.equals(ext.getElementType());
+            }
+        }
+        return found;
+    }    
+
     private void buildWsdlExtensibilities(BindingInfo bindingInfo) {
         Addressing addressing = getAddressing();
         if (addressing != null) {            
