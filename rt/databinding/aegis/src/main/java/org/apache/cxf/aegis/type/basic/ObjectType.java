@@ -198,7 +198,7 @@ public class ObjectType extends Type {
         }
     }
 
-    private Type determineType(Context context, Class clazz) {
+    public Type determineType(Context context, Class clazz) {
         TypeMapping tm = context.getTypeMapping();
         if (tm == null) {
             tm = getTypeMapping();

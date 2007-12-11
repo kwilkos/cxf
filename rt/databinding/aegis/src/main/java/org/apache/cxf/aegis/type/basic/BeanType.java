@@ -20,6 +20,7 @@ package org.apache.cxf.aegis.type.basic;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -27,7 +28,6 @@ import java.lang.reflect.Proxy;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
-
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.aegis.Context;
@@ -46,7 +46,7 @@ import org.jdom.Element;
 
 /**
  * Serializes JavaBeans.
- * 
+ *
  * @author <a href="mailto:dan@envoisolutions.com">Dan Diephouse</a>
  * @author <a href="mailto:jack.xu.hong@gmail.com">Jack Hong</a>
  */
@@ -83,22 +83,23 @@ public class BeanType extends Type {
 
         try {
             Class clazz = getTypeClass();
-            Object object = null;
-            InterfaceInvocationHandler delegate = null;
-            boolean isProxy = false;
+            Object object;
+            // the target for properties; either the object or the proxy handler
+            Object target;
 
             if (isInterface) {
                 String impl = (String)context.get(clazz.getName() + ".implementation");
 
                 if (impl == null) {
-                    delegate = new InterfaceInvocationHandler();
+                    InvocationHandler handler = new InterfaceInvocationHandler();
                     object = Proxy.newProxyInstance(this.getClass().getClassLoader(), new Class[] {clazz},
-                                                    delegate);
-                    isProxy = true;
+                                                    handler);
+                    target = handler;
                 } else {
                     try {
                         clazz = ClassLoaderUtils.loadClass(impl, getClass());
                         object = clazz.newInstance();
+                        target = object;
                     } catch (ClassNotFoundException e) {
                         throw new DatabindingException("Could not find implementation class " + impl
                                                        + " for class " + clazz.getName());
@@ -106,8 +107,10 @@ public class BeanType extends Type {
                 }
             } else if (isException) {
                 object = createFromFault(context);
+                target = object;
             } else {
                 object = clazz.newInstance();
+                target = object;
             }
 
             // Read attributes
@@ -119,11 +122,7 @@ public class BeanType extends Type {
 
                 if (type != null) {
                     Object writeObj = type.readObject(childReader, context);
-                    if (isProxy) {
-                        delegate.writeProperty(name.getLocalPart(), writeObj);
-                    } else {
-                        writeProperty(name, object, writeObj, clazz, inf);
-                    }
+                    writeProperty(name, target, writeObj, clazz, inf);
                 }
             }
 
@@ -132,39 +131,20 @@ public class BeanType extends Type {
                 MessageReader childReader = reader.getNextElementReader();
                 QName name = childReader.getName();
 
-                BeanType parent = getBeanTypeWithProperty(name);
-                Type defaultType = null;
-                if (parent != null) {
-                    info = parent.getTypeInfo();
-                    defaultType = info.getType(name);
-                }
+                // Find the BeanTypeInfo that contains a property for the element name
+                BeanTypeInfo propertyTypeInfo = getBeanTypeInfoWithProperty(name);
 
-                Type type = TypeUtil.getReadType(childReader.getXMLStreamReader(), context, defaultType);
-                
-                // If the xsi:type lookup didn't work or there was none, use the
-                // normal Type.
-                if (type == null) {
-                    parent = getBeanTypeWithProperty(name);
-                    if (parent != null) {
-                        inf = parent.getTypeInfo();
-                        type = inf.getType(name);
-                    } else {
-                        type = null;
-                    }
-                }
+                // Get the Type for the property
+                Type type = getElementType(name, propertyTypeInfo, childReader, context);
 
                 if (type != null) {
                     if (!childReader.isXsiNil()) {
                         Object writeObj = type.readObject(childReader, context);
 
-                        if (isProxy) {
-                            delegate.writeProperty(name.getLocalPart(), writeObj);
-                        } else {
-                            writeProperty(name, object, writeObj, clazz, inf);
-                        }
+                        writeProperty(name, target, writeObj, clazz, propertyTypeInfo);
                     } else {
-                        if (!inf.isNillable(name)) {
-                            throw new DatabindingException(name.getLocalPart() 
+                        if (!propertyTypeInfo.isNillable(name)) {
+                            throw new DatabindingException(name.getLocalPart()
                                                            + " is nil, but not nillable.");
 
                         }
@@ -188,6 +168,19 @@ public class BeanType extends Type {
             throw new DatabindingException("Could not create class: " + e.getMessage(), e);
         }
     }
+
+    protected Type getElementType(QName name,
+            BeanTypeInfo beanTypeInfo,
+            MessageReader reader,
+            Context context) {
+        
+        Type type = beanTypeInfo.getType(name);
+
+        // Type can be overriden with a xsi:type attribute
+        type = TypeUtil.getReadType(reader.getXMLStreamReader(), context, type);
+        return type;
+    }
+
     /**
      * If the class is an exception, this will try and instantiate it with
      * information from the XFireFault (if it exists).
@@ -198,7 +191,7 @@ public class BeanType extends Type {
         Class clazz = getTypeClass();
         Constructor ctr;
         Object o;
-        
+
         Fault fault = context.getFault();
 
         try {
@@ -220,12 +213,19 @@ public class BeanType extends Type {
 
         return o;
     }
-    
+
     /**
      * Write the specified property to a field.
      */
     protected void writeProperty(QName name, Object object, Object property, Class impl, BeanTypeInfo inf)
         throws DatabindingException {
+
+        if (object instanceof InterfaceInvocationHandler) {
+            InterfaceInvocationHandler delegate = (InterfaceInvocationHandler) object;
+            delegate.writeProperty(name.getLocalPart(), property);
+            return;
+        }
+
         try {
             PropertyDescriptor desc = inf.getPropertyDescriptorFromMappedName(name);
 
@@ -273,7 +273,7 @@ public class BeanType extends Type {
      *      org.apache.cxf.aegis.Context)
      */
     @Override
-    public void writeObject(Object object, MessageWriter writer, Context context) 
+    public void writeObject(Object object, MessageWriter writer, Context context)
         throws DatabindingException {
         if (object == null) {
             return;
@@ -281,7 +281,7 @@ public class BeanType extends Type {
 
         BeanTypeInfo inf = getTypeInfo();
 
-        if (object.getClass() == getTypeClass() 
+        if (object.getClass() == getTypeClass()
             && context.isWriteXsiTypes()) {
             writer.writeXsiType(getSchemaType());
         }
@@ -323,22 +323,17 @@ public class BeanType extends Type {
 
             Type defaultType = getType(inf, name);
             Type type = TypeUtil.getWriteType(context, value, defaultType);
-            MessageWriter cwriter;
 
             // Write the value if it is not null.
             if (value != null) {
-                cwriter = getWriter(writer, name, type);
-
                 if (type == null) {
                     throw new DatabindingException("Couldn't find type for " + value.getClass()
                                                    + " for property " + name);
                 }
 
-                type.writeObject(value, cwriter, context);
-
-                cwriter.close();
+                writeElement(name, value, type, writer, context);
             } else if (inf.isNillable(name)) {
-                cwriter = getWriter(writer, name, type);
+                MessageWriter cwriter = getWriter(writer, name, type);
 
                 // Write the xsi:nil if it is null.
                 cwriter.writeXsiNil();
@@ -352,6 +347,14 @@ public class BeanType extends Type {
                 t.writeObject(object, writer, context);
             }
         }
+    }
+
+    protected void writeElement(QName name, Object value, Type type, MessageWriter writer, Context context) {
+        MessageWriter cwriter = getWriter(writer, name, type);
+
+        type.writeObject(value, cwriter, context);
+
+        cwriter.close();
     }
 
     private MessageWriter getWriter(MessageWriter writer, QName name, Type type) {
@@ -403,8 +406,8 @@ public class BeanType extends Type {
         }
 
         if (inf.isExtension() && sooperType != null) {
-            Element complexContent = new Element("complexContent", 
-                                                 SOAPConstants.XSD_PREFIX, 
+            Element complexContent = new Element("complexContent",
+                                                 SOAPConstants.XSD_PREFIX,
                                                  SOAPConstants.XSD);
             complex.addContent(complexContent);
             complex = complexContent;
@@ -561,7 +564,7 @@ public class BeanType extends Type {
 
     /**
      * We need to write a complex type schema for Beans, so return true.
-     * 
+     *
      * @see org.apache.cxf.aegis.type.Type#isComplex()
      */
     @Override
@@ -603,22 +606,29 @@ public class BeanType extends Type {
         return deps;
     }
 
-    private BeanType getBeanTypeWithProperty(QName name) {
-        BeanType sooper = this;
+    protected BeanTypeInfo getBeanTypeInfoWithProperty(QName name) {
+        // search the BeanType superType tree for the first BeanType with a property named 'name'
+        BeanType beanType = this;
         Type type = null;
-
-        while (type == null && sooper != null) {
-            type = sooper.getTypeInfo().getType(name);
+        while (type == null && beanType != null) {
+            type = beanType.getTypeInfo().getType(name);
 
             if (type == null) {
-                sooper = sooper.getSuperType();
+                beanType = beanType.getSuperType();
             }
         }
 
-        return sooper;
+        BeanTypeInfo elementTypeInfo;
+        if (beanType != null) {
+            elementTypeInfo = beanType.getTypeInfo();
+        } else {
+            // didn't find a bean type so just use this bean't type info
+            elementTypeInfo = getTypeInfo();
+        }
+        return elementTypeInfo;
     }
 
-    private BeanType getSuperType() {
+    public BeanType getSuperType() {
         BeanTypeInfo inf = getTypeInfo();
         Class c = inf.getTypeClass().getSuperclass();
         /*
@@ -647,7 +657,7 @@ public class BeanType extends Type {
         }
 
         info.initialize();
-        
+
         return info;
     }
 
@@ -662,7 +672,7 @@ public class BeanType extends Type {
     /**
      * Create an element to represent any future elements that might get added
      * to the schema <xsd:any minOccurs="0" maxOccurs="unbounded"/>
-     * 
+     *
      * @return
      */
     private Element createAnyElement() {
