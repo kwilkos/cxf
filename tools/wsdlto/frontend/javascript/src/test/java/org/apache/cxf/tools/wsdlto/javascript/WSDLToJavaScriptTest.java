@@ -27,12 +27,10 @@ import org.junit.Test;
 /**
  * 
  */
-@org.junit.Ignore
 public class WSDLToJavaScriptTest extends ProcessorTestBase {
     
     // just run with a minimum of fuss.
     @Test
-    @org.junit.Ignore
     public void testGeneration() throws Exception {
         JavaScriptContainer container = new JavaScriptContainer(null);
 
