@@ -20,21 +20,18 @@
 package org.apache.cxf.systest.ws.addr_fromjava;
 
 import java.io.ByteArrayOutputStream;
-import java.io.PrintWriter;
 import java.net.URL;
 
-import org.apache.cxf.interceptor.LoggingInInterceptor;
-import org.apache.cxf.interceptor.LoggingOutInterceptor;
+import org.apache.cxf.systest.ws.AbstractWSATest;
 import org.apache.cxf.systest.ws.addr_fromjava.client.AddNumberImpl;
 import org.apache.cxf.systest.ws.addr_fromjava.client.AddNumberImplService;
 import org.apache.cxf.systest.ws.addr_fromjava.client.AddNumbersException_Exception;
 import org.apache.cxf.systest.ws.addr_fromjava.server.Server;
-import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class WSAFromJavaTest extends AbstractBusClientServerTestBase {
+public class WSAFromJavaTest extends AbstractWSATest {
 
     @Before
     public void setUp() throws Exception {
@@ -44,24 +41,6 @@ public class WSAFromJavaTest extends AbstractBusClientServerTestBase {
     @BeforeClass
     public static void startServers() throws Exception {
         assertTrue("server did not launch correctly", launchServer(Server.class));
-    }
-
-    private ByteArrayOutputStream setupInLogging() {
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        PrintWriter writer = new PrintWriter(bos, true);
-        LoggingInInterceptor in = new LoggingInInterceptor(writer);
-        this.bus.getInInterceptors().add(in);
-        return bos;
-    }
-
-    private ByteArrayOutputStream setupOutLogging() {
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        PrintWriter writer = new PrintWriter(bos, true);
-
-        LoggingOutInterceptor out = new LoggingOutInterceptor(writer);
-        this.bus.getOutInterceptors().add(out);
-
-        return bos;
     }
 
     @Test
