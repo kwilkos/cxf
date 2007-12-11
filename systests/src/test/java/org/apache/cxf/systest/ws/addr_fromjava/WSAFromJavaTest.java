@@ -147,7 +147,6 @@ public class WSAFromJavaTest extends AbstractBusClientServerTestBase {
         AddNumberImplService service = new AddNumberImplService(wsdl);
         assertNotNull("Service is null ", service);
 
-        // TODO, this is wrong, the addressing could be enabled by reading the wsdl extensions
-        return service.getAddNumberImplPort(new AddressingFeature());
+        return service.getAddNumberImplPort();
     }
 }

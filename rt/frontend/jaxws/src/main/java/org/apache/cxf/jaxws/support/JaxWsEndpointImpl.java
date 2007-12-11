@@ -91,7 +91,6 @@ public class JaxWsEndpointImpl extends EndpointImpl {
         this.implInfo = implementorInfo;
         this.wsFeatures = wf;
         this.features = af;
-        resolveFeatures();
         createJaxwsBinding();
         
         List<Interceptor> in = super.getInInterceptors();       
@@ -150,6 +149,7 @@ public class JaxWsEndpointImpl extends EndpointImpl {
             }
             extractWsdlExtensibilities(ei);
         }
+        resolveFeatures();
     }
     
     private void extractWsdlExtensibilities(EndpointInfo endpoint) {
