@@ -98,11 +98,12 @@ public final class WrapperClassGenerator extends ASMHelper {
                 != null) {
                 Method method = (Method)opInfo.getProperty(ReflectionServiceFactoryBean.METHOD);
                 MessageInfo messageInfo = opInfo.getUnwrappedOperation().getInput();
-                createWrapperClass(messageInfo, method, true);
-
+                Class requestWrapperClass = createWrapperClass(messageInfo, method, true);
+                opInfo.getInput().getMessageParts().get(0).setTypeClass(requestWrapperClass);
                 messageInfo = opInfo.getUnwrappedOperation().getOutput();
                 if (messageInfo != null) {
-                    createWrapperClass(messageInfo, method, false);
+                    Class responseWrapperClass = createWrapperClass(messageInfo, method, false);
+                    opInfo.getOutput().getMessageParts().get(0).setTypeClass(responseWrapperClass);
                 }
 
 
@@ -111,7 +112,7 @@ public final class WrapperClassGenerator extends ASMHelper {
         return wrapperBeans;
     }
 
-    private void createWrapperClass(MessageInfo messageInfo, Method method, boolean isRequest) {
+    private Class<?> createWrapperClass(MessageInfo messageInfo, Method method, boolean isRequest) {
 
         QName wrapperElement = messageInfo.getName();
 
@@ -161,6 +162,7 @@ public final class WrapperClassGenerator extends ASMHelper {
         Class<?> clz = loadClass(className, method.getDeclaringClass(), cw.toByteArray());
         messageInfo.getMessagePart(0).setTypeClass(clz);
         wrapperBeans.add(clz);
+        return clz;
 
     }
 

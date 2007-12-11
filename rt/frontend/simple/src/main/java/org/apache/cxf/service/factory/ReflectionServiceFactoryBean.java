@@ -127,8 +127,6 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     public static final String METHOD = "operation.method";
     public static final String METHOD_PARAM_ANNOTATIONS = "method.parameters.annotations";
     public static final String METHOD_ANNOTATIONS = "method.return.annotations";
-    public static final QName SWA_REF = new QName("http://ws-i.org/profiles/basic/1.1/xsd", "swaRef");
-    public static final String SWA_REF_LOCATION = "http://ws-i.org/profiles/basic/1.1/swaref.xsd";
     private static final Logger LOG = LogUtils.getL7dLogger(ReflectionServiceFactoryBean.class,
                                                             "SimpleMessages");
 

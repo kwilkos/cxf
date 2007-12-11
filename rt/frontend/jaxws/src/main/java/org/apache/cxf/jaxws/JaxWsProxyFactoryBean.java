@@ -18,12 +18,23 @@
  */
 package org.apache.cxf.jaxws;
 
+import java.util.List;
+
 import javax.xml.ws.BindingProvider;
 
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.frontend.ClientProxy;
 import org.apache.cxf.frontend.ClientProxyFactoryBean;
+import org.apache.cxf.interceptor.Interceptor;
+import org.apache.cxf.jaxws.interceptors.HolderInInterceptor;
+import org.apache.cxf.jaxws.interceptors.HolderOutInterceptor;
+import org.apache.cxf.jaxws.interceptors.WrapperClassInInterceptor;
+import org.apache.cxf.jaxws.interceptors.WrapperClassOutInterceptor;
 import org.apache.cxf.jaxws.support.JaxWsEndpointImpl;
+import org.apache.cxf.service.Service;
+import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
+import org.apache.cxf.service.model.OperationInfo;
+import org.apache.cxf.service.model.ServiceInfo;
 
 public class JaxWsProxyFactoryBean extends ClientProxyFactoryBean {
     public JaxWsProxyFactoryBean() {
@@ -39,4 +50,37 @@ public class JaxWsProxyFactoryBean extends ClientProxyFactoryBean {
         Class cls = getClientFactoryBean().getServiceClass();
         return new Class[] {cls, BindingProvider.class};
     }
+    
+    @Override
+    public Object create() {
+        Object obj = super.create();
+        Service service = getServiceFactory().getService();
+        if (needWrapperClassInterceptor(service.getServiceInfos().get(0))) {
+            List<Interceptor> in = super.getInInterceptors();
+            List<Interceptor> out = super.getOutInterceptors();
+            in.add(new WrapperClassInInterceptor());
+            in.add(new HolderInInterceptor());
+            out.add(new WrapperClassOutInterceptor());
+            out.add(new HolderOutInterceptor());
+        }
+        return obj;
+              
+    }
+    
+    private boolean needWrapperClassInterceptor(ServiceInfo serviceInfo) {
+        if (serviceInfo == null) {
+            return false;
+        }
+
+        for (OperationInfo opInfo : serviceInfo.getInterface().getOperations()) {
+            if (opInfo.isUnwrappedCapable()
+                && opInfo.getProperty(ReflectionServiceFactoryBean.WRAPPERGEN_NEEDED) != null) {
+                return true;
+
+            }
+        }
+        return false;
+    }
+   
+    
 }

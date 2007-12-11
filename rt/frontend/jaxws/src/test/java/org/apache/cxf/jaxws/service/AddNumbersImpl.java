@@ -19,13 +19,18 @@
 
 package org.apache.cxf.jaxws.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @javax.jws.WebService(endpointInterface = "org.apache.cxf.jaxws.service.AddNumbers")
 public class AddNumbersImpl implements AddNumbers {
 
     public List<Integer> addNumbers(List<String> arg) {
-        return null;
+        List<Integer> res = new ArrayList<Integer>();
+        res.add(100);
+        res.add(200);
+        return res;
+
     }
 
 }
