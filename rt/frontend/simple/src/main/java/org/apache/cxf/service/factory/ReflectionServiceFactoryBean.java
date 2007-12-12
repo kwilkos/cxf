@@ -307,7 +307,6 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         if (Proxy.isProxyClass(this.getServiceClass())) {
             LOG.log(Level.WARNING, "USING_PROXY_FOR_SERVICE", getServiceClass());
         }
-
         ServiceInfo serviceInfo = new ServiceInfo();
         SchemaCollection col = serviceInfo.getXmlSchemaCollection();
         col.getExtReg().registerSerializer(MimeAttribute.class, new MimeSerializer());
@@ -323,9 +322,11 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
 
         createInterface(serviceInfo);
 
+
         for (ServiceInfo si : getService().getServiceInfos()) {
-            if (getExtraClass() != null) {
-                si.setProperty(EXTRA_CLASS, getExtraClass());
+            Set<?> wrapperClasses = this.getExtraClass();
+            if (wrapperClasses != null) {
+                serviceInfo.setProperty(EXTRA_CLASS, wrapperClasses);
             }
         }
         

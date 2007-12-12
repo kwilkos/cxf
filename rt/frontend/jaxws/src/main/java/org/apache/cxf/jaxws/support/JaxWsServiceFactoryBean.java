@@ -85,6 +85,10 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
     
     private List<WebServiceFeature> wsFeatures;
 
+    private boolean wrapperBeanGenerated;
+    private Set<Class<?>> wrapperClasses;
+    
+    
     public JaxWsServiceFactoryBean() {
         getIgnoredClasses().add(Service.class.getName());
         
@@ -523,6 +527,13 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
     
     @Override
     protected Set<Class<?>> getExtraClass() {
+        if (!wrapperBeanGenerated) {
+            wrapperClasses = generatedWrapperBeanClass();
+        } 
+        return wrapperClasses;
+    }
+    
+    private Set<Class<?>> generatedWrapperBeanClass() {
         ServiceInfo serviceInfo = getService().getServiceInfos().get(0);
         WrapperClassGenerator wrapperGen = new WrapperClassGenerator(serviceInfo.getInterface());
         return wrapperGen.genearte();

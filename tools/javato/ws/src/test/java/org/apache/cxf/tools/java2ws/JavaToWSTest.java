@@ -303,6 +303,21 @@ public class JavaToWSTest extends ToolTestBase {
                    str.indexOf(":swaRef") > -1 && str.indexOf(swaImport) > -1);
 
     }
+    
+    
+    @Test
+    public void testXmlJavaTypeAdapter() throws Exception {
+        String[] args = new String[] {"-o", output.getPath() + "/xmladapter.wsdl", "-verbose",
+                                      "-wsdl", "org.apache.xmladapter.GreeterImpl"};
+       
+        JavaToWS.main(args);
+        File file = new File(output.getPath() + "/xmladapter.wsdl");
+        String str = FileUtils.getStringFromFile(file);
+        String expected = "<xs:element  minOccurs=\"0\"  name=\"arg0\"  type=\"xs:string\"/>";
+        assertTrue("@XmlJavaTypeAdapter in SEI dose not take effect",
+                   str.indexOf(expected) > -1);
+            
+    }
 
 
     protected String getClassPath() throws URISyntaxException {

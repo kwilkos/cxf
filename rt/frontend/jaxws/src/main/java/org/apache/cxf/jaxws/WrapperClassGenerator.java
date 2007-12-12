@@ -19,6 +19,7 @@
 
 package org.apache.cxf.jaxws;
 
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
@@ -94,8 +95,8 @@ public final class WrapperClassGenerator extends ASMHelper {
     public Set<Class<?>> genearte() {
         for (OperationInfo opInfo : interfaceInfo.getOperations()) {
             if (opInfo.isUnwrappedCapable()
-                && opInfo.getUnwrappedOperation().getProperty(ReflectionServiceFactoryBean.WRAPPERGEN_NEEDED) 
-                != null) {
+                && (opInfo.getUnwrappedOperation()
+                    .getProperty(ReflectionServiceFactoryBean.WRAPPERGEN_NEEDED) != null)) {
                 Method method = (Method)opInfo.getProperty(ReflectionServiceFactoryBean.METHOD);
                 MessageInfo messageInfo = opInfo.getUnwrappedOperation().getInput();
                 Class requestWrapperClass = createWrapperClass(messageInfo, method, true);
@@ -192,9 +193,10 @@ public final class WrapperClassGenerator extends ASMHelper {
             filedDescriptor = classCode.substring(0, classCode.lastIndexOf(";")) + "<"
                               + getClassCode(genericTypeClass) + ">;";
         }
-        String fieldName = JavaUtils.makeNonJavaKeyword(name);
-
-        FieldVisitor fv = cw.visitField(Opcodes.ACC_PRIVATE, fieldName, classCode, filedDescriptor, null);
+        String fieldName = JavaUtils.isJavaKeyword(name) ? JavaUtils.makeNonJavaKeyword(name) : name;
+        
+        FieldVisitor fv = cw.visitField(Opcodes.ACC_PRIVATE, fieldName, 
+                                        classCode, filedDescriptor, null);
         AnnotationVisitor av0 = fv.visitAnnotation("Ljavax/xml/bind/annotation/XmlElement;", true);
         av0.visit("name", name);
         av0.visit("namespace", "");
@@ -208,8 +210,13 @@ public final class WrapperClassGenerator extends ASMHelper {
                 av0.visitEnd();
             } else if (ann instanceof XmlJavaTypeAdapter) {
                 av0 = fv.visitAnnotation("Ljavax/xml/bind/annotation/adapters/XmlJavaTypeAdapter;", true);
-                av0.visit("value", ((XmlJavaTypeAdapter)ann).value());
-                av0.visit("type", ((XmlJavaTypeAdapter)ann).type());
+                XmlJavaTypeAdapter adapter = (XmlJavaTypeAdapter)ann;
+                if (adapter.value() != null) {
+                    av0.visit("value", org.objectweb.asm.Type.getType(getClassCode(adapter.value())));
+                }
+                if (adapter.type() != javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter.DEFAULT.class) {
+                    av0.visit("type", org.objectweb.asm.Type.getType(getClassCode(adapter.type())));
+                }
                 av0.visitEnd();
             } else if (ann instanceof XmlAttachmentRef) {
                 av0 = fv.visitAnnotation("Ljavax/xml/bind/annotation/XmlAttachmentRef;", true);
@@ -228,34 +235,21 @@ public final class WrapperClassGenerator extends ASMHelper {
         MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC, "get" + methodName, "()" + classCode, null,
                                           null);
         mv.visitCode();
-        Label l2 = new Label();
-        mv.visitLabel(l2);
+
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         mv.visitFieldInsn(Opcodes.GETFIELD, classFileName, fieldName, classCode);
-        mv.visitInsn(Opcodes.ARETURN);
-        Label l3 = new Label();
-        mv.visitLabel(l3);
-        mv.visitLocalVariable("this", classCode, null, l2, l3, 0);
-        mv.visitMaxs(1, 1);
+        mv.visitInsn(org.objectweb.asm.Type.getType(classCode).getOpcode(Opcodes.IRETURN));
+        mv.visitMaxs(0, 0);
         mv.visitEnd();
-
+        
         mv = cw.visitMethod(Opcodes.ACC_PUBLIC, "set" + methodName, "(" + classCode + ")V", null, null);
         mv.visitCode();
-        Label l4 = new Label();
-        mv.visitLabel(l4);
         mv.visitVarInsn(Opcodes.ALOAD, 0);
-        mv.visitVarInsn(Opcodes.ALOAD, 1);
-        mv.visitFieldInsn(Opcodes.PUTFIELD, className, fieldName, classCode);
-        Label l5 = new Label();
-        mv.visitLabel(l5);
+        org.objectweb.asm.Type setType = org.objectweb.asm.Type.getType(classCode);
+        mv.visitVarInsn(setType.getOpcode(Opcodes.ILOAD), 1);
+        mv.visitFieldInsn(Opcodes.PUTFIELD, className, fieldName, classCode);       
         mv.visitInsn(Opcodes.RETURN);
-        Label l6 = new Label();
-        mv.visitLabel(l6);
-
-        mv.visitLocalVariable("this", "L" + classFileName + ";", null, l4, l6, 0);
-        mv.visitLocalVariable(fieldName, classCode, null, l4, l6, 1);
-        mv.visitMaxs(2, 2);
-
+        mv.visitMaxs(0, 0);
         mv.visitEnd();
 
     }
