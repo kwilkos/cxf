@@ -51,7 +51,7 @@ public class WSDLToJavaScriptProcessor extends WSDLToProcessor {
 
         File jsFile = getOutputFile(serviceInfo.getName().getLocalPart() + ".js");
 
-        BasicNameManager nameManager = new BasicNameManager(serviceInfo, null);
+        BasicNameManager nameManager = BasicNameManager.newNameManager(serviceInfo, null);
         NamespacePrefixAccumulator prefixManager = new NamespacePrefixAccumulator(serviceInfo
             .getXmlSchemaCollection());
         Collection<SchemaInfo> schemata = serviceInfo.getSchemas();
