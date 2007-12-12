@@ -83,6 +83,11 @@ public class JaxWsEndpointImpl extends EndpointImpl {
     public JaxWsEndpointImpl(Bus bus, Service s, EndpointInfo ei) throws EndpointException {
         this(bus, s, ei, null, null, null, true);
     }
+    
+    public JaxWsEndpointImpl(Bus bus, Service s, EndpointInfo ei, 
+                             List<WebServiceFeature> wf) throws EndpointException {
+        this(bus, s, ei, null, wf, null, true);
+    }    
 
     public JaxWsEndpointImpl(Bus bus, Service s, EndpointInfo ei, JaxWsImplementorInfo implementorInfo, 
                              List<WebServiceFeature> wf, List<AbstractFeature> af, boolean isFromWsdl)

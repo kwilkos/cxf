@@ -153,7 +153,8 @@ public class ServiceImpl extends ServiceDelegate {
         portInfos.put(portName, portInfo);
     }
 
-    private Endpoint getJaxwsEndpoint(QName portName, AbstractServiceFactoryBean sf) {
+    private Endpoint getJaxwsEndpoint(QName portName, AbstractServiceFactoryBean sf, 
+                                      WebServiceFeature...features) {
         Service service = sf.getService();
         EndpointInfo ei = null;
         if (portName == null) {
@@ -178,7 +179,7 @@ public class ServiceImpl extends ServiceDelegate {
         }
 
         try {
-            return new JaxWsClientEndpointImpl(bus, service, ei, this);
+            return new JaxWsClientEndpointImpl(bus, service, ei, this, features);
         } catch (EndpointException e) {
             throw new WebServiceException(e);
         }
@@ -206,55 +207,7 @@ public class ServiceImpl extends ServiceDelegate {
         }    
         configureObject(dispatchService);
         return serviceFactory;
-    }
-
-    public <T> Dispatch<T> createDispatch(QName portName, Class<T> type, Mode mode) {
-        JaxWsClientFactoryBean clientFac = new JaxWsClientFactoryBean();
-
-        //Initialize Features.
-        configureObject(portName.toString() + ".jaxws-client.proxyFactory", clientFac);
-
-        AbstractServiceFactoryBean sf = null;
-        try {
-            sf = createDispatchService(new SourceDataBinding());
-        } catch (ServiceConstructionException e) {
-            throw new WebServiceException(e);
-        }
-        Endpoint endpoint = getJaxwsEndpoint(portName, sf);
-        Client client = new ClientImpl(getBus(), endpoint, clientFac.getConduitSelector());
-        for (AbstractFeature af : clientFac.getFeatures()) {
-            af.initialize(client, bus);
-        }
-        
-        Dispatch<T> disp = new DispatchImpl<T>(bus, client, mode, type, getExecutor());
-        configureObject(disp);
-
-        return disp;
-    }
-
-    public Dispatch<Object> createDispatch(QName portName, JAXBContext context, Mode mode) {
-        JaxWsClientFactoryBean clientFac = new JaxWsClientFactoryBean();
-        
-        //Initialize Features.
-        configureObject(portName.toString() + ".jaxws-client.proxyFactory", clientFac);
-
-        AbstractServiceFactoryBean sf = null;
-        try {
-            sf = createDispatchService(new JAXBDataBinding(context));
-        } catch (ServiceConstructionException e) {
-            throw new WebServiceException(e);
-        }
-        Endpoint endpoint = getJaxwsEndpoint(portName, sf);
-        Client client = new ClientImpl(getBus(), endpoint, clientFac.getConduitSelector());
-        for (AbstractFeature af : clientFac.getFeatures()) {
-            af.initialize(client, bus);
-        }
-        Dispatch<Object> disp = new DispatchImpl<Object>(bus, client, mode, 
-                                                         context, Object.class, getExecutor());
-        configureObject(disp);
-
-        return disp;
-    }
+    }    
 
     public Executor getExecutor() {
         return executor;
@@ -526,36 +479,94 @@ public class ServiceImpl extends ServiceDelegate {
         return new QName(tns, name);
     }
     
+    @Override
+    public <T> Dispatch<T> createDispatch(QName portName, Class<T> type, Mode mode) {
+        return createDispatch(portName, type, mode, new WebServiceFeature[]{});
+    }
     
-    //  TODO JAX-WS 2.1
+    @Override
     public <T> Dispatch<T> createDispatch(QName portName,
                                           Class<T> type,
                                           Mode mode,
                                           WebServiceFeature... features) {
-        throw new UnsupportedOperationException();
-    }
+        JaxWsClientFactoryBean clientFac = new JaxWsClientFactoryBean();
 
+        //Initialize Features.
+        configureObject(portName.toString() + ".jaxws-client.proxyFactory", clientFac);
+
+        AbstractServiceFactoryBean sf = null;
+        try {
+            sf = createDispatchService(new SourceDataBinding());
+        } catch (ServiceConstructionException e) {
+            throw new WebServiceException(e);
+        }
+        Endpoint endpoint = getJaxwsEndpoint(portName, sf, features);
+        Client client = new ClientImpl(getBus(), endpoint, clientFac.getConduitSelector());
+        for (AbstractFeature af : clientFac.getFeatures()) {
+            af.initialize(client, bus);
+        }
+        
+        Dispatch<T> disp = new DispatchImpl<T>(bus, client, mode, type, getExecutor());
+        configureObject(disp);
+
+        return disp;
+    }
+    
+    @Override
     public <T> Dispatch<T> createDispatch(EndpointReference endpointReference,
                                           Class<T> type,
                                           Mode mode,
                                           WebServiceFeature... features) {
-        throw new UnsupportedOperationException();
-    }
+        EndpointReferenceType ref = VersionTransformer.convertToInternal(endpointReference);
+        return createDispatch(EndpointReferenceUtils.getPortQName(ref), 
+                              type, mode, features);
+    }   
 
+
+    @Override
+    public Dispatch<Object> createDispatch(QName portName, JAXBContext context, Mode mode) {
+        return createDispatch(portName, context, mode, new WebServiceFeature[]{});
+    }    
+
+    @Override
     public Dispatch<Object> createDispatch(QName portName,
                                            JAXBContext context,
                                            Mode mode,
                                            WebServiceFeature... features) {
-        throw new UnsupportedOperationException();
+        JaxWsClientFactoryBean clientFac = new JaxWsClientFactoryBean();
+        
+        //Initialize Features.
+        configureObject(portName.toString() + ".jaxws-client.proxyFactory", clientFac);
+
+        AbstractServiceFactoryBean sf = null;
+        try {
+            sf = createDispatchService(new JAXBDataBinding(context));
+        } catch (ServiceConstructionException e) {
+            throw new WebServiceException(e);
+        }
+        Endpoint endpoint = getJaxwsEndpoint(portName, sf, features);
+        Client client = new ClientImpl(getBus(), endpoint, clientFac.getConduitSelector());
+        for (AbstractFeature af : clientFac.getFeatures()) {
+            af.initialize(client, bus);
+        }
+        Dispatch<Object> disp = new DispatchImpl<Object>(bus, client, mode, 
+                                                         context, Object.class, getExecutor());
+        configureObject(disp);
+
+        return disp;
     }
 
+    @Override
     public Dispatch<Object> createDispatch(EndpointReference endpointReference,
                                            JAXBContext context,
                                            Mode mode,
                                            WebServiceFeature... features) {
-        throw new UnsupportedOperationException();
+        EndpointReferenceType ref = VersionTransformer.convertToInternal(endpointReference);
+        return createDispatch(EndpointReferenceUtils.getPortQName(ref), 
+                              context, mode, features);        
     }
 
+    @Override
     public <T> T getPort(EndpointReference endpointReference, Class<T> serviceEndpointInterface,
                          WebServiceFeature... features) {
         return getPort(VersionTransformer.convertToInternal(endpointReference), serviceEndpointInterface,

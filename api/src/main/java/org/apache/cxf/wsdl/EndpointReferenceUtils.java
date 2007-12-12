@@ -230,6 +230,11 @@ public final class EndpointReferenceUtils {
         return null;
     }
     
+    public static QName getPortQName(EndpointReferenceType ref) {
+        QName serviceName = getServiceName(ref); 
+        return new QName(serviceName.getNamespaceURI(), getPortName(ref));
+    }
+    
     public static void setPortName(EndpointReferenceType ref, String portName) {
         MetadataType metadata = ref.getMetadata();
         if (metadata != null) {

@@ -19,7 +19,10 @@
 
 package org.apache.cxf.jaxws.support;
 
+import java.util.Arrays;
 import java.util.concurrent.Executor;
+
+import javax.xml.ws.WebServiceFeature;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.endpoint.EndpointException;
@@ -35,9 +38,10 @@ public class JaxWsClientEndpointImpl extends JaxWsEndpointImpl {
 
     private ServiceImpl executorProvider;
     
-    public JaxWsClientEndpointImpl(Bus bus, Service s, EndpointInfo ei, ServiceImpl si)
+    public JaxWsClientEndpointImpl(Bus bus, Service s, EndpointInfo ei, ServiceImpl si, 
+                                   WebServiceFeature... wf)
         throws EndpointException {
-        super(bus, s, ei);
+        super(bus, s, ei, Arrays.asList(wf));
         executorProvider = si;
     }
 
