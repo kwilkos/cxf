@@ -349,7 +349,7 @@ public class JavascriptTestUtilities extends TestUtilities {
 
     public void loadJavascriptForService(ServiceInfo serviceInfo) {
         Collection<SchemaInfo> schemata = serviceInfo.getSchemas();
-        BasicNameManager nameManager = new BasicNameManager(serviceInfo);
+        BasicNameManager nameManager = BasicNameManager.newNameManager(serviceInfo);
         NamespacePrefixAccumulator prefixManager = new NamespacePrefixAccumulator(serviceInfo
             .getXmlSchemaCollection());
         for (SchemaInfo schema : schemata) {

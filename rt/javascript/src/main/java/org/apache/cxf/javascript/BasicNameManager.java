@@ -41,11 +41,37 @@ public class BasicNameManager implements NameManager {
     
     private Map<String, String> nsPrefixMap;
     
-    public BasicNameManager(ServiceInfo service) {
-        this(service, null);
+    /**
+     * For unit testing, we allow a very meaningless version.
+     * Real uses use the factory methods.
+     */
+    BasicNameManager() {
     }
     
-    public BasicNameManager(ServiceInfo service, Endpoint endpoint) {
+    /**
+     * Factory that just takes a service. Used in tools and unit tests.
+     * @param service
+     * @return
+     */
+    public static BasicNameManager newNameManager(ServiceInfo service) {
+        BasicNameManager nameManager = new BasicNameManager();
+        nameManager.initialize(service, null);
+        return nameManager;
+    }
+    
+    /**
+     * 
+     * @param service
+     * @param endpoint
+     * @return
+     */
+    public static BasicNameManager newNameManager(ServiceInfo service, Endpoint endpoint) {
+        BasicNameManager nameManager = new BasicNameManager();
+        nameManager.initialize(service, endpoint);
+        return nameManager;
+    }
+
+    private void initialize(ServiceInfo service, Endpoint endpoint) {
         nsPrefixMap = new HashMap<String, String>();
         if (endpoint != null) {
             JavascriptOptionsFeature options = getOptions(endpoint);
@@ -74,7 +100,7 @@ public class BasicNameManager implements NameManager {
             defineFallbackPrefix(uri);
         }
     }
-    
+
     private JavascriptOptionsFeature getOptions(Endpoint endpoint) {
         if (endpoint != null) {
             for (AbstractFeature feature : endpoint.getActiveFeatures()) {
@@ -86,9 +112,18 @@ public class BasicNameManager implements NameManager {
         return new JavascriptOptionsFeature(); // save work and return a default set of options.
     }
 
+    /**
+     * Take a URI and turn it into a JavaScript name prefix.
+     * @param uri input URI.
+     * @return output prefix.
+     */
+    protected String transformURI(String uri) {
+        return uri.replaceAll("http:/*", "").replace("uri:", "").replaceAll("[\\.:/-]", "_");
+    }
+
     private String defineFallbackPrefix(String uri) {
         // this needs more work later. We are bound to annoy someone somehow in this area.
-        String jsPrefix = uri.replace("http:", "").replace("uri:", "").replaceAll("[\\.:/-]", "_");
+        String jsPrefix = transformURI(uri);
         nsPrefixMap.put(uri, jsPrefix);
         return jsPrefix;
     }

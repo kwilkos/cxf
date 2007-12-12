@@ -126,7 +126,8 @@ public class JavascriptQueryHandler implements StemMatchingQueryHandler {
             ServiceInfo serviceInfo = endpoint.getService();
             Collection<SchemaInfo> schemata = serviceInfo.getSchemas();
             Endpoint serverEndpoint = findEndpoint(endpoint);
-            BasicNameManager nameManager = new BasicNameManager(serviceInfo, serverEndpoint);
+            // we need to move this to the bus.
+            BasicNameManager nameManager = BasicNameManager.newNameManager(serviceInfo, serverEndpoint);
             NamespacePrefixAccumulator prefixManager = new NamespacePrefixAccumulator(serviceInfo
                 .getXmlSchemaCollection());
             try {
