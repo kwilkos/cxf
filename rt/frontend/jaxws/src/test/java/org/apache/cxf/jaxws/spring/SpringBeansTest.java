@@ -22,6 +22,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.List;
 
+
 import javax.xml.namespace.QName;
 
 import junit.framework.Assert;
@@ -147,6 +148,12 @@ public class SpringBeansTest extends Assert {
         bean = ctx.getBean("wsdlLocation");
         assertNotNull(bean);
         
+        bean = ctx.getBean("publishedEndpointUrl");
+        assertNotNull(bean);
+        String expectedEndpointUrl = "http://cxf.apache.org/Greeter";
+        ep = (EndpointImpl) bean;
+        assertEquals(expectedEndpointUrl, ep.getPublishedEndpointUrl());
+        
         // test for existence of Endpoint without an id element
         boolean found = false;
         String[] names = ctx.getBeanNamesForType(EndpointImpl.class);
@@ -160,6 +167,7 @@ public class SpringBeansTest extends Assert {
         testInterceptors(ctx);
     }
 
+   
     private void testNamespaceMapping(ApplicationContext ctx) throws Exception {
         AnonymousComplexType act = (AnonymousComplexType) ctx.getBean("bookClient");
         Client client = ClientProxy.getClient(act);
