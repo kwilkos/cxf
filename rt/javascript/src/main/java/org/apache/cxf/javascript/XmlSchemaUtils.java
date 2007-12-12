@@ -36,8 +36,9 @@ import org.apache.ws.commons.schema.XmlSchemaSequence;
 import org.apache.ws.commons.schema.XmlSchemaType;
 
 /**
- * There are a number of pitfalls in Commons Xml Schema. This class contains some utilities
- * that avoid some of the problems and centralizes some repetitive tasks. 
+ * There are a number of pitfalls in Commons Xml Schema. This class contains
+ * some utilities that avoid some of the problems and centralizes some
+ * repetitive tasks.
  */
 public final class XmlSchemaUtils {
     public static final XmlSchemaForm QUALIFIED = new XmlSchemaForm(XmlSchemaForm.QUALIFIED);
@@ -94,13 +95,14 @@ public final class XmlSchemaUtils {
     }
     
     /**
-     * This copes with an observed phenomenon in the schema built by the 
-     * ReflectionServiceFactoryBean. It 
-     * is creating element such that: (a) the type is not set. (b) the refName is set. 
-     * (c) the namespaceURI in the refName is set empty. This apparently indicates 
-     * 'same Schema' to everyone else, so thus function implements
-     * that convention here. It is unclear if that is a correct structure, 
-     * and it if changes, we can simplify or eliminate this function.
+     * This copes with an observed phenomenon in the schema built by the
+     * ReflectionServiceFactoryBean. It is creating element such that: (a) the
+     * type is not set. (b) the refName is set. (c) the namespaceURI in the
+     * refName is set empty. This apparently indicates 'same Schema' to everyone
+     * else, so thus function implements that convention here. It is unclear if
+     * that is a correct structure, and it if changes, we can simplify or
+     * eliminate this function.
+     * 
      * @param name
      * @param referencingURI
      * @return
@@ -120,7 +122,9 @@ public final class XmlSchemaUtils {
     
     
     /**
-     * Follow a chain of references from element to element until we can obtain a type.
+     * Follow a chain of references from element to element until we can obtain
+     * a type.
+     * 
      * @param element
      * @return
      */
@@ -138,7 +142,8 @@ public final class XmlSchemaUtils {
             return type;
         }
         assert element != null;
-        // The referencing URI only helps if there is a schema that points to it.
+        // The referencing URI only helps if there is a schema that points to
+        // it.
         // It might be the URI for the wsdl TNS, which might have no schema.
         if (xmlSchemaCollection.getSchemaByTargetNamespace(referencingURI) == null) {
             referencingURI = null;
@@ -181,20 +186,20 @@ public final class XmlSchemaUtils {
     }
     
     /**
-     * due to a bug, feature, or just plain oddity of JAXB, it isn't good enough to just check the 
-     * for of an element and of its schema. If schema 'a' (default unqualified) has a complex type
-     * with an element with a ref= to schema (b) (default unqualified), JAXB seems to expect to
-     * see a qualifier, anyway.
-     * <br/>
-     * So, if the element is local to a complex type, all we care about is the default element form of the
-     * schema and the local form of the element.
-     * <br/>
-     * If, on the other hand, the element is global, we might need to compare namespaces. 
-     * <br/>
+     * due to a bug, feature, or just plain oddity of JAXB, it isn't good enough
+     * to just check the for of an element and of its schema. If schema 'a'
+     * (default unqualified) has a complex type with an element with a ref= to
+     * schema (b) (default unqualified), JAXB seems to expect to see a
+     * qualifier, anyway. <br/> So, if the element is local to a complex type,
+     * all we care about is the default element form of the schema and the local
+     * form of the element. <br/> If, on the other hand, the element is global,
+     * we might need to compare namespaces. <br/>
+     * 
      * @param element the element.
-     * @param global if this element is a global element (complex type ref= to it, or in a part)
-     * @param localSchema the schema of the complex type containing the reference, 
-     * only used for the 'odd case'.
+     * @param global if this element is a global element (complex type ref= to
+     *                it, or in a part)
+     * @param localSchema the schema of the complex type containing the
+     *                reference, only used for the 'odd case'.
      * @param elementSchema the schema for the element.
      * @return if the element needs to be qualified.
      */
@@ -225,6 +230,18 @@ public final class XmlSchemaUtils {
     public static boolean isParticleOptional(XmlSchemaParticle particle) {
         return particle.getMinOccurs() == 0 && particle.getMaxOccurs() == 1;
     }
-      
+    
+    public static XmlSchemaElement getReferredElement(XmlSchemaElement element, 
+                                                      SchemaCollection xmlSchemaCollection) {
+        if (element.getRefName() != null) {
+            XmlSchemaElement refElement = xmlSchemaCollection.getElementByQName(element.getRefName());
+            if (refElement == null) {
+                throw new RuntimeException("Dangling reference");
+            }
+            return refElement;
+        }
+        return null;
+    }
+        
 
 }

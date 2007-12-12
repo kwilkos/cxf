@@ -48,7 +48,7 @@ public class JavascriptQueryHandler implements StemMatchingQueryHandler {
     private static final String JS_UTILS_PATH = "/org/apache/cxf/javascript/cxf-utils.js";
     private static final Logger LOG = LogUtils.getL7dLogger(JavascriptQueryHandler.class);
     private static final Charset UTF8 = Charset.forName("utf-8");
-    private static final String UTILS_QUERY_KEY = "jsutils";
+    private static final String NO_UTILS_QUERY_KEY = "nojsutils";
     private static final String CODE_QUERY_KEY = "js";
     private Bus bus;
 
@@ -60,7 +60,7 @@ public class JavascriptQueryHandler implements StemMatchingQueryHandler {
     public String getResponseContentType(String fullQueryString, String ctx) {
         URI uri = URI.create(fullQueryString);
         Map<String, String> map = UrlUtilities.parseQueryString(uri.getQuery());
-        if (map.containsKey(UTILS_QUERY_KEY) || map.containsKey(CODE_QUERY_KEY)) {
+        if (map.containsKey(CODE_QUERY_KEY)) {
             return "application/javascript;charset=UTF-8";
         }
         return null;
@@ -73,10 +73,6 @@ public class JavascriptQueryHandler implements StemMatchingQueryHandler {
         }
         URI uri = URI.create(baseUri);
         Map<String, String> map = UrlUtilities.parseQueryString(uri.getQuery());
-        if (map.containsKey(UTILS_QUERY_KEY)) {
-            // the utils are independent of the endpoint.
-            return true;
-        }
         if (map.containsKey(CODE_QUERY_KEY)) {
             return endpointInfo.getAddress().contains(UrlUtilities.getStem(uri.getSchemeSpecificPart()));
         }
@@ -95,6 +91,7 @@ public class JavascriptQueryHandler implements StemMatchingQueryHandler {
             while ((count = utils.read(buffer, 0, 1024)) > 0) {
                 outputStream.write(buffer, 0, count);
             }
+            outputStream.flush();
         } catch (IOException e) {
             throw new RuntimeException("Failed to write javascript utils to HTTP response.", e);
         }
@@ -120,9 +117,10 @@ public class JavascriptQueryHandler implements StemMatchingQueryHandler {
         String query = uri.getQuery();
         Map<String, String> map = UrlUtilities.parseQueryString(query);
         OutputStreamWriter writer = new OutputStreamWriter(os, UTF8);
-        if (map.containsKey(UTILS_QUERY_KEY)) {
+        if (!map.containsKey(NO_UTILS_QUERY_KEY)) {
             writeUtilsToResponseStream(JavascriptQueryHandler.class, os);
-        } else if (map.containsKey(CODE_QUERY_KEY)) {
+        } 
+        if (map.containsKey(CODE_QUERY_KEY)) {
             ServiceInfo serviceInfo = endpoint.getService();
             Collection<SchemaInfo> schemata = serviceInfo.getSchemas();
             Endpoint serverEndpoint = findEndpoint(endpoint);

@@ -44,7 +44,8 @@ public class ServiceModelSchemaValidator extends ServiceModelVisitor {
 
     @Override
     public void begin(MessagePartInfo part) {
-        if (part.isElement()) {
+        // the unwrapped parts build for wrapped operations don't have real elements.
+        if (part.isElement() && !part.getMessageInfo().getOperation().isUnwrapped()) {
             try {
                 schemaCollection.validateElementName(part.getName(), part.getElementQName());
             } catch (InvalidXmlSchemaReferenceException ixsre) {

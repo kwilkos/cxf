@@ -264,7 +264,7 @@ public class WSDLQueryHandler implements StemMatchingQueryHandler {
                 
                 if (resolvedSchemaLocation == null) {
                     try {
-                        //check to see if it's aleady in a URL format.  If so, leave it.
+                        //check to see if it's already in a URL format.  If so, leave it.
                         new URL(start);
                     } catch (MalformedURLException e) {
                         done.put(start, imp.getDefinition());
@@ -339,7 +339,7 @@ public class WSDLQueryHandler implements StemMatchingQueryHandler {
                     String resolvedSchemaLocation = resolveWithCatalogs(catalogs, start, base);
                     if (resolvedSchemaLocation == null) {
                         try {
-                            //check to see if it's aleady in a URL format.  If so, leave it.
+                            //check to see if it's already in a URL format.  If so, leave it.
                             new URL(start);
                         } catch (MalformedURLException e) {
                             doneSchemas.put(start, imp);

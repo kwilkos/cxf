@@ -114,12 +114,12 @@ public class QueryHandlerTest extends AbstractCXFSpringTest {
     
     @Test
     public void utilsTest() throws Exception {
-        URL endpointURL = new URL(dlbEndpoint.getAddress()  + "?jsutils");
+        URL endpointURL = new URL(dlbEndpoint.getAddress()  + "?js&nojsutils");
         URLConnection connection = endpointURL.openConnection();
         assertEquals("application/javascript;charset=UTF-8", connection.getContentType());
         InputStream jsStream = connection.getInputStream();
         String jsString = readStringFromStream(jsStream);
-        assertTrue(jsString.contains("CxfApacheOrgUtil"));
+        assertFalse(jsString.contains("function CxfApacheOrgUtil"));
     }
     
     // this is in here since we need to use the query handler to perform the test.

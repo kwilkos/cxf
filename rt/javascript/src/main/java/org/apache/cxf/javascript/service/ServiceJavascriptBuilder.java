@@ -408,7 +408,7 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
                 if (null == complexType.getName()) {
                     throw new RuntimeException("anonymous type unexpected.");
                 }
-                typeObjectName = nameManager.getJavascriptName(complexType);
+                typeObjectName = nameManager.getJavascriptName(complexType.getQName());
                 utils
                     .appendLine("var returnObject = " 
                                 + typeObjectName 
@@ -662,7 +662,7 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
                 // we should be ignoring this for zero-argument wrappers.
                 inputWrapperClassName = nameManager.getJavascriptName(inputWrapperPartInfo.getName());
             } else {
-                inputWrapperClassName = nameManager.getJavascriptName(inputWrapperComplexType);
+                inputWrapperClassName = nameManager.getJavascriptName(inputWrapperComplexType.getQName());
             }
         }
 

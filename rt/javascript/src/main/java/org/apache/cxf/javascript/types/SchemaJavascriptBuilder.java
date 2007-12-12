@@ -120,7 +120,7 @@ public class SchemaJavascriptBuilder {
                     } else {
                         type = schema.getSchema().getTypeByName(element.getSchemaTypeName());
                     }
-                    if (!(xmlSchemaObject instanceof XmlSchemaComplexType)) { 
+                    if (!(type instanceof XmlSchemaComplexType)) { 
                         // we never make classes for simple type.
                         continue;
                     }
@@ -251,7 +251,7 @@ public class SchemaJavascriptBuilder {
         utils.appendLine("return xml;");
         code.append("}\n");
 
-        code.append(nameManager.getJavascriptName(type) + ".prototype.serialize = " + functionName + ";\n");
+        code.append(nameManager.getJavascriptName(name) + ".prototype.serialize = " + functionName + ";\n");
         return code.toString();
     }
    
@@ -327,28 +327,17 @@ public class SchemaJavascriptBuilder {
                                                     thing.getClass().getSimpleName(), type);
             }
             
-            boolean global = false;
             XmlSchemaElement sequenceElement = (XmlSchemaElement)thing;
-            XmlSchemaElement realElement = sequenceElement;
-            
-            if (sequenceElement.getRefName() != null) {
-                XmlSchemaElement refElement = 
-                    xmlSchemaCollection.getElementByQName(sequenceElement.getRefName());
-                if (refElement == null) {
-                    throw new RuntimeException("Dangling reference");
-                }
-                realElement = refElement;
-                global = true;
+            XmlSchemaElement realElement = XmlSchemaUtils.getReferredElement(sequenceElement, 
+                                                                             xmlSchemaCollection);
+            boolean global = realElement != null;
+            if (!global) {
+                realElement = sequenceElement;
             }
-            
             XmlSchemaType elType = XmlSchemaUtils.getElementType(xmlSchemaCollection, 
                                                                  null, realElement, type);
             boolean simple = elType instanceof XmlSchemaSimpleType;
-
             String accessorName = "set" + StringUtils.capitalize(realElement.getName()); 
-            // For optional or an array, we need to check if the element is the 
-            // one we want.
-            
             String elementName = realElement.getName();
             utils.appendLine("cxfjsutils.trace('processing " + elementName + "');");
             String elementNamespaceURI = realElement.getQName().getNamespaceURI();
@@ -359,9 +348,9 @@ public class SchemaJavascriptBuilder {
             }
             boolean qualified = !elementNoNamespace
                 && XmlSchemaUtils.isElementQualified(realElement, 
-                                                  global, 
-                                                  schemaInfo.getSchema(),
-                                                  elementSchema);
+                                                     global, 
+                                                     schemaInfo.getSchema(),
+                                                     elementSchema);
             
             if (!qualified) {
                 elementNamespaceURI = "";
@@ -392,7 +381,13 @@ public class SchemaJavascriptBuilder {
                                  + " = " + utils.javascriptParseExpression(elType, "value") 
                                  + ";");
             } else {
-                String elTypeJsName = nameManager.getJavascriptName((XmlSchemaComplexType)elType);
+                XmlSchemaComplexType complexType = (XmlSchemaComplexType)elType;
+                QName baseQName = complexType.getQName();
+                if (baseQName == null) {
+                    baseQName = realElement.getQName();
+                }
+                
+                String elTypeJsName = nameManager.getJavascriptName(baseQName);
                 utils.appendLine(valueTarget + " = " 
                                  + elTypeJsName 
                                  + "_deserialize(cxfjsutils, curElement);");
