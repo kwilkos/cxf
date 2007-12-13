@@ -19,8 +19,12 @@
 
 package org.apache.cxf.service.factory;
 
+import java.lang.reflect.Array;
+import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.Arrays;
 
 import javax.xml.namespace.QName;
@@ -39,10 +43,18 @@ public class DefaultServiceConfiguration extends AbstractServiceConfiguration {
     
     @Override
     public QName getOperationName(InterfaceInfo service, Method method) {
+        boolean fromWsdl = this.getServiceFactory().isFromWsdl();
         String ns = service.getName().getNamespaceURI();
         String local = method.getName();
-
+        
         QName name = new QName(ns, local);
+        
+        if (fromWsdl && service.getOperation(name) != null) {
+            //just matching the ops in the class to the ops on the wsdl
+            //probably should check the params and such
+            return name;
+        }
+        
         if (service.getOperation(name) == null) {
             return name;
         }
@@ -214,11 +226,62 @@ public class DefaultServiceConfiguration extends AbstractServiceConfiguration {
 
     @Override
     public Boolean isOutParam(Method method, int j) {
-        return j < 0;
+        if (j < 0) {
+            return Boolean.TRUE;
+        }
+        Class<?> cls = method.getParameterTypes()[j];
+        Type tp = method.getGenericParameterTypes()[j];
+        
+        return isHolder(cls, tp);
     }
 
     @Override
     public Boolean isWrapped(Method m) {
         return getServiceFactory().isWrapped();
     }
+    
+    @Override
+    public Boolean isHolder(Class<?> cls, Type type) {
+        if (cls.getSimpleName().equals("Holder")
+            && cls.getDeclaredFields().length == 1
+            && "value".equals(cls.getDeclaredFields()[0].getName())
+            && Modifier.isPublic(cls.getDeclaredFields()[0].getModifiers())) {
+            return Boolean.TRUE;
+        }
+        return Boolean.FALSE;
+    }
+    
+    @Override
+    public Class<?> getHolderType(Class<?> cls, Type type) {
+        
+        if (isHolder(cls, type)) {
+            if (type instanceof ParameterizedType) {
+                //JAX-WS style using generics       
+                ParameterizedType paramType = (ParameterizedType)type;
+                cls = getHolderClass(paramType);
+            } else {
+                //JAXRPC style of code generated holder
+                return cls.getDeclaredFields()[0].getType();
+            }
+        }
+
+        return null;
+    }   
+    
+    private static Class getHolderClass(ParameterizedType paramType) {
+        Object rawType = paramType.getActualTypeArguments()[0];
+        Class rawClass;
+        if (rawType instanceof GenericArrayType) {
+            rawClass = (Class)((GenericArrayType)rawType).getGenericComponentType();
+            rawClass = Array.newInstance(rawClass, 0).getClass();
+        } else {
+            if (rawType instanceof ParameterizedType) {
+                rawType = (Class)((ParameterizedType)rawType).getRawType();
+            }
+            rawClass = (Class)rawType;
+        }
+        return rawClass;
+    }
+
+    
 }

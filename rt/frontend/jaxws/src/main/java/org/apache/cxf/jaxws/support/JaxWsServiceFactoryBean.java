@@ -25,7 +25,6 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Logger;
 
 import javax.wsdl.Operation;
 import javax.xml.namespace.QName;
@@ -36,8 +35,6 @@ import javax.xml.ws.WebFault;
 
 import org.apache.cxf.binding.AbstractBindingFactory;
 import org.apache.cxf.common.classloader.ClassLoaderUtils;
-import org.apache.cxf.common.i18n.Message;
-import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.databinding.source.SourceDataBinding;
 import org.apache.cxf.endpoint.Endpoint;
@@ -48,7 +45,6 @@ import org.apache.cxf.jaxws.JAXWSMethodDispatcher;
 import org.apache.cxf.jaxws.interceptors.DispatchInDatabindingInterceptor;
 import org.apache.cxf.jaxws.interceptors.DispatchOutDatabindingInterceptor;
 import org.apache.cxf.jaxws.interceptors.WebFaultOutInterceptor;
-import org.apache.cxf.message.Exchange;
 import org.apache.cxf.service.factory.AbstractServiceConfiguration;
 import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
 import org.apache.cxf.service.factory.ServiceConstructionException;
@@ -58,7 +54,6 @@ import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.service.model.FaultInfo;
 import org.apache.cxf.service.model.InterfaceInfo;
 import org.apache.cxf.service.model.MessageInfo;
-import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.wsdl11.WSDLServiceBuilder;
 
@@ -69,8 +64,6 @@ import org.apache.cxf.wsdl11.WSDLServiceBuilder;
  * @see org.apache.cxf.jaxws.JaxWsServerFactoryBean
  */
 public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
-    private static final Logger LOG = LogUtils.getL7dLogger(JaxWsServiceFactoryBean.class);
-
     private AbstractServiceConfiguration jaxWsConfiguration;
 
     private JaxWsImplementorInfo implInfo;
@@ -142,7 +135,6 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
     @Override
     protected void initializeWSDLOperation(InterfaceInfo intf, OperationInfo o, Method method) {
         method = ((JaxWsServiceConfiguration)jaxWsConfiguration).getDeclaredMethod(method);
-        super.initializeWSDLOperation(intf, o, method);
 
         initializeWrapping(o, method);
 
@@ -265,31 +257,7 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
     //
     // return intf;
     // }
-    private void setFaultClassInfo(OperationInfo o, Method selected) {
-        Class[] types = selected.getExceptionTypes();
-        for (int i = 0; i < types.length; i++) {
-            Class exClass = types[i];
-            Class beanClass = getBeanClass(exClass);
 
-            QName name = getFaultName(o.getInterface(), o, exClass, beanClass);
-
-            for (FaultInfo fi : o.getFaults()) {
-                for (MessagePartInfo mpi : fi.getMessageParts()) {
-                    String ns = null;
-                    if (mpi.isElement()) {
-                        ns = mpi.getElementQName().getNamespaceURI();
-                    } else {
-                        ns = mpi.getTypeQName().getNamespaceURI();
-                    }
-                    if (mpi.getConcreteName().getLocalPart().equals(name.getLocalPart())
-                        && name.getNamespaceURI().equals(ns)) {
-                        fi.setProperty(Class.class.getName(), exClass);
-                        mpi.setTypeClass(beanClass);
-                    }
-                }
-            }
-        }
-    }
 
     @Override
     protected Class<?> getBeanClass(Class<?> exClass) {
@@ -318,117 +286,6 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
         }
         
         return super.getBeanClass(exClass);
-    }
-
-    /**
-     * set the holder generic type info into message part info
-     *
-     * @param o
-     * @param method
-     */
-    protected void initializeClassInfo(OperationInfo o, Method method, List<String> paramOrder) {
-        if (isWrapped(method)) {
-            if (o.getUnwrappedOperation() == null) {
-                //the "normal" algorithm didn't allow for unwrapping,
-                //but the annotations say unwrap this.   We'll need to
-                //make it.
-                WSDLServiceBuilder.checkForWrapped(o, true);
-            }
-
-            if (o.hasInput()) {
-                MessageInfo input = o.getInput();
-                MessagePartInfo part = input.getMessageParts().get(0);
-                part.setTypeClass(getRequestWrapper(method));
-                part.setProperty("REQUEST.WRAPPER.CLASSNAME", getRequestWrapperClassName(method));
-                part.setIndex(0);
-            }
-
-            if (o.hasOutput()) {
-                MessageInfo input = o.getOutput();
-                MessagePartInfo part = input.getMessageParts().get(0);
-                part.setTypeClass(getResponseWrapper(method));
-                part.setProperty("RESPONSE.WRAPPER.CLASSNAME", getResponseWrapperClassName(method));
-                part.setIndex(0);
-            }
-
-            setFaultClassInfo(o, method);
-            o = o.getUnwrappedOperation();
-        } else if (o.isUnwrappedCapable()) {
-            // remove the unwrapped operation because it will break the
-            // the WrapperClassOutInterceptor, and in general makes
-            // life more confusing
-            o.setUnwrappedOperation(null);
-
-            setFaultClassInfo(o, method);
-        }
-
-        Class<?>[] paramTypes = method.getParameterTypes();
-        Type[] genericTypes = method.getGenericParameterTypes();
-        for (int i = 0; i < paramTypes.length; i++) {
-            if (Exchange.class.equals(paramTypes[i])) {
-                continue;
-            }
-            Class paramType = paramTypes[i];
-            Type genericType = genericTypes[i];
-            initializeParameter(o, method, i, paramType, genericType);
-        }
-
-        // Initialize return type
-        Class paramType = method.getReturnType();
-        Type genericType = method.getGenericReturnType();
-
-        initializeParameter(o, method, -1, paramType, genericType);
-
-        setFaultClassInfo(o, method);
-    }
-
-    private void initializeParameter(OperationInfo o, Method method, int i,
-                                     Class paramType, Type genericType) {
-        boolean isIn = isInParam(method, i);
-        boolean isOut = isOutParam(method, i);
-
-        MessagePartInfo part = null;
-        if (isIn && !isOut) {
-            QName name = getInPartName(o, method, i);
-            part = o.getInput().getMessagePart(name);
-            if (part == null) {
-                throw new ServiceConstructionException(
-                    new Message("COULD_NOT_FIND_PART", LOG,
-                                name,
-                                o.getInput().getMessagePartsMap().keySet().toString()));
-            }
-            initializeParameter(part, paramType, genericType);
-            part.setIndex(i);
-        } else if (!isIn && isOut) {
-            QName name = getOutPartName(o, method, i);
-            part = o.getOutput().getMessagePart(name);
-            if (part == null) {
-                throw new ServiceConstructionException(
-                    new Message("COULD_NOT_FIND_PART", LOG,
-                                name,
-                                o.getOutput().getMessagePartsMap().keySet().toString()));
-            }
-            part.setProperty(ReflectionServiceFactoryBean.MODE_OUT, Boolean.TRUE);
-            initializeParameter(part, paramType, genericType);
-            part.setIndex(i + 1);
-        } else if (isIn && isOut) {
-            QName name = getInPartName(o, method, i);
-            part = o.getInput().getMessagePart(name);
-            if (part == null) {
-                throw new ServiceConstructionException(
-                    new Message("COULD_NOT_FIND_PART", LOG,
-                                name,
-                                o.getInput().getMessagePartsMap().keySet().toString()));
-            }
-            part.setProperty(ReflectionServiceFactoryBean.MODE_INOUT, Boolean.TRUE);
-            initializeParameter(part, paramType, genericType);
-            part.setIndex(i);
-
-            part = o.getOutput().getMessagePart(name);
-            part.setProperty(ReflectionServiceFactoryBean.MODE_INOUT, Boolean.TRUE);
-            initializeParameter(part, paramType, genericType);
-            part.setIndex(i + 1);
-        }
     }
 
     public void setJaxWsConfiguration(JaxWsServiceConfiguration jaxWsConfiguration) {
