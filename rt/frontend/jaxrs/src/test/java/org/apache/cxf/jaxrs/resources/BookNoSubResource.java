@@ -17,25 +17,24 @@
  * under the License.
  */
 
-package org.apache.cxf.systest.jaxrs;
+package org.apache.cxf.jaxrs.resources;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.ws.rs.HttpMethod;
 import javax.ws.rs.UriParam;
 import javax.ws.rs.UriTemplate;
 import javax.xml.bind.annotation.XmlRootElement;
 
 
 @XmlRootElement(name = "Book")
-public class Book {
+public class BookNoSubResource {
     private String name;
     private long id;
     private Map<Long, Chapter> chapters = new HashMap<Long, Chapter>();
     
-    public Book() {
-        init();
-        System.out.println("----chapters: " + chapters.size());
+    public BookNoSubResource() {
     }
     
     public void setName(String n) {
@@ -54,19 +53,9 @@ public class Book {
     }
     
     @UriTemplate("chapters/{chapterid}/")
+    @HttpMethod("GET")
     public Chapter getChapter(@UriParam("id")int chapterid) {
         return chapters.get(new Long(chapterid));
     }   
-    
-    final void init() {
-        Chapter c1 = new Chapter();
-        c1.setId(1);
-        c1.setTitle("chapter 1");
-        chapters.put(c1.getId(), c1);
-        Chapter c2 = new Chapter();
-        c2.setId(2);
-        c2.setTitle("chapter 2");
-        chapters.put(c2.getId(), c2);
-    }
 
 }

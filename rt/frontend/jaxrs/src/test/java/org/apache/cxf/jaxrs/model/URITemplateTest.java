@@ -36,7 +36,7 @@ public class URITemplateTest extends Assert {
     @Test
     public void testMatchBasic() throws Exception {
         URITemplate uriTemplate = new URITemplate("/customers/{id}",
-                                                  URITemplate.NONE_SUB_RESOURCE_REGEX_SUFFIX);
+                                                  URITemplate.UNLIMITED_REGEX_SUFFIX);
         Map<String, String> values = new HashMap<String, String>();
         
         boolean match = uriTemplate.match("/customers/123/", values);
@@ -48,7 +48,7 @@ public class URITemplateTest extends Assert {
     @Test
     public void testMatchBasicTwoParametersVariation1() throws Exception {
         URITemplate uriTemplate = new URITemplate("/customers/{name}/{department}",
-                                                  URITemplate.NONE_SUB_RESOURCE_REGEX_SUFFIX);
+                                                  URITemplate.UNLIMITED_REGEX_SUFFIX);
         Map<String, String> values = new HashMap<String, String>();
         
         boolean match = uriTemplate.match("/customers/john/CS", values);
@@ -62,7 +62,7 @@ public class URITemplateTest extends Assert {
     @Test
     public void testMatchBasicTwoParametersVariation2() throws Exception {
         URITemplate uriTemplate = new URITemplate("/customers/name/{name}/dep/{department}",
-                                                  URITemplate.NONE_SUB_RESOURCE_REGEX_SUFFIX);
+                                                  URITemplate.UNLIMITED_REGEX_SUFFIX);
         Map<String, String> values = new HashMap<String, String>();
         
         boolean match = uriTemplate.match("/customers/name/john/dep/CS", values);
@@ -76,7 +76,7 @@ public class URITemplateTest extends Assert {
     @Test
     public void testURITemplateWithSubResource() throws Exception {
         //So "/customers" is the URITemplate for the root resource class
-        URITemplate uriTemplate = new URITemplate("/customers", URITemplate.SUB_RESOURCE_REGEX_SUFFIX);
+        URITemplate uriTemplate = new URITemplate("/customers", URITemplate.LIMITED_REGEX_SUFFIX);
         Map<String, String> values = new HashMap<String, String>();
         
         boolean match = uriTemplate.match("/customers/123", values);
@@ -89,7 +89,7 @@ public class URITemplateTest extends Assert {
     @Test
     public void testURITemplateWithSubResourceVariation2() throws Exception {
         //So "/customers" is the URITemplate for the root resource class
-        URITemplate uriTemplate = new URITemplate("/customers", URITemplate.SUB_RESOURCE_REGEX_SUFFIX);
+        URITemplate uriTemplate = new URITemplate("/customers", URITemplate.LIMITED_REGEX_SUFFIX);
         Map<String, String> values = new HashMap<String, String>();
         
         boolean match = uriTemplate.match("/customers/name/john/dep/CS", values);

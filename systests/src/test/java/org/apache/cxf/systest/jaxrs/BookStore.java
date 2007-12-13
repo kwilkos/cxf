@@ -46,20 +46,25 @@ public class BookStore {
     public BookStore() {
         init();
         System.out.println("----books: " + books.size());
-
     }
-/*
-    @HttpMethod("GET")
-    public List<Book> getAllItems() {
-        System.out.println("----invoking getBooks");
 
-        return books;
-    }    */
-    
     @HttpMethod("GET")
     @UriTemplate("/books/{bookId}/")
     public Book getBook(@UriParam("bookId") String id) throws BookNotFoundFault {
         System.out.println("----invoking getBook with id: " + id);
+        Book book = books.get(Long.parseLong(id));
+        if (book != null) {
+            return book;
+        } else {
+            BookNotFoundDetails details = new BookNotFoundDetails();
+            details.setId(Long.parseLong(id));
+            throw new BookNotFoundFault(details);
+        }
+    }
+    
+    @UriTemplate("booksubresource/{bookId}/")
+    public Book getBookSubResource(@UriParam("bookId") String id) throws BookNotFoundFault {
+        System.out.println("----invoking getBookSubResource with id: " + id);
         Book book = books.get(Long.parseLong(id));
         if (book != null) {
             return book;

@@ -28,19 +28,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public final class URITemplate {
-    /**
-     * Regex for sub-resource: For each resource class compute a regular
-     * expression from its URI template, If the resource class has sub-resources
-     * then append (/.*)? to the resulting regular expression.
-     */
-    public static final String SUB_RESOURCE_REGEX_SUFFIX = "(/.*)?";
-
-    /**
-     * Regex for none sub-resource: For each resource class compute a regular
-     * expression from its URI template, If the resource class has no
-     * sub-resources then append (/)? to the resulting regular expression.
-     */
-    public static final String NONE_SUB_RESOURCE_REGEX_SUFFIX = "(/)?";
+    public static final String LIMITED_REGEX_SUFFIX = "(/.*)?";
+    public static final String UNLIMITED_REGEX_SUFFIX = "(/)?";
     
     /**
      * The regular expression for matching URI templates and names.
@@ -52,7 +41,7 @@ public final class URITemplate {
      * (.*?) for each occurrence of {\([w- 14 \. ]+?\)} within the URL
      * template
      */
-    private static final String URITEMPLATE_REGEX = "(.*?)";
+    private static final String URITEMPLATE_VARIABLE_REGEX = "(.*?)";
 
     private final String template;
     private final String regexSuffix;
@@ -77,7 +66,7 @@ public final class URITemplate {
         int i = 0;
         while (matcher.find()) {
             copyURITemplateCharacters(template, i, matcher.start(), stringBuilder);
-            stringBuilder.append(URITEMPLATE_REGEX);
+            stringBuilder.append(URITEMPLATE_VARIABLE_REGEX);
             names.add(matcher.group(1));
             i = matcher.end();
         }
@@ -95,6 +84,7 @@ public final class URITemplate {
         }
 
         templateRegex = stringBuilder.toString();
+        //System.out.println("----" + theTemplate + ": " + templateRegex);
         templateRegexPattern = Pattern.compile(templateRegex);
     }
 

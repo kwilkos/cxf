@@ -22,7 +22,9 @@ package org.apache.cxf.jaxrs.model;
 import java.lang.reflect.Method;
 import java.util.List;
 
+import javax.ws.rs.HttpMethod;
 import javax.ws.rs.ProduceMime;
+import javax.ws.rs.UriTemplate;
 import javax.ws.rs.ext.EntityProvider;
 
 public class OperationResourceInfo {
@@ -69,6 +71,14 @@ public class OperationResourceInfo {
 
     public void setHttpMethod(String m) {
         httpMethod = m;
+    }
+    
+    public boolean isSubResourceLocator() {
+        if (method.getAnnotation(UriTemplate.class) != null 
+            && method.getAnnotation(HttpMethod.class) == null) {
+            return true;
+        }
+        return false;
     }
 
     public List<Class> getParameterTypeList() {

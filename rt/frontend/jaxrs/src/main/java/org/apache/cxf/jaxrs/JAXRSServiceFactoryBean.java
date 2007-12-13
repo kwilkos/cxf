@@ -118,7 +118,7 @@ public class JAXRSServiceFactoryBean extends AbstractServiceFactoryBean {
         classResourceInfos = new ArrayList<ClassResourceInfo>();
 
         for (Class resourceClass : resourceClasses) {
-            ClassResourceInfo classResourceInfo = createClassResourceInfo(resourceClass);
+            ClassResourceInfo classResourceInfo = createRootClassResourceInfo(resourceClass);
             classResourceInfos.add(classResourceInfo);
         }
 
@@ -131,24 +131,21 @@ public class JAXRSServiceFactoryBean extends AbstractServiceFactoryBean {
         }
     }
 
-    protected ClassResourceInfo createClassResourceInfo(final Class<?> c) {
+    protected ClassResourceInfo createRootClassResourceInfo(final Class<?> c) {
         UriTemplate uriTemplateAnnotation = c.getAnnotation(UriTemplate.class);
         if (uriTemplateAnnotation == null) {
             return null;
         }
 
-        ClassResourceInfo classResourceInfo = getClassResourceInfo(c);
+        ClassResourceInfo classResourceInfo = createClassResourceInfo(c);
 
-        MethodDispatcher md = createOperation(c, classResourceInfo);
-        classResourceInfo.setMethodDispatcher(md);
-        
         String annotationValue = uriTemplateAnnotation.value();
         if (!annotationValue.startsWith("/")) {
             annotationValue = "/" + annotationValue;
         }
-        String rightHandPattern = (classResourceInfo.hasSubResources())
-            ? URITemplate.SUB_RESOURCE_REGEX_SUFFIX : URITemplate.NONE_SUB_RESOURCE_REGEX_SUFFIX;
-        URITemplate t = new URITemplate(annotationValue, rightHandPattern);
+        String suffixPattern = (uriTemplateAnnotation.limited())
+            ? URITemplate.LIMITED_REGEX_SUFFIX : URITemplate.UNLIMITED_REGEX_SUFFIX;
+        URITemplate t = new URITemplate(annotationValue, suffixPattern);
         classResourceInfo.setURITemplate(t);
         
         //TODO: Using information from annotation to determine which lifecycle provider to use
@@ -166,46 +163,52 @@ public class JAXRSServiceFactoryBean extends AbstractServiceFactoryBean {
         return classResourceInfo;
     }
 
-    protected ClassResourceInfo getClassResourceInfo(final Class<?> c) {
-        return new ClassResourceInfo(c);
+    protected ClassResourceInfo createClassResourceInfo(final Class<?> c) {
+        ClassResourceInfo classResourceInfo  = new ClassResourceInfo(c);
+
+        MethodDispatcher md = createOperation(c, classResourceInfo);
+        classResourceInfo.setMethodDispatcher(md);
+        return classResourceInfo;
     }
 
     protected MethodDispatcher createOperation(Class c, ClassResourceInfo cri) {
         MethodDispatcher md = new MethodDispatcher();
         for (Method m : c.getMethods()) {
-            if (m.getAnnotation(UriTemplate.class) != null) {
+            if (m.getAnnotation(UriTemplate.class) != null && m.getAnnotation(HttpMethod.class) != null) {
+                /*
+                 * Sub-resource method, URI template created by concatenating
+                 * the URI template of the resource class with the URI template
+                 * of the method
+                 */
                 OperationResourceInfo ori = new OperationResourceInfo(m, cri);
                 String uriTemplate = m.getAnnotation(UriTemplate.class).value();
                 if (!uriTemplate.startsWith("/")) {
                     uriTemplate = "/" + uriTemplate;
                 }
-                if (m.getAnnotation(HttpMethod.class) != null) {
-                    /*
-                     * Sub-resource method, URI template created by concatenating
-                     * the URI template of the resource class with the URI template
-                     * of the method
-                     */ 
-                    ori.setURITemplate(new URITemplate(uriTemplate,
-                                                       URITemplate.NONE_SUB_RESOURCE_REGEX_SUFFIX));
-                    
-                    String httpMethod = m.getAnnotation(HttpMethod.class).value();
-                    ori.setHttpMethod(httpMethod);
-                } else {
-                    //sub-resource locator
-                    cri.setHasSubResources(true);
-                    ori.setURITemplate(new URITemplate(uriTemplate,
-                                                       URITemplate.SUB_RESOURCE_REGEX_SUFFIX));
-                }
-                md.bind(ori, m);
-            } else if (m.getAnnotation(HttpMethod.class) != null) {
-                //Sub-resource method
-                OperationResourceInfo ori = new OperationResourceInfo(m, cri);
-                ori.setURITemplate(new URITemplate("/",
-                                                   URITemplate.NONE_SUB_RESOURCE_REGEX_SUFFIX));
-                
+
+                ori.setURITemplate(new URITemplate(uriTemplate, URITemplate.UNLIMITED_REGEX_SUFFIX));
+
                 String httpMethod = m.getAnnotation(HttpMethod.class).value();
                 ori.setHttpMethod(httpMethod);
-                md.bind(ori, m);               
+
+                md.bind(ori, m);
+            } else if (m.getAnnotation(UriTemplate.class) != null) {
+                // sub-resource locator
+                OperationResourceInfo ori = new OperationResourceInfo(m, cri);
+                String uriTemplate = m.getAnnotation(UriTemplate.class).value();
+                if (!uriTemplate.startsWith("/")) {
+                    uriTemplate = "/" + uriTemplate;
+                }                
+                ori.setURITemplate(new URITemplate(uriTemplate,
+                                                   URITemplate.LIMITED_REGEX_SUFFIX));
+                md.bind(ori, m);     
+                
+                //REVISIT: Check the return type is indeed a sub-resource type
+                Class subResourceClass = m.getReturnType();
+                
+                //Iterate through sub-resources
+                ClassResourceInfo subCri = createClassResourceInfo(subResourceClass);
+                cri.addSubClassResourceInfo(subCri);
             }
         }
 

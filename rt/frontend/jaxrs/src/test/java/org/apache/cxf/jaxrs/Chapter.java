@@ -17,33 +17,25 @@
  * under the License.
  */
 
-package org.apache.cxf.systest.jaxrs;
+package org.apache.cxf.jaxrs;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.ws.rs.UriParam;
-import javax.ws.rs.UriTemplate;
 import javax.xml.bind.annotation.XmlRootElement;
 
 
-@XmlRootElement(name = "Book")
-public class Book {
-    private String name;
+@XmlRootElement(name = "Chapter")
+public class Chapter {
+    private String title;
     private long id;
-    private Map<Long, Chapter> chapters = new HashMap<Long, Chapter>();
     
-    public Book() {
-        init();
-        System.out.println("----chapters: " + chapters.size());
+    public Chapter() {
     }
     
-    public void setName(String n) {
-        name = n;
+    public void setTitle(String n) {
+        title = n;
     }
 
-    public String getName() {
-        return name;
+    public String getTitle() {
+        return title;
     }
     
     public void setId(long i) {
@@ -51,22 +43,6 @@ public class Book {
     }
     public long getId() {
         return id;
-    }
-    
-    @UriTemplate("chapters/{chapterid}/")
-    public Chapter getChapter(@UriParam("id")int chapterid) {
-        return chapters.get(new Long(chapterid));
-    }   
-    
-    final void init() {
-        Chapter c1 = new Chapter();
-        c1.setId(1);
-        c1.setTitle("chapter 1");
-        chapters.put(c1.getId(), c1);
-        Chapter c2 = new Chapter();
-        c2.setId(2);
-        c2.setTitle("chapter 2");
-        chapters.put(c2.getId(), c2);
     }
 
 }

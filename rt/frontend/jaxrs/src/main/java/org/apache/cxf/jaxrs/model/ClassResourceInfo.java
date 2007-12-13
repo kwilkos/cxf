@@ -19,14 +19,17 @@
 
 package org.apache.cxf.jaxrs.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.cxf.jaxrs.lifecycle.ResourceProvider;
 
 public class ClassResourceInfo {
     private Class resourceClass;
     private URITemplate uriTemplate;
     private MethodDispatcher methodDispatcher;
-    private boolean hasSubResources;
     private ResourceProvider resourceProvider;
+    private List<ClassResourceInfo> subClassResourceInfo = new ArrayList<ClassResourceInfo>();
 
     public ClassResourceInfo(Class theResourceClass) {
         resourceClass = theResourceClass;
@@ -53,14 +56,17 @@ public class ClassResourceInfo {
     }
 
     public boolean hasSubResources() {
-        return hasSubResources;
+        return !subClassResourceInfo.isEmpty();
     }
     
-    public void setHasSubResources(boolean flag) {
-        hasSubResources = flag;
+    public void addSubClassResourceInfo(ClassResourceInfo cri) {
+        subClassResourceInfo.add(cri);
     }
     
-
+    public List<ClassResourceInfo> getSubClassResourceInfo() {
+        return subClassResourceInfo;
+    }
+    
     public ResourceProvider getResourceProvider() {
         return resourceProvider;
     }

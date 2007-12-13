@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.cxf.jaxrs.interceptor;
+package org.apache.cxf.jaxrs;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,7 +25,6 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -38,75 +37,18 @@ import javax.ws.rs.ext.EntityProvider;
 import javax.ws.rs.ext.ProviderFactory;
 
 import org.apache.cxf.common.util.PrimitiveUtils;
-import org.apache.cxf.jaxrs.JAXRSServiceImpl;
 import org.apache.cxf.jaxrs.model.ClassResourceInfo;
 import org.apache.cxf.jaxrs.model.OperationResourceInfo;
 import org.apache.cxf.jaxrs.model.URITemplate;
-import org.apache.cxf.message.Message;
-import org.apache.cxf.phase.AbstractPhaseInterceptor;
-import org.apache.cxf.phase.Phase;
-import org.apache.cxf.service.Service;
 
-
-public class JAXRSDispatchInterceptor extends AbstractPhaseInterceptor<Message> {
-
-    public static final String RELATIVE_PATH = "relative.path";
-    //private static final Logger LOG = Logger.getLogger(RESTDispatchInterceptor.class.getName());
-    //private static final ResourceBundle BUNDLE = BundleUtils.getBundle(RESTDispatchInterceptor.class);
-
-    public JAXRSDispatchInterceptor() {
-        super(Phase.PRE_STREAM);
+public final class JAXRSUtils {
+    
+    private JAXRSUtils() {        
     }
 
-    public void handleMessage(Message message) {
-        String path = (String)message.get(Message.PATH_INFO);
-        String address = (String)message.get(Message.BASE_PATH);
-        String httpMethod = (String)message.get(Message.HTTP_REQUEST_METHOD);
-
-        if (address.startsWith("http")) {
-            int idx = address.indexOf('/', 7);
-            if (idx != -1) {
-                address = address.substring(idx);
-            }
-        }
-
-        if (path.startsWith(address)) {
-            path = path.substring(address.length());
-            if (!path.startsWith("/")) {
-                path = "/" + path;
-            }
-        }
-
-        if (!path.endsWith("/")) {
-            //path = path.substring(0, path.length() - 1);
-            path = path + "/";
-        }
-        message.put(RELATIVE_PATH, path);
-
-
-        //1. Matching target resource classes and method
-        Service service = message.getExchange().get(Service.class);
-        List<ClassResourceInfo> resources = ((JAXRSServiceImpl)service).getClassResourceInfos();
-
-        Map<String, String> values = new HashMap<String, String>();
-        OperationResourceInfo ori = findTargetResource(resources, path, httpMethod, values);
-
-        if (ori == null) {
-            //throw new Fault(new org.apache.cxf.common.i18n.Message("NO_OP", BUNDLE, method, path));
-        }
-        message.getExchange().put(OperationResourceInfo.class, ori);
-
-
-        //2. Process parameters
-        InputStream is = message.getContent(InputStream.class);
-        List<Object> params = processParameters(ori.getMethod(), path, httpMethod, values, is);
-
-        message.setContent(List.class, params);
-
-    }    
-
-    protected OperationResourceInfo findTargetResource(List<ClassResourceInfo> resources, String path,
-                                                       String httpMethod, Map<String, String> values) {
+    public static OperationResourceInfo findTargetResourceClass(List<ClassResourceInfo> resources,
+                                                                String path, String httpMethod,
+                                                                Map<String, String> values) {
         for (ClassResourceInfo resource : resources) {
             URITemplate uriTemplate = resource.getURITemplate();
             if (uriTemplate.match(path, values)) {
@@ -120,23 +62,22 @@ public class JAXRSDispatchInterceptor extends AbstractPhaseInterceptor<Message> 
         return null;
     }
 
-    protected OperationResourceInfo findTargetMethod(ClassResourceInfo resource, String path,
+    public static OperationResourceInfo findTargetMethod(ClassResourceInfo resource, String path,
                                                      String httpMethod, Map<String, String> values) {
         for (OperationResourceInfo ori : resource.getMethodDispatcher().getOperationResourceInfos()) {
             URITemplate uriTemplate = ori.getURITemplate();
-            if (uriTemplate != null && uriTemplate.match(path, values)
-                && ori.getHttpMethod() != null && ori.getHttpMethod().equalsIgnoreCase(httpMethod)) {
-                return ori;
-            } /*
-                 * else { //URITemplate == null means match by default if
-                 * (httpMethod.equalsIgnoreCase(ori.getHttpMethod())) { return
-                 * ori; } }
-                 */
+            if (uriTemplate != null && uriTemplate.match(path, values)) {
+                if (ori.isSubResourceLocator()) {
+                    return ori;
+                } else if (ori.getHttpMethod() != null && ori.getHttpMethod().equalsIgnoreCase(httpMethod)) {
+                    return ori;
+                }
+            } 
         }
         return null;
     }
 
-    private List<Object> processParameters(Method method, String path, String httpMethod,
+    public static List<Object> processParameters(Method method, String path, String httpMethod,
                                            Map<String, String> values, InputStream is) {
         Class[] parameterTypes = method.getParameterTypes();
         Type[] genericParameterTypes = method.getGenericParameterTypes();
@@ -159,7 +100,7 @@ public class JAXRSDispatchInterceptor extends AbstractPhaseInterceptor<Message> 
         return params;
     }
 
-    private Object processParameter(Class<?> parameterClass, Type parameterType,
+    private static Object processParameter(Class<?> parameterClass, Type parameterType,
                                     Annotation[] parameterAnnotations, boolean readFromEntityBody,
                                     String path, Map<String, String> values, InputStream is) {
         Object result = null;
@@ -188,7 +129,7 @@ public class JAXRSDispatchInterceptor extends AbstractPhaseInterceptor<Message> 
     }
 
     @SuppressWarnings("unchecked")
-    private Object readFromEntityBody(Class targetTypeClass, InputStream is) {
+    private static Object readFromEntityBody(Class targetTypeClass, InputStream is) {
         Object result = null;
         EntityProvider provider = ProviderFactory.getInstance().createEntityProvider(targetTypeClass);
 
@@ -201,7 +142,7 @@ public class JAXRSDispatchInterceptor extends AbstractPhaseInterceptor<Message> 
         return result;
     }
 
-    private Object readFromUriParam(UriParam uriParamAnnotation,
+    private static Object readFromUriParam(UriParam uriParamAnnotation,
                                     Class<?> parameter,
                                     Type parameterType,
                                     Annotation[] parameterAnnotations,

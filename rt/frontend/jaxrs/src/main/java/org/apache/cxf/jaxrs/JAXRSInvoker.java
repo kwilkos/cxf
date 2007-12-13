@@ -20,13 +20,19 @@
 package org.apache.cxf.jaxrs;
 
 
+import java.io.InputStream;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.cxf.helpers.CastUtils;
+import org.apache.cxf.jaxrs.interceptor.JAXRSInInterceptor;
 import org.apache.cxf.jaxrs.model.ClassResourceInfo;
 import org.apache.cxf.jaxrs.model.OperationResourceInfo;
 import org.apache.cxf.message.Exchange;
+import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageContentsList;
 import org.apache.cxf.service.invoker.AbstractInvoker;
 
@@ -40,7 +46,7 @@ public class JAXRSInvoker extends AbstractInvoker {
         this.resourceObjects = resourceObjects;
     }
     
-    public Object invoke(Exchange exchange, Object o) {
+    public Object invoke(Exchange exchange, Object request) {
         OperationResourceInfo ori = exchange.get(OperationResourceInfo.class);
 
         ClassResourceInfo classResourceInfo = ori.getClassResourceInfo();
@@ -48,15 +54,42 @@ public class JAXRSInvoker extends AbstractInvoker {
         Object resourceObject = getServiceObject(exchange);
 
         List<Object> params = null;
-        if (o instanceof List) {
-            params = CastUtils.cast((List<?>)o);
-        } else if (o != null) {
-            params = new MessageContentsList(o);
+        if (request instanceof List) {
+            params = CastUtils.cast((List<?>)request);
+        } else if (request != null) {
+            params = new MessageContentsList(request);
         }
 
-        return invoke(exchange, resourceObject, m, params);
-    }
+        Object result = invoke(exchange, resourceObject, m, params);
+        
+        if (ori.isSubResourceLocator()) {
+            //the result becomes the object that will handle the request
+            resourceObjects = new ArrayList<Object>();
+            resourceObjects.add(result);
+            
+            Map<String, String> values = new HashMap<String, String>();                 
+            Message msg = exchange.getInMessage();
+            String path = (String)msg.get(JAXRSInInterceptor.RELATIVE_PATH);
+            String httpMethod = (String)msg.get(Message.HTTP_REQUEST_METHOD); 
+            OperationResourceInfo subOri = JAXRSUtils.findTargetMethod(classResourceInfo, path,
+                                                                                     httpMethod, values);
+            exchange.put(OperationResourceInfo.class, subOri);
 
+            // work out request parameters for the sub-resouce class. Here we
+            // presume Inputstream has not been consumed yet by the root resource class.
+            //I.e., only one place either in the root resource or sub-resouce class can
+            //have a parameter that read from entitybody.
+            InputStream is = msg.getContent(InputStream.class);
+            List<Object> newParams = JAXRSUtils.processParameters(ori.getMethod(), path,
+                                                                             httpMethod, values, is);
+            msg.setContent(List.class, newParams);
+            
+            this.invoke(exchange, request);
+        }
+        
+        return result;
+    }    
+    
     public Object getServiceObject(Exchange exchange) {
         Object serviceObject = null;
         
@@ -78,5 +111,4 @@ public class JAXRSInvoker extends AbstractInvoker {
         
         return serviceObject;
     }
-
 }
