@@ -105,7 +105,7 @@ public class ClientServerTest extends AbstractBusClientServerTestBase {
 
     @Test
     public void testBase64() throws URISyntaxException  {
-        URL wsdl = getClass().getResource("/wsdl/dynamic_client_base64.wsdl");
+        URL wsdl = getClass().getResource("/wsdl/others/dynamic_client_base64.wsdl");
         assertNotNull(wsdl);
         String wsdlUrl = null;
         wsdlUrl = wsdl.toURI().toString();

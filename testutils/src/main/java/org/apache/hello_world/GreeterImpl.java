@@ -27,7 +27,7 @@ import org.apache.hello_world.messages.PingMeFault;
             portName = "SoapPort", 
             endpointInterface = "org.apache.hello_world.Greeter",
             targetNamespace = "http://apache.org/hello_world/services",
-            wsdlLocation = "testutils/hello_world_services_catalog.wsdl")
+            wsdlLocation = "testutils/others/hello_world_services_catalog.wsdl")
 public class GreeterImpl implements Greeter {
 
     public String greetMe(String requestType) {

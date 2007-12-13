@@ -98,7 +98,7 @@ public class JMSDestinationTest extends AbstractJMSTester {
         bus = bf.createBus("/jms_test_config.xml");
         BusFactory.setDefaultBus(bus);
         setupServiceInfo("http://cxf.apache.org/jms_conf_test",
-                         "/wsdl/jms_test_no_addr.wsdl",
+                         "/wsdl/others/jms_test_no_addr.wsdl",
                          "HelloWorldQueueBinMsgService",
                          "HelloWorldQueueBinMsgPort");
         JMSDestination destination = setupJMSDestination(false);

@@ -185,36 +185,7 @@
                         <phase>generate-test-sources</phase>
                         <configuration>
                             <testSourceRoot>${basedir}/target/generated/src/test/java</testSourceRoot>
-
-                            <wsdlOptions>
-                                <wsdlOption>
-                                    <wsdl>${basedir}/src/test/resources/java2wsdl_wsdl/hello_world_async.wsdl</wsdl>
-                                </wsdlOption>
-                                <wsdlOption>
-                                    <wsdl>${basedir}/src/test/resources/java2wsdl_wsdl/doc_wrapped_simple.wsdl</wsdl>
-                                </wsdlOption>
-                                <wsdlOption>
-                                    <wsdl>${basedir}/src/test/resources/java2wsdl_wsdl/hello_world_doc_lit.wsdl</wsdl>
-                                </wsdlOption>
-                                <wsdlOption>
-                                    <wsdl>${basedir}/src/test/resources/java2wsdl_wsdl/hello_world_doc_wrapped_bare.wsdl</wsdl>
-                                </wsdlOption>
-                                <wsdlOption>
-                                    <wsdl>${basedir}/src/test/resources/java2wsdl_wsdl/hello_world_rpc_lit.wsdl</wsdl>
-                                </wsdlOption>
-                                <wsdlOption>
-                                    <wsdl>${basedir}/src/test/resources/java2wsdl_wsdl/hello_world_soap12.wsdl</wsdl>
-                                </wsdlOption>
-                                <wsdlOption>
-                                    <wsdl>${basedir}/src/test/resources/java2wsdl_wsdl/hello_world_bare.wsdl</wsdl>
-                                    <extraargs>
-					<!--arg>-verbose</arg-->
-                                    </extraargs>
-                                </wsdlOption>
-                                <wsdlOption>
-                                    <wsdl>${basedir}/src/test/resources/java2wsdl_wsdl/hello_world_fault.wsdl</wsdl>
-                                </wsdlOption>
-                            </wsdlOptions>
+			    <wsdlRoot>${basedir}/src/test/resources/java2wsdl_wsdl</wsdlRoot>
                         </configuration>
                         <goals>
                             <goal>wsdl2java</goal>

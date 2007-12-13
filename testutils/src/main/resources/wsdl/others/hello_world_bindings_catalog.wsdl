@@ -28,7 +28,7 @@ under the License.
 
     <wsdl:import
     namespace="http://apache.org/hello_world"
-    location="testutils/hello_world_wsdl_import_catalog.wsdl"/>
+    location="testutils/others/hello_world_wsdl_import_catalog.wsdl"/>
 
     <wsdl:binding name="SOAPBinding" type="x2:Greeter">
         <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>

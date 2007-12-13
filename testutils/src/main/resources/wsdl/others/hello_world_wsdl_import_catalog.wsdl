@@ -28,17 +28,17 @@
 
     <wsdl:import
         namespace="http://apache.org/hello_world/messages"
-        location="hello_world_messages.wsdl"/>
+        location="testutils/others/hello_world_messages_catalog.wsdl"/>
 
     <wsdl:portType name="Greeter">
         <wsdl:operation name="sayHi">
-            <wsdl:input message="x1:sayHiRequest" />
-            <wsdl:output message="x1:sayHiResponse" />
+            <wsdl:input message="x1:sayHiRequest"/>
+            <wsdl:output message="x1:sayHiResponse"/>
         </wsdl:operation>
 
         <wsdl:operation name="greetMe">
-            <wsdl:input message="x1:greetMeRequest" />
-            <wsdl:output message="x1:greetMeResponse" />
+            <wsdl:input message="x1:greetMeRequest"/>
+            <wsdl:output message="x1:greetMeResponse"/>
         </wsdl:operation>
 
         <wsdl:operation name="pingMe">

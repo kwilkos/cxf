@@ -65,4 +65,20 @@ public class WsdlOption {
     public File[] getDeleteDirs() {
         return redundantDirs;
     }
+    
+    public int hashCode() {
+        if (wsdl != null) {
+            return wsdl.hashCode();
+        }
+        return -1;
+    }
+
+    public boolean equals(Object obj) {
+        if (!(obj instanceof WsdlOption)) {
+            return false;
+        }
+        
+        WsdlOption t = (WsdlOption) obj;
+        return t.getWsdl().equals(getWsdl());
+    }
 }

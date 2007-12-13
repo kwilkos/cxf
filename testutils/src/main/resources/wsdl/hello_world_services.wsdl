@@ -29,7 +29,7 @@ under the License.
 
     <wsdl:import
         namespace="http://apache.org/hello_world/bindings"
-        location="hello_world_bindings.wsdl"/>
+        location="hello_world_bindings.wsdl.xml"/>
 
     <wsdl:service name="SOAPService">
 	<wsdl:port name="SoapPort" binding="x1:SOAPBinding">

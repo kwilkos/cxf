@@ -67,7 +67,7 @@ public class OASISCatalogTest extends Assert {
             assertTrue(result.contains("xsd=testutils/hello_world_schema2.xsd"));
 
             url = new URL("http://localhost:9000/SoapContext/SoapPort"
-                          + "?wsdl=testutils/hello_world_messages_catalog.wsdl");
+                          + "?wsdl=testutils/others/hello_world_messages_catalog.wsdl");
             result = IOUtils.toString((InputStream)url.getContent());
             assertTrue(result.contains("xsd=testutils/hello_world_schema.xsd"));
 
