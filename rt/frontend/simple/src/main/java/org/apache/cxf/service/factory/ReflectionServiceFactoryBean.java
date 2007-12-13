@@ -34,18 +34,12 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-<<<<<<< .working
-=======
 import javax.wsdl.Operation;
-import javax.xml.bind.annotation.XmlAttachmentRef;
-import javax.xml.bind.annotation.XmlList;
-import javax.xml.bind.annotation.XmlMimeType;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
->>>>>>> .merge-right.r603807
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.BusException;
@@ -111,6 +105,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
 
     public static final String ENDPOINT_CLASS = "endpoint.class";
     public static final String GENERIC_TYPE = "generic.type";
+    public static final String EXTRA_CLASS = "extra.class";
     public static final String MODE_OUT = "messagepart.mode.out";
     public static final String MODE_INOUT = "messagepart.mode.inout";
     public static final String HOLDER = "messagepart.isholder";
@@ -354,11 +349,14 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         }
     }
 
+    protected boolean isFromWsdl() {
+        return !populateFromClass && getWsdlURL() != null;
+    }
 
     protected void initializeServiceModel() {
         String wsdlurl = getWsdlURL();
 
-        if (!populateFromClass && wsdlurl != null) {
+        if (isFromWsdl()) {
             buildServiceFromWSDL(wsdlurl);
         } else {
             buildServiceFromClass();
@@ -670,7 +668,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         QName intfName = getInterfaceName();
         InterfaceInfo intf = new InterfaceInfo(serviceInfo, intfName);
 
-        Method[] methods = serviceClass.getMethods();
+        Method[] methods = getServiceClass().getMethods();
 
         // The BP profile states we can't have operations of the same name
         // so we have to append numbers to the name. Different JVMs sort methods
@@ -1257,7 +1255,6 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         }
         if (part.getElementQName() == null) {
             part.setElementQName(inMsg.getName());
-//Benson            checkForElement(op.getInterface().getService(), part);
         } else if (!part.getElementQName().equals(op.getInput().getName())) {
             op.getInput().setName(part.getElementQName());
         }
@@ -1845,6 +1842,10 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
 
     public void setIgnoredClasses(List<String> ignoredClasses) {
         this.ignoredClasses = ignoredClasses;
+    }
+
+    protected Set<Class<?>> getExtraClass() {
+        return null;
     }
 
     public boolean isWrapped() {
