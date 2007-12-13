@@ -100,7 +100,7 @@ public class EndpointDefinitionParser extends AbstractBeanDefinitionParser {
             Node n = children.item(i);
             if (n.getNodeType() == Node.ELEMENT_NODE) {
                 String name = n.getLocalName();
-                if ("properties".equals(n.getLocalName())) {
+                if ("properties".equals(name)) {
                     Map map = ctx.getDelegate().parseMapElement((Element) n, bean.getBeanDefinition());
                     bean.addPropertyValue("properties", map);
                 } else if ("binding".equals(name)) {
