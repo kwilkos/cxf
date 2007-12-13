@@ -50,6 +50,7 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
     <jaxws:endpoint id="endpoint2" 
               implementor="org.apache.hello_world_soap_http.GreeterImpl"
               address="/services/Greeter2"
+              publishedEndpointUrl="http://cxf.apache.org/Greeter"
               />     
   
 </beans>

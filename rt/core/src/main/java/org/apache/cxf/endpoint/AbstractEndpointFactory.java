@@ -45,6 +45,7 @@ public abstract class AbstractEndpointFactory extends AbstractBasicInterceptorPr
     protected DataBinding dataBinding;
     protected BindingFactory bindingFactory;
     protected DestinationFactory destinationFactory;
+    protected String publishedEndpointUrl;
     protected QName endpointName;
     protected QName serviceName;
     protected Map<String, Object> properties;
@@ -108,6 +109,14 @@ public abstract class AbstractEndpointFactory extends AbstractBasicInterceptorPr
 
     public void setDestinationFactory(DestinationFactory destinationFactory) {
         this.destinationFactory = destinationFactory;
+    }
+
+    public String getPublishedEndpointUrl() {
+        return publishedEndpointUrl;
+    }
+
+    public void setPublishedEndpointUrl(String publishedEndpointUrl) {
+        this.publishedEndpointUrl = publishedEndpointUrl;
     }
 
     public QName getEndpointName() {

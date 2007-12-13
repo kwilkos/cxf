@@ -46,6 +46,7 @@ import org.apache.cxf.jaxws.support.JaxWsImplementorInfo;
 import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.invoker.Invoker;
+import org.apache.cxf.service.model.EndpointInfo;
 
 public class EndpointImpl extends javax.xml.ws.Endpoint 
     implements InterceptorProvider, Configurable {
@@ -73,6 +74,7 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
     private String bindingUri;
     private String wsdlLocation;
     private String address;
+    private String publishedEndpointUrl;
     private QName endpointName;
     private QName serviceName;
     private Class implementorClass;
@@ -226,8 +228,13 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
         checkPublishPermission();
         
         ServerImpl serv = getServer(addr);
-        if (addr != null) {
-            serv.getEndpoint().getEndpointInfo().setAddress(addr);
+        if (addr != null) {            
+            EndpointInfo endpointInfo = serv.getEndpoint().getEndpointInfo();
+            endpointInfo.setAddress(addr);
+            if (publishedEndpointUrl != null) {
+                // TODO is there a good place to put this key-string as a constant?
+                endpointInfo.setProperty("publishedEndpointUrl", publishedEndpointUrl);
+            }
         }
         serv.start();
     }
@@ -351,6 +358,20 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
 
     public void setAddress(String address) {
         this.address = address;
+    }
+    
+    /**
+    * The published endpoint url is used for excplicitely specifying the url of the
+    * endpoint that would show up the generated wsdl definition, when the service is
+    * brought on line.
+    * @return
+    */
+    public String getPublishedEndpointUrl() {
+        return publishedEndpointUrl;
+    }
+    
+    public void setPublishedEndpointUrl(String publishedEndpointUrl) {
+        this.publishedEndpointUrl = publishedEndpointUrl;
     }
 
     public QName getEndpointName() {

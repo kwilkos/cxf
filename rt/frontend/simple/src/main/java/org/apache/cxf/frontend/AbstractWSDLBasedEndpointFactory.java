@@ -216,6 +216,10 @@ public abstract class AbstractWSDLBasedEndpointFactory extends AbstractEndpointF
         ei.setName(endpointName);
         ei.setAddress(getAddress());
         ei.setBinding(bindingInfo);
+        
+        if (publishedEndpointUrl != null && !"".equals(publishedEndpointUrl)) {
+            ei.setProperty("publishedEndpointUrl", publishedEndpointUrl);
+        }
 
         if (destinationFactory instanceof WSDLEndpointFactory) {
             WSDLEndpointFactory we = (WSDLEndpointFactory) destinationFactory;
