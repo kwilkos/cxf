@@ -19,11 +19,8 @@
 
 package org.apache.cxf.service.factory;
 
-import java.lang.reflect.Array;
 import java.lang.reflect.Field;
-import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Method;
-import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
 import java.net.MalformedURLException;
@@ -41,8 +38,15 @@ import java.util.concurrent.Executor;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+<<<<<<< .working
+=======
+import javax.wsdl.Operation;
+import javax.xml.bind.annotation.XmlAttachmentRef;
+import javax.xml.bind.annotation.XmlList;
+import javax.xml.bind.annotation.XmlMimeType;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+>>>>>>> .merge-right.r603807
 import javax.xml.namespace.QName;
-import javax.xml.ws.Holder;
 
 import org.apache.cxf.BusException;
 import org.apache.cxf.binding.BindingFactoryManager;
@@ -57,6 +61,7 @@ import org.apache.cxf.endpoint.ServiceContractResolverRegistry;
 import org.apache.cxf.frontend.FaultInfoException;
 import org.apache.cxf.frontend.MethodDispatcher;
 import org.apache.cxf.frontend.SimpleMethodDispatcher;
+import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.helpers.MethodComparator;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.interceptor.FaultOutInterceptor;
@@ -82,6 +87,7 @@ import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.service.model.UnwrappedOperationInfo;
 import org.apache.cxf.wsdl.WSDLConstants;
+import org.apache.cxf.wsdl11.WSDLServiceBuilder;
 import org.apache.cxf.wsdl11.WSDLServiceFactory;
 import org.apache.ws.commons.schema.XmlSchema;
 import org.apache.ws.commons.schema.XmlSchemaComplexType;
@@ -494,11 +500,161 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         }
     }
 
-    protected void initializeWSDLOperation(InterfaceInfo intf, OperationInfo o, Method selected) {
-        // TODO Auto-generated method stub
+    protected void initializeWSDLOperation(InterfaceInfo intf, OperationInfo o, Method method) {
+        // rpc out-message-part-info class mapping
+        Operation op = (Operation)o.getProperty(WSDLServiceBuilder.WSDL_OPERATION);
 
+        if (initializeClassInfo(o, method, op == null ? null
+            : CastUtils.cast(op.getParameterOrdering(), String.class))) {
+            getMethodDispatcher().bind(o, method);
+        } else {
+            LOG.log(Level.WARNING, "NO_METHOD_FOR_OP", o.getName());
+        }
     }
+    
+    /**
+     * set the holder generic type info into message part info
+     *
+     * @param o
+     * @param method
+     */
+    protected boolean initializeClassInfo(OperationInfo o, Method method, List<String> paramOrder) {
+        if (isWrapped(method)) {
+            if (o.getUnwrappedOperation() == null) {
+                //the "normal" algorithm didn't allow for unwrapping,
+                //but the annotations say unwrap this.   We'll need to
+                //make it.
+                WSDLServiceBuilder.checkForWrapped(o, true);
+            }
 
+            if (o.hasInput()) {
+                MessageInfo input = o.getInput();
+                MessagePartInfo part = input.getMessageParts().get(0);
+                part.setTypeClass(getRequestWrapper(method));
+                part.setProperty("REQUEST.WRAPPER.CLASSNAME", getRequestWrapperClassName(method));
+                part.setIndex(0);
+            }
+
+            if (o.hasOutput()) {
+                MessageInfo input = o.getOutput();
+                MessagePartInfo part = input.getMessageParts().get(0);
+                part.setTypeClass(getResponseWrapper(method));
+                part.setProperty("RESPONSE.WRAPPER.CLASSNAME", getResponseWrapperClassName(method));
+                part.setIndex(0);
+            }
+
+            setFaultClassInfo(o, method);
+            o = o.getUnwrappedOperation();
+        } else if (o.isUnwrappedCapable()) {
+            // remove the unwrapped operation because it will break the
+            // the WrapperClassOutInterceptor, and in general makes
+            // life more confusing
+            o.setUnwrappedOperation(null);
+
+            setFaultClassInfo(o, method);
+        }
+
+        Class<?>[] paramTypes = method.getParameterTypes();
+        Type[] genericTypes = method.getGenericParameterTypes();
+        for (int i = 0; i < paramTypes.length; i++) {
+            if (Exchange.class.equals(paramTypes[i])) {
+                continue;
+            }
+            Class paramType = paramTypes[i];
+            Type genericType = genericTypes[i];
+            if (!initializeParameter(o, method, i, paramType, genericType)) {
+                return false;
+            }
+        }
+
+        // Initialize return type
+        Class paramType = method.getReturnType();
+        Type genericType = method.getGenericReturnType();
+
+        if (!initializeParameter(o, method, -1, paramType, genericType)) {
+            return false;
+        }
+
+        setFaultClassInfo(o, method);
+        return true;
+    }    
+    private boolean initializeParameter(OperationInfo o, Method method, int i,
+                                     Class paramType, Type genericType) {
+        boolean isIn = isInParam(method, i);
+        boolean isOut = isOutParam(method, i);
+
+        MessagePartInfo part = null;
+        if (isIn && !isOut) {
+            QName name = getInPartName(o, method, i);
+            part = o.getInput().getMessagePart(name);
+            if (part == null && isFromWsdl()) {
+                part = o.getInput().getMessagePartByIndex(i);
+            }
+            if (part == null) {
+                return false;
+            }
+            initializeParameter(part, paramType, genericType);
+            part.setIndex(i);
+        } else if (!isIn && isOut) {
+            QName name = getOutPartName(o, method, i);
+            part = o.getOutput().getMessagePart(name);
+            if (part == null && isFromWsdl()) {
+                part = o.getOutput().getMessagePartByIndex(i + 1);
+            }
+            if (part == null) {
+                return false;
+            }
+            part.setProperty(ReflectionServiceFactoryBean.MODE_OUT, Boolean.TRUE);
+            initializeParameter(part, paramType, genericType);
+            part.setIndex(i + 1);
+        } else if (isIn && isOut) {
+            QName name = getInPartName(o, method, i);
+            part = o.getInput().getMessagePart(name);
+            if (part == null && this.isFromWsdl()) {
+                part = o.getInput().getMessagePartByIndex(i);
+            }
+            if (part == null) {
+                return false;
+            }
+            part.setProperty(ReflectionServiceFactoryBean.MODE_INOUT, Boolean.TRUE);
+            initializeParameter(part, paramType, genericType);
+            part.setIndex(i);
+
+            part = o.getOutput().getMessagePart(name);
+            if (part == null) {
+                return false;
+            }
+            part.setProperty(ReflectionServiceFactoryBean.MODE_INOUT, Boolean.TRUE);
+            initializeParameter(part, paramType, genericType);
+            part.setIndex(i + 1);
+        }
+        return true;
+    }    
+    private void setFaultClassInfo(OperationInfo o, Method selected) {
+        Class[] types = selected.getExceptionTypes();
+        for (int i = 0; i < types.length; i++) {
+            Class exClass = types[i];
+            Class beanClass = getBeanClass(exClass);
+
+            QName name = getFaultName(o.getInterface(), o, exClass, beanClass);
+
+            for (FaultInfo fi : o.getFaults()) {
+                for (MessagePartInfo mpi : fi.getMessageParts()) {
+                    String ns = null;
+                    if (mpi.isElement()) {
+                        ns = mpi.getElementQName().getNamespaceURI();
+                    } else {
+                        ns = mpi.getTypeQName().getNamespaceURI();
+                    }
+                    if (mpi.getConcreteName().getLocalPart().equals(name.getLocalPart())
+                        && name.getNamespaceURI().equals(ns)) {
+                        fi.setProperty(Class.class.getName(), exClass);
+                        mpi.setTypeClass(beanClass);
+                    }
+                }
+            }
+        }
+    }
     protected Invoker createInvoker() {
         return new FactoryInvoker(new LocalFactory(getServiceClass()), new ApplicationScopePolicy());
     }
@@ -1166,36 +1322,18 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         }
     }
 
-    // TODO: Remove reference to JAX-WS holder if possible
-    // We do need holder support in the simple frontend though as Aegis has its
-    // own
-    // holder class. I'll tackle refactoring this into a more generic way of
-    // handling
-    // holders in phase 2.
     protected void initializeParameter(MessagePartInfo part, Class rawClass, Type type) {
-        if (rawClass.equals(Holder.class) && type instanceof ParameterizedType) {
-            ParameterizedType paramType = (ParameterizedType)type;
-            rawClass = getHolderClass(paramType);
+        if (isHolder(rawClass, type)) {
+            Class<?> c = getHolderType(rawClass, type);
+            if (c != null) {
+                rawClass = c;
+            }
         }
 
         part.setProperty(GENERIC_TYPE, type);
         part.setTypeClass(rawClass);
     }
 
-    protected Class getHolderClass(ParameterizedType paramType) {
-        Object rawType = paramType.getActualTypeArguments()[0];
-        Class rawClass;
-        if (rawType instanceof GenericArrayType) {
-            rawClass = (Class)((GenericArrayType)rawType).getGenericComponentType();
-            rawClass = Array.newInstance(rawClass, 0).getClass();
-        } else {
-            if (rawType instanceof ParameterizedType) {
-                rawType = (Class)((ParameterizedType)rawType).getRawType();
-            }
-            rawClass = (Class)rawType;
-        }
-        return rawClass;
-    }
 
     public QName getServiceQName() {
         if (serviceName == null) {
@@ -1237,7 +1375,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         }
         throw new IllegalStateException("ServiceConfiguration must provide a value!");
     }
-
+    
     protected String getServiceNamespace() {
         if (serviceName != null) {
             return serviceName.getNamespaceURI();
@@ -1271,7 +1409,27 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         }
         return true;
     }
-
+    
+    public boolean isHolder(Class<?> cls, Type type) {
+        for (AbstractServiceConfiguration c : serviceConfigurations) {
+            Boolean b = c.isHolder(cls, type);
+            if (b != null) {
+                return b.booleanValue();
+            }
+        }
+        return false;
+    }
+    
+    public Class<?> getHolderType(Class<?> cls, Type type) {
+        for (AbstractServiceConfiguration c : serviceConfigurations) {
+            Class<?> b = c.getHolderType(cls, type);
+            if (b != null) {
+                return b;
+            }
+        }
+        return null;
+    }
+    
     protected boolean isWrapped(final Method method) {
         for (AbstractServiceConfiguration c : serviceConfigurations) {
             Boolean b = c.isWrapped(method);
