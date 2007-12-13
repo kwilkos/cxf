@@ -283,6 +283,10 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
                 serverFactory.setServiceClass(implementorClass);
             }
             
+            if (executor != null) {
+                serverFactory.getServiceFactory().setExecutor(executor);
+            }
+            
             configureObject(serverFactory);
             
             server = serverFactory.create();
