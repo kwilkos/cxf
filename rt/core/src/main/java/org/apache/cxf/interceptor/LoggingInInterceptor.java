@@ -46,6 +46,10 @@ public class LoggingInInterceptor extends AbstractPhaseInterceptor<Message> {
     public LoggingInInterceptor() {
         super(Phase.RECEIVE);
     }
+    
+    public LoggingInInterceptor(String phase) {
+        super(phase);
+    }
 
     public LoggingInInterceptor(int lim) {
         this();
@@ -55,6 +59,14 @@ public class LoggingInInterceptor extends AbstractPhaseInterceptor<Message> {
     public LoggingInInterceptor(PrintWriter w) {
         this();
         this.writer = w;
+    }
+    
+    public void setPrintWriter(PrintWriter w) {
+        writer = w;
+    }
+    
+    public PrintWriter getPrintWriter() {
+        return writer;
     }
     
     public void setLimit(int lim) {

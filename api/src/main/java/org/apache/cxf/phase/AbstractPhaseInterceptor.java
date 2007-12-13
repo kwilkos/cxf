@@ -19,6 +19,7 @@
 
 package org.apache.cxf.phase;
 
+import java.util.Collection;
 import java.util.Set;
 
 import javax.xml.stream.XMLStreamReader;
@@ -41,6 +42,21 @@ public abstract class AbstractPhaseInterceptor<T extends Message> implements Pha
         phase = p;
     }
 
+    public void setBefore(Collection<String> i) {
+        before.clear();
+        before.addAll(i);
+    }
+    public void setAfter(Collection<String> i) {
+        after.clear();
+        after.addAll(i);
+    }
+    public void addBefore(Collection<String> i) {
+        before.addAll(i);
+    }
+    public void addAfter(Collection<String> i) {
+        after.addAll(i);
+    }
+    
     public void addBefore(String i) {
         before.add(i);
     }

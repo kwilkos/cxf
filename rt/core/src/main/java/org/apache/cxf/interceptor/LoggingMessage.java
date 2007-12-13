@@ -53,7 +53,7 @@ public final class LoggingMessage {
     }
 
     public String toString() {
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
         buffer.append(heading);
         buffer.append("\nEncoding: ");
         buffer.append(encoding);
