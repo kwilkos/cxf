@@ -20,12 +20,13 @@
 package org.apache.cxf.maven_plugin;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 public class WsdlOption {
     String wsdl;
     List packagenames;
-    List extraargs;
+    List extraargs = new ArrayList();
     File dependencies[];
     File redundantDirs[];
 
