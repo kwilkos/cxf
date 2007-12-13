@@ -311,19 +311,6 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-ant-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>generate-sources</id>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>ant</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <executions>
                     <execution>
@@ -358,8 +345,7 @@
                         <phase>process-sources</phase>
                         <configuration>
                             <tasks>
-                                <xslt style="${basedir}/src/main/xsl/srcbuild_paths.xsl" in="build.xml" out="${basedir}/target/srcbuild_paths.xml">
-                                </xslt>
+                                <mkdir dir="${basedir}/target"/>
                                 <pathconvert property="cp" refid="maven.runtime.classpath" />
                                 <condition property="output.cp" value="set CXF_CLASSPATH=${cp}">
                                     <os family="windows" />
@@ -370,6 +356,7 @@
                                 <property name="output.cp" value="export CXF_CLASSPATH=${cp}" />
                                 <property name="output.ext" value="" />
                                 <echo file="${basedir}/target/srcbuild_env${output.ext}" message="${output.cp}" />
+                                <echo file="${basedir}/target/srcbuild_env.ant" message="${cp}" />
                                 <echo file="${basedir}/target/version.properties" message="cxf.version=${pom.version}" />
                                 <copy file="${basedir}/src/main/assembly/jbi.xml" tofile="${basedir}/target/jbi.xml" overwrite="yes">
                                     <filterset>
