@@ -45,10 +45,10 @@ public class JavaToWSContainer extends AbstractCXFToolContainer {
     }
 
     public void execute(boolean exitOnFinish) throws ToolException {
-        ErrorVisitor errors = new ErrorVisitor();
+        //ErrorVisitor errors = new ErrorVisitor();
         try {
             super.execute(exitOnFinish);
-            checkParams(errors);
+            //checkParams(errors);
             if (!hasInfoOption()) {
                 ToolContext env = new ToolContext();
                 env.setParameters(getParametersMap(new HashSet()));

@@ -43,7 +43,6 @@ public class JavaToJS extends AbstractCXFToolContainer {
     }
     
     public void execute(boolean exitOnFinish) {
-        super.execute(exitOnFinish);
         Processor processor = new JavaToJSProcessor();
         try {
             super.execute(exitOnFinish);
