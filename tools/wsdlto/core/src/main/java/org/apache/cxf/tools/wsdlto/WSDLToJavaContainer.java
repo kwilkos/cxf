@@ -95,9 +95,10 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
     @SuppressWarnings("unchecked")
     public void execute() throws ToolException {
         if (!hasInfoOption()) {
+            //TODO: After runtime support w3c EPR mapping ,this will be removed
+            context.put(ToolConstants.CFG_NO_ADDRESS_BINDING, ToolConstants.CFG_NO_ADDRESS_BINDING);
             buildToolContext();
             validate(context);
-
             FrontEndProfile frontend = context.get(FrontEndProfile.class);
 
             if (frontend == null) {
@@ -276,7 +277,9 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
 
     public void loadDefaultNSPackageMapping(ToolContext env) {
         if (!env.hasExcludeNamespace(DEFAULT_NS2PACKAGE)
-            && env.getBooleanValue(ToolConstants.CFG_DEFAULT_NS, "true")) {
+            && env.getBooleanValue(ToolConstants.CFG_DEFAULT_NS, "true")
+            && env.get(ToolConstants.CFG_NO_ADDRESS_BINDING) != null) {
+            //currently namespace2pacakge.cfg only contains wsadressing mapping
             env.loadDefaultNS2Pck(getResourceAsStream("namespace2package.cfg"));
         }
         if (env.getBooleanValue(ToolConstants.CFG_DEFAULT_EX, "true")) {
@@ -300,6 +303,9 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
                 String excludePackagename = pns[j];
                 if (pos != -1) {
                     String ns = pns[j].substring(0, pos);
+                    if (ns.equals(ToolConstants.WSA_NAMESPACE_URI)) {
+                        env.put(ToolConstants.CFG_NO_ADDRESS_BINDING, ToolConstants.CFG_NO_ADDRESS_BINDING);
+                    }
                     excludePackagename = pns[j].substring(pos + 1);
                     env.addExcludeNamespacePackageMap(ns, excludePackagename);
                     env.addNamespacePackageMap(ns, excludePackagename);
@@ -324,6 +330,9 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
                 String packagename = pns[j];
                 if (pos != -1) {
                     String ns = pns[j].substring(0, pos);
+                    if (ns.equals(ToolConstants.WSA_NAMESPACE_URI)) {
+                        env.put(ToolConstants.CFG_NO_ADDRESS_BINDING, ToolConstants.CFG_NO_ADDRESS_BINDING);
+                    }
                     packagename = pns[j].substring(pos + 1);
                     env.addNamespacePackageMap(ns, packagename);
                 } else {

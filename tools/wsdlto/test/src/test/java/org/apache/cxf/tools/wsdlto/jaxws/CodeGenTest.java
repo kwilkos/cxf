@@ -1164,4 +1164,17 @@ public class CodeGenTest extends ProcessorTestBase {
             assertTrue(e.getMessage().indexOf(": is not a valid char in the targetNamespace") != -1);
         }
     }
+    //TODO:This will be removed when runtime supports this mapping
+    @org.junit.Ignore
+    public void testW3CEPR() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/w3c-epr.wsdl"));
+        processor.setContext(env);
+        processor.execute();
+        Class sei = this.classLoader.loadClass("org.apache.w3c.epr.AddNumbersPortType");
+        Method method = sei.getMethod("addNumbers", 
+                                      new Class[]{javax.xml.ws.wsaddressing.W3CEndpointReference.class});
+        assertNotNull("wsdl2java does not map w3c:EndpointReferenceType to javax.xml.ws.EndpointReference"
+                      , method);
+    }
+    
 }

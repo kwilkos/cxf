@@ -28,6 +28,7 @@ public final class ToolConstants {
     public static final String SCHEMA_URI = "http://www.w3.org/2001/XMLSchema";
     public static final String XML_NAMESPACE_URI = "http://www.w3.org/XML/1998/namespace";
     public static final String WSDL_NAMESPACE_URI = "http://schemas.xmlsoap.org/wsdl/";
+    public static final String WSA_NAMESPACE_URI = "http://www.w3.org/2005/08/addressing";
     
     /**
      * Tools permit caller to pass in additional bean definitions.
@@ -85,6 +86,7 @@ public final class ToolConstants {
     public static final String CFG_ANT = "ant";
     public static final String CFG_LIB_REF = "library.references";
     public static final String CFG_ANT_PROP = "ant.prop";
+    public static final String CFG_NO_ADDRESS_BINDING = "noAddressBinding";
 
 
 

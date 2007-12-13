@@ -269,6 +269,14 @@ Examples:
                 </associatedArgument>
                 <switch>xjc</switch>
             </option>
+            
+           <option id="noAddressBinding" maxOccurs="1">
+                <annotation>
+                    Do not use address jaxb binding file to map wsa:EndpointReferenceType 
+                    or wsa:EndpointReference to javax.xml.ws.wsaddressing.W3CEndpointReference
+                </annotation>
+                <switch>noAddressBinding</switch>
+            </option>
 
         </optionGroup>
         <optionGroup id="common_options">

@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
 import java.lang.reflect.Field;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -174,34 +175,51 @@ public class JAXBDataBinding implements DataBindingProfile {
             schemaCompiler.setDefaultPackageName(context.getPackageName());
         }  
         
-
+        Options opts = null;
+        opts = getOptions(schemaCompiler);
+        
+        Vector<String> args = new Vector<String>();
+        if (context.get(ToolConstants.CFG_NO_ADDRESS_BINDING) == null) {
+            //hard code to enabale jaxb extensions
+            args.add("-extension");
+            URL bindingFileUrl = getClass().getResource("W3CEPRJaxbBinding.xml");
+            InputSource ins = new InputSource(bindingFileUrl.toString());
+            schemaCompiler.parseSchema(ins);
+        }
+        
         if (context.get(ToolConstants.CFG_XJC_ARGS) != null) {
             String xjcArgs = (String)context.get(ToolConstants.CFG_XJC_ARGS);
-            Vector<String> args = new Vector<String>();
             StringTokenizer tokenizer = new StringTokenizer(xjcArgs, ",", false);
             while (tokenizer.hasMoreTokens()) {
                 String arg = tokenizer.nextToken();
                 args.add(arg);
                 LOG.log(Level.FINE, "xjc arg:" + arg);
             }
-            Options opts = null;
+        }
+        if (context.get(ToolConstants.CFG_NO_ADDRESS_BINDING) == null
+            || context.get(ToolConstants.CFG_XJC_ARGS) != null) {
             try {
-                opts = getOptions(schemaCompiler);
-                // keep parseArguments happy, supply dummy required command-line opts
+
+                // keep parseArguments happy, supply dummy required command-line
+                // opts
                 opts.addGrammar(new InputSource("null"));
-                opts.parseArguments(args.toArray(new String[]{}));
+                opts.parseArguments(args.toArray(new String[] {}));
             } catch (BadCommandLineException e) {
-                String msg = "XJC reported 'BadCommandLineException' for -xjc argument:" + xjcArgs;
+                String msg = "XJC reported 'BadCommandLineException' for -xjc argument:";
+                for (String arg : args) {
+                    msg = msg + arg + " ";
+                }
                 LOG.log(Level.FINE, msg, e);
                 if (opts != null) {
                     String pluginUsage = getPluginUsageString(opts);
-                    if ("-X".equals(xjcArgs)) {
+                    msg = msg + System.getProperty("line.separator");
+                    if (args.contains("-X")) {
                         msg = pluginUsage;
                     } else {
                         msg += pluginUsage;
                     }
                 }
-                
+
                 throw new ToolException(msg, e);
             }
         }

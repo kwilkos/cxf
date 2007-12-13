@@ -257,7 +257,7 @@ public class CodeGenBugTest extends ProcessorTestBase {
 
     @Test
     public void testDefaultLoadNSMappingOFF() throws Exception {
-        String[] args = new String[] {"-dns", "false", "-d", output.getCanonicalPath(),
+        String[] args = new String[] {"-dns", "false", "-d", output.getCanonicalPath(), "-noAddressBinding",
                                       getLocation("/wsdl2java_wsdl/basic_callback.wsdl")};
 
         WSDLToJava.main(args);
@@ -280,7 +280,7 @@ public class CodeGenBugTest extends ProcessorTestBase {
 
     @Test
     public void testDefaultLoadNSMappingON() throws Exception {
-        String[] args = new String[] {"-d", output.getCanonicalPath(),
+        String[] args = new String[] {"-d", output.getCanonicalPath(), "-noAddressBinding",
                                       getLocation("/wsdl2java_wsdl/basic_callback.wsdl")};
 
         WSDLToJava.main(args);
@@ -412,6 +412,7 @@ public class CodeGenBugTest extends ProcessorTestBase {
     @Test
     public void testDefatultNsMap() throws Exception {
         env.put(ToolConstants.CFG_ALL, ToolConstants.CFG_ALL);
+        env.put(ToolConstants.CFG_NO_ADDRESS_BINDING, ToolConstants.CFG_NO_ADDRESS_BINDING);
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/cxf492/locator.wsdl"));
         processor.setContext(env);
         processor.execute();
@@ -466,7 +467,7 @@ public class CodeGenBugTest extends ProcessorTestBase {
 
     @Test
     public void testDefaultNSWithPkg() throws Exception {
-        String[] args = new String[] {"-d", output.getCanonicalPath(), "-p", "org.cxf",
+        String[] args = new String[] {"-d", output.getCanonicalPath(), "-p", "org.cxf", "-noAddressBinding",
                                       getLocation("/wsdl2java_wsdl/basic_callback.wsdl")};
 
         WSDLToJava.main(args);
