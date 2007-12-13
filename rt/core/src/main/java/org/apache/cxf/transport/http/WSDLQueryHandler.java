@@ -34,13 +34,18 @@ import java.util.logging.Logger;
 
 import javax.wsdl.Definition;
 import javax.wsdl.Import;
+import javax.wsdl.Port;
+import javax.wsdl.Service;
 import javax.wsdl.Types;
 import javax.wsdl.WSDLException;
 import javax.wsdl.extensions.ExtensibilityElement;
 import javax.wsdl.extensions.schema.Schema;
 import javax.wsdl.extensions.schema.SchemaImport;
 import javax.wsdl.extensions.schema.SchemaReference;
+import javax.wsdl.extensions.soap.SOAPAddress;
+import javax.wsdl.extensions.soap12.SOAP12Address;
 import javax.wsdl.xml.WSDLWriter;
+import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.w3c.dom.Document;
@@ -49,7 +54,6 @@ import org.w3c.dom.NodeList;
 
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.catalog.OASISCatalogManager;
@@ -148,6 +152,11 @@ public class WSDLQueryHandler implements StemMatchingQueryHandler {
                                                        base);
                     def = mp.get(wsdl2);
                 }
+                
+                if (endpointInfo.getProperty("publishedEndpointUrl") != null) {
+                    String publishingUrl = String.valueOf(endpointInfo.getProperty("publishedEndpointUrl"));
+                    updatePublishedEndpointUrl(publishingUrl, def, endpointInfo.getName());
+                }
     
                 WSDLWriter wsdlWriter = bus.getExtension(WSDLManager.class)
                     .getWSDLFactory().newWSDLWriter();
@@ -226,7 +235,6 @@ public class WSDLQueryHandler implements StemMatchingQueryHandler {
                                                      baseUri), e);
         }
     }
-    
 
     static String resolveWithCatalogs(OASISCatalogManager catalogs, String start, String base) {
         String resolvedSchemaLocation = null;
@@ -284,6 +292,38 @@ public class WSDLQueryHandler implements StemMatchingQueryHandler {
                     Schema see = (Schema)el;
                     updateSchemaImports(see, doneSchemas, base);
                 }
+            }
+        }
+    }    
+
+    protected void updatePublishedEndpointUrl(String publishingUrl, Definition def, QName name) {
+        Collection<Service> services = CastUtils.cast(def.getAllServices().values());
+        for (Service service : services) {
+            Collection<Port> ports = CastUtils.cast(service.getPorts().values());
+            if (ports.isEmpty()) {
+                continue;
+            }
+            
+            if (name == null) {
+                setSoapAddressLocationOn(ports.iterator().next(), publishingUrl);
+                break; // only update the first port since we don't target any specific port
+            } else {
+                for (Port port : ports) {
+                    if (name.getLocalPart().equals(port.getName())) {
+                        setSoapAddressLocationOn(port, publishingUrl);
+                    }
+                }
+            }
+        }
+    }
+    
+    private void setSoapAddressLocationOn(Port port, String url) {
+        List extensions = port.getExtensibilityElements();
+        for (Object extension : extensions) {
+            if (extension instanceof SOAP12Address) {
+                ((SOAP12Address)extension).setLocationURI(url);
+            } else if (extension instanceof SOAPAddress) {
+                ((SOAPAddress)extension).setLocationURI(url);
             }
         }
     }
