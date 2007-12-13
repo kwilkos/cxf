@@ -21,8 +21,12 @@ package org.apache.cxf.javascript;
 
 import java.io.File;
 import java.net.URL;
+
+import org.apache.cxf.javascript.JavascriptTestUtilities.JSRunnable;
+import org.apache.cxf.javascript.JavascriptTestUtilities.Notifier;
 import org.junit.Before;
 import org.junit.Test;
+import org.mozilla.javascript.Context;
 import org.springframework.context.support.GenericApplicationContext;
 
 /**
@@ -48,12 +52,34 @@ public class GreeterClientTest extends JavascriptRhinoTest {
                    true);
     }
     
-    @Test
-    public void testCallSayHi() throws Exception {
+    private Void sayHiCaller(Context context) {
+        Notifier notifier = 
+            testUtilities.rhinoCallConvert("sayHiTest", Notifier.class, 
+                                           testUtilities.javaToJS(endpoint.getAddress()));
         
+        boolean notified = notifier.waitForJavascript(1000 * 10);
+        assertTrue(notified);
+        Integer errorStatus = testUtilities.rhinoEvaluateConvert("globalErrorStatus", Integer.class);
+        assertNull(errorStatus);
+        String errorText = testUtilities.rhinoEvaluateConvert("globalErrorStatusText", String.class);
+        assertNull(errorText);
+
+        // this method returns a String inside of an object, since there's an @WebResponse
+        String responseObject = testUtilities.rhinoEvaluateConvert("globalResponseObject.getResponseType()", 
+                                                                   String.class);
+        assertEquals("Bonjour", responseObject);
+        return null;
     }
     
-    
+    @Test
+    public void testCallSayHi() throws Exception {
+        testUtilities.runInsideContext(Void.class, new JSRunnable<Void>() {
+            public Void run(Context context) {
+                return sayHiCaller(context);
+            }
+        });
+    }
+
     public String getStaticResourceURL() throws Exception {
         File staticFile = new File(this.getClass().getResource("test.html").toURI());
         staticFile = staticFile.getParentFile();

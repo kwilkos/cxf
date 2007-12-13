@@ -29,7 +29,7 @@ import org.apache.hello_world_soap_http.types.FaultDetail;
 @javax.jws.WebService(portName = "SoapPort", serviceName = "SOAPService", 
                       targetNamespace = "http://apache.org/hello_world_soap_http", 
                       endpointInterface = "org.apache.hello_world_soap_http.Greeter")
-                  
+@org.apache.cxf.feature.Features(features = "org.apache.cxf.feature.LoggingFeature")      
 public class GreeterImpl implements Greeter {
 
     private static final Logger LOG = LogUtils.getL7dLogger(GreeterImpl.class);
@@ -39,8 +39,6 @@ public class GreeterImpl implements Greeter {
      */
     public String greetMe(String me) {
         LOG.info("Executing operation greetMe");
-        System.out.println("Executing operation greetMe");
-        System.out.println("Message received: " + me + "\n");
         return "Hello " + me;
     }
     
@@ -49,8 +47,6 @@ public class GreeterImpl implements Greeter {
      */
     public void greetMeOneWay(String me) {
         LOG.info("Executing operation greetMeOneWay");
-        System.out.println("Executing operation greetMeOneWay\n");
-        System.out.println("Hello there " + me);
     }
 
     /* (non-Javadoc)
@@ -58,7 +54,6 @@ public class GreeterImpl implements Greeter {
      */
     public String sayHi() {
         LOG.info("Executing operation sayHi");
-        System.out.println("Executing operation sayHi\n");
         return "Bonjour";
     }
     
@@ -67,9 +62,6 @@ public class GreeterImpl implements Greeter {
         faultDetail.setMajor((short)2);
         faultDetail.setMinor((short)1);
         LOG.info("Executing operation pingMe, throwing PingMeFault exception");
-        System.out.println("Executing operation pingMe, throwing PingMeFault exception\n");
         throw new PingMeFault("PingMeFault raised by server", faultDetail);
     }
-
-    
 }

@@ -386,7 +386,6 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
         XmlSchemaType type;
         
         if (isRPC) {
-            // in the RPC case, there is an extra level of element for the output message.
             utils.appendLine("cxfjsutils.trace('rpc element: ' + cxfjsutils.traceElementName(partElement));");
             utils.appendLine("partElement = cxfjsutils.getFirstElementChild(partElement);");
             utils.appendLine("cxfjsutils.trace('rpc element: ' + cxfjsutils.traceElementName(partElement));");
@@ -402,13 +401,15 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
             if (type instanceof XmlSchemaComplexType) {
                 // if there are no response items, the type is likely to have no name and no particle.
                 XmlSchemaComplexType complexType = (XmlSchemaComplexType)type;
-                // if it is anonymous but not empty, we're in trouble here, as we have no way to talk
-                // about it. The code in getElementsForParts should have dealt with this.
-                String typeObjectName = null;
+                QName nameToDeserialize = null; 
                 if (null == complexType.getName()) {
-                    throw new RuntimeException("anonymous type unexpected.");
+                    nameToDeserialize = element.getElement().getQName();
+                } else {
+                    nameToDeserialize = complexType.getQName();
                 }
-                typeObjectName = nameManager.getJavascriptName(complexType.getQName());
+                
+                String typeObjectName = nameManager.getJavascriptName(nameToDeserialize);
+                
                 utils
                     .appendLine("var returnObject = " 
                                 + typeObjectName 
@@ -592,7 +593,8 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
             }
             
             boolean empty = isEmptyType(type, diagnosticName);
-            if (!empty && type instanceof XmlSchemaComplexType && type.getName() == null) {
+            // In the bare case, if the type is nameless but contains but one element, concentrate on that.
+            if (!empty && type instanceof XmlSchemaComplexType && type.getName() == null && !isWrapped) {
                 XmlSchemaElement betterElement = getBuriedElement((XmlSchemaComplexType) type,
                                                                   diagnosticName);
                 if (betterElement != null) {
@@ -660,7 +662,14 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
             
             if (inputWrapperComplexType.getQName() == null) {
                 // we should be ignoring this for zero-argument wrappers.
-                inputWrapperClassName = nameManager.getJavascriptName(inputWrapperPartInfo.getName());
+                if (inputWrapperPartInfo.isElement()) {
+                    inputWrapperClassName = nameManager.
+                        getJavascriptName(inputWrapperPartInfo.getElementQName());
+                } else {
+                    unsupportedConstruct("NON_ELEMENT_ANON_TYPE_PART", 
+                                         inputWrapperPartInfo.getMessageInfo().getName(),
+                                         inputWrapperPartInfo.getName());
+                }
             } else {
                 inputWrapperClassName = nameManager.getJavascriptName(inputWrapperComplexType.getQName());
             }

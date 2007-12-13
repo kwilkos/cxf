@@ -21,3 +21,49 @@ function assertionFailed(explanation)
 {
  	var assert = new Assert(explanation); // this will throw out in Java.
 }
+
+var globalNotifier = null;
+var globalErrorStatus = null;
+var globalErrorStatusText = null;
+var globalResponseObject = null;
+
+function resetGlobals() {
+	globalNotifier = null;
+	globalErrorStatus = null;
+	globalErrorStatusText = null;
+	globalResponseObject = null;
+}
+
+function testErrorCallback(httpStatus, httpStatusText) 
+{
+    org_apache_cxf_trace.trace("test error");
+	globalErrorStatus = httpStatus;
+	globalStatusText = httpStatusText;
+	globalNotifier.notify();
+}
+
+// Because there is an explicit response wrapper declared, we have a JavaScript
+// object here that wraps up the simple 'string'. It is easier to validate it
+// from Java, I think.
+function testSuccessCallback(responseObject) 
+{
+    org_apache_cxf_trace.trace("test success");
+	globalResponseObject = responseObject;
+	globalNotifier.notify();
+}
+
+function sayHiTest(url)
+{
+	org_apache_cxf_trace.trace("Enter sayHi.");
+	resetGlobals();
+	globalNotifier = new org_apache_cxf_notifier();
+	
+	var intf;
+    intf = new apache_org_hello_world_soap_http_Greeter();
+	  
+	intf.url = url;
+    intf.sayHi(testSuccessCallback, testErrorCallback);
+    // Return the notifier as a convenience to the Java code.
+	return globalNotifier;
+}
+

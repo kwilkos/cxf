@@ -83,7 +83,6 @@ public class RPCClientTest extends JavascriptRhinoTest {
 
         // this method returns a String.
         String responseObject = testUtilities.rhinoEvaluateConvert("globalResponseObject", String.class);
-        // there is no response, this thing returns 'void'
         assertEquals("String Parameter", responseObject);
         SimpleRPCImpl impl = getBean(SimpleRPCImpl.class, "rpc-service");
         assertEquals("String Parameter", impl.getLastString());
