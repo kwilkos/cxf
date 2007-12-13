@@ -24,6 +24,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -95,13 +96,23 @@ public class WSDL2JavaMojo extends AbstractMojo {
         classesDir.mkdirs();
 
 
-        if (wsdlOptions == null) {
-            List<WsdlOption> options = new WsdlOptionLoader().load(wsdlRoot);
-            wsdlOptions = options.toArray(new WsdlOption[options.size()]);
-            if (wsdlOptions == null) {
-                getLog().info("Nothing to generate");
-                return;
+        if (wsdlRoot != null) {
+            List<WsdlOption> options = new ArrayList<WsdlOption>();
+            if (wsdlOptions != null) {
+                options.addAll(Arrays.asList(wsdlOptions));
             }
+            
+            for (WsdlOption o : new WsdlOptionLoader().load(wsdlRoot)) {
+                if (!options.contains(o)) {
+                    options.add(o);
+                }
+            }
+            wsdlOptions = options.toArray(new WsdlOption[options.size()]);
+        }
+
+        if (wsdlOptions == null) {
+            getLog().info("Nothing to generate");
+            return;
         }
 
         List<URL> urlList = new ArrayList<URL>();
