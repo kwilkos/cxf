@@ -38,6 +38,7 @@ import org.apache.cxf.anonymous_complex_type.RefSplitName;
 import org.apache.cxf.anonymous_complex_type.RefSplitNameResponse;
 import org.apache.cxf.anonymous_complex_type.SplitName;
 import org.apache.cxf.anonymous_complex_type.SplitNameResponse.Names;
+import org.apache.cxf.frontend.ClientProxyFactoryBean;
 import org.apache.cxf.jaxb_element_test.JaxbElementTest;
 import org.apache.cxf.jaxb_element_test.JaxbElementTest_Service;
 import org.apache.cxf.ordered_param_holder.ComplexStruct;
@@ -242,6 +243,25 @@ public class ClientServerMiscTest extends AbstractBusClientServerTestBase {
         runDocLitTest(port);
     }
     
+    @Test
+    public void testSimpleClientWithWsdl() throws Exception {
+        QName portName = new QName("http://cxf.apache.org/systest/jaxws/DocLitWrappedCodeFirstService", 
+            "DocLitWrappedCodeFirstServicePort");
+        QName servName = new QName("http://cxf.apache.org/systest/jaxws/DocLitWrappedCodeFirstService", 
+            "DocLitWrappedCodeFirstService");
+        
+        ClientProxyFactoryBean factory = new ClientProxyFactoryBean();
+        factory.setWsdlURL(ServerMisc.DOCLIT_CODEFIRST_URL + "?wsdl");
+        factory.setServiceName(servName);
+        factory.setServiceClass(DocLitWrappedCodeFirstService.class);
+        factory.setEndpointName(portName);
+        
+        DocLitWrappedCodeFirstService port = (DocLitWrappedCodeFirstService) factory.create();        
+        assertNotNull(port);
+
+        String echoMsg = port.echo("Hello");
+        assertEquals("Hello", echoMsg);
+    }
     private void runDocLitTest(DocLitWrappedCodeFirstService port) throws Exception {
         assertEquals(24, port.echoIntDifferentWrapperName(24));
         
