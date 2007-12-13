@@ -120,4 +120,9 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
     implementor="java.lang.Object"
     implementorClass="org.apache.cxf.jaxws.service.Hello"
     address="http://localhost:8080/test"/>
+    
+  <jaxws:endpoint id="publishedEndpointUrl"
+    implementor="#greeter"
+    address="http://localhost:8080/publishedEndpointUrl"
+    publishedEndpointUrl="http://cxf.apache.org/Greeter"/>
 </beans>
