@@ -20,6 +20,7 @@
 package org.apache.cxf.service.factory;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 
 import javax.xml.namespace.QName;
 
@@ -130,7 +131,7 @@ public abstract class AbstractServiceConfiguration {
     }
 
     public QName getOutParameterName(final OperationInfo op, final Method method,
-                                     final int paramNumber) {
+                                      final int paramNumber) {
         return null;
     }
 
@@ -176,6 +177,14 @@ public abstract class AbstractServiceConfiguration {
     }
     
     public Boolean isRPC(Method selected) {
+        return null;
+    }
+    
+    public Boolean isHolder(Class<?> cls, Type type) {
+        return null;
+    }
+    
+    public Class<?> getHolderType(Class<?> cls, Type type) {
         return null;
     }
 }
