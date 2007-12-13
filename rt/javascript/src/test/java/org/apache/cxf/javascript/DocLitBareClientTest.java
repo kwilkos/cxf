@@ -19,22 +19,14 @@
 
 package org.apache.cxf.javascript;
 
-import java.util.List;
 import java.util.logging.Logger;
 
-import org.apache.cxf.Bus;
 import org.apache.cxf.common.logging.LogUtils;
-import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.javascript.JavascriptTestUtilities.JSRunnable;
 import org.apache.cxf.javascript.JavascriptTestUtilities.Notifier;
 import org.apache.cxf.javascript.fortest.SimpleDocLitBareImpl;
 import org.apache.cxf.javascript.fortest.TestBean1;
 import org.apache.cxf.javascript.fortest.TestBean2;
-import org.apache.cxf.jaxws.EndpointImpl;
-import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
-import org.apache.cxf.message.Message;
-import org.apache.cxf.service.model.ServiceInfo;
-import org.apache.cxf.test.AbstractCXFSpringTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.mozilla.javascript.Context;
@@ -46,43 +38,16 @@ import org.springframework.context.support.GenericApplicationContext;
  * but a complex type for an array of the element.
  */
 
-public class DocLitBareClientTest extends AbstractCXFSpringTest {
+public class DocLitBareClientTest extends JavascriptRhinoTest {
 
     private static final Logger LOG = LogUtils.getL7dLogger(DocLitBareClientTest.class);
 
-    // shadow declaration from base class.
-    private JavascriptTestUtilities testUtilities;
-    private JaxWsProxyFactoryBean clientProxyFactory;
-    private EndpointImpl endpoint;
-    private SimpleDocLitBareImpl implementor;
-
-    private Client client;
-    private ServiceInfo serviceInfo;
+    SimpleDocLitBareImpl implementor;
 
     public DocLitBareClientTest() throws Exception {
-        testUtilities = new JavascriptTestUtilities(getClass());
-        testUtilities.addDefaultNamespaces();
+        super();
     }
 
-    @Before
-    public void setupRhino() throws Exception {
-        testUtilities.setBus(getBean(Bus.class, "cxf"));
-        testUtilities.initializeRhino();
-        testUtilities.readResourceIntoRhino("/org/apache/cxf/javascript/cxf-utils.js");
-        clientProxyFactory = getBean(JaxWsProxyFactoryBean.class, "dlb-proxy-factory");
-        client = clientProxyFactory.getClientFactoryBean().create();
-        List<ServiceInfo> serviceInfos = client.getEndpoint().getService().getServiceInfos();
-        // there can only be one.
-        assertEquals(1, serviceInfos.size());
-        serviceInfo = serviceInfos.get(0);
-        testUtilities.loadJavascriptForService(serviceInfo);
-        testUtilities.readResourceIntoRhino("/org/apache/cxf/javascript/DocLitBareTests.js");
-        endpoint = getBean(EndpointImpl.class, "dlb-service-endpoint");
-        endpoint.getService().put(Message.SCHEMA_VALIDATION_ENABLED, Boolean.TRUE);
-        implementor = (SimpleDocLitBareImpl)endpoint.getImplementor();
-        implementor.resetLastValues();
-    }
-    
     @Override
     protected void additionalSpringConfiguration(GenericApplicationContext context) throws Exception {
     }
@@ -90,6 +55,16 @@ public class DocLitBareClientTest extends AbstractCXFSpringTest {
     @Override
     protected String[] getConfigLocations() {
         return new String[] {"classpath:DocLitBareClientTestBeans.xml"};
+    }
+    
+    @Before
+    public void before() throws Exception {
+        setupRhino("dlb-proxy-factory", 
+                   "dlb-service-endpoint", 
+                   "/org/apache/cxf/javascript/DocLitBareTests.js",
+                   true);
+        implementor = (SimpleDocLitBareImpl)endpoint.getImplementor();
+        implementor.resetLastValues();
     }
 
     private Void beanFunctionCaller(Context context) {

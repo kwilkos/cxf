@@ -62,7 +62,12 @@ public class DemoServerTest {
     
     @AfterClass
     public static void afterClass() {
-        System.setProperty("cxf.config.file", oldConfigProperty);
+        if (oldConfigProperty == null) {
+            System.setProperty("cxf.config.file", "");
+            
+        } else {
+            System.setProperty("cxf.config.file", oldConfigProperty);
+        }
     }
 
     @Before
@@ -106,6 +111,6 @@ public class DemoServerTest {
         URL endpointURL = new URL("http://localhost:9000/SoapContext/SoapPort?js");
         String js = getStringFromURL(endpointURL);
         // faultDetail will only be here if we got a nontrivial schema.
-        assertTrue(js.contains("faultDetail"));
+        assertTrue(js.contains("function apache_org_hello_world_soap_http_in"));
     }
 }

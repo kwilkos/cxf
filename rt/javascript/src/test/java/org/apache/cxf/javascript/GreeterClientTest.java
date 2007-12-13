@@ -21,31 +21,17 @@ package org.apache.cxf.javascript;
 
 import java.io.File;
 import java.net.URL;
-import java.util.List;
-
-import org.apache.cxf.Bus;
-import org.apache.cxf.endpoint.Client;
-import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
-import org.apache.cxf.service.model.ServiceInfo;
-import org.apache.cxf.test.AbstractCXFSpringTest;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.context.support.GenericApplicationContext;
 
 /**
- *  This will eventually be a test of XML binding.
+ *  Test the same schema used in the samples.
  */
-@Ignore
-public class GreeterClientTest extends AbstractCXFSpringTest {
+public class GreeterClientTest extends JavascriptRhinoTest {
 
-    // shadow declaration from base class.
-    private JavascriptTestUtilities testUtilities;
-    private JaxWsProxyFactoryBean clientProxyFactory;
-    
     public GreeterClientTest() throws Exception {
-        testUtilities = new JavascriptTestUtilities(getClass());
-        testUtilities.addDefaultNamespaces();
+        super();
     }
     
     @Override
@@ -56,29 +42,17 @@ public class GreeterClientTest extends AbstractCXFSpringTest {
     
     @Before
     public 
-    void setupRhino() throws Exception {
-        testUtilities.setBus(getBean(Bus.class, "cxf"));
-        testUtilities.initializeRhino();
-        // move the following into the utility class?
-        JsXMLHttpRequest.register(testUtilities.getRhinoScope());
-        testUtilities.readResourceIntoRhino("/org/apache/cxf/javascript/cxf-utils.js");
-        clientProxyFactory = getBean(JaxWsProxyFactoryBean.class, "greeter-proxy-factory");
-        Client client = clientProxyFactory.getClientFactoryBean().create();
-        List<ServiceInfo> serviceInfos = client.getEndpoint().getService().getServiceInfos();
-        // there can only be one.
-        assertEquals(1, serviceInfos.size());
-        ServiceInfo serviceInfo = serviceInfos.get(0);
-        testUtilities.loadJavascriptForService(serviceInfo);
-        //well, we should be able to load Javascript that talks to the service.
-
+    void before() throws Exception {
+        setupRhino("greeter-proxy-factory", "greeter-service-endpoint",  
+                   "/org/apache/cxf/javascript/GreeterTests.js",
+                   true);
     }
     
-    
-    // just one test function to avoid muddles with engine startup/shutdown
     @Test
-    public void runTests() throws Exception {
+    public void testCallSayHi() throws Exception {
         
     }
+    
     
     public String getStaticResourceURL() throws Exception {
         File staticFile = new File(this.getClass().getResource("test.html").toURI());

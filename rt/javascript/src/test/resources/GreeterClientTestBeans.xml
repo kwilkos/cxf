@@ -33,12 +33,12 @@
   <import resource="classpath:META-INF/cxf/cxf-extension-http-jetty.xml" />
               
  <jaxws:endpoint id="greeter-service-endpoint" 
-    implementor="org.apache.hello_world_xml_http.wrapped.GreeterImpl" 
+    implementor="org.apache.cxf.javascript.hwdemo.GreeterImpl" 
     address="http://localhost:8808/Greeter" >
  </jaxws:endpoint>
  
  <bean id="greeter-proxy-factory" class="org.apache.cxf.jaxws.JaxWsProxyFactoryBean" >
-    <property name="serviceClass" value="org.apache.hello_world_xml_http.wrapped.GreeterImpl"/>
+    <property name="serviceClass" value="org.apache.cxf.javascript.hwdemo.GreeterImpl"/>
     <property name="address" value="http://localhost:8808/Greeter"/>
  </bean>
  

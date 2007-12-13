@@ -19,21 +19,14 @@
 
 package org.apache.cxf.javascript;
 
-import java.util.List;
 import java.util.logging.Logger;
 
-import org.apache.cxf.Bus;
 import org.apache.cxf.common.logging.LogUtils;
-import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.javascript.JavascriptTestUtilities.JSRunnable;
 import org.apache.cxf.javascript.JavascriptTestUtilities.Notifier;
 import org.apache.cxf.javascript.fortest.SimpleRPCImpl;
 import org.apache.cxf.javascript.fortest.TestBean1;
 import org.apache.cxf.javascript.fortest.TestBean2;
-import org.apache.cxf.jaxws.EndpointImpl;
-import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
-import org.apache.cxf.service.model.ServiceInfo;
-import org.apache.cxf.test.AbstractCXFSpringTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.mozilla.javascript.Context;
@@ -45,41 +38,20 @@ import org.springframework.context.support.GenericApplicationContext;
  * but a complex type for an array of the element.
  */
 
-public class RPCClientTest extends AbstractCXFSpringTest {
+public class RPCClientTest extends JavascriptRhinoTest {
 
     private static final Logger LOG = LogUtils.getL7dLogger(RPCClientTest.class);
 
-    // shadow declaration from base class.
-    private JavascriptTestUtilities testUtilities;
-    private JaxWsProxyFactoryBean clientProxyFactory;
-    private EndpointImpl endpoint;
     private SimpleRPCImpl implementor;
 
-    private Client client;
-    private ServiceInfo serviceInfo;
-
     public RPCClientTest() throws Exception {
-        testUtilities = new JavascriptTestUtilities(getClass());
-        testUtilities.addDefaultNamespaces();
+        super();
     }
 
     @Before
-    public void setupRhino() throws Exception {
-        testUtilities.setBus(getBean(Bus.class, "cxf"));
-        testUtilities.initializeRhino();
-        testUtilities.readResourceIntoRhino("/org/apache/cxf/javascript/cxf-utils.js");
-        clientProxyFactory = getBean(JaxWsProxyFactoryBean.class, "rpc-proxy-factory");
-        client = clientProxyFactory.getClientFactoryBean().create();
-        List<ServiceInfo> serviceInfos = client.getEndpoint().getService().getServiceInfos();
-        // there can only be one.
-        assertEquals(1, serviceInfos.size());
-        serviceInfo = serviceInfos.get(0);
-        testUtilities.loadJavascriptForService(serviceInfo);
-        testUtilities.readResourceIntoRhino("/org/apache/cxf/javascript/RPCTests.js");
-        endpoint = getBean(EndpointImpl.class, "rpc-service-endpoint");
-        // schema validation doesn't work in RPC. CXF-1277.
-        //endpoint.getService().put(org.apache.cxf.message.Message.Message.SCHEMA_VALIDATION_ENABLED,
-        //                          Boolean.TRUE);
+    public void before() throws Exception {
+        setupRhino("rpc-proxy-factory", "rpc-service-endpoint", 
+                   "/org/apache/cxf/javascript/RPCTests.js", false); 
         implementor = (SimpleRPCImpl)endpoint.getImplementor();
         implementor.resetLastValues();
     }

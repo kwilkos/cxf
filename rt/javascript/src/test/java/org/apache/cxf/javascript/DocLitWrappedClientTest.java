@@ -21,39 +21,26 @@ package org.apache.cxf.javascript;
 
 import java.io.File;
 import java.net.URL;
-import java.util.List;
 import java.util.logging.Logger;
 
-import org.apache.cxf.Bus;
 import org.apache.cxf.common.logging.LogUtils;
-import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.javascript.JavascriptTestUtilities.JSRunnable;
 import org.apache.cxf.javascript.JavascriptTestUtilities.Notifier;
 import org.apache.cxf.javascript.fortest.SimpleDocLitWrappedImpl;
 import org.apache.cxf.javascript.fortest.TestBean1;
 import org.apache.cxf.javascript.fortest.TestBean2;
-import org.apache.cxf.jaxws.EndpointImpl;
-import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
-import org.apache.cxf.service.model.ServiceInfo;
-import org.apache.cxf.test.AbstractCXFSpringTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
 import org.springframework.context.support.GenericApplicationContext;
 
-public class DocLitWrappedClientTest extends AbstractCXFSpringTest {
+public class DocLitWrappedClientTest extends JavascriptRhinoTest {
 
     private static final Logger LOG = LogUtils.getL7dLogger(DocLitWrappedClientTest.class);
 
-    // shadow declaration from base class.
-    private JavascriptTestUtilities testUtilities;
-    private JaxWsProxyFactoryBean clientProxyFactory;
-    private EndpointImpl endpoint;
-
     public DocLitWrappedClientTest() throws Exception {
-        testUtilities = new JavascriptTestUtilities(getClass());
-        testUtilities.addDefaultNamespaces();
+        super();
     }
 
     public String getStaticResourceURL() throws Exception {
@@ -65,19 +52,11 @@ public class DocLitWrappedClientTest extends AbstractCXFSpringTest {
     }
 
     @Before
-    public void setupRhino() throws Exception {
-        testUtilities.setBus(getBean(Bus.class, "cxf"));
-        testUtilities.initializeRhino();
-        testUtilities.readResourceIntoRhino("/org/apache/cxf/javascript/cxf-utils.js");
-        clientProxyFactory = getBean(JaxWsProxyFactoryBean.class, "dlw-proxy-factory");
-        Client client = clientProxyFactory.getClientFactoryBean().create();
-        List<ServiceInfo> serviceInfos = client.getEndpoint().getService().getServiceInfos();
-        // there can only be one.
-        assertEquals(1, serviceInfos.size());
-        ServiceInfo serviceInfo = serviceInfos.get(0);
-        testUtilities.loadJavascriptForService(serviceInfo);
-        testUtilities.readResourceIntoRhino("/org/apache/cxf/javascript/DocLitWrappedTests.js");
-        endpoint = getBean(EndpointImpl.class, "dlw-service-endpoint");
+    public void before() throws Exception {
+        setupRhino("dlw-proxy-factory", 
+                   "dlw-service-endpoint", 
+                   "/org/apache/cxf/javascript/DocLitWrappedTests.js", 
+                   false);
     }
     
     @Override
