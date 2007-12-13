@@ -27,7 +27,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import javax.wsdl.Operation;
-import javax.xml.namespace.QName;
 import javax.xml.ws.AsyncHandler;
 import javax.xml.ws.Service;
 import javax.xml.ws.Service.Mode;
@@ -51,9 +50,7 @@ import org.apache.cxf.service.factory.ServiceConstructionException;
 import org.apache.cxf.service.invoker.Invoker;
 import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.EndpointInfo;
-import org.apache.cxf.service.model.FaultInfo;
 import org.apache.cxf.service.model.InterfaceInfo;
-import org.apache.cxf.service.model.MessageInfo;
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.wsdl11.WSDLServiceBuilder;
 
