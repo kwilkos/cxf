@@ -37,6 +37,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.apache.tools.ant.ExitException;
 import org.apache.tools.ant.util.optional.NoExitSecurityManager;
+
 /**
  * @goal wsdl2java
  * @description CXF WSDL To Java Tool
@@ -73,6 +74,12 @@ public class WSDL2JavaMojo extends AbstractMojo {
     WsdlOption wsdlOptions[];
 
     /**
+     * @parameter
+     */
+    String wsdlRoot;
+
+
+    /**
      * Use the compile classpath rather than the test classpath for execution
      * useful if the test dependencies clash with those of wsdl2java
      * @parameter
@@ -89,7 +96,12 @@ public class WSDL2JavaMojo extends AbstractMojo {
 
 
         if (wsdlOptions == null) {
-            throw new MojoExecutionException("Must specify wsdlOptions");
+            List<WsdlOption> options = new WsdlOptionLoader().load(wsdlRoot);
+            wsdlOptions = options.toArray(new WsdlOption[options.size()]);
+            if (wsdlOptions == null) {
+                getLog().info("Nothing to generate");
+                return;
+            }
         }
 
         List<URL> urlList = new ArrayList<URL>();
@@ -188,8 +200,6 @@ public class WSDL2JavaMojo extends AbstractMojo {
                 }
             }
         }
-
-
 
         if (doWork) {
             doneFile.delete();

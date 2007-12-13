@@ -20,7 +20,11 @@
 package org.apache.cxf.helpers;
 
 import java.io.File;
+import java.io.FileReader;
+import java.io.FilenameFilter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 public final class FileUtils {
@@ -165,5 +169,104 @@ public final class FileUtils {
             result.deleteOnExit();
         }
         return result;
+    }
+    
+    public static String getStringFromFile(File location) {
+        InputStream is = null;
+        String result = null;
+
+        try {
+            is = new FileInputStream(location);
+            result = normalizeCRLF(is);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (is != null) {
+                try {
+                    is.close();
+                } catch (Exception e) {
+                    //do nothing
+                }
+            }
+        }
+
+        return result;
+    }
+
+    public static String normalizeCRLF(InputStream instream) {
+        BufferedReader in = new BufferedReader(new InputStreamReader(instream));
+        StringBuffer result = new StringBuffer();
+        String line = null;
+
+        try {
+            line = in.readLine();
+            while (line != null) {
+                String[] tok = line.split("\\s");
+
+                for (int x = 0; x < tok.length; x++) {
+                    String token = tok[x];
+                    result.append("  " + token);
+                }
+                line = in.readLine();
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        String rtn = result.toString();
+
+        rtn = ignoreTokens(rtn, "<!--", "-->");
+        rtn = ignoreTokens(rtn, "/*", "*/");
+        return rtn;
+    }
+    
+    private static String ignoreTokens(final String contents, 
+                                       final String startToken, final String endToken) {
+        String rtn = contents;
+        int headerIndexStart = rtn.indexOf(startToken);
+        int headerIndexEnd = rtn.indexOf(endToken);
+        if (headerIndexStart != -1 && headerIndexEnd != -1 && headerIndexStart < headerIndexEnd) {
+            rtn = rtn.substring(0, headerIndexStart - 1)
+                + rtn.substring(headerIndexEnd + endToken.length() + 1);
+        }
+        return rtn;
+    }
+
+    public static List<File> getFiles(File dir, final String pattern) {
+        return getFiles(dir, pattern, null);
+    }
+
+    public static List<File> getFiles(File dir, final String pattern, File exclude) {
+        File[] files =  dir.listFiles(new FilenameFilter() {
+                public boolean accept(File dir, String name) {
+                    return name.matches(pattern);
+                }
+            });
+        if (files == null) {
+            return new ArrayList<File>();
+        }
+
+        List<File> fileList = new ArrayList<File>();
+        for (File file : files) {
+            if (file.equals(exclude)) {
+                continue;
+            }
+            fileList.add(file);
+        }
+        return fileList;
+    }
+
+    public static List<String> readLines(File file) throws Exception {
+        if (!file.exists()) {
+            return new ArrayList<String>();
+        }
+        BufferedReader reader = new BufferedReader(new FileReader(file));
+        List<String> results = new ArrayList<String>();
+        String line = reader.readLine();
+        while (line != null) {
+            results.add(line);
+            line = reader.readLine();
+        }
+        return results;
     }
 }
