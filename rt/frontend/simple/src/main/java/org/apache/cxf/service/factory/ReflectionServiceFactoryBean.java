@@ -255,19 +255,31 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         }
     }
 
+    protected void setServiceProperties() {
+        getService().put(MethodDispatcher.class.getName(), getMethodDispatcher());
+        if (properties != null) {
+            getService().putAll(properties);
+        }
+        
+    }
+    
     protected void buildServiceFromWSDL(String url) {
         LOG.info("Creating Service " + getServiceQName() + " from WSDL: " + url);
         WSDLServiceFactory factory = new WSDLServiceFactory(getBus(), url, getServiceQName());
         setService(factory.create());
 
-        if (properties != null) {
-            getService().putAll(properties);
-        }
+        setServiceProperties();
 
         initializeWSDLOperations();
 
         if (getDataBinding() != null) {
             getDataBinding().initialize(getService());
+        }
+        
+        for (ServiceInfo si : getService().getServiceInfos()) {
+            if (getExtraClass() != null) {
+                si.setProperty(EXTRA_CLASS, getExtraClass());
+            }
         }
     }
 
@@ -284,17 +296,19 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
 
         setService(service);
 
-        if (properties != null) {
-            service.putAll(properties);
-        }
-
-        service.put(MethodDispatcher.class.getName(), getMethodDispatcher());
+        setServiceProperties();
 
         serviceInfo.setName(getServiceQName());
         serviceInfo.setTargetNamespace(serviceInfo.getName().getNamespaceURI());
 
         createInterface(serviceInfo);
 
+        for (ServiceInfo si : getService().getServiceInfos()) {
+            if (getExtraClass() != null) {
+                si.setProperty(EXTRA_CLASS, getExtraClass());
+            }
+        }
+        
         getDataBinding().initialize(service);
 
         boolean isWrapped = isWrapped();

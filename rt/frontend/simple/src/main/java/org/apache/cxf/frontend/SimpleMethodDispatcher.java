@@ -37,6 +37,10 @@ public class SimpleMethodDispatcher implements MethodDispatcher {
     private Map<Method, OperationInfo> methodToOp = 
         new ConcurrentHashMap<Method, OperationInfo>();
 
+    public SimpleMethodDispatcher() {
+        //complete
+    }
+    
     public void bind(OperationInfo o, Method... methods) {
         Method primary = methods[0];
         for (Method m : methods) {

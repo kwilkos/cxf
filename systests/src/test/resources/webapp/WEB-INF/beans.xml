@@ -89,5 +89,16 @@ http://cxf.apache.org/schemas/jaxws.xsd">
       <bean class="org.apache.cxf.authservice.AuthServiceImpl" />
     </jaxws:serviceBean>
    </jaxws:server>  
+   
+     
+  <jaxws:server address="/jaxwsAndAegisSports"
+    serviceClass="org.apache.cxf.systest.aegis.SportsService">
+    <jaxws:dataBinding>
+       <bean class="org.apache.cxf.aegis.databinding.AegisDatabinding" />
+    </jaxws:dataBinding>
+    <jaxws:serviceBean>
+      <bean class="org.apache.cxf.systest.aegis.SportsServiceImpl" />
+    </jaxws:serviceBean>
+  </jaxws:server>
 </beans>
 <!-- END SNIPPET: beans -->
