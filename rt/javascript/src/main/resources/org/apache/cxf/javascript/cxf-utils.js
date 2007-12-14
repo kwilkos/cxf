@@ -28,6 +28,7 @@ function cxf_apache_org_util_null_trace(message)
 function CxfApacheOrgUtil()
 {
 	this.ELEMENT_NODE = 1;
+
 	if ("function" == typeof(org_apache_cxf_trace)) {
 		this.trace = org_apache_cxf_trace.trace;
 	} else {
@@ -181,6 +182,13 @@ function CxfApacheOrgClient(utils) {
     // handler functions
     this.onsuccess = null;
     this.onerror = null;
+    // Firefox is noncompliant with respect to the defined constants,
+    // so we define our own.
+    this.READY_STATE_UNINITIALIZED = 0;
+    this.READY_STATE_LOADING = 1;
+    this.READY_STATE_LOADED = 2;
+    this.READY_STATE_INTERACTIVE = 3;
+    this.READY_STATE_DONE = 4;
 }
 
 // Caller must avoid stupid mistakes like 'GET' with a request body.
@@ -259,7 +267,7 @@ function org_apache_cxf_client_onReadyState() {
 
     this.utils.trace("onreadystatechange " + ready);
 
-    if (ready == req.DONE) {
+    if (ready == this.READY_STATE_DONE) {
         var httpStatus=req.status;
         this.utils.trace("onreadystatechange DONE " + httpStatus);
 

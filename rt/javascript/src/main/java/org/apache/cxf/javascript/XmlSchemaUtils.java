@@ -49,6 +49,7 @@ public final class XmlSchemaUtils {
     public static final String NIL_ATTRIBUTES = XSI_NS_ATTR + " xsi:nil='true'";
 
     private static final Logger LOG = LogUtils.getL7dLogger(XmlSchemaUtils.class);
+    private static final XmlSchemaSequence EMPTY_SEQUENCE = new XmlSchemaSequence();
     
     private XmlSchemaUtils() {
     }
@@ -64,6 +65,7 @@ public final class XmlSchemaUtils {
     public static void unsupportedConstruct(String messageKey, XmlSchemaType subject) {
         Message message = new Message(messageKey, LOG, subject.getQName(), 
                                       cleanedUpSchemaSource(subject));
+        LOG.severe(message.toString());
         throw new UnsupportedConstruct(message);
     }
     
@@ -75,14 +77,15 @@ public final class XmlSchemaUtils {
         throw new UnsupportedConstruct(message);
         
     }
-
     
     public static XmlSchemaSequence getSequence(XmlSchemaComplexType type) {
         XmlSchemaParticle particle = type.getParticle();
         XmlSchemaSequence sequence = null;
         
         if (particle == null) {
-            unsupportedConstruct("NULL_PARTICLE", type);
+            // the code that uses this wants to iterate. An empty one is more useful than
+            // a null pointer, and certainly an exception.
+            return EMPTY_SEQUENCE;
         }
         
         try {

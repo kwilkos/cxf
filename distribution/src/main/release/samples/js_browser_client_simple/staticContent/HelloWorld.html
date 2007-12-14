@@ -1,0 +1,51 @@
+<html>
+<head>
+<title>Hello World JavaScript Client Sample</title>
+<script type="text/javascript" src="/SoapContext/SoapPort?js">
+</script>
+<script type="text/javascript">
+var Greeter = new apache_org_hello_world_soap_http_Greeter();
+Greeter.url = "/SoapContext/SoapPort";
+
+var responseSpan;
+
+function sayHiResponse(response)
+{
+    responseSpan.firstChild.nodeValue = response.getResponseType();
+}
+
+function sayHiError(error)
+{
+      alert('error ' + error);
+}
+
+function invokeSayHi()
+{
+    responseSpan = document.getElementById('sayHiResponse');
+    responseSpan.firstChild.nodeValue = " - pending - ";
+    Greeter.sayHi(sayHiResponse, sayHiError);
+}
+</script>
+</head>
+<body>
+<h1>
+Hello World Sample
+</h1>
+<form>
+<div>
+	<table>
+	  <tr>
+	    <td>Run sayHi</td>
+	    <td><input type="button" 
+                       value="invoke" name="sayHi" 
+		       onClick="invokeSayHi()">
+	  </tr>
+	  <tr>
+	    <td>sayHi response</td>
+	    <td><span id='sayHiResponse'>- not yet invoked -</span></td>
+	  </tr>
+	</table>
+</div>
+</form>
+</body>
+</html>

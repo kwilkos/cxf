@@ -40,7 +40,6 @@ import org.apache.ws.commons.schema.XmlSchemaComplexType;
 import org.apache.ws.commons.schema.XmlSchemaElement;
 import org.apache.ws.commons.schema.XmlSchemaObject;
 import org.apache.ws.commons.schema.XmlSchemaObjectTable;
-import org.apache.ws.commons.schema.XmlSchemaParticle;
 import org.apache.ws.commons.schema.XmlSchemaSequence;
 import org.apache.ws.commons.schema.XmlSchemaSimpleType;
 import org.apache.ws.commons.schema.XmlSchemaType;
@@ -297,19 +296,9 @@ public class SchemaJavascriptBuilder {
     public String domDeserializerFunction(QName name, XmlSchemaComplexType type) {
         StringBuilder code = new StringBuilder();
         JavascriptUtils utils = new JavascriptUtils(code);
-        XmlSchemaParticle particle = type.getParticle();
         XmlSchemaSequence sequence = null;
         
-        if (particle == null) {
-            XmlSchemaUtils.unsupportedConstruct("NULL_PARTICLE", type);
-        }
-        
-        try {
-            sequence = (XmlSchemaSequence) particle;
-        } catch (ClassCastException cce) {
-            XmlSchemaUtils.unsupportedConstruct("NON_SEQUENCE_PARTICLE", type);
-        }
-        
+        sequence = XmlSchemaUtils.getSequence(type);
         String typeObjectName = nameManager.getJavascriptName(name);
         code.append("function " + typeObjectName + "_deserialize (cxfjsutils, element) {\n");
         // create the object we are deserializing into.
