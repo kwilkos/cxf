@@ -63,7 +63,17 @@ public abstract class AbstractInDatabindingInterceptor extends AbstractPhaseInte
     protected boolean isRequestor(Message message) {
         return Boolean.TRUE.equals(message.get(Message.REQUESTOR_ROLE));
     }
-
+ 
+    protected boolean supportsDataReader(Message message, Class<?> input) {
+        Service service = ServiceModelUtil.getService(message.getExchange());
+        Class<?> cls[] = service.getDataBinding().getSupportedReaderFormats();
+        for (Class<?> c : cls) {
+            if (c.equals(input)) {
+                return true;
+            }
+        }
+        return false;
+    }
     protected <T> DataReader<T> getDataReader(Message message, Class<T> input) {
         Service service = ServiceModelUtil.getService(message.getExchange());
         DataReader<T> dataReader = service.getDataBinding().createReader(input);
