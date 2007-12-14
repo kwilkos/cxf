@@ -217,6 +217,11 @@
         </dependency>        
         <dependency>
             <groupId>${pom.groupId}</groupId>
+            <artifactId>cxf-rt-javascript</artifactId>
+            <version>${pom.version}</version>
+        </dependency>        
+        <dependency>
+            <groupId>${pom.groupId}</groupId>
             <artifactId>cxf-bundle</artifactId>
             <version>${pom.version}</version>
         </dependency>

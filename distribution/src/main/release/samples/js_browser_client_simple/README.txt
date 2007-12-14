@@ -1,34 +1,19 @@
-Hello World Demo using Document/Literal Style
+JavaScript Client Demo using Document/Literal Style
 =============================================
 
-This demo illustrates the use of the JAX-WS APIs to run a simple
-client against a standalone server using SOAP 1.1 over HTTP.
+This demo illustrates the use of the JavaScript client generator. This
+demo deploys the a service based on the wsdl_first demo, and then
+provides a browser-compatible client that communicates with it. Please
+read the README.txt for the wsdl_first sample for more information on
+the service.
 
-It also shows how CXF configuration can be used to enable schema validation
-on the client and/or server side: By default the message parameters would not
-be validated, but the presence of the cxf.xml configuration file on
-the classpath, and its content change this default behavior:
-The configuration file specifies that 
-
-a) if a JAX-WS client proxy is created for port {http://apache.org/hello_world_soap_http}SoapPort
-it should have schema validation enabled.
-
-b) if a JAX-WS server endpoint is created for port {http://apache.org/hello_world_soap_http}SoapPort
-it should have schema validation enabled.
-
-The client's second greetMe invocation causes an exception (a marshalling
-error) on the client side, i.e. before the request with the invalid parameter
-goes on the wire.
-After commenting the definition of the <jaxws:client> element in cxf.xml you 
-will notice that the client's second greetMe invocation still throws an exception,
-but that this time the exception is caused by an unmarshalling error on the
-server side.
-Commenting both elements, or renaming/removing the cfg.xml file, and thus
-restoring the default behavior, results in the second greetMe invocation
-not causing an exception.
+The cxf.xml for this sample configures the embedded Jetty web server
+to deliver static HTML content from the 'staticContent' directory.
 
 Please review the README in the samples directory before continuing.
 
+Please see the wiki user documentation for complete information on
+JavaScript client feature.
 
 Prerequisite
 ------------
@@ -45,13 +30,12 @@ environment.
 Building and running the demo using Ant
 ---------------------------------------
 From the base directory of this sample (i.e., where this README file is
-located), the Ant build.xml file can be used to build and run the demo. 
-The server and client targets automatically build the demo.
+located), the Ant build.xml file can be used to build and run the
+server for the demo. 
 
 Using either UNIX or Windows:
 
   ant server  (from one command line window)
-  ant client  (from a second command line window)
     
 
 To remove the code generated from the WSDL file and the .class
@@ -77,17 +61,15 @@ For Windows:
   wsdl2java -d build\classes -compile .\wsdl\hello_world.wsdl
     May use either forward or back slashes.
 
-Now compile the provided client and server applications with the commands:
+Now compile the server applications with the commands:
 
 For UNIX:  
   
   export CLASSPATH=$CLASSPATH:$CXF_HOME/lib/cxf-manifest-incubator.jar:./build/classes
-  javac -d build/classes src/demo/hw/client/*.java
   javac -d build/classes src/demo/hw/server/*.java
 
 For Windows:
   set classpath=%classpath%;%CXF_HOME%\lib\cxf-manifest-incubator.jar;.\build\classes
-  javac -d build\classes src\demo\hw\client\*.java
   javac -d build\classes src\demo\hw\server\*.java
 
 
@@ -101,21 +83,16 @@ For UNIX (must use forward slashes):
     java -Djava.util.logging.config.file=$CXF_HOME/etc/logging.properties
          demo.hw.server.Server &
 
-    java -Djava.util.logging.config.file=$CXF_HOME/etc/logging.properties
-         demo.hw.client.Client ./wsdl/hello_world.wsdl
-
 The server process starts in the background.  After running the client,
-use the kill command to terminate the server process.
+use the kill command to terminate the server process. Or wait five
+minutes, and the server will exit.
 
 For Windows (may use either forward or back slashes):
   start 
     java -Djava.util.logging.config.file=%CXF_HOME%\etc\logging.properties
          demo.hw.server.Server
 
-    java -Djava.util.logging.config.file=%CXF_HOME%\etc\logging.properties
-       demo.hw.client.Client .\wsdl\hello_world.wsdl
-
-A new command windows opens for the server process.  After running the
+On Windows, a new command windows opens for the server process.  After running the
 client, terminate the server process by issuing Ctrl-C in its command window.
 
 To remove the code generated from the WSDL file and the .class
@@ -124,48 +101,16 @@ files, either delete the build directory and its contents or run:
   ant clean
 
 
-Building and running the demo in a servlet container
-----------------------------------------------------
+Running the client in a browser
+-------------------------------
 
-Please refer to samples directory README for building demo in a servlet container.
+Once the server is running, browse to:
 
-Using ant, run the client application with the command:
+  http://HOSTNAME:9000/HelloWorld.html
 
-  ant client-servlet -Dbase.url=http://localhost:#
+(Substitute your hostname for HOSTNAME.)
 
-Where # is the TCP/IP port used by the servlet container,
-e.g., 8080.
+On the web page you see, click on the 'invoke' button to invoke the
+very simple sayHi service, which takes no input and returns a single
+string.
 
-Or
-  ant client-servlet -Dhost=localhost -Dport=8080
-
-You can ignore the -Dhost and -Dport if your tomcat setup is same, i.e ant client-servlet
-
-Using java, run the client application with the command:
-
-  For UNIX:
-    
-    java -Djava.util.logging.config.file=$CXF_HOME/etc/logging.properties
-         demo.hw.client.Client http://localhost:#/helloworld/services/hello_world?wsdl
-
-  For Windows:
-
-    java -Djava.util.logging.config.file=%CXF_HOME%\etc\logging.properties
-       demo.hw.client.Client http://localhost:#/helloworld/services/hello_world?wsdl
-
-Where # is the TCP/IP port used by the servlet container,
-e.g., 8080.
-
-
-Running demo with HTTP GET
---------------------------
-APACHE CXF support HTTP GET to invoke the service, instead of running 
-
-   ant client
-
-you can use 
-
-   ant client.get 
-
-to invoke the service with simple HttpURLConnection, or you can even
-use your favorite browser to get the results back.
