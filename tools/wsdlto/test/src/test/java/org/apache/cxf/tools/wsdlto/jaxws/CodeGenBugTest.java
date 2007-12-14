@@ -450,6 +450,7 @@ public class CodeGenBugTest extends ProcessorTestBase {
     @Test
     public void testHelloWorldExternalBindingFile() throws Exception {
         Server server = new Server(8585);
+
         ResourceHandler reshandler = new ResourceHandler();
         reshandler.setResourceBase(getLocation("/wsdl2java_wsdl/"));
         server.addHandler(reshandler);
@@ -458,7 +459,12 @@ public class CodeGenBugTest extends ProcessorTestBase {
         env.put(ToolConstants.CFG_BINDING, "http://localhost:8585/remote-hello_world_binding.xsd");
         processor.setContext(env);
         processor.execute();
-        server.stop();
+        try {
+            reshandler.stop();
+        } finally {
+            server.stop();
+            server.destroy();
+        }
 
     }
 
