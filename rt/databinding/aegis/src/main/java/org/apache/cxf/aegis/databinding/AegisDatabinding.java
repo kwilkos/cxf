@@ -103,6 +103,8 @@ public class AegisDatabinding extends AbstractDataBinding implements DataBinding
     public <T> DataReader<T> createReader(Class<T> cls) {
         if (cls.equals(XMLStreamReader.class)) {
             return (DataReader<T>) new XMLStreamDataReader(this);
+        } else if (cls.equals(Node.class)) {
+            return (DataReader<T>) new ElementDataReader(this);
         } else {
             throw new UnsupportedOperationException();
         }
@@ -120,7 +122,7 @@ public class AegisDatabinding extends AbstractDataBinding implements DataBinding
     }
 
     public Class<?>[] getSupportedReaderFormats() {
-        return new Class[] {XMLStreamReader.class};
+        return new Class[] {XMLStreamReader.class, Node.class};
     }
 
     public Class<?>[] getSupportedWriterFormats() {

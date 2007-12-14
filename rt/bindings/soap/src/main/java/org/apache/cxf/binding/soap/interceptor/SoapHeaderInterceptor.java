@@ -21,6 +21,10 @@ package org.apache.cxf.binding.soap.interceptor;
 
 import java.util.List;
 
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
+
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import org.apache.cxf.binding.soap.SoapMessage;
@@ -37,6 +41,7 @@ import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.model.BindingMessageInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
+import org.apache.cxf.staxutils.W3CDOMStreamReader;
 
 /**
  * Perform databinding of the SOAP headers.
@@ -81,6 +86,7 @@ public class SoapHeaderInterceptor extends AbstractInDatabindingInterceptor {
             return;
         }
         
+        boolean supportsNode = this.supportsDataReader(message, Node.class);
         for (SoapHeaderInfo header : headers) {
             MessagePartInfo mpi = header.getPart();
             Header param = findHeader(message, mpi);
@@ -91,7 +97,17 @@ public class SoapHeaderInterceptor extends AbstractInDatabindingInterceptor {
                 
                 if (param.getDataBinding() == null) {
                     Node source = (Node)param.getObject();
-                    object = getNodeDataReader(message).read(mpi, source);
+                    if (supportsNode) {
+                        object = getNodeDataReader(message).read(mpi, source);
+                    } else {
+                        W3CDOMStreamReader reader = new W3CDOMStreamReader((Element)source);
+                        try {
+                            reader.nextTag(); //advance into the first tag
+                        } catch (XMLStreamException e) {
+                            //ignore
+                        } 
+                        object = getDataReader(message, XMLStreamReader.class).read(mpi, reader);
+                    }
                 } else {
                     object = param.getObject();
                 }
