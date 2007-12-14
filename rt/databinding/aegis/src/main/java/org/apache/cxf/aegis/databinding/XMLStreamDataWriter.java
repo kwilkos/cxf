@@ -40,6 +40,7 @@ import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Attachment;
 import org.apache.cxf.service.model.MessagePartInfo;
+import org.apache.ws.commons.schema.XmlSchemaElement;
 
 public class XMLStreamDataWriter implements DataWriter<XMLStreamWriter> {
 
@@ -90,14 +91,21 @@ public class XMLStreamDataWriter implements DataWriter<XMLStreamWriter> {
         type = TypeUtil.getWriteType(context, obj, type);
         
         try {
+            if (obj == null) {
+                if (part.getXmlSchema() instanceof XmlSchemaElement
+                    && ((XmlSchemaElement)part.getXmlSchema()).getMinOccurs() == 0) {
+                    //skip writing minOccurs=0 stuff if obj is null
+                    return;
+                } else if (type.isNillable() && type.isWriteOuter()) {
+                    ElementWriter writer = new ElementWriter(output);
+                    MessageWriter w2 = writer.getElementWriter(part.getConcreteName());
+                    w2.writeXsiNil();
+                    w2.close();
+                    return;
+                }
+            }
             ElementWriter writer = new ElementWriter(output);
             MessageWriter w2 = writer.getElementWriter(part.getConcreteName());
-            if (type.isNillable() && type.isWriteOuter() && obj == null) {
-                w2.writeXsiNil();
-                w2.close();
-                return;
-            }
-
             type.writeObject(obj, w2, context);
             w2.close();
         } catch (DatabindingException e) {

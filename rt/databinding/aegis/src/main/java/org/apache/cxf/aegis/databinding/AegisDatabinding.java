@@ -254,10 +254,13 @@ public class AegisDatabinding extends AbstractDataBinding implements DataBinding
 
             Type type = getParameterType(s, serviceTM, part, partType);
 
-            if (type.isAbstract()) {
-                part.setTypeQName(type.getSchemaType());
-            } else {
-                part.setElementQName(type.getSchemaType());
+            if (part.getXmlSchema() == null) {
+                //schema hasn't been filled in yet
+                if (type.isAbstract()) {
+                    part.setTypeQName(type.getSchemaType());
+                } else {
+                    part.setElementQName(type.getSchemaType());
+                }
             }
 
             part2Type.put(part, type);
@@ -275,12 +278,14 @@ public class AegisDatabinding extends AbstractDataBinding implements DataBinding
         SchemaCollection col = s.getXmlSchemaCollection();
         for (Iterator itr = container.getMessageParts().iterator(); itr.hasNext();) {
             MessagePartInfo part = (MessagePartInfo)itr.next();
-            if (part.isElement()) {
-                XmlSchemaAnnotated tp = col.getElementByQName(part.getElementQName());
-                part.setXmlSchema(tp);
-            } else {
-                XmlSchemaAnnotated tp = col.getTypeByQName(part.getTypeQName());
-                part.setXmlSchema(tp);
+            if (part.getXmlSchema() == null) {
+                if (part.isElement()) {
+                    XmlSchemaAnnotated tp = col.getElementByQName(part.getElementQName());
+                    part.setXmlSchema(tp);
+                } else {
+                    XmlSchemaAnnotated tp = col.getTypeByQName(part.getTypeQName());
+                    part.setXmlSchema(tp);
+                }
             }
         }
     }
