@@ -28,7 +28,6 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Set;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -36,7 +35,6 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlTransient;
 
-import org.apache.cxf.common.util.PackageUtils;
 import org.apache.cxf.service.ServiceModelVisitor;
 import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.ServiceInfo;
@@ -47,12 +45,10 @@ import org.apache.cxf.service.model.ServiceInfo;
 class JAXBContextInitializer extends ServiceModelVisitor {
 
     private Set<Class<?>> classes;
-    private Set<String> packages;
 
     public JAXBContextInitializer(ServiceInfo serviceInfo, Set<Class<?>> classes) {
         super(serviceInfo);
         this.classes = classes;
-        this.packages = new HashSet<String>();
     }
 
     @Override
@@ -167,20 +163,6 @@ class JAXBContextInitializer extends ServiceModelVisitor {
                 }
                 classes.add(cls);
                 walkReferences(cls);
-
-                String pname = PackageUtils.getPackageName(cls);
-                if (!packages.contains(pname)) {
-                    packages.add(pname);
-                    String name = pname + ".ObjectFactory";
-                    try {
-                        Class ocls = Class.forName(name, false, cls.getClassLoader());
-                        if (!classes.contains(ocls)) {
-                            classes.add(ocls);
-                        }
-                    } catch (ClassNotFoundException ex) {
-                        // cannot add factory, just add the class
-                    }
-                }
             }
         }
     }
