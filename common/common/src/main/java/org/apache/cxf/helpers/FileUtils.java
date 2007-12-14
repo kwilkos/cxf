@@ -44,7 +44,13 @@ public final class FileUtils {
         if (defaultTempDir != null) {
             return defaultTempDir;
         }
-        String s = System.getProperty(FileUtils.class.getName() + ".TempDirectory");
+        
+        String s = null;
+        try {
+            s = System.getProperty(FileUtils.class.getName() + ".TempDirectory");
+        } catch (SecurityException e) {
+            //Ignorable, we'll use the default
+        }
         if (s == null) {
             int x = (int)(Math.random() * 1000000);
             s = System.getProperty("java.io.tmpdir");
