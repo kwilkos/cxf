@@ -124,8 +124,8 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
     }
 
     public T invoke(T obj, boolean isOneWay) {
-        if (LOG.isLoggable(Level.INFO)) {
-            LOG.info("Dispatch: invoke called");
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine("Dispatch: invoke called");
         }
 
         Bus origBus = BusFactory.getThreadDefaultBus(false);
@@ -151,6 +151,7 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
             //need to do context mapping from jax-ws to cxf message
             
             Exchange exchange = new ExchangeImpl();
+            exchange.setOneWay(isOneWay);
     
             exchange.setOutMessage(message);
             setExchangeProperties(exchange, endpoint);
