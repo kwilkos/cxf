@@ -36,5 +36,9 @@ public class SportsServiceImpl implements SportsService {
         teams.add(new Team("Patriots", "New England"));
         return teams;
     }
+    
+    public String testForMinOccurs0(String a, Integer b, String c) {
+        return a + b + c;
+    }
 
 }
