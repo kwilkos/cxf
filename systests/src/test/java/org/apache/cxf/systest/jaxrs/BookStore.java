@@ -164,12 +164,6 @@ public class BookStore {
         return c;
     }
 
-    //FIXME: wont work if remove this method, has to set hasSubResource to true
-    @UriTemplate("/cds")
-    public Response addCD(CD cd) {
-        return null;
-    }
-
     final void init() {
         Book book = new Book();
         book.setId(bookId);

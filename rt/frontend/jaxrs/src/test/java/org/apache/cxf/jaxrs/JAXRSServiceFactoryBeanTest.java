@@ -57,16 +57,20 @@ public class JAXRSServiceFactoryBeanTest extends Assert {
         for (OperationResourceInfo ori : md.getOperationResourceInfos()) {
             if ("getBook".equals(ori.getMethod().getName())) {
                 assertEquals("GET", ori.getHttpMethod());
-                assertNotNull(ori.getURITemplate());              
+                assertNotNull(ori.getURITemplate());
+                assertFalse(ori.isSubResourceLocator());
             } else if ("addBook".equals(ori.getMethod().getName())) {
                 assertEquals("POST", ori.getHttpMethod());
-                assertNotNull(ori.getURITemplate());              
+                assertNotNull(ori.getURITemplate());
+                assertFalse(ori.isSubResourceLocator());
             } else if ("updateBook".equals(ori.getMethod().getName())) {
                 assertEquals("PUT", ori.getHttpMethod());
-                assertNotNull(ori.getURITemplate());              
+                assertNotNull(ori.getURITemplate());
+                assertFalse(ori.isSubResourceLocator());
             } else if ("deleteBook".equals(ori.getMethod().getName())) {
                 assertEquals("DELETE", ori.getHttpMethod());
-                assertNotNull(ori.getURITemplate());              
+                assertNotNull(ori.getURITemplate());
+                assertFalse(ori.isSubResourceLocator());
             } else {
                 fail("unexpected OperationResourceInfo" + ori.getMethod().getName());
             }
@@ -94,22 +98,26 @@ public class JAXRSServiceFactoryBeanTest extends Assert {
         for (OperationResourceInfo ori : md.getOperationResourceInfos()) {
             if ("getBook".equals(ori.getMethod().getName())) {
                 assertNull(ori.getHttpMethod());
-                assertNotNull(ori.getURITemplate());              
+                assertNotNull(ori.getURITemplate());
+                assertTrue(ori.isSubResourceLocator());
             } else if ("addBook".equals(ori.getMethod().getName())) {
                 assertEquals("POST", ori.getHttpMethod());
-                assertNotNull(ori.getURITemplate());              
+                assertNotNull(ori.getURITemplate());
+                assertFalse(ori.isSubResourceLocator());
             } else if ("updateBook".equals(ori.getMethod().getName())) {
                 assertEquals("PUT", ori.getHttpMethod());
-                assertNotNull(ori.getURITemplate());              
+                assertNotNull(ori.getURITemplate());
+                assertFalse(ori.isSubResourceLocator());
             } else if ("deleteBook".equals(ori.getMethod().getName())) {
                 assertEquals("DELETE", ori.getHttpMethod());
-                assertNotNull(ori.getURITemplate());              
+                assertNotNull(ori.getURITemplate());
+                assertFalse(ori.isSubResourceLocator());
             } else {
                 fail("unexpected OperationResourceInfo" + ori.getMethod().getName());
             }
         }
         
-        //Verify sub-resource ClassResourceInfo: Book
+        // Verify sub-resource ClassResourceInfo: Book
         assertEquals(1, rootCri.getSubClassResourceInfo().size());
         ClassResourceInfo subCri = rootCri.getSubClassResourceInfo().get(0);        
         assertTrue(subCri.getURITemplate() == null);

@@ -74,7 +74,8 @@ public class JAXRSUtilsTest extends Assert {
 
         Map<String, String> values = new HashMap<String, String>(); 
 
-        OperationResourceInfo ori = JAXRSUtils.findTargetResourceClass(resources, "/bookstore/books/123/",
+        OperationResourceInfo ori = JAXRSUtils.findTargetResourceClass(resources,
+                                                                       "/bookstore/books/123/chapter/1",
                                                                        "GET", values);       
         assertNotNull(ori);
         assertEquals("getBook", ori.getMethod().getName());

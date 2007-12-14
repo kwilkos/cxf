@@ -105,12 +105,6 @@ public class CustomerService {
         return c;
     }
 
-    //FIXME: wont work if remove this method, has to set hasSubResource to true
-    @UriTemplate("/items")
-    public Response getItem(@UriParam("id") String id) {
-        return null;
-    }
-
     final Customer createCustomer() {
         Customer c = new Customer();
         c.setName("John");

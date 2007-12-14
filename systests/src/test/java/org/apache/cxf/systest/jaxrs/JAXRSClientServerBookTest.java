@@ -33,7 +33,6 @@ import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.io.CachedOutputStream;
 import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class JAXRSClientServerBookTest extends AbstractBusClientServerTestBase {
@@ -213,7 +212,6 @@ public class JAXRSClientServerBookTest extends AbstractBusClientServerTestBase {
     } 
         
     @Test
-    @Ignore("to be fixed")
     public void testGetCDs() throws Exception {
         String endpointAddress =
             "http://localhost:9080/bookstore/cds"; 
