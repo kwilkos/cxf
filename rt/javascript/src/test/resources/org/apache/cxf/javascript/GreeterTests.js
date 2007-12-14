@@ -59,7 +59,7 @@ function sayHiTest(url)
 	globalNotifier = new org_apache_cxf_notifier();
 	
 	var intf;
-    intf = new apache_org_hello_world_soap_http_Greeter();
+    intf = new cxf_apache_org_jstest_Greeter();
 	  
 	intf.url = url;
     intf.sayHi(testSuccessCallback, testErrorCallback);
