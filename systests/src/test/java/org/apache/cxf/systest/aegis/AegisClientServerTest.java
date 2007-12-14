@@ -44,7 +44,7 @@ public class AegisClientServerTest extends AbstractBusClientServerTestBase {
     
     @BeforeClass
     public static void startServers() throws Exception {
-        assertTrue("server did not launch correctly", launchServer(AegisServer.class));
+        assertTrue("server did not launch correctly", launchServer(AegisServer.class, true));
     }
     
     @Test
@@ -142,9 +142,13 @@ public class AegisClientServerTest extends AbstractBusClientServerTestBase {
         proxyFactory.setServiceClass(SportsService.class);
         proxyFactory.setWsdlLocation("http://localhost:9002/jaxwsAndAegisSports?wsdl");
         SportsService service = (SportsService) proxyFactory.create();
+
         Collection<Team> teams = service.getTeams();
         assertEquals(1, teams.size());
         assertEquals("Patriots", teams.iterator().next().getName());
-
+        
+        //CXF-1251
+        String s = service.testForMinOccurs0("A", null, "b");
+        assertEquals("Anullb", s);        
     }
 }

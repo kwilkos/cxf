@@ -27,4 +27,6 @@ import javax.xml.ws.WebServiceException;
 @WebService(targetNamespace = "http://cxf.apache.org/systest/aegis/sports")
 public interface SportsService {
     Collection<Team> getTeams() throws WebServiceException;
+    
+    String testForMinOccurs0(String a, Integer b, String c);
 }
