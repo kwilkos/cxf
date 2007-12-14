@@ -340,32 +340,24 @@ public final class JAXBDataBinding extends AbstractDataBinding implements DataBi
             }
         }
         
-        for (Class<?> clz : classes) {
-            if (clz.getName().endsWith("ObjectFactory")) {
-                //kind of a hack, but ObjectFactories may be created with empty namespaces
-                defaultNs = null;
-            }
-        }
-        
-        Map<String, Object> map = new HashMap<String, Object>();
-        if (defaultNs != null) {
-            map.put("com.sun.xml.bind.defaultNamespaceRemap", defaultNs);
-        }
-        
-        if (contextProperties != null) {
-            //add any specified context properties into the properties map
-            map.putAll(contextProperties);
-        }
-        
         //try and read any jaxb.index files that are with the other classes.  This should 
         //allow loading of extra classes (such as subclasses for inheritance reasons) 
-        //that are in the same package.
+        //that are in the same package.  Also check for ObjectFactory classes
         Map<String, InputStream> packages = new HashMap<String, InputStream>();
         Map<String, ClassLoader> packageLoaders = new HashMap<String, ClassLoader>();
+        Set<Class<?>> objectFactories = new HashSet<Class<?>>();
         for (Class<?> jcls : classes) {
-            if (!packages.containsKey(PackageUtils.getPackageName(jcls))) {
-                packages.put(PackageUtils.getPackageName(jcls), jcls.getResourceAsStream("jaxb.index"));
-                packageLoaders.put(PackageUtils.getPackageName(jcls), jcls.getClassLoader());
+            String pkgName = PackageUtils.getPackageName(jcls); 
+            if (!packages.containsKey(pkgName)) {
+                packages.put(pkgName, jcls.getResourceAsStream("jaxb.index"));
+                packageLoaders.put(pkgName, jcls.getClassLoader());
+                try {
+                    Class<?> ofactory = Class.forName(pkgName + "." + "ObjectFactory",
+                                                 false, jcls.getClassLoader());
+                    objectFactories.add(ofactory);
+                } catch (ClassNotFoundException e) {
+                    //ignore
+                }
             }
         }
         for (Map.Entry<String, InputStream> entry : packages.entrySet()) {
@@ -406,9 +398,26 @@ public final class JAXBDataBinding extends AbstractDataBinding implements DataBi
                 }
             }
         }
-        
+        classes.addAll(objectFactories);
         addWsAddressingTypes(classes);
 
+        for (Class<?> clz : classes) {
+            if (clz.getName().endsWith("ObjectFactory")) {
+                //kind of a hack, but ObjectFactories may be created with empty namespaces
+                defaultNs = null;
+            }
+        }
+        
+        Map<String, Object> map = new HashMap<String, Object>();
+        if (defaultNs != null) {
+            map.put("com.sun.xml.bind.defaultNamespaceRemap", defaultNs);
+        }
+        
+        if (contextProperties != null) {
+            //add any specified context properties into the properties map
+            map.putAll(contextProperties);
+        }        
+        
         synchronized (JAXBCONTEXT_CACHE) {
             if (!JAXBCONTEXT_CACHE.containsKey(classes)) {
                 JAXBContext ctx = JAXBContext.newInstance(classes.toArray(new Class[classes.size()]), map);
