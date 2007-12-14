@@ -18,23 +18,14 @@
  */
 package org.apache.cxf.aegis.type.encoded;
 
-import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import javax.xml.namespace.QName;
-import javax.xml.stream.XMLStreamException;
 
-import org.apache.cxf.aegis.AbstractAegisTest;
 import org.apache.cxf.aegis.Context;
-import org.apache.cxf.aegis.type.DefaultTypeMappingRegistry;
-import org.apache.cxf.aegis.type.Type;
-import org.apache.cxf.aegis.type.TypeMapping;
 import org.apache.cxf.aegis.type.basic.BeanTypeInfo;
-import org.apache.cxf.aegis.xml.MessageReader;
-import org.apache.cxf.aegis.xml.MessageWriter;
 import org.apache.cxf.aegis.xml.jdom.JDOMWriter;
 import org.apache.cxf.aegis.xml.stax.ElementReader;
-import org.apache.cxf.common.util.SOAPConstants;
 import org.apache.cxf.helpers.CastUtils;
 import org.jdom.Attribute;
 import org.jdom.Content;
@@ -43,21 +34,12 @@ import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
 import org.junit.Test;
 
-public class StructTypeTest extends AbstractAegisTest {
-    private TypeMapping mapping;
+public class StructTypeTest extends AbstractEncodedTest {
     private StructType addressType;
     private StructType purchaseOrderType;
-    private TrailingBlocks trailingBlocks;
 
     public void setUp() throws Exception {
         super.setUp();
-
-        addNamespace("b", "urn:Bean");
-        addNamespace("a", "urn:anotherns");
-        addNamespace("xsi", SOAPConstants.XSI_NS);
-
-        DefaultTypeMappingRegistry reg = new DefaultTypeMappingRegistry(true);
-        mapping = reg.createTypeMapping(true);
 
         // address type
         BeanTypeInfo addressInfo = new BeanTypeInfo(Address.class, "urn:Bean");
@@ -77,11 +59,6 @@ public class StructTypeTest extends AbstractAegisTest {
         purchaseOrderType.setTypeMapping(mapping);
         purchaseOrderType.setSchemaType(new QName("urn:Bean", "po"));
         mapping.register(purchaseOrderType);
-
-        // serialization root type
-        trailingBlocks = new TrailingBlocks();
-//        trailingBlocks.setTypeMapping(mapping);
-
     }
 
     @Test
@@ -89,13 +66,13 @@ public class StructTypeTest extends AbstractAegisTest {
         // Test reading
         ElementReader reader = new ElementReader(getClass().getResourceAsStream("struct1.xml"));
         Address address = (Address) addressType.readObject(reader, new Context());
-        validateAddress(address);
+        validateShippingAddress(address);
         reader.getXMLStreamReader().close();
 
         // Test reading - no namespace on nested elements
         reader = new ElementReader(getClass().getResourceAsStream("struct2.xml"));
         address = (Address) addressType.readObject(reader, new Context());
-        validateAddress(address);
+        validateShippingAddress(address);
         reader.getXMLStreamReader().close();
 
         // Test writing
@@ -146,64 +123,7 @@ public class StructTypeTest extends AbstractAegisTest {
         validatePurchaseOrder(element);
     }
 
-    private Object readRef(String file) throws XMLStreamException {
-        Context context = new Context();
-        context.setTypeMapping(mapping);
-        ElementReader root = new ElementReader(getClass().getResourceAsStream(file));
-
-        // get Type based on the element qname
-        MessageReader reader = root.getNextElementReader();
-        Type type = this.mapping.getType(reader.getName());
-        assertNotNull("type is null", type);
-
-        // read ref
-        SoapRefType soapRefType = new SoapRefType(type);
-        SoapRef ref = (SoapRef) soapRefType.readObject(reader, context);
-        reader.readToEnd();
-
-        // read the trailing blocks (referenced objects)
-        List<Object> roots = trailingBlocks.readBlocks(root, context);
-        assertNotNull(roots);
-
-        // close the input stream
-        root.getXMLStreamReader().close();
-
-        // return the ref
-        return ref.get();
-    }
-
-    private Element writeRef(Object instance) {
-        // create the document
-        Element element = new Element("root", "b", "urn:Bean");
-        new Document(element);
-        JDOMWriter rootWriter = new JDOMWriter(element);
-        Context context = new Context();
-        context.setTypeMapping(mapping);
-
-        // get Type based on the object instance
-        Type type = this.mapping.getType(instance.getClass());
-        assertNotNull("type is null", type);
-
-        // write the ref
-        SoapRefType soapRefType = new SoapRefType(type);
-        MessageWriter cwriter = rootWriter.getElementWriter(soapRefType.getSchemaType());
-        soapRefType.writeObject(instance, cwriter, context);
-        cwriter.close();
-
-        // write the trailing blocks (referenced objects)
-        trailingBlocks.writeBlocks(rootWriter, context);
-        return element;
-    }
-
-    private void validateAddress(Address address) {
-        assertNotNull(address);
-        assertEquals("1234 Riverside Drive", address.getStreet());
-        assertEquals("Gainesville", address.getCity());
-        assertEquals("FL", address.getState());
-        assertEquals("30506", address.getZip());
-    }
-
-    private void validateShippingAddress(Element shipping) {
+    public static void validateShippingAddress(Element shipping) {
         assertNotNull("shipping is null", shipping);
         assertChildEquals("1234 Riverside Drive", shipping, "street");
         assertChildEquals("Gainesville", shipping, "city");
@@ -211,7 +131,7 @@ public class StructTypeTest extends AbstractAegisTest {
         assertChildEquals("30506", shipping, "zip");
     }
 
-    private void validateBillingAddress(Element billing) {
+    public static void validateBillingAddress(Element billing) {
         assertNotNull("billing is null", billing);
         assertChildEquals("1234 Fake Street", billing, "street");
         assertChildEquals("Las Vegas", billing, "city");
@@ -270,7 +190,7 @@ public class StructTypeTest extends AbstractAegisTest {
         return refElement;
     }
 
-    private void assertChildEquals(String expected, Element element, String childName) {
+    private static void assertChildEquals(String expected, Element element, String childName) {
         assertEquals(expected, element.getChild(childName).getText());
     }
 

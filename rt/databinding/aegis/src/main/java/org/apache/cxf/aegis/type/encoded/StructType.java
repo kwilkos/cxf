@@ -119,8 +119,7 @@ public class StructType extends BeanType {
 
         MessageWriter cwriter = writer.getElementWriter(name);
 
-        // todo check if the property value is a simple Java type instead of looking or a BeanType
-        if (type instanceof BeanType) {
+        if (type instanceof BeanType || type instanceof SoapArrayType) {
             String refId = MarshalRegistry.get(context).getInstanceId(value);
             SoapEncodingUtil.writeRef(cwriter, refId);
         } else {

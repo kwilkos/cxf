@@ -28,10 +28,10 @@ import org.apache.cxf.binding.soap.Soap12;
  * Utilitiy methods for SOAP reading and writing encoded mesages.
  */
 public final class SoapEncodingUtil {
-    private static final String SOAP_ENCODING_NS = Soap12.getInstance().getSoapEncodingStyle();
-    private static final QName SOAP_ENCODING_ID_1_2 = new QName(SOAP_ENCODING_NS, "id");
+    private static final String SOAP_ENCODING_NS_1_2 = Soap12.getInstance().getSoapEncodingStyle();
+    private static final QName SOAP_ENCODING_ID_1_2 = new QName(SOAP_ENCODING_NS_1_2, "id");
     private static final QName SOAP_ENCODING_ID_1_1 = new QName("id");
-    private static final QName SOAP_ENCODING_REF_1_2 = new QName(SOAP_ENCODING_NS, "ref");
+    private static final QName SOAP_ENCODING_REF_1_2 = new QName(SOAP_ENCODING_NS_1_2, "ref");
     private static final QName SOAP_ENCODING_REF_1_1 = new QName("href");
 
     private SoapEncodingUtil() {
@@ -44,9 +44,6 @@ public final class SoapEncodingUtil {
      * @return the id or null of neither attribute was present
      */
     public static String readId(MessageReader reader) {
-        if (reader == null) {
-            throw new NullPointerException("reader is null");
-        }
         String id = readAttributeValue(reader, SOAP_ENCODING_ID_1_2);
         if (id == null) {
             id = readAttributeValue(reader, SOAP_ENCODING_ID_1_1);
@@ -61,9 +58,6 @@ public final class SoapEncodingUtil {
      * @param id the id to write; must not be null
      */
     public static void writeId(MessageWriter writer, String id) {
-        if (writer == null) {
-            throw new NullPointerException("writer is null");
-        }
         if (id == null) {
             throw new NullPointerException("id is null");
         }
@@ -77,9 +71,6 @@ public final class SoapEncodingUtil {
      * @return the reference id or null of neither attribute was present
      */
     public static String readRef(MessageReader reader) {
-        if (reader == null) {
-            throw new NullPointerException("reader is null");
-        }
         String ref = readAttributeValue(reader, SOAP_ENCODING_REF_1_2);
         if (ref == null) {
             ref = readAttributeValue(reader, SOAP_ENCODING_REF_1_1);
@@ -94,29 +85,41 @@ public final class SoapEncodingUtil {
      * @param refId the reference id to write; must not be null
      */
     public static void writeRef(MessageWriter writer, String refId) {
-        if (writer == null) {
-            throw new NullPointerException("writer is null");
-        }
         if (refId == null) {
             throw new NullPointerException("refId is null");
         }
         writeAttribute(writer, SOAP_ENCODING_REF_1_1, refId);
     }
 
-    private static String readAttributeValue(MessageReader reader, QName name) {
+    public static String readAttributeValue(MessageReader reader, QName name) {
+        if (reader == null) {
+            throw new NullPointerException("reader is null");
+        }
+        if (name == null) {
+            throw new NullPointerException("name is null");
+        }
         MessageReader attributeReader = reader.getAttributeReader(name);
         if (attributeReader != null) {
-            String id = attributeReader.getValue();
-            if (id != null) {
-                return id;
+            String value = attributeReader.getValue();
+            if (value != null) {
+                return value;
             }
         }
         return null;
     }
 
-    private static void writeAttribute(MessageWriter writer, QName name, String refId) {
+    public static void writeAttribute(MessageWriter writer, QName name, String value) {
+        if (writer == null) {
+            throw new NullPointerException("writer is null");
+        }
+        if (name == null) {
+            throw new NullPointerException("name is null");
+        }
+        if (value == null) {
+            throw new NullPointerException("value is null");
+        }
         MessageWriter attributeWriter = writer.getAttributeWriter(name);
-        attributeWriter.writeValue(refId);
+        attributeWriter.writeValue(value);
         attributeWriter.close();
     }
 }
