@@ -38,7 +38,6 @@ import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageContentsList;
 import org.apache.cxf.phase.Phase;
-import org.apache.cxf.service.Service;
 import org.apache.cxf.service.model.BindingMessageInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.EndpointInfo;
@@ -210,15 +209,10 @@ public class DocLiteralInInterceptor extends AbstractInDatabindingInterceptor {
                 QName rname = xmlReader.getName();
                 while (part != null 
                     && !rname.equals(part.getConcreteName())) {
-                    String bindingType =
-                        message.getExchange().get(Service.class).getDataBinding().getClass().getName();
                     if (part.getXmlSchema() instanceof XmlSchemaElement) {
-                        if (bindingType.endsWith("AegisDatabinding")) {
-                            parameters.add(dr.read(part, xmlReader));
-                        } else {
-                            //should check minOccurs=0
-                            parameters.put(part, null);
-                        }
+                        //TODO - should check minOccurs=0 and throw validation exception
+                        //thing if the part needs to be here
+                        parameters.put(part, null);
                     } 
 
                     if (itr.hasNext()) {
