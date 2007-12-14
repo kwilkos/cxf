@@ -153,4 +153,8 @@ public class JBITransportFactory extends AbstractTransportFactory implements Con
         return destinationMap.get(epName);
     }
     
+    public void removeDestination(String epName) {
+        destinationMap.remove(epName);
+    }
+    
 }
