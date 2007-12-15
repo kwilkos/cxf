@@ -24,7 +24,7 @@ import java.util.Iterator;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 
-import org.codehaus.mojo.shade.resource.ResourceTransformer;
+import org.apache.maven.plugins.shade.resource.ResourceTransformer;
 import org.jdom.Attribute;
 import org.jdom.Content;
 import org.jdom.Document;
@@ -88,5 +88,6 @@ public class PluginTransformer implements ResourceTransformer {
         jos.putNextEntry(new JarEntry(resource));
 
         new XMLOutputter(Format.getPrettyFormat()).output(doc, jos);
+        doc = null;
     }
 }

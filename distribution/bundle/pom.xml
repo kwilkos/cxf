@@ -268,9 +268,9 @@
         <plugins>
 
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>shade-maven-plugin</artifactId>
-                <version>1.0-alpha-10</version>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>1.0-alpha-15</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -280,26 +280,30 @@
                         <configuration>
                             <shadedGroupFilter>org.apache.cxf</shadedGroupFilter>
                             <shadedArtifactAttached>false</shadedArtifactAttached>
+                            <createSourcesJar>true</createSourcesJar>
+                            <promoteTransitiveDependencies>true</promoteTransitiveDependencies>
+                            <createDependencyReducedPom>true</createDependencyReducedPom>
+
                             <transformers>
-                                <transformer implementation="org.codehaus.mojo.shade.resource.ApacheNoticeResourceTransformer">
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ApacheNoticeResourceTransformer">
                                     <projectName>Apache CXF</projectName>
                                 </transformer>
-                                <transformer implementation="org.codehaus.mojo.shade.resource.AppendingTransformer">
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
                                     <resource>META-INF/spring.handlers</resource>
                                 </transformer>
-                                <transformer implementation="org.codehaus.mojo.shade.resource.AppendingTransformer">
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
                                     <resource>META-INF/services/com.sun.tools.xjc.Plugin</resource>
                                 </transformer>
-                                <transformer implementation="org.codehaus.mojo.shade.resource.AppendingTransformer">
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
                                     <resource>META-INF/spring.schemas</resource>
                                 </transformer>
-                                <transformer implementation="org.codehaus.mojo.shade.resource.AppendingTransformer">
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
                                     <resource>META-INF/cxf/cxf.extension</resource>
                                 </transformer>
-                                <transformer implementation="org.codehaus.mojo.shade.resource.XmlAppendingTransformer">
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.XmlAppendingTransformer">
                                     <resource>META-INF/extensions.xml</resource>
                                 </transformer>
-                                <transformer implementation="org.codehaus.mojo.shade.resource.XmlAppendingTransformer">
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.XmlAppendingTransformer">
                                     <resource>META-INF/bus-extensions.xml</resource>
                                 </transformer>
                                 <transformer implementation="org.apache.cxf.maven.PluginTransformer">
