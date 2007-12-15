@@ -87,7 +87,11 @@ public abstract class AbstractMessageContainer extends AbstractPropertiesHolder 
      * @param part the message part.
      */
     public void addMessagePart(MessagePartInfo part) {
-        part.setIndex(messageParts.size());
+        if (messageParts.containsKey(part.getName())) {
+            part.setIndex(messageParts.get(part.getName()).getIndex());
+        } else { 
+            part.setIndex(messageParts.size());
+        }
         messageParts.put(part.getName(), part);
     }
 
