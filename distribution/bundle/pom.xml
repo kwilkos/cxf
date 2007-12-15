@@ -280,7 +280,7 @@
                         <configuration>
                             <shadedGroupFilter>org.apache.cxf</shadedGroupFilter>
                             <shadedArtifactAttached>false</shadedArtifactAttached>
-                            <createSourcesJar>true</createSourcesJar>
+                            <!--createSourcesJar>true</createSourcesJar-->
                             <promoteTransitiveDependencies>true</promoteTransitiveDependencies>
                             <createDependencyReducedPom>true</createDependencyReducedPom>
 
