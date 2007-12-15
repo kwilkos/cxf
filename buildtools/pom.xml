@@ -75,9 +75,9 @@
             <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>shade-maven-plugin</artifactId>
-            <version>1.0-alpha-6</version>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-shade-plugin</artifactId>
+            <version>1.0-alpha-15</version>
             <optional>true</optional>
         </dependency>
     </dependencies>
