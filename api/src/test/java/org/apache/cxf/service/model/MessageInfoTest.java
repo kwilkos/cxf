@@ -50,6 +50,7 @@ public class MessageInfoTest extends Assert {
         messageInfo.addMessagePart(qname);
         assertEquals(messageInfo.getMessageParts().size(), 1);
         MessagePartInfo messagePartInfo = messageInfo.getMessagePart(qname);
+        int indexAssigned = messagePartInfo.getIndex();
         assertEquals(messagePartInfo.getName().getLocalPart(), "testMessagePart");
         assertEquals(messagePartInfo.getName().getNamespaceURI(),
                      "http://apache.org/hello_world_soap_http");
@@ -59,6 +60,7 @@ public class MessageInfoTest extends Assert {
         messageInfo.addMessagePart(messagePartInfo);
         //add two same part, so size is still 1
         assertEquals(messageInfo.getMessageParts().size(), 1);
+        assertEquals(indexAssigned, messagePartInfo.getIndex());
         messagePartInfo = new MessagePartInfo(new QName(
             "http://apache.org/hello_world_soap_http", "testMessagePart2"), messageInfo);
         messageInfo.addMessagePart(messagePartInfo);
