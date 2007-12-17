@@ -43,7 +43,7 @@
     <property name="srcbuild_paths.file" value="${build.dir}/notsrcbuildpath"/>
     <mkdir dir="${build.dir}"/>
     <touch file="${build.dir}/notsrcbuildpath" verbose="false"/>
-    <loadfile property="srcbuild.classpath" srcFile="${srcbuild_paths.file}" failonerror="false" quiet="true"/>
+    <loadfile property="srcbuild.classpath" srcFile="${srcbuild_paths.file}" failonerror="false"/>
 
     <uptodate property="codegen.notrequired" value="true">
         <srcfiles dir="${wsdl.dir}" includes="**/*.wsdl"/>
