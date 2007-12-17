@@ -451,13 +451,17 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
 
     private String getFaultNameFromMessage(final Message message) {
         Exception e = message.getContent(Exception.class);
+        Throwable cause = e.getCause();
+        if (cause == null) {
+            cause = e;
+        }
         if (e instanceof Fault) {
-            WebFault t = e.getCause().getClass().getAnnotation(WebFault.class);
+            WebFault t = cause.getClass().getAnnotation(WebFault.class);
             if (t != null) {
                 return t.name();
             }
         }
-        return e.getCause().getClass().getSimpleName();    
+        return cause.getClass().getSimpleName();    
     }
 
     protected String getActionUri(Message message) {
