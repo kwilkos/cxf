@@ -36,6 +36,7 @@
     <properties>
         <maven.test.skip>true</maven.test.skip>
         <cxf.version>${pom.version}</cxf.version>
+        <createSourcesJar>false</createSourcesJar>
     </properties>
 
     <dependencies>
@@ -280,7 +281,7 @@
                         <configuration>
                             <shadedGroupFilter>org.apache.cxf</shadedGroupFilter>
                             <shadedArtifactAttached>false</shadedArtifactAttached>
-                            <!--createSourcesJar>true</createSourcesJar-->
+                            <createSourcesJar>${createSourcesJar}</createSourcesJar>
                             <promoteTransitiveDependencies>true</promoteTransitiveDependencies>
                             <createDependencyReducedPom>true</createDependencyReducedPom>
 
@@ -327,6 +328,9 @@
     <profiles>
          <profile>
              <id>deploy</id>
+             <properties>
+                 <createSourcesJar>true</createSourcesJar>                     
+             </properties>
              <build>
                  <plugins>
                      <plugin>
