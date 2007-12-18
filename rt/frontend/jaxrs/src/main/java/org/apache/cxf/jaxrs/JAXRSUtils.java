@@ -45,14 +45,24 @@ public final class JAXRSUtils {
     
     private JAXRSUtils() {        
     }
-
+    
+    public static ClassResourceInfo findSubResourceClass(ClassResourceInfo resource,
+                                                             Class subResourceClassType) {
+        for (ClassResourceInfo subCri : resource.getSubClassResourceInfo()) {
+            if (subCri.getResourceClass() == subResourceClassType) {
+                return subCri;
+            }
+        }
+        return null;
+    }
+    
     public static OperationResourceInfo findTargetResourceClass(List<ClassResourceInfo> resources,
                                                                 String path, String httpMethod,
                                                                 Map<String, String> values) {
         for (ClassResourceInfo resource : resources) {
             URITemplate uriTemplate = resource.getURITemplate();
             if (uriTemplate.match(path, values)) {
-                String subResourcePath = values.values().iterator().next();
+                String subResourcePath = values.get(URITemplate.RIGHT_HAND_VALUE);
                 OperationResourceInfo ori = findTargetMethod(resource, subResourcePath, httpMethod, values);
                 if (ori != null) {
                     return ori;

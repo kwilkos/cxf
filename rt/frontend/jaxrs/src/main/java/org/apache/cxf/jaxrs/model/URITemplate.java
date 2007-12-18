@@ -30,6 +30,7 @@ import java.util.regex.Pattern;
 public final class URITemplate {
     public static final String LIMITED_REGEX_SUFFIX = "(/.*)?";
     public static final String UNLIMITED_REGEX_SUFFIX = "(/)?";
+    public static final String RIGHT_HAND_VALUE = "RIGHT_HAND_VALUE";
     
     /**
      * The regular expression for matching URI templates and names.
@@ -128,9 +129,9 @@ public final class URITemplate {
             templateVariableToValue.put(name, currentValue);
         }
 
-        // Assign the right hand side value to the null key
+        // The right hand side value, might be used to further resolve sub-resources.
         if (regexSuffix != null) {
-            templateVariableToValue.put(null, m.group(i));
+            templateVariableToValue.put(RIGHT_HAND_VALUE, m.group(i));
         }
 
         return true;

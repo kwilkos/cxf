@@ -62,7 +62,7 @@ public class BookStore {
         }
     }
     
-    @UriTemplate("booksubresource/{bookId}/")
+    @UriTemplate("/booksubresource/{bookId}/")
     public Book getBookSubResource(@UriParam("bookId") String id) throws BookNotFoundFault {
         System.out.println("----invoking getBookSubResource with id: " + id);
         Book book = books.get(Long.parseLong(id));

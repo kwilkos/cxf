@@ -64,14 +64,24 @@ public class JAXRSInvoker extends AbstractInvoker {
         
         if (ori.isSubResourceLocator()) {
             //the result becomes the object that will handle the request
+            if (result != null) {
+                if (result instanceof MessageContentsList) {
+                    result = ((MessageContentsList)result).get(0);
+                } else if (result instanceof List) {
+                    result = ((List)result).get(0);
+                } else if (result.getClass().isArray()) {
+                    result = ((Object[])result)[0];
+                } 
+            }
             resourceObjects = new ArrayList<Object>();
             resourceObjects.add(result);
             
             Map<String, String> values = new HashMap<String, String>();                 
             Message msg = exchange.getInMessage();
-            String path = (String)msg.get(JAXRSInInterceptor.RELATIVE_PATH);
+            String subResourcePath = (String)msg.get(JAXRSInInterceptor.SUBRESOURCE_PATH);
             String httpMethod = (String)msg.get(Message.HTTP_REQUEST_METHOD); 
-            OperationResourceInfo subOri = JAXRSUtils.findTargetMethod(classResourceInfo, path,
+            ClassResourceInfo subCri = JAXRSUtils.findSubResourceClass(classResourceInfo, result.getClass());
+            OperationResourceInfo subOri = JAXRSUtils.findTargetMethod(subCri, subResourcePath,
                                                                                      httpMethod, values);
             exchange.put(OperationResourceInfo.class, subOri);
 
@@ -80,11 +90,11 @@ public class JAXRSInvoker extends AbstractInvoker {
             //I.e., only one place either in the root resource or sub-resouce class can
             //have a parameter that read from entitybody.
             InputStream is = msg.getContent(InputStream.class);
-            List<Object> newParams = JAXRSUtils.processParameters(ori.getMethod(), path,
+            List<Object> newParams = JAXRSUtils.processParameters(subOri.getMethod(), subResourcePath,
                                                                              httpMethod, values, is);
             msg.setContent(List.class, newParams);
             
-            this.invoke(exchange, request);
+            return this.invoke(exchange, newParams);
         }
         
         return result;

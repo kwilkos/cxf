@@ -81,11 +81,10 @@ public class URITemplateTest extends Assert {
         
         boolean match = uriTemplate.match("/customers/123", values);
         assertTrue(match);
-        String subResourcePath = values.values().iterator().next();
+        String subResourcePath = values.get(URITemplate.RIGHT_HAND_VALUE);
         assertEquals("/123", subResourcePath);
     }
-    
-    
+        
     @Test
     public void testURITemplateWithSubResourceVariation2() throws Exception {
         //So "/customers" is the URITemplate for the root resource class
@@ -94,7 +93,22 @@ public class URITemplateTest extends Assert {
         
         boolean match = uriTemplate.match("/customers/name/john/dep/CS", values);
         assertTrue(match);
-        String subResourcePath = values.values().iterator().next();
+        String subResourcePath = values.get(URITemplate.RIGHT_HAND_VALUE);
         assertEquals("/name/john/dep/CS", subResourcePath);
+    }
+        
+    @Test
+    /* Test a sub-resource locator method like this
+     * @HttpMethod("GET") @UriTemplate("/books/{bookId}/") 
+     * public Book getBook(@UriParam("bookId") String id)
+     */
+    public void testURITemplateWithSubResourceVariation3() throws Exception {
+        URITemplate uriTemplate = new URITemplate("/books/{bookId}/", URITemplate.LIMITED_REGEX_SUFFIX);
+        Map<String, String> values = new HashMap<String, String>();
+
+        boolean match = uriTemplate.match("/books/123/chapter/1", values);
+        assertTrue(match);
+        String subResourcePath = values.get(URITemplate.RIGHT_HAND_VALUE);
+        assertEquals("/chapter/1", subResourcePath);
     }
 }
