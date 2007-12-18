@@ -28,7 +28,7 @@ import javax.jws.WebService;
  */
 @WebService(endpointInterface = "org.apache.cxf.javascript.fortest.SimpleDocLitWrapped",
             targetNamespace = "uri:org.apache.cxf.javascript.fortest")
-@org.apache.cxf.feature.Features(features = "org.apache.cxf.feature.LoggingFeature") 
+//@org.apache.cxf.feature.Features(features = "org.apache.cxf.feature.LoggingFeature") 
 public class SimpleDocLitWrappedImpl implements SimpleDocLitWrapped {
     
     private String lastString;
