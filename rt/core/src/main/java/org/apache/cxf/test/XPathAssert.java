@@ -67,6 +67,26 @@ public final class XPathAssert {
 
         return nodes;
     }
+    /**
+     * Assert that the following XPath query selects one or more nodes.
+     * 
+     * @param xpath
+     */
+    public static boolean assertValidBoolean(String xpath, Node node, Map<String, String> namespaces)
+        throws Exception {
+        if (node == null) {
+            throw new NullPointerException("Node cannot be null.");
+        }
+
+        Boolean b = (Boolean)createXPath(namespaces).evaluate(xpath, node, XPathConstants.BOOLEAN);
+
+        if (b == null) {
+            throw new AssertionFailedError("Failed to select any nodes for expression:\n" + xpath
+                                           + " from document:\n" + writeNodeToString(node));
+        }
+
+        return b.booleanValue();
+    }
 
     private static String writeNodeToString(Node node) {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();

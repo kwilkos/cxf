@@ -16,32 +16,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.cxf.xmlbeans;
 
-package org.apache.cxf.xmlbeans.basic;
+import com.alservices.xsd.sample.SampleElementDocument;
 
-import javax.jws.WebMethod;
-import javax.jws.WebParam;
-import javax.jws.WebResult;
+public class IDRefService {
 
-import org.apache.cxf.databinding.xmlbeans.test.Address;
+    /**
+     * This method "gets" a sample Document.
+     * 
+     * @param inSampleElementDocument
+     */
+    public void getSampleMethod(SampleElementDocument inSampleElementDocument) {
 
-
-/**
- * 
- */
-public class TestService {
-    @WebMethod
-    @WebResult(name = "return")
-    public Address echoAddress(@WebParam(name = "ad")Address ad) {
-        
-        Address ret = Address.Factory.newInstance();
-        ret.setAddressLine1(ad.getAddressLine1());
-        ret.setAddressLine2(ad.getAddressLine2());
-        ret.setCity(ad.getCity());
-        ret.setCountry(ad.getCountry());
-        ret.setZIPPostalCode(ad.getZIPPostalCode());
-        ret.setStateProvinceRegion(ad.getStateProvinceRegion());
-        return ret;
     }
-
 }

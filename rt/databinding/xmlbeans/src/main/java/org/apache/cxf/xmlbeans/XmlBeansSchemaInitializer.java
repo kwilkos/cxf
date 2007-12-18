@@ -29,9 +29,13 @@ import java.util.logging.Logger;
 import javax.xml.namespace.QName;
 
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.common.xmlschema.SchemaCollection;
 import org.apache.cxf.helpers.XMLUtils;
 import org.apache.cxf.service.ServiceModelVisitor;
@@ -42,16 +46,26 @@ import org.apache.ws.commons.schema.XmlSchemaElement;
 import org.apache.ws.commons.schema.XmlSchemaType;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.SchemaTypeSystem;
+import org.apache.xmlbeans.XmlAnySimpleType;
+import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlString;
+import org.apache.xmlbeans.impl.schema.BuiltinSchemaTypeSystem;
 
 /**
  * Walks the service model and sets up the element/type names.
  */
 class XmlBeansSchemaInitializer extends ServiceModelVisitor {
     private static final Logger LOG = LogUtils.getLogger(XmlBeansSchemaInitializer.class);
+    private static final Map<Class<?>, Class<? extends XmlAnySimpleType>> CLASS_MAP 
+        = new HashMap<Class<?>, Class<? extends XmlAnySimpleType>>();
     private SchemaCollection schemas;
     private XmlBeansDataBinding dataBinding;
     private Map<String, XmlSchema> schemaMap 
         = new HashMap<String, XmlSchema>();
+    
+    static {
+        CLASS_MAP.put(String.class, XmlString.class);
+    }
     
     public XmlBeansSchemaInitializer(ServiceInfo serviceInfo,
                                      SchemaCollection col,
@@ -68,7 +82,25 @@ class XmlBeansSchemaInitializer extends ServiceModelVisitor {
         }
         InputStream ins = sts.getSourceAsStream(file);
         try {
+            //temporary marker to make sure recursive imports don't blow up
+            schemaMap.put(file, null);
+
             Document doc = XMLUtils.parse(ins);
+            
+            NodeList nodes = doc.getDocumentElement().getChildNodes();
+            for (int i = 0; i < nodes.getLength(); i++) {
+                Node n = nodes.item(i);
+                if (n instanceof Element) {
+                    Element e = (Element)n;
+                    if (e.getLocalName().equals("import")) {
+                        String loc = e.getAttribute("schemaLocation");
+                        if (!StringUtils.isEmpty(loc)) {
+                            getSchema(sts, loc);
+                        }
+                    }
+                }
+            }            
+            
             XmlSchema schema = dataBinding.addSchemaDocument(serviceInfo,
                                                              schemas, 
                                                              doc, 
@@ -98,14 +130,37 @@ class XmlBeansSchemaInitializer extends ServiceModelVisitor {
         if (isFromWrapper && clazz.isArray() && !Byte.TYPE.equals(clazz.getComponentType())) {
             clazz = clazz.getComponentType();
         }
+        mapClass(part, clazz);
+    }
+    private void mapClass(MessagePartInfo part, Class clazz) {
+        if (!XmlObject.class.isAssignableFrom(clazz)) {
+            
+            Class<? extends XmlAnySimpleType> type = CLASS_MAP.get(clazz);
+            SchemaTypeSystem sts = BuiltinSchemaTypeSystem.get();
+            SchemaType st2 = sts.typeForClassname(type.getName());
+
+            part.setProperty(SchemaType.class.getName(), st2);
+            part.setProperty(XmlAnySimpleType.class.getName(), type);
+            part.setTypeQName(st2.getName());
+            XmlSchemaType xmlSchema = schemas.getTypeByQName(st2.getName());
+            part.setXmlSchema(xmlSchema);
+            return;
+        }
         try {
             Field field = clazz.getField("type");
             SchemaType st = (SchemaType)field.get(null);
+            part.setProperty(SchemaType.class.getName(), st);
             
             SchemaTypeSystem sts = st.getTypeSystem();
             XmlSchema schema = getSchema(sts, st.getSourceName());
 
-            if (st.getComponentType() == SchemaType.ELEMENT) {
+            if (st.isDocumentType()) {
+                XmlSchemaElement sct = schema.getElementByName(st.getDocumentElementName());
+                part.setXmlSchema(sct);
+                part.setElement(true);
+                part.setElementQName(st.getDocumentElementName());
+                part.setConcreteName(st.getDocumentElementName());
+            } else if (st.getComponentType() == SchemaType.ELEMENT) {
                 XmlSchemaElement sct = schema.getElementByName(st.getName());
                 part.setXmlSchema(sct);
                 part.setElement(true);
@@ -134,8 +189,7 @@ class XmlBeansSchemaInitializer extends ServiceModelVisitor {
                 if (isFromWrapper && clazz.isArray() && !Byte.TYPE.equals(clazz.getComponentType())) {
                     clazz = clazz.getComponentType();
                 }
-                
-                //FIXME - find and set the part.setXmlSchema(....) info
+                mapClass(part, clazz);
             }
         }
     }

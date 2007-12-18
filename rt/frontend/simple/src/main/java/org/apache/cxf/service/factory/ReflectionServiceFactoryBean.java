@@ -1169,8 +1169,14 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
 
         SchemaInfo schemaInfo = new SchemaInfo(serviceInfo, namespaceURI);
         SchemaCollection col = serviceInfo.getXmlSchemaCollection();
+        XmlSchema schema = col.getSchemaByTargetNamespace(namespaceURI);
+        if (schema != null) {
+            schemaInfo.setSchema(schema);
+            serviceInfo.addSchema(schemaInfo);
+            return schemaInfo;
+        }
 
-        XmlSchema schema = col.newXmlSchemaInCollection(namespaceURI);
+        schema = col.newXmlSchemaInCollection(namespaceURI);
         if (qualified) {
             schema.setElementFormDefault(new XmlSchemaForm(XmlSchemaForm.QUALIFIED));
         }
@@ -1816,6 +1822,9 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
 
     protected SimpleMethodDispatcher getMethodDispatcher() {
         return methodDispatcher;
+    }
+    protected void setMethodDispatcher(SimpleMethodDispatcher m) {
+        methodDispatcher = m;
     }
 
     public List<AbstractServiceConfiguration> getConfigurations() {

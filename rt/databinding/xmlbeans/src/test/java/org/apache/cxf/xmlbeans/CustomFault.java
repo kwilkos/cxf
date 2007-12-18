@@ -16,32 +16,23 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.cxf.xmlbeans;
 
-package org.apache.cxf.xmlbeans.basic;
+import javax.xml.ws.WebFault;
 
-import javax.jws.WebMethod;
-import javax.jws.WebParam;
-import javax.jws.WebResult;
+@WebFault
+public class CustomFault extends Exception {
+    private String extraInfo;
 
-import org.apache.cxf.databinding.xmlbeans.test.Address;
-
-
-/**
- * 
- */
-public class TestService {
-    @WebMethod
-    @WebResult(name = "return")
-    public Address echoAddress(@WebParam(name = "ad")Address ad) {
-        
-        Address ret = Address.Factory.newInstance();
-        ret.setAddressLine1(ad.getAddressLine1());
-        ret.setAddressLine2(ad.getAddressLine2());
-        ret.setCity(ad.getCity());
-        ret.setCountry(ad.getCountry());
-        ret.setZIPPostalCode(ad.getZIPPostalCode());
-        ret.setStateProvinceRegion(ad.getStateProvinceRegion());
-        return ret;
+    public CustomFault() {
+        super("custom fault");
     }
 
+    public String getFaultInfo() {
+        return extraInfo;
+    }
+
+    public void setFaultInfo(String e) {
+        this.extraInfo = e;
+    }
 }

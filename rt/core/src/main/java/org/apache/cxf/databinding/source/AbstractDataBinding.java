@@ -49,7 +49,7 @@ public class AbstractDataBinding {
         this.schemas = schemas;
     }
 
-    protected XmlSchema addSchemaDocument(ServiceInfo serviceInfo, SchemaCollection col, Document d,
+    public XmlSchema addSchemaDocument(ServiceInfo serviceInfo, SchemaCollection col, Document d,
                                           String systemId) {
         String ns = d.getDocumentElement().getAttribute("targetNamespace");
         if (StringUtils.isEmpty(ns)) {

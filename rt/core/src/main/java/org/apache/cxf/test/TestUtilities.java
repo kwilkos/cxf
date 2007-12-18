@@ -121,6 +121,17 @@ public class TestUtilities {
     public NodeList assertValid(String xpath, Node node) throws Exception {
         return XPathAssert.assertValid(xpath, node, namespaces);
     }
+    
+    /**
+     * Assert that the following XPath query selects a boolean value.
+     * 
+     * @param xpath
+     * @throws Exception
+     */
+    public boolean assertValidBoolean(String xpath, Node node) throws Exception {
+        return XPathAssert.assertValidBoolean(xpath, node, namespaces);
+    }
+
 
     /**
      * Assert that the following XPath query selects no nodes.
@@ -193,7 +204,7 @@ public class TestUtilities {
         try {
             return DOMUtils.readXml(input);
         } catch (SAXParseException e) {
-            throw new IllegalStateException("Could not parse message:\n" + new String(bs));
+            throw new IllegalStateException("Could not parse message:\n" + new String(bs), e);
         }
     }
 

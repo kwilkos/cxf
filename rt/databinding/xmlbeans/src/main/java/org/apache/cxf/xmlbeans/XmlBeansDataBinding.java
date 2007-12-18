@@ -26,7 +26,8 @@ import java.util.logging.Logger;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 
-import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+
 
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.xmlschema.SchemaCollection;
@@ -36,7 +37,6 @@ import org.apache.cxf.databinding.DataWriter;
 import org.apache.cxf.databinding.source.AbstractDataBinding;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.model.ServiceInfo;
-import org.apache.ws.commons.schema.XmlSchema;
 
 
 /**
@@ -46,13 +46,16 @@ public class XmlBeansDataBinding extends AbstractDataBinding implements DataBind
     private static final Logger LOG = LogUtils.getLogger(XmlBeansDataBinding.class);
 
     private static final Class<?> SUPPORTED_READER_FORMATS[] = new Class<?>[] {XMLStreamReader.class};
-    private static final Class<?> SUPPORTED_WRITER_FORMATS[] = new Class<?>[] {XMLStreamWriter.class};
+    private static final Class<?> SUPPORTED_WRITER_FORMATS[]
+        = new Class<?>[] {XMLStreamWriter.class, Node.class};
     
     
     @SuppressWarnings("unchecked")
     public <T> DataWriter<T> createWriter(Class<T> c) {
         if (c == XMLStreamWriter.class) {
             return (DataWriter<T>)new DataWriterImpl();
+        } else if (c == Node.class) {
+            return (DataWriter<T>)new NodeDataWriterImpl();
         }
         return null;
     }
@@ -100,11 +103,5 @@ public class XmlBeansDataBinding extends AbstractDataBinding implements DataBind
             schemaInit.walk();
         }
     }
-    
-    public XmlSchema addSchemaDocument(ServiceInfo serviceInfo, 
-                                        SchemaCollection col,
-                                        Document d,
-                                        String systemId) {
-        return super.addSchemaDocument(serviceInfo, col, d, systemId);
-    }
+
 }

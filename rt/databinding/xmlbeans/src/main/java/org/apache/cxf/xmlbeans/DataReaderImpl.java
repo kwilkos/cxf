@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.validation.Schema;
 
@@ -33,6 +34,9 @@ import org.apache.cxf.databinding.DataReader;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Attachment;
 import org.apache.cxf.service.model.MessagePartInfo;
+import org.apache.xmlbeans.SchemaType;
+import org.apache.xmlbeans.XmlAnySimpleType;
+import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 
 
@@ -47,20 +51,66 @@ public class DataReaderImpl implements DataReader<XMLStreamReader> {
     }
 
     public Object read(MessagePartInfo part, XMLStreamReader reader) {
-        Class<?> cls[] = part.getTypeClass().getDeclaredClasses();
+        Class<?> typeClass = part.getTypeClass();
+        boolean unwrap = false;
+        if (!XmlObject.class.isAssignableFrom(typeClass)) {
+            typeClass = (Class<?>)part.getProperty(XmlAnySimpleType.class.getName());
+            unwrap = true;
+        }
+        boolean isOutClass = false;
+        Class<?> encClass = typeClass.getEnclosingClass();
+        if (encClass != null) {
+            typeClass = encClass;
+            isOutClass = true;
+        }
+        Class<?> cls[] = typeClass.getDeclaredClasses();
+        Object obj = null;
         for (Class<?> c : cls) {
             if ("Factory".equals(c.getSimpleName())) {
                 try {
+                    SchemaType st = (SchemaType)part.getProperty(SchemaType.class.getName());
                     XmlOptions options = new XmlOptions();
-                    options.setLoadReplaceDocumentElement(null);
+                    if (!st.isDocumentType() && !isOutClass) {
+                        options.setLoadReplaceDocumentElement(null);
+                    }
                     Method meth = c.getMethod("parse", XMLStreamReader.class, XmlOptions.class);
-                    return meth.invoke(null, reader, options);
+                    obj = meth.invoke(null, reader, options);
+                    break;
                 } catch (Exception e) {
+                    e.printStackTrace();
                     throw new Fault(new Message("UNMARSHAL_ERROR", LOG, part.getTypeClass()), e);
                 }
             }
         }
-        return null;
+        if (unwrap && obj != null) {
+            try {
+                Method m = obj.getClass().getMethod("get" + part.getTypeClass().getSimpleName() + "Value");
+                obj = m.invoke(obj);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else if (isOutClass) {
+            for (Method m : encClass.getDeclaredMethods()) {
+                if (m.getName().startsWith("get")
+                    && m.getParameterTypes().length == 0
+                    && m.getReturnType().equals(part.getTypeClass())) {
+                    try {
+                        obj = m.invoke(obj);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+        if (reader.getEventType() == XMLStreamReader.END_ELEMENT) {
+            try {
+                reader.next();
+            } catch (XMLStreamException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+        return obj;
     }
 
     public Object read(QName name, XMLStreamReader input, Class type) {

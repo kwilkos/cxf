@@ -44,6 +44,7 @@ import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.endpoint.ServerRegistry;
 import org.apache.cxf.frontend.AbstractWSDLBasedEndpointFactory;
 import org.apache.cxf.frontend.ServerFactoryBean;
+import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.test.AbstractCXFTest;
 import org.apache.cxf.transport.ConduitInitiatorManager;
@@ -141,13 +142,14 @@ public abstract class AbstractXmlBeansTest extends AbstractCXFTest {
                                                      String address, 
                                                      QName name,
                                                      XmlBeansDataBinding binding) {
-        ServerFactoryBean sf = new ServerFactoryBean();
+        JaxWsServerFactoryBean sf = new JaxWsServerFactoryBean();
         sf.setServiceClass(serviceClass);
         if (serviceBean != null) {
             sf.setServiceBean(serviceBean);
         }    
         sf.getServiceFactory().setServiceName(name);
         sf.setAddress("local://" + address);
+        sf.getServiceFactory().setQualifyWrapperSchema(true);
         setupXmlBeans(sf, binding);
         return sf;
     }
@@ -182,6 +184,15 @@ public abstract class AbstractXmlBeansTest extends AbstractCXFTest {
         for (Server s : svrMan.getServers()) {
             Service svc = s.getEndpoint().getService();
             if (svc.getName().getLocalPart().equals(string)) {
+                ServiceWSDLBuilder builder = new ServiceWSDLBuilder(bus, svc.getServiceInfos());
+                return builder.build();
+            }
+        }
+        String localString = "local://" + string;
+        for (Server s : svrMan.getServers()) {
+            String s2 = s.getDestination().getAddress().getAddress().getValue();
+            if (localString.equals(s2)) {
+                Service svc = s.getEndpoint().getService();
                 ServiceWSDLBuilder builder = new ServiceWSDLBuilder(bus, svc.getServiceInfos());
                 return builder.build();
             }

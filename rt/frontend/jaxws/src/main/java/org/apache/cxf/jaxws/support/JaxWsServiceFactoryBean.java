@@ -42,7 +42,6 @@ import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.databinding.source.SourceDataBinding;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.EndpointException;
-import org.apache.cxf.frontend.SimpleMethodDispatcher;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.jaxws.JAXWSMethodDispatcher;
 import org.apache.cxf.jaxws.WrapperClassGenerator;
@@ -52,7 +51,6 @@ import org.apache.cxf.jaxws.interceptors.WebFaultOutInterceptor;
 import org.apache.cxf.service.factory.AbstractServiceConfiguration;
 import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
 import org.apache.cxf.service.factory.ServiceConstructionException;
-import org.apache.cxf.service.invoker.Invoker;
 import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.service.model.FaultInfo;
@@ -74,8 +72,6 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
 
     private JaxWsImplementorInfo implInfo;
 
-    private JAXWSMethodDispatcher methodDispatcher;
-    
     private List<WebServiceFeature> wsFeatures;
 
     private boolean wrapperBeanGenerated;
@@ -106,14 +102,6 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
         return s;
     }
 
-    @Override
-    protected Invoker createInvoker() {
-        return null;
-    }
-
-    protected SimpleMethodDispatcher getMethodDispatcher() {
-        return methodDispatcher;
-    }
 
     @Override
     public void setServiceClass(Class<?> serviceClass) {
@@ -326,7 +314,7 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
             jaxWsConfiguration.setServiceFactory(this);
             getServiceConfigurations().add(0, jaxWsConfiguration);
         }
-        methodDispatcher = new JAXWSMethodDispatcher(implInfo);
+        setMethodDispatcher(new JAXWSMethodDispatcher(implInfo));
     }
 
     public List<WebServiceFeature> getWsFeatures() {

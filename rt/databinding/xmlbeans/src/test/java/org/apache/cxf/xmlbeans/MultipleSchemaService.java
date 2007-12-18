@@ -16,32 +16,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-package org.apache.cxf.xmlbeans.basic;
+package org.apache.cxf.xmlbeans;
 
 import javax.jws.WebMethod;
-import javax.jws.WebParam;
-import javax.jws.WebResult;
+import javax.jws.soap.SOAPBinding;
 
-import org.apache.cxf.databinding.xmlbeans.test.Address;
+import xfireXmlbeansNstest.RequestTextDocument;
+import xfireXmlbeansNstest.ResponseTextDocument;
 
-
-/**
- * 
- */
-public class TestService {
+@SOAPBinding(parameterStyle = SOAPBinding.ParameterStyle.BARE)
+public class MultipleSchemaService {
     @WebMethod
-    @WebResult(name = "return")
-    public Address echoAddress(@WebParam(name = "ad")Address ad) {
-        
-        Address ret = Address.Factory.newInstance();
-        ret.setAddressLine1(ad.getAddressLine1());
-        ret.setAddressLine2(ad.getAddressLine2());
-        ret.setCity(ad.getCity());
-        ret.setCountry(ad.getCountry());
-        ret.setZIPPostalCode(ad.getZIPPostalCode());
-        ret.setStateProvinceRegion(ad.getStateProvinceRegion());
-        return ret;
+    public ResponseTextDocument testOne(RequestTextDocument requestTextDocument) {
+        return null;
     }
-
 }
