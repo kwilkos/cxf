@@ -88,7 +88,13 @@
             <version>${pom.version}</version>
             <optional>true</optional>
         </dependency>
-        
+
+        <dependency>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>cxf-tools-wsdlto-frontend-javascript</artifactId>
+            <version>${pom.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>cxf-tools-java2ws</artifactId>
