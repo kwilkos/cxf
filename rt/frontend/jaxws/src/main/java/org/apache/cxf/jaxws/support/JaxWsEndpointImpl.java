@@ -81,12 +81,12 @@ public class JaxWsEndpointImpl extends EndpointImpl {
     private List<AbstractFeature> features;
     
     public JaxWsEndpointImpl(Bus bus, Service s, EndpointInfo ei) throws EndpointException {
-        this(bus, s, ei, null, null, new ArrayList<AbstractFeature>(), true);
+        this(bus, s, ei, null, null, null, true);
     }
     
     public JaxWsEndpointImpl(Bus bus, Service s, EndpointInfo ei, 
                              List<WebServiceFeature> wf) throws EndpointException {
-        this(bus, s, ei, null, wf, new ArrayList<AbstractFeature>(), true);
+        this(bus, s, ei, null, wf, null, true);
     }    
 
     public JaxWsEndpointImpl(Bus bus, Service s, EndpointInfo ei, JaxWsImplementorInfo implementorInfo, 
@@ -96,6 +96,10 @@ public class JaxWsEndpointImpl extends EndpointImpl {
         this.implInfo = implementorInfo;
         this.wsFeatures = wf;
         this.features = af;
+
+        if (features == null) {
+            features = new ArrayList<AbstractFeature>();
+        }
         createJaxwsBinding();
         
         List<Interceptor> in = super.getInInterceptors();       
