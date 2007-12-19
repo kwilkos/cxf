@@ -19,9 +19,9 @@
 
 package org.apache.cxf.jaxws.support;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
 import javax.wsdl.WSDLException;
 import javax.wsdl.extensions.ExtensibilityElement;
 import javax.wsdl.extensions.ExtensionRegistry;
@@ -81,12 +81,12 @@ public class JaxWsEndpointImpl extends EndpointImpl {
     private List<AbstractFeature> features;
     
     public JaxWsEndpointImpl(Bus bus, Service s, EndpointInfo ei) throws EndpointException {
-        this(bus, s, ei, null, null, null, true);
+        this(bus, s, ei, null, null, new ArrayList<AbstractFeature>(), true);
     }
     
     public JaxWsEndpointImpl(Bus bus, Service s, EndpointInfo ei, 
                              List<WebServiceFeature> wf) throws EndpointException {
-        this(bus, s, ei, null, wf, null, true);
+        this(bus, s, ei, null, wf, new ArrayList<AbstractFeature>(), true);
     }    
 
     public JaxWsEndpointImpl(Bus bus, Service s, EndpointInfo ei, JaxWsImplementorInfo implementorInfo, 
