@@ -14,6 +14,10 @@ returns a customer instance whose id is 123. The XML document returned:
   <name>John</name>
 </Customer>
 
+A HTTP GET request to URL http://localhost:9000/customerservice/orders/223/products/1
+returns product 1 from order 223. 
+
+
 A HTTP POST request to URL http://localhost:9000/customerservice/customers
 with the data:
 

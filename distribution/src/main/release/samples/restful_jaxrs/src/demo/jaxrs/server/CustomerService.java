@@ -35,16 +35,26 @@ public class CustomerService {
 
     long currentId = 123;
     Map<Long, Customer> customers = new HashMap<Long, Customer>();
+    Map<Long, Order> orders = new HashMap<Long, Order>();
 
     public CustomerService() {
-        Customer customer = createCustomer();
-        customers.put(customer.getId(), customer);
+        init();
     }
 
     @HttpMethod("GET")
     @UriTemplate("/customers/{id}/")
     public Customer getCustomer(@UriParam("id") String id) {
         System.out.println("----invoking getCustomer, Customer id is: " + id);
+        long idNumber = Long.parseLong(id);
+        Customer c = customers.get(idNumber);
+        return c;
+    }
+
+    @HttpMethod("GET")
+    @UriTemplate("/customersjson/{id}/")
+    @ProduceMime("application/json")
+    public Customer getCustomerJSON(@UriParam("id") String id) {
+        System.out.println("----invoking getCustomerJSON, Customer id is: " + id);
         long idNumber = Long.parseLong(id);
         Customer c = customers.get(idNumber);
         return c;
@@ -95,21 +105,24 @@ public class CustomerService {
         return r;
     }
 
-    @HttpMethod("GET")
-    @UriTemplate("/customersjson/{id}/")
-    @ProduceMime("application/json")
-    public Customer getCustomerJSON(@UriParam("id") String id) {
-        System.out.println("----invoking getCustomerJSON, Customer id is: " + id);
-        long idNumber = Long.parseLong(id);
-        Customer c = customers.get(idNumber);
+    @UriTemplate("/orders/{orderId}/")
+    public Order getOrder(@UriParam("orderId") String orderId) {
+        System.out.println("----invoking getOrder, Order id is: " + orderId);
+        long idNumber = Long.parseLong(orderId);
+        Order c = orders.get(idNumber);
         return c;
     }
 
-    final Customer createCustomer() {
+    final void init() {
         Customer c = new Customer();
         c.setName("John");
         c.setId(123);
-        return c;
+        customers.put(c.getId(), c);
+
+        Order o = new Order();
+        o.setDescription("order 223");
+        o.setId(223);
+        orders.put(o.getId(), o);
     }
 
 }
