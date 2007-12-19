@@ -31,6 +31,10 @@ public class Order {
     private String description;
     private Map<Long, Product> products = new HashMap<Long, Product>();
 
+    public Order() {
+        init();
+    }
+
     public long getId() {
         return id;
     }
@@ -51,14 +55,14 @@ public class Order {
     @UriTemplate("products/{productId}/")
     public Product getProduct(@UriParam("productId")int productId) {
         System.out.println("----invoking getProduct with id: " + productId);
-
-        return products.get(new Long(productId));
+        Product p = products.get(new Long(productId));
+        return p;
     }
 
     final void init() {
         Product p = new Product();
-        p.setId(1);
-        p.setDescription("product 1");
+        p.setId(323);
+        p.setDescription("product 323");
         products.put(p.getId(), p);
     }
 }

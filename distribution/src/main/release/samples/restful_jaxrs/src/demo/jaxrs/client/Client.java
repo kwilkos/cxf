@@ -52,6 +52,12 @@ public final class Client {
         InputStream in = url.openStream();
         System.out.println(getStringFromInputStream(in));
 
+        // Sent HTTP GET request to query sub resource product info
+        System.out.println("Sent HTTP GET request to query sub resource product info");
+        url = new URL("http://localhost:9000/customerservice/orders/223/products/323");
+        in = url.openStream();
+        System.out.println(getStringFromInputStream(in));
+
         // Sent HTTP PUT request to update customer info
         System.out.println("Sent HTTP PUT request to update customer info");
         Client client = new Client();
