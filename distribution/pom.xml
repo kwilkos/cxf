@@ -184,6 +184,11 @@
             <artifactId>cxf-rt-databinding-aegis</artifactId>
             <version>${pom.version}</version>
         </dependency>
+        <dependency>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>cxf-rt-databinding-xmlbeans</artifactId>
+            <version>${pom.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>${pom.groupId}</groupId>

@@ -22,6 +22,10 @@ package org.apache.cxf.xmlbeans;
 
 import java.io.InputStream;
 import java.lang.reflect.Field;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -48,7 +52,6 @@ import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.SchemaTypeSystem;
 import org.apache.xmlbeans.XmlAnySimpleType;
 import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlString;
 import org.apache.xmlbeans.impl.schema.BuiltinSchemaTypeSystem;
 
 /**
@@ -64,7 +67,26 @@ class XmlBeansSchemaInitializer extends ServiceModelVisitor {
         = new HashMap<String, XmlSchema>();
     
     static {
-        CLASS_MAP.put(String.class, XmlString.class);
+        CLASS_MAP.put(String.class, org.apache.xmlbeans.XmlString.class);
+        CLASS_MAP.put(Integer.class, org.apache.xmlbeans.XmlInt.class);
+        CLASS_MAP.put(Integer.TYPE, org.apache.xmlbeans.XmlInt.class);
+        CLASS_MAP.put(Short.class, org.apache.xmlbeans.XmlShort.class);
+        CLASS_MAP.put(Short.TYPE, org.apache.xmlbeans.XmlShort.class);
+        CLASS_MAP.put(Byte.class, org.apache.xmlbeans.XmlByte.class);
+        CLASS_MAP.put(Byte.TYPE, org.apache.xmlbeans.XmlByte.class);
+        CLASS_MAP.put(Float.class, org.apache.xmlbeans.XmlFloat.class);
+        CLASS_MAP.put(Float.TYPE, org.apache.xmlbeans.XmlFloat.class);
+        CLASS_MAP.put(Double.class, org.apache.xmlbeans.XmlDouble.class);
+        CLASS_MAP.put(Double.TYPE, org.apache.xmlbeans.XmlDouble.class);
+        CLASS_MAP.put(Long.class, org.apache.xmlbeans.XmlLong.class);
+        CLASS_MAP.put(Long.TYPE, org.apache.xmlbeans.XmlLong.class);
+        CLASS_MAP.put(Boolean.class, org.apache.xmlbeans.XmlBoolean.class);
+        CLASS_MAP.put(Boolean.TYPE, org.apache.xmlbeans.XmlBoolean.class);
+        CLASS_MAP.put(BigDecimal.class, org.apache.xmlbeans.XmlDecimal.class);
+        CLASS_MAP.put(BigInteger.class, org.apache.xmlbeans.XmlInteger.class);
+        CLASS_MAP.put(Date.class, org.apache.xmlbeans.XmlDate.class);
+        CLASS_MAP.put(Calendar.class, org.apache.xmlbeans.XmlDate.class);
+        CLASS_MAP.put(byte[].class, org.apache.xmlbeans.XmlBase64Binary.class);
     }
     
     public XmlBeansSchemaInitializer(ServiceInfo serviceInfo,
@@ -136,6 +158,9 @@ class XmlBeansSchemaInitializer extends ServiceModelVisitor {
         if (!XmlObject.class.isAssignableFrom(clazz)) {
             
             Class<? extends XmlAnySimpleType> type = CLASS_MAP.get(clazz);
+            if (type == null) {
+                System.out.println(clazz);
+            }
             SchemaTypeSystem sts = BuiltinSchemaTypeSystem.get();
             SchemaType st2 = sts.typeForClassname(type.getName());
 

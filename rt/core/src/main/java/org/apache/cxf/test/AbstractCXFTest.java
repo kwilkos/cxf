@@ -92,6 +92,12 @@ public class AbstractCXFTest extends Assert {
         return testUtilities.invoke(address, transport, message);
     }
 
+    protected Node invoke(String address, 
+                          String transport,
+                          byte[] message) throws Exception {
+        return testUtilities.invoke(address, transport, message);
+    }
+
     /**
      * Assert that the following XPath query selects one or more nodes.
      * 

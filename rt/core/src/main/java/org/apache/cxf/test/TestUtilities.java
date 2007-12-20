@@ -193,11 +193,45 @@ public class TestUtilities {
         os.close();
 
         byte[] bs = obs.getResponseStream().toByteArray();
-
+        
         return bs;
+    }
+    public byte[] invokeBytes(String address, String transport, byte[] message) throws Exception {
+        EndpointInfo ei = new EndpointInfo(null, "http://schemas.xmlsoap.org/soap/http");
+        ei.setAddress(address);
+
+        ConduitInitiatorManager conduitMgr = getBus().getExtension(ConduitInitiatorManager.class);
+        ConduitInitiator conduitInit = conduitMgr.getConduitInitiator(transport);
+        Conduit conduit = conduitInit.getConduit(ei);
+
+        TestMessageObserver obs = new TestMessageObserver();
+        conduit.setMessageObserver(obs);
+
+        Message m = new MessageImpl();
+        conduit.prepare(m);
+
+        OutputStream os = m.getContent(OutputStream.class);
+        os.write(message);
+
+        // TODO: shouldn't have to do this. IO caching needs cleaning
+        // up or possibly removal...
+        os.flush();
+        os.close();
+
+        return obs.getResponseStream().toByteArray();
     }
 
     public Node invoke(String address, String transport, String message) throws Exception {
+        byte[] bs = invokeBytes(address, transport, message);
+
+        ByteArrayInputStream input = new ByteArrayInputStream(bs);
+        try {
+            return DOMUtils.readXml(input);
+        } catch (SAXParseException e) {
+            throw new IllegalStateException("Could not parse message:\n" + new String(bs), e);
+        }
+    }
+    public Node invoke(String address, String transport, byte[] message) throws Exception {
         byte[] bs = invokeBytes(address, transport, message);
 
         ByteArrayInputStream input = new ByteArrayInputStream(bs);

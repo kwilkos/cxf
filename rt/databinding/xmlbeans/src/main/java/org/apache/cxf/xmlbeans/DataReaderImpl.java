@@ -84,7 +84,18 @@ public class DataReaderImpl implements DataReader<XMLStreamReader> {
         }
         if (unwrap && obj != null) {
             try {
-                Method m = obj.getClass().getMethod("get" + part.getTypeClass().getSimpleName() + "Value");
+                Class<?> tc = part.getTypeClass(); 
+                String methName;
+                if (tc.equals(Integer.TYPE) || tc.equals(Integer.class)) {
+                    methName = "getIntValue";
+                } else if (tc.equals(byte[].class)) {
+                    methName = "byteArrayValue";
+                } else {
+                    String tp = tc.getSimpleName();
+                    tp = Character.toUpperCase(tp.charAt(0)) + tp.substring(1);
+                    methName = "get" + tp + "Value";
+                }
+                Method m = obj.getClass().getMethod(methName);
                 obj = m.invoke(obj);
             } catch (Exception e) {
                 e.printStackTrace();

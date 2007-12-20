@@ -109,6 +109,9 @@ public abstract class AbstractXmlBeansTest extends AbstractCXFTest {
     protected Node invoke(String service, String message) throws Exception {
         return invoke("local://" + service, LocalTransportFactory.TRANSPORT_ID, message);
     }
+    protected Node invoke(String service, byte[] message) throws Exception {
+        return invoke("local://" + service, LocalTransportFactory.TRANSPORT_ID, message);
+    }
     
     public Server createService(Class serviceClass, QName name) {
         return createService(serviceClass, null, name);
