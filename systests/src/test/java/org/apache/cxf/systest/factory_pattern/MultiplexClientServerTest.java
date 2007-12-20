@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.xml.ws.Endpoint;
+import javax.xml.ws.wsaddressing.W3CEndpointReference;
 
 import org.apache.cxf.factory_pattern.Number;
 import org.apache.cxf.factory_pattern.NumberFactory;
@@ -34,7 +35,6 @@ import org.apache.cxf.jaxws.support.ServiceDelegateAccessor;
 import org.apache.cxf.systest.jms.EmbeddedJMSBrokerLauncher;
 import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
 import org.apache.cxf.testutil.common.AbstractBusTestServerBase;
-import org.apache.cxf.ws.addressing.EndpointReferenceType;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -90,13 +90,13 @@ public class MultiplexClientServerTest extends AbstractBusClientServerTestBase {
         NumberService numService = new NumberService();
         ServiceImpl serviceImpl = ServiceDelegateAccessor.get(numService);
         
-        EndpointReferenceType numberTwoRef = factory.create("20");
+        W3CEndpointReference numberTwoRef = factory.create("20");
         assertNotNull("reference", numberTwoRef);
            
         Number num =  (Number)serviceImpl.getPort(numberTwoRef, Number.class);
         assertTrue("20 is even", num.isEven().isEven());
         
-        EndpointReferenceType numberTwentyThreeRef = factory.create("23");
+        W3CEndpointReference numberTwentyThreeRef = factory.create("23");
         num =  (Number)serviceImpl.getPort(numberTwentyThreeRef, Number.class);
         assertTrue("23 is not even", !num.isEven().isEven());
     }
@@ -112,7 +112,7 @@ public class MultiplexClientServerTest extends AbstractBusClientServerTestBase {
         // use values >= 30 to create JMS eprs - see NumberFactoryImpl.create
         
         // verify it is JMS, 999 for JMS will throw a fault
-        EndpointReferenceType ref = factory.create("999");
+        W3CEndpointReference ref = factory.create("999");
         assertNotNull("reference", ref);
         ServiceImpl serviceImpl = ServiceDelegateAccessor.get(numService);    
         Number num =  (Number)serviceImpl.getPort(ref, Number.class); 

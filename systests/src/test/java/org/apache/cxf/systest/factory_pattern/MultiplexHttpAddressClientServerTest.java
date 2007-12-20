@@ -32,6 +32,7 @@ import java.util.Map;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Endpoint;
 import javax.xml.ws.Service;
+import javax.xml.ws.wsaddressing.W3CEndpointReference;
 
 import org.apache.cxf.factory_pattern.IsEvenResponse;
 import org.apache.cxf.factory_pattern.Number;
@@ -42,7 +43,6 @@ import org.apache.cxf.jaxws.ServiceImpl;
 import org.apache.cxf.jaxws.support.ServiceDelegateAccessor;
 import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
 import org.apache.cxf.testutil.common.AbstractBusTestServerBase;
-import org.apache.cxf.ws.addressing.EndpointReferenceType;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -91,13 +91,13 @@ public class MultiplexHttpAddressClientServerTest extends AbstractBusClientServe
         NumberService numService = new NumberService();
         ServiceImpl serviceImpl = ServiceDelegateAccessor.get(numService);
         
-        EndpointReferenceType numberTwoRef = factory.create("20");
+        W3CEndpointReference numberTwoRef = factory.create("20");
         assertNotNull("reference", numberTwoRef);
            
         Number num =  (Number)serviceImpl.getPort(numberTwoRef, Number.class);
         assertTrue("20 is even", num.isEven().isEven());
         
-        EndpointReferenceType numberTwentyThreeRef = factory.create("23");
+        W3CEndpointReference numberTwentyThreeRef = factory.create("23");
         num =  (Number)serviceImpl.getPort(numberTwentyThreeRef, Number.class);
         assertTrue("23 is not even", !num.isEven().isEven());
     }

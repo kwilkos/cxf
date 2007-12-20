@@ -97,15 +97,17 @@ public class ProviderImpl extends javax.xml.ws.spi.Provider {
             writer.setPrefix("wsa", W3C_NS);
 
             String portNamePrefix = null;
-            String serviceNamePrefix = (serviceName.getPrefix() == null 
-                || serviceName.getPrefix().length() == 0)
-                ? "ns" : serviceName.getPrefix();
-            
+            String serviceNamePrefix = null;
+            if (serviceName != null) {
+                serviceNamePrefix = (serviceName.getPrefix() == null || serviceName.getPrefix()
+                    .length() == 0) ? "ns" : serviceName.getPrefix();
+            }
             writer.writeStartElement("wsa", "EndpointReference", W3C_NS);
             writer.writeNamespace("wsa", W3C_NS);
-            writer.writeNamespace(serviceNamePrefix, serviceName.getNamespaceURI());
-            
-            if (!portName.getNamespaceURI().equals(serviceName.getNamespaceURI())) {
+            if (serviceName != null) {
+                writer.writeNamespace(serviceNamePrefix, serviceName.getNamespaceURI());
+            }
+            if (portName != null && !portName.getNamespaceURI().equals(serviceName.getNamespaceURI())) {
                 portNamePrefix = (portName.getPrefix() == null 
                     || portName.getPrefix().length() == 0)
                     ? "ns1" : portName.getPrefix();
@@ -115,19 +117,25 @@ public class ProviderImpl extends javax.xml.ws.spi.Provider {
                 portNamePrefix = serviceNamePrefix;
             }
 
+            
             writer.writeStartElement("wsa", "Address", W3C_NS);
-            if (address != null) {
-                writer.writeCharacters(address);
+            address = address == null ? "" : address;
+            writer.writeCharacters(address);
+            
+            writer.writeEndElement();
+            
+            
+            if (portName != null) {
+                writer.writeStartElement("wsa", "portName", W3C_NS);
+                writer.writeCharacters(portNamePrefix + ":" + portName.getLocalPart());
+                writer.writeEndElement();
             }
-            writer.writeEndElement();
             
-            writer.writeStartElement("wsa", "portName", W3C_NS);
-            writer.writeCharacters(portNamePrefix + ":" + portName.getLocalPart());
-            writer.writeEndElement();
-            
-            writer.writeStartElement("wsa", "ServiceName", W3C_NS);
-            writer.writeCharacters(serviceNamePrefix + ":" + serviceName.getLocalPart());
-            writer.writeEndElement();
+            if (serviceName != null) {
+                writer.writeStartElement("wsa", "ServiceName", W3C_NS);
+                writer.writeCharacters(serviceNamePrefix + ":" + serviceName.getLocalPart());
+                writer.writeEndElement();
+            }
 
             if (referenceParameters != null) {
                 for (Element referenceParameter : referenceParameters) {

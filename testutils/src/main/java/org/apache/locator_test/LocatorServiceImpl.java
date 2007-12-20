@@ -28,6 +28,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
+import javax.xml.ws.wsaddressing.W3CEndpointReferenceBuilder;
+
 import org.apache.locator.EndpointNotExistFault;
 import org.apache.locator.LocatorService;
 import org.apache.locator.types.EndpointIdentity;
@@ -52,9 +54,9 @@ public class LocatorServiceImpl implements LocatorService {
     static final Logger LOG = Logger.getLogger(LocatorServiceImpl.class.getName());
 
     public void registerPeerManager(
-                                    org.apache.cxf.ws.addressing.EndpointReferenceType peerManager,
+                                    javax.xml.ws.wsaddressing.W3CEndpointReference peerManager,
                                     javax.xml.ws.Holder<
-                                        org.apache.cxf.ws.addressing.EndpointReferenceType> 
+                                    javax.xml.ws.wsaddressing.W3CEndpointReference> 
                                             peerManagerReference,
                                     javax.xml.ws.Holder<java.lang.String> nodeId) {
         LOG.info("Executing operation registerPeerManager");
@@ -65,21 +67,21 @@ public class LocatorServiceImpl implements LocatorService {
     }
 
     public void registerEndpoint(EndpointIdentity endpointId,
-                                 org.apache.cxf.ws.addressing.EndpointReferenceType endpointReference) {
+                                 javax.xml.ws.wsaddressing.W3CEndpointReference endpointReference) {
         LOG.info("Executing operation registerEndpoint");
     }
 
     public void deregisterEndpoint(EndpointIdentity endpointId,
-                                   org.apache.cxf.ws.addressing.EndpointReferenceType endpointReference) {
+                                   javax.xml.ws.wsaddressing.W3CEndpointReference endpointReference) {
         LOG.info("Executing operation deregisterEndpoint");
     }
 
-    public org.apache.cxf.ws.addressing.EndpointReferenceType lookupEndpoint(
+    public javax.xml.ws.wsaddressing.W3CEndpointReference lookupEndpoint(
         javax.xml.namespace.QName serviceQname)
         throws EndpointNotExistFault {
         LOG.info("Executing operation lookupEndpoint");
-        return new org.apache.cxf.ws.addressing.EndpointReferenceType();
-        // throw new EndpointNotExistFault("EndpointNotExistFault...");
+        W3CEndpointReferenceBuilder eprBuilder = new  W3CEndpointReferenceBuilder();
+        return eprBuilder.build();
     }
 
     

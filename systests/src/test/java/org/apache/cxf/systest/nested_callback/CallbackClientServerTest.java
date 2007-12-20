@@ -22,7 +22,9 @@ package org.apache.cxf.systest.nested_callback;
 import java.net.URL;
 
 import javax.xml.namespace.QName;
+import javax.xml.transform.Source;
 import javax.xml.ws.Endpoint;
+import javax.xml.ws.wsaddressing.W3CEndpointReference;
 
 import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
@@ -79,7 +81,12 @@ public class CallbackClientServerTest extends AbstractBusClientServerTestBase {
         }
     
         NestedCallback callbackObject = new NestedCallback();
-        callbackObject.setCallback(ref);
+
+        Source source = EndpointReferenceUtils.convertToXML(ref);
+        W3CEndpointReference  w3cEpr = new W3CEndpointReference(source);
+        
+        
+        callbackObject.setCallback(w3cEpr);
         String resp = port.registerCallback(callbackObject);
 
         assertEquals("registerCallback called", resp);

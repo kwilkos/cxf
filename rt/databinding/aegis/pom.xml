@@ -115,6 +115,12 @@
                     <artifactId>xom</artifactId>
                     <groupId>xom</groupId>
                 </exclusion>
+                 <exclusion>
+                    <artifactId>xalan</artifactId>
+                    <groupId>xalan</groupId>
+                </exclusion>               
+                
+                
             </exclusions>
         </dependency>
 

@@ -21,6 +21,8 @@ package org.apache.cxf.systest.factory_pattern;
 
 import javax.jws.WebService;
 import javax.xml.namespace.QName;
+import javax.xml.transform.Source;
+import javax.xml.ws.wsaddressing.W3CEndpointReference;
 
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.jaxws.EndpointImpl;
@@ -33,13 +35,14 @@ import org.apache.cxf.wsdl.EndpointReferenceUtils;
             targetNamespace = "http://cxf.apache.org/factory_pattern")
 public class ManualNumberFactoryImpl extends NumberFactoryImpl {
 
-    public EndpointReferenceType create(String id) {
+    public W3CEndpointReference create(String id) {
         manageNumberServantInitialisation();
         
         // manually force id into address context as context appendage
         EndpointReferenceType epr = EndpointReferenceUtils.duplicate(templateEpr);
         EndpointReferenceUtils.setAddress(epr, EndpointReferenceUtils.getAddress(epr) + id);
-        return epr;
+        Source source = EndpointReferenceUtils.convertToXML(epr);
+        return new W3CEndpointReference(source);
     }
 
     protected void initDefaultServant() {

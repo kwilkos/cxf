@@ -460,6 +460,9 @@ public final class JAXBUtils {
             cls = null;
         }
         if (cls != null) {
+            if (cls.getName().equals("javax.xml.ws.wsaddressing.W3CEndpointReference")) {
+                return cls;
+            }
             try {
                 if (cls.getConstructor(new Class[0]) == null) {
                     cls = null;

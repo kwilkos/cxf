@@ -205,12 +205,15 @@ public class VersionTransformer {
             Result r = new StreamResult(cos);
             external.writeTo(r);
 
-            JAXBContext jaxContext;
+            JAXBContext jaxbContext;
             try {
                 // CXF internal 2005/08 EndpointReferenceType should be
                 // compatible with W3CEndpointReference
-                jaxContext = ContextUtils.getJAXBContext();
-                EndpointReferenceType internal = jaxContext.createUnmarshaller()
+                //jaxContext = ContextUtils.getJAXBContext();
+                jaxbContext = JAXBContext
+                    .newInstance(new Class[] {org.apache.cxf.ws.addressing.ObjectFactory.class,
+                                              org.apache.cxf.ws.addressing.wsdl.ObjectFactory.class});
+                EndpointReferenceType internal = jaxbContext.createUnmarshaller()
                     .unmarshal(new StreamSource(cos.getInputStream()), EndpointReferenceType.class)
                     .getValue();
                 return internal;

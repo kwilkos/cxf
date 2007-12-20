@@ -21,6 +21,8 @@ package org.apache.cxf.systest.factory_pattern;
 
 import javax.jws.WebService;
 import javax.xml.namespace.QName;
+import javax.xml.transform.Source;
+import javax.xml.ws.wsaddressing.W3CEndpointReference;
 
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.factory_pattern.NumberFactory;
@@ -53,7 +55,7 @@ public class NumberFactoryImpl implements NumberFactory {
     public NumberFactoryImpl() {
     }
 
-    public EndpointReferenceType create(String id) {
+    public W3CEndpointReference create(String id) {
 
         manageNumberServantInitialisation();
         int val = Integer.valueOf(id);
@@ -64,8 +66,12 @@ public class NumberFactoryImpl implements NumberFactory {
             // use jms transport
             portName = "NumberPortJMS";
         }
-        return  EndpointReferenceUtils.getEndpointReferenceWithId(NUMBER_SERVICE_QNAME, portName, id,
-                                                                BusFactory.getDefaultBus());
+        EndpointReferenceType epr = EndpointReferenceUtils.getEndpointReferenceWithId(NUMBER_SERVICE_QNAME,
+                                                                                      portName, id,
+                                                                                      BusFactory
+                                                                                          .getDefaultBus());
+        Source source = EndpointReferenceUtils.convertToXML(epr);
+        return new W3CEndpointReference(source);
     }
 
     protected synchronized EndpointReferenceType manageNumberServantInitialisation() {

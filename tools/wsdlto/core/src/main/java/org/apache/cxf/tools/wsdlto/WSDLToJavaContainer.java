@@ -67,7 +67,6 @@ import org.apache.cxf.tools.wsdlto.core.FrontEndProfile;
 import org.apache.cxf.wsdl.WSDLConstants;
 import org.apache.cxf.wsdl11.WSDLServiceBuilder;
 
-
 public class WSDLToJavaContainer extends AbstractCXFToolContainer {
 
     protected static final Logger LOG = LogUtils.getL7dLogger(WSDLToJavaContainer.class);
@@ -88,15 +87,16 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
     }
 
     public WSDLConstants.WSDLVersion getWSDLVersion() {
-        String version = (String) context.get(ToolConstants.CFG_WSDL_VERSION);
+        String version = (String)context.get(ToolConstants.CFG_WSDL_VERSION);
         return WSDLConstants.getVersion(version);
     }
 
     @SuppressWarnings("unchecked")
     public void execute() throws ToolException {
         if (!hasInfoOption()) {
-            //TODO: After runtime support w3c EPR mapping ,this will be removed
-            context.put(ToolConstants.CFG_NO_ADDRESS_BINDING, ToolConstants.CFG_NO_ADDRESS_BINDING);
+            // TODO: After runtime support w3c EPR mapping ,this will be removed
+            //context.put(ToolConstants.CFG_NO_ADDRESS_BINDING, 
+            //            ToolConstants.CFG_NO_ADDRESS_BINDING);
             buildToolContext();
             validate(context);
             FrontEndProfile frontend = context.get(FrontEndProfile.class);
@@ -193,7 +193,6 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
                 processor.setEnvironment(context);
                 processor.process();
 
-
                 if (!isSuppressCodeGen()) {
                     // Generate artifacts
                     for (FrontEndGenerator generator : frontend.getGenerators()) {
@@ -279,14 +278,13 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
         if (!env.hasExcludeNamespace(DEFAULT_NS2PACKAGE)
             && env.getBooleanValue(ToolConstants.CFG_DEFAULT_NS, "true")
             && env.get(ToolConstants.CFG_NO_ADDRESS_BINDING) != null) {
-            //currently namespace2pacakge.cfg only contains wsadressing mapping
+            // currently namespace2pacakge.cfg only contains wsadressing mapping
             env.loadDefaultNS2Pck(getResourceAsStream("namespace2package.cfg"));
         }
         if (env.getBooleanValue(ToolConstants.CFG_DEFAULT_EX, "true")) {
             env.loadDefaultExcludes(getResourceAsStream("wsdltojavaexclude.cfg"));
         }
     }
-
 
     public void setExcludePackageAndNamespaces(ToolContext env) {
         if (env.get(ToolConstants.CFG_NEXCLUDE) != null) {
@@ -390,7 +388,7 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
             bindingFiles[i] = URIParserUtil.getAbsoluteURI(bindingFiles[i]);
         }
 
-        env.put(ToolConstants.CFG_BINDING,  bindingFiles);
+        env.put(ToolConstants.CFG_BINDING, bindingFiles);
     }
 
     public void setAntProperties(ToolContext env) {
@@ -474,7 +472,7 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
                 String classDir = context.get(ToolConstants.CFG_CLASSDIR) == null
                     ? outPutDir : (String)context.get(ToolConstants.CFG_CLASSDIR);
                 File classFile = new File(classDir, excludeFile.substring(0, excludeFile.indexOf(".java"))
-                                          + ".class");
+                                                    + ".class");
                 classFile.delete();
                 File tmpClzFile = classFile.getParentFile();
                 while (tmpClzFile != null && !tmpClzFile.getCanonicalPath().equalsIgnoreCase(outPutDir)) {
@@ -488,14 +486,11 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
     }
 
     public boolean passthrough() {
-        if (context.optionSet(ToolConstants.CFG_GEN_TYPES)
-            || context.optionSet(ToolConstants.CFG_ALL)) {
+        if (context.optionSet(ToolConstants.CFG_GEN_TYPES) || context.optionSet(ToolConstants.CFG_ALL)) {
             return false;
         }
-        if (context.optionSet(ToolConstants.CFG_GEN_ANT)
-            || context.optionSet(ToolConstants.CFG_GEN_CLIENT)
-            || context.optionSet(ToolConstants.CFG_GEN_IMPL)
-            || context.optionSet(ToolConstants.CFG_GEN_SEI)
+        if (context.optionSet(ToolConstants.CFG_GEN_ANT) || context.optionSet(ToolConstants.CFG_GEN_CLIENT)
+            || context.optionSet(ToolConstants.CFG_GEN_IMPL) || context.optionSet(ToolConstants.CFG_GEN_SEI)
             || context.optionSet(ToolConstants.CFG_GEN_SERVER)
             || context.optionSet(ToolConstants.CFG_GEN_SERVICE)
             || context.optionSet(ToolConstants.CFG_GEN_FAULT)) {
@@ -533,22 +528,23 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
         Properties initialExtensions = null;
         try {
             initialExtensions = PropertiesLoaderUtils.loadAllProperties(SERVICE_VALIDATOR, Thread
-                            .currentThread().getContextClassLoader());
+                .currentThread().getContextClassLoader());
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         }
 
         for (Iterator it = initialExtensions.values().iterator(); it.hasNext();) {
-            String validatorClass = (String) it.next();
+            String validatorClass = (String)it.next();
             try {
                 if (LOG.isLoggable(Level.FINE)) {
                     LOG.fine("Found service validator : " + validatorClass);
                 }
-                ServiceValidator validator = 
-                    (ServiceValidator)Class.forName(validatorClass,
-                                                    true,
-                                                    Thread.currentThread()
-                                                        .getContextClassLoader()).newInstance();
+                ServiceValidator validator = (ServiceValidator)Class.forName(
+                                                                             validatorClass,
+                                                                             true,
+                                                                             Thread.currentThread()
+                                                                                 .getContextClassLoader())
+                    .newInstance();
                 validators.add(validator);
             } catch (Exception ex) {
                 LOG.log(Level.WARNING, "EXTENSION_ADD_FAILED_MSG", ex);

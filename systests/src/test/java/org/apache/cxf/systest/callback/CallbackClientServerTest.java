@@ -22,13 +22,13 @@ package org.apache.cxf.systest.callback;
 import java.net.URL;
 
 import javax.xml.namespace.QName;
+import javax.xml.transform.Source;
 import javax.xml.ws.Endpoint;
+import javax.xml.ws.wsaddressing.W3CEndpointReference;
 
 import org.apache.callback.SOAPService;
 import org.apache.callback.ServerPortType;
-
 import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
-
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
 import org.apache.cxf.wsdl.EndpointReferenceUtils;
 import org.junit.BeforeClass;
@@ -77,9 +77,11 @@ public class CallbackClientServerTest extends AbstractBusClientServerTestBase {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    
-        String resp = port.registerCallback(ref);
-
+        
+       
+        Source source = EndpointReferenceUtils.convertToXML(ref);
+        W3CEndpointReference  w3cEpr = new W3CEndpointReference(source);              
+        String resp = port.registerCallback(w3cEpr);
         assertEquals("registerCallback called", resp);
             
     }

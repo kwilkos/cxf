@@ -1165,7 +1165,7 @@ public class CodeGenTest extends ProcessorTestBase {
         }
     }
     //TODO:This will be removed when runtime supports this mapping
-    @org.junit.Ignore
+    //@org.junit.Ignore
     public void testW3CEPR() throws Exception {
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/w3c-epr.wsdl"));
         processor.setContext(env);

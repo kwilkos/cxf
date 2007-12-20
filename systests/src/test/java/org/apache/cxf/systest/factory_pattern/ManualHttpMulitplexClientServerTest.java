@@ -27,6 +27,7 @@ import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Endpoint;
 import javax.xml.ws.Service;
+import javax.xml.ws.wsaddressing.W3CEndpointReference;
 
 import org.apache.cxf.binding.soap.SoapBindingFactory;
 import org.apache.cxf.factory_pattern.IsEvenResponse;
@@ -39,6 +40,7 @@ import org.apache.cxf.jaxws.support.ServiceDelegateAccessor;
 import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
 import org.apache.cxf.testutil.common.AbstractBusTestServerBase;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
+import org.apache.cxf.ws.addressing.VersionTransformer;
 import org.apache.cxf.wsdl.EndpointReferenceUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -79,12 +81,13 @@ public class ManualHttpMulitplexClientServerTest extends AbstractBusClientServer
         NumberFactoryService service = new NumberFactoryService();
         NumberFactory nfact = service.getNumberFactoryPort();
         
-        EndpointReferenceType epr = nfact.create("2");        
-        assertNotNull("reference", epr);
+        W3CEndpointReference w3cEpr = nfact.create("2");        
+        assertNotNull("reference", w3cEpr);
         
         // use the epr info only
         // no wsdl so default generated soap/http binding will be used
         // address url must come from the calling context
+        EndpointReferenceType epr = VersionTransformer.convertToInternal(w3cEpr); 
         QName serviceName = EndpointReferenceUtils.getServiceName(epr);
         Service numService = Service.create(serviceName);
         
@@ -99,13 +102,15 @@ public class ManualHttpMulitplexClientServerTest extends AbstractBusClientServer
         assertTrue("2 is even", Boolean.TRUE.equals(numResp.isEven()));
 
         // try again with the address from another epr
-        epr = nfact.create("3");
+        w3cEpr = nfact.create("3");
+        epr = VersionTransformer.convertToInternal(w3cEpr);
         setupContextWithEprAddress(epr, num);
         numResp = num.isEven();
         assertTrue("3 is not even", Boolean.FALSE.equals(numResp.isEven()));
         
         // try again with the address from another epr
-        epr = nfact.create("6");
+        w3cEpr = nfact.create("6");
+        epr = VersionTransformer.convertToInternal(w3cEpr);
         setupContextWithEprAddress(epr, num);
         numResp = num.isEven();
         assertTrue("6 is even", Boolean.TRUE.equals(numResp.isEven()));
@@ -116,7 +121,10 @@ public class ManualHttpMulitplexClientServerTest extends AbstractBusClientServer
         
         NumberFactoryService service = new NumberFactoryService();
         NumberFactory factory = service.getNumberFactoryPort();
-        EndpointReferenceType numberTwoRef = factory.create("20");
+         
+        
+        W3CEndpointReference w3cEpr = factory.create("20");
+        EndpointReferenceType numberTwoRef = VersionTransformer.convertToInternal(w3cEpr); 
         assertNotNull("reference", numberTwoRef);
         
         // use getPort with epr api on service
@@ -125,8 +133,8 @@ public class ManualHttpMulitplexClientServerTest extends AbstractBusClientServer
         
         Number num =  (Number)serviceImpl.getPort(numberTwoRef, Number.class);
         assertTrue("20 is even", num.isEven().isEven());
-        
-        EndpointReferenceType numberTwentyThreeRef = factory.create("23");
+        w3cEpr = factory.create("23");
+        EndpointReferenceType numberTwentyThreeRef = VersionTransformer.convertToInternal(w3cEpr); 
         num =  (Number)serviceImpl.getPort(numberTwentyThreeRef, Number.class);
         assertTrue("23 is not even", !num.isEven().isEven());
     }

@@ -33,7 +33,10 @@ import javax.wsdl.Port;
 import javax.wsdl.Service;
 import javax.wsdl.WSDLException;
 import javax.xml.XMLConstants;
+import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
 import javax.xml.namespace.QName;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
@@ -42,6 +45,7 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
@@ -593,6 +597,7 @@ public final class EndpointReferenceUtils {
      */
     public static String getAddress(EndpointReferenceType ref) {
         AttributedURIType a = ref.getAddress();
+        
         if (null != a) {
             return a.getValue();
         }
@@ -796,6 +801,28 @@ public final class EndpointReferenceUtils {
         return id;
     }
     
+    public static Source convertToXML(EndpointReferenceType epr) {
+        StreamResult result = new StreamResult();
+        java.io.StringWriter s = new java.io.StringWriter();
+        result.setWriter(s);
+        try {
+            JAXBContext jaxbContext = 
+                JAXBContext.newInstance(new Class[] {WSA_WSDL_OBJECT_FACTORY.getClass(), 
+                                                     WSA_OBJECT_FACTORY.getClass()});
+            javax.xml.bind.Marshaller jm = jaxbContext.createMarshaller();
+            jm.setProperty(Marshaller.JAXB_FRAGMENT, true);
+            QName qname = new QName("http://www.w3.org/2005/08/addressing", "EndpointReference");
+            JAXBElement<EndpointReferenceType> 
+            jaxEle = new JAXBElement<EndpointReferenceType>(qname, EndpointReferenceType.class, epr);
+            jm.marshal(jaxEle, result);           
+        } catch (JAXBException e) {
+            return null;
+        }
+        java.io.StringReader strReader = new java.io.StringReader(s.toString());
+        return new StreamSource(strReader);        
+    }
+    
+    
     private static MultiplexDestination getMatchingMultiplexDestination(QName serviceQName, String portName,
                                                                         Bus bus) {
         MultiplexDestination destination = null;
@@ -827,8 +854,12 @@ public final class EndpointReferenceUtils {
             return true;
         }
         return ret;
-    }   
+    }
+    
+   
+    
 }
+
 
 class LSInputImpl implements LSInput {
 

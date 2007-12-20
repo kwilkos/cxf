@@ -25,11 +25,12 @@ import java.util.logging.Logger;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Endpoint;
 import javax.xml.ws.Holder;
+import javax.xml.ws.wsaddressing.W3CEndpointReference;
+import javax.xml.ws.wsaddressing.W3CEndpointReferenceBuilder;
 
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
 import org.apache.cxf.testutil.common.AbstractBusTestServerBase;
-
 import org.apache.locator.LocatorService;
 import org.apache.locator.LocatorService_Service;
 import org.apache.locator.types.QueryEndpoints;
@@ -77,18 +78,19 @@ public class LocatorClientServerTest extends AbstractBusClientServerTestBase {
         LocatorService_Service ss = new LocatorService_Service(wsdl, serviceName);
         LocatorService port = ss.getLocatorServicePort();
 
-        
-        port.registerPeerManager(new org.apache.cxf.ws.addressing.EndpointReferenceType(),
-                                 new Holder<org.apache.cxf.ws.addressing.EndpointReferenceType>(),
+        W3CEndpointReferenceBuilder builder = new  W3CEndpointReferenceBuilder();
+        W3CEndpointReference w3cEpr = builder.build();
+        port.registerPeerManager(w3cEpr,
+                                 new Holder<W3CEndpointReference>(),
                                  new Holder<java.lang.String>());
 
         port.deregisterPeerManager(new java.lang.String());
 
         
-        port.registerEndpoint(null, new org.apache.cxf.ws.addressing.EndpointReferenceType());
+        port.registerEndpoint(null, w3cEpr);
 
         
-        port.deregisterEndpoint(null, new org.apache.cxf.ws.addressing.EndpointReferenceType());
+        port.deregisterEndpoint(null, w3cEpr);
 
         
         

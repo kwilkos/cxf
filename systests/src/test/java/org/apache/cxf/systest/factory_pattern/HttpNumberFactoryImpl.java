@@ -21,6 +21,8 @@ package org.apache.cxf.systest.factory_pattern;
 
 import javax.jws.WebService;
 import javax.xml.namespace.QName;
+import javax.xml.transform.Source;
+import javax.xml.ws.wsaddressing.W3CEndpointReference;
 
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.jaxws.EndpointImpl;
@@ -41,12 +43,16 @@ public class HttpNumberFactoryImpl extends NumberFactoryImpl {
         manageNumberServantInitialisation();
     }
     
-    public EndpointReferenceType create(String id) {
+    public W3CEndpointReference create(String id) {
         String portName = null;
-        return EndpointReferenceUtils.getEndpointReferenceWithId(NUMBER_SERVICE_QNAME, 
+        EndpointReferenceType epr = EndpointReferenceUtils.getEndpointReferenceWithId(NUMBER_SERVICE_QNAME, 
                                                                  portName, 
                                                                  id,
                                                                  BusFactory.getDefaultBus());
+        
+        Source source = EndpointReferenceUtils.convertToXML(epr);
+        return  new W3CEndpointReference(source);
+        
     }
 
     protected void initDefaultServant() {

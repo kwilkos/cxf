@@ -24,11 +24,13 @@ import java.net.URL;
 
 import javax.xml.namespace.QName;
 import javax.xml.ws.Service;
+import javax.xml.ws.wsaddressing.W3CEndpointReference;
 
 import org.apache.callback.CallbackPortType;
 import org.apache.callback.ServerPortType;
 import org.apache.cxf.jaxb.JAXBUtils;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
+import org.apache.cxf.ws.addressing.VersionTransformer;
 import org.apache.cxf.wsdl.EndpointReferenceUtils;
 import org.apache.cxf.wsdl.WSDLManager;
 import org.apache.cxf.wsdl11.WSDLManagerImpl;
@@ -42,16 +44,18 @@ import org.apache.cxf.wsdl11.WSDLManagerImpl;
                   
 public class ServerImpl implements ServerPortType  {
 
-    //private static final Logger LOG = 
-    //    Logger.getLogger(ServerImpl.class.getPackage().getName());
     
     public String foo(String s) {
         return s;
     }
     
-    public String registerCallback(EndpointReferenceType callback) {
+    public String registerCallback(W3CEndpointReference w3cRef) {
         try {
+
             WSDLManager manager = new WSDLManagerImpl();
+
+        
+            EndpointReferenceType callback = VersionTransformer.convertToInternal(w3cRef);
         
             QName interfaceName = EndpointReferenceUtils.getInterfaceName(callback);
             String wsdlLocation = EndpointReferenceUtils.getWSDLLocation(callback);
@@ -66,8 +70,7 @@ public class ServerImpl implements ServerPortType  {
             seiName.append(JAXBUtils.namespaceURIToPackage(interfaceName.getNamespaceURI()));
             seiName.append(".");
             seiName.append(JAXBUtils.nameToIdentifier(interfaceName.getLocalPart(),
-                                                      JAXBUtils.IdentifierType.INTERFACE));
-            
+                                                      JAXBUtils.IdentifierType.INTERFACE));           
             Class<?> sei = null; 
             try {
                 sei = Class.forName(seiName.toString(), 
@@ -78,6 +81,7 @@ public class ServerImpl implements ServerPortType  {
             
             URL wsdlURL = new URL(wsdlLocation);            
             Service service = Service.create(wsdlURL, serviceName);
+            
             CallbackPortType port =  (CallbackPortType)service.getPort(portName, sei);
 
             port.serverSayHi("Sean");
