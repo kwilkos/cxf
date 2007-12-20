@@ -31,13 +31,11 @@ import org.apache.cxf.helpers.IOUtils;
 public class AttachmentDataSource implements DataSource {
 
     private final String ct;
-    private final InputStream in;
     private final byte[] cache; 
     
     public AttachmentDataSource(String ctParam, InputStream inParam) throws IOException {
         this.ct = ctParam;
-        this.in = inParam;
-        cache = IOUtils.readBytesFromStream(in);
+        cache = IOUtils.readBytesFromStream(inParam);
     }
 
     public String getContentType() {
