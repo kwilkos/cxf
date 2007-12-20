@@ -18,14 +18,15 @@
  */
 package demo.hw.server;
 
-import demo.hw.server.data.Beverage;
-import demo.hw.server.data.Category;
-import demo.hw.server.data.Ingredient;
-
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.jws.WebService;
+
+import demo.hw.server.data.Beverage;
+import demo.hw.server.data.Category;
+import demo.hw.server.data.Ingredient;
+
 
 @WebService(endpointInterface = "demo.hw.server.JavascriptExample")
 public class JavascriptExampleImpl implements JavascriptExample {
@@ -105,7 +106,7 @@ public class JavascriptExampleImpl implements JavascriptExample {
         List<Beverage> matches = new ArrayList<Beverage>();
         for (Beverage b : beverages) {
             for (Ingredient bi : b.getIngredients()) {
-                if(bi == i) {
+                if (bi == i) {
                     matches.add(b);
                     break;
                 }

@@ -19,6 +19,9 @@
 package demo.hw.server.data;
 
 public class Ingredient {
+    private String name;
+    private Category category;     
+
     @Override
     public boolean equals(Object obj) {
         try {
@@ -29,9 +32,7 @@ public class Ingredient {
         }
     }
     
-    private String name;
-    private Category category;
-    
+        
     public String getName() {
         return name;
     }

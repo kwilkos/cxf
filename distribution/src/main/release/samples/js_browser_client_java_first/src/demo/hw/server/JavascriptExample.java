@@ -20,14 +20,16 @@ package demo.hw.server;
 
 import java.util.List;
 
-import demo.hw.server.data.Beverage;
-import demo.hw.server.data.Category;
-import demo.hw.server.data.Ingredient;
-
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
 import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
+
+import demo.hw.server.data.Beverage;
+import demo.hw.server.data.Category;
+import demo.hw.server.data.Ingredient;
+
+
 
 @WebService(targetNamespace = "urn:cxf.apache.org:jsjaxws")
 @SOAPBinding(parameterStyle = SOAPBinding.ParameterStyle.BARE)
