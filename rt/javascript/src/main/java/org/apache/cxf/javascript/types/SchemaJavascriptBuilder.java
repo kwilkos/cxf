@@ -151,6 +151,9 @@ public class SchemaJavascriptBuilder {
         final String elementPrefix = "this._";
         
         String typeObjectName = nameManager.getJavascriptName(name);
+        code.append("//\n");
+        code.append("// Constructor for XML Schema item " + name.toString() + "\n");
+        code.append("//\n");
         code.append("function " + typeObjectName + " () {\n");
         
         for (int i = 0; i < sequence.getItems().getCount(); i++) {
@@ -174,15 +177,42 @@ public class SchemaJavascriptBuilder {
             String accessorSuffix = StringUtils.capitalize(elChild.getName());
 
             String accessorName = typeObjectName + "_get" + accessorSuffix;
-            accessors.append("function " + accessorName + "() { return " + elementName + ";}\n");
-            accessors.append(typeObjectName + ".prototype.get" 
-                             + accessorSuffix + " = " + accessorName + ";\n");
+            String getFunctionProperty = typeObjectName + ".prototype.get" + accessorSuffix; 
+            String setFunctionProperty = typeObjectName + ".prototype.set" + accessorSuffix; 
+            code.append("//\n");
+            code.append("// accessor is " + getFunctionProperty + "\n");
+            code.append("// element get for " + elChild.getName() + "\n");
+            // can we get an anonymous type on an element in the middle of a type?
+            code.append("// - element type is " + elType.getQName() + "\n");
             
+            if (XmlSchemaUtils.isParticleOptional(elChild)) {
+                code.append("// - optional element\n");
+            } else {
+                code.append("// - required element\n");
+                
+            }
+            
+            if (XmlSchemaUtils.isParticleArray(elChild)) {
+                code.append("// - array\n");
+                
+            }
+            
+            if (nillable) {
+                code.append("// - nillable\n");
+                
+            }
+            code.append("//\n");
+            code.append("// element set for " + elChild.getName() + "\n");
+            code.append("// setter function is is " + setFunctionProperty + "\n");
+            code.append("//\n");
+
+            code.append("//\n");
+            accessors.append("function " + accessorName + "() { return " + elementName + ";}\n");
+            accessors.append(getFunctionProperty + " = " + accessorName + ";\n");
             accessorName = typeObjectName + "_set" + accessorSuffix;
             accessors.append("function " 
                              + accessorName + "(value) {" + elementName + " = value;}\n");
-            accessors.append(typeObjectName 
-                             + ".prototype.set" + accessorSuffix + " = " + accessorName + ";\n");
+            accessors.append(setFunctionProperty + " = " + accessorName + ";\n");
             
             if (XmlSchemaUtils.isParticleOptional(elChild) 
                 || (nillable && !XmlSchemaUtils.isParticleArray(elChild))) {
@@ -287,7 +317,8 @@ public class SchemaJavascriptBuilder {
             utils.generateCodeToSerializeElement(elementInfo, xmlSchemaCollection);
         }
     }
-    /**
+
+       /**
      * Generate a JavaScript function that takes an element for a complex type and walks through
      * its children using them to fill in the values for a JavaScript object.
      * @param type schema type for the process

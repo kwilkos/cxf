@@ -102,9 +102,7 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
     private String opFunctionGlobalName;
 
     private boolean isInUnwrappedOperation;
-
     private boolean nonVoidOutput;
-
     private boolean isRPC;
 
     public ServiceJavascriptBuilder(ServiceInfo serviceInfo, NamespacePrefixAccumulator prefixAccumulator,
@@ -220,20 +218,63 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
             inputParameterNames.add(ean.getElementJavascriptName());
         }
     }
+    
+    
 
     private void buildOperationFunction(StringBuilder parameterList) {
         String responseCallbackParams = "";
         if (!currentOperation.isOneWay()) {
             responseCallbackParams = "successCallback, errorCallback";
         }
-            
+        
+        MessageInfo inputMessage = currentOperation.getInput();
+
+        code.append("//\n");
+        code.append("// Operation " + currentOperation.getName() + "\n");
+        if (!isWrapped) {
+            code.append("// - bare operation. Parameters:\n");
+            for (ElementInfo ei : unwrappedElementsAndNames) {
+                code.append("// - " + getElementObjectName(ei) + "\n");
+            }
+        } else {
+            code.append("// Wrapped operation.\n");
+            XmlSchemaSequence sequence = XmlSchemaUtils.getSequence(inputWrapperComplexType);
+
+            for (int i = 0; i < sequence.getItems().getCount(); i++) {
+                code.append("// parameter " + inputParameterNames.get(i) + "\n");
+                XmlSchemaElement sequenceElement = (XmlSchemaElement)sequence.getItems().getItem(i);
+                ElementInfo elementInfo = ElementInfo.forLocalElement(sequenceElement, 
+                                                                      "", 
+                                                                      null,
+                                                                      xmlSchemaCollection, 
+                                                                      prefixAccumulator); 
+                if (elementInfo.isArray()) {
+                    code.append("// - array\n");
+                }
+                XmlSchemaType elementType = elementInfo.getType();
+                if (elementType instanceof XmlSchemaComplexType) {
+                    QName baseName;
+                    if (elementType.getQName() != null) {
+                        baseName = elementType.getQName();
+                    } else {
+                        baseName = elementInfo.getElement().getQName();
+                    }
+                    code.append("// - Object constructor is " 
+                                    + nameManager.getJavascriptName(baseName) + "\n");
+                } else {
+                    code.append("// - simple type " + elementType.getQName());
+                }
+            }       
+        }
+        
+        code.append("//\n");
+        
         code.append("function " 
                     +  opFunctionGlobalName
                     + "("  + responseCallbackParams
                     + ((parameterList.length() > 0 && !currentOperation.isOneWay()) 
                         ? ", " + parameterList : "") + ") {\n");
         utils.appendLine("var xml = null;");
-        MessageInfo inputMessage = currentOperation.getInput();
         if (inputMessage != null) {
             utils.appendLine("var args = new Array(" + inputParameterNames.size() + ");");
             int px = 0;
@@ -423,6 +464,35 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
             utils.appendLine("return returnObject;");
         }
         code.append("}\n");
+    }
+    
+    private String getElementObjectName(ElementInfo element) {
+        
+        XmlSchemaType type;
+        
+        if (element.getType() != null) {
+            type = element.getType();
+        } else {
+            type = element.getElement().getSchemaType();
+        }
+
+        if (!element.isEmpty()) {
+            if (type instanceof XmlSchemaComplexType) {
+                // if there are no response items, the type is likely to have no name and no particle.
+                XmlSchemaComplexType complexType = (XmlSchemaComplexType)type;
+                QName nameToDeserialize = null; 
+                if (null == complexType.getName()) {
+                    nameToDeserialize = element.getElement().getQName();
+                } else {
+                    nameToDeserialize = complexType.getQName();
+                }
+                return nameManager.getJavascriptName(nameToDeserialize);
+            } else {
+                return "type " + type.getQName(); // could it be anonymous?
+            } 
+        } else {
+            return "empty element?";
+        }
     }
 
     private void createInputSerializer() {
@@ -631,7 +701,8 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
                 currentOperation.getUnwrappedOperation().getInput().getMessageParts();
 
             for (MessagePartInfo mpi : unwrappedParts) {
-                inputParameterNames.add(mpi.getName().getLocalPart());
+                String jsParamName = JavascriptUtils.javaScriptNameToken(mpi.getName().getLocalPart());
+                inputParameterNames.add(jsParamName);
             }
 
             inputWrapperPartInfo = currentOperation.getInput().getMessagePart(0);
@@ -673,6 +744,7 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
             } else {
                 inputWrapperClassName = nameManager.getJavascriptName(inputWrapperComplexType.getQName());
             }
+            
         }
 
         if (currentOperation.getOutput() != null) {

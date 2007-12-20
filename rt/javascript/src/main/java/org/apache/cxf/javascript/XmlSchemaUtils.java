@@ -220,7 +220,8 @@ public final class XmlSchemaUtils {
 
         if (global) {
             return isElementNameQualified(element, elementSchema)
-                || !(element.getQName().getNamespaceURI().equals(localSchema.getTargetNamespace()));
+                || (localSchema != null 
+                    && !(element.getQName().getNamespaceURI().equals(localSchema.getTargetNamespace())));
         } else {
             return isElementNameQualified(element, elementSchema);
         }
