@@ -19,7 +19,6 @@
 
 package org.apache.cxf.attachment;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -27,15 +26,17 @@ import java.io.OutputStream;
 import javax.activation.DataSource;
 
 import org.apache.cxf.helpers.IOUtils;
+import org.apache.cxf.io.CachedOutputStream;
 
 public class AttachmentDataSource implements DataSource {
 
-    private final String ct;
-    private final byte[] cache; 
+    private final String ct;    
+    private final CachedOutputStream cache;
     
     public AttachmentDataSource(String ctParam, InputStream inParam) throws IOException {
-        this.ct = ctParam;
-        cache = IOUtils.readBytesFromStream(inParam);
+        this.ct = ctParam;        
+        cache = new CachedOutputStream();
+        IOUtils.copy(inParam, cache);
     }
 
     public String getContentType() {
@@ -43,7 +44,12 @@ public class AttachmentDataSource implements DataSource {
     }
 
     public InputStream getInputStream() {
-        return new DelegatingInputStream(new ByteArrayInputStream(cache));
+        try {
+            return new DelegatingInputStream(cache.getInputStream());
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     public String getName() {
@@ -53,6 +59,4 @@ public class AttachmentDataSource implements DataSource {
     public OutputStream getOutputStream() throws IOException {
         throw new UnsupportedOperationException();
     }
-
-
 }
