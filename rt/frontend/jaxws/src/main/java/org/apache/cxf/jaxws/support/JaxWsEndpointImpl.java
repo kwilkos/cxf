@@ -86,7 +86,7 @@ public class JaxWsEndpointImpl extends EndpointImpl {
     
     public JaxWsEndpointImpl(Bus bus, Service s, EndpointInfo ei, 
                              List<WebServiceFeature> wf) throws EndpointException {
-        this(bus, s, ei, null, wf, null, true);
+        this(bus, s, ei, null, wf, new ArrayList<AbstractFeature>(), true);
     }    
 
     public JaxWsEndpointImpl(Bus bus, Service s, EndpointInfo ei, JaxWsImplementorInfo implementorInfo, 
