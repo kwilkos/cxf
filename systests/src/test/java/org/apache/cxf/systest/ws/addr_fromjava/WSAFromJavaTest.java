@@ -21,6 +21,8 @@ package org.apache.cxf.systest.ws.addr_fromjava;
 
 import java.io.ByteArrayOutputStream;
 import java.net.URL;
+import java.util.Map;
+import javax.xml.ws.BindingProvider;
 
 import org.apache.cxf.systest.ws.AbstractWSATestBase;
 import org.apache.cxf.systest.ws.addr_fromjava.client.AddNumberImpl;
@@ -50,10 +52,15 @@ public class WSAFromJavaTest extends AbstractWSATestBase {
 
         AddNumberImpl port = getPort();
 
+        BindingProvider bp = (BindingProvider)port;
+        java.util.Map<String, Object> requestContext = bp.getRequestContext();
+        requestContext.put(BindingProvider.SOAPACTION_URI_PROPERTY, "cxf");
+
         assertEquals(3, port.addNumbers(1, 2));
 
         String expectedOut = "http://cxf.apache.org/input";
         assertTrue(output.toString().indexOf(expectedOut) != -1);
+        assertTrue(output.toString().indexOf("SOAPAction=[cxf]") != -1);
         
         String expectedIn = "http://cxf.apache.org/output";
         assertTrue(input.toString().indexOf(expectedIn) != -1);
