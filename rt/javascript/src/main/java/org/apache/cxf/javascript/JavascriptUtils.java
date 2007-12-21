@@ -175,7 +175,6 @@ public class JavascriptUtils {
         if (!(type instanceof XmlSchemaSimpleType)) {
             return value;
         }
-        assert type.getQName().getNamespaceURI().equals(WSDLConstants.NS_SCHEMA_XSD);
         String name = type.getName();
         if (intTypes.contains(name)) {
             return "parseInt(" + value + ")";
