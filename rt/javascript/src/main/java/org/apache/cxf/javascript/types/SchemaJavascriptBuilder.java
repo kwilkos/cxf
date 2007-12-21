@@ -36,10 +36,12 @@ import org.apache.cxf.javascript.UnsupportedConstruct;
 import org.apache.cxf.javascript.XmlSchemaUtils;
 import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.ws.commons.schema.XmlSchema;
+import org.apache.ws.commons.schema.XmlSchemaAny;
 import org.apache.ws.commons.schema.XmlSchemaComplexType;
 import org.apache.ws.commons.schema.XmlSchemaElement;
 import org.apache.ws.commons.schema.XmlSchemaObject;
 import org.apache.ws.commons.schema.XmlSchemaObjectTable;
+import org.apache.ws.commons.schema.XmlSchemaParticle;
 import org.apache.ws.commons.schema.XmlSchemaSequence;
 import org.apache.ws.commons.schema.XmlSchemaSimpleType;
 import org.apache.ws.commons.schema.XmlSchemaType;
@@ -57,6 +59,15 @@ public class SchemaJavascriptBuilder {
     private NameManager nameManager;
     private NamespacePrefixAccumulator prefixAccumulator;
     private SchemaInfo schemaInfo;
+
+    private int anyCounter;
+
+    // In general, I (bimargulies) hate fields that are temporary communications
+    // between members of a class. However, given the style restrictions on the number
+    // of parameters, it's the least of the evils.
+    private StringBuilder code;
+    private StringBuilder accessors;
+    private JavascriptUtils utils;
     
     public SchemaJavascriptBuilder(SchemaCollection schemaCollection,
                                    NamespacePrefixAccumulator prefixAccumulator,
@@ -68,7 +79,7 @@ public class SchemaJavascriptBuilder {
     
     public String generateCodeForSchema(SchemaInfo schema) {
         schemaInfo = schema;
-        StringBuffer code = new StringBuffer();
+        code = new StringBuilder();
         code.append("//\n");
         code.append("// Definitions for schema: " + schema.getNamespaceURI());
         if (schema.getSystemId() != null) {
@@ -85,9 +96,9 @@ public class SchemaJavascriptBuilder {
                 try {
                     XmlSchemaComplexType complexType = (XmlSchemaComplexType)xmlSchemaObject;
                     if (complexType.getName() != null) {
-                        code.append(complexTypeConstructorAndAccessors(complexType.getQName(), complexType));
-                        code.append(complexTypeSerializerFunction(complexType.getQName(), complexType));
-                        code.append(domDeserializerFunction(complexType.getQName(), complexType));
+                        complexTypeConstructorAndAccessors(complexType.getQName(), complexType);
+                        complexTypeSerializerFunction(complexType.getQName(), complexType);
+                        domDeserializerFunction(complexType.getQName(), complexType);
                     }
                 } catch (UnsupportedConstruct usc) {
                     LOG.warning(usc.toString());
@@ -127,9 +138,9 @@ public class SchemaJavascriptBuilder {
                     XmlSchemaComplexType complexType = (XmlSchemaComplexType)type;
                     // for named types we don't bother to generate for the element.
                     if (complexType.getName() == null) {
-                        code.append(complexTypeConstructorAndAccessors(element.getQName(), complexType));
-                        code.append(complexTypeSerializerFunction(element.getQName(), complexType));
-                        code.append(domDeserializerFunction(element.getQName(), complexType));
+                        complexTypeConstructorAndAccessors(element.getQName(), complexType);
+                        complexTypeSerializerFunction(element.getQName(), complexType);
+                        domDeserializerFunction(element.getQName(), complexType); 
                     }
                 } catch (UnsupportedConstruct usc) {
                     continue; // it could be empty, but the style checker would complain.
@@ -142,99 +153,127 @@ public class SchemaJavascriptBuilder {
         return returnValue;
     }
     
-    public String complexTypeConstructorAndAccessors(QName name, XmlSchemaComplexType type) {
-        StringBuilder code = new StringBuilder();
-        StringBuilder accessors = new StringBuilder();
-        JavascriptUtils utils = new JavascriptUtils(code);
+    // In general, I (bimargulies) hate fields that are temporary communications
+    // between members of a class. However, given the style restrictions on the number
+    // of parameters, it's the least of the evils.
+    
+    public void complexTypeConstructorAndAccessors(QName name, XmlSchemaComplexType type) {
+        accessors = new StringBuilder();
+        utils = new JavascriptUtils(code);
         XmlSchemaSequence sequence = XmlSchemaUtils.getSequence(type);
         
         final String elementPrefix = "this._";
         
         String typeObjectName = nameManager.getJavascriptName(name);
         code.append("//\n");
-        code.append("// Constructor for XML Schema item " + name.toString() + "\n");
+        code.append("// Constructor for XML Schema item  " + name.toString() + "\n");
         code.append("//\n");
         code.append("function " + typeObjectName + " () {\n");
-        
         for (int i = 0; i < sequence.getItems().getCount(); i++) {
             XmlSchemaObject thing = sequence.getItems().getItem(i);
-            if (!(thing instanceof XmlSchemaElement)) {
-                XmlSchemaUtils.unsupportedConstruct("NON_ELEMENT_CHILD", 
-                                                    thing.getClass().getSimpleName(), type);
-            }
-            
-            XmlSchemaElement elChild = (XmlSchemaElement)thing;
-            XmlSchemaType elType = XmlSchemaUtils.getElementType(xmlSchemaCollection, null, elChild, type);
-
-            boolean nillable = elChild.isNillable();
-            if (elChild.isAbstract()) { 
-                XmlSchemaUtils.unsupportedConstruct("ABSTRACT_ELEMENT", elChild.getName(), type);
-            }
-            
-            // Assume that no lunatic has created multiple elements that differ only by namespace.
-            // if elementForm is unqualified, how can that be valid?
-            String elementName = elementPrefix + elChild.getName();
-            String accessorSuffix = StringUtils.capitalize(elChild.getName());
-
-            String accessorName = typeObjectName + "_get" + accessorSuffix;
-            String getFunctionProperty = typeObjectName + ".prototype.get" + accessorSuffix; 
-            String setFunctionProperty = typeObjectName + ".prototype.set" + accessorSuffix; 
-            code.append("//\n");
-            code.append("// accessor is " + getFunctionProperty + "\n");
-            code.append("// element get for " + elChild.getName() + "\n");
-            // can we get an anonymous type on an element in the middle of a type?
-            code.append("// - element type is " + elType.getQName() + "\n");
-            
-            if (XmlSchemaUtils.isParticleOptional(elChild)) {
-                code.append("// - optional element\n");
-            } else {
-                code.append("// - required element\n");
-                
-            }
-            
-            if (XmlSchemaUtils.isParticleArray(elChild)) {
-                code.append("// - array\n");
-                
-            }
-            
-            if (nillable) {
-                code.append("// - nillable\n");
-                
-            }
-            code.append("//\n");
-            code.append("// element set for " + elChild.getName() + "\n");
-            code.append("// setter function is is " + setFunctionProperty + "\n");
-            code.append("//\n");
-
-            code.append("//\n");
-            accessors.append("function " + accessorName + "() { return " + elementName + ";}\n");
-            accessors.append(getFunctionProperty + " = " + accessorName + ";\n");
-            accessorName = typeObjectName + "_set" + accessorSuffix;
-            accessors.append("function " 
-                             + accessorName + "(value) {" + elementName + " = value;}\n");
-            accessors.append(setFunctionProperty + " = " + accessorName + ";\n");
-            
-            if (XmlSchemaUtils.isParticleOptional(elChild) 
-                || (nillable && !XmlSchemaUtils.isParticleArray(elChild))) {
-                utils.appendLine(elementName + " = null;");
-            } else if (XmlSchemaUtils.isParticleArray(elChild)) {
-                utils.appendLine(elementName + " = [];");
-            } else if (elType instanceof XmlSchemaComplexType) {
-                // even for required complex elements, we leave them null. 
-                // otherwise, we could end up in a cycle or otherwise miserable. The 
-                // application code is responsible for this.
-                utils.appendLine(elementName + " = null;");
-            } else {
-                String defaultValueString = elChild.getDefaultValue();
-                if (defaultValueString == null) {
-                    defaultValueString = 
-                        utils.getDefaultValueForSimpleType(elType);
-                }
-                utils.appendLine(elementName + " = " + defaultValueString + ";");
-            }
+            constructOneElement(type, sequence, elementPrefix, typeObjectName, thing);
         }
-        code.append("}\n");
-        return code.toString() + "\n" + accessors.toString();
+        code.append("}\n\n");
+        code.append(accessors.toString());
+    }
+
+    private void constructOneElement(XmlSchemaComplexType type, 
+                                     XmlSchemaSequence sequence,
+                                     final String elementPrefix, 
+                                     String typeObjectName, 
+                                     XmlSchemaObject thing) {
+
+        XmlSchemaParticle particle = XmlSchemaUtils.getObjectParticle(thing, type);
+        XmlSchemaElement sequenceElement = null;
+        XmlSchemaType elType = null;
+        boolean nillable = false;
+        String elementName = null;
+        String elementJavascriptVariable = null;
+        String defaultValueString = null;
+        boolean any = false;
+        
+        if (particle instanceof XmlSchemaAny) {
+            any = true;
+            // TODO: what about a collision here?
+            elementName = "any" + anyCounter;
+            elementJavascriptVariable = elementPrefix + elementName;
+            anyCounter++;
+        } else {
+            sequenceElement = (XmlSchemaElement)thing;
+            elType = XmlSchemaUtils.getElementType(xmlSchemaCollection, null, sequenceElement, type);
+            nillable = sequenceElement.isNillable();
+            if (sequenceElement.isAbstract()) { 
+                XmlSchemaUtils.unsupportedConstruct("ABSTRACT_ELEMENT", sequenceElement.getName(), type);
+            }
+            elementName = sequenceElement.getName();
+            elementJavascriptVariable = elementPrefix + sequenceElement.getName();
+            defaultValueString = sequenceElement.getDefaultValue();
+        }
+
+        
+        String accessorSuffix = StringUtils.capitalize(elementName);
+
+        String accessorName = typeObjectName + "_get" + accessorSuffix;
+        String getFunctionProperty = typeObjectName + ".prototype.get" + accessorSuffix; 
+        String setFunctionProperty = typeObjectName + ".prototype.set" + accessorSuffix; 
+        accessors.append("//\n");
+        accessors.append("// accessor is " + getFunctionProperty + "\n");
+        accessors.append("// element get for " + elementName + "\n");
+        if (any) {
+            accessors.append("// - xs:any\n");
+        } else {
+            //  can we get an anonymous type on an element in the middle of a type?
+            accessors.append("// - element type is " + elType.getQName() + "\n");
+        }
+        
+        if (XmlSchemaUtils.isParticleOptional(particle)) {
+            accessors.append("// - optional element\n");
+        } else {
+            accessors.append("// - required element\n");
+            
+        }
+        
+        if (XmlSchemaUtils.isParticleArray(particle)) {
+            accessors.append("// - array\n");
+            
+        }
+        
+        if (nillable) {
+            accessors.append("// - nillable\n");
+        }
+        
+        accessors.append("//\n");
+        accessors.append("// element set for " + elementName + "\n");
+        accessors.append("// setter function is is " + setFunctionProperty + "\n");
+        accessors.append("//\n");
+        accessors.append("function " + accessorName + "() { return " 
+                         + elementJavascriptVariable 
+                         + ";}\n");
+        accessors.append(getFunctionProperty + " = " + accessorName + ";\n");
+        accessorName = typeObjectName + "_set" + accessorSuffix;
+        accessors.append("function " 
+                         + accessorName + "(value) {" 
+                         + elementJavascriptVariable
+                         + " = value;}\n");
+        accessors.append(setFunctionProperty + " = " + accessorName + ";\n");
+        
+        if (XmlSchemaUtils.isParticleOptional(particle) 
+            || (nillable && !XmlSchemaUtils.isParticleArray(particle))) {
+            utils.appendLine(elementJavascriptVariable + " = null;");
+        } else if (XmlSchemaUtils.isParticleArray(particle)) {
+            utils.appendLine(elementJavascriptVariable + " = [];");
+        } else if (elType instanceof XmlSchemaComplexType) {
+            // even for required complex elements, we leave them null. 
+            // otherwise, we could end up in a cycle or otherwise miserable. The 
+            // application code is responsible for this.
+            utils.appendLine(elementJavascriptVariable + " = null;");
+        } else {
+            if (defaultValueString == null) {
+                defaultValueString = 
+                    utils.getDefaultValueForSimpleType(elType);
+            }
+            utils.appendLine(elementJavascriptVariable + " = " + defaultValueString + ";");
+        }
     }
     
     
@@ -247,7 +286,7 @@ public class SchemaJavascriptBuilder {
      * @param type
      * @return
      */
-    public String complexTypeSerializerFunction(QName name, XmlSchemaComplexType type) {
+    public void complexTypeSerializerFunction(QName name, XmlSchemaComplexType type) {
         
         StringBuilder bodyCode = new StringBuilder();
         JavascriptUtils bodyUtils = new JavascriptUtils(bodyCode);
@@ -255,8 +294,7 @@ public class SchemaJavascriptBuilder {
 
         complexTypeSerializerBody(type, "this._", bodyUtils);
         
-        StringBuilder code = new StringBuilder();
-        JavascriptUtils utils = new JavascriptUtils(code);
+        utils = new JavascriptUtils(code);
         String functionName = nameManager.getJavascriptName(name) + "_" + "serialize";
         code.append("function " + functionName + "(cxfjsutils, elementName) {\n");
         utils.startXmlStringAccumulator("xml");
@@ -279,9 +317,7 @@ public class SchemaJavascriptBuilder {
         utils.endBlock();
         utils.appendLine("return xml;");
         code.append("}\n");
-
         code.append(nameManager.getJavascriptName(name) + ".prototype.serialize = " + functionName + ";\n");
-        return code.toString();
     }
    
 
@@ -295,8 +331,8 @@ public class SchemaJavascriptBuilder {
      * @return
      */
     protected void complexTypeSerializerBody(XmlSchemaComplexType type, 
-                                          String elementPrefix, 
-                                          JavascriptUtils utils) {
+                                             String elementPrefix, 
+                                             JavascriptUtils bodyUtils) {
 
         XmlSchemaSequence sequence = XmlSchemaUtils.getSequence(type);
 
@@ -314,7 +350,7 @@ public class SchemaJavascriptBuilder {
                                                                   prefixAccumulator);
             elementInfo.setContainingType(type);
             elementInfo.setUtilsVarName("cxfjsutils");
-            utils.generateCodeToSerializeElement(elementInfo, xmlSchemaCollection);
+            bodyUtils.generateCodeToSerializeElement(elementInfo, xmlSchemaCollection);
         }
     }
 
@@ -324,9 +360,8 @@ public class SchemaJavascriptBuilder {
      * @param type schema type for the process
      * @return the string contents of the JavaScript.
      */
-    public String domDeserializerFunction(QName name, XmlSchemaComplexType type) {
-        StringBuilder code = new StringBuilder();
-        JavascriptUtils utils = new JavascriptUtils(code);
+    public void domDeserializerFunction(QName name, XmlSchemaComplexType type) {
+        utils = new JavascriptUtils(code);
         XmlSchemaSequence sequence = null;
         
         sequence = XmlSchemaUtils.getSequence(type);
@@ -434,7 +469,6 @@ public class SchemaJavascriptBuilder {
             }
         }
         utils.appendLine("return newobject;");
-        code.append("}\n");
-        return code.toString() + "\n";
+        code.append("}\n\n");
     }
 }

@@ -28,9 +28,11 @@ import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.xmlschema.SchemaCollection;
 import org.apache.cxf.wsdl.WSDLConstants;
 import org.apache.ws.commons.schema.XmlSchema;
+import org.apache.ws.commons.schema.XmlSchemaAny;
 import org.apache.ws.commons.schema.XmlSchemaComplexType;
 import org.apache.ws.commons.schema.XmlSchemaElement;
 import org.apache.ws.commons.schema.XmlSchemaForm;
+import org.apache.ws.commons.schema.XmlSchemaObject;
 import org.apache.ws.commons.schema.XmlSchemaParticle;
 import org.apache.ws.commons.schema.XmlSchemaSequence;
 import org.apache.ws.commons.schema.XmlSchemaType;
@@ -225,6 +227,27 @@ public final class XmlSchemaUtils {
         } else {
             return isElementNameQualified(element, elementSchema);
         }
+    }
+    
+    /**
+     * If the object is an element or an any, return the particle. If it's not a particle, or it's a group,
+     * throw. We're not ready for groups yet.
+     * @param object
+     * @return
+     */
+    public static XmlSchemaParticle getObjectParticle(XmlSchemaObject object, XmlSchemaType type) {
+        
+        if (!(object instanceof XmlSchemaParticle)) {
+            XmlSchemaUtils.unsupportedConstruct("NON_PARTICLE_CHILD", 
+                                                object.getClass().getSimpleName(), type);
+        }
+        if (!(object instanceof XmlSchemaElement)
+            && !(object instanceof XmlSchemaAny)) {
+            XmlSchemaUtils.unsupportedConstruct("GROUP_CHILD", 
+                                                object.getClass().getSimpleName(), type);
+        }
+        
+        return (XmlSchemaParticle) object;
     }
     
     public static boolean isParticleArray(XmlSchemaParticle particle) {
