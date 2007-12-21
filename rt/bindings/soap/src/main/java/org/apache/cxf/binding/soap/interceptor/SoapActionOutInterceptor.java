@@ -92,10 +92,11 @@ public class SoapActionOutInterceptor extends AbstractSoapInterceptor {
             } else {
                 SoapOperationInfo soi = (SoapOperationInfo) boi.getExtensor(SoapOperationInfo.class);
                 action = soi == null ? "\"\"" : soi.getAction() == null ? "\"\"" : soi.getAction();
-                if (!action.startsWith("\"")) {
-                    action = new StringBuffer().append("\"").append(action).append("\"").toString();
-                }
             }
+        }
+        
+        if (!action.startsWith("\"")) {
+            action = new StringBuffer().append("\"").append(action).append("\"").toString();
         }
         
         return action;

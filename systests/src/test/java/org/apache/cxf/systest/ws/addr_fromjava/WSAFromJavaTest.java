@@ -60,7 +60,7 @@ public class WSAFromJavaTest extends AbstractWSATestBase {
 
         String expectedOut = "http://cxf.apache.org/input";
         assertTrue(output.toString().indexOf(expectedOut) != -1);
-        assertTrue(output.toString().indexOf("SOAPAction=[cxf]") != -1);
+        assertTrue(output.toString().indexOf("SOAPAction=[\"cxf\"]") != -1);
         
         String expectedIn = "http://cxf.apache.org/output";
         assertTrue(input.toString().indexOf(expectedIn) != -1);
