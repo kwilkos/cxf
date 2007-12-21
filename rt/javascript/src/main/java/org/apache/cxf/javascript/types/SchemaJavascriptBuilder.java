@@ -20,6 +20,7 @@
 package org.apache.cxf.javascript.types;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
@@ -28,6 +29,7 @@ import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.common.xmlschema.SchemaCollection;
+import org.apache.cxf.common.xmlschema.XmlSchemaTools;
 import org.apache.cxf.javascript.ElementInfo;
 import org.apache.cxf.javascript.JavascriptUtils;
 import org.apache.cxf.javascript.NameManager;
@@ -103,6 +105,17 @@ public class SchemaJavascriptBuilder {
                 } catch (UnsupportedConstruct usc) {
                     LOG.warning(usc.toString());
                     continue; // it could be empty, but the style checker would complain.
+                }
+            } else if (xmlSchemaObject instanceof XmlSchemaSimpleType) {
+                XmlSchemaSimpleType simpleType = (XmlSchemaSimpleType) xmlSchemaObject;
+                if (XmlSchemaTools.isEumeration(simpleType)) {
+                    List<String> values = XmlSchemaTools.enumeratorValues(simpleType);
+                    code.append("//\n");
+                    code.append("// Simple type (enumeration) " + simpleType.getQName() + "\n");
+                    code.append("//\n");
+                    for (String value : values) {
+                        code.append("// - " + value + "\n");
+                    }
                 }
             }
         }

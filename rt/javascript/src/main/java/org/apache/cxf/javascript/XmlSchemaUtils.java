@@ -269,6 +269,4 @@ public final class XmlSchemaUtils {
         }
         return null;
     }
-        
-
 }

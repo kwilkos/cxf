@@ -22,13 +22,11 @@ package org.apache.cxf.javascript.fortest;
 import java.util.Arrays;
 
 import javax.xml.bind.annotation.XmlElement;
-//import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 /**
  * Bean with a selection of elements suitable for testing the JavaScript client.
  */
-//@XmlRootElement(namespace = "uri:org.apache.cxf.javascript.testns")
 @XmlType(namespace = "uri:org.apache.cxf.javascript.testns")
 public class TestBean1 {
     
@@ -58,7 +56,12 @@ public class TestBean1 {
     public TestBean2 beanTwoItem;
     @XmlElement(required = false)
     public TestBean2 beanTwoNotRequiredItem;
+    public AnEnum enumeration;
     //CHECKSTYLE:ON
+    
+    public AnEnum getEnumeration() {
+        return enumeration;
+    }
     
     @Override
     public boolean equals(Object obj) {
@@ -71,7 +74,8 @@ public class TestBean1 {
             && longItem == other.longItem
             && optionalIntItem == other.optionalIntItem
             && doubleItem == other.doubleItem
-            && beanTwoItem.equals(other.beanTwoItem);
+            && beanTwoItem.equals(other.beanTwoItem)
+            && enumeration == other.enumeration;
         if (!equalSoFar) {
             return false;
         }
@@ -163,6 +167,7 @@ public class TestBean1 {
         } else {
             builder.append(beanTwoNotRequiredItem.toString()); 
         }
+        builder.append(" " + enumeration);
         
         return builder.toString();
     }
