@@ -38,12 +38,10 @@ import org.apache.cxf.javascript.UnsupportedConstruct;
 import org.apache.cxf.javascript.XmlSchemaUtils;
 import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.ws.commons.schema.XmlSchema;
-import org.apache.ws.commons.schema.XmlSchemaAny;
 import org.apache.ws.commons.schema.XmlSchemaComplexType;
 import org.apache.ws.commons.schema.XmlSchemaElement;
 import org.apache.ws.commons.schema.XmlSchemaObject;
 import org.apache.ws.commons.schema.XmlSchemaObjectTable;
-import org.apache.ws.commons.schema.XmlSchemaParticle;
 import org.apache.ws.commons.schema.XmlSchemaSequence;
 import org.apache.ws.commons.schema.XmlSchemaSimpleType;
 import org.apache.ws.commons.schema.XmlSchemaType;
@@ -195,97 +193,82 @@ public class SchemaJavascriptBuilder {
                                      final String elementPrefix, 
                                      String typeObjectName, 
                                      XmlSchemaObject thing) {
-
-        XmlSchemaParticle particle = XmlSchemaUtils.getObjectParticle(thing, type);
-        XmlSchemaElement sequenceElement = null;
-        XmlSchemaType elType = null;
-        boolean nillable = false;
-        String elementName = null;
-        String elementJavascriptVariable = null;
-        String defaultValueString = null;
-        boolean any = false;
         
-        if (particle instanceof XmlSchemaAny) {
-            any = true;
-            // TODO: what about a collision here?
-            elementName = "any" + anyCounter;
-            elementJavascriptVariable = elementPrefix + elementName;
+        SequenceItemInfo itemInfo = new SequenceItemInfo(xmlSchemaCollection, type, thing);
+        
+        if (itemInfo.isAny()) {
+            itemInfo.setElementJavascriptVariable(itemInfo.getElementJavascriptVariable()
+                                                          + anyCounter);
             anyCounter++;
-        } else {
-            sequenceElement = (XmlSchemaElement)thing;
-            elType = XmlSchemaUtils.getElementType(xmlSchemaCollection, null, sequenceElement, type);
-            nillable = sequenceElement.isNillable();
-            if (sequenceElement.isAbstract()) { 
-                XmlSchemaUtils.unsupportedConstruct("ABSTRACT_ELEMENT", sequenceElement.getName(), type);
-            }
-            elementName = sequenceElement.getName();
-            elementJavascriptVariable = elementPrefix + sequenceElement.getName();
-            defaultValueString = sequenceElement.getDefaultValue();
         }
-
         
-        String accessorSuffix = StringUtils.capitalize(elementName);
+        itemInfo.setElementJavascriptVariable(elementPrefix 
+                                                      + itemInfo.getElementJavascriptVariable()); 
+
+        String accessorSuffix = StringUtils.capitalize(itemInfo.getElementName());
 
         String accessorName = typeObjectName + "_get" + accessorSuffix;
         String getFunctionProperty = typeObjectName + ".prototype.get" + accessorSuffix; 
         String setFunctionProperty = typeObjectName + ".prototype.set" + accessorSuffix; 
         accessors.append("//\n");
         accessors.append("// accessor is " + getFunctionProperty + "\n");
-        accessors.append("// element get for " + elementName + "\n");
-        if (any) {
+        accessors.append("// element get for " + itemInfo.getElementName() + "\n");
+        if (itemInfo.isAny()) {
             accessors.append("// - xs:any\n");
         } else {
             //  can we get an anonymous type on an element in the middle of a type?
-            accessors.append("// - element type is " + elType.getQName() + "\n");
+            accessors.append("// - element type is " 
+                             + itemInfo.getElementType().getQName() + "\n");
         }
         
-        if (XmlSchemaUtils.isParticleOptional(particle)) {
+        if (XmlSchemaUtils.isParticleOptional(itemInfo.getParticle())) {
             accessors.append("// - optional element\n");
         } else {
             accessors.append("// - required element\n");
             
         }
         
-        if (XmlSchemaUtils.isParticleArray(particle)) {
+        if (XmlSchemaUtils.isParticleArray(itemInfo.getParticle())) {
             accessors.append("// - array\n");
             
         }
         
-        if (nillable) {
+        if (itemInfo.isNillable()) {
             accessors.append("// - nillable\n");
         }
         
         accessors.append("//\n");
-        accessors.append("// element set for " + elementName + "\n");
+        accessors.append("// element set for " + itemInfo.getElementName() + "\n");
         accessors.append("// setter function is is " + setFunctionProperty + "\n");
         accessors.append("//\n");
         accessors.append("function " + accessorName + "() { return " 
-                         + elementJavascriptVariable 
+                         + itemInfo.getElementJavascriptVariable() 
                          + ";}\n");
         accessors.append(getFunctionProperty + " = " + accessorName + ";\n");
         accessorName = typeObjectName + "_set" + accessorSuffix;
         accessors.append("function " 
                          + accessorName + "(value) {" 
-                         + elementJavascriptVariable
+                         + itemInfo.getElementJavascriptVariable()
                          + " = value;}\n");
         accessors.append(setFunctionProperty + " = " + accessorName + ";\n");
         
-        if (XmlSchemaUtils.isParticleOptional(particle) 
-            || (nillable && !XmlSchemaUtils.isParticleArray(particle))) {
-            utils.appendLine(elementJavascriptVariable + " = null;");
-        } else if (XmlSchemaUtils.isParticleArray(particle)) {
-            utils.appendLine(elementJavascriptVariable + " = [];");
-        } else if (elType instanceof XmlSchemaComplexType) {
+        if (XmlSchemaUtils.isParticleOptional(itemInfo.getParticle()) 
+            || (itemInfo.isNillable() && !XmlSchemaUtils.isParticleArray(itemInfo.getParticle()))) {
+            utils.appendLine(itemInfo.getElementJavascriptVariable() + " = null;");
+        } else if (XmlSchemaUtils.isParticleArray(itemInfo.getParticle())) {
+            utils.appendLine(itemInfo.getElementJavascriptVariable() + " = [];");
+        } else if (itemInfo.getElementType() instanceof XmlSchemaComplexType) {
             // even for required complex elements, we leave them null. 
             // otherwise, we could end up in a cycle or otherwise miserable. The 
             // application code is responsible for this.
-            utils.appendLine(elementJavascriptVariable + " = null;");
+            utils.appendLine(itemInfo.getElementJavascriptVariable() + " = null;");
         } else {
-            if (defaultValueString == null) {
-                defaultValueString = 
-                    utils.getDefaultValueForSimpleType(elType);
+            if (itemInfo.getDefaultValueString() == null) {
+                itemInfo.setDefaultValueString(utils.getDefaultValueForSimpleType(itemInfo.getElementType()));
             }
-            utils.appendLine(elementJavascriptVariable + " = " + defaultValueString + ";");
+            utils.appendLine(itemInfo.getElementJavascriptVariable()
+                             + " = " 
+                             + itemInfo.getDefaultValueString() + ";");
         }
     }
     
