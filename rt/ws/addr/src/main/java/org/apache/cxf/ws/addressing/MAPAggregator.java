@@ -32,6 +32,7 @@ import javax.wsdl.extensions.ExtensibilityElement;
 import javax.xml.namespace.QName;
 import javax.xml.ws.WebFault;
 
+import org.apache.cxf.binding.soap.SoapBindingConstants;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.endpoint.Endpoint;
@@ -467,7 +468,10 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
     protected String getActionUri(Message message) {
         OperationInfo op = message.getExchange().get(OperationInfo.class);
 
-        String actionUri = null;
+        String actionUri = (String) message.get(SoapBindingConstants.SOAP_ACTION);
+        if (actionUri != null) {
+            return actionUri;
+        }
         String opNamespace = getActionBaseUri(op);
         
         if (ContextUtils.isRequestor(message)) {

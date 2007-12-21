@@ -52,15 +52,10 @@ public class WSAFromJavaTest extends AbstractWSATestBase {
 
         AddNumberImpl port = getPort();
 
-        BindingProvider bp = (BindingProvider)port;
-        java.util.Map<String, Object> requestContext = bp.getRequestContext();
-        requestContext.put(BindingProvider.SOAPACTION_URI_PROPERTY, "cxf");
-
         assertEquals(3, port.addNumbers(1, 2));
 
         String expectedOut = "http://cxf.apache.org/input";
         assertTrue(output.toString().indexOf(expectedOut) != -1);
-        assertTrue(output.toString().indexOf("SOAPAction=[\"cxf\"]") != -1);
         
         String expectedIn = "http://cxf.apache.org/output";
         assertTrue(input.toString().indexOf(expectedIn) != -1);
@@ -123,6 +118,27 @@ public class WSAFromJavaTest extends AbstractWSATestBase {
 
         assertTrue(output.toString().indexOf("http://cxf.apache.org/input") != -1);
         assertTrue(input.toString().indexOf("http://cxf.apache.org/fault3") != -1);
+    }
+
+    @Test
+    public void testAddNumbersJaxWsContext() throws Exception {
+        ByteArrayOutputStream input = setupInLogging();
+        ByteArrayOutputStream output = setupOutLogging();
+
+        AddNumberImpl port = getPort();
+
+        BindingProvider bp = (BindingProvider)port;
+        java.util.Map<String, Object> requestContext = bp.getRequestContext();
+        requestContext.put(BindingProvider.SOAPACTION_URI_PROPERTY, "cxf");
+
+        assertEquals(3, port.addNumbers(1, 2));
+
+        String expectedOut = "cxf</Action>";
+        assertTrue(output.toString().indexOf(expectedOut) != -1);
+        assertTrue(output.toString().indexOf("SOAPAction=[\"cxf\"]") != -1);
+        
+        String expectedIn = "http://cxf.apache.org/output";
+        assertTrue(input.toString().indexOf(expectedIn) != -1);
     }
 
     private AddNumberImpl getPort() {
