@@ -25,11 +25,11 @@ import uri.cxf_apache_org.jstest.any.AcceptAny;
 import uri.cxf_apache_org.jstest.types.any.AcceptAny1;
 import uri.cxf_apache_org.jstest.types.any.AcceptAnyN;
 import uri.cxf_apache_org.jstest.types.any.AcceptAnyOptional;
-import uri.cxf_apache_org.jstest.types.any.Alternative1;
-import uri.cxf_apache_org.jstest.types.any.Alternative2;
 import uri.cxf_apache_org.jstest.types.any.ReturnAny1;
 import uri.cxf_apache_org.jstest.types.any.ReturnAnyN;
 import uri.cxf_apache_org.jstest.types.any.ReturnAnyOptional;
+import uri.cxf_apache_org.jstest.types.any.alts.Alternative1;
+import uri.cxf_apache_org.jstest.types.any.alts.Alternative2;
 
 /**
  * 
