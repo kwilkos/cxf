@@ -28,7 +28,6 @@ import java.util.Stack;
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.common.xmlschema.SchemaCollection;
-import org.apache.cxf.javascript.types.SequenceItemInfo;
 import org.apache.cxf.wsdl.WSDLConstants;
 import org.apache.ws.commons.schema.XmlSchemaComplexType;
 import org.apache.ws.commons.schema.XmlSchemaSimpleType;
@@ -212,43 +211,46 @@ public class JavascriptUtils {
     
     /**
      * Given an element, generate the serialization code.
-     * @param elementInfo
-     * @param schemaCollection
+     * @param elementInfo      description of the element we are serializing
+     * @param referencePrefix  prefix to the Javascript variable. Nothing for args,
+     * this._ for members.
+     * @param schemaCollection caller's schema collection.
      */
-    public void generateCodeToSerializeElement(ElementInfo elementInfo,
+    public void generateCodeToSerializeElement(ParticleInfo elementInfo,
+                                               String referencePrefix,
                                                SchemaCollection schemaCollection) {
         XmlSchemaType type = elementInfo.getType();
-        boolean nillable = elementInfo.getElement() != null 
-            && elementInfo.getElement().isNillable();
+        boolean nillable = elementInfo.isNillable();
         boolean optional = elementInfo.isOptional();
         boolean array = elementInfo.isArray();
+        String jsVar = referencePrefix + elementInfo.getJavascriptName();
         
         // first question: optional?
         if (optional) {
-            startIf(elementInfo.getElementJavascriptName() + " != null");
+            startIf(jsVar + " != null");
         } 
         
         // nillable and optional would be very strange together.
         // and nillable in the array case applies to the elements.
         if (nillable && !array) {
-            startIf(elementInfo.getElementJavascriptName() + " == null");
-            appendString("<" + elementInfo.getElementXmlName() + " " + XmlSchemaUtils.NIL_ATTRIBUTES + "/>");
+            startIf(jsVar + " == null");
+            appendString("<" + elementInfo.getXmlName() + " " + XmlSchemaUtils.NIL_ATTRIBUTES + "/>");
             appendElse();
         }
         
         if (array) {
             // protected against null in arrays.
-            startIf(elementInfo.getElementJavascriptName() + " != null");
-            startFor("var ax = 0", "ax < " +  elementInfo.getElementJavascriptName() + ".length", "ax ++");
-            elementInfo.setElementJavascriptName(elementInfo.getElementJavascriptName() + "[ax]");
+            startIf(jsVar + " != null");
+            startFor("var ax = 0", "ax < " +  jsVar + ".length", "ax ++");
+            jsVar = jsVar + "[ax]";
             // we need an extra level of 'nil' testing here. Or do we, depending on the type structure?
             // Recode and fiddle appropriately.
-            startIf(elementInfo.getElementJavascriptName() + " == null");
+            startIf(jsVar + " == null");
             if (nillable) {
-                appendString("<" + elementInfo.getElementXmlName() 
+                appendString("<" + elementInfo.getXmlName() 
                              + " " + XmlSchemaUtils.NIL_ATTRIBUTES + "/>");
             } else {
-                appendString("<" + elementInfo.getElementXmlName() + "/>");                    
+                appendString("<" + elementInfo.getXmlName() + "/>");                    
             }
             appendElse();
         }
@@ -256,22 +258,19 @@ public class JavascriptUtils {
         // now for the thing itself.
         if (type instanceof XmlSchemaComplexType) {
             // it has a value
-            appendExpression(elementInfo.getElementJavascriptName() + ".serialize(" 
-                             + elementInfo.getUtilsVarName() + ", '" 
-                             + elementInfo.getElementXmlName() + "')");
+            appendExpression(jsVar + ".serialize(cxfjsutils, '" 
+                             + elementInfo.getXmlName() + "')");
         } else { // simple type
             QName typeName = type.getQName();
-            appendString("<" + elementInfo.getElementXmlName() + ">");
+            appendString("<" + elementInfo.getXmlName() + ">");
             // warning: this assumes that ordinary Javascript serialization is all we need.
             // except for &gt; ad all of that.
             if (isStringSimpleType(typeName)) {
-                appendExpression(elementInfo.getUtilsVarName() 
-                                 + ".escapeXmlEntities(" 
-                                 + elementInfo.getElementJavascriptName() + ")");
+                appendExpression("cxfjsutils.escapeXmlEntities(" + jsVar + ")");
             } else {
-                appendExpression(elementInfo.getElementJavascriptName());
+                appendExpression(jsVar);
             }
-            appendString("</" + elementInfo.getElementXmlName() + ">");
+            appendString("</" + elementInfo.getXmlName() + ">");
         }
         
         if (array) {
@@ -295,13 +294,13 @@ public class JavascriptUtils {
      * @param elementInfo
      * @param schemaCollection
      */
-    public void generateCodeToSerializeAny(SequenceItemInfo itemInfo, 
+    public void generateCodeToSerializeAny(ParticleInfo itemInfo, 
                                            String prefix,
                                            SchemaCollection schemaCollection) {
         boolean optional = XmlSchemaUtils.isParticleOptional(itemInfo.getParticle());
         boolean array = XmlSchemaUtils.isParticleArray(itemInfo.getParticle());
         
-        appendLine("var anyHolder = this._" + itemInfo.getElementJavascriptVariable() + ";");
+        appendLine("var anyHolder = this._" + itemInfo.getJavascriptName() + ";");
         appendLine("var anySerializer = null;");
         appendLine("var anyXmlTag = null;");
         appendLine("var anyXmlNsDef = null;");

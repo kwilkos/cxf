@@ -30,10 +30,10 @@ import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.common.xmlschema.SchemaCollection;
 import org.apache.cxf.common.xmlschema.XmlSchemaTools;
-import org.apache.cxf.javascript.ElementInfo;
 import org.apache.cxf.javascript.JavascriptUtils;
 import org.apache.cxf.javascript.NameManager;
 import org.apache.cxf.javascript.NamespacePrefixAccumulator;
+import org.apache.cxf.javascript.ParticleInfo;
 import org.apache.cxf.javascript.UnsupportedConstruct;
 import org.apache.cxf.javascript.XmlSchemaUtils;
 import org.apache.cxf.service.model.SchemaInfo;
@@ -197,33 +197,32 @@ public class SchemaJavascriptBuilder {
         code.append(accessors.toString());
     }
 
-    private void constructOneElement(XmlSchemaComplexType type, XmlSchemaSequence sequence,
+    private void constructOneElement(XmlSchemaComplexType type, 
+                                     XmlSchemaSequence sequence,
                                      final String elementPrefix, 
                                      String typeObjectName, 
                                      XmlSchemaObject thing) {
 
-        SequenceItemInfo itemInfo = new SequenceItemInfo(xmlSchemaCollection, type, thing);
-
-        if (itemInfo.isAny()) {
-            itemInfo.setElementJavascriptVariable(itemInfo.getElementJavascriptVariable());
-        }
-
-        itemInfo.setElementJavascriptVariable(elementPrefix + itemInfo.getElementJavascriptVariable());
-
-        String accessorSuffix = StringUtils.capitalize(itemInfo.getElementName());
+        ParticleInfo itemInfo = ParticleInfo.forLocalItem(thing, 
+                                                          schemaInfo.getSchema(),
+                                                          xmlSchemaCollection, 
+                                                          prefixAccumulator, 
+                                                          type.getQName()); 
+            
+        String accessorSuffix = StringUtils.capitalize(itemInfo.getJavascriptName());
 
         String accessorName = typeObjectName + "_get" + accessorSuffix;
         String getFunctionProperty = typeObjectName + ".prototype.get" + accessorSuffix;
         String setFunctionProperty = typeObjectName + ".prototype.set" + accessorSuffix;
         accessors.append("//\n");
         accessors.append("// accessor is " + getFunctionProperty + "\n");
-        accessors.append("// element get for " + itemInfo.getElementName() + "\n");
+        accessors.append("// element get for " + itemInfo.getJavascriptName() + "\n");
         if (itemInfo.isAny()) {
             accessors.append("// - xs:any\n");
         } else {
-            // can we get an anonymous type on an element in the middle of a
-            // type?
-            accessors.append("// - element type is " + itemInfo.getElementType().getQName() + "\n");
+            if (itemInfo.getType() != null) {
+                accessors.append("// - element type is " + itemInfo.getType().getQName() + "\n");
+            }
         }
 
         if (XmlSchemaUtils.isParticleOptional(itemInfo.getParticle())) {
@@ -243,33 +242,34 @@ public class SchemaJavascriptBuilder {
         }
 
         accessors.append("//\n");
-        accessors.append("// element set for " + itemInfo.getElementName() + "\n");
+        accessors.append("// element set for " + itemInfo.getJavascriptName() + "\n");
         accessors.append("// setter function is is " + setFunctionProperty + "\n");
         accessors.append("//\n");
-        accessors.append("function " + accessorName + "() { return "
-                         + itemInfo.getElementJavascriptVariable() + ";}\n");
-        accessors.append(getFunctionProperty + " = " + accessorName + ";\n");
+        accessors.append("function " + accessorName + "() { return this._"
+                         + itemInfo.getJavascriptName() + ";}\n\n");
+        accessors.append(getFunctionProperty + " = " + accessorName + ";\n\n");
         accessorName = typeObjectName + "_set" + accessorSuffix;
-        accessors.append("function " + accessorName + "(value) {" + itemInfo.getElementJavascriptVariable()
-                         + " = value;}\n");
+        accessors.append("function " + accessorName + "(value) { this._" 
+                         + itemInfo.getJavascriptName()
+                         + " = value;}\n\n");
         accessors.append(setFunctionProperty + " = " + accessorName + ";\n");
 
         if (XmlSchemaUtils.isParticleOptional(itemInfo.getParticle())
             || (itemInfo.isNillable() && !XmlSchemaUtils.isParticleArray(itemInfo.getParticle()))) {
-            utils.appendLine(itemInfo.getElementJavascriptVariable() + " = null;");
+            utils.appendLine("this._" + itemInfo.getJavascriptName() + " = null;");
         } else if (XmlSchemaUtils.isParticleArray(itemInfo.getParticle())) {
-            utils.appendLine(itemInfo.getElementJavascriptVariable() + " = [];");
-        } else if (itemInfo.isAny() || itemInfo.getElementType() instanceof XmlSchemaComplexType) {
+            utils.appendLine("this._" + itemInfo.getJavascriptName() + " = [];");
+        } else if (itemInfo.isAny() || itemInfo.getType() instanceof XmlSchemaComplexType) {
             // even for required complex elements, we leave them null.
             // otherwise, we could end up in a cycle or otherwise miserable. The
             // application code is responsible for this.
-            utils.appendLine(itemInfo.getElementJavascriptVariable() + " = null;");
+            utils.appendLine("this._" + itemInfo.getJavascriptName() + " = null;");
         } else {
-            if (itemInfo.getDefaultValueString() == null) {
-                itemInfo.setDefaultValueString(utils.getDefaultValueForSimpleType(itemInfo.getElementType()));
+            if (itemInfo.getDefaultValue() == null) {
+                itemInfo.setDefaultValue(utils.getDefaultValueForSimpleType(itemInfo.getType()));
             }
-            utils.appendLine(itemInfo.getElementJavascriptVariable() + " = "
-                             + itemInfo.getDefaultValueString() + ";");
+            utils.appendLine("this._" + itemInfo.getJavascriptName() + " = "
+                             + itemInfo.getDefaultValue() + ";");
         }
     }
 
@@ -338,23 +338,22 @@ public class SchemaJavascriptBuilder {
 
         for (int i = 0; i < sequence.getItems().getCount(); i++) {
             XmlSchemaObject sequenceItem = (XmlSchemaObject)sequence.getItems().getItem(i);
-            SequenceItemInfo itemInfo = new SequenceItemInfo(xmlSchemaCollection, type, sequenceItem);
+            ParticleInfo itemInfo = ParticleInfo.forLocalItem(sequenceItem, 
+                                                              schemaInfo.getSchema(), 
+                                                              xmlSchemaCollection, 
+                                                              prefixAccumulator, 
+                                                              type.getQName()); 
+                
             // If the item is 'any', it could be ANY of our top-level elements.
             if (itemInfo.isAny()) {
                 serializeAny(itemInfo, bodyUtils);
             } else {
-                XmlSchemaElement sequenceElement = (XmlSchemaElement)sequenceItem;
-                ElementInfo elementInfo = ElementInfo.forLocalElement(sequenceElement, elementPrefix,
-                                                                      schemaInfo.getSchema(),
-                                                                      xmlSchemaCollection, prefixAccumulator);
-                elementInfo.setContainingType(type);
-                elementInfo.setUtilsVarName("cxfjsutils");
-                bodyUtils.generateCodeToSerializeElement(elementInfo, xmlSchemaCollection);
+                bodyUtils.generateCodeToSerializeElement(itemInfo, "this._", xmlSchemaCollection);
             }
         }
     }
 
-    private void serializeAny(SequenceItemInfo itemInfo, JavascriptUtils bodyUtils) {
+    private void serializeAny(ParticleInfo itemInfo, JavascriptUtils bodyUtils) {
         String prefix = "cxfjsany" + anyPrefixCounter;
         anyPrefixCounter++;
         bodyUtils.generateCodeToSerializeAny(itemInfo, prefix, xmlSchemaCollection);
@@ -385,12 +384,20 @@ public class SchemaJavascriptBuilder {
         for (int i = 0; i < sequence.getItems().getCount(); i++) {
             utils.appendLine("cxfjsutils.trace('curElement: ' + cxfjsutils.traceElementName(curElement));");
             XmlSchemaObject thing = sequence.getItems().getItem(i);
-            SequenceItemInfo itemInfo = new SequenceItemInfo(xmlSchemaCollection, type, thing);
+            ParticleInfo itemInfo = ParticleInfo.forLocalItem(thing,
+                                                              schemaInfo.getSchema(),
+                                                              xmlSchemaCollection, 
+                                                              prefixAccumulator, 
+                                                              type.getQName()); 
             if (itemInfo.isAny()) {
-                SequenceItemInfo nextItem = null;
+                ParticleInfo nextItem = null;
                 if (i != sequence.getItems().getCount() - 1) {
                     XmlSchemaObject nextThing = sequence.getItems().getItem(i + 1);
-                    nextItem = new SequenceItemInfo(xmlSchemaCollection, type, nextThing);
+                    nextItem = ParticleInfo.forLocalItem(nextThing, 
+                                                         schemaInfo.getSchema(), 
+                                                         xmlSchemaCollection, 
+                                                         prefixAccumulator, 
+                                                         type.getQName()); 
                     // theoretically, you could have two anys with different
                     // namespaces.
                     if (nextItem.isAny()) {
@@ -430,8 +437,8 @@ public class SchemaJavascriptBuilder {
     }
 
     private void deserializeAny(XmlSchemaComplexType type, 
-                                SequenceItemInfo itemInfo, 
-                                SequenceItemInfo nextItem) {
+                                ParticleInfo itemInfo, 
+                                ParticleInfo nextItem) {
         XmlSchemaAny any = (XmlSchemaAny)itemInfo.getParticle();
         
         boolean array = XmlSchemaUtils.isParticleArray(any);
@@ -521,43 +528,43 @@ public class SchemaJavascriptBuilder {
         utils.endBlock(); // while
 
         utils.appendLine("var anyHolder = new org_apache_cxf_any_holder(anyURI, anyObject);");
-        utils.appendLine("this._" + itemInfo.getElementJavascriptVariable() + " = anyHolder;");
+        utils.appendLine("this._" + itemInfo.getJavascriptName() + " = anyHolder;");
     }
 
     private void deserializeElement(XmlSchemaComplexType type, XmlSchemaObject thing) {
-        XmlSchemaElement sequenceElement = (XmlSchemaElement)thing;
-        XmlSchemaElement realElement = XmlSchemaUtils
-            .getReferredElement(sequenceElement, xmlSchemaCollection);
-        boolean global = realElement != null;
-        if (!global) {
-            realElement = sequenceElement;
-        }
-        XmlSchemaType elType = XmlSchemaUtils.getElementType(xmlSchemaCollection, null, realElement, type);
-        boolean simple = elType instanceof XmlSchemaSimpleType;
-        String accessorName = "set" + StringUtils.capitalize(realElement.getName());
-        String elementName = realElement.getName();
-        utils.appendLine("cxfjsutils.trace('processing " + elementName + "');");
-        String elementNamespaceURI = realElement.getQName().getNamespaceURI();
+        ParticleInfo itemInfo = ParticleInfo.forLocalItem(thing, 
+                                                          schemaInfo.getSchema(),
+                                                          xmlSchemaCollection, 
+                                                          prefixAccumulator, 
+                                                          type.getQName());
+        XmlSchemaType itemType = itemInfo.getType();
+        boolean simple = itemType instanceof XmlSchemaSimpleType;
+        String accessorName = "set" + StringUtils.capitalize(itemInfo.getJavascriptName());
+        utils.appendLine("cxfjsutils.trace('processing " + itemInfo.getJavascriptName() + "');");
+        XmlSchemaElement element = (XmlSchemaElement) itemInfo.getParticle();
+        String elementNamespaceURI = element.getQName().getNamespaceURI();
         boolean elementNoNamespace = "".equals(elementNamespaceURI);
         XmlSchema elementSchema = null;
         if (!elementNoNamespace) {
             elementSchema = xmlSchemaCollection.getSchemaByTargetNamespace(elementNamespaceURI);
         }
         boolean qualified = !elementNoNamespace
-                            && XmlSchemaUtils.isElementQualified(realElement, global, schemaInfo.getSchema(),
+                            && XmlSchemaUtils.isElementQualified(element, 
+                                                                 itemInfo.isGlobal(), 
+                                                                 schemaInfo.getSchema(),
                                                                  elementSchema);
 
         if (!qualified) {
             elementNamespaceURI = "";
         }
-
+        
+        String localName = element.getQName().getLocalPart();
         String valueTarget = "item";
 
-        if (XmlSchemaUtils.isParticleOptional(sequenceElement)
-            || XmlSchemaUtils.isParticleArray(sequenceElement)) {
+        if (itemInfo.isOptional() || itemInfo.isArray()) {
             utils.startIf("curElement != null && cxfjsutils.isNodeNamedNS(curElement, '"
-                          + elementNamespaceURI + "', '" + elementName + "')");
-            if (XmlSchemaUtils.isParticleArray(sequenceElement)) {
+                          + elementNamespaceURI + "', '" + localName + "')");
+            if (itemInfo.isArray()) {
                 utils.appendLine("item = [];");
                 utils.startDo();
                 valueTarget = "arrayItem";
@@ -569,34 +576,39 @@ public class SchemaJavascriptBuilder {
         utils.startIf("!cxfjsutils.isElementNil(curElement)");
         if (simple) {
             utils.appendLine("value = cxfjsutils.getNodeText(curElement);");
-            utils.appendLine(valueTarget + " = " + utils.javascriptParseExpression(elType, "value") + ";");
+            utils.appendLine(valueTarget 
+                             + " = " 
+                             + utils.javascriptParseExpression(itemType, "value") + ";");
         } else {
-            XmlSchemaComplexType complexType = (XmlSchemaComplexType)elType;
+            XmlSchemaComplexType complexType = (XmlSchemaComplexType)itemType;
             QName baseQName = complexType.getQName();
             if (baseQName == null) {
-                baseQName = realElement.getQName();
+                baseQName = element.getQName();
             }
 
             String elTypeJsName = nameManager.getJavascriptName(baseQName);
-            utils.appendLine(valueTarget + " = " + elTypeJsName + "_deserialize(cxfjsutils, curElement);");
+            utils.appendLine(valueTarget 
+                             + " = " 
+                             + elTypeJsName 
+                             + "_deserialize(cxfjsutils, curElement);");
         }
 
         utils.endBlock(); // the if for the nil.
-        if (XmlSchemaUtils.isParticleArray(sequenceElement)) {
+        if (itemInfo.isArray()) {
             utils.appendLine("item.push(arrayItem);");
             utils.appendLine("curElement = cxfjsutils.getNextElementSibling(curElement);");
             utils.endBlock();
             utils.appendLine("  while(curElement != null && cxfjsutils.isNodeNamedNS(curElement, '"
-                             + elementNamespaceURI + "', '" + sequenceElement.getName() + "'));");
+                             + elementNamespaceURI + "', '" 
+                             + localName + "'));");
         }
         utils.appendLine("newobject." + accessorName + "(item);");
-        if (!XmlSchemaUtils.isParticleArray(sequenceElement)) {
+        if (!itemInfo.isArray()) {
             utils.startIf("curElement != null");
             utils.appendLine("curElement = cxfjsutils.getNextElementSibling(curElement);");
             utils.endBlock();
         }
-        if (XmlSchemaUtils.isParticleOptional(sequenceElement)
-            || XmlSchemaUtils.isParticleArray(sequenceElement)) {
+        if (itemInfo.isOptional() || itemInfo.isArray()) {
             utils.endBlock();
         }
     }

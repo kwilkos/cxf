@@ -56,7 +56,7 @@ public final class XmlSchemaUtils {
     private XmlSchemaUtils() {
     }
     
-    private static String cleanedUpSchemaSource(XmlSchemaType subject) {
+    static String cleanedUpSchemaSource(XmlSchemaObject subject) {
         if (subject.getSourceURI() == null) {
             return "";
         } else {
@@ -71,10 +71,13 @@ public final class XmlSchemaUtils {
         throw new UnsupportedConstruct(message);
     }
     
-    public static void unsupportedConstruct(String messageKey, String what, XmlSchemaType subject) {
-        Message message = new Message(messageKey, LOG, what, subject.getQName(),
-                                      subject == null ? "(global)" 
-                                          : cleanedUpSchemaSource(subject));
+    public static void unsupportedConstruct(String messageKey, 
+                                            String what, 
+                                            QName subjectName,
+                                            XmlSchemaObject subject) {
+        Message message = new Message(messageKey, LOG, what, 
+                                      subjectName == null ? "anonymous" : subjectName,
+                                      cleanedUpSchemaSource(subject));
         LOG.severe(message.toString());
         throw new UnsupportedConstruct(message);
         
@@ -167,7 +170,9 @@ public final class XmlSchemaUtils {
             element = nextElement;
         }
         if (element.getSchemaType() == null) {
-            XmlSchemaUtils.unsupportedConstruct("ELEMENT_HAS_NO_TYPE", originalElement.getName(), 
+            XmlSchemaUtils.unsupportedConstruct("ELEMENT_HAS_NO_TYPE", 
+                                                originalElement.getName(), 
+                                                containingType.getQName(),
                                                 containingType);
         }
         return element.getSchemaType();
@@ -192,7 +197,7 @@ public final class XmlSchemaUtils {
     
     /**
      * due to a bug, feature, or just plain oddity of JAXB, it isn't good enough
-     * to just check the for of an element and of its schema. If schema 'a'
+     * to just check the form of an element and of its schema. If schema 'a'
      * (default unqualified) has a complex type with an element with a ref= to
      * schema (b) (default unqualified), JAXB seems to expect to see a
      * qualifier, anyway. <br/> So, if the element is local to a complex type,
@@ -235,16 +240,18 @@ public final class XmlSchemaUtils {
      * @param object
      * @return
      */
-    public static XmlSchemaParticle getObjectParticle(XmlSchemaObject object, XmlSchemaType type) {
+    public static XmlSchemaParticle getObjectParticle(XmlSchemaObject object, QName contextName) {
         
         if (!(object instanceof XmlSchemaParticle)) {
             XmlSchemaUtils.unsupportedConstruct("NON_PARTICLE_CHILD", 
-                                                object.getClass().getSimpleName(), type);
+                                                object.getClass().getSimpleName(), 
+                                                contextName, object);
         }
         if (!(object instanceof XmlSchemaElement)
             && !(object instanceof XmlSchemaAny)) {
             XmlSchemaUtils.unsupportedConstruct("GROUP_CHILD", 
-                                                object.getClass().getSimpleName(), type);
+                                                object.getClass().getSimpleName(), contextName,
+                                                object);
         }
         
         return (XmlSchemaParticle) object;

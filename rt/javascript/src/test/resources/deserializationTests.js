@@ -43,7 +43,7 @@ function deserializeTestBean3_1(xml)
 	if(bean.getOptionalIntItem() != 0)
 		assertionFailed("deserializeTestBean3_1 optionalIntItem " + bean.getOptionalIntItem());
 	if(bean.getOptionalStringItem() != null)
-		assertionFailed("deserializeTestBean3_1 optionalStringItem " + bean.getOptionalStringItem());
+		assertionFailed("deserializeTestBean3_1 optionalStringItem '" + bean.getOptionalStringItem() + "'");
 	if(bean.getOptionalIntArrayItem() == null)
 		assertionFailed("deserializeTestBean3_1 optionalIntArrayItem null");
 	if(bean.getOptionalIntArrayItem().length != 0)

@@ -34,4 +34,7 @@ function resetGlobals() {
 	globalResponseObject = null;
 }
 
-// nothing yet.
+function testAny1ToServerChalk(url)
+{
+}
+
