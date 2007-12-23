@@ -405,14 +405,14 @@ function org_apache_cxf_client_onReadyState() {
 CxfApacheOrgClient.prototype.onReadyState = org_apache_cxf_client_onReadyState; 
 
 // Holder object used for xs:any
-// The QName of the element goes into 'qname'
+// The namespaceURI and localName identify the global element from the schema.
 // The object to go with it goes into object.
 // If the Any is an array, put the array into the object slot.
 
-function org_apache_cxf_any_holder(qname, object) {
-	this.typeMarker = "org_apache_cxf_any_holder"; 
-	this.qname = qname;
+function org_apache_cxf_any_holder(namespaceURI, localName, object) {
+	this.typeMarker = "org_apache_cxf_any_holder";
+	this.namespaceURI = namespaceURI;
+	this.localName = localName;
+	this.qname = "{" + namespaceURI + "}" + localName;
 	this.object = object;
-	this.namespaceURI = this.qname.split(":", 1)[0];
-	this.localName = this.qname.split(":", 1)[1]; 
 }

@@ -296,7 +296,7 @@ public class SchemaJavascriptBuilder {
         code.append("//\n");
         code.append("// Serialize " + name + "\n");
         code.append("//\n");
-        code.append("function " + functionName + "(cxfjsutils, elementName) {\n");
+        code.append("function " + functionName + "(cxfjsutils, elementName, extraNamespaces) {\n");
         utils.startXmlStringAccumulator("xml");
         utils.startIf("elementName != null");
         utils.appendString("<");
@@ -307,6 +307,9 @@ public class SchemaJavascriptBuilder {
             utils.appendString(" ");
             utils.appendString(moreNamespaces);
         }
+        utils.startIf("extraNamespaces");
+        utils.appendExpression("' ' + extraNamespaces");
+        utils.endBlock();
         utils.appendString(">");
         utils.endBlock();
         code.append(bodyCode);

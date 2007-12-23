@@ -319,7 +319,7 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
                     +  opFunctionGlobalName
                     + "("  + responseCallbackParams
                     + ((parameterList.length() > 0 && !currentOperation.isOneWay()) 
-                        ? ", " + parameterList : "") + ") {\n");
+                        ? ", " : "") + parameterList + ") {\n");
         utils.appendLine("var xml = null;");
         if (inputMessage != null) {
             utils.appendLine("var args = new Array(" + inputParameterNames.size() + ");");

@@ -162,7 +162,7 @@ public class DocLitBareClientTest extends JavascriptRhinoTest {
     }
     
     private Void onewayCaller(Context context) {
-        LOG.info("About to call actionMethod" + endpoint.getAddress());
+        LOG.info("About to call onewayMethod" + endpoint.getAddress());
         testUtilities.rhinoCall("actionMethodTest",  
                                 testUtilities.javaToJS(endpoint.getAddress()),
                                 "corrigan");

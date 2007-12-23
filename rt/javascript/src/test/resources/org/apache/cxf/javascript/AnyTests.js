@@ -36,5 +36,15 @@ function resetGlobals() {
 
 function testAny1ToServerChalk(url)
 {
+	var service = new cxf_apache_org_jstest_any_AcceptAny();
+	service.url = url;
+	var param = new cxf_apache_org_jstest_types_any_acceptAny1();
+	param.setBefore("before chalk");
+	var anyOb = new cxf_apache_org_jstest_types_any_alts_alternative1();
+	anyOb.setChalk("bismuth");
+	var holder = new org_apache_cxf_any_holder("uri:cxf.apache.org:jstest:types:any:alts", "alternative1", anyOb);
+	param.setAny(holder);
+	param.setAfter("after chalk");
+	service.acceptAny1(param);
 }
 

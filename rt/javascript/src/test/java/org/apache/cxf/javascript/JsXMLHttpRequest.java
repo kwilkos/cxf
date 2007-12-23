@@ -369,8 +369,12 @@ public class JsXMLHttpRequest extends ScriptableObject {
             responseText = contentChars.toString();
             LOG.fine(responseText);
             
+            // For a one-way message or whatever, there may not be a content type.
             // throw away any encoding modifier.
-            String contentType = connection.getContentType().split(";")[0];
+            String contentType = "";
+            if (connection.getContentType() != null) {
+                contentType = connection.getContentType().split(";")[0];
+            }
             
             if ("text/xml".equals(contentType)
                 || "application/xml".equals(contentType) 

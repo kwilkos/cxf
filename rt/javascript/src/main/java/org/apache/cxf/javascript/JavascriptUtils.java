@@ -258,8 +258,10 @@ public class JavascriptUtils {
         // now for the thing itself.
         if (type instanceof XmlSchemaComplexType) {
             // it has a value
-            appendExpression(jsVar + ".serialize(cxfjsutils, '" 
-                             + elementInfo.getXmlName() + "')");
+            // pass the extra null in the slot for the 'extra namespaces' needed by 'any'.
+            appendExpression(jsVar 
+                             + ".serialize(cxfjsutils, '" 
+                             + elementInfo.getXmlName() + "', null)");
         } else { // simple type
             QName typeName = type.getQName();
             appendString("<" + elementInfo.getXmlName() + ">");
@@ -311,7 +313,7 @@ public class JavascriptUtils {
         appendLine("anySerializer = "
                              + "cxfjsutils.interfaceObject.globalElementSerializers[anyHolder.qname];");
         appendLine("anyXmlTag = '" + prefix + ":' + anyHolder.localName;");
-        appendLine("anyXmlNsDef = 'xmlns:" + prefix + "=' + anyHolder.namespaceURI;");
+        appendLine("anyXmlNsDef = 'xmlns:" + prefix + "=\\'' + anyHolder.namespaceURI" + " + '\\'';");
         appendLine("anyStartTag = '<' + anyXmlTag + ' ' + anyXmlNsDef + '>';");
         appendLine("anyEndTag = '</' + anyXmlTag + '>';");
         appendLine("anyEmptyTag = '<' + anyXmlTag + ' ' + anyXmlNsDef + '/>';");
@@ -341,7 +343,7 @@ public class JavascriptUtils {
         
         startIf("anySerializer"); // if no constructor, a simple type.
             // it has a value
-        appendExpression("anySerializer(cxfjsutils, anyXmlTag)"); 
+        appendExpression("anySerializer.call(" + varRef + ", cxfjsutils, anyXmlTag, anyXmlNsDef)"); 
         appendElse();
         appendExpression("anyStartTag");
         appendExpression("cxfjsutils.escapeXmlEntities(" + varRef + ")");

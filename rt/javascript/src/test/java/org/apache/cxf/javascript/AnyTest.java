@@ -22,10 +22,13 @@ package org.apache.cxf.javascript;
 import java.util.logging.Logger;
 
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.javascript.JavascriptTestUtilities.JSRunnable;
 import org.apache.cxf.javascript.fortest.AnyImpl;
 import org.junit.Before;
 import org.junit.Test;
+import org.mozilla.javascript.Context;
 import org.springframework.context.support.GenericApplicationContext;
+import uri.cxf_apache_org.jstest.types.any.alts.Alternative1;
 
 /*
  * We end up here with a part with isElement == true, a non-array element, 
@@ -61,10 +64,28 @@ public class AnyTest extends JavascriptRhinoTest {
         implementor.reset();
     }
     
-    @Test
-    public void testServerStartup() throws Exception {
-        LOG.fine("log something");
-        // no need to do anything, just see what happens on init!
+    private Void acceptOneChalk(Context context) {
+        LOG.info("About to call accept1 with Chalk" + endpoint.getAddress());
+        testUtilities.rhinoCall("testAny1ToServerChalk",  
+                                testUtilities.javaToJS(endpoint.getAddress()));
+        assertEquals("before chalk", implementor.getBefore());
+        Object someAlternative = implementor.getAny1value();
+        assertTrue(someAlternative instanceof Alternative1);
+        Alternative1 a1 = (Alternative1) someAlternative;
+        assertEquals("bismuth", a1.getChalk());
+        assertEquals("after chalk", implementor.getAfter());
+        return null;
     }
+    
+    @Test
+    public void callAcceptOneChalk() {
+        testUtilities.runInsideContext(Void.class, new JSRunnable<Void>() {
+            public Void run(Context context) {
+                return acceptOneChalk(context);
+            }
+        });
+    }
+
+
 
 }
