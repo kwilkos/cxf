@@ -22,6 +22,7 @@ package org.apache.cxf.javascript.service;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -53,10 +54,12 @@ import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.transport.local.LocalTransportFactory;
 import org.apache.cxf.wsdl.WSDLConstants;
+import org.apache.ws.commons.schema.XmlSchema;
 import org.apache.ws.commons.schema.XmlSchemaComplexType;
 import org.apache.ws.commons.schema.XmlSchemaElement;
 import org.apache.ws.commons.schema.XmlSchemaObject;
 import org.apache.ws.commons.schema.XmlSchemaObjectCollection;
+import org.apache.ws.commons.schema.XmlSchemaObjectTable;
 import org.apache.ws.commons.schema.XmlSchemaSequence;
 import org.apache.ws.commons.schema.XmlSchemaSimpleType;
 import org.apache.ws.commons.schema.XmlSchemaType;
@@ -137,6 +140,7 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
 
         code.append("function " + currentInterfaceClassName + " () {\n");
         utils.appendLine("this.jsutils = new CxfApacheOrgUtil();");
+        utils.appendLine("this.jsutils.interfaceObject = this;");
         utils.appendLine("this.synchronous = false;");
         utils.appendLine("this.url = null;");
         utils.appendLine("this.client = null;");
@@ -145,7 +149,40 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
         // thus, only one pending operation at a time.
         utils.appendLine("this._onsuccess = null;");
         utils.appendLine("this._onerror = null;");
+        generateGlobalElementDictionary();
         code.append("}\n\n");
+    }
+    
+    private void generateGlobalElementDictionary() {
+        // to handle 'any', we need a dictionary of all the global elements of all the schemas.
+        utils.appendLine("this.globalElementSerializers = [];");
+        utils.appendLine("this.globalElementDeserializers = [];");
+        for (XmlSchema schemaInfo : xmlSchemaCollection.getXmlSchemas()) {
+            XmlSchemaObjectTable globalElements = schemaInfo.getElements();
+            Iterator namesIterator = globalElements.getNames();
+            while (namesIterator.hasNext()) {
+                QName name = (QName)namesIterator.next();
+                XmlSchemaElement element = (XmlSchemaElement) globalElements.getItem(name);
+                // For now, at least, don't handle elements with simple types.
+                // That comes later to improve deserialization.
+                if (!(element.getSchemaType() instanceof XmlSchemaComplexType)) {
+                    continue;
+                }
+                // If the element uses a named type, we use the functions for the type.
+                XmlSchemaComplexType elementType = (XmlSchemaComplexType)element.getSchemaType();
+                if (elementType.getQName() != null) {
+                    name = elementType.getQName();
+                }
+                utils.appendLine("this.globalElementSerializers['" + name.toString() + "'] = "
+                                 + nameManager.getJavascriptName(name)
+                                 + "_serialize;");
+                utils.appendLine("this.globalElementDeserializers['" + name.toString() + "'] = "
+                                 + nameManager.getJavascriptName(name)
+                                 + "_deserialize;");
+            }
+            
+        }
+
     }
 
     private String getFunctionGlobalName(QName itemName, String itemType) {

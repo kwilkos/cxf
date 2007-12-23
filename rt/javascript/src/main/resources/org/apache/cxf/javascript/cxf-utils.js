@@ -46,7 +46,120 @@ function org_apache_cxf_getNodeLocalName(node)
     }
 }
 
+
 CxfApacheOrgUtil.prototype.getNodeLocalName = org_apache_cxf_getNodeLocalName;
+
+// compensate for lack of namespace support in IE.
+function org_apache_cxf_getNamespaceURI(elementNode, namespacePrefix)
+{
+	var namespaceURI = null;
+    if (elementNode.nodeType == 9)
+        return null;
+    else {
+        namespaceURI = org_apache_cxf_findNamespace (elementNode, namespacePrefix);
+        if (namespaceURI == null)
+            namespaceURI = org_apache_cxf_getNamespaceURI(elementNode.parentNode, namespacePrefix);
+        else
+            return namespaceURI; 
+    }
+    return namespaceURI;
+ }
+ 
+ 
+function org_apache_cxf_findNamespace(elementNode, namespacePrefix)
+{
+    var attributes = elementNode.attributes;
+    if ((attributes!=null) && (attributes.length > 0)) {
+        for (var x=0; x<attributes.length; x++) {
+            var attributeNamespacePrefix = org_apache_cxf_getPrefix(attributes.item(x).nodeName);
+            var attributeNamespaceSuffix = org_apache_cxf_getLocalName(attributes.item(x).nodeName);
+
+            if ( (namespacePrefix == null) &&
+                 (attributeNamespacePrefix == null) && 
+                 (attributeNamespaceSuffix == "xmlns"))
+                return attributes.item(x).nodeValue;
+            else if ((attributeNamespacePrefix == "xmlns") && 
+                     (attributeNamespaceSuffix == namespacePrefix))
+                return attributes.item(x).nodeValue;
+        }
+        return null;
+    }
+}
+
+function org_apache_cxf_get_node_namespaceURI(elementNode) 
+{
+	var prefix = org_apache_cxf_get_prefix(elementNode.nodeName);
+	return org_apache_cxf_geNamespaceURI(elementNode, prefix);
+}
+
+CxfApacheOrgUtil.prototype.getElementNamespaceURI = org_apache_cxf_get_node_namespaceURI;
+
+function org_apache_cxf_any_ns_matcher(style, tns, nslist, nextLocalPart)
+{
+	this.style = style;
+	this.tns = tns;
+	this.nslist = nslist;
+	this.nextLocalPart = nextLocalPart;
+}
+
+org_apache_cxf_any_ns_matcher.ANY = "##any";
+org_apache_cxf_any_ns_matcher.OTHER = "##other";
+org_apache_cxf_any_ns_matcher.LOCAL = "##local";
+org_apache_cxf_any_ns_matcher.LISTED = "listed";
+
+function org_apache_cxf_any_ns_matcher_match(namespaceURI, localName)
+{
+	switch(style) {
+		// should this match local elements?
+		case org_apache_cxf_any_ns_matcher.ANY:
+			return true;
+		case org_apache_cxf_any_ns_matcher.OTHER:
+			return namespaceURI != this.tns;
+		case org_apache_cxf_any_ns_matcher.LOCAL:
+			return namespaceURI == null || namespaceURI == '';
+		case org_apache_cxf_any_ns_matcher.LISTED:
+			for(var x in this.nslist) {
+				var ns = this.nslist[x];
+				if(ns == "##local") {
+					if((namespaceURI == null || namespaceURI == '') 
+						&& (localName != this.nextLocalPart))
+						return true;  
+				} else {
+					if(ns == namespaceURI)
+						return true;
+				} 
+			}
+            return false;
+	  }
+}
+
+org_apache_cxf_any_ns_matcher.prototype.match = org_apache_cxf_any_ns_matcher_match; 
+
+
+
+
+
+
+function org_apache_cxf_getPrefix(tagName)
+{
+    var prefix;
+    var prefixIndex = tagName.indexOf(":");
+    if (prefixIndex == -1)
+        return null;
+    else 
+        return prefix = tagName.substring(0, prefixIndex);
+}
+
+function org_apache_cxf_getLocalName(tagName)
+{
+    var suffix;
+    var prefixIndex = tagName.indexOf(":");
+
+    if (prefixIndex == -1)
+        return tagName;
+    else 
+        return suffix = tagName.substring (prefixIndex+1, tagName.length);
+}
 
 function org_apache_cxf_element_name_for_trace(node)
 {
@@ -290,3 +403,16 @@ function org_apache_cxf_client_onReadyState() {
 }
 
 CxfApacheOrgClient.prototype.onReadyState = org_apache_cxf_client_onReadyState; 
+
+// Holder object used for xs:any
+// The QName of the element goes into 'qname'
+// The object to go with it goes into object.
+// If the Any is an array, put the array into the object slot.
+
+function org_apache_cxf_any_holder(qname, object) {
+	this.typeMarker = "org_apache_cxf_any_holder"; 
+	this.qname = qname;
+	this.object = object;
+	this.namespaceURI = this.qname.split(":", 1)[0];
+	this.localName = this.qname.split(":", 1)[1]; 
+}

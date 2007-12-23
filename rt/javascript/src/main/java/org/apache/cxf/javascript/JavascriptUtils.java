@@ -28,6 +28,7 @@ import java.util.Stack;
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.common.xmlschema.SchemaCollection;
+import org.apache.cxf.javascript.types.SequenceItemInfo;
 import org.apache.cxf.wsdl.WSDLConstants;
 import org.apache.ws.commons.schema.XmlSchemaComplexType;
 import org.apache.ws.commons.schema.XmlSchemaSimpleType;
@@ -145,6 +146,12 @@ public class JavascriptUtils {
         prefixStack.push(prefix() + " ");
     }
     
+    public void startBlock() {
+        code.append(prefix());
+        code.append("{" + NL);
+        prefixStack.push(prefix() + " ");
+    }
+
     public void appendElse() {
         prefixStack.pop();
         code.append(prefix());
@@ -161,6 +168,18 @@ public class JavascriptUtils {
     public void startFor(String start, String test, String increment) {
         code.append(prefix());
         code.append("for (" + start + ";" + test + ";" + increment + ") {" + NL);
+        prefixStack.push(prefix() + " ");
+    }
+
+    public void startForIn(String var, String collection) {
+        code.append(prefix());
+        code.append("for (var " + var + " in " + collection + ") {" + NL);
+        prefixStack.push(prefix() + " ");
+    }
+
+    public void startWhile(String test) {
+        code.append(prefix());
+        code.append("while (" + test + ") {" + NL);
         prefixStack.push(prefix() + " ");
     }
 
@@ -191,6 +210,11 @@ public class JavascriptUtils {
         return token;
     }
     
+    /**
+     * Given an element, generate the serialization code.
+     * @param elementInfo
+     * @param schemaCollection
+     */
     public void generateCodeToSerializeElement(ElementInfo elementInfo,
                                                SchemaCollection schemaCollection) {
         XmlSchemaType type = elementInfo.getType();
@@ -263,6 +287,76 @@ public class JavascriptUtils {
         if (optional) {
             endBlock();
         }
-
     }
+    
+    /**
+     * Generate code to serialize an xs:any.
+     * There is too much duplicate code the element serializer; fix that some day.
+     * @param elementInfo
+     * @param schemaCollection
+     */
+    public void generateCodeToSerializeAny(SequenceItemInfo itemInfo, 
+                                           String prefix,
+                                           SchemaCollection schemaCollection) {
+        boolean optional = XmlSchemaUtils.isParticleOptional(itemInfo.getParticle());
+        boolean array = XmlSchemaUtils.isParticleArray(itemInfo.getParticle());
+        
+        appendLine("var anyHolder = this._" + itemInfo.getElementJavascriptVariable() + ";");
+        appendLine("var anySerializer = null;");
+        appendLine("var anyXmlTag = null;");
+        appendLine("var anyXmlNsDef = null;");
+        appendLine("var anyData = null;");
+        appendLine("var anyStartTag;");
+        
+        startIf("anyHolder != null");
+        appendLine("anySerializer = "
+                             + "cxfjsutils.interfaceObject.globalElementSerializers[anyHolder.qname];");
+        appendLine("anyXmlTag = '" + prefix + ":' + anyHolder.localName;");
+        appendLine("anyXmlNsDef = 'xmlns:" + prefix + "=' + anyHolder.namespaceURI;");
+        appendLine("anyStartTag = '<' + anyXmlTag + ' ' + anyXmlNsDef + '>';");
+        appendLine("anyEndTag = '</' + anyXmlTag + '>';");
+        appendLine("anyEmptyTag = '<' + anyXmlTag + ' ' + anyXmlNsDef + '/>';");
+        appendLine("anyData = anyHolder.object;");
+        endBlock();
+
+        // first question: optional?
+        if (optional) {
+            startIf("anyHolder != null && anyData != null");
+        }  else {
+            startIf("anyHolder == null || anyData == null");
+            appendLine("throw 'null value for required any item';");
+            endBlock();
+        }
+        
+        String varRef = "anyData";
+        
+        if (array) {
+            startFor("var ax = 0", "ax < anyData.length", "ax ++");
+            varRef = "anyData[ax]";
+            // we need an extra level of 'nil' testing here. Or do we, depending on the type structure?
+            // Recode and fiddle appropriately.
+            startIf(varRef + " == null");
+            appendExpression("anyEmptyTag");
+            appendElse();
+        }
+        
+        startIf("anySerializer"); // if no constructor, a simple type.
+            // it has a value
+        appendExpression("anySerializer(cxfjsutils, anyXmlTag)"); 
+        appendElse();
+        appendExpression("anyStartTag");
+        appendExpression("cxfjsutils.escapeXmlEntities(" + varRef + ")");
+        appendExpression("anyEndTag");
+        endBlock();
+        if (array) {
+            endBlock(); // for the nil/empty tag. Gorsh, we should have runtime knowledge of nillable
+            // on the elements.
+            endBlock(); // for the for loop.
+        }
+        
+        if (optional) {
+            endBlock();
+        }
+    }
+
 }
