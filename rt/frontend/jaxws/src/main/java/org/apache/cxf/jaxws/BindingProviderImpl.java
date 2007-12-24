@@ -29,20 +29,33 @@ import javax.xml.ws.BindingProvider;
 import javax.xml.ws.EndpointReference;
 import javax.xml.ws.handler.MessageContext;
 
+import org.apache.cxf.jaxws.support.JaxWsEndpointImpl;
+
 public class BindingProviderImpl implements BindingProvider {
-   
     protected ThreadLocal <Map<String, Object>> requestContext = 
         new ThreadLocal<Map<String, Object>>();
     protected ThreadLocal <Map<String, Object>> responseContext =
         new ThreadLocal<Map<String, Object>>();
     private final Binding binding;
+    private final JaxWsEndpointImpl endpoint;
+    private final EndpointReferenceBuilder builder;
        
     public BindingProviderImpl() {
-        binding = null;
+        this.binding = null;
+        this.endpoint = null;
+        this.builder = null;
     }
 
     public BindingProviderImpl(Binding b) {
-        binding = b;
+        this.binding = b;
+        this.endpoint = null;
+        this.builder = null;
+    }
+    
+    public BindingProviderImpl(JaxWsEndpointImpl e) {
+        this.endpoint = e;
+        this.binding = this.endpoint.getJaxwsBinding();
+        this.builder = new EndpointReferenceBuilder(endpoint);
     }
     
     public Map<String, Object> getRequestContext() {
@@ -79,12 +92,11 @@ public class BindingProviderImpl implements BindingProvider {
         }
     }
 
-    //TODO JAX-WS 2.1
-    public EndpointReference getEndpointReference() {
-        throw new UnsupportedOperationException();
+    public EndpointReference getEndpointReference() {            
+        return builder.getEndpointReference();
     }
 
     public <T extends EndpointReference> T getEndpointReference(Class<T> clazz) {
-        throw new UnsupportedOperationException();
+        return builder.getEndpointReference(clazz);
     }
 }

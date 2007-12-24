@@ -95,7 +95,7 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
     private ConduitSelector conduitSelector;
     
     DispatchImpl(Bus b, Client client, Service.Mode m, JAXBContext ctx, Class<T> clazz, Executor e) {
-        super(((JaxWsEndpointImpl)client.getEndpoint()).getJaxwsBinding());
+        super((JaxWsEndpointImpl)client.getEndpoint());
         bus = b;
         this.iProvider = client;
         executor = e;

@@ -42,7 +42,6 @@ import javax.xml.ws.http.HTTPBinding;
 import javax.xml.ws.http.HTTPException;
 import javax.xml.ws.soap.SOAPBinding;
 import javax.xml.ws.soap.SOAPFaultException;
-import javax.xml.ws.wsaddressing.W3CEndpointReferenceBuilder;
 
 import org.w3c.dom.Node;
 
@@ -55,6 +54,7 @@ import org.apache.cxf.frontend.MethodDispatcher;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.jaxws.context.WrappedMessageContext;
 import org.apache.cxf.jaxws.support.ContextPropertiesMapping;
+import org.apache.cxf.jaxws.support.JaxWsEndpointImpl;
 import org.apache.cxf.service.model.BindingOperationInfo;
 
 public class JaxWsClientProxy extends org.apache.cxf.frontend.ClientProxy implements
@@ -68,11 +68,13 @@ public class JaxWsClientProxy extends org.apache.cxf.frontend.ClientProxy implem
             new ThreadLocal<Map<String, Object>>();
 
     private final Binding binding;
+    private final EndpointReferenceBuilder builder;
 
     public JaxWsClientProxy(Client c, Binding b) {
         super(c);
         this.binding = b;
         setupEndpointAddressContext(getClient().getEndpoint());
+        this.builder = new EndpointReferenceBuilder((JaxWsEndpointImpl)getClient().getEndpoint());
     }
 
     private void setupEndpointAddressContext(Endpoint endpoint) {
@@ -256,26 +258,10 @@ public class JaxWsClientProxy extends org.apache.cxf.frontend.ClientProxy implem
     }
 
     public EndpointReference getEndpointReference() {
-        String bindingId = getBinding().getBindingID();        
-        if (!"http://schemas.xmlsoap.org/soap/".equals(bindingId)) {
-            throw new UnsupportedOperationException(new Message("GET_ENDPOINTREFERENCE_UNSUPPORTED_BINDING",
-                                                                LOG).toString());
-        }
-        
-        W3CEndpointReferenceBuilder builder = new W3CEndpointReferenceBuilder();
-        
-        Endpoint endpoint = getClient().getEndpoint();
-        builder.address(endpoint.getEndpointInfo().getAddress());
-        builder.serviceName(endpoint.getService().getName());
-        builder.endpointName(endpoint.getEndpointInfo().getName());
-        
-        //TODO: get wsdlDocumentLocation
-        //builder.wsdlDocumentLocation(endpoint.getService().getServiceInfos().toString());        
-        
-        return builder.build();
+        return builder.getEndpointReference();
     }
 
     public <T extends EndpointReference> T getEndpointReference(Class<T> clazz) {
-        throw new UnsupportedOperationException();
+        return builder.getEndpointReference(clazz);
     }    
 }
