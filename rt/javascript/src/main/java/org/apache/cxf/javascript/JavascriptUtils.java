@@ -309,7 +309,7 @@ public class JavascriptUtils {
         appendLine("var anyData = null;");
         appendLine("var anyStartTag;");
         
-        startIf("anyHolder != null");
+        startIf("anyHolder != null && !anyHolder.raw");
         appendLine("anySerializer = "
                              + "cxfjsutils.interfaceObject.globalElementSerializers[anyHolder.qname];");
         appendLine("anyXmlTag = '" + prefix + ":' + anyHolder.localName;");
@@ -319,7 +319,9 @@ public class JavascriptUtils {
         appendLine("anyEmptyTag = '<' + anyXmlTag + ' ' + anyXmlNsDef + '/>';");
         appendLine("anyData = anyHolder.object;");
         endBlock();
-
+        startIf("anyHolder != null && anyHolder.raw");
+        appendExpression("anyHolder.xml");
+        appendElse();
         // first question: optional?
         if (optional) {
             startIf("anyHolder != null && anyData != null");
@@ -358,6 +360,7 @@ public class JavascriptUtils {
         if (optional) {
             endBlock();
         }
+        endBlock(); // for raw
     }
 
 }

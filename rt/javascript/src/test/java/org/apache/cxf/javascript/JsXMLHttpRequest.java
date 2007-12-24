@@ -127,7 +127,7 @@ public class JsXMLHttpRequest extends ScriptableObject {
 
     private void notifyReadyStateChangeListener() {
         if (readyStateChangeListener instanceof Function) {
-            LOG.info("notify " + readyState);
+            LOG.fine("notify " + readyState);
             // for now, call with no args.
             Function listenerFunction = (Function)readyStateChangeListener;
             listenerFunction.call(Context.getCurrentContext(), getParentScope(), null, new Object[] {});
@@ -136,7 +136,7 @@ public class JsXMLHttpRequest extends ScriptableObject {
 
     private void doOpen(String method, String urlString, boolean async, String user, String password) {
         // ignoring auth for now.
-        LOG.info("doOpen " + method + " " + urlString + " " + Boolean.toString(async));
+        LOG.fine("doOpen " + method + " " + urlString + " " + Boolean.toString(async));
 
         storedAsync = async;
         responseText = null;
@@ -145,7 +145,7 @@ public class JsXMLHttpRequest extends ScriptableObject {
         method = method.toUpperCase();
         // 1 check method
         if (!validMethods.contains(method)) {
-            LOG.info("Invalid method syntax error.");
+            LOG.fine("Invalid method syntax error.");
             throwError("SYNTAX_ERR");
         }
         // 2 security check (we don't have any)
@@ -157,7 +157,7 @@ public class JsXMLHttpRequest extends ScriptableObject {
         try {
             URI tempUri = new URI(urlString);
             if (tempUri.isOpaque()) { 
-                LOG.info("Relative URL syntax error.");
+                LOG.fine("Relative URL syntax error.");
                 throwError("SYNTAX_ERR");
             }
             

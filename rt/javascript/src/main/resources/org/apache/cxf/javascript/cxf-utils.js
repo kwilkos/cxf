@@ -411,4 +411,12 @@ function org_apache_cxf_any_holder(namespaceURI, localName, object) {
 	this.localName = localName;
 	this.qname = "{" + namespaceURI + "}" + localName;
 	this.object = object;
+	this.raw = false;
 }
+
+function org_apache_cxf_raw_any_holder(xml)
+{
+	this.xml = xml;
+	this.raw = true;
+}
+	

@@ -34,7 +34,7 @@ import uri.cxf_apache_org.jstest.types.any.alts.Alternative2;
 /**
  * 
  */
-@org.apache.cxf.feature.Features(features = "org.apache.cxf.feature.LoggingFeature")   
+//@org.apache.cxf.feature.Features(features = "org.apache.cxf.feature.LoggingFeature")   
 public class AnyImpl implements AcceptAny {
 
     private Object any1value;
