@@ -23,6 +23,7 @@ import java.util.logging.Logger;
 
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.javascript.JavascriptTestUtilities.JSRunnable;
+import org.apache.cxf.javascript.JavascriptTestUtilities.Notifier;
 import org.apache.cxf.javascript.fortest.AnyImpl;
 import org.junit.Before;
 import org.junit.Test;
@@ -82,6 +83,33 @@ public class AnyTest extends JavascriptRhinoTest {
         testUtilities.runInsideContext(Void.class, new JSRunnable<Void>() {
             public Void run(Context context) {
                 return acceptOneChalk(context);
+            }
+        });
+    }
+    
+    private Void returnAny1(Context context) {
+        Notifier notifier = 
+            testUtilities.rhinoCallConvert("testAny1ToClientChalk", Notifier.class, 
+                                           testUtilities.javaToJS(endpoint.getAddress()));
+        
+        boolean notified = notifier.waitForJavascript(1000 * 10);
+        assertTrue(notified);
+        Integer errorStatus = testUtilities.rhinoEvaluateConvert("globalErrorStatus", Integer.class);
+        assertNull(errorStatus);
+        String errorText = testUtilities.rhinoEvaluateConvert("globalErrorStatusText", String.class);
+        assertNull(errorText);
+
+        //This method returns a String
+        String chalk = (String)testUtilities.rhinoEvaluate("globalResponseObject._any.object._chalk");
+        assertEquals("dover", chalk);
+        return null;
+    }
+    
+    @Test
+    public void callReturnAny1() throws Exception {
+        testUtilities.runInsideContext(Void.class, new JSRunnable<Void>() {
+            public Void run(Context context) {
+                return returnAny1(context);
             }
         });
     }

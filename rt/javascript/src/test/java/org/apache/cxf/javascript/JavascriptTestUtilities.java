@@ -154,6 +154,7 @@ public class JavascriptTestUtilities extends TestUtilities {
         }
         JsSimpleDomNode.register(rhinoScope);
         JsSimpleDomParser.register(rhinoScope);
+        JsNamedNodeMap.register(rhinoScope);
         JsXMLHttpRequest.register(rhinoScope);
     }
 

@@ -476,7 +476,7 @@ public class SchemaJavascriptBuilder {
                          + matchType
                          + ", '" + schemaInfo.getNamespaceURI() + "'"
                          + ", " + namespaceList
-                         + ", " + nextElement.getQName().getLocalPart()
+                         + ", '" + nextElement.getQName().getLocalPart() + "'"
                          + ");");
         
         if (array) {
@@ -499,12 +499,17 @@ public class SchemaJavascriptBuilder {
         
         utils.appendLine("anyURI = cxfjsutils.getElementNamespaceURI(curElement);");
         utils.appendLine("anyLocalPart = cxfjsutils.getNodeLocalName(curElement);");
+        utils.appendLine("var anyQName = '{' + anyURI + '}' + anyLocalPart;");
+        utils.appendLine("cxfjsutils.trace('any match: ' + anyQName);"); 
         utils.appendLine("anyMatched = matcher.match(anyURI, anyLocalPart)");
+        utils.appendLine("cxfjsutils.trace(' --> ' + anyMatched);"); 
+
         utils.endBlock(); // curElement != null
         
         utils.startIf("anyMatched"); // if match
         utils.appendLine("anyDeserializer = "
-                         + "cxfjsutils.interfaceObject.globalElementDeserializers[anyURI];");
+                         + "cxfjsutils.interfaceObject.globalElementDeserializers[anyQName];");
+        utils.appendLine("cxfjsutils.trace(' deserializer: ' + anyDeserializer);");
         utils.startIf("anyDeserializer"); // if complex/serializer function
         utils.appendLine("var anyValue = anyDeserializer(cxfjsutils, curElement);");
         utils.appendElse(); // else complex/serializer function
@@ -530,8 +535,8 @@ public class SchemaJavascriptBuilder {
         utils.endBlock(); // match/non-match.
         utils.endBlock(); // while
 
-        utils.appendLine("var anyHolder = new org_apache_cxf_any_holder(anyURI, anyObject);");
-        utils.appendLine("this._" + itemInfo.getJavascriptName() + " = anyHolder;");
+        utils.appendLine("var anyHolder = new org_apache_cxf_any_holder(anyURI, anyLocalPart, anyValue);");
+        utils.appendLine("newobject.setAny(anyHolder);");
     }
 
     private void deserializeElement(XmlSchemaComplexType type, XmlSchemaObject thing) {

@@ -48,3 +48,30 @@ function testAny1ToServerChalk(url)
 	service.acceptAny1(param);
 }
 
+function errorCallback(httpStatus, httpStatusText) 
+{
+    org_apache_cxf_trace.trace("error");
+	globalErrorStatus = httpStatus;
+	globalStatusText = httpStatusText;
+	globalNotifier.notify();
+}
+
+function any1ToClientSuccessCallback(responseObject) 
+{
+    org_apache_cxf_trace.trace("any1ToClient success");
+	globalResponseObject = responseObject;
+	globalNotifier.notify();
+}
+
+function testAny1ToClientChalk(url)
+{
+	resetGlobals();
+	globalNotifier = new org_apache_cxf_notifier();
+	var service = new cxf_apache_org_jstest_any_AcceptAny();
+	service.url = url;
+	
+	var dummyParam = new cxf_apache_org_jstest_types_any_returnAny1();
+	service.url = url;
+	service.returnAny1(any1ToClientSuccessCallback, errorCallback, dummyParam);
+	return globalNotifier; 
+}

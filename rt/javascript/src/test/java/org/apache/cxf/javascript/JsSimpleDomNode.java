@@ -36,9 +36,11 @@ import org.mozilla.javascript.ScriptableObject;
 public class JsSimpleDomNode extends ScriptableObject {
     private Node wrappedNode;
     private boolean childrenWrapped;
+    private boolean attributesWrapped;
     private JsSimpleDomNode previousSibling;
     private JsSimpleDomNode nextSibling;
     private JsSimpleDomNode[] children;
+    private JsNamedNodeMap attributes;
 
     /**
      * Only exists to make Rhino happy. Should never be used.
@@ -92,12 +94,21 @@ public class JsSimpleDomNode extends ScriptableObject {
         return previousSibling; 
     }
     
+    public Object jsGet_parentNode() {
+        // risk errors in object equality ...
+        return wrapNode(this, wrappedNode.getParentNode());
+    }
+    
     public int jsGet_nodeType() {
         return wrappedNode.getNodeType();
     }
     
     public String jsGet_nodeValue() {
         return wrappedNode.getNodeValue();
+    }
+    
+    public String jsGet_nodeName() {
+        return wrappedNode.getNodeName();
     }
     
     // in a more complete version of this, we'd use a different object type to wrap documents.
@@ -113,6 +124,11 @@ public class JsSimpleDomNode extends ScriptableObject {
     public Object[] jsGet_childNodes() {
         establishChildren();
         return children;
+    }
+    
+    public Object jsGet_attributes() {
+        establishAttributes();
+        return attributes;
     }
     
     public String jsFunction_getAttributeNS(String namespaceURI, String localName) {
@@ -140,6 +156,10 @@ public class JsSimpleDomNode extends ScriptableObject {
     //CHECKSTYLE:ON
     
     public static JsSimpleDomNode wrapNode(Scriptable scope, Node node) {
+        if (node == null) {
+            return null;
+        }
+        
         Context cx = Context.enter();
         JsSimpleDomNode newObject = (JsSimpleDomNode)cx.newObject(scope, "Node");
         newObject.initialize(node, null);
@@ -172,6 +192,14 @@ public class JsSimpleDomNode extends ScriptableObject {
                 children = new JsSimpleDomNode[0];
             }
             childrenWrapped = true;
+        }
+    }
+    
+    private void establishAttributes() {
+        if (!attributesWrapped) {
+            NamedNodeMap nodeAttributes = wrappedNode.getAttributes();
+            attributes = JsNamedNodeMap.wrapMap(getParentScope(), nodeAttributes);
+            attributesWrapped = true;
         }
     }
 

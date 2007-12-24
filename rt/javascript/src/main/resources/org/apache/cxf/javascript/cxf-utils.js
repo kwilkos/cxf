@@ -71,6 +71,7 @@ function org_apache_cxf_findNamespace(elementNode, namespacePrefix)
     var attributes = elementNode.attributes;
     if ((attributes!=null) && (attributes.length > 0)) {
         for (var x=0; x<attributes.length; x++) {
+            var attributeNodeName = attributes.item(x).nodeName;
             var attributeNamespacePrefix = org_apache_cxf_getPrefix(attributes.item(x).nodeName);
             var attributeNamespaceSuffix = org_apache_cxf_getLocalName(attributes.item(x).nodeName);
 
@@ -88,8 +89,8 @@ function org_apache_cxf_findNamespace(elementNode, namespacePrefix)
 
 function org_apache_cxf_get_node_namespaceURI(elementNode) 
 {
-	var prefix = org_apache_cxf_get_prefix(elementNode.nodeName);
-	return org_apache_cxf_geNamespaceURI(elementNode, prefix);
+	var prefix = org_apache_cxf_getPrefix(elementNode.nodeName);
+	return org_apache_cxf_getNamespaceURI(elementNode, prefix);
 }
 
 CxfApacheOrgUtil.prototype.getElementNamespaceURI = org_apache_cxf_get_node_namespaceURI;
@@ -109,7 +110,7 @@ org_apache_cxf_any_ns_matcher.LISTED = "listed";
 
 function org_apache_cxf_any_ns_matcher_match(namespaceURI, localName)
 {
-	switch(style) {
+	switch(this.style) {
 		// should this match local elements?
 		case org_apache_cxf_any_ns_matcher.ANY:
 			return true;
@@ -134,11 +135,6 @@ function org_apache_cxf_any_ns_matcher_match(namespaceURI, localName)
 }
 
 org_apache_cxf_any_ns_matcher.prototype.match = org_apache_cxf_any_ns_matcher_match; 
-
-
-
-
-
 
 function org_apache_cxf_getPrefix(tagName)
 {
