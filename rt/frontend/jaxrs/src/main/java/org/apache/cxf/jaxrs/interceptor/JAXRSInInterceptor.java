@@ -19,7 +19,6 @@
 
 package org.apache.cxf.jaxrs.interceptor;
 
-import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,7 +36,6 @@ import org.apache.cxf.service.Service;
 public class JAXRSInInterceptor extends AbstractPhaseInterceptor<Message> {
 
     public static final String RELATIVE_PATH = "relative.path";
-    public static final String SUBRESOURCE_PATH = "subresource.path";
 
     //private static final Logger LOG = Logger.getLogger(RESTDispatchInterceptor.class.getName());
     //private static final ResourceBundle BUNDLE = BundleUtils.getBundle(RESTDispatchInterceptor.class);
@@ -50,7 +48,7 @@ public class JAXRSInInterceptor extends AbstractPhaseInterceptor<Message> {
         String path = (String)message.get(Message.PATH_INFO);
         String address = (String)message.get(Message.BASE_PATH);
         String httpMethod = (String)message.get(Message.HTTP_REQUEST_METHOD);
-
+        
         if (address.startsWith("http")) {
             int idx = address.indexOf('/', 7);
             if (idx != -1) {
@@ -82,14 +80,12 @@ public class JAXRSInInterceptor extends AbstractPhaseInterceptor<Message> {
             //throw new Fault(new org.apache.cxf.common.i18n.Message("NO_OP", BUNDLE, method, path));
         }
         message.getExchange().put(OperationResourceInfo.class, ori);
-        message.put(SUBRESOURCE_PATH, values.get(URITemplate.RIGHT_HAND_VALUE));
+        message.put(RELATIVE_PATH, values.get(URITemplate.RIGHT_HAND_VALUE));
         
         //2. Process parameters
-        InputStream is = message.getContent(InputStream.class);
-        List<Object> params = JAXRSUtils.processParameters(ori.getMethod(), path, httpMethod, values, is);
+        List<Object> params = JAXRSUtils
+            .processParameters(ori.getMethod(), values, message);
 
         message.setContent(List.class, params);
-
     }
-
 }

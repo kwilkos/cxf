@@ -20,7 +20,6 @@
 package org.apache.cxf.jaxrs;
 
 
-import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -78,20 +77,18 @@ public class JAXRSInvoker extends AbstractInvoker {
             
             Map<String, String> values = new HashMap<String, String>();                 
             Message msg = exchange.getInMessage();
-            String subResourcePath = (String)msg.get(JAXRSInInterceptor.SUBRESOURCE_PATH);
+            String subResourcePath = (String)msg.get(JAXRSInInterceptor.RELATIVE_PATH);
             String httpMethod = (String)msg.get(Message.HTTP_REQUEST_METHOD); 
             ClassResourceInfo subCri = JAXRSUtils.findSubResourceClass(classResourceInfo, result.getClass());
             OperationResourceInfo subOri = JAXRSUtils.findTargetMethod(subCri, subResourcePath,
                                                                                      httpMethod, values);
             exchange.put(OperationResourceInfo.class, subOri);
-
+            msg.put(JAXRSInInterceptor.RELATIVE_PATH, subResourcePath);
             // work out request parameters for the sub-resouce class. Here we
             // presume Inputstream has not been consumed yet by the root resource class.
             //I.e., only one place either in the root resource or sub-resouce class can
             //have a parameter that read from entitybody.
-            InputStream is = msg.getContent(InputStream.class);
-            List<Object> newParams = JAXRSUtils.processParameters(subOri.getMethod(), subResourcePath,
-                                                                             httpMethod, values, is);
+            List<Object> newParams = JAXRSUtils.processParameters(subOri.getMethod(), values, msg);
             msg.setContent(List.class, newParams);
             
             return this.invoke(exchange, newParams);

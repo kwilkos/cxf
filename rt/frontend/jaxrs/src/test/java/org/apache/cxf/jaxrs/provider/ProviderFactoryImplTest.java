@@ -78,6 +78,14 @@ public class ProviderFactoryImplTest extends Assert {
         EntityProvider provider = ((ProviderFactoryImpl)ProviderFactory.getInstance())
         .createEntityProvider(String.class, methodMimeTypes, false);
         assertTrue(provider instanceof TestStringProvider);
+    }    
+    
+    @Test
+    public void testGetJSONProviderConsumeMime() throws Exception {
+        String[] methodMimeTypes = {"application/json"};
+        EntityProvider provider = ((ProviderFactoryImpl)ProviderFactory.getInstance())
+        .createEntityProvider(org.apache.cxf.jaxrs.resources.Book.class, methodMimeTypes, true);
+        assertTrue(provider instanceof JSONProvider);
     }
     
     private int indexOf(List<EntityProvider> providers, Class providerType) {

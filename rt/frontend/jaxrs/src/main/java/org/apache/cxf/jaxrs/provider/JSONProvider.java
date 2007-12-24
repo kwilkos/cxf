@@ -38,8 +38,10 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 
+import org.codehaus.jettison.mapped.MappedXMLInputFactory;
 import org.codehaus.jettison.mapped.MappedXMLOutputFactory;
 
 @ProduceMime("application/json")
@@ -57,9 +59,18 @@ public final class JSONProvider implements EntityProvider<Object>  {
         try {
             JAXBContext context = getJAXBContext(type);
             Unmarshaller unmarshaller = context.createUnmarshaller();
-            return unmarshaller.unmarshal(is);
+            
+            Map<String, String> nstojns = new HashMap<String, String>();
+            
+            MappedXMLInputFactory factory = new MappedXMLInputFactory(nstojns);
+            XMLStreamReader xsw = factory.createXMLStreamReader(is);            
+            Object obj = unmarshaller.unmarshal(xsw);
+            xsw.close();
+            return obj;
         } catch (JAXBException e) {
             e.printStackTrace();         
+        } catch (XMLStreamException e) {
+            e.printStackTrace();
         }
 
         return null;

@@ -28,6 +28,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import javax.activation.MimeType;
+import javax.activation.MimeTypeParseException;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.MatrixParam;
 import javax.ws.rs.QueryParam;
@@ -37,9 +39,12 @@ import javax.ws.rs.ext.EntityProvider;
 import javax.ws.rs.ext.ProviderFactory;
 
 import org.apache.cxf.common.util.PrimitiveUtils;
+import org.apache.cxf.jaxrs.interceptor.JAXRSInInterceptor;
 import org.apache.cxf.jaxrs.model.ClassResourceInfo;
 import org.apache.cxf.jaxrs.model.OperationResourceInfo;
 import org.apache.cxf.jaxrs.model.URITemplate;
+import org.apache.cxf.jaxrs.provider.ProviderFactoryImpl;
+import org.apache.cxf.message.Message;
 
 public final class JAXRSUtils {
     
@@ -87,22 +92,17 @@ public final class JAXRSUtils {
         return null;
     }
 
-    public static List<Object> processParameters(Method method, String path, String httpMethod,
-                                           Map<String, String> values, InputStream is) {
+    //Message contains following information: PATH, HTTP_REQUEST_METHOD, CONTENT_TYPE, InputStream.
+    public static List<Object> processParameters(Method method, Map<String, String> values, Message message) {
         Class[] parameterTypes = method.getParameterTypes();
         Type[] genericParameterTypes = method.getGenericParameterTypes();
         Annotation[][] parameterAnnotations = method.getParameterAnnotations();
-
-        boolean readFromEntityBody = false;
-        if ("PUT".equals(httpMethod) || "POST".equals(httpMethod)) {
-            readFromEntityBody = true;
-        }
 
         List<Object> params = new ArrayList<Object>(parameterTypes.length);
 
         for (int i = 0; i < parameterTypes.length; i++) {
             Object param = processParameter(parameterTypes[i], genericParameterTypes[i],
-                                            parameterAnnotations[i], readFromEntityBody, path, values, is);
+                                            parameterAnnotations[i], values, message);
 
             params.add(param);
         }
@@ -111,27 +111,36 @@ public final class JAXRSUtils {
     }
 
     private static Object processParameter(Class<?> parameterClass, Type parameterType,
-                                    Annotation[] parameterAnnotations, boolean readFromEntityBody,
-                                    String path, Map<String, String> values, InputStream is) {
-        Object result = null;
-        if (parameterAnnotations == null || parameterAnnotations.length == 0) {
-            if (readFromEntityBody) {
-                result = readFromEntityBody(parameterClass, is);
+                                           Annotation[] parameterAnnotations, Map<String, String> values,
+                                           Message message) {
+        InputStream is = message.getContent(InputStream.class);
+        String contentTypes = (String)message.get(Message.CONTENT_TYPE);
+        if (contentTypes != null) {
+            try {
+                MimeType mt = new MimeType(contentTypes);
+                contentTypes = mt.getBaseType();
+            } catch (MimeTypeParseException e) {
+                // ignore
             }
-            return result;
-        } 
-
-        Annotation annotation = parameterAnnotations[0];
-        if (annotation.annotationType() == UriParam.class) {
-            result = readFromUriParam((UriParam)annotation, parameterClass, parameterType,
+        }
+        String path = (String)message.get(JAXRSInInterceptor.RELATIVE_PATH);
+        String httpMethod = (String)message.get(Message.HTTP_REQUEST_METHOD);
+        
+        Object result = null;
+        
+        if ((parameterAnnotations == null || parameterAnnotations.length == 0)
+            && ("PUT".equals(httpMethod) || "POST".equals(httpMethod))) {
+            result = readFromEntityBody(parameterClass, is, contentTypes);
+        } else if (parameterAnnotations[0].annotationType() == UriParam.class) {
+            result = readFromUriParam((UriParam)parameterAnnotations[0], parameterClass, parameterType,
                                       parameterAnnotations, path, values);
-        } else if (annotation.annotationType() == QueryParam.class) {
+        } else if (parameterAnnotations[0].annotationType() == QueryParam.class) {
             //TODO
-        } else if (annotation.annotationType() == MatrixParam.class) {
+        } else if (parameterAnnotations[0].annotationType() == MatrixParam.class) {
             //TODO
-        } else if (annotation.annotationType() == HeaderParam.class) {
+        } else if (parameterAnnotations[0].annotationType() == HeaderParam.class) {
             //TODO
-        } else if (annotation.annotationType() == HttpContext.class) {
+        } else if (parameterAnnotations[0].annotationType() == HttpContext.class) {
             //TODO
         }
 
@@ -139,9 +148,11 @@ public final class JAXRSUtils {
     }
 
     @SuppressWarnings("unchecked")
-    private static Object readFromEntityBody(Class targetTypeClass, InputStream is) {
+    private static Object readFromEntityBody(Class targetTypeClass, InputStream is, String contentTypes) {
         Object result = null;
-        EntityProvider provider = ProviderFactory.getInstance().createEntityProvider(targetTypeClass);
+        //Refactor once we move to JSR-311 0.5 API
+        EntityProvider provider = ((ProviderFactoryImpl)ProviderFactory.getInstance())
+            .createEntityProvider(targetTypeClass, new String[]{contentTypes}, true);
 
         try {
             result = provider.readFrom(targetTypeClass, null, null, is);

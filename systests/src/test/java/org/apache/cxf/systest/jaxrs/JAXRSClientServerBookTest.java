@@ -205,6 +205,54 @@ public class JAXRSClientServerBookTest extends AbstractBusClientServerTestBase {
     }
     
     @Test
+    public void testUpdateBookWithJSON() throws Exception {
+        String endpointAddress = "http://localhost:9080/bookstore/bookswithjson";
+
+        String inputFile = getClass().getResource("resources/update_book_json.txt").getFile();
+        File input = new File(inputFile);
+        PutMethod put = new PutMethod(endpointAddress);
+        RequestEntity entity = new FileRequestEntity(input, "application/json; charset=ISO-8859-1");
+        put.setRequestEntity(entity);
+        HttpClient httpclient = new HttpClient();
+
+        try {
+            int result = httpclient.executeMethod(put);
+            assertEquals(200, result);
+        } finally {
+            // Release current connection to the connection pool once you are
+            // done
+            put.releaseConnection();
+        }
+
+        // Verify result
+        endpointAddress = "http://localhost:9080/bookstore/books/123";
+        URL url = new URL(endpointAddress);
+        InputStream in = url.openStream();
+        assertNotNull(in);
+
+        InputStream expected = getClass().getResourceAsStream("resources/expected_update_book.txt");
+
+        assertEquals(getStringFromInputStream(expected), getStringFromInputStream(in));
+
+        // Roll back changes:
+        String inputFile1 = getClass().getResource("resources/expected_get_book123.txt").getFile();
+        File input1 = new File(inputFile1);
+        PutMethod put1 = new PutMethod(endpointAddress);
+        RequestEntity entity1 = new FileRequestEntity(input1, "text/xml; charset=ISO-8859-1");
+        put1.setRequestEntity(entity1);
+        HttpClient httpclient1 = new HttpClient();
+
+        try {
+            int result = httpclient1.executeMethod(put);
+            assertEquals(200, result);
+        } finally {
+            // Release current connection to the connection pool once you are
+            // done
+            put1.releaseConnection();
+        }
+    } 
+    
+    @Test
     public void testUpdateBookFailed() throws Exception {
         String endpointAddress =
             "http://localhost:9080/bookstore/books";

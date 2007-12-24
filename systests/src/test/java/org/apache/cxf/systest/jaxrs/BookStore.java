@@ -124,6 +124,23 @@ public class BookStore {
         XMLUtils.printDOM(ds.getNode());
         return ds;
     }
+    
+    @HttpMethod("PUT")
+    @UriTemplate("/bookswithjson/")
+    public Response updateBookJSON(Book book) {
+        System.out.println("----invoking updateBook, book name is: " + book.getName());
+        Book b = books.get(book.getId());
+
+        Response r;
+        if (b != null) {
+            books.put(book.getId(), book);
+            r = Response.Builder.ok().build();
+        } else {
+            r = Response.Builder.notModified().build();
+        }
+
+        return r;
+    }
 
     @HttpMethod("DELETE")
     @UriTemplate("/books/{bookId}/")
