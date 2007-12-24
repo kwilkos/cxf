@@ -26,7 +26,7 @@ import java.util.Collection;
  */
 public class AegisServiceImpl implements AegisService {
     private String acceptedString;
-    private Collection<Object> acceptedCollection;
+    private Collection<org.jdom.Element> acceptedCollection;
     
     public void reset() {
         acceptedString = null;
@@ -34,7 +34,7 @@ public class AegisServiceImpl implements AegisService {
     }
     
     /** {@inheritDoc}*/
-    public void acceptAny(String before, Collection<Object> anything) {
+    public void acceptAny(String before, Collection<org.jdom.Element> anything) {
         acceptedString = before;
         acceptedCollection = anything;
     }
@@ -42,7 +42,7 @@ public class AegisServiceImpl implements AegisService {
     /**
      * @return Returns the acceptedCollection.
      */
-    public Collection<Object> getAcceptedCollection() {
+    public Collection<org.jdom.Element> getAcceptedCollection() {
         return acceptedCollection;
     }
 

@@ -256,6 +256,7 @@ public class JavascriptUtils {
         }
         
         // now for the thing itself.
+        // type will be null for anyType. Apparently, XmlSchema doesn't represent it.
         if (type instanceof XmlSchemaComplexType) {
             // it has a value
             // pass the extra null in the slot for the 'extra namespaces' needed by 'any'.
@@ -263,13 +264,17 @@ public class JavascriptUtils {
                              + ".serialize(cxfjsutils, '" 
                              + elementInfo.getXmlName() + "', null)");
         } else { // simple type
-            QName typeName = type.getQName();
             appendString("<" + elementInfo.getXmlName() + ">");
             // warning: this assumes that ordinary Javascript serialization is all we need.
             // except for &gt; ad all of that.
-            if (isStringSimpleType(typeName)) {
+            if (type != null && isStringSimpleType(type.getQName())) {
                 appendExpression("cxfjsutils.escapeXmlEntities(" + jsVar + ")");
             } else {
+                // in other words, an AnyType is a string ... of XML! 
+                // Or, to be exact, of anything permitted in XML!
+                // (That is, in the anyType case, type will be null, and we won't escape,
+                // and anything goes. If someone sticks a string with xml-y stuff into
+                // an 'int' the results here won't be pretty.)
                 appendExpression(jsVar);
             }
             appendString("</" + elementInfo.getXmlName() + ">");

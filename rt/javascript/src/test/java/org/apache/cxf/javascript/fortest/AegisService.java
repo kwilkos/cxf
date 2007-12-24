@@ -22,6 +22,6 @@ package org.apache.cxf.javascript.fortest;
 import java.util.Collection;
 
 public interface AegisService {
-    void acceptAny(String before, Collection<Object> anything);
+    void acceptAny(String before, Collection<org.jdom.Element> anything);
 }
 

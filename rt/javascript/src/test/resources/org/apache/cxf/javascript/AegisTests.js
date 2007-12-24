@@ -34,14 +34,22 @@ function resetGlobals() {
 	globalResponseObject = null;
 }
 
+// aegis/simple doesn't understand 'oneway'
+
+function success()
+{
+}
+
+function error()
+{
+}
+
 function testAnyNToServerRaw(url)
 {
-	var service = new cxf_apache_org_jstest_any_AcceptAny();
+	var service = new fortest_javascript_cxf_apache_org__AegisServicePortType();
 	service.url = url;
-	var param = new cxf_apache_org_jstest_types_any_acceptAnyN();
-	param.setBefore("before chalk");
-	var holder = new org_apache_cxf_raw_any_holder("<walrus xmlns='uri:iam'>tusks</walrus><penguin xmlns='uri:linux'>emperor</penguin>");
-	param.setAny(holder);
-	param.setAfter("after chalk");
-	service.acceptAnyN(param);
+	
+	var arrayItem = new fortest_javascript_cxf_apache_org__ArrayOfAnyType();
+	arrayItem.setAnyType(["<walrus xmlns='uri:iam'>tusks</walrus>", "<penguin xmlns='uri:linux'>emperor</penguin>"]); 
+	service.acceptAny(success, error, "before items", arrayItem);
 }

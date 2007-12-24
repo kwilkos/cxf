@@ -34,6 +34,7 @@ public abstract class JavascriptRhinoTest extends AbstractCXFSpringTest {
     protected JavascriptTestUtilities testUtilities;
     protected JaxWsProxyFactoryBean clientProxyFactory;
     protected ServiceInfo serviceInfo;
+    protected ServerFactoryBean serverFactoryBean;
     protected Object rawImplementor;
     private Endpoint endpoint;
     
@@ -48,7 +49,7 @@ public abstract class JavascriptRhinoTest extends AbstractCXFSpringTest {
                            boolean validation) throws Exception {
         testUtilities.setBus(getBean(Bus.class, "cxf"));
         testUtilities.initializeRhino();
-        ServerFactoryBean serverFactoryBean = getBean(ServerFactoryBean.class, serviceEndpointBean);
+        serverFactoryBean = getBean(ServerFactoryBean.class, serviceEndpointBean);
         endpoint = serverFactoryBean.getServer().getEndpoint();
         // we need to find the implementor.
         rawImplementor = serverFactoryBean.getServiceBean();

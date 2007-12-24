@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.logging.Logger;
 
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.interceptor.LoggingInInterceptor;
 import org.apache.cxf.javascript.JavascriptTestUtilities.JSRunnable;
 import org.apache.cxf.javascript.fortest.AegisServiceImpl;
 import org.junit.Before;
@@ -34,7 +35,6 @@ import org.springframework.context.support.GenericApplicationContext;
  * We end up here with a part with isElement == true, a non-array element, 
  * but a complex type for an array of the element.
  */
-@org.junit.Ignore
 public class AegisTest extends JavascriptRhinoTest {
 
     private static final Logger LOG = LogUtils.getL7dLogger(AegisTest.class);
@@ -61,6 +61,7 @@ public class AegisTest extends JavascriptRhinoTest {
                    true);
         implementor = (AegisServiceImpl)rawImplementor;
         implementor.reset();
+        serverFactoryBean.getServer().getEndpoint().getInInterceptors().add(new LoggingInInterceptor());
     }
     
     private Void acceptAny(Context context) {
@@ -68,7 +69,7 @@ public class AegisTest extends JavascriptRhinoTest {
         testUtilities.rhinoCall("testAnyNToServerRaw",  
                                 testUtilities.javaToJS(getAddress()));
         assertEquals("before items", implementor.getAcceptedString());
-        Collection<Object> something = implementor.getAcceptedCollection();
+        Collection<org.jdom.Element> something = implementor.getAcceptedCollection();
         assertNotNull(something);
         return null;
     }
