@@ -92,6 +92,11 @@ public class JaxWsClientProxy extends org.apache.cxf.frontend.ClientProxy implem
         MethodDispatcher dispatcher = (MethodDispatcher)endpoint.getService().get(
                                                                                   MethodDispatcher.class
                                                                                       .getName());
+        Object[] params = args;
+        if (null == params) {
+            params = new Object[0];
+        }        
+        
         BindingOperationInfo oi = dispatcher.getBindingOperation(method, endpoint);
         if (oi == null) {
             // check for method on BindingProvider and Object
@@ -99,7 +104,7 @@ public class JaxWsClientProxy extends org.apache.cxf.frontend.ClientProxy implem
                 || method.getDeclaringClass().equals(BindingProviderImpl.class)
                 || method.getDeclaringClass().equals(Object.class)) {
                 try {
-                    return method.invoke(this);
+                    return method.invoke(this, params);
                 } catch (InvocationTargetException e) {
                     throw e.fillInStackTrace().getCause();
                 }
@@ -107,11 +112,6 @@ public class JaxWsClientProxy extends org.apache.cxf.frontend.ClientProxy implem
 
             Message msg = new Message("NO_OPERATION_INFO", LOG, method.getName());
             throw new WebServiceException(msg.toString());
-        }
-
-        Object[] params = args;
-        if (null == params) {
-            params = new Object[0];
         }
 
         Map<String, Object> reqContext = this.getRequestContextCopy();        
