@@ -25,7 +25,6 @@ import java.util.Map;
 
 import javax.xml.ws.Binding;
 import javax.xml.ws.BindingProvider;
-//TODO JAX-WS 2.1
 import javax.xml.ws.EndpointReference;
 import javax.xml.ws.handler.MessageContext;
 
@@ -37,24 +36,20 @@ public class BindingProviderImpl implements BindingProvider {
     protected ThreadLocal <Map<String, Object>> responseContext =
         new ThreadLocal<Map<String, Object>>();
     private final Binding binding;
-    private final JaxWsEndpointImpl endpoint;
     private final EndpointReferenceBuilder builder;
        
     public BindingProviderImpl() {
         this.binding = null;
-        this.endpoint = null;
         this.builder = null;
     }
 
     public BindingProviderImpl(Binding b) {
         this.binding = b;
-        this.endpoint = null;
         this.builder = null;
     }
     
-    public BindingProviderImpl(JaxWsEndpointImpl e) {
-        this.endpoint = e;
-        this.binding = this.endpoint.getJaxwsBinding();
+    public BindingProviderImpl(JaxWsEndpointImpl endpoint) {
+        this.binding = endpoint.getJaxwsBinding();
         this.builder = new EndpointReferenceBuilder(endpoint);
     }
     
