@@ -294,7 +294,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         }
         
         for (ServiceInfo si : getService().getServiceInfos()) {
-            if (getExtraClass() != null) {
+            if (getExtraClass() != null && !getExtraClass().isEmpty()) {
                 si.setProperty(EXTRA_CLASS, getExtraClass());
             }
         }
@@ -324,7 +324,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
 
         for (ServiceInfo si : getService().getServiceInfos()) {
             Set<?> wrapperClasses = this.getExtraClass();
-            if (wrapperClasses != null) {
+            if (wrapperClasses != null && !wrapperClasses.isEmpty()) {
                 si.setProperty(EXTRA_CLASS, wrapperClasses);
             }
         }

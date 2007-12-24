@@ -24,9 +24,11 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import javax.wsdl.Operation;
+import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Action;
 import javax.xml.ws.AsyncHandler;
@@ -372,10 +374,22 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
     
     @Override
     protected Set<Class<?>> getExtraClass() {
+        Set<Class<?>> classes = new HashSet<Class<?>>();
         if (!wrapperBeanGenerated) {
             wrapperClasses = generatedWrapperBeanClass();
-        } 
-        return wrapperClasses;
+        }
+        if (wrapperClasses != null) {
+            classes.addAll(wrapperClasses);
+        }
+        
+        XmlSeeAlso xmlSeeAlsoAnno = getServiceClass().getAnnotation(XmlSeeAlso.class);
+        
+        if (xmlSeeAlsoAnno != null && xmlSeeAlsoAnno.value() != null) {
+            for (int i = 0; i < xmlSeeAlsoAnno.value().length; i++) {
+                classes.add(xmlSeeAlsoAnno.value()[i]);
+            }
+        }
+        return classes;
     }
     
     private Set<Class<?>> generatedWrapperBeanClass() {
