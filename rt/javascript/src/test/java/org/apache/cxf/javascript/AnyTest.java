@@ -59,18 +59,17 @@ public class AnyTest extends JavascriptRhinoTest {
     
     @Before
     public void before() throws Exception {
-        setupRhino("any-proxy-factory", 
-                   "any-service-endpoint", 
+        setupRhino("any-service-endpoint", 
                    "/org/apache/cxf/javascript/AnyTests.js",
                    true);
-        implementor = (AnyImpl)endpoint.getImplementor();
+        implementor = (AnyImpl)rawImplementor;
         implementor.reset();
     }
     
     private Void acceptOneChalk(Context context) {
-        LOG.info("About to call accept1 with Chalk" + endpoint.getAddress());
+        LOG.info("About to call accept1 with Chalk" + getAddress());
         testUtilities.rhinoCall("testAny1ToServerChalk",  
-                                testUtilities.javaToJS(endpoint.getAddress()));
+                                testUtilities.javaToJS(getAddress()));
         assertEquals("before chalk", implementor.getBefore());
         Object someAlternative = implementor.getAny1value();
         assertTrue(someAlternative instanceof Alternative1);
@@ -90,9 +89,9 @@ public class AnyTest extends JavascriptRhinoTest {
     }
     
     private Void acceptOneRaw(Context context) {
-        LOG.info("About to call accept1 with Raw XML" + endpoint.getAddress());
+        LOG.info("About to call accept1 with Raw XML" + getAddress());
         testUtilities.rhinoCall("testAny1ToServerRaw",  
-                                testUtilities.javaToJS(endpoint.getAddress()));
+                                testUtilities.javaToJS(getAddress()));
         assertEquals("before chalk", implementor.getBefore());
         Object something = implementor.getAny1value();
         assertNotNull(something);
@@ -103,7 +102,7 @@ public class AnyTest extends JavascriptRhinoTest {
         assertEquals("after chalk", implementor.getAfter());
         return null;
     }
-    
+
     @Test
     public void callAcceptOneRaw() {
         testUtilities.runInsideContext(Void.class, new JSRunnable<Void>() {
@@ -112,11 +111,39 @@ public class AnyTest extends JavascriptRhinoTest {
             }
         });
     }
+    
+    private Void acceptNRaw(Context context) {
+        LOG.info("About to call acceptN with Raw XML" + getAddress());
+        testUtilities.rhinoCall("testAnyNToServerRaw",  
+                                testUtilities.javaToJS(getAddress()));
+        assertEquals("before chalk", implementor.getBefore());
+        Object[] something = implementor.getAnyNvalue();
+        assertNotNull(something);
+        assertTrue(something[0] instanceof Element);
+        Element walrus = (Element) something[0];
+        assertEquals("walrus", walrus.getNodeName());
+        assertEquals("tusks", walrus.getTextContent());
+        assertTrue(something[1] instanceof Element);
+        Element penguin = (Element) something[1];
+        assertEquals("penguin", penguin.getNodeName());
+        assertEquals("emperor", penguin.getTextContent());
+        assertEquals("after chalk", implementor.getAfter());
+        return null;
+    }
+    
+    @Test
+    public void callAcceptNRaw() {
+        testUtilities.runInsideContext(Void.class, new JSRunnable<Void>() {
+            public Void run(Context context) {
+                return acceptNRaw(context);
+            }
+        });
+    }
 
     private Void returnAny1(Context context) {
         Notifier notifier = 
             testUtilities.rhinoCallConvert("testAny1ToClientChalk", Notifier.class, 
-                                           testUtilities.javaToJS(endpoint.getAddress()));
+                                           testUtilities.javaToJS(getAddress()));
         
         boolean notified = notifier.waitForJavascript(1000 * 10);
         assertTrue(notified);

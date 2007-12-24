@@ -50,9 +50,9 @@ public class RPCClientTest extends JavascriptRhinoTest {
 
     @Before
     public void before() throws Exception {
-        setupRhino("rpc-proxy-factory", "rpc-service-endpoint", 
+        setupRhino("rpc-service-endpoint", 
                    "/org/apache/cxf/javascript/RPCTests.js", false); 
-        implementor = (SimpleRPCImpl)endpoint.getImplementor();
+        implementor = (SimpleRPCImpl)rawImplementor;
         implementor.resetLastValues();
     }
     
@@ -67,10 +67,10 @@ public class RPCClientTest extends JavascriptRhinoTest {
 
     private Void simpleCaller(Context context) {
         
-        LOG.info("About to call simpleTest " + endpoint.getAddress());
+        LOG.info("About to call simpleTest " + getAddress());
         Notifier notifier = 
             testUtilities.rhinoCallConvert("simpleTest", Notifier.class, 
-                                           testUtilities.javaToJS(endpoint.getAddress()),
+                                           testUtilities.javaToJS(getAddress()),
                                            "String Parameter",
                                            testUtilities.javaToJS(new Integer(1776)));
         
@@ -113,10 +113,10 @@ public class RPCClientTest extends JavascriptRhinoTest {
         Scriptable jsBean1 = testBean1ToJS(testUtilities, context, b1);
         Scriptable jsBeanArray = context.newArray(testUtilities.getRhinoScope(), jsBeans);
         
-        LOG.info("About to call beanFunctionTest " + endpoint.getAddress());
+        LOG.info("About to call beanFunctionTest " + getAddress());
         Notifier notifier = 
             testUtilities.rhinoCallConvert("beanFunctionTest", Notifier.class, 
-                                           testUtilities.javaToJS(endpoint.getAddress()),
+                                           testUtilities.javaToJS(getAddress()),
                                            jsBean1,
                                            jsBeanArray);
         boolean notified = notifier.waitForJavascript(1000 * 10);

@@ -26,6 +26,7 @@ import javax.xml.namespace.QName;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.xmlschema.SchemaCollection;
+import org.apache.cxf.common.xmlschema.XmlSchemaConstants;
 import org.apache.ws.commons.schema.XmlSchema;
 import org.apache.ws.commons.schema.XmlSchemaElement;
 import org.apache.ws.commons.schema.XmlSchemaObject;
@@ -33,8 +34,8 @@ import org.apache.ws.commons.schema.XmlSchemaParticle;
 import org.apache.ws.commons.schema.XmlSchemaType;
 
 /**
- * All the information needed to create the JavaScript for an Xml Schema
- * element or xs:any.
+ * All the information needed to create the JavaScript for an Xml Schema element
+ * or xs:any.
  */
 public final class ParticleInfo {
     private static final Logger LOG = LogUtils.getL7dLogger(ParticleInfo.class);
@@ -51,6 +52,7 @@ public final class ParticleInfo {
     private long maxOccurs;
     private boolean nillable;
     private boolean any;
+    private boolean anyType;
     private String defaultValue;
     private boolean global;
 
@@ -58,17 +60,18 @@ public final class ParticleInfo {
     }
 
     /**
-     * Create an elementInfo that stores information about a global, named, element.
-     * @param element the element   
+     * Create an elementInfo that stores information about a global, named,
+     * element.
+     * 
+     * @param element the element
      * @param currentSchema the schema it came from.
      * @param schemaCollection the collection of all schemas.
      * @param prefixAccumulator the accumulator that assigns prefixes.
      * @return
      */
-    public static ParticleInfo forGlobalElement(XmlSchemaElement element, 
-                                               XmlSchema currentSchema, 
-                                               SchemaCollection schemaCollection,
-                                               NamespacePrefixAccumulator prefixAccumulator) {
+    public static ParticleInfo forGlobalElement(XmlSchemaElement element, XmlSchema currentSchema,
+                                                SchemaCollection schemaCollection,
+                                                NamespacePrefixAccumulator prefixAccumulator) {
         ParticleInfo elementInfo = new ParticleInfo();
         elementInfo.particle = element;
         elementInfo.minOccurs = element.getMinOccurs();
@@ -76,32 +79,26 @@ public final class ParticleInfo {
         elementInfo.nillable = element.isNillable();
         elementInfo.global = true;
 
-        factoryCommon(element, 
-                     currentSchema, 
-                     schemaCollection, 
-                     prefixAccumulator, 
-                     elementInfo);
+        factoryCommon(element, currentSchema, schemaCollection, prefixAccumulator, elementInfo);
         return elementInfo;
     }
-    
+
     /**
-     * Create element information for a part element.
-     * For a part, the JavaScript and Element names are 
-     * calculated in advance, and the element itself might be null! 
-     * In that case, the minOccurs and maxOccurs are conventional.
-     * Note that in some cases the code in ServiceJavascriptBuilder uses a local
+     * Create element information for a part element. For a part, the JavaScript
+     * and Element names are calculated in advance, and the element itself might
+     * be null! In that case, the minOccurs and maxOccurs are conventional. Note
+     * that in some cases the code in ServiceJavascriptBuilder uses a local
      * element (or xa:any) from inside the part element, instead of the part
-     * element itself.  
+     * element itself.
+     * 
      * @param element the element, or null
      * @param schemaCollection the schema collection, for resolving types.
      * @param javascriptName javascript variable name
      * @param xmlElementName xml element string
      * @return
      */
-    public static ParticleInfo forPartElement(XmlSchemaElement element,
-                                             SchemaCollection schemaCollection,
-                                             String javascriptName,
-                                             String xmlElementName) {
+    public static ParticleInfo forPartElement(XmlSchemaElement element, SchemaCollection schemaCollection,
+                                              String javascriptName, String xmlElementName) {
         ParticleInfo elementInfo = new ParticleInfo();
         elementInfo.particle = element;
         if (element == null) {
@@ -116,38 +113,35 @@ public final class ParticleInfo {
         elementInfo.javascriptName = javascriptName;
         elementInfo.xmlName = xmlElementName;
         elementInfo.global = true;
-        
+
         return elementInfo;
     }
 
     /**
      * Fill in an ElementInfo for an element or xs:any from a sequence.
+     * 
      * @param sequenceElement
      * @param currentSchema
      * @param schemaCollection
      * @param prefixAccumulator
      * @return
      */
-    public static ParticleInfo forLocalItem(XmlSchemaObject sequenceObject, 
-                                            XmlSchema currentSchema, 
+    public static ParticleInfo forLocalItem(XmlSchemaObject sequenceObject, XmlSchema currentSchema,
                                             SchemaCollection schemaCollection,
-                                            NamespacePrefixAccumulator prefixAccumulator,
-                                            QName contextName) {
-        XmlSchemaParticle sequenceParticle = 
-            XmlSchemaUtils.getObjectParticle(sequenceObject, contextName);
+                                            NamespacePrefixAccumulator prefixAccumulator, QName contextName) {
+        XmlSchemaParticle sequenceParticle = XmlSchemaUtils.getObjectParticle(sequenceObject, contextName);
         ParticleInfo elementInfo = new ParticleInfo();
         XmlSchemaParticle realParticle = sequenceParticle;
-        
+
         if (sequenceParticle instanceof XmlSchemaElement) {
-            XmlSchemaElement sequenceElement = (XmlSchemaElement) sequenceParticle;
+            XmlSchemaElement sequenceElement = (XmlSchemaElement)sequenceParticle;
 
             if (sequenceElement.getRefName() != null) {
-                XmlSchemaElement refElement = 
-                    schemaCollection.getElementByQName(sequenceElement.getRefName());
+                XmlSchemaElement refElement = schemaCollection
+                    .getElementByQName(sequenceElement.getRefName());
                 if (refElement == null) {
-                    Message message = new Message("ELEMENT_DANGLING_REFERENCE", LOG, 
-                                                  sequenceElement.getQName(),
-                                                  sequenceElement.getRefName());
+                    Message message = new Message("ELEMENT_DANGLING_REFERENCE", LOG, sequenceElement
+                        .getQName(), sequenceElement.getRefName());
                     throw new UnsupportedConstruct(message.toString());
                 }
                 realParticle = refElement;
@@ -155,29 +149,24 @@ public final class ParticleInfo {
             }
             elementInfo.nillable = ((XmlSchemaElement)realParticle).isNillable();
         }
-            
+
         elementInfo.minOccurs = sequenceParticle.getMinOccurs();
         elementInfo.maxOccurs = sequenceParticle.getMaxOccurs();
 
-        factoryCommon(realParticle, 
-                     currentSchema, 
-                     schemaCollection, 
-                     prefixAccumulator, 
-                     elementInfo);
-        
+        factoryCommon(realParticle, currentSchema, schemaCollection, prefixAccumulator, elementInfo);
+
         elementInfo.particle = realParticle;
 
         return elementInfo;
     }
 
-    private static void factoryCommon(XmlSchemaParticle particle, 
-                                      XmlSchema currentSchema,
+    private static void factoryCommon(XmlSchemaParticle particle, XmlSchema currentSchema,
                                       SchemaCollection schemaCollection,
                                       NamespacePrefixAccumulator prefixAccumulator, 
                                       ParticleInfo elementInfo) {
-        
+
         if (particle instanceof XmlSchemaElement) {
-            XmlSchemaElement element = (XmlSchemaElement) particle;
+            XmlSchemaElement element = (XmlSchemaElement)particle;
             String elementNamespaceURI = element.getQName().getNamespaceURI();
             boolean elementNoNamespace = "".equals(elementNamespaceURI);
 
@@ -190,13 +179,12 @@ public final class ParticleInfo {
             }
 
             boolean qualified = !elementNoNamespace
-                                && XmlSchemaUtils.isElementQualified(element, 
-                                                                     true, 
-                                                                     currentSchema, 
+                                && XmlSchemaUtils.isElementQualified(element, true, currentSchema,
                                                                      elementSchema);
             elementInfo.xmlName = prefixAccumulator.xmlElementString(element, qualified);
             // we are assuming here that we are not dealing, in close proximity,
-            // with elements with identical local names and different namespaces.
+            // with elements with identical local names and different
+            // namespaces.
             elementInfo.javascriptName = element.getQName().getLocalPart();
             elementInfo.defaultValue = element.getDefaultValue();
             factorySetupType(element, schemaCollection, elementInfo);
@@ -210,37 +198,45 @@ public final class ParticleInfo {
         }
     }
 
-    private static void factorySetupType(XmlSchemaElement element, 
-                                         SchemaCollection schemaCollection,
+    private static void factorySetupType(XmlSchemaElement element, SchemaCollection schemaCollection,
                                          ParticleInfo elementInfo) {
         elementInfo.type = element.getSchemaType();
         if (elementInfo.type == null) {
-            elementInfo.type = schemaCollection.getTypeByQName(element.getSchemaTypeName());
-            if (elementInfo.type == null) {
-                throw new RuntimeException("null type");
+            if (element.getSchemaTypeName().equals(XmlSchemaConstants.ANY_TYPE_QNAME)) {
+                elementInfo.anyType = true;
+            } else {
+                elementInfo.type = schemaCollection.getTypeByQName(element.getSchemaTypeName());
+                if (elementInfo.type == null 
+                    && !element.getSchemaTypeName()
+                            .getNamespaceURI().equals(XmlSchemaConstants.XSD_NAMESPACE_URI)) {
+                    XmlSchemaUtils.unsupportedConstruct("MISSING_TYPE", element.getSchemaTypeName()
+                            .toString(), element.getQName(), element);
+                }
             }
         }
     }
-    
+
     /**
-     * As a general rule, the JavaScript code is organized by types. The exception
-     * is global elements that have anonymous types. In those cases, the JavaScript code
-     * has its functions named according to the element. This method returns the QName 
-     * for the type or element, accordingly. If a schema has a local element with an
-     * anonymous, complex, type, this will throw. This will need to be fixed.
+     * As a general rule, the JavaScript code is organized by types. The
+     * exception is global elements that have anonymous types. In those cases,
+     * the JavaScript code has its functions named according to the element.
+     * This method returns the QName for the type or element, accordingly. If a
+     * schema has a local element with an anonymous, complex, type, this will
+     * throw. This will need to be fixed.
+     * 
      * @return the qname.
      */
     public QName getControllingName() {
         if (type != null && type.getQName() != null) {
             return type.getQName();
         } else if (particle instanceof XmlSchemaElement) {
-            XmlSchemaElement element = (XmlSchemaElement) particle;
+            XmlSchemaElement element = (XmlSchemaElement)particle;
             if (element.getQName() != null) {
                 return element.getQName();
-            } 
+            }
         }
-        Message message = new Message("IMPOSSIBLE_GLOBAL_ITEM", LOG, 
-                                      XmlSchemaUtils.cleanedUpSchemaSource(particle));
+        Message message = new Message("IMPOSSIBLE_GLOBAL_ITEM", LOG, XmlSchemaUtils
+            .cleanedUpSchemaSource(particle));
         LOG.severe(message.toString());
         throw new UnsupportedConstruct(message);
     }
@@ -252,7 +248,7 @@ public final class ParticleInfo {
     public String getJavascriptName() {
         return javascriptName;
     }
-    
+
     public void setJavascriptName(String name) {
         javascriptName = name;
     }
@@ -300,23 +296,30 @@ public final class ParticleInfo {
     public boolean isArray() {
         return maxOccurs > 1;
     }
-    
+
     public boolean isOptional() {
         return minOccurs == 0 && maxOccurs == 1;
     }
-    
-    /** 
+
+    /**
      * @return Returns the nillable flag for the element. False for 'xs:any'
      */
     public boolean isNillable() {
         return nillable;
     }
-    
+
     public boolean isAny() {
         return any;
     }
 
-    /** * @return Returns the defaultValue.
+    public boolean isAnyType() {
+        return anyType;
+    }
+
+    /**
+     * *
+     * 
+     * @return Returns the defaultValue.
      */
     public String getDefaultValue() {
         if (isOptional()) {
@@ -332,13 +335,13 @@ public final class ParticleInfo {
     public void setDefaultValue(String defaultValue) {
         this.defaultValue = defaultValue;
     }
-    
+
     /**
      * True if this describes a global, named, element.
+     * 
      * @return
      */
     public boolean isGlobal() {
         return global;
     }
 }
-

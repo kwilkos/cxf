@@ -59,11 +59,10 @@ public class DocLitBareClientTest extends JavascriptRhinoTest {
     
     @Before
     public void before() throws Exception {
-        setupRhino("dlb-proxy-factory", 
-                   "dlb-service-endpoint", 
+        setupRhino("dlb-service-endpoint", 
                    "/org/apache/cxf/javascript/DocLitBareTests.js",
                    true);
-        implementor = (SimpleDocLitBareImpl)endpoint.getImplementor();
+        implementor = (SimpleDocLitBareImpl)rawImplementor;
         implementor.resetLastValues();
     }
 
@@ -90,10 +89,10 @@ public class DocLitBareClientTest extends JavascriptRhinoTest {
         Scriptable jsBean1 = testBean1ToJS(testUtilities, context, b1);
         Scriptable jsBeanArray = context.newArray(testUtilities.getRhinoScope(), jsBeans);
         
-        LOG.info("About to call beanFunctionTest " + endpoint.getAddress());
+        LOG.info("About to call beanFunctionTest " + getAddress());
         Notifier notifier = 
             testUtilities.rhinoCallConvert("beanFunctionTest", Notifier.class, 
-                                           testUtilities.javaToJS(endpoint.getAddress()),
+                                           testUtilities.javaToJS(getAddress()),
                                            jsBean1,
                                            jsBeanArray);
         boolean notified = notifier.waitForJavascript(1000 * 10);
@@ -107,7 +106,7 @@ public class DocLitBareClientTest extends JavascriptRhinoTest {
         Scriptable responseObject = (Scriptable)testUtilities.rhinoEvaluate("globalResponseObject");
         // there is no response, this thing returns 'void'
         assertNull(responseObject);
-        SimpleDocLitBareImpl impl = getBean(SimpleDocLitBareImpl.class, "dlb-service");
+        SimpleDocLitBareImpl impl = (SimpleDocLitBareImpl)rawImplementor;
         TestBean1 b1returned = impl.getLastBean1();
         assertEquals(b1, b1returned);
         // commented out until 
@@ -124,10 +123,10 @@ public class DocLitBareClientTest extends JavascriptRhinoTest {
         
         Scriptable jsBean1 = testBean1ToJS(testUtilities, context, b1);
         
-        LOG.info("About to call compliant" + endpoint.getAddress());
+        LOG.info("About to call compliant" + getAddress());
         Notifier notifier = 
             testUtilities.rhinoCallConvert("compliantTest", Notifier.class, 
-                                           testUtilities.javaToJS(endpoint.getAddress()),
+                                           testUtilities.javaToJS(getAddress()),
                                            jsBean1);
         boolean notified = notifier.waitForJavascript(1000 * 10);
         assertTrue(notified);
@@ -143,10 +142,10 @@ public class DocLitBareClientTest extends JavascriptRhinoTest {
     }
     
     private Void actionMethodCaller(Context context) {
-        LOG.info("About to call actionMethod" + endpoint.getAddress());
+        LOG.info("About to call actionMethod" + getAddress());
         Notifier notifier = 
             testUtilities.rhinoCallConvert("actionMethodTest", Notifier.class, 
-                                           testUtilities.javaToJS(endpoint.getAddress()),
+                                           testUtilities.javaToJS(getAddress()),
                                            "wrong");
         boolean notified = notifier.waitForJavascript(1000 * 10);
         assertTrue(notified);
@@ -162,19 +161,19 @@ public class DocLitBareClientTest extends JavascriptRhinoTest {
     }
     
     private Void onewayCaller(Context context) {
-        LOG.info("About to call onewayMethod" + endpoint.getAddress());
+        LOG.info("About to call onewayMethod" + getAddress());
         testUtilities.rhinoCall("actionMethodTest",  
-                                testUtilities.javaToJS(endpoint.getAddress()),
+                                testUtilities.javaToJS(getAddress()),
                                 "corrigan");
         assertEquals("corrigan", implementor.getLastString());
         return null;
     }
     
     private Void compliantNoArgsCaller(Context context) {
-        LOG.info("About to call compliantNoArgs " + endpoint.getAddress());
+        LOG.info("About to call compliantNoArgs " + getAddress());
         Notifier notifier = 
             testUtilities.rhinoCallConvert("compliantNoArgsTest", Notifier.class, 
-                                           testUtilities.javaToJS(endpoint.getAddress()));
+                                           testUtilities.javaToJS(getAddress()));
 
         boolean notified = notifier.waitForJavascript(1000 * 10);
         assertTrue(notified);

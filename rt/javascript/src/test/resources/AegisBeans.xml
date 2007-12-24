@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Licensed to the Apache Software Foundation (ASF) under one
+  Licensed to the v Software Foundation (ASF) under one
   or more contributor license agreements. See the NOTICE file
   distributed with this work for additional information
   regarding copyright ownership. The ASF licenses this file
@@ -19,24 +19,31 @@
 -->
 <beans xmlns="http://www.springframework.org/schema/beans"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xmlns:jaxws="http://cxf.apache.org/jaxws"
+  xmlns:simple="http://cxf.apache.org/simple"
+  xmlns:soap="http://cxf.apache.org/bindings/soap"
   xsi:schemaLocation="
-           http://cxf.apache.org/jaxws                                 
-              http://cxf.apache.org/schemas/jaxws.xsd
            http://www.springframework.org/schema/beans
-              http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+              http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+           http://cxf.apache.org/bindings/soap http://cxf.apache.org/schemas/configuration/soap.xsd
+           http://cxf.apache.org/simple http://cxf.apache.org/schemas/simple.xsd">
               
   <import resource="classpath:META-INF/cxf/cxf.xml" />
   <import resource="classpath:META-INF/cxf/cxf-extension-soap.xml" />
   <import resource="classpath:META-INF/cxf/cxf-extension-xml.xml" />
   <import resource="classpath:META-INF/cxf/cxf-extension-http.xml" />
   <import resource="classpath:META-INF/cxf/cxf-extension-http-jetty.xml" />
-              
- <jaxws:server id="any-service-endpoint" 
-    address="http://localhost:8808/any" >
-    <jaxws:serviceBean>
-      <bean class='org.apache.cxf.javascript.fortest.AnyImpl'/>
-    </jaxws:serviceBean>
- </jaxws:server>
- 
- </beans>
+  
+  <simple:server id="aegis-service" 
+                 serviceClass="org.apache.cxf.javascript.fortest.AegisService" 
+                 address="http://localhost:8808/aegis">
+  	<simple:serviceBean>
+  		<bean class="org.apache.cxf.javascript.fortest.AegisServiceImpl" />
+  	</simple:serviceBean>
+  	<simple:dataBinding >
+      <bean class="org.apache.cxf.aegis.databinding.AegisDatabinding" />
+  	</simple:dataBinding>
+  </simple:server>
+  
+  </beans>
+  
+  

@@ -32,16 +32,11 @@
   <import resource="classpath:META-INF/cxf/cxf-extension-http-jetty.xml" />
   <import resource="classpath:META-INF/cxf/cxf-extension-javascript-client.xml" />
   
-  <bean id='hw-service' class='org.apache.hello_world_doc_lit.GreeterImplDoc'/>
-  
-  <jaxws:endpoint id="hw-service-endpoint" 
-    implementor="#hw-service" 
+  <jaxws:server id="hw-service-endpoint" 
     address="http://localhost:8808/HelloWorldDocLit" >
-  </jaxws:endpoint>
- 
-  <bean id="hw-proxy-factory" class="org.apache.cxf.jaxws.JaxWsProxyFactoryBean" >
-    <property name="serviceClass" value="org.apache.hello_world_doc_lit.Greeter"/>
-    <property name="address" value="http://localhost:8808/HelloWorldDocLit"/>
-  </bean>
+    <jaxws:serviceBean>
+    	<bean class='org.apache.hello_world_doc_lit.GreeterImplDoc'/>
+    </jaxws:serviceBean>
+  </jaxws:server>
  
  </beans>

@@ -22,8 +22,8 @@ package org.apache.cxf.javascript;
 import java.util.List;
 
 import org.apache.cxf.Bus;
-import org.apache.cxf.endpoint.Client;
-import org.apache.cxf.jaxws.EndpointImpl;
+import org.apache.cxf.endpoint.Endpoint;
+import org.apache.cxf.frontend.ServerFactoryBean;
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.service.model.ServiceInfo;
@@ -33,10 +33,9 @@ public abstract class JavascriptRhinoTest extends AbstractCXFSpringTest {
     
     protected JavascriptTestUtilities testUtilities;
     protected JaxWsProxyFactoryBean clientProxyFactory;
-    protected EndpointImpl endpoint;
-    protected Client client;
     protected ServiceInfo serviceInfo;
-
+    protected Object rawImplementor;
+    private Endpoint endpoint;
     
     public JavascriptRhinoTest() throws Exception {
         super();
@@ -44,25 +43,30 @@ public abstract class JavascriptRhinoTest extends AbstractCXFSpringTest {
         testUtilities.addDefaultNamespaces();
     }
 
-    public void setupRhino(String proxyFactoryBean, 
-                           String serviceEndpointBean, 
+    public void setupRhino(String serviceEndpointBean, 
                            String testsJavascript,
                            boolean validation) throws Exception {
         testUtilities.setBus(getBean(Bus.class, "cxf"));
         testUtilities.initializeRhino();
+        ServerFactoryBean serverFactoryBean = getBean(ServerFactoryBean.class, serviceEndpointBean);
+        endpoint = serverFactoryBean.getServer().getEndpoint();
+        // we need to find the implementor.
+        rawImplementor = serverFactoryBean.getServiceBean();
+
         testUtilities.readResourceIntoRhino("/org/apache/cxf/javascript/cxf-utils.js");
-        clientProxyFactory = getBean(JaxWsProxyFactoryBean.class, proxyFactoryBean);
-        client = clientProxyFactory.getClientFactoryBean().create();
-        List<ServiceInfo> serviceInfos = client.getEndpoint().getService().getServiceInfos();
+        List<ServiceInfo> serviceInfos = endpoint.getService().getServiceInfos();
         // there can only be one.
         assertEquals(1, serviceInfos.size());
         serviceInfo = serviceInfos.get(0);
         testUtilities.loadJavascriptForService(serviceInfo);
         testUtilities.readResourceIntoRhino(testsJavascript);
-        endpoint = getBean(EndpointImpl.class, serviceEndpointBean);
         if (validation) {
             endpoint.getService().put(Message.SCHEMA_VALIDATION_ENABLED, Boolean.TRUE);
         }
+    }
+    
+    protected String getAddress() {
+        return endpoint.getEndpointInfo().getAddress();
     }
 
 }

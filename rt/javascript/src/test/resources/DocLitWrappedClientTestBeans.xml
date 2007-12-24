@@ -31,18 +31,11 @@
   <import resource="classpath:META-INF/cxf/cxf-extension-http.xml" />
   <import resource="classpath:META-INF/cxf/cxf-extension-http-jetty.xml" />
   
-  <bean id='dlw-service' class='org.apache.cxf.javascript.fortest.SimpleDocLitWrappedImpl'/>
-  
-  <!-- use # so that we can pull state out of the service object in the tests. -->            
-  <jaxws:endpoint id="dlw-service-endpoint" 
-    implementor="#dlw-service" 
+  <jaxws:server id="dlw-service-endpoint" 
     address="http://localhost:8808/SimpleDocLitWrapped" >
-  </jaxws:endpoint>
- 
-  <bean id="dlw-proxy-factory" class="org.apache.cxf.jaxws.JaxWsProxyFactoryBean" >
-    <property name="serviceClass" value="org.apache.cxf.javascript.fortest.SimpleDocLitWrapped"/>
-    <property name="address" value="http://localhost:8808/SimpleDocLitWrapped"/>
-  </bean>
- 
- 
+     <jaxws:serviceBean>
+      <bean class='org.apache.cxf.javascript.fortest.SimpleDocLitWrappedImpl'/>
+    </jaxws:serviceBean>
+  </jaxws:server>
+
  </beans>

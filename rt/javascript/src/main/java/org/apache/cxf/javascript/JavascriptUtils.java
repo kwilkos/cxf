@@ -292,7 +292,8 @@ public class JavascriptUtils {
     
     /**
      * Generate code to serialize an xs:any.
-     * There is too much duplicate code the element serializer; fix that some day.
+     * There is too much duplicate code with 
+     * the element serializer; fix that some day.
      * @param elementInfo
      * @param schemaCollection
      */

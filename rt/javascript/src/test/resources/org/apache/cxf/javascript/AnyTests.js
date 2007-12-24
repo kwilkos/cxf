@@ -60,6 +60,18 @@ function testAny1ToServerRaw(url)
 	service.acceptAny1(param);
 }
 
+function testAnyNToServerRaw(url)
+{
+	var service = new cxf_apache_org_jstest_any_AcceptAny();
+	service.url = url;
+	var param = new cxf_apache_org_jstest_types_any_acceptAnyN();
+	param.setBefore("before chalk");
+	var holder = new org_apache_cxf_raw_any_holder("<walrus xmlns='uri:iam'>tusks</walrus><penguin xmlns='uri:linux'>emperor</penguin>");
+	param.setAny(holder);
+	param.setAfter("after chalk");
+	service.acceptAnyN(param);
+}
+
 function errorCallback(httpStatus, httpStatusText) 
 {
     org_apache_cxf_trace.trace("error");

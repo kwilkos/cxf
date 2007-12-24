@@ -47,7 +47,7 @@ public class GreeterClientTest extends JavascriptRhinoTest {
     @Before
     public 
     void before() throws Exception {
-        setupRhino("greeter-proxy-factory", "greeter-service-endpoint",  
+        setupRhino("greeter-service-endpoint",  
                    "/org/apache/cxf/javascript/GreeterTests.js",
                    true);
     }
@@ -55,7 +55,7 @@ public class GreeterClientTest extends JavascriptRhinoTest {
     private Void sayHiCaller(Context context) {
         Notifier notifier = 
             testUtilities.rhinoCallConvert("sayHiTest", Notifier.class, 
-                                           testUtilities.javaToJS(endpoint.getAddress()));
+                                           testUtilities.javaToJS(getAddress()));
         
         boolean notified = notifier.waitForJavascript(1000 * 10);
         assertTrue(notified);

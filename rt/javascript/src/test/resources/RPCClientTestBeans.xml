@@ -33,15 +33,11 @@
   
   <bean id='rpc-service' class='org.apache.cxf.javascript.fortest.SimpleRPCImpl'/>
   
-  <!-- use # so that we can pull state out of the service object in the tests. -->            
-  <jaxws:endpoint id="rpc-service-endpoint" 
-    implementor="#rpc-service" 
+  <jaxws:server id="rpc-service-endpoint" 
     address="http://localhost:8808/SimpleRPC" >
-  </jaxws:endpoint>
- 
-  <bean id="rpc-proxy-factory" class="org.apache.cxf.jaxws.JaxWsProxyFactoryBean" >
-    <property name="serviceClass" value="org.apache.cxf.javascript.fortest.SimpleRPC"/>
-    <property name="address" value="http://localhost:8808/SimpleRPC"/>
-  </bean>
+     <jaxws:serviceBean>
+      <ref bean="rpc-service" />
+    </jaxws:serviceBean>
+  </jaxws:server>
  
  </beans>

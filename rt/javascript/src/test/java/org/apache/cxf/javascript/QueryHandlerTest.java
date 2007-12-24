@@ -29,7 +29,8 @@ import java.nio.charset.Charset;
 import java.util.logging.Logger;
 
 import org.apache.cxf.common.logging.LogUtils;
-import org.apache.cxf.jaxws.EndpointImpl;
+import org.apache.cxf.endpoint.Endpoint;
+import org.apache.cxf.frontend.ServerFactoryBean;
 import org.apache.cxf.test.AbstractCXFSpringTest;
 import org.junit.Before;
 import org.junit.Test;
@@ -41,9 +42,9 @@ import org.springframework.context.support.GenericApplicationContext;
 public class QueryHandlerTest extends AbstractCXFSpringTest {
     private static final Charset UTF8 = Charset.forName("utf-8");
     private static final Logger LOG = LogUtils.getL7dLogger(QueryHandlerTest.class);
-    private EndpointImpl hwEndpoint;
-    private EndpointImpl dlbEndpoint;
-    private EndpointImpl hwgEndpoint;
+    private Endpoint hwEndpoint;
+    private Endpoint dlbEndpoint;
+    private Endpoint hwgEndpoint;
 
     public QueryHandlerTest() throws Exception {
         super();
@@ -66,10 +67,12 @@ public class QueryHandlerTest extends AbstractCXFSpringTest {
     
     @Before
     public void before() {
-        hwEndpoint = getBean(EndpointImpl.class, "hw-service-endpoint");
-        hwgEndpoint = getBean(EndpointImpl.class, "hwg-service-endpoint");
-        dlbEndpoint = getBean(EndpointImpl.class, "dlb-service-endpoint");
-
+        ServerFactoryBean serverFactoryBean = getBean(ServerFactoryBean.class, "hw-service-endpoint");
+        hwEndpoint = serverFactoryBean.getServer().getEndpoint();
+        serverFactoryBean = getBean(ServerFactoryBean.class, "hwg-service-endpoint");
+        hwgEndpoint = serverFactoryBean.getServer().getEndpoint();
+        serverFactoryBean = getBean(ServerFactoryBean.class, "dlb-service-endpoint");
+        dlbEndpoint = serverFactoryBean.getServer().getEndpoint();
     }
     
     private String getStringFromURL(URL url) throws IOException {
@@ -96,7 +99,7 @@ public class QueryHandlerTest extends AbstractCXFSpringTest {
     
     @Test
     public void hwQueryTest() throws Exception {
-        URL endpointURL = new URL(hwEndpoint.getAddress()  + "?js");
+        URL endpointURL = new URL(hwEndpoint.getEndpointInfo().getAddress()  + "?js");
         String js = getStringFromURL(endpointURL); 
         assertNotSame(0, js.length());
     }
@@ -104,7 +107,7 @@ public class QueryHandlerTest extends AbstractCXFSpringTest {
     @Test
     public void dlbQueryTest() throws Exception {
         LOG.finest("logged to avoid warning on LOG");
-        URL endpointURL = new URL(dlbEndpoint.getAddress()  + "?js");
+        URL endpointURL = new URL(dlbEndpoint.getEndpointInfo().getAddress()  + "?js");
         URLConnection connection = endpointURL.openConnection();
         assertEquals("application/javascript;charset=UTF-8", connection.getContentType());
         InputStream jsStream = connection.getInputStream();
@@ -114,7 +117,7 @@ public class QueryHandlerTest extends AbstractCXFSpringTest {
     
     @Test
     public void utilsTest() throws Exception {
-        URL endpointURL = new URL(dlbEndpoint.getAddress()  + "?js&nojsutils");
+        URL endpointURL = new URL(dlbEndpoint.getEndpointInfo().getAddress()  + "?js&nojsutils");
         URLConnection connection = endpointURL.openConnection();
         assertEquals("application/javascript;charset=UTF-8", connection.getContentType());
         InputStream jsStream = connection.getInputStream();
@@ -126,7 +129,7 @@ public class QueryHandlerTest extends AbstractCXFSpringTest {
     @org.junit.Ignore
     @Test 
     public void namespacePrefixTest() throws Exception {
-        URL endpointURL = new URL(hwgEndpoint.getAddress()  + "?js");
+        URL endpointURL = new URL(hwgEndpoint.getEndpointInfo().getAddress()  + "?js");
         String js = getStringFromURL(endpointURL);
         assertTrue(js.contains("hg_Greeter"));
     }
