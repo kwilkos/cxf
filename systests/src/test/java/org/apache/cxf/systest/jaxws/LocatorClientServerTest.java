@@ -71,6 +71,7 @@ public class LocatorClientServerTest extends AbstractBusClientServerTestBase {
     }
 
     @Test
+    @org.junit.Ignore("not legal if serviceName, portName, address all NULL")
     public void testLocatorService() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/locator.wsdl");
         assertNotNull(wsdl);
@@ -100,5 +101,18 @@ public class LocatorClientServerTest extends AbstractBusClientServerTestBase {
 
         port.queryEndpoints(new QueryEndpoints());
 
+    }
+
+    @Test
+    public void testIllegalState() throws Exception {
+        W3CEndpointReferenceBuilder builder = new  W3CEndpointReferenceBuilder();
+        try {
+            builder.build();
+            fail("Address in an EPR cannot be null, when serviceName or portName is null");
+        } catch (IllegalStateException ie) {
+            assertTrue(true);
+        } catch (Exception e) {
+            fail("Unexpected Exception " + e.getClass() + " raised: " + e.getMessage());
+        }
     }
 }
