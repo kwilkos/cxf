@@ -93,7 +93,11 @@ public class ProviderImpl extends javax.xml.ws.spi.Provider {
         XMLStreamWriter writer = StaxUtils.createXMLStreamWriter(cos);
 
         try {
-            //TODO: when serviceName/portName is null            
+            //TODO: when serviceName/portName is null      
+            if (serviceName == null && portName == null && address == null) {
+                throw new IllegalStateException("Address in an EPR cannot be null, " 
+                        + " when serviceName or portName is null");
+            }
             writer.setPrefix("wsa", W3C_NS);
 
             String portNamePrefix = null;
