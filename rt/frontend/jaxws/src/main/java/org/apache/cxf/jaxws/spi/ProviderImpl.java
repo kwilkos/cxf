@@ -43,6 +43,7 @@ import org.w3c.dom.Element;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
+import org.apache.cxf.NSManager;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.io.CachedOutputStream;
@@ -50,14 +51,14 @@ import org.apache.cxf.jaxws.EndpointImpl;
 import org.apache.cxf.jaxws.EndpointUtils;
 import org.apache.cxf.jaxws.ServiceImpl;
 import org.apache.cxf.staxutils.StaxUtils;
+import org.apache.cxf.ws.addressing.JAXWSAConstants;
 
 public class ProviderImpl extends javax.xml.ws.spi.Provider {
     public static final String JAXWS_PROVIDER = ProviderImpl.class.getName();
-    protected static final String W3C_NS = "http://www.w3.org/2005/08/addressing";
     private static final Logger LOG = LogUtils.getL7dLogger(ProviderImpl.class);
-
-
     private static JAXBContext jaxbContext;
+    
+    private final NSManager nsMan = new NSManager();
 
     @Override
     public ServiceDelegate createServiceDelegate(URL url, QName qname, Class cls) {
@@ -91,14 +92,14 @@ public class ProviderImpl extends javax.xml.ws.spi.Provider {
                                                            List<Element> referenceParameters) {
         CachedOutputStream cos = new CachedOutputStream();
         XMLStreamWriter writer = StaxUtils.createXMLStreamWriter(cos);
-
+        final String wsaPrefix = nsMan.getPrefixFromNS(JAXWSAConstants.NS_WSA); 
         try {
             //TODO: when serviceName/portName is null      
             if (serviceName == null && portName == null && address == null) {
                 throw new IllegalStateException("Address in an EPR cannot be null, " 
                         + " when serviceName or portName is null");
             }
-            writer.setPrefix("wsa", W3C_NS);
+            writer.setPrefix(wsaPrefix, JAXWSAConstants.NS_WSA);
 
             String portNamePrefix = null;
             String serviceNamePrefix = null;
@@ -106,8 +107,8 @@ public class ProviderImpl extends javax.xml.ws.spi.Provider {
                 serviceNamePrefix = (serviceName.getPrefix() == null || serviceName.getPrefix()
                     .length() == 0) ? "ns" : serviceName.getPrefix();
             }
-            writer.writeStartElement("wsa", "EndpointReference", W3C_NS);
-            writer.writeNamespace("wsa", W3C_NS);
+            writer.writeStartElement(wsaPrefix, "EndpointReference", JAXWSAConstants.NS_WSA);
+            writer.writeNamespace(wsaPrefix, JAXWSAConstants.NS_WSA);
             if (serviceName != null) {
                 writer.writeNamespace(serviceNamePrefix, serviceName.getNamespaceURI());
             }
@@ -122,7 +123,7 @@ public class ProviderImpl extends javax.xml.ws.spi.Provider {
             }
 
             
-            writer.writeStartElement("wsa", "Address", W3C_NS);
+            writer.writeStartElement(wsaPrefix, "Address", JAXWSAConstants.NS_WSA);
             address = address == null ? "" : address;
             writer.writeCharacters(address);
             
@@ -130,13 +131,13 @@ public class ProviderImpl extends javax.xml.ws.spi.Provider {
             
             
             if (portName != null) {
-                writer.writeStartElement("wsa", "portName", W3C_NS);
+                writer.writeStartElement(wsaPrefix, "portName", JAXWSAConstants.NS_WSA);
                 writer.writeCharacters(portNamePrefix + ":" + portName.getLocalPart());
                 writer.writeEndElement();
             }
             
             if (serviceName != null) {
-                writer.writeStartElement("wsa", "ServiceName", W3C_NS);
+                writer.writeStartElement(wsaPrefix, "ServiceName", JAXWSAConstants.NS_WSA);
                 writer.writeCharacters(serviceNamePrefix + ":" + serviceName.getLocalPart());
                 writer.writeEndElement();
             }

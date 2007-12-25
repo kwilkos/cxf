@@ -34,6 +34,9 @@ public final class JAXWSAConstants {
     public static final QName WSAW_ACTION_QNAME = new QName(NS_WSAW,  "Action");
     
     public static final QName WSAW_USINGADDRESSING_QNAME = new QName(NS_WSAW, "UsingAddressing");
+    
+    public static final String NS_WSA = "http://www.w3.org/2005/08/addressing";
+    public static final String WSA_PREFIX = "wsa";
 
     /**
      * Well-known Property names for AddressingProperties in BindingProvider
