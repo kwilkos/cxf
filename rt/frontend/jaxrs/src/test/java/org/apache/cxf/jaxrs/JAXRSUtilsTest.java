@@ -66,6 +66,7 @@ public class JAXRSUtilsTest extends Assert {
     }
     
     @Test
+    @org.junit.Ignore
     public void testFindTargetResourceClassWithSubResource() throws Exception {
         JAXRSServiceFactoryBean sf = new JAXRSServiceFactoryBean();
         sf.setResourceClasses(org.apache.cxf.jaxrs.resources.BookStore.class);
