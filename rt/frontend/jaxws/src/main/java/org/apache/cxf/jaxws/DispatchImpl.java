@@ -56,6 +56,7 @@ import javax.xml.ws.soap.SOAPFaultException;
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.binding.soap.SoapBinding;
+import org.apache.cxf.binding.soap.interceptor.SoapActionOutInterceptor;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.endpoint.ConduitSelector;
@@ -177,26 +178,29 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
             // execute chain
             chain.doIntercept(message);
             
-                    
-            if (message.getContent(Exception.class) != null) {
+            Exception exp = message.getContent(Exception.class);
+            if (exp == null && exchange.getInMessage() != null) {
+                exp = exchange.getInMessage().getContent(Exception.class);
+            }
+
+            if (exp != null) {
                 getConduitSelector().complete(exchange);
                 if (getBinding() instanceof SOAPBinding) {
                     try {
                         SOAPFault soapFault = SOAPFactory.newInstance().createFault();
-                        Fault fault = (Fault)message.getContent(Exception.class);
+                        Fault fault = (Fault)exp;
                         soapFault.setFaultCode(fault.getFaultCode());
                         soapFault.setFaultString(fault.getMessage());
-                        SOAPFaultException exception = new SOAPFaultException(soapFault);
-                        throw exception;
+                        throw new SOAPFaultException(soapFault);
                     } catch (SOAPException e) {
                         throw new WebServiceException(e);
                     }
                 } else if (getBinding() instanceof HTTPBinding) {
                     HTTPException exception = new HTTPException(HttpURLConnection.HTTP_INTERNAL_ERROR);
-                    exception.initCause(message.getContent(Exception.class));
+                    exception.initCause(exp);
                     throw exception;
                 } else {
-                    throw new WebServiceException(message.getContent(Exception.class));
+                    throw new WebServiceException(exp);
                 }
             }
     
@@ -272,8 +276,12 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
                 // TODO: what for non soap bindings?
             }       
             chain.add(new DispatchLogicalHandlerInterceptor(jaxwsBinding));
-        }   
-        
+        }
+
+        if (getBinding() instanceof SOAPBinding) {
+            chain.add(new SoapActionOutInterceptor());
+        }
+
         chain.add(new MessageSenderInterceptor());
 
         chain.add(new DispatchOutDatabindingInterceptor(mode));
@@ -309,7 +317,7 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
             DispatchLogicalHandlerInterceptor slhi 
                 = new DispatchLogicalHandlerInterceptor(jaxwsBinding, Phase.USER_LOGICAL);            
             chain.add(slhi);
-        }           
+        }
 
         List<Interceptor> inInterceptors = new ArrayList<Interceptor>();
         inInterceptors.add(new DispatchInDatabindingInterceptor(cl, mode));
