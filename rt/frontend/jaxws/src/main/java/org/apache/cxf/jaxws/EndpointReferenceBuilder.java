@@ -20,13 +20,12 @@
 package org.apache.cxf.jaxws;
 
 import java.util.logging.Logger;
-
 import javax.xml.ws.EndpointReference;
 import javax.xml.ws.wsaddressing.W3CEndpointReferenceBuilder;
 
-import org.apache.cxf.binding.soap.SoapBindingConstants;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.jaxws.binding.soap.SOAPBindingImpl;
 import org.apache.cxf.jaxws.support.JaxWsEndpointImpl;
 
 public class EndpointReferenceBuilder {
@@ -38,8 +37,8 @@ public class EndpointReferenceBuilder {
     }
     public EndpointReference getEndpointReference() {
         String bindingId = endpoint.getJaxwsBinding().getBindingID();   
-        if (!SoapBindingConstants.SOAP11_BINDING_ID.equals(bindingId) 
-            && !SoapBindingConstants.SOAP12_BINDING_ID.equals(bindingId)) {
+        
+        if (!SOAPBindingImpl.isSoapBinding(bindingId)) {
             throw new UnsupportedOperationException(new Message("GET_ENDPOINTREFERENCE_UNSUPPORTED_BINDING",
                                                                 LOG, bindingId).toString());
         }

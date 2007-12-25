@@ -55,6 +55,7 @@ import org.apache.cxf.endpoint.ServerImpl;
 import org.apache.cxf.feature.AbstractFeature;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.interceptor.InterceptorProvider;
+import org.apache.cxf.jaxws.binding.soap.SOAPBindingImpl;
 import org.apache.cxf.jaxws.support.JaxWsEndpointImpl;
 import org.apache.cxf.jaxws.support.JaxWsImplementorInfo;
 import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
@@ -518,7 +519,7 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
         }
         
         String bindingId = getBinding().getBindingID();        
-        if (!"http://schemas.xmlsoap.org/soap/".equals(bindingId)) {
+        if (!SOAPBindingImpl.isSoapBinding(bindingId)) {
             throw new UnsupportedOperationException(new Message("GET_ENDPOINTREFERENCE_UNSUPPORTED_BINDING",
                                                                 LOG).toString());
         }
