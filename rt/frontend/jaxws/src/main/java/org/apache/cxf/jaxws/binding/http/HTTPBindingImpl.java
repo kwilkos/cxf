@@ -48,8 +48,8 @@ public class HTTPBindingImpl extends AbstractBindingImpl implements HTTPBinding 
     private void validate() {
         for (Handler handler : this.getHandlerChain()) {
             if (!(handler instanceof LogicalHandler)) {
-                throw new WebServiceException("Adding an incompatible handler in javax.xml.ws.http.HTTPBinding: " 
-                        + handler.getClass());
+                throw new WebServiceException("Adding an incompatible handler in HTTPBinding: "
+                                              + handler.getClass());
             }
         }        
     }    
