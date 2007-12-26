@@ -19,6 +19,11 @@
 
 package org.apache.cxf.jaxws.binding.http;
 
+import java.util.List;
+
+import javax.xml.ws.WebServiceException;
+import javax.xml.ws.handler.Handler;
+import javax.xml.ws.handler.LogicalHandler;
 import javax.xml.ws.http.HTTPBinding;
 
 import org.apache.cxf.jaxws.binding.AbstractBindingImpl;
@@ -32,5 +37,20 @@ public class HTTPBindingImpl extends AbstractBindingImpl implements HTTPBinding 
     public String getBindingID() {
         //REVISIT: JIRA CXF-613
         return "http://cxf.apache.org/bindings/xformat";
+    }
+    
+    @Override
+    public void setHandlerChain(List<Handler> hc) {
+        super.setHandlerChain(hc);
+        validate();
+    }
+
+    private void validate() {
+        for (Handler handler : this.getHandlerChain()) {
+            if (!(handler instanceof LogicalHandler)) {
+                throw new WebServiceException("Adding an incompatible handler in javax.xml.ws.http.HTTPBinding: " 
+                        + handler.getClass());
+            }
+        }        
     }    
 }
