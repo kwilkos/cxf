@@ -27,6 +27,7 @@ import java.util.Collection;
 public class AegisServiceImpl implements AegisService {
     private String acceptedString;
     private Collection<org.jdom.Element> acceptedCollection;
+    private Collection<String> acceptedStrings;
     
     public void reset() {
         acceptedString = null;
@@ -51,5 +52,15 @@ public class AegisServiceImpl implements AegisService {
      */
     public String getAcceptedString() {
         return acceptedString;
+    }
+
+    public void acceptStrings(Collection<String> someStrings) {
+        acceptedStrings = someStrings;
+    }
+
+    /** * @return Returns the acceptedStrings.
+     */
+    public Collection<String> getAcceptedStrings() {
+        return acceptedStrings;
     }
 }

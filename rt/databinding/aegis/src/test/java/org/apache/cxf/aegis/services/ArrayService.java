@@ -24,12 +24,25 @@ package org.apache.cxf.aegis.services;
  * @author <a href="mailto:dan@envoisolutions.com">Dan Diephouse</a>
  */
 public class ArrayService {
+    
+    private org.jdom.Element[] jdomArray;
+    private org.w3c.dom.Document[] w3cArray;
+    private String beforeValue;
+    private String afterValue;
+    
     public SimpleBean[] getBeanArray() {
         SimpleBean bean = new SimpleBean();
         bean.setBleh("bleh");
         bean.setHowdy("howdy");
 
         return new SimpleBean[] {bean};
+    }
+    
+    public void resetValues() {
+        beforeValue = null;
+        afterValue = null;
+        jdomArray = null;
+        w3cArray = null;
     }
 
     public String[] getStringArray() {
@@ -42,5 +55,33 @@ public class ArrayService {
 
     public boolean submitBeanArray(SimpleBean[] array) {
         return true;
+    }
+    
+    public void submitJDOMArray(String before, org.jdom.Element[] anything, String after) {
+        beforeValue = before;
+        jdomArray = anything;
+        afterValue = after;
+    }
+
+    public void submitW3CArray(String before, org.w3c.dom.Document[] anything, String after) {
+        beforeValue = before;
+        w3cArray = anything;
+        afterValue = after;
+    }
+
+    public org.jdom.Element[] getJdomArray() {
+        return jdomArray;
+    }
+
+    public org.w3c.dom.Document[] getW3cArray() {
+        return w3cArray;
+    }
+
+    public String getBeforeValue() {
+        return beforeValue;
+    }
+
+    public String getAfterValue() {
+        return afterValue;
     }
 }

@@ -50,6 +50,8 @@ function testAnyNToServerRaw(url)
 	service.url = url;
 	
 	var arrayItem = new fortest_javascript_cxf_apache_org__ArrayOfAnyType();
-	arrayItem.setAnyType(["<walrus xmlns='uri:iam'>tusks</walrus>", "<penguin xmlns='uri:linux'>emperor</penguin>"]); 
+	arrayItem.setAnyType(["<walrus xmlns='uri:iam'>tusks</walrus>",
+	                      "<penguin xmlns='uri:linux'>emperor</penguin>",
+	                      "<moon xmlns='uri:planets'>blue</moon>"]); 
 	service.acceptAny(success, error, "before items", arrayItem);
 }

@@ -23,5 +23,6 @@ import java.util.Collection;
 
 public interface AegisService {
     void acceptAny(String before, Collection<org.jdom.Element> anything);
+    void acceptStrings(Collection<String> someStrings);
 }
 

@@ -33,11 +33,15 @@ import org.junit.Test;
  * @since Feb 21, 2004
  */
 public class WrappedTest extends AbstractAegisTest {
+    
+    private ArrayService arrayService;
+    
     @Before 
     public void setUp() throws Exception {
         super.setUp();
+        arrayService = new ArrayService();
         createService(BeanService.class, null, "BeanService", null);
-        createService(ArrayService.class, "Array", new QName("urn:Array", "Array"));
+        createService(ArrayService.class, arrayService, "Array", new QName("urn:Array", "Array"));
     }
 
     @Test
@@ -91,6 +95,41 @@ public class WrappedTest extends AbstractAegisTest {
                         + "/xsd:complexType[@name=\"SimpleBean\"]/xsd:sequence/xsd:element"
                         + "[@type=\"xsd:string\"]",
                     doc);
+    }
+    
+    @Test 
+    public void testSubmitJDOMArray() throws Exception {
+        
+        org.jdom.xpath.XPath jxpathWalrus = 
+            org.jdom.xpath.XPath.newInstance("/a:anyType/iam:walrus");
+        jxpathWalrus.addNamespace("a", "urn:Array");
+        jxpathWalrus.addNamespace("iam", "uri:iam");
+        jxpathWalrus.addNamespace("linux", "uri:linux");
+        jxpathWalrus.addNamespace("planets", "uri:planets");
+
+        invoke("Array", "/org/apache/cxf/aegis/integration/anyTypeArrayJDOM.xml");
+        assertEquals("before items", arrayService.getBeforeValue());
+        assertEquals(3, arrayService.getJdomArray().length);
+        org.jdom.Element e = (org.jdom.Element)
+            jxpathWalrus.selectSingleNode(arrayService.getJdomArray()[0]);
+        assertNotNull(e);
+        assertEquals("tusks", e.getText());
+        assertEquals("after items", arrayService.getAfterValue());
+    }
+    
+    @Test 
+    public void testSubmitW3CArray() throws Exception {
+        addNamespace("a", "urn:Array");
+        addNamespace("iam", "uri:iam");
+        addNamespace("linux", "uri:linux");
+        addNamespace("planets", "uri:planets");
+
+        invoke("Array", "/org/apache/cxf/aegis/integration/anyTypeArrayW3C.xml");
+        assertEquals("before items", arrayService.getBeforeValue());
+        assertEquals(3, arrayService.getW3cArray().length);
+        org.w3c.dom.Document e = arrayService.getW3cArray()[0];
+        assertValid("/a:anyType/iam:walrus", e);
+        assertEquals("after items", arrayService.getAfterValue());
     }
 
     // public void testGetArray()
