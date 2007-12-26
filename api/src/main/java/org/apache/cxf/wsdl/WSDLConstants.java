@@ -25,6 +25,7 @@ public final class WSDLConstants {
 
     public static final String WSDL_PREFIX = "wsdl";
     public static final String NS_WSDL11 = "http://schemas.xmlsoap.org/wsdl/";
+    
 
     public static final String NP_XMLNS = "xmlns";
     public static final String NS_XMLNS = "http://www.w3.org/2000/xmlns/";
@@ -115,6 +116,7 @@ public final class WSDLConstants {
     public static final String ATTR_TRANSPORT = "transport";
     public static final String ATTR_LOCATION = "location";
     public static final String ATTR_NAME = "name";
+    public static final String ATTR_NAMESPACE = "namespace";
     public static final String ATTR_TNS = "targetNamespace";
     // usual prefix for the targetNamespace.
     public static final String CONVENTIONAL_TNS_PREFIX = "tns";
