@@ -48,7 +48,8 @@ public final class XmlSchemaUtils {
     
     public static final String XSI_NS_ATTR = WSDLConstants.NP_XMLNS + ":" 
                     + WSDLConstants.NP_SCHEMA_XSI + "='" + WSDLConstants.NS_SCHEMA_XSI + "'";
-    public static final String NIL_ATTRIBUTES = XSI_NS_ATTR + " xsi:nil='true'";
+    public static final String XSI_NIL_WITH_PREFIX = XSI_NS_ATTR + " xsi:nil='true'";
+    public static final String XSI_NIL = "xsi:nil='true'";
 
     private static final Logger LOG = LogUtils.getL7dLogger(XmlSchemaUtils.class);
     private static final XmlSchemaSequence EMPTY_SEQUENCE = new XmlSchemaSequence();

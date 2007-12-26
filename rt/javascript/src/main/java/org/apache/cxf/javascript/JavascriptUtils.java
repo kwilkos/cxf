@@ -34,11 +34,13 @@ import org.apache.ws.commons.schema.XmlSchemaSimpleType;
 import org.apache.ws.commons.schema.XmlSchemaType;
 
 /**
- * A set of functions that assist in JavaScript generation. This includes functions
- * for appending strings of JavaScript to a buffer as well as some type utilities.
+ * A set of functions that assist in JavaScript generation. This includes
+ * functions for appending strings of JavaScript to a buffer as well as some
+ * type utilities.
  */
 public class JavascriptUtils {
     private static final String NL = "\n";
+    private static int anyTypePrefixCounter;
     private StringBuilder code;
     private Stack<String> prefixStack;
     private String xmlStringAccumulatorVariable;
@@ -46,7 +48,7 @@ public class JavascriptUtils {
     private Set<String> nonStringSimpleTypes;
     private Set<String> intTypes;
     private Set<String> floatTypes;
-    
+
     public JavascriptUtils(StringBuilder code) {
         this.code = code;
         defaultValueForSimpleType = new HashMap<String, String>();
@@ -63,7 +65,7 @@ public class JavascriptUtils {
         nonStringSimpleTypes.add("unsignedLong");
         nonStringSimpleTypes.add("float");
         nonStringSimpleTypes.add("double");
-        
+
         intTypes = new HashSet<String>();
         intTypes.add("int");
         intTypes.add("long");
@@ -72,11 +74,11 @@ public class JavascriptUtils {
         floatTypes = new HashSet<String>();
         floatTypes.add("float");
         floatTypes.add("double");
-        
+
         prefixStack = new Stack<String>();
         prefixStack.push("    ");
     }
-    
+
     public String getDefaultValueForSimpleType(XmlSchemaType type) {
         String val = defaultValueForSimpleType.get(type.getName());
         if (val == null) { // ints and such return the appropriate 0.
@@ -85,16 +87,16 @@ public class JavascriptUtils {
             return val;
         }
     }
-    
+
     public boolean isStringSimpleType(QName typeName) {
-        return !(WSDLConstants.NS_SCHEMA_XSD.equals(typeName.getNamespaceURI()) 
-                 && nonStringSimpleTypes.contains(typeName.getLocalPart()));
+        return !(WSDLConstants.NS_SCHEMA_XSD.equals(typeName.getNamespaceURI()) && nonStringSimpleTypes
+            .contains(typeName.getLocalPart()));
     }
-    
+
     public void setXmlStringAccumulator(String variableName) {
         xmlStringAccumulatorVariable = variableName;
     }
-    
+
     public void startXmlStringAccumulator(String variableName) {
         xmlStringAccumulatorVariable = variableName;
         code.append(prefix());
@@ -102,17 +104,18 @@ public class JavascriptUtils {
         code.append(variableName);
         code.append(" = '';" + NL);
     }
-    
+
     public static String protectSingleQuotes(String value) {
         return value.replaceAll("'", "\\'");
     }
-    
+
     public String escapeStringQuotes(String data) {
         return data.replace("'", "\\'");
     }
-    
+
     /**
-     * emit javascript to append a value to the accumulator. 
+     * emit javascript to append a value to the accumulator.
+     * 
      * @param value
      */
     public void appendString(String value) {
@@ -121,30 +124,30 @@ public class JavascriptUtils {
         code.append(escapeStringQuotes(value));
         code.append("';" + NL);
     }
-    
+
     public void appendExpression(String value) {
         code.append(prefix());
         code.append(xmlStringAccumulatorVariable + " = " + xmlStringAccumulatorVariable + " + ");
         code.append(value);
         code.append(";" + NL);
     }
-    
+
     private String prefix() {
         return prefixStack.peek();
     }
-    
+
     public void appendLine(String line) {
         code.append(prefix());
         code.append(line);
         code.append(NL);
     }
-    
+
     public void startIf(String test) {
         code.append(prefix());
         code.append("if (" + test + ") {" + NL);
         prefixStack.push(prefix() + " ");
     }
-    
+
     public void startBlock() {
         code.append(prefix());
         code.append("{" + NL);
@@ -157,13 +160,13 @@ public class JavascriptUtils {
         code.append("} else {" + NL);
         prefixStack.push(prefix() + " ");
     }
-    
+
     public void endBlock() {
         prefixStack.pop();
         code.append(prefix());
         code.append("}" + NL);
     }
-    
+
     public void startFor(String start, String test, String increment) {
         code.append(prefix());
         code.append("for (" + start + ";" + test + ";" + increment + ") {" + NL);
@@ -187,8 +190,9 @@ public class JavascriptUtils {
         code.append("do  {" + NL);
         prefixStack.push(prefix() + " ");
     }
-    
-    // Given a js variable and a simple type object, correctly set the variables simple type 
+
+    // Given a js variable and a simple type object, correctly set the variables
+    // simple type
     public String javascriptParseExpression(XmlSchemaType type, String value) {
         if (!(type instanceof XmlSchemaSimpleType)) {
             return value;
@@ -204,16 +208,17 @@ public class JavascriptUtils {
             return value;
         }
     }
-    
+
     public static String javaScriptNameToken(String token) {
         return token;
     }
-    
+
     /**
      * Given an element, generate the serialization code.
-     * @param elementInfo      description of the element we are serializing
-     * @param referencePrefix  prefix to the Javascript variable. Nothing for args,
-     * this._ for members.
+     * 
+     * @param elementInfo description of the element we are serializing
+     * @param referencePrefix prefix to the Javascript variable. Nothing for
+     *                args, this._ for members.
      * @param schemaCollection caller's schema collection.
      */
     public void generateCodeToSerializeElement(ParticleInfo elementInfo,
@@ -224,7 +229,8 @@ public class JavascriptUtils {
         boolean optional = elementInfo.isOptional();
         boolean array = elementInfo.isArray();
         String jsVar = referencePrefix + elementInfo.getJavascriptName();
-        
+        appendLine("// block for local variables");
+        startBlock(); // allow local variables.
         // first question: optional?
         if (optional) {
             startIf(jsVar + " != null");
@@ -234,7 +240,7 @@ public class JavascriptUtils {
         // and nillable in the array case applies to the elements.
         if (nillable && !array) {
             startIf(jsVar + " == null");
-            appendString("<" + elementInfo.getXmlName() + " " + XmlSchemaUtils.NIL_ATTRIBUTES + "/>");
+            appendString("<" + elementInfo.getXmlName() + " " + XmlSchemaUtils.XSI_NIL + "/>");
             appendElse();
         }
         
@@ -243,45 +249,72 @@ public class JavascriptUtils {
             startIf(jsVar + " != null");
             startFor("var ax = 0", "ax < " +  jsVar + ".length", "ax ++");
             jsVar = jsVar + "[ax]";
-            // we need an extra level of 'nil' testing here. Or do we, depending on the type structure?
+            // we need an extra level of 'nil' testing here. Or do we, depending
+            // on the type structure?
             // Recode and fiddle appropriately.
             startIf(jsVar + " == null");
             if (nillable) {
                 appendString("<" + elementInfo.getXmlName() 
-                             + " " + XmlSchemaUtils.NIL_ATTRIBUTES + "/>");
+                             + " " + XmlSchemaUtils.XSI_NIL + "/>");
             } else {
                 appendString("<" + elementInfo.getXmlName() + "/>");                    
             }
             appendElse();
         }
         
-        // now for the thing itself.
-        // type will be null for anyType. Apparently, XmlSchema doesn't represent it.
-        if (type instanceof XmlSchemaComplexType) {
+        if (elementInfo.isAnyType()) {
+            // name a variable for convenience.
+            appendLine("var anyHolder = " + jsVar + ";");
+            appendLine("var anySerializer;");
+            appendLine("var typeAttr = '';");
+            // we look in the global array for a serializer.
+            startIf("anyHolder != null");
+            startIf("!anyHolder.raw"); // no serializer for raw.
+            // In anyType, the QName is for the type, not an element.
+            appendLine("anySerializer = "
+                       + "cxfjsutils.interfaceObject.globalElementSerializers[anyHolder.qname];");
+            endBlock();
+            startIf("anyHolder.xsiType");
+            appendLine("var typePrefix = 'cxfjst" + anyTypePrefixCounter + "';");
+            anyTypePrefixCounter++;
+            appendLine("var typeAttr = 'xmlns:' + typePrefix + '=\\\''"
+                       + " + anyHolder.namespaceURI + '\\\'';");
+            appendLine("typeAttr = typeAttr + ' xsi:type=\\\'' + typePrefix + ':' "
+                       + "+ anyHolder.localName + '\\\'';");
+            endBlock();
+            startIf("anySerializer");
+            appendExpression(jsVar 
+                             + ".serialize(cxfjsutils, '" 
+                             + elementInfo.getXmlName() + "', typeAttr)");
+            appendElse(); // simple type or raw
+            appendExpression("'<" + elementInfo.getXmlName() + " ' + typeAttr + " + "'>'");
+            startIf("!anyHolder.raw");
+            appendExpression("cxfjsutils.escapeXmlEntities(" + jsVar + ")");
+            appendElse();
+            appendExpression("anyHolder.xml");
+            endBlock();
+            appendString("</" + elementInfo.getXmlName() + ">");
+            endBlock();
+            appendElse(); // nil (from null holder)
+            appendString("<" + elementInfo.getXmlName() 
+                         + " " + XmlSchemaUtils.XSI_NIL + "/>");
+            endBlock();
+        } else if (type instanceof XmlSchemaComplexType) {
             // it has a value
-            // pass the extra null in the slot for the 'extra namespaces' needed by 'any'.
+            // pass the extra null in the slot for the 'extra namespaces' needed
+            // by 'any'.
             appendExpression(jsVar 
                              + ".serialize(cxfjsutils, '" 
                              + elementInfo.getXmlName() + "', null)");
         } else { // simple type
             appendString("<" + elementInfo.getXmlName() + ">");
-            // warning: this assumes that ordinary Javascript serialization is all we need.
-            // except for &gt; ad all of that.
-            if (type != null && isStringSimpleType(type.getQName())) {
-                appendExpression("cxfjsutils.escapeXmlEntities(" + jsVar + ")");
-            } else {
-                // in other words, an AnyType is a string ... of XML! 
-                // Or, to be exact, of anything permitted in XML!
-                // (That is, in the anyType case, type will be null, and we won't escape,
-                // and anything goes. If someone sticks a string with xml-y stuff into
-                // an 'int' the results here won't be pretty.)
-                appendExpression(jsVar);
-            }
+            appendExpression("cxfjsutils.escapeXmlEntities(" + jsVar + ")");
             appendString("</" + elementInfo.getXmlName() + ">");
         }
         
         if (array) {
-            endBlock(); // for the extra level of nil checking, which might be wrong.
+            endBlock(); // for the extra level of nil checking, which might be
+                        // wrong.
             endBlock(); // for the for loop.
             endBlock(); // the null protection.
         }
@@ -293,31 +326,31 @@ public class JavascriptUtils {
         if (optional) {
             endBlock();
         }
+        endBlock(); // local variables
     }
-    
+
     /**
-     * Generate code to serialize an xs:any.
-     * There is too much duplicate code with 
-     * the element serializer; fix that some day.
+     * Generate code to serialize an xs:any. There is too much duplicate code
+     * with the element serializer; fix that some day.
+     * 
      * @param elementInfo
      * @param schemaCollection
      */
-    public void generateCodeToSerializeAny(ParticleInfo itemInfo, 
-                                           String prefix,
+    public void generateCodeToSerializeAny(ParticleInfo itemInfo, String prefix,
                                            SchemaCollection schemaCollection) {
         boolean optional = XmlSchemaUtils.isParticleOptional(itemInfo.getParticle());
         boolean array = XmlSchemaUtils.isParticleArray(itemInfo.getParticle());
-        
+
         appendLine("var anyHolder = this._" + itemInfo.getJavascriptName() + ";");
         appendLine("var anySerializer = null;");
         appendLine("var anyXmlTag = null;");
         appendLine("var anyXmlNsDef = null;");
         appendLine("var anyData = null;");
         appendLine("var anyStartTag;");
-        
+
         startIf("anyHolder != null && !anyHolder.raw");
         appendLine("anySerializer = "
-                             + "cxfjsutils.interfaceObject.globalElementSerializers[anyHolder.qname];");
+                   + "cxfjsutils.interfaceObject.globalElementSerializers[anyHolder.qname];");
         appendLine("anyXmlTag = '" + prefix + ":' + anyHolder.localName;");
         appendLine("anyXmlNsDef = 'xmlns:" + prefix + "=\\'' + anyHolder.namespaceURI" + " + '\\'';");
         appendLine("anyStartTag = '<' + anyXmlTag + ' ' + anyXmlNsDef + '>';");
@@ -331,38 +364,38 @@ public class JavascriptUtils {
         // first question: optional?
         if (optional) {
             startIf("anyHolder != null && anyData != null");
-        }  else {
+        } else {
             startIf("anyHolder == null || anyData == null");
             appendLine("throw 'null value for required any item';");
             endBlock();
         }
-        
+
         String varRef = "anyData";
-        
+
         if (array) {
             startFor("var ax = 0", "ax < anyData.length", "ax ++");
             varRef = "anyData[ax]";
-            // we need an extra level of 'nil' testing here. Or do we, depending on the type structure?
+            // we need an extra level of 'nil' testing here. Or do we, depending
+            // on the type structure?
             // Recode and fiddle appropriately.
             startIf(varRef + " == null");
             appendExpression("anyEmptyTag");
             appendElse();
         }
-        
+
         startIf("anySerializer"); // if no constructor, a simple type.
-            // it has a value
-        appendExpression("anySerializer.call(" + varRef + ", cxfjsutils, anyXmlTag, anyXmlNsDef)"); 
+        // it has a value
+        appendExpression("anySerializer.call(" + varRef + ", cxfjsutils, anyXmlTag, anyXmlNsDef)");
         appendElse();
         appendExpression("anyStartTag");
         appendExpression("cxfjsutils.escapeXmlEntities(" + varRef + ")");
         appendExpression("anyEndTag");
         endBlock();
         if (array) {
-            endBlock(); // for the nil/empty tag. Gorsh, we should have runtime knowledge of nillable
-            // on the elements.
-            endBlock(); // for the for loop.
+            endBlock(); 
+            endBlock(); 
         }
-        
+
         if (optional) {
             endBlock();
         }

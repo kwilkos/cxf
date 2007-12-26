@@ -175,10 +175,12 @@ function org_apache_cxf_element_name_for_trace(node)
 CxfApacheOrgUtil.prototype.traceElementName = org_apache_cxf_element_name_for_trace; 
 
 function org_apache_cxf_escapeXmlEntities(val) {
-    if(val == null)
+    if(val == null || val == undefined)
         return "";
-    else
+    else {
+    	val = String(val);
         return val.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
 }
 
 CxfApacheOrgUtil.prototype.escapeXmlEntities = org_apache_cxf_escapeXmlEntities; 
@@ -255,15 +257,14 @@ function org_apache_cxf_getNodeText(node)
 
 CxfApacheOrgUtil.prototype.getNodeText = org_apache_cxf_getNodeText;
 
-// The following could be parameterized using the SoapVersion class, but does anyone believe that
-// there will ever be another soap version?
-
+// This always uses soap-env, soap, and xsi as prefixes.
 function org_apache_cxf_begin_soap11_message(namespaceAttributes)
 {
 	var value = 
 	    '<?xml version="1.0" encoding="UTF-8"?>' 
 	    + '<soap-env:Envelope xmlns:soap-env="http://schemas.xmlsoap.org/soap/envelope/"'
 		+ ' xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"'
+		+ ' xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"'
 	    + '><soap-env:Body '
 	    + namespaceAttributes 
 	    + '>';
@@ -414,9 +415,24 @@ function org_apache_cxf_any_holder(namespaceURI, localName, object) {
 	this.raw = false;
 }
 
+// the following will simply dump the supplied XML into the message.
 function org_apache_cxf_raw_any_holder(xml)
 {
+	this.typeMarker = "org_apache_cxf_raw_any_holder";
 	this.xml = xml;
 	this.raw = true;
+	this.xsiType = false;
+}
+
+// The following will get an xsi:type attribute in addition to dumping the XML into
+// the message.
+function org_apache_cxf_raw_typed_any_holder(namespaceURI, localName, xml)
+{
+	this.typeMarker = "org_apache_cxf_raw_any_holder";
+	this.namespaceURI = namespaceURI;
+	this.localName = localName;
+	this.xml = xml;
+	this.raw = true;
+	this.xsiType = true;
 }
 	

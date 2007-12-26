@@ -28,7 +28,12 @@ public class AegisServiceImpl implements AegisService {
     private String acceptedString;
     private Collection<org.jdom.Element> acceptedCollection;
     private Collection<String> acceptedStrings;
+    private Collection<Object> acceptedObjects;
     
+    public Collection<Object> getAcceptedObjects() {
+        return acceptedObjects;
+    }
+
     public void reset() {
         acceptedString = null;
         acceptedCollection = null;
@@ -62,5 +67,9 @@ public class AegisServiceImpl implements AegisService {
      */
     public Collection<String> getAcceptedStrings() {
         return acceptedStrings;
+    }
+
+    public void acceptObjects(Collection<Object> anything) {
+        acceptedObjects = anything;
     }
 }

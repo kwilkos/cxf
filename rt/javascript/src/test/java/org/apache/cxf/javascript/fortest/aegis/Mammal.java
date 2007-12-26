@@ -17,13 +17,20 @@
  * under the License.
  */
 
-package org.apache.cxf.javascript.fortest;
+package org.apache.cxf.javascript.fortest.aegis;
 
-import java.util.Collection;
+/**
+ * 
+ */
+public class Mammal {
+    private String name;
 
-public interface AegisService {
-    void acceptAny(String before, Collection<org.jdom.Element> anything);
-    void acceptObjects(Collection<Object> anything);
-    void acceptStrings(Collection<String> someStrings);
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
 }
-

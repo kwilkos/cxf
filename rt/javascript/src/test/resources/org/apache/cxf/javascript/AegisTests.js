@@ -50,8 +50,31 @@ function testAnyNToServerRaw(url)
 	service.url = url;
 	
 	var arrayItem = new fortest_javascript_cxf_apache_org__ArrayOfAnyType();
-	arrayItem.setAnyType(["<walrus xmlns='uri:iam'>tusks</walrus>",
-	                      "<penguin xmlns='uri:linux'>emperor</penguin>",
-	                      "<moon xmlns='uri:planets'>blue</moon>"]); 
+	var holderArray = [];
+	holderArray.push(new org_apache_cxf_raw_any_holder("<walrus xmlns='uri:iam'>tusks</walrus>"));
+	holderArray.push(new org_apache_cxf_raw_any_holder("<penguin xmlns='uri:linux'>emperor</penguin>"));
+	holderArray.push(new org_apache_cxf_raw_any_holder("<moon xmlns='uri:planets'>blue</moon>"));
+	arrayItem.setAnyType(holderArray);
 	service.acceptAny(success, error, "before items", arrayItem);
 }
+
+function testAnyNToServerRawTyped(url)
+{
+	var service = new fortest_javascript_cxf_apache_org__AegisServicePortType();
+	service.url = url;
+	
+	var arrayItem = new fortest_javascript_cxf_apache_org__ArrayOfAnyType();
+	var holderArray = [];
+	var holder = new org_apache_cxf_raw_typed_any_holder("http://aegis.fortest.javascript.cxf.apache.org",
+														 "Mammal",
+														 "<name xmlns='http://aegis.fortest.javascript.cxf.apache.org'>cat</name>");
+	holderArray.push(holder);
+	holder = new org_apache_cxf_raw_any_holder("http://www.w3.org/2001/XMLSchema", 
+													 "string",
+													 "This is the cereal < shot from guns");
+	
+	holderArray.push(holder);
+	arrayItem.setAnyType(holderArray);
+	service.acceptObjects(success, error, arrayItem);
+}
+

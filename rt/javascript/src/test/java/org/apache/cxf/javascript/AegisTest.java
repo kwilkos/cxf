@@ -82,4 +82,23 @@ public class AegisTest extends JavascriptRhinoTest {
             }
         });
     }
+    
+    private Void acceptAnyTyped(Context context) {
+        LOG.info("About to call acceptAny with Raw XML and xsi:type" + getAddress());
+        testUtilities.rhinoCall("testAnyNToServerRawTyped",  
+                                testUtilities.javaToJS(getAddress()));
+        Collection<Object> something = implementor.getAcceptedObjects();
+        assertNotNull(something);
+        return null;
+    }
+    
+    @org.junit.Ignore
+    @Test
+    public void callAcceptAnyTyped() {
+        testUtilities.runInsideContext(Void.class, new JSRunnable<Void>() {
+            public Void run(Context context) {
+                return acceptAnyTyped(context);
+            }
+        });
+    }
 }
