@@ -21,6 +21,8 @@ package org.apache.cxf.jaxws;
 
 import java.util.logging.Logger;
 import javax.xml.ws.EndpointReference;
+import javax.xml.ws.WebServiceException;
+import javax.xml.ws.wsaddressing.W3CEndpointReference;
 import javax.xml.ws.wsaddressing.W3CEndpointReferenceBuilder;
 
 import org.apache.cxf.common.i18n.Message;
@@ -56,6 +58,9 @@ public class EndpointReferenceBuilder {
     }
 
     public <T extends EndpointReference> T getEndpointReference(Class<T> clazz) {
+        if (clazz != W3CEndpointReference.class) {
+            throw new WebServiceException("Unsupported EPR type: " + clazz);
+        }
         return clazz.cast(getEndpointReference());
     }
 }
