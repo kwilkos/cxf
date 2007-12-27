@@ -25,6 +25,7 @@ import javax.xml.namespace.QName;
 import org.w3c.dom.Document;
 
 import org.apache.cxf.aegis.AbstractAegisTest;
+import org.apache.cxf.aegis.databinding.AegisDatabinding;
 import org.apache.cxf.aegis.type.Type;
 import org.apache.cxf.aegis.type.TypeMapping;
 import org.apache.cxf.aegis.type.XMLTypeCreator;
@@ -39,6 +40,7 @@ import org.junit.Test;
 public class AnnotatedTypeTest extends AbstractAegisTest {
     private TypeMapping tm;
     private Service service;
+    private AegisDatabinding databinding;
 
     @Before
     public void setUp() throws Exception {
@@ -46,8 +48,9 @@ public class AnnotatedTypeTest extends AbstractAegisTest {
 
         Server s = createService(AnnotatedService.class, null);
         service = s.getEndpoint().getService();
+        databinding = (AegisDatabinding) service.getDataBinding();
 
-        tm = (TypeMapping)service.get(TypeMapping.class.getName());
+        tm = databinding.getServiceTypeMapping();
     }
 
     @Test

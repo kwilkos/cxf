@@ -18,12 +18,12 @@
  */
 package org.apache.cxf.aegis.type;
 
-import java.util.List;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamReader;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.cxf.aegis.Context;
+import org.apache.cxf.aegis.databinding.AegisDatabinding;
 import org.apache.cxf.aegis.util.NamespaceHelper;
 import org.apache.cxf.common.util.SOAPConstants;
 
@@ -39,33 +39,59 @@ public final class TypeUtil {
         //utility class
     }
     
-    public static Type getReadType(XMLStreamReader xsr, Context context, Type type) {
+    public static Type getReadType(XMLStreamReader xsr, Context context, Type baseType) {
+
         if (!context.isReadXsiTypes()) {
-            return type;
+            if (baseType == null) {
+                LOG.warn("xsi:type reading disabled, and no type available for "  
+                         + xsr.getName());
+            }
+            return baseType;
         }
-    
+        
         String overrideType = xsr.getAttributeValue(SOAPConstants.XSI_NS, "type");
         if (overrideType != null) {
-            QName overrideTypeName = NamespaceHelper.createQName(xsr.getNamespaceContext(), overrideType);
-            if (!overrideTypeName.equals(type.getSchemaType())) {
-                Type type2 = type.getTypeMapping().getType(overrideTypeName);
-                if (type2 == null) {
-                    LOG.info("xsi:type=\"" + overrideTypeName
-                             + "\" was specified, but no corresponding Type was registered; defaulting to "
-                             + type.getSchemaType());
-                } else {
-                    type = type2;
+            QName overrideName = NamespaceHelper.createQName(xsr.getNamespaceContext(), overrideType);
+
+            if (baseType == null || !overrideName.equals(baseType.getSchemaType())) {
+                Type improvedType = null;
+                TypeMapping tm;
+                if (baseType != null) {
+                    tm = baseType.getTypeMapping();
+                    improvedType = tm.getType(overrideName);
+                }
+                if (improvedType == null) {
+                    improvedType = context.getDataBinding().getOverrideType(overrideName);
+                }
+                if (improvedType != null) {
+                    return improvedType;
                 }
             }
+        
+            if (baseType != null) {
+                LOG.info("xsi:type=\"" + overrideName
+                         + "\" was specified, but no corresponding Type was registered; defaulting to "
+                         + baseType.getSchemaType());
+                return baseType;
+            } else {
+                LOG.warn("xsi:type=\"" + overrideName
+                         + "\" was specified, but no corresponding Type was registered; no default.");
+                return null;
+            }
+        } else {
+            if (baseType == null) {
+                LOG.warn("xsi:type absent, and no type available for "  
+                         + xsr.getName());
+            }
+            return baseType;
         }
-        return type;
     }
 
-    public static Type getWriteType(Context context, Object value, Type type) {
+    public static Type getWriteType(AegisDatabinding databinding, Object value, Type type) {
         if (value != null && type != null && type.getTypeClass() != value.getClass()) {
-            List<String> l = context.getOverrideTypes();
-            if (l != null && l.contains(value.getClass().getName())) {
-                type = type.getTypeMapping().getType(value.getClass());
+            Type overrideType = databinding.getOverrideType(value.getClass());
+            if (overrideType != null) {
+                return overrideType;
             }
         }
         return type;

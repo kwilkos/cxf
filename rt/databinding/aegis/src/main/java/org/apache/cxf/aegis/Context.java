@@ -20,41 +20,41 @@ package org.apache.cxf.aegis;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.cxf.aegis.databinding.AegisDatabinding;
 import org.apache.cxf.aegis.type.TypeMapping;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Attachment;
 
 /**
- * Holds inforrmation about the message request and response.
+ * Holds information about the message request and response.
  * 
  * @author <a href="mailto:dan@envoisolutions.com">Dan Diephouse</a>
  * @since Feb 13, 2004
  */
 public class Context implements Map<String, Object> {
+    private AegisDatabinding databinding;
     private TypeMapping typeMapping;
     private Collection<Attachment> attachments;
-    private boolean writeXsiTypes;
-    private boolean readXsiTypes = true;
-    private List<String> overrideTypes;
     private Fault fault;
     private Map<String, Object> properties;
     
-    public Context() {
-       this(new HashMap<String, Object>());
+    public Context(AegisDatabinding databinding) {
+       this(databinding, new HashMap<String, Object>());
     }
 
-    public Context(Map<String, Object> properties) {
-        this.properties = properties;
-    }
-
-    public Context(boolean initProps) {
-        if (initProps) {
-            this.properties = new HashMap<String, Object>();
+    public Context(AegisDatabinding databinding, boolean initializeProps) {
+        this.databinding = databinding;
+        if (initializeProps) {
+            properties = new HashMap<String, Object>();
         }
+    }
+
+    public Context(AegisDatabinding databinding, Map<String, Object> properties) {
+        this.databinding = databinding;
+        this.properties = properties;
     }
 
     public TypeMapping getTypeMapping() {
@@ -74,27 +74,11 @@ public class Context implements Map<String, Object> {
     }
 
     public boolean isWriteXsiTypes() {
-        return writeXsiTypes;
-    }
-
-    public void setWriteXsiTypes(boolean writeXsiTypes) {
-        this.writeXsiTypes = writeXsiTypes;
+        return databinding.isWriteXsiTypes();
     }
 
     public boolean isReadXsiTypes() {
-        return readXsiTypes;
-    }
-
-    public void setReadXsiTypes(boolean readXsiTypes) {
-        this.readXsiTypes = readXsiTypes;
-    }
-
-    public List<String> getOverrideTypes() {
-        return overrideTypes;
-    }
-
-    public void setOverrideTypes(List<String> overrideTypes) {
-        this.overrideTypes = overrideTypes;
+        return databinding.isReadXsiTypes();
     }
 
     public void setFault(Fault fault) {
@@ -106,22 +90,17 @@ public class Context implements Map<String, Object> {
     }
 
     public void clear() {
-        // TODO Auto-generated method stub
-        
     }
 
     public boolean containsKey(Object key) {
-        // TODO Auto-generated method stub
         return false;
     }
 
     public boolean containsValue(Object value) {
-        // TODO Auto-generated method stub
         return false;
     }
 
     public Set<java.util.Map.Entry<String, Object>> entrySet() {
-        // TODO Auto-generated method stub
         return null;
     }
 
@@ -159,6 +138,10 @@ public class Context implements Map<String, Object> {
 
     public void setDelegateProperties(Map<String, Object> p) {
         this.properties = p;
+    }
+
+    public AegisDatabinding getDataBinding() {
+        return databinding;
     }
     
     

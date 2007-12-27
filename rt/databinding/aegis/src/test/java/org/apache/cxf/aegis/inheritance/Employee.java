@@ -21,7 +21,6 @@
  */
 package org.apache.cxf.aegis.inheritance;
 
-// @XmlType(namespace="urn:xfire:inheritance")
 public class Employee extends AbstractUser {
     private String division;
 

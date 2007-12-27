@@ -22,7 +22,6 @@ import java.util.Map;
 import java.util.TreeMap;
 import javax.xml.namespace.QName;
 
-import org.apache.cxf.aegis.Context;
 import org.apache.cxf.aegis.type.basic.BeanTypeInfo;
 import org.apache.cxf.aegis.xml.jdom.JDOMWriter;
 import org.apache.cxf.aegis.xml.stax.ElementReader;
@@ -65,20 +64,20 @@ public class StructTypeTest extends AbstractEncodedTest {
     public void testSimpleStruct() throws Exception {
         // Test reading
         ElementReader reader = new ElementReader(getClass().getResourceAsStream("struct1.xml"));
-        Address address = (Address) addressType.readObject(reader, new Context());
+        Address address = (Address) addressType.readObject(reader, getContext());
         validateShippingAddress(address);
         reader.getXMLStreamReader().close();
 
         // Test reading - no namespace on nested elements
         reader = new ElementReader(getClass().getResourceAsStream("struct2.xml"));
-        address = (Address) addressType.readObject(reader, new Context());
+        address = (Address) addressType.readObject(reader, getContext());
         validateShippingAddress(address);
         reader.getXMLStreamReader().close();
 
         // Test writing
         Element element = new Element("root", "b", "urn:Bean");
         new Document(element);
-        addressType.writeObject(address, new JDOMWriter(element), new Context());
+        addressType.writeObject(address, new JDOMWriter(element), getContext());
         validateShippingAddress(element);
     }
 
@@ -86,13 +85,13 @@ public class StructTypeTest extends AbstractEncodedTest {
     public void testComplexStruct() throws Exception {
         // Test reading
         ElementReader reader = new ElementReader(getClass().getResourceAsStream("struct3.xml"));
-        PurchaseOrder po = (PurchaseOrder) purchaseOrderType.readObject(reader, new Context());
+        PurchaseOrder po = (PurchaseOrder) purchaseOrderType.readObject(reader, getContext());
         validatePurchaseOrder(po);
         reader.getXMLStreamReader().close();
 
         // Test reading - no namespace on nested elements
         reader = new ElementReader(getClass().getResourceAsStream("struct4.xml"));
-        po = (PurchaseOrder) purchaseOrderType.readObject(reader, new Context());
+        po = (PurchaseOrder) purchaseOrderType.readObject(reader, getContext());
         validatePurchaseOrder(po);
         reader.getXMLStreamReader().close();
 

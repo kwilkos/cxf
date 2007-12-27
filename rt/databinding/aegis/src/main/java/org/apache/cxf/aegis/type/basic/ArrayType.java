@@ -241,7 +241,7 @@ public class ArrayType extends Type {
 
     protected void writeValue(Object value, MessageWriter writer, Context context, Type type, String name,
                               String ns) throws DatabindingException {
-        type = TypeUtil.getWriteType(context, value, type);
+        type = TypeUtil.getWriteType(context.getDataBinding(), value, type);
         MessageWriter cwriter;
         if (type.isWriteOuter()) {
             cwriter = writer.getElementWriter(name, ns);

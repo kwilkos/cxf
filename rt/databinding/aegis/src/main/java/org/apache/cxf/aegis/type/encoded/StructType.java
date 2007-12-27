@@ -37,7 +37,7 @@ import org.apache.cxf.aegis.xml.MessageWriter;
  * <li>Struct MAY contain a SOAP id attribute</li>
  * </ul>
  * </p>
- * When writting, the class will always write the struct in the following connonical format:
+ * When writting, the class will always write the struct in the following canonical format:
  * <ul>
  * <li>Struct will contain a SOAP id</li>
  * <li>Nested structs will be written as SOAP references (with SoapRefType)</li>

@@ -36,7 +36,6 @@ import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.databinding.DataWriter;
 import org.apache.cxf.endpoint.Endpoint;
-import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Attachment;
 import org.apache.cxf.service.model.MessagePartInfo;
@@ -61,8 +60,6 @@ public class XMLStreamDataWriter implements DataWriter<XMLStreamWriter> {
     }
 
     public void setSchema(Schema s) {
-        // TODO Auto-generated method stub
-
     }
 
     public void write(Object obj, MessagePartInfo part, XMLStreamWriter output) {
@@ -77,18 +74,11 @@ public class XMLStreamDataWriter implements DataWriter<XMLStreamWriter> {
         if (props == null) {
             props = new HashMap<String, Object>();
         }
-        Context context = new Context(props);
+        Context context = new Context(databinding, props);
         
-        // I'm not sure that this is the right type mapping
-        context.setTypeMapping(type.getTypeMapping());
-        context.setOverrideTypes(CastUtils.cast(databinding.getOverrideTypes(), String.class));
+        context.setTypeMapping(null);
         context.setAttachments(attachments);
-        Object val = databinding.getService().get(AegisDatabinding.WRITE_XSI_TYPE_KEY);
-        if ("true".equals(val) || Boolean.TRUE.equals(val)) {
-            context.setWriteXsiTypes(true);
-        }
-        
-        type = TypeUtil.getWriteType(context, obj, type);
+        type = TypeUtil.getWriteType(databinding, obj, type);
         
         try {
             if (obj == null) {

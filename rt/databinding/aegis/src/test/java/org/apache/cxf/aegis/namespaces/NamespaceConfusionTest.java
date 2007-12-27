@@ -30,6 +30,7 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.NodeList;
 
 import org.apache.cxf.aegis.AbstractAegisTest;
+import org.apache.cxf.aegis.databinding.AegisDatabinding;
 import org.apache.cxf.aegis.namespaces.data.Name;
 import org.apache.cxf.aegis.namespaces.impl.NameServiceImpl;
 import org.apache.cxf.aegis.type.Type;
@@ -51,6 +52,7 @@ public class NamespaceConfusionTest extends AbstractAegisTest {
     
     private TypeMapping tm;
     private Service service;
+    private AegisDatabinding databinding;
 
     @Before
     public void setUp() throws Exception {
@@ -58,8 +60,8 @@ public class NamespaceConfusionTest extends AbstractAegisTest {
         
         Server s = createService(NameServiceImpl.class, null);
         service = s.getEndpoint().getService();
-
-        tm = (TypeMapping)service.get(TypeMapping.class.getName());
+        databinding = (AegisDatabinding)service.getDataBinding();
+        tm = databinding.getServiceTypeMapping();
     }
     
     private String getNamespaceForPrefix(Element rootElement, 

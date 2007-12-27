@@ -32,7 +32,7 @@ import org.apache.cxf.aegis.DatabindingException;
  * SoapRefRegistry handles resolving all SOAP encoded references.  After each object is unmarshalled if the
  * xml contained a SOAP id attribute it is registered with that attribute.  As each object is unmarshalled if
  * any nested elements have a SOAP ref attribute it, the references is registered.  If there is a object
- * instance already registered with the referenced id, the SOAP reference is immedately set. Otherwise, the
+ * instance already registered with the referenced id, the SOAP reference is immediately set. Otherwise, the
  * reference is set when an object instance is registered with the id.  This allows for the objects to occur
  * in any order in the XML document.
  * <p/>

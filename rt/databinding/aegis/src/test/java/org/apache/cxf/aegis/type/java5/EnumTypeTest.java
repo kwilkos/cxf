@@ -24,6 +24,7 @@ import org.w3c.dom.Document;
 
 import org.apache.cxf.aegis.AbstractAegisTest;
 import org.apache.cxf.aegis.Context;
+import org.apache.cxf.aegis.databinding.AegisDatabinding;
 import org.apache.cxf.aegis.type.Configuration;
 import org.apache.cxf.aegis.type.CustomTypeMapping;
 import org.apache.cxf.aegis.type.Type;
@@ -38,6 +39,7 @@ import org.junit.Test;
 
 public class EnumTypeTest extends AbstractAegisTest {
     private CustomTypeMapping tm;
+    private AegisDatabinding databinding;
 
     private enum smallEnum {
         VALUE1, VALUE2
@@ -46,11 +48,16 @@ public class EnumTypeTest extends AbstractAegisTest {
     @Before
     public void setUp() throws Exception {
         super.setUp();
+        databinding = new AegisDatabinding();
 
         tm = new CustomTypeMapping();
         Java5TypeCreator creator = new Java5TypeCreator();
         creator.setConfiguration(new Configuration());
         tm.setTypeCreator(creator);
+    }
+    
+    private Context getContext() {
+        return new Context(databinding);
     }
 
     @Test
@@ -64,12 +71,12 @@ public class EnumTypeTest extends AbstractAegisTest {
         Element root = new Element("root");
         JDOMWriter writer = new JDOMWriter(root);
 
-        type.writeObject(smallEnum.VALUE1, writer, new Context());
+        type.writeObject(smallEnum.VALUE1, writer, getContext());
 
         assertEquals("VALUE1", root.getValue());
 
         JDOMReader reader = new JDOMReader(root);
-        Object value = type.readObject(reader, new Context());
+        Object value = type.readObject(reader, getContext());
 
         assertEquals(smallEnum.VALUE1, value);
     }
@@ -129,10 +136,10 @@ public class EnumTypeTest extends AbstractAegisTest {
         Element root = new Element("root");
         JDOMWriter writer = new JDOMWriter(root);
 
-        type.writeObject(new EnumBean(), writer, new Context());
+        type.writeObject(new EnumBean(), writer, getContext());
 
         JDOMReader reader = new JDOMReader(root);
-        Object value = type.readObject(reader, new Context());
+        Object value = type.readObject(reader, getContext());
 
         assertTrue(value instanceof EnumBean);
         EnumBean bean = (EnumBean)value;

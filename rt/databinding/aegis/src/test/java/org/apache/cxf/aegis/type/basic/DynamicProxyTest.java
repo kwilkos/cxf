@@ -22,6 +22,7 @@ import javax.xml.namespace.QName;
 
 import org.apache.cxf.aegis.AbstractAegisTest;
 import org.apache.cxf.aegis.Context;
+import org.apache.cxf.aegis.databinding.AegisDatabinding;
 import org.apache.cxf.aegis.type.DefaultTypeMappingRegistry;
 import org.apache.cxf.aegis.type.TypeMapping;
 import org.apache.cxf.aegis.type.TypeMappingRegistry;
@@ -30,12 +31,18 @@ import org.junit.Test;
 
 public class DynamicProxyTest extends AbstractAegisTest {
     TypeMapping mapping;
+    AegisDatabinding databinding;
 
     public void setUp() throws Exception {
         super.setUp();
 
         TypeMappingRegistry reg = new DefaultTypeMappingRegistry(true);
         mapping = reg.createTypeMapping(true);
+        databinding = new AegisDatabinding();
+    }
+    
+    private Context getContext() {
+        return new Context(databinding);
     }
 
 
@@ -47,7 +54,7 @@ public class DynamicProxyTest extends AbstractAegisTest {
         type.setSchemaType(new QName("urn:MyInterface", "data"));
 
         ElementReader reader = new ElementReader(getResourceAsStream("MyInterface.xml"));
-        IMyInterface data = (IMyInterface)type.readObject(reader, new Context());
+        IMyInterface data = (IMyInterface)type.readObject(reader, getContext());
         assertEquals("junk", data.getName());
         assertEquals(true, data.isUseless());
         data.setName("bigjunk");
@@ -75,7 +82,7 @@ public class DynamicProxyTest extends AbstractAegisTest {
         type.setSchemaType(new QName("urn:MyInterface", "data"));
 
         ElementReader reader = new ElementReader(getResourceAsStream("MyInterface.xml"));
-        IMyInterface data = (IMyInterface)type.readObject(reader, new Context());
+        IMyInterface data = (IMyInterface)type.readObject(reader, getContext());
 
         try {
             data.getNameById(0);
@@ -100,7 +107,7 @@ public class DynamicProxyTest extends AbstractAegisTest {
         type.setSchemaType(new QName("urn:MyInterface", "data"));
 
         ElementReader reader = new ElementReader(getResourceAsStream("MyInterface.xml"));
-        IMyInterface data = (IMyInterface)type.readObject(reader, new Context());
+        IMyInterface data = (IMyInterface)type.readObject(reader, getContext());
 
         try {
             data.setNameNoParams();
@@ -125,7 +132,7 @@ public class DynamicProxyTest extends AbstractAegisTest {
         type.setSchemaType(new QName("urn:MyInterface", "data"));
 
         ElementReader reader = new ElementReader(getResourceAsStream("MyInterface.xml"));
-        IMyInterface data = (IMyInterface)type.readObject(reader, new Context());
+        IMyInterface data = (IMyInterface)type.readObject(reader, getContext());
 
         try {
             data.doSomething();
@@ -143,7 +150,7 @@ public class DynamicProxyTest extends AbstractAegisTest {
         type.setSchemaType(new QName("urn:MyInterface", "data"));
 
         ElementReader reader = new ElementReader(getResourceAsStream("MyInterface.xml"));
-        IMyInterface data = (IMyInterface)type.readObject(reader, new Context());
+        IMyInterface data = (IMyInterface)type.readObject(reader, getContext());
 
         assertEquals("junk", data.getName());
         assertNull(data.getType());
@@ -162,7 +169,7 @@ public class DynamicProxyTest extends AbstractAegisTest {
         type2.getTypeInfo().mapType(new QName("urn:MyInterface", "myInterface"), type);
 
         ElementReader reader = new ElementReader(getResourceAsStream("MyInterface2.xml"));
-        IMyInterface2 data = (IMyInterface2)type2.readObject(reader, new Context());
+        IMyInterface2 data = (IMyInterface2)type2.readObject(reader, getContext());
 
         assertNotNull(data.getMyInterface());
         assertEquals("junk", data.getMyInterface().getName());

@@ -24,6 +24,8 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamConstants;
+import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.validation.Schema;
 
@@ -36,7 +38,6 @@ import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.databinding.DataReader;
 import org.apache.cxf.endpoint.Endpoint;
-import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Attachment;
 import org.apache.cxf.service.model.MessagePartInfo;
@@ -53,7 +54,8 @@ public class XMLStreamDataReader implements DataReader<XMLStreamReader> {
     
     public XMLStreamDataReader(AegisDatabinding databinding) {
         this.databinding = databinding;
-        this.context = new Context(false);
+        // optimize by avoiding the properties until we need them.
+        this.context = new Context(databinding, false);
     }
 
     public Object read(MessagePartInfo part, XMLStreamReader input) {
@@ -71,14 +73,8 @@ public class XMLStreamDataReader implements DataReader<XMLStreamReader> {
         }
         context.setDelegateProperties(props);
         
-         // I don't think this is the right type mapping
-        context.setTypeMapping(type.getTypeMapping());
-        context.setOverrideTypes(CastUtils.cast(databinding.getOverrideTypes(), String.class));
+        context.setTypeMapping(null); // let it delegate to the databinding
         context.setFault((Fault) getProperty(DataReader.FAULT));
-        Object val = databinding.getService().get(AegisDatabinding.READ_XSI_TYPE_KEY);
-        if ("false".equals(val) || Boolean.FALSE.equals(val)) {
-            context.setReadXsiTypes(false);
-        }
         
         ElementReader elReader = new ElementReader(input);
         if (elReader.isXsiNil()) {
@@ -101,13 +97,45 @@ public class XMLStreamDataReader implements DataReader<XMLStreamReader> {
     }
 
     public Object read(QName name, XMLStreamReader input, Class type) {
-        // TODO Auto-generated method stub
         return null;
     }
 
-    public Object read(XMLStreamReader input) {
-        // TODO Auto-generated method stub
-        return null;
+    public Object read(XMLStreamReader reader) {
+        Map<String, Object> props = new HashMap<String, Object>();
+        context.setDelegateProperties(props);
+        
+        context.setTypeMapping(null); // let it delegate to the databinding
+        context.setFault((Fault) getProperty(DataReader.FAULT));
+        // JAXB will take a start_document, so should we.
+        if (reader.getEventType() == XMLStreamConstants.START_DOCUMENT) {
+            while (XMLStreamConstants.START_ELEMENT != reader.getEventType()) {
+                try {
+                    reader.nextTag();
+                } catch (XMLStreamException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+        ElementReader elReader = new ElementReader(reader);
+
+        if (elReader.isXsiNil()) {
+            elReader.readToEnd();
+            return null;
+        }
+        
+        
+        Type type = TypeUtil.getReadType(reader, context, null);
+        
+        if (type == null) {
+            return null; // throw ?
+        }
+        
+
+        try {
+            return type.readObject(elReader, context);
+        } catch (DatabindingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void setAttachments(Collection<Attachment> attachments) {
@@ -123,8 +151,6 @@ public class XMLStreamDataReader implements DataReader<XMLStreamReader> {
     }
 
     public void setSchema(Schema s) {
-        // TODO Auto-generated method stub
-
     }
 
 }

@@ -158,8 +158,8 @@ public class MapType extends Type {
     private void writeEntry(MessageWriter writer, Context context,
                             Type kType, Type vType,
                             Map.Entry entry) throws DatabindingException {
-        kType = TypeUtil.getWriteType(context, entry.getKey(), kType);
-        vType = TypeUtil.getWriteType(context, entry.getValue(), vType);
+        kType = TypeUtil.getWriteType(context.getDataBinding(), entry.getKey(), kType);
+        vType = TypeUtil.getWriteType(context.getDataBinding(), entry.getValue(), vType);
 
         MessageWriter entryWriter = writer.getElementWriter(getEntryName());
 

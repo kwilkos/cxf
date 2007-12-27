@@ -26,6 +26,7 @@ import javax.xml.stream.XMLStreamException;
 import org.apache.cxf.aegis.AbstractAegisTest;
 import org.apache.cxf.aegis.Context;
 import org.apache.cxf.aegis.DatabindingException;
+import org.apache.cxf.aegis.databinding.AegisDatabinding;
 import org.apache.cxf.aegis.type.DefaultTypeMappingRegistry;
 import org.apache.cxf.aegis.type.Type;
 import org.apache.cxf.aegis.type.TypeMapping;
@@ -61,9 +62,15 @@ public abstract class AbstractEncodedTest extends AbstractAegisTest {
         // serialization root type
         trailingBlocks = new TrailingBlocks();
     }
+    
+    protected Context getContext() {
+        AegisDatabinding databinding = new AegisDatabinding();
+        databinding.setWriteXsiTypes(true);
+        return new Context(databinding);
+    }
 
     public <T> T readWriteReadRef(String file, Class<T> typeClass) throws XMLStreamException {
-        Context context = new Context();
+        Context context = getContext();
         context.setTypeMapping(mapping);
 
         Type type = mapping.getType(typeClass);
@@ -96,7 +103,7 @@ public abstract class AbstractEncodedTest extends AbstractAegisTest {
     }
 
     public Object readRef(ElementReader root) throws XMLStreamException {
-        Context context = new Context();
+        Context context = getContext();
         context.setTypeMapping(mapping);
 
         // get Type based on the element qname
@@ -131,7 +138,7 @@ public abstract class AbstractEncodedTest extends AbstractAegisTest {
         }
         new Document(element);
         JDOMWriter rootWriter = new JDOMWriter(element);
-        Context context = new Context();
+        Context context = getContext();
         context.setTypeMapping(mapping);
 
         // get Type based on the object instance
@@ -157,7 +164,7 @@ public abstract class AbstractEncodedTest extends AbstractAegisTest {
         Type type = mapping.getType(expectedType);
         assertNotNull("type is null", type);
 
-        Context context = new Context();
+        Context context = getContext();
         context.setTypeMapping(mapping);
 
         ElementReader reader = new ElementReader(getClass().getResourceAsStream(resourceName));

@@ -309,7 +309,7 @@ public class SoapArrayType extends Type {
             Context context,
             Type type) throws DatabindingException {
 
-        type = TypeUtil.getWriteType(context, value, type);
+        type = TypeUtil.getWriteType(context.getDataBinding(), value, type);
 
         MessageWriter cwriter = writer.getElementWriter(type.getSchemaType().getLocalPart(), "");
 

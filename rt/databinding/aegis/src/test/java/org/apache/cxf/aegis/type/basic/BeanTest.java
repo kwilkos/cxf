@@ -27,6 +27,7 @@ import javax.xml.namespace.QName;
 
 import org.apache.cxf.aegis.AbstractAegisTest;
 import org.apache.cxf.aegis.Context;
+import org.apache.cxf.aegis.databinding.AegisDatabinding;
 import org.apache.cxf.aegis.services.SimpleBean;
 import org.apache.cxf.aegis.type.Configuration;
 import org.apache.cxf.aegis.type.DefaultTypeMappingRegistry;
@@ -46,9 +47,14 @@ import org.junit.Test;
 public class BeanTest extends AbstractAegisTest {
     TypeMapping mapping;
     private DefaultTypeMappingRegistry reg;
+    private AegisDatabinding databinding;
+    private Context getContext() {
+        return new Context(databinding);
+    }
 
     public void setUp() throws Exception {
         super.setUp();
+        databinding = new AegisDatabinding();
 
         addNamespace("b", "urn:Bean");
         addNamespace("a", "urn:anotherns");
@@ -67,7 +73,7 @@ public class BeanTest extends AbstractAegisTest {
         // Test reading
         ElementReader reader = new ElementReader(getResourceAsStream("bean1.xml"));
 
-        SimpleBean bean = (SimpleBean)type.readObject(reader, new Context());
+        SimpleBean bean = (SimpleBean)type.readObject(reader, getContext());
         assertEquals("bleh", bean.getBleh());
         assertEquals("howdy", bean.getHowdy());
 
@@ -75,14 +81,14 @@ public class BeanTest extends AbstractAegisTest {
 
         // Test reading with extra elements
         reader = new ElementReader(getResourceAsStream("bean2.xml"));
-        bean = (SimpleBean)type.readObject(reader, new Context());
+        bean = (SimpleBean)type.readObject(reader, getContext());
         assertEquals("bleh", bean.getBleh());
         assertEquals("howdy", bean.getHowdy());
         reader.getXMLStreamReader().close();
 
         // test <bleh/> element
         reader = new ElementReader(getResourceAsStream("bean7.xml"));
-        bean = (SimpleBean)type.readObject(reader, new Context());
+        bean = (SimpleBean)type.readObject(reader, getContext());
         assertEquals("", bean.getBleh());
         assertEquals("howdy", bean.getHowdy());
         reader.getXMLStreamReader().close();
@@ -92,7 +98,7 @@ public class BeanTest extends AbstractAegisTest {
         // Test writing
         Element element = new Element("root", "b", "urn:Bean");
         new Document(element);
-        type.writeObject(bean, new JDOMWriter(element), new Context());
+        type.writeObject(bean, new JDOMWriter(element), getContext());
 
         assertValid("/b:root/b:bleh[text()='bleh']", element);
         assertValid("/b:root/b:howdy[text()='howdy']", element);
@@ -120,8 +126,8 @@ public class BeanTest extends AbstractAegisTest {
         // Test reading
         ElementReader reader = new ElementReader(getResourceAsStream("bean9.xml"));
 
-        Context ctx = new Context();
-        ctx.setReadXsiTypes(false);
+        databinding.setReadXsiTypes(false);
+        Context ctx = getContext();
 
         SimpleBean bean = (SimpleBean)type.readObject(reader, ctx);
         assertEquals("bleh", bean.getBleh());
@@ -132,7 +138,7 @@ public class BeanTest extends AbstractAegisTest {
         // Test writing
         Element element = new Element("root", "b", "urn:Bean");
         new Document(element);
-        type.writeObject(bean, new JDOMWriter(element), new Context());
+        type.writeObject(bean, new JDOMWriter(element), getContext());
 
         assertValid("/b:root/b:bleh[text()='bleh']", element);
         assertValid("/b:root/b:howdy[text()='howdy']", element);
@@ -156,7 +162,7 @@ public class BeanTest extends AbstractAegisTest {
 
         ElementReader reader = new ElementReader(getResourceAsStream("bean3.xml"));
 
-        SimpleBean bean = (SimpleBean)type.readObject(reader, new Context());
+        SimpleBean bean = (SimpleBean)type.readObject(reader, getContext());
         assertEquals("howdy", bean.getHowdy());
         assertNull(bean.getBleh());
 
@@ -165,7 +171,7 @@ public class BeanTest extends AbstractAegisTest {
         // Test writing
         Element element = new Element("root", "b", "urn:Bean");
         new Document(element);
-        type.writeObject(bean, new JDOMWriter(element), new Context());
+        type.writeObject(bean, new JDOMWriter(element), getContext());
 
         assertInvalid("/b:root/b:bleh", element);
         assertValid("/b:root/b:howdycustom[text()='howdy']", element);
@@ -185,7 +191,7 @@ public class BeanTest extends AbstractAegisTest {
 
         ElementReader reader = new ElementReader(getResourceAsStream("bean4.xml"));
 
-        SimpleBean bean = (SimpleBean)type.readObject(reader, new Context());
+        SimpleBean bean = (SimpleBean)type.readObject(reader, getContext());
         assertEquals("bleh", bean.getBleh());
         assertEquals("howdy", bean.getHowdy());
 
@@ -194,7 +200,7 @@ public class BeanTest extends AbstractAegisTest {
         // Test writing
         Element element = new Element("root", "b", "urn:Bean");
         new Document(element);
-        type.writeObject(bean, new JDOMWriter(element), new Context());
+        type.writeObject(bean, new JDOMWriter(element), getContext());
 
         assertValid("/b:root[@b:bleh='bleh']", element);
         assertValid("/b:root[@b:howdy='howdy']", element);
@@ -225,7 +231,7 @@ public class BeanTest extends AbstractAegisTest {
 
         ElementReader reader = new ElementReader(getResourceAsStream("bean8.xml"));
 
-        SimpleBean bean = (SimpleBean)type.readObject(reader, new Context());
+        SimpleBean bean = (SimpleBean)type.readObject(reader, getContext());
         assertEquals("bleh", bean.getBleh());
         assertEquals("howdy", bean.getHowdy());
 
@@ -235,7 +241,7 @@ public class BeanTest extends AbstractAegisTest {
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         ElementWriter writer = new ElementWriter(bos, "root", "urn:Bean");
-        type.writeObject(bean, writer, new Context());
+        type.writeObject(bean, writer, getContext());
         writer.close();
         writer.flush();
 
@@ -267,7 +273,7 @@ public class BeanTest extends AbstractAegisTest {
         // Test writing
         Element element = new Element("root", "b", "urn:Bean");
         new Document(element);
-        type.writeObject(bean, new JDOMWriter(element), new Context());
+        type.writeObject(bean, new JDOMWriter(element), getContext());
 
         assertInvalid("/b:root[@b:howdy]", element);
         assertValid("/b:root/b:bleh[@xsi:nil='true']", element);
@@ -356,7 +362,7 @@ public class BeanTest extends AbstractAegisTest {
         // Test writing
         Element element = new Element("root", "b", "urn:Bean");
         new Document(element);
-        type.writeObject(bean, new JDOMWriter(element), new Context());
+        type.writeObject(bean, new JDOMWriter(element), getContext());
 
         // Make sure the date doesn't have an element. Its non nillable so it
         // just
@@ -382,7 +388,7 @@ public class BeanTest extends AbstractAegisTest {
 
         Element element = new Element("root", "b", "urn:Bean");
         new Document(element);
-        type.writeObject(bean, new JDOMWriter(element), new Context());
+        type.writeObject(bean, new JDOMWriter(element), getContext());
 
         assertValid("/b:root/b:howdy[text()='howdy']", element);
     }
@@ -407,7 +413,7 @@ public class BeanTest extends AbstractAegisTest {
         // Test writing
         Element element = new Element("root", "b", "urn:Bean");
         new Document(element);
-        type.writeObject(bean, new JDOMWriter(element), new Context());
+        type.writeObject(bean, new JDOMWriter(element), getContext());
 
         // Make sure the date doesn't have an element. Its non nillable so it
         // just
@@ -416,7 +422,7 @@ public class BeanTest extends AbstractAegisTest {
         addNamespace("xsi", SOAPConstants.XSI_NS);
         assertValid("/b:root/b:data[@xsi:nil='true']", element);
 
-        bean = (ByteBean)type.readObject(new JDOMReader(element), new Context());
+        bean = (ByteBean)type.readObject(new JDOMReader(element), getContext());
         assertNotNull(bean);
         assertNull(bean.getData());
     }

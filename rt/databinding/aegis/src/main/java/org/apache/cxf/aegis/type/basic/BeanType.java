@@ -322,7 +322,7 @@ public class BeanType extends Type {
             Object value = readProperty(object, name);
 
             Type defaultType = getType(inf, name);
-            Type type = TypeUtil.getWriteType(context, value, defaultType);
+            Type type = TypeUtil.getWriteType(context.getDataBinding(), value, defaultType);
 
             // Write the value if it is not null.
             if (value != null) {
