@@ -60,6 +60,7 @@ import org.apache.cxf.ws.addressing.AddressingPropertiesImpl;
 import org.apache.cxf.ws.addressing.AttributedURIType;
 import org.apache.cxf.ws.addressing.ContextUtils;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
+import org.apache.cxf.ws.addressing.JAXWSAConstants;
 import org.apache.cxf.ws.addressing.Names;
 import org.apache.cxf.ws.addressing.ReferenceParametersType;
 import org.apache.cxf.ws.addressing.RelatesToType;
@@ -73,7 +74,7 @@ import org.apache.cxf.wsdl.EndpointReferenceUtils;
 public class MAPCodec extends AbstractSoapInterceptor {
 
     private static final Logger LOG = LogUtils.getL7dLogger(MAPCodec.class);
-    private static final String IS_REFERENCE_PARAM_ATTR_NAME = "isReferenceParameter";
+    private static final String IS_REFERENCE_PARAM_ATTR_NAME = "IsReferenceParameter";
 
     /**
      * REVISIT: map usage that the *same* interceptor instance 
@@ -324,19 +325,19 @@ public class MAPCodec extends AbstractSoapInterceptor {
         String pfx = lastAdded.lookupPrefix(namespaceURI);
         if (StringUtils.isEmpty(pfx)) {
             //attributes cannot be in empty namespace...
-            if (lastAdded.lookupNamespaceURI("wsa") == null) {
-                pfx = "wsa";
+            if (lastAdded.lookupNamespaceURI(JAXWSAConstants.WSA_PREFIX) == null) {
+                pfx = JAXWSAConstants.WSA_PREFIX;
                 lastAdded.setAttributeNS("http://www.w3.org/2000/xmlns/",
                                          "xmlns:wsa",
                                          namespaceURI);
-            } else if (lastAdded.lookupNamespaceURI("wsa").equals(namespaceURI)) {
-                pfx = "wsa";
+            } else if (lastAdded.lookupNamespaceURI(JAXWSAConstants.WSA_PREFIX).equals(namespaceURI)) {
+                pfx = JAXWSAConstants.WSA_PREFIX;
             } else {
                 int cnt = 1;
-                while (lastAdded.lookupNamespaceURI("wsa" + cnt) != null) {
+                while (lastAdded.lookupNamespaceURI(JAXWSAConstants.WSA_PREFIX + cnt) != null) {
                     cnt++;
                 }
-                pfx = "wsa" + cnt;
+                pfx = JAXWSAConstants.WSA_PREFIX + cnt;
                 lastAdded.setAttributeNS("http://www.w3.org/2000/xmlns/",
                                          "xmlns:wsa" + cnt,
                                          namespaceURI);
