@@ -63,7 +63,12 @@ public class ClientProxyFactoryBean extends AbstractBasicInterceptorProvider {
     }
     public ClientProxyFactoryBean(ClientFactoryBean fact) {
         super();
-        this.clientFactoryBean = fact;
+        this.clientFactoryBean = fact;        
+    }
+    
+    public void initFeatures() {
+        this.clientFactoryBean.setFeatures(features);
+        this.getServiceFactory().setFeatures(features);
     }
 
     public Object create() {
@@ -78,7 +83,7 @@ public class ClientProxyFactoryBean extends AbstractBasicInterceptorProvider {
             properties.put(AuthorizationPolicy.class.getName(), authPolicy);
         }
         
-        clientFactoryBean.setFeatures(features);
+        initFeatures();                
         clientFactoryBean.setProperties(properties);
         
         if (bus != null) {

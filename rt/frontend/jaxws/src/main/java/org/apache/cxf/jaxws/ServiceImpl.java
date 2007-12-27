@@ -309,6 +309,7 @@ public class ServiceImpl extends ServiceDelegate {
         JaxWsProxyFactoryBean proxyFac = new JaxWsProxyFactoryBean();
         JaxWsClientFactoryBean clientFac = (JaxWsClientFactoryBean) proxyFac.getClientFactoryBean();
         JaxWsServiceFactoryBean serviceFactory = (JaxWsServiceFactoryBean) proxyFac.getServiceFactory();
+        proxyFac.initFeatures();
         serviceFactory.setWsFeatures(Arrays.asList(features));
         
         proxyFac.setBus(bus);

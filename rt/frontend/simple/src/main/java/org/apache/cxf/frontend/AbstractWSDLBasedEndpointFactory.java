@@ -54,13 +54,13 @@ public abstract class AbstractWSDLBasedEndpointFactory extends AbstractEndpointF
     
     protected AbstractWSDLBasedEndpointFactory(ReflectionServiceFactoryBean sbean) {
         serviceFactory = sbean;
+        //serviceFactory.setFeatures(getFeatures());
     }
     protected AbstractWSDLBasedEndpointFactory() {
     }
     
-    protected Endpoint createEndpoint() throws BusException, EndpointException {
+    protected Endpoint createEndpoint() throws BusException, EndpointException {        
         serviceFactory.setFeatures(getFeatures());
-
         if (serviceName != null) {
             serviceFactory.setServiceName(serviceName);
         }
