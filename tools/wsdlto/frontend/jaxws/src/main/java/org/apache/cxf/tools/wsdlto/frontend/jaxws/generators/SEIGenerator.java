@@ -21,6 +21,8 @@ package org.apache.cxf.tools.wsdlto.frontend.jaxws.generators;
 
 import java.util.Map;
 
+import javax.jws.HandlerChain;
+
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.tools.common.ToolConstants;
@@ -89,10 +91,17 @@ public class SEIGenerator extends AbstractJAXWSGenerator {
                 handlerGen.generate(getEnvironment());
 
                 JAnnotation annot = handlerGen.getHandlerAnnotation();
-                if (handlerGen.getHandlerAnnotation() != null
-                    && !intf.getAnnotations().contains(annot)) {
-                    intf.addAnnotation(annot);
-                    intf.addImport("javax.jws.HandlerChain");
+                if (handlerGen.getHandlerAnnotation() != null) {
+                    boolean existHandlerAnno = false;
+                    for (JAnnotation jann : intf.getAnnotations()) {
+                        if (jann.getType() == HandlerChain.class) {
+                            existHandlerAnno = true;
+                        }
+                    }
+                    if (!existHandlerAnno) {
+                        intf.addAnnotation(annot);
+                        intf.addImport("javax.jws.HandlerChain");
+                    }
                 }
             }
             clearAttributes();

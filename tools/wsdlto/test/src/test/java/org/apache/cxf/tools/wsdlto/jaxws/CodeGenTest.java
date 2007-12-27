@@ -1164,8 +1164,7 @@ public class CodeGenTest extends ProcessorTestBase {
             assertTrue(e.getMessage().indexOf(": is not a valid char in the targetNamespace") != -1);
         }
     }
-    //TODO:This will be removed when runtime supports this mapping
-    //@org.junit.Ignore
+
     public void testW3CEPR() throws Exception {
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/w3c-epr.wsdl"));
         processor.setContext(env);
@@ -1175,6 +1174,14 @@ public class CodeGenTest extends ProcessorTestBase {
                                       new Class[]{javax.xml.ws.wsaddressing.W3CEndpointReference.class});
         assertNotNull("wsdl2java does not map w3c:EndpointReferenceType to javax.xml.ws.EndpointReference"
                       , method);
+    }
+    
+    @Test
+    public void testHandlerAnnotation() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/cxf-1344/handlerbinding.wsdl"));
+        env.put(ToolConstants.CFG_BINDING, getLocation("/wsdl2java_wsdl/cxf-1344/handlerbinding.xml"));
+        processor.setContext(env);
+        processor.execute();
     }
     
 }
