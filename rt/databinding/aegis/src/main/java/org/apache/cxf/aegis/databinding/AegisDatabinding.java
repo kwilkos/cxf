@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamReader;
@@ -39,6 +40,9 @@ import org.apache.cxf.aegis.type.Configuration;
 import org.apache.cxf.aegis.type.Type;
 import org.apache.cxf.aegis.type.TypeCreator;
 import org.apache.cxf.aegis.type.TypeMapping;
+import org.apache.cxf.common.classloader.ClassLoaderUtils;
+import org.apache.cxf.common.i18n.Message;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.SOAPConstants;
 import org.apache.cxf.common.xmlschema.SchemaCollection;
 import org.apache.cxf.databinding.DataBinding;
@@ -47,6 +51,7 @@ import org.apache.cxf.databinding.DataWriter;
 import org.apache.cxf.databinding.source.AbstractDataBinding;
 import org.apache.cxf.frontend.MethodDispatcher;
 import org.apache.cxf.frontend.SimpleMethodDispatcher;
+import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.factory.ServiceConstructionException;
 import org.apache.cxf.service.model.AbstractMessageContainer;
@@ -70,9 +75,25 @@ import org.jdom.output.DOMOutputter;
  */
 public class AegisDatabinding extends AbstractDataBinding implements DataBinding {
     
+    // these are here only for compatibility.
+    /**
+     * @deprecated 2.1
+     */
+    public static final String WRITE_XSI_TYPE_KEY = "writeXsiType";
+    /**
+     * @deprecated 2.1
+     */
+    public static final String OVERRIDE_TYPES_KEY = "overrideTypesList";
+    /**
+     * @deprecated 2.1
+     */
+    public static final String READ_XSI_TYPE_KEY = "readXsiType";
+    
     protected static final int IN_PARAM = 0;
     protected static final int OUT_PARAM = 1;
     protected static final int FAULT_PARAM = 2;
+    
+    private static final Logger LOG = LogUtils.getL7dLogger(AegisDatabinding.class);
 
     private AegisContext aegisContext;
     private Map<MessagePartInfo, Type> part2Type;
@@ -155,15 +176,62 @@ public class AegisDatabinding extends AbstractDataBinding implements DataBinding
      */
     public void initialize(Service s) {
         
+        // We want to support some compatibility configuration properties
+        // definitionally, anyone doing the compatibility thing has not made their
+        // own AegisContext object.
         if (aegisContext == null) {
             aegisContext = new AegisContext();
+
+            Object val = s.get(READ_XSI_TYPE_KEY);
+            if ("false".equals(val) || Boolean.FALSE.equals(val)) {
+                aegisContext.setReadXsiTypes(false);
+            }
+            
+            val = s.get(WRITE_XSI_TYPE_KEY);
+            if ("true".equals(val) || Boolean.TRUE.equals(val)) {
+                aegisContext.setWriteXsiTypes(true);
+            }
+            
+            val = s.get(OVERRIDE_TYPES_KEY);
+            if (val != null) {
+                Collection nameCollection = (Collection) val;
+                Collection<String> typeNames = CastUtils.cast(nameCollection, String.class);
+                if (overrideTypes == null) {
+                    overrideTypes = new HashSet<String>();
+                }
+                overrideTypes.addAll(typeNames);
+            }
+            
+            Map<Class<?>, String> implMap = new HashMap<Class<?>, String>();
+            // now for a really annoying case, the .implementation objects.
+            for (String key : s.keySet()) {
+                if (key.endsWith(".implementation")) {
+                    String className = key.substring(0, key.length() - ".implementation".length());
+                    Class<?> clazz = null;
+                    try {
+                        clazz = ClassLoaderUtils.loadClass(className, getClass());
+                    } catch (ClassNotFoundException e) {
+                        Message message = new Message("MAPPED_CLASS_NOT_FOUND", LOG, className, key);
+                        LOG.warning(message.toString());
+                        continue;
+                    }
+                    String implClassName = (String)s.get(key);
+                    implMap.put(clazz, implClassName);
+                }
+            }
+
             if (overrideTypes != null) {
                 aegisContext.setOverrideTypes(overrideTypes);
             }
             if (configuration != null) {
                 aegisContext.setConfiguration(configuration);
             }
+            
+            if (implMap.size() > 0) {
+                aegisContext.setBeanImplementationMap(implMap);
+            }
         }
+        
         aegisContext.setMappingNamespaceURI(s.getServiceInfos().get(0).getName().getNamespaceURI());
         aegisContext.initialize();
         this.service = s;

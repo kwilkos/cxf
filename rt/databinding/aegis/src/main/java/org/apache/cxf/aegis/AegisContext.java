@@ -49,10 +49,11 @@ import org.apache.cxf.common.util.SOAPConstants;
  * 
  */
 public class AegisContext {
-    private static final String DUMMY_ENCODING_STYLE_URI = "urn:aegis.cxf.apache.org:defaultEncoding";
+    // perhaps this should be SoapConstants.XSD? Or perhaps the code that looks for that should look for this?
+    private static final String DEFAULT_ENCODING_STYLE_URI = "urn:aegis.cxf.apache.org:defaultEncoding";
     private boolean writeXsiTypes;
     private boolean readXsiTypes = true;
-    private String mappingNamespaceURI = DUMMY_ENCODING_STYLE_URI;
+    private String mappingNamespaceURI = DEFAULT_ENCODING_STYLE_URI;
 
     private TypeMappingRegistry typeMappingRegistry;
     private Set<String> overrideTypes;
