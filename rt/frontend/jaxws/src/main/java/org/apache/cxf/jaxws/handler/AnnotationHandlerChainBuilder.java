@@ -60,7 +60,7 @@ public class AnnotationHandlerChainBuilder extends HandlerChainBuilder {
      * @return
      */
     public List<Handler> buildHandlerChainFromClass(Class<?> clz, List<Handler> existingHandlers,
-                                                    QName endpointName) {
+                                                    QName portQName, QName serviceQName) {
         LOG.fine("building handler chain");
         HandlerChainAnnotation hcAnn = findHandlerChainAnnotation(clz, true);
         List<Handler> chain = null;
@@ -94,11 +94,19 @@ public class AnnotationHandlerChainBuilder extends HandlerChainBuilder {
                 for (HandlerChainType hc : handlerChainsType.getHandlerChain()) {
                     //Only add handlers if <port-name-pattern> is not presented or is matched.
                     //TODO: match the namespace, match the wild card etc. JSR-181, Appendix B. 
-                    if (hc.getPortNamePattern() != null && endpointName != null) {
+                    if (hc.getPortNamePattern() != null && portQName != null) {
                         String portNamePattern = hc.getPortNamePattern();
                         String localPart = portNamePattern.substring(portNamePattern.indexOf(':') + 1,
                                                                      portNamePattern.length());
-                        if (!localPart.equals(endpointName.getLocalPart())) {
+                        if (!localPart.equals(portQName.getLocalPart())) {
+                            continue;
+                        }
+                    }
+                    if (hc.getServiceNamePattern() != null && serviceQName != null) {
+                        String serviceNamePattern = hc.getServiceNamePattern();
+                        String localPart = serviceNamePattern.substring(serviceNamePattern.indexOf(':') + 1,
+                                                                     serviceNamePattern.length());
+                        if (!localPart.equals(serviceQName.getLocalPart())) {
                             continue;
                         }
                     }
@@ -116,14 +124,14 @@ public class AnnotationHandlerChainBuilder extends HandlerChainBuilder {
         return sortHandlers(chain);
     }
 
+    public List<Handler> buildHandlerChainFromClass(Class<?> clz, QName portQName, QName serviceQName) {
+        return buildHandlerChainFromClass(clz, null, portQName, serviceQName);
+    }
+    
     protected URL resolveHandlerChainAnnotationFile(Class clazz, String name) {
         return clazz.getResource(name);
     }
-
-    public List<Handler> buildHandlerChainFromClass(Class<?> clz, QName endpointName) {
-        return buildHandlerChainFromClass(clz, null, endpointName);
-    }
-
+    
     public List<Handler> buildHandlerChainFromClass(Class<?> clz) {
         return buildHandlerChainFromClass(clz, null, null);
     }

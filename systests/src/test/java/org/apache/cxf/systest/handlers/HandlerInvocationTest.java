@@ -30,6 +30,7 @@ import javax.xml.namespace.QName;
 import javax.xml.soap.MessageFactory;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.transform.Source;
+import javax.xml.ws.Binding;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Dispatch;
 import javax.xml.ws.LogicalMessage;
@@ -106,6 +107,17 @@ public class HandlerInvocationTest extends AbstractBusClientServerTestBase {
         assertEquals(1, handler2.getHandleMessageInvoked());
     }
 
+    @Test
+    public void testAddingUnusedHandlersThroughConfigFile() {
+        HandlerTestServiceWithAnnotation service1 = new HandlerTestServiceWithAnnotation(wsdl, serviceName);
+        HandlerTest handlerTest1 = service1.getPort(portName, HandlerTest.class);
+        
+        BindingProvider bp1 = (BindingProvider)handlerTest1;
+        Binding binding1 = bp1.getBinding();
+        List<Handler> port1HandlerChain = binding1.getHandlerChain();
+        assertEquals(0, port1HandlerChain.size());
+    }
+    
     @Test
     public void testLogicalHandlerOneWay() {
         TestHandler<LogicalMessageContext> handler1 = new TestHandler<LogicalMessageContext>(false);

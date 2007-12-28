@@ -69,7 +69,7 @@ public class HandlerResolverImpl implements HandlerResolver {
             chain = new ArrayList<Handler>();
         }
         if (annotationClass != null) {
-            chain.addAll(getHandlersFromAnnotation(annotationClass));            
+            chain.addAll(getHandlersFromAnnotation(annotationClass, portInfo));         
         }
         
         for (Handler h : chain) {
@@ -85,11 +85,12 @@ public class HandlerResolverImpl implements HandlerResolver {
      * @param obj A endpoint implementation class or a SEI, or a generated
      *            service class.
      */
-    private List<Handler> getHandlersFromAnnotation(Class<?> clazz) {
+    private List<Handler> getHandlersFromAnnotation(Class<?> clazz, PortInfo portInfo) {
         AnnotationHandlerChainBuilder builder = new AnnotationHandlerChainBuilder();
 
-        List<Handler> chain = builder.buildHandlerChainFromClass(clazz);
-        
+        List<Handler> chain = builder.buildHandlerChainFromClass(clazz, portInfo != null ? portInfo
+            .getPortName() : null, portInfo != null ? portInfo.getServiceName() : null);
+
         return chain;
     }
     

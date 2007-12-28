@@ -171,9 +171,10 @@ public class JaxWsServerFactoryBean extends ServerFactoryBean {
      */
     private void buildHandlerChain() {
         AnnotationHandlerChainBuilder builder = new AnnotationHandlerChainBuilder();
-
-        List<Handler> chain = builder.buildHandlerChainFromClass(getServiceBeanClass(),
-                                                                 getEndpointName());
+        JaxWsServiceFactoryBean sf = (JaxWsServiceFactoryBean)getServiceFactory(); 
+        
+        List<Handler> chain = builder.buildHandlerChainFromClass(getServiceBeanClass(), sf.getEndpointInfo()
+            .getName(), sf.getServiceQName());
         for (Handler h : chain) {
             injectResources(h);
         }

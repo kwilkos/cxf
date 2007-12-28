@@ -46,23 +46,38 @@ public class AnnotationHandlerChainBuilderTest extends Assert {
         AnnotationHandlerChainBuilder chainBuilder = new AnnotationHandlerChainBuilder();
         List<Handler> handlers = chainBuilder.buildHandlerChainFromClass(handlerTestImpl.getClass());
         assertNotNull(handlers);
-        assertEquals(5, handlers.size());
+        assertEquals(7, handlers.size());
         assertEquals(TestLogicalHandler.class, handlers.get(0).getClass());
         assertEquals(TestLogicalHandler.class, handlers.get(1).getClass());
         assertEquals(TestLogicalHandler.class, handlers.get(2).getClass());
         assertEquals(TestLogicalHandler.class, handlers.get(3).getClass());
-        assertEquals(TestProtocolHandler.class, handlers.get(4).getClass());
+        assertEquals(TestLogicalHandler.class, handlers.get(4).getClass());
+        assertEquals(TestLogicalHandler.class, handlers.get(5).getClass());
+        assertEquals(TestProtocolHandler.class, handlers.get(6).getClass());
     }    
     
     @Test
-    public void testFindHandlerChainAnnotationPerPort() {
+    public void testFindHandlerChainAnnotationPerPortPerService() {
         HandlerTestImpl handlerTestImpl = new HandlerTestImpl();
         AnnotationHandlerChainBuilder chainBuilder = new AnnotationHandlerChainBuilder();
-        QName portName = new QName("namespacedoesntsupportyet", "SoapPort1");
+        QName portQName = new QName("namespacedoesntsupportyet", "SoapPort1");
+        QName serviceQName = new QName("namespacedoesntsupportyet", "SoapService1");
         List<Handler> handlers = chainBuilder
-            .buildHandlerChainFromClass(handlerTestImpl.getClass(), portName);
+            .buildHandlerChainFromClass(handlerTestImpl.getClass(), portQName, serviceQName);
         assertNotNull(handlers);
-        assertEquals(5, handlers.size());
+        assertEquals(7, handlers.size());
+    }
+    
+    @Test
+    public void testFindHandlerChainAnnotationPerPortPerServiceNegative() {
+        HandlerTestImpl handlerTestImpl = new HandlerTestImpl();
+        AnnotationHandlerChainBuilder chainBuilder = new AnnotationHandlerChainBuilder();
+        QName portQName = new QName("namespacedoesntsupportyet", "SoapPortUnknown");
+        QName serviceQName = new QName("namespacedoesntsupportyet", "SoapServiceUnknown");
+        List<Handler> handlers = chainBuilder
+            .buildHandlerChainFromClass(handlerTestImpl.getClass(), portQName, serviceQName);
+        assertNotNull(handlers);
+        assertEquals(3, handlers.size());
     }
     
     public static class TestLogicalHandler implements LogicalHandler {
