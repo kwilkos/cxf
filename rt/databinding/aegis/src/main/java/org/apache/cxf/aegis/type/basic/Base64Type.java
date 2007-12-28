@@ -33,7 +33,6 @@ import org.apache.cxf.aegis.xml.MessageReader;
 import org.apache.cxf.aegis.xml.MessageWriter;
 import org.apache.cxf.common.util.Base64Exception;
 import org.apache.cxf.common.util.Base64Utility;
-import org.apache.cxf.common.util.SOAPConstants;
 
 /**
  * Converts back and forth to byte[] objects.
@@ -49,7 +48,7 @@ public class Base64Type extends Type {
 
     @Override
     public Object readObject(MessageReader mreader, Context context) throws DatabindingException {
-        boolean mtomEnabled = Boolean.valueOf((String)context.get(SOAPConstants.MTOM_ENABLED)).booleanValue();
+        boolean mtomEnabled = context.isMtomEnabled();
         XMLStreamReader reader = mreader.getXMLStreamReader();
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -107,7 +106,7 @@ public class Base64Type extends Type {
     public void writeObject(Object object,
                             MessageWriter writer,
                             Context context) throws DatabindingException {
-        boolean mtomEnabled = Boolean.valueOf((String)context.get(SOAPConstants.MTOM_ENABLED)).booleanValue();
+        boolean mtomEnabled = context.isMtomEnabled();
         if (mtomEnabled) {
             optimizedType.writeObject(object, writer, context);
             return;

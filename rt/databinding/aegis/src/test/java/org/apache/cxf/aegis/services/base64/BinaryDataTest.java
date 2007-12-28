@@ -26,7 +26,7 @@ import org.junit.Test;
 public class BinaryDataTest extends AbstractAegisTest {
     @Test
     public void testBinary() throws Exception {
-        createService(BinaryDataService.class, null);
+        createService(BinaryDataService.class);
 
         runTests();
     }    

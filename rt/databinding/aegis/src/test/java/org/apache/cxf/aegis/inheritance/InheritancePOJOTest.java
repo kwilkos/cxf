@@ -18,10 +18,8 @@
  */
 package org.apache.cxf.aegis.inheritance;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.xml.namespace.QName;
 
@@ -29,6 +27,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import org.apache.cxf.aegis.AbstractAegisTest;
+import org.apache.cxf.aegis.AegisContext;
 import org.apache.cxf.aegis.databinding.AegisDatabinding;
 import org.apache.cxf.common.util.SOAPConstants;
 import org.apache.cxf.frontend.ServerFactoryBean;
@@ -49,16 +48,16 @@ public class InheritancePOJOTest extends AbstractAegisTest {
                                                     new QName("urn:xfire:inheritance",
                                                               "InheritanceService"),
                                                     null);
+        AegisContext globalContext = new AegisContext();
+        globalContext.setWriteXsiTypes(true);
 
-        Map<String, Object> props = new HashMap<String, Object>();
-        props.put(AegisDatabinding.WRITE_XSI_TYPE_KEY, "true");
-
-        List<String> l = new ArrayList<String>();
+        Set<String> l = new HashSet<String>();
         l.add(Employee.class.getName());
+        globalContext.setOverrideTypes(l);
+        AegisDatabinding binding = new AegisDatabinding();
+        binding.setAegisContext(globalContext);
 
-        props.put(AegisDatabinding.OVERRIDE_TYPES_KEY, l);
-
-        sf.getServiceFactory().setProperties(props);
+        sf.getServiceFactory().setDataBinding(binding);
         sf.create();
     }
 

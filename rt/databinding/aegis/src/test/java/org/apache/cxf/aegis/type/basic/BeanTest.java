@@ -27,7 +27,6 @@ import javax.xml.namespace.QName;
 
 import org.apache.cxf.aegis.AbstractAegisTest;
 import org.apache.cxf.aegis.Context;
-import org.apache.cxf.aegis.databinding.AegisDatabinding;
 import org.apache.cxf.aegis.services.SimpleBean;
 import org.apache.cxf.aegis.type.Configuration;
 import org.apache.cxf.aegis.type.DefaultTypeMappingRegistry;
@@ -47,15 +46,10 @@ import org.junit.Test;
 public class BeanTest extends AbstractAegisTest {
     TypeMapping mapping;
     private DefaultTypeMappingRegistry reg;
-    private AegisDatabinding databinding;
-    private Context getContext() {
-        return new Context(databinding);
-    }
 
     public void setUp() throws Exception {
         super.setUp();
-        databinding = new AegisDatabinding();
-
+    
         addNamespace("b", "urn:Bean");
         addNamespace("a", "urn:anotherns");
         addNamespace("xsi", SOAPConstants.XSI_NS);
@@ -125,9 +119,8 @@ public class BeanTest extends AbstractAegisTest {
 
         // Test reading
         ElementReader reader = new ElementReader(getResourceAsStream("bean9.xml"));
-
-        databinding.setReadXsiTypes(false);
         Context ctx = getContext();
+        ctx.getGlobalContext().setReadXsiTypes(false);
 
         SimpleBean bean = (SimpleBean)type.readObject(reader, ctx);
         assertEquals("bleh", bean.getBleh());

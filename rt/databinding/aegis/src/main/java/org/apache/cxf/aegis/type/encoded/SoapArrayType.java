@@ -142,7 +142,8 @@ public class SoapArrayType extends Type {
                 compType = arrayTypeInfo.getType();
             }
             // check for an xsi:type override
-            compType = TypeUtil.getReadType(creader.getXMLStreamReader(), context, compType);
+            compType = TypeUtil.getReadType(creader.getXMLStreamReader(), 
+                                            context.getGlobalContext(), compType);
 
             // wrap type with soap ref to handle hrefs
             compType = new SoapRefType(compType);
@@ -309,7 +310,7 @@ public class SoapArrayType extends Type {
             Context context,
             Type type) throws DatabindingException {
 
-        type = TypeUtil.getWriteType(context.getDataBinding(), value, type);
+        type = TypeUtil.getWriteType(context.getGlobalContext(), value, type);
 
         MessageWriter cwriter = writer.getElementWriter(type.getSchemaType().getLocalPart(), "");
 

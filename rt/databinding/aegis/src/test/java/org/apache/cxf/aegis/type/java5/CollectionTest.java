@@ -166,7 +166,7 @@ public class CollectionTest extends AbstractAegisTest {
 
     @Test
     public void testCollectionDTOService() throws Exception {
-        createService(DTOService.class, null);
+        createService(DTOService.class);
         invoke("DTOService", "/org/apache/cxf/aegis/type/java5/dto/GetDTO.xml");
     }
 

@@ -25,13 +25,18 @@ package org.apache.cxf.aegis.type;
  * @since Feb 18, 2004
  */
 public interface TypeMappingRegistry {
-    String ROLE = TypeMappingRegistry.class.getName();
-
     /**
+     * Register a type mapping.
+     * @param namespaceURI URI that identifies the mapping. For a mapping associated with a 
+     * service, it will be service's TNS. It is used as the URI for schema derived from the mapping.
+     * @param mapping the type mapping object.
+     * @return the previous mapping for this URI.
      */
-    TypeMapping register(String encodingStyleURI, TypeMapping mapping);
+    TypeMapping register(String namespaceURI, TypeMapping mapping);
 
     /**
+     * register this mapping as the default mapping.
+     * @param mapping
      */
     void registerDefault(TypeMapping mapping);
 
@@ -55,15 +60,15 @@ public interface TypeMappingRegistry {
 
     /**
      * Returns the registered <code>TypeMapping</code> for the specified
-     * encodingStyle URI. If there is no registered <code>TypeMapping</code>
+     * namespace. If there is no registered <code>TypeMapping</code>
      * for the specified <code>encodingStyleURI</code>, this method returns
      * <code>null</code>.
      * 
-     * @param encodingStyleURI Encoding style specified as an URI
+     * @param namespaceURI the URI for the mapping.
      * @return TypeMapping for the specified encodingStyleURI or
      *         <code>null</code>
      */
-    TypeMapping getTypeMapping(String encodingStyleURI);
+    TypeMapping getTypeMapping(String namespaceURI);
 
     /**
      * Creates a new empty <code>TypeMapping</code> object.

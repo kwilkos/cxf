@@ -149,14 +149,14 @@ public class MapTest extends AbstractAegisTest {
 
     @Test
     public void testMapDTOService() throws Exception {
-        createService(MapDTOService.class, null);
+        createService(MapDTOService.class);
 
         invoke("MapDTOService", "/org/apache/cxf/aegis/type/java5/dto/GetDTO.xml");
     }
 
     @Test
     public void testMapServiceWSDL() throws Exception {
-        createService(MapDTOService.class, null);
+        createService(MapDTOService.class);
 
         getWSDLDocument("MapDTOService");
     }

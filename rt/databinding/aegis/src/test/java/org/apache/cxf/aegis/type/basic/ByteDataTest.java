@@ -33,7 +33,7 @@ import org.junit.Test;
 public class ByteDataTest extends AbstractAegisTest {
     public void setUp() throws Exception {
         super.setUp();
-        createService(DataService.class, null);
+        createService(DataService.class);
     }
 
     @Test

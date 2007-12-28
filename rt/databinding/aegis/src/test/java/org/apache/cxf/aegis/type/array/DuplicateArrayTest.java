@@ -19,15 +19,11 @@
 
 package org.apache.cxf.aegis.type.array;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.w3c.dom.Document;
 
 import org.apache.cxf.aegis.AbstractAegisTest;
 import org.apache.cxf.aegis.databinding.AegisDatabinding;
 import org.apache.cxf.aegis.type.Configuration;
-import org.apache.cxf.aegis.type.DefaultTypeMappingRegistry;
 import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
 import org.junit.Test;
 
@@ -40,21 +36,14 @@ public class DuplicateArrayTest extends AbstractAegisTest {
         JaxWsServerFactoryBean serviceFactory = new JaxWsServerFactoryBean();
         serviceFactory.getServiceFactory().setDataBinding(binder);
 
-        DefaultTypeMappingRegistry tmr = (DefaultTypeMappingRegistry)binder.getTypeMappingRegistry();
-        Configuration configuration = tmr.getConfiguration();
+        Configuration configuration = binder.getAegisContext().getConfiguration();
         configuration.setDefaultMinOccurs(1);
         configuration.setDefaultNillable(false);
 
-        // Create a properties hashmap
-        Map<String, Object> props = new HashMap<String, Object>();
-
-        // Enable the writing of xsi:type attributes
-        props.put(AegisDatabinding.WRITE_XSI_TYPE_KEY, Boolean.TRUE);
-
+        binder.getAegisContext().setWriteXsiTypes(true);
         serviceFactory.setAddress("local://DuplicateArrayService");
         serviceFactory.setServiceBean(new DuplicateArrayServiceBean());
         serviceFactory.setServiceClass(DuplicateArrayService.class);
-        serviceFactory.setProperties(props);
         Document doc = this.getWSDLDocument(serviceFactory.create());
         this.assertValid("//wsdl:definitions/wsdl:types"
                          + "/xsd:schema[@targetNamespace='http://cxf.apache.org/arrays']"

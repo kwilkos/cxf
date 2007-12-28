@@ -18,10 +18,9 @@
  */
 package org.apache.cxf.aegis.proxy;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.apache.cxf.aegis.AbstractAegisTest;
+import org.apache.cxf.aegis.AegisContext;
+import org.apache.cxf.aegis.databinding.AegisDatabinding;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.frontend.ClientProxyFactoryBean;
 import org.apache.cxf.service.invoker.BeanInvoker;
@@ -43,11 +42,12 @@ public class ProxyTest extends AbstractAegisTest {
         proxyFac.setAddress("local://HelloProxyService");
         proxyFac.setServiceClass(HelloProxyService.class);
         proxyFac.setBus(getBus());
-        setupAegis(proxyFac.getClientFactoryBean());
-        Map<String, Object> props = new HashMap<String, Object>();
-        props.put(Hello.class.getName() + ".implementation", MyHello.class.getName());
-        proxyFac.setProperties(props);
+        AegisContext aegisContext = new AegisContext();
+        aegisContext.getBeanImplementationMap().put(Hello.class, MyHello.class.getName());
+        AegisDatabinding binding = new AegisDatabinding();
+        binding.setAegisContext(aegisContext);
         
+        setupAegis(proxyFac.getClientFactoryBean(), binding);
         HelloProxyService client = (HelloProxyService)proxyFac.create();
         
         Hello h = client.sayHiWithProxy();

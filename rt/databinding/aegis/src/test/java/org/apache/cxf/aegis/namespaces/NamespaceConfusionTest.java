@@ -58,10 +58,10 @@ public class NamespaceConfusionTest extends AbstractAegisTest {
     public void setUp() throws Exception {
         super.setUp();
         
-        Server s = createService(NameServiceImpl.class, null);
+        Server s = createService(NameServiceImpl.class);
         service = s.getEndpoint().getService();
         databinding = (AegisDatabinding)service.getDataBinding();
-        tm = databinding.getServiceTypeMapping();
+        tm = databinding.getAegisContext().getTypeMapping();
     }
     
     private String getNamespaceForPrefix(Element rootElement, 

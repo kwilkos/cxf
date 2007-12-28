@@ -18,14 +18,14 @@
  */
 package org.apache.cxf.aegis.inheritance;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.aegis.AbstractAegisTest;
+import org.apache.cxf.aegis.AegisContext;
 import org.apache.cxf.aegis.databinding.AegisDatabinding;
 import org.apache.cxf.aegis.inheritance.ws1.WS1;
 import org.apache.cxf.aegis.inheritance.ws1.WS1ExtendedException;
@@ -44,18 +44,19 @@ public class ExceptionInheritanceTest extends AbstractAegisTest {
     
     public void setUp() throws Exception {
         super.setUp();
+        
+        AegisContext globalContext = new AegisContext();
+        globalContext.setWriteXsiTypes(true);
 
-        props = new HashMap<String, Object>();
-        props.put(AegisDatabinding.WRITE_XSI_TYPE_KEY, "true");
-
-        List<String> l = new ArrayList<String>();
+        Set<String> l = new HashSet<String>();
         l.add(SimpleBean.class.getName());
         l.add(WS1ExtendedException.class.getName());
-
-        props.put(AegisDatabinding.OVERRIDE_TYPES_KEY, l);
+        globalContext.setOverrideTypes(l);
+        AegisDatabinding binding = new AegisDatabinding();
+        binding.setAegisContext(globalContext);
 
         ClientProxyFactoryBean pf = new ClientProxyFactoryBean();
-        setupAegis(pf.getClientFactoryBean());
+        setupAegis(pf.getClientFactoryBean(), binding);
         pf.setServiceClass(WS1.class);
         pf.getServiceFactory().setProperties(props);
         pf.setAddress("local://WS1");
@@ -63,7 +64,7 @@ public class ExceptionInheritanceTest extends AbstractAegisTest {
         
         client = (WS1) pf.create();
 
-        Server server = createService(WS1.class, new WS1Impl(), "WS1", null);
+        Server server = createService(WS1.class, new WS1Impl(), "WS1", binding);
         new LoggingFeature().initialize(server, null);
         server.getEndpoint().getService().setInvoker(new BeanInvoker(new WS1Impl()));
     }

@@ -23,8 +23,6 @@ import javax.xml.namespace.QName;
 import org.w3c.dom.Document;
 
 import org.apache.cxf.aegis.AbstractAegisTest;
-import org.apache.cxf.aegis.Context;
-import org.apache.cxf.aegis.databinding.AegisDatabinding;
 import org.apache.cxf.aegis.type.Configuration;
 import org.apache.cxf.aegis.type.CustomTypeMapping;
 import org.apache.cxf.aegis.type.Type;
@@ -39,7 +37,6 @@ import org.junit.Test;
 
 public class EnumTypeTest extends AbstractAegisTest {
     private CustomTypeMapping tm;
-    private AegisDatabinding databinding;
 
     private enum smallEnum {
         VALUE1, VALUE2
@@ -48,7 +45,6 @@ public class EnumTypeTest extends AbstractAegisTest {
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        databinding = new AegisDatabinding();
 
         tm = new CustomTypeMapping();
         Java5TypeCreator creator = new Java5TypeCreator();
@@ -56,10 +52,6 @@ public class EnumTypeTest extends AbstractAegisTest {
         tm.setTypeCreator(creator);
     }
     
-    private Context getContext() {
-        return new Context(databinding);
-    }
-
     @Test
     public void testType() throws Exception {
         EnumType type = new EnumType();
@@ -116,7 +108,7 @@ public class EnumTypeTest extends AbstractAegisTest {
 
     @Test
     public void testCurrencyService() throws Exception {
-        createService(CurrencyService.class, null);
+        createService(CurrencyService.class);
 
         Document wsdl = getWSDLDocument("CurrencyService");
 

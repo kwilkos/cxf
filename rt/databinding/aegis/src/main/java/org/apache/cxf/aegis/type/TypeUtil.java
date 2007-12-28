@@ -22,8 +22,7 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamReader;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.cxf.aegis.Context;
-import org.apache.cxf.aegis.databinding.AegisDatabinding;
+import org.apache.cxf.aegis.AegisContext;
 import org.apache.cxf.aegis.util.NamespaceHelper;
 import org.apache.cxf.common.util.SOAPConstants;
 
@@ -39,7 +38,7 @@ public final class TypeUtil {
         //utility class
     }
     
-    public static Type getReadType(XMLStreamReader xsr, Context context, Type baseType) {
+    public static Type getReadType(XMLStreamReader xsr, AegisContext context, Type baseType) {
 
         if (!context.isReadXsiTypes()) {
             if (baseType == null) {
@@ -61,7 +60,7 @@ public final class TypeUtil {
                     improvedType = tm.getType(overrideName);
                 }
                 if (improvedType == null) {
-                    improvedType = context.getDataBinding().getOverrideType(overrideName);
+                    improvedType = context.getOverrideType(overrideName);
                 }
                 if (improvedType != null) {
                     return improvedType;
@@ -87,9 +86,9 @@ public final class TypeUtil {
         }
     }
 
-    public static Type getWriteType(AegisDatabinding databinding, Object value, Type type) {
+    public static Type getWriteType(AegisContext globalContext, Object value, Type type) {
         if (value != null && type != null && type.getTypeClass() != value.getClass()) {
-            Type overrideType = databinding.getOverrideType(value.getClass());
+            Type overrideType = globalContext.getOverrideType(value.getClass());
             if (overrideType != null) {
                 return overrideType;
             }

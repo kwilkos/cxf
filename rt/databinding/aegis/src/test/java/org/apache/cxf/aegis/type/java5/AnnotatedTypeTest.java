@@ -46,11 +46,11 @@ public class AnnotatedTypeTest extends AbstractAegisTest {
     public void setUp() throws Exception {
         super.setUp();
 
-        Server s = createService(AnnotatedService.class, null);
+        Server s = createService(AnnotatedService.class);
         service = s.getEndpoint().getService();
         databinding = (AegisDatabinding) service.getDataBinding();
 
-        tm = databinding.getServiceTypeMapping();
+        tm = databinding.getAegisContext().getTypeMapping();
     }
 
     @Test

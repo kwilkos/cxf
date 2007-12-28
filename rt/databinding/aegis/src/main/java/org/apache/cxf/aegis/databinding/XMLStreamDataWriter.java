@@ -35,7 +35,6 @@ import org.apache.cxf.aegis.xml.stax.ElementWriter;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.databinding.DataWriter;
-import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Attachment;
 import org.apache.cxf.service.model.MessagePartInfo;
@@ -68,17 +67,11 @@ public class XMLStreamDataWriter implements DataWriter<XMLStreamWriter> {
         if (type == null) {
             throw new Fault(new Message("NO_MESSAGE_FOR_PART", LOG));
         }
-
-
-        Map<String, Object> props = (Endpoint)getProperty(ENDPOINT);
-        if (props == null) {
-            props = new HashMap<String, Object>();
-        }
-        Context context = new Context(databinding, props);
         
-        context.setTypeMapping(null);
+        Context context = new Context(databinding.getAegisContext());
+        
         context.setAttachments(attachments);
-        type = TypeUtil.getWriteType(databinding, obj, type);
+        type = TypeUtil.getWriteType(databinding.getAegisContext(), obj, type);
         
         try {
             if (obj == null) {

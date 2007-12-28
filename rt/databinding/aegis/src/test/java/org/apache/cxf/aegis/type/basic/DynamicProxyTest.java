@@ -21,8 +21,6 @@ package org.apache.cxf.aegis.type.basic;
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.aegis.AbstractAegisTest;
-import org.apache.cxf.aegis.Context;
-import org.apache.cxf.aegis.databinding.AegisDatabinding;
 import org.apache.cxf.aegis.type.DefaultTypeMappingRegistry;
 import org.apache.cxf.aegis.type.TypeMapping;
 import org.apache.cxf.aegis.type.TypeMappingRegistry;
@@ -31,21 +29,14 @@ import org.junit.Test;
 
 public class DynamicProxyTest extends AbstractAegisTest {
     TypeMapping mapping;
-    AegisDatabinding databinding;
 
     public void setUp() throws Exception {
         super.setUp();
 
         TypeMappingRegistry reg = new DefaultTypeMappingRegistry(true);
         mapping = reg.createTypeMapping(true);
-        databinding = new AegisDatabinding();
     }
     
-    private Context getContext() {
-        return new Context(databinding);
-    }
-
-
     @Test
     public void testDynamicProxy() throws Exception {
         BeanType type = new BeanType();

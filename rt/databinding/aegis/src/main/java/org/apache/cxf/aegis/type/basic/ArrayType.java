@@ -78,8 +78,8 @@ public class ArrayType extends Type {
 
         while (reader.hasMoreElementReaders()) {
             MessageReader creader = reader.getNextElementReader();
-            Type compType = TypeUtil.getReadType(creader.getXMLStreamReader(), context,
-                                                             getComponentType());
+            Type compType = TypeUtil.getReadType(creader.getXMLStreamReader(), context.getGlobalContext(),
+                                                 getComponentType());
 
             if (creader.isXsiNil()) {
                 values.add(null);
@@ -241,7 +241,7 @@ public class ArrayType extends Type {
 
     protected void writeValue(Object value, MessageWriter writer, Context context, Type type, String name,
                               String ns) throws DatabindingException {
-        type = TypeUtil.getWriteType(context.getDataBinding(), value, type);
+        type = TypeUtil.getWriteType(context.getGlobalContext(), value, type);
         MessageWriter cwriter;
         if (type.isWriteOuter()) {
             cwriter = writer.getElementWriter(name, ns);

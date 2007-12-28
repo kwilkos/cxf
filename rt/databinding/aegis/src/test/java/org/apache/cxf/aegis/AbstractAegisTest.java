@@ -130,11 +130,30 @@ public abstract class AbstractAegisTest extends AbstractCXFTest {
         return sf.create();
     }
     
+    protected Server createService(Class serviceClass, String address) {
+        ServerFactoryBean sf = createServiceFactory(serviceClass, null, address, null, null);
+        return sf.create();
+    }
+    
+    protected Server createService(Class serviceClass) {
+        ServerFactoryBean sf = createServiceFactory(serviceClass, null, 
+                                                    serviceClass.getSimpleName(), null, null);
+        return sf.create();
+    }
+    
     public Server createService(Class serviceClass,
                                 Object serviceBean, 
                                 String address,
                                 QName name) {
         ServerFactoryBean sf = createServiceFactory(serviceClass, serviceBean, address, name, null);
+        return sf.create();
+    }
+    
+    public Server createService(Class serviceClass,
+                                Object serviceBean, 
+                                String address,
+                                AegisDatabinding binding) {
+        ServerFactoryBean sf = createServiceFactory(serviceClass, serviceBean, address, null, binding);
         return sf.create();
     }
 
@@ -200,5 +219,11 @@ public abstract class AbstractAegisTest extends AbstractCXFTest {
         }
         WSDLWriter writer = WSDLFactory.newInstance().newWSDLWriter();
         return writer.getDocument(definition);
+    }
+    
+    protected Context getContext() {
+        AegisContext globalContext = new AegisContext();
+        globalContext.initialize();
+        return new Context(globalContext);
     }
 }

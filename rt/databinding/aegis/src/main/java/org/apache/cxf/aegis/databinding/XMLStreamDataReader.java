@@ -19,8 +19,6 @@
 package org.apache.cxf.aegis.databinding;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
@@ -36,8 +34,8 @@ import org.apache.cxf.aegis.type.TypeUtil;
 import org.apache.cxf.aegis.xml.stax.ElementReader;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.common.util.SOAPConstants;
 import org.apache.cxf.databinding.DataReader;
-import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Attachment;
 import org.apache.cxf.service.model.MessagePartInfo;
@@ -50,31 +48,20 @@ public class XMLStreamDataReader implements DataReader<XMLStreamReader> {
 
     private Context context;
 
-    private Map<String, Object> properties;
-    
     public XMLStreamDataReader(AegisDatabinding databinding) {
         this.databinding = databinding;
-        // optimize by avoiding the properties until we need them.
-        this.context = new Context(databinding, false);
+        this.context = new Context(databinding.getAegisContext());
     }
 
     public Object read(MessagePartInfo part, XMLStreamReader input) {
+
         Type type = databinding.getType(part);
 
-        type = TypeUtil.getReadType(input, context, type);
+        type = TypeUtil.getReadType(input, databinding.getAegisContext(), type);
         
         if (type == null) {
             throw new Fault(new Message("NO_MESSAGE_FOR_PART", LOG));
         }
-        
-        Map<String, Object> props = (Endpoint)getProperty(ENDPOINT);
-        if (props == null) {
-            props = new HashMap<String, Object>();
-        }
-        context.setDelegateProperties(props);
-        
-        context.setTypeMapping(null); // let it delegate to the databinding
-        context.setFault((Fault) getProperty(DataReader.FAULT));
         
         ElementReader elReader = new ElementReader(input);
         if (elReader.isXsiNil()) {
@@ -89,33 +76,26 @@ public class XMLStreamDataReader implements DataReader<XMLStreamReader> {
         }
     }
 
-    public Object getProperty(String key) {
-        if (properties == null) {
-            return null;
-        }
-        return properties.get(key);
-    }
-
-    public Object read(QName name, XMLStreamReader input, Class type) {
-        return null;
-    }
-
-    public Object read(XMLStreamReader reader) {
-        Map<String, Object> props = new HashMap<String, Object>();
-        context.setDelegateProperties(props);
-        
-        context.setTypeMapping(null); // let it delegate to the databinding
-        context.setFault((Fault) getProperty(DataReader.FAULT));
-        // JAXB will take a start_document, so should we.
+    private void setupReaderPosition(XMLStreamReader reader) {
         if (reader.getEventType() == XMLStreamConstants.START_DOCUMENT) {
             while (XMLStreamConstants.START_ELEMENT != reader.getEventType()) {
                 try {
                     reader.nextTag();
                 } catch (XMLStreamException e) {
-                    throw new RuntimeException(e);
+                    Message message = new Message("STREAM_READ_ERROR", LOG);
+                    throw new DatabindingException(message.toString(), e);
                 }
             }
         }
+        if (reader.getEventType() != XMLStreamConstants.START_ELEMENT) {
+            Message message = new Message("STREAM_BAD_POSITION", LOG);
+            throw new DatabindingException(message.toString());
+            
+        }
+    }
+
+    public Object read(QName name, XMLStreamReader reader, Class typeClass) {
+        setupReaderPosition(reader);
         ElementReader elReader = new ElementReader(reader);
 
         if (elReader.isXsiNil()) {
@@ -124,7 +104,32 @@ public class XMLStreamDataReader implements DataReader<XMLStreamReader> {
         }
         
         
-        Type type = TypeUtil.getReadType(reader, context, null);
+        Type type = TypeUtil.getReadType(reader, context.getGlobalContext(), null);
+        
+        if (type == null) {
+            return null; // throw ?
+        }
+        
+
+        try {
+            return type.readObject(elReader, context);
+        } catch (DatabindingException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+    public Object read(XMLStreamReader reader) {
+        setupReaderPosition(reader);
+        ElementReader elReader = new ElementReader(reader);
+
+        if (elReader.isXsiNil()) {
+            elReader.readToEnd();
+            return null;
+        }
+        
+        
+        Type type = TypeUtil.getReadType(reader, context.getGlobalContext(), null);
         
         if (type == null) {
             return null; // throw ?
@@ -143,11 +148,15 @@ public class XMLStreamDataReader implements DataReader<XMLStreamReader> {
     }
 
     public void setProperty(String prop, Object value) {
-        if (properties == null) {
-            properties = new HashMap<String, Object>();
+        if (SOAPConstants.MTOM_ENABLED.equals(prop)) {
+            if (value instanceof String) {
+                context.setMtomEnabled(Boolean.valueOf((String)value));
+            } else if (value instanceof Boolean) {
+                context.setMtomEnabled((Boolean)value);
+            }
+        } else if (DataReader.FAULT.equals(prop)) { 
+            context.setFault((Fault)value);
         }
-        
-        properties.put(prop, value);
     }
 
     public void setSchema(Schema s) {

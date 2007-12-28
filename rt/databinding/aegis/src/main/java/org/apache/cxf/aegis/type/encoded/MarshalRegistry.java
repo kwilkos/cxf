@@ -39,7 +39,7 @@ public class MarshalRegistry implements Iterable<Object> {
     private final Map<Object, String> instances = new IdentityHashMap<Object, String>();
 
     /**
-     * The objects not yet marshalled.  The is maintained as a map for debugging purpuses. It is IMPORTANT
+     * The objects not yet marshaled.  The is maintained as a map for debugging purposes. It is IMPORTANT
      * that this be a LinkedHashMap so we write the objects in the order they were discovered in the object
      * graphs (and writes them in numeric order).
      */
@@ -57,10 +57,10 @@ public class MarshalRegistry implements Iterable<Object> {
      * @return the SoapRefRegistry; never null
      */
     public static MarshalRegistry get(Context context) {
-        MarshalRegistry marshalRegistry = (MarshalRegistry) context.get(MarshalRegistry.class.getName());
+        MarshalRegistry marshalRegistry = context.getProperty(MarshalRegistry.class);
         if (marshalRegistry == null) {
             marshalRegistry = new MarshalRegistry();
-            context.put(MarshalRegistry.class.getName(), marshalRegistry);
+            context.setProperty(marshalRegistry);
         }
         return marshalRegistry;
     }

@@ -40,7 +40,7 @@ public class InterfaceInheritanceTest extends AbstractAegisTest {
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        Server server = createService(IInterfaceService.class, null);
+        Server server = createService(IInterfaceService.class);
         Service service = server.getEndpoint().getService();
         service.setInvoker(new BeanInvoker(new InterfaceService()));
     }

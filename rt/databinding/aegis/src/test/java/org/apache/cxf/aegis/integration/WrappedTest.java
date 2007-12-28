@@ -40,7 +40,7 @@ public class WrappedTest extends AbstractAegisTest {
     public void setUp() throws Exception {
         super.setUp();
         arrayService = new ArrayService();
-        createService(BeanService.class, null, "BeanService", null);
+        createService(BeanService.class, "BeanService");
         createService(ArrayService.class, arrayService, "Array", new QName("urn:Array", "Array"));
     }
 

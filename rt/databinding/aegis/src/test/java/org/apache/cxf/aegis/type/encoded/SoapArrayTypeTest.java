@@ -93,7 +93,6 @@ public class SoapArrayTypeTest extends AbstractEncodedTest {
     @Test
     public void testSimpleArray() throws Exception {
         Context context = getContext();
-        context.setTypeMapping(mapping);
 
         // xsd:int[2]
         ElementReader reader = new ElementReader(getClass().getResourceAsStream("arraySimple.xml"));
@@ -109,7 +108,6 @@ public class SoapArrayTypeTest extends AbstractEncodedTest {
     @Test
     public void testUrTypeArray() throws Exception {
         Context context = getContext();
-        context.setTypeMapping(mapping);
 
         // ur-type[4] nested elements have xsi:type
         ElementReader reader = new ElementReader(getClass().getResourceAsStream("arrayUrType1.xml"));
@@ -133,7 +131,6 @@ public class SoapArrayTypeTest extends AbstractEncodedTest {
     @Test
     public void testAnyTypeArray() throws Exception {
         Context context = getContext();
-        context.setTypeMapping(mapping);
 
         // ur-type[4] nested elements have xsi:type
         ElementReader reader = new ElementReader(getClass().getResourceAsStream("arrayAnyType1.xml"));
@@ -157,7 +154,6 @@ public class SoapArrayTypeTest extends AbstractEncodedTest {
     @Test
     public void testStructArray() throws Exception {
         Context context = getContext();
-        context.setTypeMapping(mapping);
 
         // b:address[2]
         ElementReader reader = new ElementReader(getClass().getResourceAsStream("arrayStructs.xml"));
@@ -175,7 +171,6 @@ public class SoapArrayTypeTest extends AbstractEncodedTest {
     @Test
     public void testSquareArray() throws Exception {
         Context context = getContext();
-        context.setTypeMapping(mapping);
 
         // xsd:string[2,3,4]
         ElementReader reader = new ElementReader(getClass().getResourceAsStream("arraySquare.xml"));
@@ -191,7 +186,6 @@ public class SoapArrayTypeTest extends AbstractEncodedTest {
     @Test
     public void testArrayOfArrays() throws Exception {
         Context context = getContext();
-        context.setTypeMapping(mapping);
 
         // xsd:string[,][2]
         ElementReader reader = new ElementReader(getClass().getResourceAsStream("arrayArrayOfArrays1.xml"));
@@ -207,7 +201,6 @@ public class SoapArrayTypeTest extends AbstractEncodedTest {
     @Test
     public void testPartiallyTransmitted() throws Exception {
         Context context = getContext();
-        context.setTypeMapping(mapping);
 
         // xsd:int[5] offset="[2]"
         ElementReader reader = new ElementReader(
@@ -224,7 +217,6 @@ public class SoapArrayTypeTest extends AbstractEncodedTest {
     @Test
     public void testSparseArray() throws Exception {
         Context context = getContext();
-        context.setTypeMapping(mapping);
 
         // xsd:string[2,3,4]
         ElementReader reader = new ElementReader(getClass().getResourceAsStream("arraySparse1.xml"));

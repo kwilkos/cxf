@@ -22,6 +22,8 @@ import java.util.Map;
 import java.util.TreeMap;
 import javax.xml.namespace.QName;
 
+import org.apache.cxf.aegis.AegisContext;
+import org.apache.cxf.aegis.Context;
 import org.apache.cxf.aegis.type.basic.BeanTypeInfo;
 import org.apache.cxf.aegis.xml.jdom.JDOMWriter;
 import org.apache.cxf.aegis.xml.stax.ElementReader;
@@ -36,6 +38,11 @@ import org.junit.Test;
 public class StructTypeTest extends AbstractEncodedTest {
     private StructType addressType;
     private StructType purchaseOrderType;
+    
+    private Context getLocalContext() {
+        AegisContext aegisContext = new AegisContext();
+        return new Context(aegisContext);
+    }
 
     public void setUp() throws Exception {
         super.setUp();
@@ -64,20 +71,20 @@ public class StructTypeTest extends AbstractEncodedTest {
     public void testSimpleStruct() throws Exception {
         // Test reading
         ElementReader reader = new ElementReader(getClass().getResourceAsStream("struct1.xml"));
-        Address address = (Address) addressType.readObject(reader, getContext());
+        Address address = (Address) addressType.readObject(reader, getLocalContext());
         validateShippingAddress(address);
         reader.getXMLStreamReader().close();
 
         // Test reading - no namespace on nested elements
         reader = new ElementReader(getClass().getResourceAsStream("struct2.xml"));
-        address = (Address) addressType.readObject(reader, getContext());
+        address = (Address) addressType.readObject(reader, getLocalContext());
         validateShippingAddress(address);
         reader.getXMLStreamReader().close();
 
         // Test writing
         Element element = new Element("root", "b", "urn:Bean");
         new Document(element);
-        addressType.writeObject(address, new JDOMWriter(element), getContext());
+        addressType.writeObject(address, new JDOMWriter(element), getLocalContext());
         validateShippingAddress(element);
     }
 
@@ -85,13 +92,13 @@ public class StructTypeTest extends AbstractEncodedTest {
     public void testComplexStruct() throws Exception {
         // Test reading
         ElementReader reader = new ElementReader(getClass().getResourceAsStream("struct3.xml"));
-        PurchaseOrder po = (PurchaseOrder) purchaseOrderType.readObject(reader, getContext());
+        PurchaseOrder po = (PurchaseOrder) purchaseOrderType.readObject(reader, getLocalContext());
         validatePurchaseOrder(po);
         reader.getXMLStreamReader().close();
 
         // Test reading - no namespace on nested elements
         reader = new ElementReader(getClass().getResourceAsStream("struct4.xml"));
-        po = (PurchaseOrder) purchaseOrderType.readObject(reader, getContext());
+        po = (PurchaseOrder) purchaseOrderType.readObject(reader, getLocalContext());
         validatePurchaseOrder(po);
         reader.getXMLStreamReader().close();
 

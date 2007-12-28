@@ -88,7 +88,7 @@ public class BeanType extends Type {
             Object target;
 
             if (isInterface) {
-                String impl = (String)context.get(clazz.getName() + ".implementation");
+                String impl = context.getGlobalContext().getBeanImplementationMap().get(clazz);
 
                 if (impl == null) {
                     InvocationHandler handler = new InterfaceInvocationHandler();
@@ -177,7 +177,7 @@ public class BeanType extends Type {
         Type type = beanTypeInfo.getType(name);
 
         // Type can be overriden with a xsi:type attribute
-        type = TypeUtil.getReadType(reader.getXMLStreamReader(), context, type);
+        type = TypeUtil.getReadType(reader.getXMLStreamReader(), context.getGlobalContext(), type);
         return type;
     }
 
@@ -322,7 +322,7 @@ public class BeanType extends Type {
             Object value = readProperty(object, name);
 
             Type defaultType = getType(inf, name);
-            Type type = TypeUtil.getWriteType(context.getDataBinding(), value, defaultType);
+            Type type = TypeUtil.getWriteType(context.getGlobalContext(), value, defaultType);
 
             // Write the value if it is not null.
             if (value != null) {

@@ -40,7 +40,7 @@ import org.apache.cxf.aegis.DatabindingException;
  */
 public class SoapRefRegistry {
     /**
-     * The unmarshalled object instances by id.
+     * The unmarshaled object instances by id.
      */
     private final SortedMap<String, Object> instances = new TreeMap<String, Object>();
 
@@ -56,10 +56,10 @@ public class SoapRefRegistry {
      * @return the SoapRefRegistry; never null
      */
     public static SoapRefRegistry get(Context context) {
-        SoapRefRegistry soapRefRegistry = (SoapRefRegistry) context.get(SoapRefRegistry.class.getName());
+        SoapRefRegistry soapRefRegistry = context.getProperty(SoapRefRegistry.class);
         if (soapRefRegistry == null) {
             soapRefRegistry = new SoapRefRegistry();
-            context.put(SoapRefRegistry.class.getName(), soapRefRegistry);
+            context.setProperty(soapRefRegistry);
         }
         return soapRefRegistry;
     }

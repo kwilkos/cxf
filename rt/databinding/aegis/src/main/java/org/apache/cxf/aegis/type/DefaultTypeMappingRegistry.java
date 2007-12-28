@@ -152,12 +152,15 @@ public final class DefaultTypeMappingRegistry extends AbstractTypeMappingRegistr
         }
     }
 
-    public TypeMapping register(String encodingStyleURI, TypeMapping mapping) {
-        TypeMapping previous = registry.get(encodingStyleURI);
+    /**
+     * {@inheritDoc}
+     */
+    public TypeMapping register(String namespaceURI, TypeMapping mapping) {
+        TypeMapping previous = registry.get(namespaceURI);
 
-        mapping.setEncodingStyleURI(encodingStyleURI);
+        mapping.setEncodingStyleURI(namespaceURI);
 
-        registry.put(encodingStyleURI, mapping);
+        registry.put(namespaceURI, mapping);
 
         return previous;
     }

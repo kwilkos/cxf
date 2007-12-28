@@ -19,11 +19,10 @@
 package org.apache.cxf.aegis.databinding;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -33,17 +32,13 @@ import javax.xml.stream.XMLStreamWriter;
 
 import org.w3c.dom.Node;
 
+import org.apache.cxf.aegis.AegisContext;
 import org.apache.cxf.aegis.DatabindingException;
 import org.apache.cxf.aegis.type.AbstractTypeCreator.TypeClassInfo;
 import org.apache.cxf.aegis.type.Configuration;
-import org.apache.cxf.aegis.type.DefaultTypeMappingRegistry;
 import org.apache.cxf.aegis.type.Type;
 import org.apache.cxf.aegis.type.TypeCreator;
 import org.apache.cxf.aegis.type.TypeMapping;
-import org.apache.cxf.aegis.type.TypeMappingRegistry;
-import org.apache.cxf.aegis.type.TypeUtil;
-import org.apache.cxf.aegis.type.basic.BeanType;
-import org.apache.cxf.common.classloader.ClassLoaderUtils;
 import org.apache.cxf.common.util.SOAPConstants;
 import org.apache.cxf.common.xmlschema.SchemaCollection;
 import org.apache.cxf.databinding.DataBinding;
@@ -71,62 +66,49 @@ import org.jdom.Namespace;
 import org.jdom.output.DOMOutputter;
 
 /**
- * Handles DataBinding functions for Aegis.
- * <p>
- * NOTE: There is an assumed 1:1 mapping between an AegisDatabinding and a Service;
- * the code in here gets and puts properties on the service. This looks as if it's leftover
- * from some idea of sharing a databinding amongst services, which I (bimargulies) didn't
- * think was especially valid. Why not just keep these items right here in the data binding?
- * 
+ * CXF databinding object for Aegis. 
  */
 public class AegisDatabinding extends AbstractDataBinding implements DataBinding {
     
-    public static final String WRITE_XSI_TYPE_KEY = "org.apache.cxf.databinding.aegis.writeXsiType";
-    public static final String READ_XSI_TYPE_KEY = "org.apache.cxf.databinding.aegis.readXsiType";
-    public static final String OVERRIDE_TYPES_KEY = "org.apache.cxf.databinding.aegis.overrideTypesList";
-
     protected static final int IN_PARAM = 0;
     protected static final int OUT_PARAM = 1;
     protected static final int FAULT_PARAM = 2;
-    
-    static final String OLD_WRITE_XSI_TYPE_KEY = "writeXsiType";
-    static final String OLD_OVERRIDE_TYPES_KEY = "overrideTypesList";
-    static final String OLD_READ_XSI_TYPE_KEY = "readXsiType";
-    private boolean writeXsiTypes;
-    private boolean readXsiTypes = true;
 
-    private TypeMappingRegistry typeMappingRegistry;
+    private AegisContext aegisContext;
     private Map<MessagePartInfo, Type> part2Type;
-    private Set<String> overrideTypes;
-    private Set<Class<?>> overrideClasses;
-    private Set<QName> overrideQNames;
     private Service service;
-    // There's a split personality in here. Much of the code of Aegis assumes that 
-    // types get registered based an 'encoding style' URL, presumably either Soap 1.1 or 1.2.
-    // However, the override types, and apparently some others, end up registered against
-    // an extra type mapping object created for the service's namespace. This is odd insofar
-    // as the XML mapping for for the service could have a mapping uri in it.
-    // Until this is better understood, we keep this extra one around.
-    private TypeMapping serviceTypeMapping;
     private boolean isInitialized;
-    
+    private Set<String> overrideTypes;
+    private Configuration configuration;
+
     public AegisDatabinding() {
         super();
-        this.typeMappingRegistry = new DefaultTypeMappingRegistry(true);
         part2Type = new HashMap<MessagePartInfo, Type>();
     }
     
-    public static boolean isOverrideTypesKey(String key) {
-        return OVERRIDE_TYPES_KEY.equals(key)
-            || OLD_OVERRIDE_TYPES_KEY.equals(key);
-    }
-    
+    /**
+     * The Databinding API has initialize(Service). However, this object should be usable even if that
+     * API is never called.
+     */
     private void ensureInitialized() {
         if (!isInitialized) {
-            initializeWithoutService();
+            if (aegisContext == null) {
+                aegisContext = new AegisContext();
+                if (overrideTypes != null) {
+                    aegisContext.setOverrideTypes(overrideTypes);
+                }
+                if (configuration != null) {
+                    aegisContext.setConfiguration(configuration);
+                }
+                aegisContext.initialize();
+            }
+            isInitialized = true;
         }
     }
-
+    
+    /**
+     * {@inheritDoc}
+     */
     @SuppressWarnings("unchecked")
     public <T> DataReader<T> createReader(Class<T> cls) {
         ensureInitialized();
@@ -139,6 +121,9 @@ public class AegisDatabinding extends AbstractDataBinding implements DataBinding
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @SuppressWarnings("unchecked")
     public <T> DataWriter<T> createWriter(Class<T> cls) {
         ensureInitialized();
@@ -151,97 +136,52 @@ public class AegisDatabinding extends AbstractDataBinding implements DataBinding
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public Class<?>[] getSupportedReaderFormats() {
         return new Class[] {XMLStreamReader.class, Node.class};
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public Class<?>[] getSupportedWriterFormats() {
         return new Class[] {XMLStreamWriter.class, Node.class};
     }
 
-    public TypeMappingRegistry getTypeMappingRegistry() {
-        return typeMappingRegistry;
-    }
-
-    public void setTypeMappingRegistry(TypeMappingRegistry typeMappingRegistry) {
-        this.typeMappingRegistry = typeMappingRegistry;
-    }
-    
     /**
-     * This is the central point of override processing on the write side.
-     * @param clazz
-     * @return
+     * {@inheritDoc}
      */
-    public Type getOverrideType(Class clazz) {
-        ensureInitialized();
-        if (overrideClasses.contains(clazz)) {
-            return serviceTypeMapping.getType(clazz);
-        } else {
-            return null;
-        }
-    }
-    
-    /**
-     * This is the central point of override processing on the read side.
-     * @param schemaTypeName
-     * @return
-     */
-    public Type getOverrideType(QName schemaTypeName) {
-        ensureInitialized();
-        if (overrideQNames.contains(schemaTypeName)) {
-            return serviceTypeMapping.getType(schemaTypeName);
-        } else {
-            return null;
-        }
-    }
-    
-    private void initializeWithoutService() {
-        isInitialized = true;
-        serviceTypeMapping  = typeMappingRegistry.createTypeMapping(SOAPConstants.XSD, true);
-        typeMappingRegistry.register("urn:dummyService", serviceTypeMapping);
-        processOverrideTypes();
-    }
-
     public void initialize(Service s) {
-        isInitialized = true;
+        
+        if (aegisContext == null) {
+            aegisContext = new AegisContext();
+            if (overrideTypes != null) {
+                aegisContext.setOverrideTypes(overrideTypes);
+            }
+            if (configuration != null) {
+                aegisContext.setConfiguration(configuration);
+            }
+        }
+        aegisContext.setMappingNamespaceURI(s.getServiceInfos().get(0).getName().getNamespaceURI());
+        aegisContext.initialize();
         this.service = s;
         
-        QName serviceName = s.getServiceInfos().get(0).getName();
-        serviceTypeMapping = typeMappingRegistry.createTypeMapping(SOAPConstants.XSD, true);
-        typeMappingRegistry.register(serviceName.getNamespaceURI(), serviceTypeMapping);
-        
-        Object val = s.get(AegisDatabinding.READ_XSI_TYPE_KEY);
-        
-        if (val == null) {
-            val = s.get(AegisDatabinding.OLD_READ_XSI_TYPE_KEY);
-        }
-        if ("false".equals(val) || Boolean.FALSE.equals(val)) {
-            readXsiTypes = false;
-        }
-
-        val = s.get(AegisDatabinding.WRITE_XSI_TYPE_KEY);
-        
-        if (val == null) {
-            val = s.get(AegisDatabinding.OLD_WRITE_XSI_TYPE_KEY);
-        }
-        if ("true".equals(val) || Boolean.TRUE.equals(val)) {
-            writeXsiTypes = true;
-        }
-
-
         Set<Type> deps = new HashSet<Type>();
 
         for (ServiceInfo info : s.getServiceInfos()) {
             for (OperationInfo opInfo : info.getInterface().getOperations()) {
                 if (opInfo.isUnwrappedCapable()) {
-                    initializeOperation(s, serviceTypeMapping, opInfo.getUnwrappedOperation(), deps);
+                    initializeOperation(s, aegisContext.getTypeMapping(), 
+                                        opInfo.getUnwrappedOperation(), deps);
                 } else {
-                    initializeOperation(s, serviceTypeMapping, opInfo, deps);
+                    initializeOperation(s, aegisContext.getTypeMapping(), opInfo, deps);
                 }
             }
         }
 
-        List<Type> additional = getAdditionalTypes(s);
+        Collection<Type> additional = aegisContext.getAdditionalTypes();
 
         if (additional != null) {
             for (Type t : additional) {
@@ -260,64 +200,6 @@ public class AegisDatabinding extends AbstractDataBinding implements DataBinding
                     initializeOperationTypes(info, opInfo);
                 }
             }
-        }
-    }
-
-    private List<Type> getAdditionalTypes(Service s) {
-        List classes = (List)s.get(OVERRIDE_TYPES_KEY);
-        if (classes == null) {
-            classes = (List)s.get(OLD_OVERRIDE_TYPES_KEY);
-        } 
-        if (classes != null) {
-            if (this.overrideTypes == null) {
-                this.overrideTypes = new HashSet<String>();
-            }
-            
-            for (Object classNameObject : classes) {
-                String className = (String) classNameObject;
-                this.overrideTypes.add(className);
-            }
-        }
-
-        return processOverrideTypes();
-    }
-
-    /**
-     * Examine a list of override classes, and register all of them.
-     * @param tm      type manager for this binding
-     * @param classes list of class names
-     * @return        list of Types.
-     */
-    private List<Type> processOverrideTypes() {
-        overrideClasses = new HashSet<Class<?>>();
-        overrideQNames = new HashSet<QName>();
-        if (this.overrideTypes != null) {
-            List<Type> types = new ArrayList<Type>();
-            for (String typeName : overrideTypes) {
-                Class c = null;
-                try {
-                    c = ClassLoaderUtils.loadClass(typeName, TypeUtil.class);
-                } catch (ClassNotFoundException e) {
-                    throw new DatabindingException("Could not find override type class: " + typeName, e);
-                }
-                
-                overrideClasses.add(c);
-                
-                Type t = serviceTypeMapping.getType(c);
-                if (t == null) {
-                    t = serviceTypeMapping.getTypeCreator().createType(c);
-                    serviceTypeMapping.register(t);
-                }
-                overrideQNames.add(t.getSchemaType());
-                if (t instanceof BeanType) {
-                    BeanType bt = (BeanType)t;
-                    bt.getTypeInfo().setExtension(true);
-                    types.add(bt);
-                }
-            }
-            return types;
-        } else {
-            return null;
         }
     }
 
@@ -584,52 +466,24 @@ public class AegisDatabinding extends AbstractDataBinding implements DataBinding
         return part2Type.get(part);
     }
 
-    public Set<String> getOverrideTypes() {
-        return overrideTypes;
-    }
-    
-    public void setOverrideTypes(Set<String> typeNames) {
-        overrideTypes = typeNames;
-    }
-
     public Service getService() {
         return service;
     }
 
-    /** 
-     * Return the type mapping configuration associated with this databinding object.
-     * The configuration is retrieved from the type mapping registry.
-     * @return Returns the configuration.
-     */
-    public Configuration getConfiguration() {
-        return typeMappingRegistry.getConfiguration();
+    public AegisContext getAegisContext() {
+        ensureInitialized();
+        return aegisContext;
     }
 
-    /**
-     * Set the configuration for this databinding object.
-     * @param configuration The configuration to set.
-     */
+    public void setAegisContext(AegisContext aegisContext) {
+        this.aegisContext = aegisContext;
+    }
+
+    public void setOverrideTypes(Set<String> types) {
+        overrideTypes = types;
+    }
+    
     public void setConfiguration(Configuration configuration) {
-        typeMappingRegistry.setConfiguration(configuration);
-    }
-
-    public boolean isWriteXsiTypes() {
-        return writeXsiTypes;
-    }
-
-    public boolean isReadXsiTypes() {
-        return readXsiTypes;
-    }
-
-    public void setWriteXsiTypes(boolean flag) {
-        this.writeXsiTypes = flag;
-    }
-
-    public void setReadXsiTypes(boolean flag) {
-        this.readXsiTypes = flag;
-    }
-
-    public TypeMapping getServiceTypeMapping() {
-        return serviceTypeMapping;
+        this.configuration = configuration;
     }
 }
