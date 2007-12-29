@@ -60,7 +60,7 @@ public class AnnotationHandlerChainBuilder extends HandlerChainBuilder {
      * @return
      */
     public List<Handler> buildHandlerChainFromClass(Class<?> clz, List<Handler> existingHandlers,
-                                                    QName portQName, QName serviceQName) {
+                                                    QName portQName, QName serviceQName, String bindingID) {
         LOG.fine("building handler chain");
         HandlerChainAnnotation hcAnn = findHandlerChainAnnotation(clz, true);
         List<Handler> chain = null;
@@ -92,8 +92,7 @@ public class AnnotationHandlerChainBuilder extends HandlerChainBuilder {
                 
                 chain = new ArrayList<Handler>();
                 for (HandlerChainType hc : handlerChainsType.getHandlerChain()) {
-                    //Only add handlers if <port-name-pattern> is not presented or is matched.
-                    //TODO: match the namespace, match the wild card etc. JSR-181, Appendix B. 
+                    //TODO: match the namespace, match the wild card etc. JSR-181, Appendix B.
                     if (hc.getPortNamePattern() != null && portQName != null) {
                         String portNamePattern = hc.getPortNamePattern();
                         String localPart = portNamePattern.substring(portNamePattern.indexOf(':') + 1,
@@ -110,6 +109,10 @@ public class AnnotationHandlerChainBuilder extends HandlerChainBuilder {
                             continue;
                         }
                     }
+                    if (hc.getProtocolBindings() != null && !hc.getProtocolBindings().isEmpty()
+                        && bindingID != null && !hc.getProtocolBindings().contains(bindingID)) {
+                        continue;
+                    }
                     chain.addAll(buildHandlerChain(hc, clz.getClassLoader()));                    
                 }
 
@@ -124,8 +127,9 @@ public class AnnotationHandlerChainBuilder extends HandlerChainBuilder {
         return sortHandlers(chain);
     }
 
-    public List<Handler> buildHandlerChainFromClass(Class<?> clz, QName portQName, QName serviceQName) {
-        return buildHandlerChainFromClass(clz, null, portQName, serviceQName);
+    public List<Handler> buildHandlerChainFromClass(Class<?> clz, QName portQName, QName serviceQName,
+                                                    String bindingID) {
+        return buildHandlerChainFromClass(clz, null, portQName, serviceQName, bindingID);
     }
     
     protected URL resolveHandlerChainAnnotationFile(Class clazz, String name) {
@@ -133,7 +137,7 @@ public class AnnotationHandlerChainBuilder extends HandlerChainBuilder {
     }
     
     public List<Handler> buildHandlerChainFromClass(Class<?> clz) {
-        return buildHandlerChainFromClass(clz, null, null);
+        return buildHandlerChainFromClass(clz, null, null, null);
     }
     
     private HandlerChainAnnotation findHandlerChainAnnotation(Class<?> clz, boolean searchSEI) {        

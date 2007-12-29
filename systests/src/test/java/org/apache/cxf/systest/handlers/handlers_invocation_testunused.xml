@@ -37,6 +37,20 @@
                   <handler-class>org.apache.cxf.systest.handlers.TestUnusedHandler</handler-class>
               </handler>
            </handler-chain>
+           <handler-chain>
+              <protocol-bindings>http://schemas.xmlsoap.org/wsdl/soap/http</protocol-bindings>
+              <handler>
+                  <handler-name>TestUnusedHandler</handler-name>
+                  <handler-class>org.apache.cxf.systest.handlers.TestUnusedHandler</handler-class>
+              </handler>
+           </handler-chain>   
+           <handler-chain>
+              <protocol-bindings>unknownbinding</protocol-bindings>
+              <handler>
+                  <handler-name>TestUnusedHandler</handler-name>
+                  <handler-class>org.apache.cxf.systest.handlers.TestUnusedHandler</handler-class>
+              </handler>
+           </handler-chain>                    
 </handler-chains>
 
 

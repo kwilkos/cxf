@@ -89,4 +89,22 @@ xsi:schemaLocation="http://java.sun.com/xml/ns/javaee">
 			</handler-class>
 		</handler>
 	</handler-chain>	
+	
+	       <!-- ====================== -->
+           <!-- protocol based handlers-->
+           <!-- ====================== -->
+           <handler-chain>
+              <!-- REVISIT: valued used by TCK, do not understand...
+              <protocol-bindings>##SOAP11_HTTP</protocol-bindings>
+               -->
+              <protocol-bindings>http://schemas.xmlsoap.org/wsdl/soap/http</protocol-bindings>
+              <handler>
+	             <handler-name>Handler7</handler-name>
+	             <handler-class>org.apache.cxf.jaxws.handler.AnnotationHandlerChainBuilderTest$TestLogicalHandler</handler-class>
+              </handler>
+              <handler>
+	             <handler-name>Handler8</handler-name>
+	             <handler-class>org.apache.cxf.jaxws.handler.AnnotationHandlerChainBuilderTest$TestProtocolHandler</handler-class>
+              </handler>
+           </handler-chain>
 </handler-chains>

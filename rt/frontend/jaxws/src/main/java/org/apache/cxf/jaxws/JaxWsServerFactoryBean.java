@@ -174,7 +174,7 @@ public class JaxWsServerFactoryBean extends ServerFactoryBean {
         JaxWsServiceFactoryBean sf = (JaxWsServiceFactoryBean)getServiceFactory(); 
         
         List<Handler> chain = builder.buildHandlerChainFromClass(getServiceBeanClass(), sf.getEndpointInfo()
-            .getName(), sf.getServiceQName());
+            .getName(), sf.getServiceQName(), this.getBindingId());
         for (Handler h : chain) {
             injectResources(h);
         }

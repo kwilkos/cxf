@@ -46,36 +46,40 @@ public class AnnotationHandlerChainBuilderTest extends Assert {
         AnnotationHandlerChainBuilder chainBuilder = new AnnotationHandlerChainBuilder();
         List<Handler> handlers = chainBuilder.buildHandlerChainFromClass(handlerTestImpl.getClass());
         assertNotNull(handlers);
-        assertEquals(7, handlers.size());
+        assertEquals(9, handlers.size());
         assertEquals(TestLogicalHandler.class, handlers.get(0).getClass());
         assertEquals(TestLogicalHandler.class, handlers.get(1).getClass());
         assertEquals(TestLogicalHandler.class, handlers.get(2).getClass());
         assertEquals(TestLogicalHandler.class, handlers.get(3).getClass());
         assertEquals(TestLogicalHandler.class, handlers.get(4).getClass());
         assertEquals(TestLogicalHandler.class, handlers.get(5).getClass());
-        assertEquals(TestProtocolHandler.class, handlers.get(6).getClass());
+        assertEquals(TestLogicalHandler.class, handlers.get(6).getClass());
+        assertEquals(TestProtocolHandler.class, handlers.get(7).getClass());
+        assertEquals(TestProtocolHandler.class, handlers.get(8).getClass());
     }    
     
     @Test
-    public void testFindHandlerChainAnnotationPerPortPerService() {
+    public void testFindHandlerChainAnnotationPerPortServiceBinding() {
         HandlerTestImpl handlerTestImpl = new HandlerTestImpl();
         AnnotationHandlerChainBuilder chainBuilder = new AnnotationHandlerChainBuilder();
         QName portQName = new QName("namespacedoesntsupportyet", "SoapPort1");
         QName serviceQName = new QName("namespacedoesntsupportyet", "SoapService1");
+        String bindingID = "http://schemas.xmlsoap.org/wsdl/soap/http";
         List<Handler> handlers = chainBuilder
-            .buildHandlerChainFromClass(handlerTestImpl.getClass(), portQName, serviceQName);
+            .buildHandlerChainFromClass(handlerTestImpl.getClass(), portQName, serviceQName, bindingID);
         assertNotNull(handlers);
-        assertEquals(7, handlers.size());
+        assertEquals(9, handlers.size());
     }
     
     @Test
-    public void testFindHandlerChainAnnotationPerPortPerServiceNegative() {
+    public void testFindHandlerChainAnnotationPerPortServiceBindingNegative() {
         HandlerTestImpl handlerTestImpl = new HandlerTestImpl();
         AnnotationHandlerChainBuilder chainBuilder = new AnnotationHandlerChainBuilder();
         QName portQName = new QName("namespacedoesntsupportyet", "SoapPortUnknown");
         QName serviceQName = new QName("namespacedoesntsupportyet", "SoapServiceUnknown");
+        String bindingID = "BindingUnknow";
         List<Handler> handlers = chainBuilder
-            .buildHandlerChainFromClass(handlerTestImpl.getClass(), portQName, serviceQName);
+            .buildHandlerChainFromClass(handlerTestImpl.getClass(), portQName, serviceQName, bindingID);
         assertNotNull(handlers);
         assertEquals(3, handlers.size());
     }

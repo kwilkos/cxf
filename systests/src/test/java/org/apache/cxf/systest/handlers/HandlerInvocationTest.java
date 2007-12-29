@@ -115,7 +115,7 @@ public class HandlerInvocationTest extends AbstractBusClientServerTestBase {
         BindingProvider bp1 = (BindingProvider)handlerTest1;
         Binding binding1 = bp1.getBinding();
         List<Handler> port1HandlerChain = binding1.getHandlerChain();
-        assertEquals(0, port1HandlerChain.size());
+        assertEquals(1, port1HandlerChain.size());
     }
     
     @Test
