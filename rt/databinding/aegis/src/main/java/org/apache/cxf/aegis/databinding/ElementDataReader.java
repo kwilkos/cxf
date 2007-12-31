@@ -22,34 +22,37 @@ package org.apache.cxf.aegis.databinding;
 import java.util.Collection;
 
 import javax.xml.namespace.QName;
-import javax.xml.stream.XMLStreamException;
 import javax.xml.validation.Schema;
 
 import org.w3c.dom.Element;
 
+import org.apache.cxf.aegis.AegisElementDataReader;
+import org.apache.cxf.aegis.type.Type;
 import org.apache.cxf.databinding.DataReader;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Attachment;
 import org.apache.cxf.service.model.MessagePartInfo;
-import org.apache.cxf.staxutils.W3CDOMStreamReader;
 
 /**
  * 
  */
 public class ElementDataReader implements DataReader<Element> {
-    XMLStreamDataReader reader;
+    
+    private AegisElementDataReader reader;
+    private AegisDatabinding databinding;
     
     ElementDataReader(AegisDatabinding binding) {
-        reader = new XMLStreamDataReader(binding);
+        databinding = binding;
+        reader = new AegisElementDataReader(binding.getAegisContext()); 
     }
 
-    /** {@inheritDoc}*/
+    /**
+     * {@inheritDoc}
+     */
     public Object read(Element input) {
         try {
-            W3CDOMStreamReader sreader = new W3CDOMStreamReader(input);
-            sreader.nextTag(); //advance into the first tag
-            return reader.read(sreader);
-        } catch (XMLStreamException e) {
+            return reader.read(input);
+        } catch (Exception e) {
             throw new Fault(e);
         }
     }
@@ -57,38 +60,35 @@ public class ElementDataReader implements DataReader<Element> {
     /** {@inheritDoc}*/
     public Object read(MessagePartInfo part, Element input) {
         try {
-            W3CDOMStreamReader sreader = new W3CDOMStreamReader(input);
-            sreader.nextTag(); //advance into the first tag
-            return reader.read(part, sreader);
-        } catch (XMLStreamException e) {
+            Type type = databinding.getType(part);
+            return reader.read(input, type);
+        } catch (Exception e) {
             throw new Fault(e);
         }
     }
 
     /** {@inheritDoc}*/
-    public Object read(QName name, Element input, Class type) {
+    public Object read(QName name, Element input, Class typeClass) {
         try {
-            W3CDOMStreamReader sreader = new W3CDOMStreamReader(input);
-            sreader.nextTag(); //advance into the first tag
-            return reader.read(name, sreader, type);
-        } catch (XMLStreamException e) {
+            // TODO: pay attention to the typeClass parameter.
+            return reader.read(input);
+        } catch (Exception e) {
             throw new Fault(e);
         }
     }
 
-    /** {@inheritDoc}*/
+    /** 
+     * {@inheritDoc}
+     * */
     public void setAttachments(Collection<Attachment> attachments) {
-        reader.setAttachments(attachments);
+        reader.getContext().setAttachments(attachments);
     }
 
-    /** {@inheritDoc}*/
     public void setProperty(String prop, Object value) {
         reader.setProperty(prop, value);
     }
 
-    /** {@inheritDoc}*/
     public void setSchema(Schema s) {
         reader.setSchema(s);
     }
-
 }

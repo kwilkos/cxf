@@ -27,6 +27,11 @@ import javax.xml.validation.Schema;
 import org.apache.cxf.message.Attachment;
 import org.apache.cxf.service.model.MessagePartInfo;
 
+/**
+ * The 'read' side of the data binding abstraction of CXF. A DataReader&lt;T&gt; reads objects 
+ * from a source of type T.
+ * @param <T> The type of the source. Each data binding defines the set of source types that it supports.
+ */
 public interface DataReader<T> {
     String FAULT = DataReader.class.getName() + "Fault";
     String ENDPOINT = DataReader.class.getName() + "Endpoint";

@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamReader;
 
 import org.apache.cxf.aegis.type.Configuration;
 import org.apache.cxf.aegis.type.DefaultTypeMappingRegistry;
@@ -90,6 +91,17 @@ public class AegisContext {
         typeMapping  = typeMappingRegistry.createTypeMapping(SOAPConstants.XSD, true);
         typeMappingRegistry.register(mappingNamespaceURI, typeMapping);
         processOverrideTypes();
+    }
+    
+    
+    public <Reader extends AbstractAegisDataReaderImpl, Source> 
+    Reader createReader(Class<Reader> readerClass, Class<Source> sourceClass) {
+        if (sourceClass == org.w3c.dom.Element.class) {
+            return readerClass.cast(new AegisElementDataReader(this));
+        } else if (sourceClass == XMLStreamReader.class) {
+            return readerClass.cast(new AegisXMLStreamDataReader(this));
+        }
+        return null; // throw?
     }
     
     /**

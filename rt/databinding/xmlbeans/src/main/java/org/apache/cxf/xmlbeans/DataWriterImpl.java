@@ -136,17 +136,11 @@ public class DataWriterImpl implements DataWriter<XMLStreamWriter> {
     }
 
     public void setAttachments(Collection<Attachment> attachments) {
-        // TODO Auto-generated method stub
-        
     }
 
     public void setProperty(String key, Object value) {
-        // TODO Auto-generated method stub
-        
     }
 
     public void setSchema(Schema s) {
-        // TODO Auto-generated method stub
-        
     }
 }

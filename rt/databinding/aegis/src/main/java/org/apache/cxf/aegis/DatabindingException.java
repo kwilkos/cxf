@@ -23,6 +23,8 @@ import java.io.PrintWriter;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.cxf.common.i18n.Message;
+
 /**
  * 
  * 
@@ -53,6 +55,14 @@ public class DatabindingException extends RuntimeException {
      */
     public DatabindingException(String message, Throwable cause) {
         super(message, cause);
+    }
+    
+    public DatabindingException(Message message) {
+        super(message.toString());
+    }
+
+    public DatabindingException(Message message, Throwable cause) {
+        super(message.toString(), cause);
     }
 
 
