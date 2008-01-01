@@ -53,7 +53,7 @@ public class InheritancePOJOTest extends AbstractAegisTest {
 
         Set<String> l = new HashSet<String>();
         l.add(Employee.class.getName());
-        globalContext.setOverrideTypes(l);
+        globalContext.setRootClassNames(l);
         AegisDatabinding binding = new AegisDatabinding();
         binding.setAegisContext(globalContext);
 

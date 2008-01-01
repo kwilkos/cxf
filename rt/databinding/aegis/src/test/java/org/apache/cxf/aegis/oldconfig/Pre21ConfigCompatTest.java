@@ -66,7 +66,7 @@ public class Pre21ConfigCompatTest extends AbstractAegisTest {
         AegisContext context = db.getAegisContext();
         assertTrue(context.isWriteXsiTypes());
         assertFalse(context.isReadXsiTypes());
-        Set<String> classes = context.getOverrideTypes();
+        Set<String> classes = context.getRootClassNames();
         assertTrue(classes.contains(SimpleBean.class.getName()));
         assertEquals(MyHello.class.getName(), context.getBeanImplementationMap().get(Hello.class)); 
     }

@@ -116,7 +116,7 @@ public class AegisDatabinding extends AbstractDataBinding implements DataBinding
             if (aegisContext == null) {
                 aegisContext = new AegisContext();
                 if (overrideTypes != null) {
-                    aegisContext.setOverrideTypes(overrideTypes);
+                    aegisContext.setRootClassNames(overrideTypes);
                 }
                 if (configuration != null) {
                     aegisContext.setConfiguration(configuration);
@@ -221,7 +221,7 @@ public class AegisDatabinding extends AbstractDataBinding implements DataBinding
             }
 
             if (overrideTypes != null) {
-                aegisContext.setOverrideTypes(overrideTypes);
+                aegisContext.setRootClassNames(overrideTypes);
             }
             if (configuration != null) {
                 aegisContext.setConfiguration(configuration);
@@ -249,7 +249,7 @@ public class AegisDatabinding extends AbstractDataBinding implements DataBinding
             }
         }
 
-        Collection<Type> additional = aegisContext.getAdditionalTypes();
+        Collection<Type> additional = aegisContext.getRootTypes();
 
         if (additional != null) {
             for (Type t : additional) {

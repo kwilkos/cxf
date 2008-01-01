@@ -49,10 +49,11 @@ public class WrappedTest extends AbstractAegisTest {
         Node response = invoke("BeanService", "bean11.xml");
 
         addNamespace("sb", "http://services.aegis.cxf.apache.org");
+        addNamespace("beanz", "urn:beanz");
         assertValid("/s:Envelope/s:Body/sb:getSimpleBeanResponse", response);
         assertValid("//sb:getSimpleBeanResponse/sb:return", response);
-        assertValid("//sb:getSimpleBeanResponse/sb:return/sb:howdy[text()=\"howdy\"]", response);
-        assertValid("//sb:getSimpleBeanResponse/sb:return/sb:bleh[text()=\"bleh\"]", response);
+        assertValid("//sb:getSimpleBeanResponse/sb:return/beanz:howdy[text()=\"howdy\"]", response);
+        assertValid("//sb:getSimpleBeanResponse/sb:return/beanz:bleh[text()=\"bleh\"]", response);
     }
 
     @Test
@@ -70,28 +71,28 @@ public class WrappedTest extends AbstractAegisTest {
         assertValid("//xsd:complexType[@name='getSubmitBean']/xsd:sequence"
                     + "/xsd:element[@name='bleh'][@type='xsd:string'][@minOccurs='0']", doc);
         assertValid("//xsd:complexType[@name='getSubmitBean']/xsd:sequence"
-                    + "/xsd:element[@name='bean'][@type='tns:SimpleBean'][@minOccurs='0']", doc);
+                    + "/xsd:element[@name='bean'][@type='ns0:SimpleBean'][@minOccurs='0']", doc);
 
         assertValid("/wsdl:definitions/wsdl:types"
                     + "/xsd:schema[@targetNamespace='http://services.aegis.cxf.apache.org']", doc);
         assertValid("/wsdl:definitions/wsdl:types"
-                    + "/xsd:schema[@targetNamespace='http://services.aegis.cxf.apache.org']"
+                    + "/xsd:schema[@targetNamespace='urn:beanz']"
                     + "/xsd:complexType[@name=\"SimpleBean\"]", doc);
         assertValid(
                     "/wsdl:definitions/wsdl:types"
-                        + "/xsd:schema[@targetNamespace='http://services.aegis.cxf.apache.org']"
+                        + "/xsd:schema[@targetNamespace='urn:beanz']"
                         + "/xsd:complexType[@name=\"SimpleBean\"]/xsd:sequence/xsd:element"
                         + "[@name=\"bleh\"][@minOccurs='0']",
                     doc);
         assertValid(
                     "/wsdl:definitions/wsdl:types"
-                        + "/xsd:schema[@targetNamespace='http://services.aegis.cxf.apache.org']"
+                        + "/xsd:schema[@targetNamespace='urn:beanz']"
                         + "/xsd:complexType[@name=\"SimpleBean\"]/xsd:sequence/xsd:element"
                         + "[@name=\"howdy\"][@minOccurs='0']",
                     doc);
         assertValid(
                     "/wsdl:definitions/wsdl:types"
-                        + "/xsd:schema[@targetNamespace='http://services.aegis.cxf.apache.org']"
+                        + "/xsd:schema[@targetNamespace='urn:beanz']"
                         + "/xsd:complexType[@name=\"SimpleBean\"]/xsd:sequence/xsd:element"
                         + "[@type=\"xsd:string\"]",
                     doc);

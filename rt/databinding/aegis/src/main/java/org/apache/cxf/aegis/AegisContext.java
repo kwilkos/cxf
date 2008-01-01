@@ -48,6 +48,22 @@ import org.apache.cxf.common.util.SOAPConstants;
  * This class has no API that maps from a Class or QName to a Type or visa versa. Our goal is to allow
  * Aegis-sans-CXF, but the marshal/unmarshal-level APIs aren't sorted out yet.
  * 
+ * At the level of the data binding, the 'root elements' are defined by the WSDL message parts.
+ * Additional classes that participate are termed 'override' classes.
+ * 
+ * Aegis, unlike JAXB, has no concept of a 'root element'. So, an application that 
+ * uses Aegis without a web service has to either depend on xsi:type (at least for 
+ * root elements) or have its own mapping from elements to classes, and pass the 
+ * resulting Class objects to the readers.
+ * 
+ * At this level, the initial set of classes are just the initial set of classes.
+ * If the application leaves this list empty, and reads, then no .aegis.xml files 
+ * are used unless the application feeds in a Class&lt;T&gt; for the root of a 
+ * particular item read. Specifically, if the application just leaves it to Aegis to
+ * map an xsi:type spec to a class, Aegis can't know that some arbitrary class in
+ * some arbitrary package is mapped to a particular schema type by QName in a
+ * mapping XML file. 
+ * 
  */
 public class AegisContext {
     // perhaps this should be SoapConstants.XSD? Or perhaps the code that looks for that should look for this?
@@ -57,12 +73,12 @@ public class AegisContext {
     private String mappingNamespaceURI = DEFAULT_ENCODING_STYLE_URI;
 
     private TypeMappingRegistry typeMappingRegistry;
-    private Set<String> overrideTypes;
-    private Set<Class<?>> overrideClasses;
-    private Set<QName> overrideQNames;
+    private Set<String> rootClassNames;
+    private Set<Class<?>> rootClasses;
+    private Set<QName> rootTypeQNames;
     // this type mapping is the front of the chain of delegating type mappings.
     private TypeMapping typeMapping;
-    private Set<Type> additionalTypes;
+    private Set<Type> rootTypes;
     private Map<Class<?>, String> beanImplementationMap;
     private Configuration configuration;
     
@@ -71,8 +87,8 @@ public class AegisContext {
      */
     public AegisContext() {
         beanImplementationMap = new HashMap<Class<?>, String>();
-        overrideClasses = new HashSet<Class<?>>();
-        overrideQNames = new HashSet<QName>();
+        rootClasses = new HashSet<Class<?>>();
+        rootTypeQNames = new HashSet<QName>();
     }
 
     /**
@@ -90,7 +106,7 @@ public class AegisContext {
         // The use of the XSD URI in the mapping is, MAGIC.
         typeMapping  = typeMappingRegistry.createTypeMapping(SOAPConstants.XSD, true);
         typeMappingRegistry.register(mappingNamespaceURI, typeMapping);
-        processOverrideTypes();
+        processRootTypes();
     }
     
     
@@ -121,13 +137,13 @@ public class AegisContext {
     }
     
     /**
-     * If a class was provided as part of the 'override' list, retrieve it's Type by
+     * If a class was provided as part of the 'root' list, retrieve it's Type by
      * Class.
      * @param clazz
      * @return
      */
-    public Type getOverrideType(Class clazz) {
-        if (overrideClasses.contains(clazz)) {
+    public Type getRootType(Class clazz) {
+        if (rootClasses.contains(clazz)) {
             return typeMapping.getType(clazz);
         } else {
             return null;
@@ -135,13 +151,13 @@ public class AegisContext {
     }
     
     /**
-     * If a class was provided as part of the override list, retrieve it's Type by schema
+     * If a class was provided as part of the root list, retrieve it's Type by schema
      * type QName.
      * @param schemaTypeName
      * @return
      */
-    public Type getOverrideType(QName schemaTypeName) {
-        if (overrideQNames.contains(schemaTypeName)) {
+    public Type getRootType(QName schemaTypeName) {
+        if (rootTypeQNames.contains(schemaTypeName)) {
             return typeMapping.getType(schemaTypeName);
         } else {
             return null;
@@ -153,12 +169,15 @@ public class AegisContext {
      * @param tm      type manager for this binding
      * @param classes list of class names
      */
-    private void processOverrideTypes() {
-        additionalTypes = new HashSet<Type>();
-        overrideClasses = new HashSet<Class<?>>();
-        overrideQNames = new HashSet<QName>();
-        if (this.overrideTypes != null) {
-            for (String typeName : overrideTypes) {
+    private void processRootTypes() {
+        rootTypes = new HashSet<Type>();
+        // app may have already supplied classes.
+        if (rootClasses == null) {
+            rootClasses = new HashSet<Class<?>>();
+        }
+        rootTypeQNames = new HashSet<QName>();
+        if (this.rootClassNames != null) {
+            for (String typeName : rootClassNames) {
                 Class c = null;
                 try {
                     c = ClassLoaderUtils.loadClass(typeName, TypeUtil.class);
@@ -166,34 +185,48 @@ public class AegisContext {
                     throw new DatabindingException("Could not find override type class: " + typeName, e);
                 }
                 
-                overrideClasses.add(c);
-                
-                Type t = typeMapping.getType(c);
-                if (t == null) {
-                    t = typeMapping.getTypeCreator().createType(c);
-                    typeMapping.register(t);
-                }
-                overrideQNames.add(t.getSchemaType());
-                if (t instanceof BeanType) {
-                    BeanType bt = (BeanType)t;
-                    bt.getTypeInfo().setExtension(true);
-                    additionalTypes.add(bt);
-                }
+                rootClasses.add(c);
+            }
+        }
+         
+        for (Class<?> c : rootClasses) {
+            Type t = typeMapping.getType(c);
+            if (t == null) {
+                t = typeMapping.getTypeCreator().createType(c);
+                typeMapping.register(t);
+            }
+            rootTypeQNames.add(t.getSchemaType());
+            if (t instanceof BeanType) {
+                BeanType bt = (BeanType)t;
+                bt.getTypeInfo().setExtension(true);
+                rootTypes.add(bt);
             }
         }
     }
 
-    public Set<String> getOverrideTypes() {
-        return overrideTypes;
+    /**
+     * Retrieve the set of root class names. Note that if the application
+     * specifies the root classes by Class instead of by name, this will
+     * return null.
+     * @return
+     */
+    public Set<String> getRootClassNames() {
+        return rootClassNames;
     }
     
-    public void setOverrideTypes(Set<String> typeNames) {
-        overrideTypes = typeNames;
+    /**
+     * Set the root class names. This function is a convenience for Spring
+     * configuration. It sets the same underlying 
+     * collection as {@link #setRootClasses(Set)}.
+     * 
+     * @param classNames
+     */
+    public void setRootClassNames(Set<String> classNames) {
+        rootClassNames = classNames;
     }
 
     /** 
      * Return the type mapping configuration associated with this context.
-     * The configuration is retrieved from the type mapping registry.
      * @return Returns the configuration.
      */
     public Configuration getConfiguration() {
@@ -206,7 +239,8 @@ public class AegisContext {
     }
 
     /**
-     * Set the configuration for this databinding object.
+     * Set the configuration object. The configuration specifies default
+     * type mapping behaviors.
      * @param configuration The configuration to set.
      */
     public void setConfiguration(Configuration newConfiguration) {
@@ -224,24 +258,47 @@ public class AegisContext {
         return readXsiTypes;
     }
 
+    /**
+     * Controls whether Aegis writes xsi:type attributes on all elements.
+     * False by default.
+     * @param flag
+     */
     public void setWriteXsiTypes(boolean flag) {
         this.writeXsiTypes = flag;
     }
 
+    /**
+     * Controls the use of xsi:type attributes when reading objects. By default,
+     * xsi:type reading is enabled. When disabled, Aegis will only map for objects
+     * in the type mapping. 
+     * @param flag
+     */
     public void setReadXsiTypes(boolean flag) {
         this.readXsiTypes = flag;
     }
 
+    /**
+     * Return the type mapping object used by this context.
+     * @return
+     */
     public TypeMapping getTypeMapping() {
         return typeMapping;
     }
 
+    /**
+     * Set the type mapping object used by this context.
+     * @param typeMapping
+     */
     public void setTypeMapping(TypeMapping typeMapping) {
         this.typeMapping = typeMapping;
     }
 
-    public Set<Type> getAdditionalTypes() {
-        return additionalTypes;
+    /**
+     * Retrieve the Aegis type objects for the root classes.
+     * @return the set of type objects.
+     */
+    public Set<Type> getRootTypes() {
+        return rootTypes;
     }
     
     public Map<Class<?>, String> getBeanImplementationMap() {
@@ -254,6 +311,14 @@ public class AegisContext {
 
     public void setMappingNamespaceURI(String uri) {
         this.mappingNamespaceURI = uri;
+    }
+
+    public Set<Class<?>> getRootClasses() {
+        return rootClasses;
+    }
+
+    public void setRootClasses(Set<Class<?>> rootClasses) {
+        this.rootClasses = rootClasses;
     }
 
 }

@@ -60,7 +60,7 @@ public final class TypeUtil {
                     improvedType = tm.getType(overrideName);
                 }
                 if (improvedType == null) {
-                    improvedType = context.getOverrideType(overrideName);
+                    improvedType = context.getRootType(overrideName);
                 }
                 if (improvedType != null) {
                     return improvedType;
@@ -115,7 +115,7 @@ public final class TypeUtil {
             Type type = tm.getType(schemaTypeName);
             
             if (type == null) {
-                type = context.getOverrideType(schemaTypeName);
+                type = context.getRootType(schemaTypeName);
             }
             
             if (type != null) {
@@ -132,7 +132,7 @@ public final class TypeUtil {
     
     public static Type getWriteType(AegisContext globalContext, Object value, Type type) {
         if (value != null && type != null && type.getTypeClass() != value.getClass()) {
-            Type overrideType = globalContext.getOverrideType(value.getClass());
+            Type overrideType = globalContext.getRootType(value.getClass());
             if (overrideType != null) {
                 return overrideType;
             }

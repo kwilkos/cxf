@@ -51,7 +51,7 @@ public class ExceptionInheritanceTest extends AbstractAegisTest {
         Set<String> l = new HashSet<String>();
         l.add(SimpleBean.class.getName());
         l.add(WS1ExtendedException.class.getName());
-        globalContext.setOverrideTypes(l);
+        globalContext.setRootClassNames(l);
         AegisDatabinding binding = new AegisDatabinding();
         binding.setAegisContext(globalContext);
 
