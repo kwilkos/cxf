@@ -86,6 +86,50 @@ public final class TypeUtil {
         }
     }
 
+    /**
+     * getReadType cannot just look up the xsi:type in the mapping. This function must be
+     * called instead at the root where there is no initial mapping to start from, as from
+     * a part or an element of some containing item.
+     * @param xsr
+     * @param context
+     * @return
+     */
+    public static Type getReadTypeStandalone(XMLStreamReader xsr, AegisContext context, Type baseType) {
+        
+        if (baseType != null) {
+            return getReadType(xsr, context, baseType);
+        }
+
+        if (!context.isReadXsiTypes()) {
+            LOG.warn("xsi:type reading disabled, and no type available for "  
+                     + xsr.getName());
+            return null;
+        }
+        
+        String typeNameString = xsr.getAttributeValue(SOAPConstants.XSI_NS, "type");
+        if (typeNameString != null) {
+            QName schemaTypeName = NamespaceHelper.createQName(xsr.getNamespaceContext(), 
+                                                               typeNameString);
+            TypeMapping tm;
+            tm = context.getTypeMapping();
+            Type type = tm.getType(schemaTypeName);
+            
+            if (type == null) {
+                type = context.getOverrideType(schemaTypeName);
+            }
+            
+            if (type != null) {
+                return type;
+            }
+                    
+            LOG.warn("xsi:type=\"" + schemaTypeName
+                     + "\" was specified, but no corresponding Type was registered; no default.");
+            return null;
+        }
+        LOG.warn("xsi:type was not specified for top-level element " + xsr.getName());
+        return null;
+    }
+    
     public static Type getWriteType(AegisContext globalContext, Object value, Type type) {
         if (value != null && type != null && type.getTypeClass() != value.getClass()) {
             Type overrideType = globalContext.getOverrideType(value.getClass());

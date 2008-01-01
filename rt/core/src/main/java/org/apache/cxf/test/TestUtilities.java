@@ -35,6 +35,9 @@ import javax.wsdl.WSDLException;
 import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLWriter;
 import javax.xml.namespace.QName;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -66,11 +69,10 @@ public class TestUtilities {
     
     private static final Charset UTF8 = Charset.forName("utf-8");
     private static String preKeepAlive;
-    
     private static String basedirPath;
     protected Bus bus;
     protected Class<?> classpathAnchor;
-    
+    private XMLInputFactory xmlInputFactory;
 
     /**
      * Namespaces for the XPath expressions.
@@ -87,6 +89,7 @@ public class TestUtilities {
      */
     public TestUtilities(Class<?> classpathReference) {
         classpathAnchor = classpathReference;
+        xmlInputFactory = XMLInputFactory.newInstance();
     }
     
     public static void setKeepAliveSystemProperty(boolean setAlive) {
@@ -248,6 +251,10 @@ public class TestUtilities {
 
     public Reader getResourceAsReader(String resource) {
         return new InputStreamReader(getResourceAsStream(resource), UTF8);
+    }
+    
+    public XMLStreamReader getResourceAsXMLStreamReader(String resource) throws XMLStreamException {
+        return xmlInputFactory.createXMLStreamReader(getResourceAsStream(resource));
     }
 
     public File getTestFile(String relativePath) {

@@ -71,7 +71,7 @@ public class AegisXMLStreamDataReader extends AbstractAegisDataReaderImpl {
             return null;
         }
         
-        Type type = TypeUtil.getReadType(reader, aegisContext, desiredType);
+        Type type = TypeUtil.getReadTypeStandalone(reader, aegisContext, desiredType);
         
         if (type == null) {
             throw new DatabindingException(new Message("NO_MAPPING", LOG));
