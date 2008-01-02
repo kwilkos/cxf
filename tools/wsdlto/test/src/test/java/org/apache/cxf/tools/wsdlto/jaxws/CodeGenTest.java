@@ -1133,4 +1133,14 @@ public class CodeGenTest extends ProcessorTestBase {
             assertTrue(e.getMessage().indexOf(": is not a valid char in the targetNamespace") != -1);
         }
     }
+
+    
+    @Test
+    public void testHandlerAnnotation() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/cxf-1344/handlerbinding.wsdl"));
+        env.put(ToolConstants.CFG_BINDING, getLocation("/wsdl2java_wsdl/cxf-1344/handlerbinding.xml"));
+        processor.setContext(env);
+        processor.execute();
+    }
+    
 }
