@@ -40,6 +40,10 @@ function getCustomers() {
 	    customers = customers['acme.Customers'];
 
 	    var customer = customers['acme.customer'];
+		var t = document.getElementById("customertable");
+		while(t.rows.length > 1) {
+		 t.deleteRow(t.rows.length-1);
+		}
 		if (customer.length) {
 		  for (var i = 0; i < customer.length; i++) {
 		    addCustomer(customer[i]);
@@ -69,7 +73,8 @@ function addCustomer(c) {
   var name = document.createTextNode(c['acme.name']);
   td.appendChild(name);
   tr.appendChild(td);
-  t.appendChild(tr);
+  t.getElementsByTagName("tbody")[0].appendChild(tr);
+  //t.appendChild(tr);
 }
    </script>
  </head>
@@ -87,12 +92,13 @@ function addCustomer(c) {
      <h1>Customers</h1>
      <!-- Yes, this is using a table because I'm incompotent with HTML! -->
      <table id="customertable">
+	  <tbody>
        <tr>
-         <th><strong>ID</strong></th>
-         <th><strong>Customer Name</strong></th>
+         <td><strong>ID</strong></td>
+         <td><strong>Customer Name</strong></td>
        </tr>
+	  </tbody>
      </table>
-     </div>
    </p>
  </body>
 </html>
