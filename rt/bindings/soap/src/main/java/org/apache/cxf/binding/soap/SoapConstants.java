@@ -30,5 +30,6 @@ public class SoapConstants {
 //    public static final String STYLE_BARE = "bare";
 //    public static final String STYLE_WRAPPED = "wrapped";
     public static final String SOAP_ACTION = "SOAPAction";
-    public static final String BINDING_ID = null;
+    public static final String SOAP11_BINDING_ID = "http://schemas.xmlsoap.org/soap/";
+    public static final String SOAP12_BINDING_ID = "http://schemas.xmlsoap.org/wsdl/soap12/";
 }
