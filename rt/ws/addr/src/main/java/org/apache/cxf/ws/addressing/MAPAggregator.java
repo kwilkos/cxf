@@ -19,7 +19,6 @@
 
 package org.apache.cxf.ws.addressing;
 
-
 import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.Iterator;
@@ -29,18 +28,24 @@ import java.util.ResourceBundle;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import javax.wsdl.extensions.ExtensibilityElement;
 import javax.xml.namespace.QName;
+import javax.xml.ws.WebFault;
 
+import org.apache.cxf.binding.soap.SoapConstants;
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.endpoint.Endpoint;
+import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.FaultMode;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.model.EndpointInfo;
+import org.apache.cxf.service.model.FaultInfo;
+import org.apache.cxf.service.model.MessageInfo;
+import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.Destination;
 import org.apache.cxf.ws.addressing.policy.MetadataConstants;
@@ -57,6 +62,7 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
     private static final Logger LOG = 
         LogUtils.getL7dLogger(MAPAggregator.class);
     private static final ResourceBundle BUNDLE = LOG.getResourceBundle();
+
     
 
     /**
@@ -370,18 +376,148 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
      */
     private AddressingPropertiesImpl assembleGeneric(Message message) {
         AddressingPropertiesImpl maps = getMAPs(message, true, true);
-        // MessageID        
+        // MessageID
         if (maps.getMessageID() == null) {
             String messageID = ContextUtils.generateUUID();
             maps.setMessageID(ContextUtils.getAttributedURI(messageID));
         }
+
         // Action
         if (ContextUtils.hasEmptyAction(maps)) {
             maps.setAction(ContextUtils.getAction(message));
+
+            if (ContextUtils.hasEmptyAction(maps)
+                && ContextUtils.isOutbound(message)) {
+                maps.setAction(ContextUtils.getAttributedURI(getActionUri(message)));
+            }
         }
+
         return maps;
     }
 
+    private String getActionFromInputMessage(final OperationInfo operation) {
+        MessageInfo inputMessage = operation.getInput();
+
+        if (inputMessage.getExtensionAttributes() != null) {
+            QName inputAction = (QName)inputMessage.getExtensionAttribute(JAXWSAConstants.WSAW_ACTION_QNAME);
+            if (inputAction != null) {
+                return inputAction.getLocalPart();
+            }
+        }
+        return null;
+    }
+    
+    private String getActionFromOutputMessage(final OperationInfo operation) {
+        MessageInfo outputMessage = operation.getOutput();
+        if (outputMessage != null && outputMessage.getExtensionAttributes() != null) {
+            QName outputAction = 
+                (QName)outputMessage.getExtensionAttribute(JAXWSAConstants.WSAW_ACTION_QNAME);
+            if (outputAction != null) {
+                return outputAction.getLocalPart();
+            }
+        }
+        return null;
+    }
+
+    private boolean isSameFault(final FaultInfo faultInfo, String faultName) {
+        if (faultInfo.getName() == null || faultName == null) {
+            return false;
+        }
+        String faultInfoName = faultInfo.getName().getLocalPart();
+        return faultInfoName.equals(faultName) 
+            || faultInfoName.equals(StringUtils.uncapitalize(faultName));
+    }
+
+    private String getActionBaseUri(final OperationInfo operation) {
+        String interfaceName = operation.getInterface().getName().getLocalPart();
+        return addPath(operation.getName().getNamespaceURI(), interfaceName);
+    }
+
+    private String getActionFromFaultMessage(final OperationInfo operation, final String faultName) {
+        if (operation.getFaults() != null) {
+            for (FaultInfo faultInfo : operation.getFaults()) {
+                if (isSameFault(faultInfo, faultName)) {
+                    if (faultInfo.getExtensionAttributes() != null) {
+                        QName faultAction = 
+                            (QName)faultInfo.getExtensionAttribute(JAXWSAConstants.WSAW_ACTION_QNAME);
+                        return faultAction.getLocalPart();
+                    }
+                    return addPath(addPath(getActionBaseUri(operation), "Fault"), 
+                                   faultInfo.getName().getLocalPart());
+                }
+            }
+        }
+        return addPath(addPath(getActionBaseUri(operation), "Fault"), faultName);
+    }
+
+    private String getFaultNameFromMessage(final Message message) {
+        Exception e = message.getContent(Exception.class);
+        Throwable cause = e.getCause();
+        if (cause == null) {
+            cause = e;
+        }
+        if (e instanceof Fault) {
+            WebFault t = cause.getClass().getAnnotation(WebFault.class);
+            if (t != null) {
+                return t.name();
+            }
+        }
+        return cause.getClass().getSimpleName();    
+    }
+
+    protected String getActionUri(Message message) {
+        OperationInfo op = message.getExchange().get(OperationInfo.class);
+
+        String actionUri = (String) message.get(SoapConstants.SOAP_ACTION);
+        if (actionUri != null) {
+            return actionUri;
+        }
+        String opNamespace = getActionBaseUri(op);
+        
+        if (ContextUtils.isRequestor(message)) {
+            String explicitAction = getActionFromInputMessage(op);
+            if (explicitAction != null) {
+                actionUri = explicitAction;
+            } else if (null == op.getInputName()) {
+                actionUri = addPath(opNamespace, op.getName().getLocalPart() + "Request");
+            } else {
+                actionUri = addPath(opNamespace, op.getInputName());
+            }
+        } else if (ContextUtils.isFault(message)) {
+            String faultName = getFaultNameFromMessage(message);
+            actionUri = getActionFromFaultMessage(op, faultName);
+        } else {
+            String explicitAction = getActionFromOutputMessage(op);
+            if (explicitAction != null) {
+                actionUri = explicitAction;
+            } else if (null == op.getOutputName()) {
+                actionUri = addPath(opNamespace, op.getOutput().getName().getLocalPart());
+            } else {
+                actionUri = addPath(opNamespace, op.getOutputName());
+            }
+        }
+        return actionUri;
+    }
+
+
+    private String getDelimiter(String uri) {
+        if (uri.startsWith("urn")) {
+            return ".";
+        }
+        return "/";
+    }
+
+    private String addPath(String uri, String path) {
+        StringBuffer buffer = new StringBuffer();
+        buffer.append(uri);
+        String delimiter = getDelimiter(uri);
+        if (!uri.endsWith(delimiter) && !path.startsWith(delimiter)) {
+            buffer.append(delimiter);
+        }
+        buffer.append(path);
+        return buffer.toString();
+    }
+    
     /**
      * Add MAPs which are specific to the requestor or responder role.
      *

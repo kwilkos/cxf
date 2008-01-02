@@ -73,7 +73,7 @@ import org.apache.cxf.wsdl.EndpointReferenceUtils;
 public class MAPCodec extends AbstractSoapInterceptor {
 
     private static final Logger LOG = LogUtils.getL7dLogger(MAPCodec.class);
-    private static final String IS_REFERENCE_PARAM_ATTR_NAME = "isReferenceParameter";
+    private static final String IS_REFERENCE_PARAM_ATTR_NAME = "IsReferenceParameter";
 
     /**
      * REVISIT: map usage that the *same* interceptor instance 

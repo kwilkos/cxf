@@ -67,8 +67,8 @@ public class SoapActionOutInterceptor extends AbstractSoapInterceptor {
                 message.put(Message.PROTOCOL_HEADERS, reqHeaders);
             }
             
-            if (!reqHeaders.containsKey("SOAPAction")) {            
-                reqHeaders.put("SOAPAction", Collections.singletonList(action));
+            if (!reqHeaders.containsKey(SoapConstants.SOAP_ACTION)) {            
+                reqHeaders.put(SoapConstants.SOAP_ACTION, Collections.singletonList(action));
             }
         } else if (message.getVersion() instanceof Soap12 && !"\"\"".equals(action)) {
             String ct = (String) message.get(Message.CONTENT_TYPE);

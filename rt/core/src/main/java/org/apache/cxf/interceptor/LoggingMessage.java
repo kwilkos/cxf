@@ -59,7 +59,9 @@ public final class LoggingMessage {
         buffer.append(encoding);
         buffer.append("\nHeaders: ");
         buffer.append(header);
+        buffer.append("\nMessages: ");
         buffer.append(message);
+        buffer.append("\nPayload: ");
         buffer.append(payload);
         buffer.append("\n--------------------------------------");
         return buffer.toString();

@@ -25,6 +25,7 @@ import java.util.Map;
 
 import org.apache.cxf.binding.soap.Soap11;
 import org.apache.cxf.binding.soap.Soap12;
+import org.apache.cxf.binding.soap.SoapConstants;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.model.SoapOperationInfo;
 import org.apache.cxf.endpoint.Endpoint;
@@ -48,7 +49,7 @@ public class SoapActionInInterceptor extends AbstractSoapInterceptor {
         if (message.getVersion() instanceof Soap11) {
             Map<String, List<String>> headers = CastUtils.cast((Map)message.get(Message.PROTOCOL_HEADERS));
             if (headers != null) {
-                List<String> sa = headers.get("SOAPAction");
+                List<String> sa = headers.get(SoapConstants.SOAP_ACTION);
                 if (sa != null && sa.size() > 0) {
                     String action = sa.get(0);
                     if (action.startsWith("\"")) {
