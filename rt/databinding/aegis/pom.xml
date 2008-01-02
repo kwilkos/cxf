@@ -75,7 +75,7 @@
         <dependency>
             <groupId>jdom</groupId>
             <artifactId>jdom</artifactId>
-            <version>1.0</version>
+            <version>${jdom.version}</version>
         </dependency>
         <dependency>
             <groupId>net.java.dev.stax-utils</groupId>
