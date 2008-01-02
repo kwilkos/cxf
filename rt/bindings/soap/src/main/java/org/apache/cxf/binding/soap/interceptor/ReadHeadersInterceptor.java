@@ -84,10 +84,14 @@ public class ReadHeadersInterceptor extends AbstractSoapInterceptor {
         try {
             if (xmlReader.nextTag() == XMLStreamConstants.START_ELEMENT) {
                 String ns = xmlReader.getNamespaceURI();
+                if (ns == null || "".equals(ns)) {
+                    throw new SoapFault(new Message("NO_NAMESPACE", LOG, xmlReader.getLocalName()),
+                                        Soap11.getInstance().getVersionMismatch());
+                }
                 
                 SoapVersion soapVersion = SoapVersionFactory.getInstance().getSoapVersion(ns);
                 if (soapVersion == null) {
-                    throw new SoapFault(new Message("INVALID_VERSION", LOG, ns),
+                    throw new SoapFault(new Message("INVALID_VERSION", LOG, ns, xmlReader.getLocalName()),
                                             Soap11.getInstance().getVersionMismatch());
                 }
                 message.setVersion(soapVersion);
