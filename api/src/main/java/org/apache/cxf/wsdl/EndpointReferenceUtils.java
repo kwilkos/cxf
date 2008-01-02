@@ -69,6 +69,7 @@ import org.apache.cxf.transport.Destination;
 import org.apache.cxf.transport.MultiplexDestination;
 import org.apache.cxf.ws.addressing.AttributedURIType;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
+import org.apache.cxf.ws.addressing.JAXWSAConstants;
 import org.apache.cxf.ws.addressing.MetadataType;
 import org.apache.cxf.ws.addressing.wsdl.AttributedQNameType;
 import org.apache.cxf.ws.addressing.wsdl.ServiceNameType;
@@ -85,11 +86,9 @@ public final class EndpointReferenceUtils {
 
     private static final String WSDL_INSTANCE_NAMESPACE = 
         "http://www.w3.org/2006/01/wsdl-instance";
-    private static final String WSA_WSDL_NAMESPACE =
-        "http://www.w3.org/2005/02/addressing/wsdl";
-    private static final String WSA_WSDL_NAMESPACE_PREFIX = "wsaw";
+    
     private static final QName WSA_WSDL_NAMESPACE_NS =
-        new QName("xmlns:" + WSA_WSDL_NAMESPACE_PREFIX);
+        new QName("xmlns:" + JAXWSAConstants.WSAW_PREFIX);
     private static final String XML_SCHEMA_NAMESPACE =
         "http://www.w3.org/2001/XMLSchema";
     private static final String XML_SCHEMA_NAMESPACE_PREFIX = "xs";
@@ -156,9 +155,9 @@ public final class EndpointReferenceUtils {
         ServiceNameType serviceNameType = WSA_WSDL_OBJECT_FACTORY.createServiceNameType();
         serviceNameType.setValue(serviceName);
         serviceNameType.setEndpointName(portName);
-        serviceNameType.getOtherAttributes().put(WSA_WSDL_NAMESPACE_NS, WSA_WSDL_NAMESPACE);
+        serviceNameType.getOtherAttributes().put(WSA_WSDL_NAMESPACE_NS, JAXWSAConstants.NS_WSAW);
         serviceNameType.getOtherAttributes().put(XSI_TYPE, 
-                                                 WSA_WSDL_NAMESPACE_PREFIX + ":" 
+                                                 JAXWSAConstants.WSAW_PREFIX + ":" 
                                                  + serviceNameType.getClass().getSimpleName());
         return WSA_WSDL_OBJECT_FACTORY.createServiceName(serviceNameType);
     }
@@ -174,7 +173,7 @@ public final class EndpointReferenceUtils {
             for (Object obj : metadata.getAny()) {
                 if (obj instanceof Element) {
                     Node node = (Element)obj;
-                    if (node.getNamespaceURI().equals(WSA_WSDL_NAMESPACE) 
+                    if (node.getNamespaceURI().equals(JAXWSAConstants.NS_WSAW) 
                         && node.getLocalName().equals("ServiceName")) {
                         String content = node.getTextContent();
                         String namespaceURI = node.getFirstChild().getNamespaceURI();
@@ -213,7 +212,7 @@ public final class EndpointReferenceUtils {
             for (Object obj : metadata.getAny()) {
                 if (obj instanceof Element) {
                     Node node = (Element)obj;
-                    if (node.getNamespaceURI().equals(WSA_WSDL_NAMESPACE)
+                    if (node.getNamespaceURI().equals(JAXWSAConstants.NS_WSAW)
                         && node.getNodeName().contains("ServiceName")) {
                         return node.getAttributes().getNamedItem("EndpointName").getTextContent();
                     }
@@ -276,8 +275,7 @@ public final class EndpointReferenceUtils {
             for (Object obj : metadata.getAny()) {
                 if (obj instanceof Element) {
                     Node node = (Element)obj;
-                    System.out.println(node.getNamespaceURI() + ":" + node.getNodeName());
-                    if (node.getNamespaceURI().equals(WSA_WSDL_NAMESPACE)
+                    if (node.getNamespaceURI().equals(JAXWSAConstants.NS_WSAW)
                         && node.getNodeName().contains("InterfaceName")) {
                         
                         String content = node.getTextContent();
