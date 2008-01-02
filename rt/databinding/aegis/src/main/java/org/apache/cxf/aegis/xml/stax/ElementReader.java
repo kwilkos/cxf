@@ -104,7 +104,7 @@ public class ElementReader extends AbstractMessageReader implements MessageReade
 
     private void extractXsiType() {
         /*
-         * We're making a conscious choice here -- garbage in == garbate out.
+         * We're making a conscious choice here -- garbage in == garbage out.
          */
         String xsiTypeQname = root.getAttributeValue(XmlConstants.XSI_NS, "type");
         if (xsiTypeQname != null) {

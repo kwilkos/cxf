@@ -82,6 +82,7 @@ import org.jdom.UncheckedJDOMFactory;
  *          2006) $
  * @author Tatu Saloranta
  * @author Bradley S. Huffman
+ * @author Benson I. Margulies, mods for CXF to allow reading a portion of a stream.
  */
 public class StaxBuilder {
 
@@ -126,6 +127,9 @@ public class StaxBuilder {
     private XMLInputFactory xifactory;
 
     private Map additionalNamespaces;
+    // This is set to 'true' when we are reading the middle of a stream,
+    // and need to stop at the end of the element we start.
+    private boolean isReadingMidStream;
 
     /**
      * Default constructor.
@@ -173,9 +177,9 @@ public class StaxBuilder {
     public JDOMFactory getFactory() {
         return factory;
     }
-
     /**
      * This will build a JDOM tree given a StAX stream reader.
+     * This API explicitly supports building mid-stream.
      * 
      * @param r Stream reader from which input is read.
      * @return <code>Document</code> - JDOM document object.
@@ -183,10 +187,24 @@ public class StaxBuilder {
      *             indicate a parsing or I/O problem)
      */
     public Document build(XMLStreamReader r) throws XMLStreamException {
+        isReadingMidStream = true;
+        return buildInternal(r);
+    }
+
+    public Document build(InputStream is) throws XMLStreamException {
+        isReadingMidStream = false;
+        return buildInternal(xifactory.createXMLStreamReader(is));
+    }
+
+    public Document build(Reader reader) throws XMLStreamException {
+        isReadingMidStream = false;
+        return buildInternal(xifactory.createXMLStreamReader(reader));
+    }
+    
+    private Document buildInternal(XMLStreamReader r) throws XMLStreamException {
         /*
          * Should we do sanity checking to see that r is positioned at
-         * beginning? Not doing so will allow creating documents from sub-trees,
-         * though?
+         * beginning in the non-mid-stream case? 
          */
         JDOMFactory f = factory;
         if (f == null) {
@@ -195,14 +213,6 @@ public class StaxBuilder {
         Document doc = f.document(null);
         buildTree(f, r, doc);
         return doc;
-    }
-
-    public Document build(InputStream is) throws XMLStreamException {
-        return build(xifactory.createXMLStreamReader(is));
-    }
-
-    public Document build(Reader reader) throws XMLStreamException {
-        return build(xifactory.createXMLStreamReader(reader));
     }
 
     /**
@@ -271,6 +281,8 @@ public class StaxBuilder {
                     current = current.getParentElement();
                 }
                 noadd = true;
+                if(isReadingMidStream && current == null) 
+                    return;
                 break;
 
             case XMLStreamConstants.ENTITY_DECLARATION:
