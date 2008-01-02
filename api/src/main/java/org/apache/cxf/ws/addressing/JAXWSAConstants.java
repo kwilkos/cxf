@@ -20,11 +20,35 @@
 
 package org.apache.cxf.ws.addressing;
 
+import javax.xml.namespace.QName;
+
 
 /**
  * A container for WS-Addressing constants.
  */
 public final class JAXWSAConstants {
+    
+    public static final String WSAW_PREFIX = "wsaw";
+    public static final String NS_WSAW = "http://www.w3.org/2006/05/addressing/wsdl";
+
+    public static final QName WSAW_ACTION_QNAME = new QName(NS_WSAW,  "Action");
+    
+    public static final QName WSAW_USINGADDRESSING_QNAME = new QName(NS_WSAW, "UsingAddressing");
+    
+    public static final String NS_WSA = "http://www.w3.org/2005/08/addressing";
+    public static final String WSA_PREFIX = "wsa";
+    
+    public static final String WSA_ERF_NAME = "EndpointReference";
+    public static final String WSA_REFERENCEPARAMETERS_NAME = "ReferenceParameters";
+    public static final String WSA_METADATA_NAME = "Metadata";
+    public static final String WSA_ADDRESS_NAME = "Address";
+        
+    public static final String WSAW_SERVICENAME_NAME = "ServiceName";
+    public static final String WSAW_INTERFACE_NAME = "InterfaceName";
+    public static final String WSAW_ENDPOINT_NAME = "EndpointName";    
+
+
+    
 
     /**
      * Well-known Property names for AddressingProperties in BindingProvider

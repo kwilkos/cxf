@@ -31,6 +31,7 @@ import javax.xml.ws.BindingProvider;
 import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.MessageContext.Scope;
 
+import org.apache.cxf.binding.soap.SoapConstants;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.configuration.security.AuthorizationPolicy;
 import org.apache.cxf.endpoint.Endpoint;
@@ -91,6 +92,8 @@ public final class ContextPropertiesMapping {
                          "HTTP.RESPONSE");
         jaxws2cxfMap.put(MessageContext.SERVLET_CONTEXT, 
                         "HTTP.CONTEXT");
+        
+        jaxws2cxfMap.put(BindingProvider.SOAPACTION_URI_PROPERTY, SoapConstants.SOAP_ACTION);
     }
     
     private ContextPropertiesMapping() {

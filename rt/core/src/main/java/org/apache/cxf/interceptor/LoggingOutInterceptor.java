@@ -74,11 +74,17 @@ public class LoggingOutInterceptor extends AbstractPhaseInterceptor {
             // Write the output while caching it for the log message
             final CacheAndWriteOutputStream newOut = new CacheAndWriteOutputStream(os);
             message.setContent(OutputStream.class, newOut);
-            newOut.registerCallback(new LoggingCallback());
+            newOut.registerCallback(new LoggingCallback(message));
         }
     }
 
     class LoggingCallback implements CachedOutputStreamCallback {
+        
+        private final Message message;
+        
+        public LoggingCallback(final Message msg) {
+            this.message = msg;
+        }
 
         public void onFlush(CachedOutputStream cos) {  
             
@@ -86,6 +92,18 @@ public class LoggingOutInterceptor extends AbstractPhaseInterceptor {
         
         public void onClose(CachedOutputStream cos) {
             final LoggingMessage buffer = new LoggingMessage("Outbound Message\n---------------------------");
+            
+            String encoding = (String)message.get(Message.ENCODING);
+
+            if (encoding != null) {
+                buffer.getEncoding().append(encoding);
+            }            
+            
+            Object headers = message.get(Message.PROTOCOL_HEADERS);
+
+            if (headers != null) {
+                buffer.getHeader().append(headers);
+            }
 
             if (cos.getTempFile() == null) {
                 //buffer.append("Outbound Message:\n");
