@@ -87,6 +87,16 @@ public class WSDL2JavaMojo extends AbstractMojo {
      */
     boolean useCompileClasspath;
 
+    private List<WsdlOption> getWsdlOptionsFromDir(final File root) throws MojoExecutionException {
+        List<WsdlOption> options = new ArrayList<WsdlOption>();
+        for (WsdlOption o : new WsdlOptionLoader().load(root)) {
+            if (!options.contains(o)) {
+                options.add(o);
+            }
+        }
+        return options;
+    }
+
     public void execute() throws MojoExecutionException {
         String outputDir = testSourceRoot == null ? sourceRoot : testSourceRoot;
         File outputDirFile = new File(outputDir);
@@ -95,22 +105,25 @@ public class WSDL2JavaMojo extends AbstractMojo {
         File classesDir = new File(classesDirectory);
         classesDir.mkdirs();
 
+        List<WsdlOption> options = new ArrayList<WsdlOption>();
+        if (wsdlRoot == null) {
+            File sourceWsdlRoot = new File(project.getBasedir(), "/src/main/resources/wsdl");
+            if (sourceWsdlRoot.exists()) {
+                options.addAll(getWsdlOptionsFromDir(sourceWsdlRoot));
+            }
 
-        if (wsdlRoot != null) {
-            List<WsdlOption> options = new ArrayList<WsdlOption>();
-            if (wsdlOptions != null) {
-                options.addAll(Arrays.asList(wsdlOptions));
+            File testWsdlRoot = new File(project.getBasedir(), "/src/test/resources/wsdl");
+            if (testWsdlRoot.exists()) {
+                options.addAll(getWsdlOptionsFromDir(testWsdlRoot));
             }
-            
-            for (WsdlOption o : new WsdlOptionLoader().load(wsdlRoot)) {
-                if (!options.contains(o)) {
-                    options.add(o);
-                }
-            }
-            wsdlOptions = options.toArray(new WsdlOption[options.size()]);
         }
 
-        if (wsdlOptions == null) {
+        if (wsdlOptions != null) {
+            options.addAll(Arrays.asList(wsdlOptions));
+        }
+        wsdlOptions = options.toArray(new WsdlOption[options.size()]);
+
+        if (wsdlOptions.length == 0) {
             getLog().info("Nothing to generate");
             return;
         }
