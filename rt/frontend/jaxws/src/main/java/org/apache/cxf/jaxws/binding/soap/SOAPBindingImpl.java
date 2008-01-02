@@ -23,7 +23,6 @@ import java.util.HashSet;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.logging.Logger;
-
 import javax.xml.soap.MessageFactory;
 import javax.xml.soap.SOAPConstants;
 import javax.xml.soap.SOAPException;
@@ -33,6 +32,7 @@ import javax.xml.ws.soap.SOAPBinding;
 
 import org.apache.cxf.binding.soap.Soap11;
 import org.apache.cxf.binding.soap.Soap12;
+import org.apache.cxf.binding.soap.SoapConstants;
 import org.apache.cxf.binding.soap.model.SoapBindingInfo;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.jaxws.binding.AbstractBindingImpl;
@@ -121,9 +121,23 @@ public class SOAPBindingImpl extends AbstractBindingImpl implements SOAPBinding 
         return null;
     }
 
+    public static boolean isSoapBinding(final String bindingID) {
+        return bindingID.equals(SoapConstants.SOAP11_BINDING_ID)
+            || bindingID.equals(SoapConstants.SOAP12_BINDING_ID)
+            || bindingID.equals(SOAPBinding.SOAP11HTTP_BINDING)
+            || bindingID.equals(SOAPBinding.SOAP11HTTP_MTOM_BINDING)
+            || bindingID.equals(SOAPBinding.SOAP12HTTP_BINDING)
+            || bindingID.equals(SOAPBinding.SOAP12HTTP_MTOM_BINDING);
+    }
+
     public String getBindingID() {
-        //REVISIT: JIRA CXF-613
-        return "http://schemas.xmlsoap.org/soap/";
+        if (this.soapBinding instanceof SoapBindingInfo) {
+            SoapBindingInfo bindingInfo = (SoapBindingInfo) this.soapBinding;
+            if (bindingInfo.getSoapVersion() instanceof Soap12) {
+                return SOAP12HTTP_BINDING;             
+            }
+        }
+        return SOAP11HTTP_BINDING;
     }
 
 }
