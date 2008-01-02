@@ -102,6 +102,9 @@ public class SAAJInInterceptor extends AbstractSoapInterceptor {
             if (message.hasHeaders()) {
                 replaceHeaders(soapMessage, message);
             }
+            if (soapMessage.getSOAPHeader() == null) {
+                soapMessage.getSOAPPart().getEnvelope().addHeader();
+            }
             
             XMLStreamReader xmlReader = message.getContent(XMLStreamReader.class);
             StaxUtils.readDocElements(soapMessage.getSOAPBody(), xmlReader, true);
@@ -109,7 +112,7 @@ public class SAAJInInterceptor extends AbstractSoapInterceptor {
             xmlReader = StaxUtils.createXMLStreamReader(bodySource);
             xmlReader.nextTag();
             xmlReader.nextTag(); // move past body tag
-            message.setContent(XMLStreamReader.class, xmlReader);
+            message.setContent(XMLStreamReader.class, xmlReader);           
         } catch (SOAPException soape) {
             throw new SoapFault(new org.apache.cxf.common.i18n.Message(
                     "SOAPHANDLERINTERCEPTOR_EXCEPTION", BUNDLE), soape,
