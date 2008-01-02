@@ -75,7 +75,9 @@ public class AttachmentDeserializerTest extends Assert {
         
         InputStream attIs = a.getDataHandler().getInputStream();
         
-        assertTrue(((DelegatingInputStream) attIs).getInputStream() instanceof MimeBodyPartInputStream);
+        // We need to cache the InputStream for reusing the AttachmentDataSource
+        //assertTrue(((DelegatingInputStream) attIs).getInputStream() instanceof MimeBodyPartInputStream);
+        assertTrue(((DelegatingInputStream) attIs).getInputStream() instanceof ByteArrayInputStream);
         assertTrue(((DelegatingInputStream) attBody).getInputStream() instanceof ByteArrayInputStream);
         
         // check the cached output stream
@@ -122,7 +124,9 @@ public class AttachmentDeserializerTest extends Assert {
 
         InputStream attIs = a.getDataHandler().getInputStream();
 
-        assertTrue(((DelegatingInputStream) attIs).getInputStream() instanceof MimeBodyPartInputStream);
+        // We need to cache the InputStream for reusing the AttachmentDataSource
+        //assertTrue(((DelegatingInputStream) attIs).getInputStream() instanceof MimeBodyPartInputStream);
+        assertTrue(((DelegatingInputStream) attIs).getInputStream() instanceof ByteArrayInputStream);
         assertTrue(((DelegatingInputStream) attBody).getInputStream() instanceof ByteArrayInputStream);
 
         // check the cached output stream
@@ -168,8 +172,11 @@ public class AttachmentDeserializerTest extends Assert {
         assertNotNull(a);
         
         InputStream attIs = a.getDataHandler().getInputStream();
-        
-        assertTrue(((DelegatingInputStream) attIs).getInputStream() instanceof MimeBodyPartInputStream);
+
+        // We need to cache the InputStream for reusing the AttachmentDataSource
+        //assertTrue(((DelegatingInputStream) attIs).getInputStream() instanceof MimeBodyPartInputStream);
+        assertTrue(((DelegatingInputStream) attIs).getInputStream() instanceof ByteArrayInputStream);
+
         assertTrue(((DelegatingInputStream) attBody).getInputStream() instanceof ByteArrayInputStream);
         
         // check the cached output stream
@@ -214,7 +221,9 @@ public class AttachmentDeserializerTest extends Assert {
         
         InputStream attIs = a.getDataHandler().getInputStream();
         
-        assertTrue(((DelegatingInputStream) attIs).getInputStream() instanceof MimeBodyPartInputStream);
+        // We need to cache the InputStream for reusing the AttachmentDataSource
+        //assertTrue(((DelegatingInputStream) attIs).getInputStream() instanceof MimeBodyPartInputStream);
+        assertTrue(((DelegatingInputStream) attIs).getInputStream() instanceof ByteArrayInputStream);
         assertTrue(((DelegatingInputStream) attBody).getInputStream() instanceof ByteArrayInputStream);
         
         // check the cached output stream
@@ -262,7 +271,9 @@ public class AttachmentDeserializerTest extends Assert {
         
         InputStream attIs = a.getDataHandler().getInputStream();
         
-        assertTrue(((DelegatingInputStream) attIs).getInputStream() instanceof MimeBodyPartInputStream);
+        // We need to cache the InputStream for reusing the AttachmentDataSource
+        //assertTrue(((DelegatingInputStream) attIs).getInputStream() instanceof MimeBodyPartInputStream);
+        assertTrue(((DelegatingInputStream) attIs).getInputStream() instanceof ByteArrayInputStream);
         assertTrue(((DelegatingInputStream) attBody).getInputStream() instanceof FileInputStream);
         
     }
