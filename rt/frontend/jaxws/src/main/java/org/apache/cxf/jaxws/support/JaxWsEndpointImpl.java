@@ -68,6 +68,7 @@ public class JaxWsEndpointImpl extends EndpointImpl {
         this(bus, s, ei, null);
     }
 
+
     public JaxWsEndpointImpl(Bus bus, Service s, EndpointInfo ei, JaxWsImplementorInfo implementorInfo)
         throws EndpointException {
         super(bus, s, ei);

@@ -56,7 +56,7 @@ public class SoapActionInterceptorTest extends Assert {
         (new SoapActionOutInterceptor()).handleMessage(soapMessage);
         Map<String, List<String>> reqHeaders = CastUtils.cast((Map)soapMessage.get(Message.PROTOCOL_HEADERS));
         assertNotNull(reqHeaders);
-        assertEquals("\"\"", reqHeaders.get("SOAPAction").get(0));
+        assertEquals("\"\"", reqHeaders.get(SoapConstants.SOAP_ACTION).get(0));
 
         sb.setSoapVersion(Soap12.getInstance());
         soapMessage.clear();

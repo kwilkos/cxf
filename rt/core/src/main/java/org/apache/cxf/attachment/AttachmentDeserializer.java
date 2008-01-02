@@ -285,6 +285,7 @@ public class AttachmentDeserializer {
 
         final String ct = headers.getHeader("Content-Type", null);
         DataSource source = new AttachmentDataSource(ct, new DelegatingInputStream(partStream));
+        //DataSource source = new AttachmentDataSource(null, new DelegatingInputStream(partStream));
         att.setDataHandler(new DataHandler(source));
 
         for (Enumeration<?> e = headers.getAllHeaders(); e.hasMoreElements();) {
