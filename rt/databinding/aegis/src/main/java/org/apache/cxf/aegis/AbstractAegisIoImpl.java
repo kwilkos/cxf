@@ -29,15 +29,15 @@ import org.apache.cxf.databinding.DataReader;
 import org.apache.cxf.interceptor.Fault;
 
 /**
- * Common implementation of the Aegis data readers.
+ * Common implementation of the Aegis data readers and writer.
  */
-public abstract class AbstractAegisDataReaderImpl implements AegisDataReader {
+public abstract class AbstractAegisIoImpl  {
     protected Map<String, Object> properties;
     protected Schema schema;
     protected AegisContext aegisContext;
     protected Context context;
     
-    protected AbstractAegisDataReaderImpl(AegisContext globalContext) {
+    protected AbstractAegisIoImpl(AegisContext globalContext) {
         aegisContext = globalContext;
         context = new Context(globalContext);
         properties = new HashMap<String, Object>();
@@ -49,7 +49,7 @@ public abstract class AbstractAegisDataReaderImpl implements AegisDataReader {
      * @param globalContext
      * @param context
      */
-    protected AbstractAegisDataReaderImpl(AegisContext globalContext, Context context) {
+    protected AbstractAegisIoImpl(AegisContext globalContext, Context context) {
         aegisContext = globalContext;
         this.context = context;
         properties = new HashMap<String, Object>();

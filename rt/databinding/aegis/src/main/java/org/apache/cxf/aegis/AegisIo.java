@@ -29,7 +29,7 @@ import javax.xml.validation.Schema;
  *  the type of the source object, the read method is not specified here in the interface, but is provided
  *  in the specific type. 
  */
-public interface AegisDataReader {
+public interface AegisIo {
     /**
      * Supply a schema to validate the input. Bindings silently ignore this parameter if they
      * do not support schema validation, or the particular form of validation implied by

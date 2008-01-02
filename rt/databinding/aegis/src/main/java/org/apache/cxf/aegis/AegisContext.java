@@ -110,14 +110,14 @@ public class AegisContext {
     }
     
     
-    public <Reader extends AbstractAegisDataReaderImpl, Source> 
-    Reader createReader(Class<Reader> readerClass, Class<Source> sourceClass) {
-        if (sourceClass == org.w3c.dom.Element.class) {
-            return readerClass.cast(new AegisElementDataReader(this));
-        } else if (sourceClass == XMLStreamReader.class) {
-            return readerClass.cast(new AegisXMLStreamDataReader(this));
-        }
-        return null; // throw?
+    public AegisReader<org.w3c.dom.Element>
+    createDomElementReader() {
+        return new AegisElementDataReader(this);
+    }
+    
+    public AegisReader<XMLStreamReader>
+    createXMLStreamReader() {
+        return new AegisXMLStreamDataReader(this);
     }
     
     /**

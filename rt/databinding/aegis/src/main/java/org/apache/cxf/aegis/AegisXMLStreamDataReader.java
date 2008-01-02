@@ -28,7 +28,7 @@ import org.apache.cxf.aegis.xml.stax.ElementReader;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 
-public class AegisXMLStreamDataReader extends AbstractAegisDataReaderImpl {
+public class AegisXMLStreamDataReader extends AbstractAegisIoImpl implements AegisReader<XMLStreamReader> {
 
     private static final Logger LOG = LogUtils.getL7dLogger(AegisXMLStreamDataReader.class);
 
@@ -58,10 +58,12 @@ public class AegisXMLStreamDataReader extends AbstractAegisDataReaderImpl {
         }
     }
 
+    /** {@inheritDoc}*/
     public Object read(XMLStreamReader reader) throws Exception {
         return read(reader, null);
     }
     
+    /** {@inheritDoc}*/
     public Object read(XMLStreamReader reader, Type desiredType) throws Exception {
         setupReaderPosition(reader);
         ElementReader elReader = new ElementReader(reader);

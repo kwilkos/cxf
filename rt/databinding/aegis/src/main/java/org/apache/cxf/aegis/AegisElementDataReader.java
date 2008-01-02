@@ -24,8 +24,8 @@ import org.w3c.dom.Element;
 import org.apache.cxf.aegis.type.Type;
 import org.apache.cxf.staxutils.W3CDOMStreamReader;
 
-public class AegisElementDataReader extends AbstractAegisDataReaderImpl {
-
+public class AegisElementDataReader extends AbstractAegisIoImpl 
+                                    implements AegisReader<Element> {
     protected AegisXMLStreamDataReader reader;
 
     public AegisElementDataReader(AegisContext globalContext) {

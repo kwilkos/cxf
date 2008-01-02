@@ -25,7 +25,7 @@ import java.util.Set;
 import javax.xml.stream.XMLStreamReader;
 
 import org.apache.cxf.aegis.AegisContext;
-import org.apache.cxf.aegis.AegisXMLStreamDataReader;
+import org.apache.cxf.aegis.AegisReader;
 import org.apache.cxf.aegis.services.SimpleBean;
 import org.apache.cxf.test.TestUtilities;
 import org.junit.Before;
@@ -50,8 +50,7 @@ public class StandaloneReadTest {
         context = new AegisContext();
         context.initialize();
         XMLStreamReader streamReader = testUtilities.getResourceAsXMLStreamReader("stringElement.xml");
-        AegisXMLStreamDataReader reader = 
-            context.createReader(AegisXMLStreamDataReader.class, XMLStreamReader.class);
+        AegisReader<XMLStreamReader> reader = context.createXMLStreamReader();
         Object something = reader.read(streamReader);
         assertTrue("ball-of-yarn".equals(something));
     }
@@ -66,8 +65,7 @@ public class StandaloneReadTest {
         context.initialize();
         XMLStreamReader streamReader = 
             testUtilities.getResourceAsXMLStreamReader("simpleBean1.xml");
-        AegisXMLStreamDataReader reader = 
-            context.createReader(AegisXMLStreamDataReader.class, XMLStreamReader.class);
+        AegisReader<XMLStreamReader> reader = context.createXMLStreamReader();
         Object something = reader.read(streamReader);
         assertTrue(something instanceof SimpleBean);
         SimpleBean simpleBean = (SimpleBean) something;

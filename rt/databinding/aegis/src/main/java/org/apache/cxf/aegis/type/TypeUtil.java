@@ -140,4 +140,17 @@ public final class TypeUtil {
         return type;
     }
 
+    public static Type getWriteTypeStandalone(AegisContext globalContext, Object value, Type type) {
+        if (type != null) {
+            return getWriteType(globalContext, value, type);
+        }
+        
+        TypeMapping tm;
+        tm = globalContext.getTypeMapping();
+        // don't use this for null!
+        type = tm.getType(value.getClass());
+
+        return type;
+    }
+
 }
