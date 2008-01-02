@@ -116,6 +116,8 @@ public class WSDL2JavaMojo extends AbstractMojo {
             if (testWsdlRoot.exists()) {
                 options.addAll(getWsdlOptionsFromDir(testWsdlRoot));
             }
+        } else {
+            options.addAll(getWsdlOptionsFromDir(new File(wsdlRoot)));
         }
 
         if (wsdlOptions != null) {
