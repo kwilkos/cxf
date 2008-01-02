@@ -35,6 +35,7 @@ import javax.xml.soap.MimeHeader;
 import javax.xml.soap.MimeHeaders;
 import javax.xml.soap.SOAPConstants;
 import javax.xml.soap.SOAPException;
+import javax.xml.soap.SOAPFault;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.transform.Source;
@@ -121,6 +122,14 @@ public class DispatchInDatabindingInterceptor extends AbstractInDatabindingInter
             
             if (message instanceof SoapMessage) {
                 SOAPMessage soapMessage = newSOAPMessage(is, (SoapMessage)message);
+                SOAPFault soapFault = soapMessage.getSOAPBody().getFault();
+                if (soapFault != null) {
+                    Fault fault = new Fault(new org.apache.cxf.common.i18n.Message(soapFault.getFaultString(),
+                                                                                   LOG));
+                    fault.setFaultCode(soapFault.getFaultCodeAsQName());
+                    message.setContent(Exception.class, fault);
+                }                
+                
                 PostDispatchSOAPHandlerInterceptor postSoap = new PostDispatchSOAPHandlerInterceptor();
                 message.getInterceptorChain().add(postSoap);
                 
@@ -257,7 +266,7 @@ public class DispatchInDatabindingInterceptor extends AbstractInDatabindingInter
             addAfter(DispatchLogicalHandlerInterceptor.class.getName());            
         }
 
-        public void handleMessage(Message message) throws Fault {
+        public void handleMessage(Message message) throws Fault {            
             Object obj = null;
 
             //Convert Source to object
