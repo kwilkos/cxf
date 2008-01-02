@@ -36,7 +36,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 
-import org.apache.cxf.binding.soap.SoapBindingConstants;
+import org.apache.cxf.binding.soap.SoapConstants;
 import org.apache.cxf.binding.soap.SoapFault;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.SoapVersion;
@@ -337,7 +337,7 @@ public class MAPCodecTest extends Assert {
         if (preExistingSOAPAction) {
             List<String> soapAction = new ArrayList<String>();
             soapAction.add("\"foobar\"");
-            mimeHeaders.put(SoapBindingConstants.SOAP_ACTION, soapAction);
+            mimeHeaders.put(SoapConstants.SOAP_ACTION, soapAction);
         }
         if (invalidMAP) {
             message.put("org.apache.cxf.ws.addressing.map.fault.name",
