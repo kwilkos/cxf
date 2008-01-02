@@ -19,20 +19,25 @@
 
 package org.apache.cxf.attachment;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
 import javax.activation.DataSource;
 
+import org.apache.cxf.helpers.IOUtils;
+
 public class AttachmentDataSource implements DataSource {
 
     private final String ct;
     private final InputStream in;
+    private final byte[] cache; 
     
-    public AttachmentDataSource(String ctParam, InputStream inParam) {
+    public AttachmentDataSource(String ctParam, InputStream inParam) throws IOException {
         this.ct = ctParam;
         this.in = inParam;
+        cache = IOUtils.readBytesFromStream(in);
     }
 
     public String getContentType() {
@@ -40,7 +45,7 @@ public class AttachmentDataSource implements DataSource {
     }
 
     public InputStream getInputStream() {
-        return in;
+        return new DelegatingInputStream(new ByteArrayInputStream(cache));
     }
 
     public String getName() {
