@@ -74,16 +74,12 @@ import org.junit.Test;
 public class SequenceTest extends AbstractBusClientServerTestBase {
 
     private static final Logger LOG = LogUtils.getLogger(SequenceTest.class);
-    // private static final String APP_NAMESPACE ="http://celtix.objectweb.org/greeter_control";
-    // private static final String GREETMEONEWAY_ACTION = APP_NAMESPACE +
-    //     "/types/Greeter/greetMeOneWay";
-    // private static final String GREETME_ACTION = APP_NAMESPACE +
-    //     "/types/Greeter/greetMe";
-    // private static final String GREETME_RESPONSE_ACTION = GREETME_ACTION +
-    //     "Response";
-    private static final String GREETMEONEWAY_ACTION = null;
-    private static final String GREETME_ACTION = null;
-    private static final String GREETME_RESPONSE_ACTION = null;
+    private static final String GREETMEONEWAY_ACTION 
+        = "http://cxf.apache.org/greeter_control/Greeter/greetMeOneWayRequest";
+    private static final String GREETME_ACTION
+        = "http://cxf.apache.org/greeter_control/Greeter/greetMeRequest";
+    private static final String GREETME_RESPONSE_ACTION
+        = "http://cxf.apache.org/greeter_control/Greeter/greetMeResponse";
 
     private static int decoupledEndpointPort = 10000;
     private static String decoupledEndpoint;
@@ -706,7 +702,8 @@ public class SequenceTest extends AbstractBusClientServerTestBase {
         
         mf.verifyMessages(3, false);
         expectedActions = new String[] {RMConstants.getCreateSequenceResponseAction(),
-                                        null, null};
+                                        GREETME_RESPONSE_ACTION, 
+                                        null};
         mf.verifyActions(expectedActions, false);
         mf.verifyMessageNumbers(new String[] {null, "1", null}, false);
         mf.verifyAcknowledgements(new boolean[3] , false);
@@ -804,7 +801,8 @@ public class SequenceTest extends AbstractBusClientServerTestBase {
         
         mf.verifyMessages(3, false);
         expectedActions = new String[] {RMConstants.getCreateSequenceResponseAction(),
-                                        null, null};
+                                        GREETME_RESPONSE_ACTION,
+                                        null};
         mf.verifyActions(expectedActions, false);
         mf.verifyMessageNumbers(new String[] {null, "1", null}, false);
         mf.verifyAcknowledgements(new boolean[] {false, true, false} , false);
