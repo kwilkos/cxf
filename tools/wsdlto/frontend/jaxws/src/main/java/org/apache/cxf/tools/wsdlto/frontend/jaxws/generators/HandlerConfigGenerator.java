@@ -22,6 +22,8 @@ package org.apache.cxf.tools.wsdlto.frontend.jaxws.generators;
 import java.io.IOException;
 import java.io.Writer;
 
+import javax.jws.HandlerChain;
+
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
@@ -29,7 +31,8 @@ import org.apache.cxf.helpers.XMLUtils;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolException;
-import org.apache.cxf.tools.common.model.JavaAnnotation;
+import org.apache.cxf.tools.common.model.JAnnotation;
+import org.apache.cxf.tools.common.model.JAnnotationElement;
 import org.apache.cxf.tools.common.model.JavaInterface;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal.ProcessorUtil;
 
@@ -37,13 +40,13 @@ public class HandlerConfigGenerator extends AbstractJAXWSGenerator {
 
     private static final String HANDLER_CHAIN_NAME = "";
     private JavaInterface intf;
-    private JavaAnnotation handlerChainAnnotation;
+    private JAnnotation handlerChainAnnotation;
 
     public HandlerConfigGenerator() {
         this.name = ToolConstants.HANDLER_GENERATOR;
     }
 
-    public JavaAnnotation getHandlerAnnotation() {
+    public JAnnotation getHandlerAnnotation() {
         return handlerChainAnnotation;
     }
 
@@ -73,9 +76,10 @@ public class HandlerConfigGenerator extends AbstractJAXWSGenerator {
                                                ToolConstants.HANDLER_CHAIN);
         if (nl.getLength() > 0) {
             String fName = ProcessorUtil.getHandlerConfigFileName(this.intf.getName());
-            handlerChainAnnotation = new JavaAnnotation("HandlerChain");
-            handlerChainAnnotation.addArgument("name", HANDLER_CHAIN_NAME);
-            handlerChainAnnotation.addArgument("file", fName + ".xml");
+            handlerChainAnnotation = new JAnnotation(HandlerChain.class);
+            handlerChainAnnotation.addElement(new JAnnotationElement("name", 
+                                                                     HANDLER_CHAIN_NAME));
+            handlerChainAnnotation.addElement(new JAnnotationElement("file", fName + ".xml"));           
             generateHandlerChainFile(e, parseOutputName(this.intf.getPackageName(),
                                                         fName,
                                                         ".xml"));

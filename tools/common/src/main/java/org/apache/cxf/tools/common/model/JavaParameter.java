@@ -24,7 +24,7 @@ public class JavaParameter extends JavaType implements JavaAnnotatable {
 
     private boolean holder;
     private String holderName;
-    private JavaAnnotation annotation;
+    private JAnnotation annotation;
     private String partName;
 
     private JavaMethod javaMethod;
@@ -57,11 +57,14 @@ public class JavaParameter extends JavaType implements JavaAnnotatable {
         this.holderName = hn;
     }
 
-    public void setAnnotation(JavaAnnotation anno) {
+    public void setAnnotation(JAnnotation anno) {
         this.annotation = anno;
+        for (String importClz : annotation.getImports()) {
+            getMethod().getInterface().addImport(importClz);
+        }        
     }
 
-    public JavaAnnotation getAnnotation() {
+    public JAnnotation getAnnotation() {
         return this.annotation;
     }
 

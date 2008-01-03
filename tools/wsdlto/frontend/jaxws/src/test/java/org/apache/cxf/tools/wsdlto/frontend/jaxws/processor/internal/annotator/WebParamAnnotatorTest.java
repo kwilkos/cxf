@@ -19,12 +19,13 @@
 
 package org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal.annotator;
 
-import java.util.Map;
+import java.util.List;
 
 import javax.jws.soap.SOAPBinding;
 import javax.xml.namespace.QName;
 
-import org.apache.cxf.tools.common.model.JavaAnnotation;
+import org.apache.cxf.tools.common.model.JAnnotation;
+import org.apache.cxf.tools.common.model.JAnnotationElement;
 import org.apache.cxf.tools.common.model.JavaMethod;
 import org.apache.cxf.tools.common.model.JavaParameter;
 import org.junit.Assert;
@@ -58,11 +59,13 @@ public class WebParamAnnotatorTest extends Assert {
         init(method, parameter, SOAPBinding.Style.DOCUMENT, true);
         parameter.annotate(new WebParamAnnotator());
 
-        JavaAnnotation annotation = parameter.getAnnotation();
-        Map<String, String> args = annotation.getArguments();
-        assertEquals(2, args.size());
-        assertEquals("\"http://apache.org/cxf\"", args.get("targetNamespace"));
-        assertEquals("\"x\"", args.get("name"));
+        JAnnotation annotation = parameter.getAnnotation();
+        assertEquals("@WebParam(name = \"x\", targetNamespace = \"http://apache.org/cxf\")", 
+                         annotation.toString());
+        List<JAnnotationElement> elements = annotation.getElements();
+        assertEquals(2, elements.size());
+        assertEquals("http://apache.org/cxf", elements.get(1).getValue());
+        assertEquals("x", elements.get(0).getValue());
         // XXX - order that attributes are appended to the string
         //       differs with the ibmjdk...
         //assertEquals("@WebParam(targetNamespace = \"http://apache.org/cxf\", name = \"x\")",
@@ -75,12 +78,12 @@ public class WebParamAnnotatorTest extends Assert {
 
         parameter.annotate(new WebParamAnnotator());
 
-        JavaAnnotation annotation = parameter.getAnnotation();
-        Map<String, String> args = annotation.getArguments();
-        assertEquals(3, args.size());
-        assertEquals("\"http://apache.org/cxf\"", args.get("targetNamespace"));
-        assertEquals("\"y\"", args.get("partName"));
-        assertEquals("\"x\"", args.get("name"));
+        JAnnotation annotation = parameter.getAnnotation();
+        assertEquals("@WebParam(partName = \"y\", name = \"x\", " 
+                     + "targetNamespace = \"http://apache.org/cxf\")", 
+                         annotation.toString());
+        List<JAnnotationElement> elements = annotation.getElements();
+        assertEquals(3, elements.size());
         // XXX - order that attributes are appended to the string
         //       differs with the ibmjdk...
         //assertEquals(
@@ -92,8 +95,8 @@ public class WebParamAnnotatorTest extends Assert {
     public void testAnnotateRPC() throws Exception {
         init(method, parameter, SOAPBinding.Style.RPC, true);
         parameter.annotate(new WebParamAnnotator());
-        JavaAnnotation annotation = parameter.getAnnotation();
-        assertEquals(2, annotation.getArguments().size());
+        JAnnotation annotation = parameter.getAnnotation();
+        assertEquals(2, annotation.getElements().size());
         assertEquals("@WebParam(partName = \"y\", name = \"y\")",
                      annotation.toString());
     }

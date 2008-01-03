@@ -24,6 +24,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
 
+import javax.jws.WebParam;
+
 import org.apache.cxf.service.model.FaultInfo;
 import org.apache.cxf.service.model.MessageInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
@@ -31,7 +33,8 @@ import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolException;
-import org.apache.cxf.tools.common.model.JavaAnnotation;
+import org.apache.cxf.tools.common.model.JAnnotation;
+import org.apache.cxf.tools.common.model.JAnnotationElement;
 import org.apache.cxf.tools.common.model.JavaInterface;
 import org.apache.cxf.tools.common.model.JavaMethod;
 import org.apache.cxf.tools.common.model.JavaParameter;
@@ -59,6 +62,7 @@ public class OperationProcessor  extends AbstractProcessor {
         Collection<FaultInfo> faults = operation.getFaults();
         FaultProcessor faultProcessor = new FaultProcessor(context);
         faultProcessor.process(method, faults);
+
         intf.addMethod(method);
     }
 
@@ -93,7 +97,7 @@ public class OperationProcessor  extends AbstractProcessor {
         }
 
         method.annotate(new WebResultAnnotator());
-        method.annotate(new SoapBindingAnnotator());
+        method.annotate(new SoapBindingAnnotator());                
 
         JAXWSBinding opBinding = (JAXWSBinding)operation.getExtensor(JAXWSBinding.class);
 
@@ -187,16 +191,18 @@ public class OperationProcessor  extends AbstractProcessor {
         }
 
         JavaParameter asyncHandler = new JavaParameter();
+        
         asyncHandler.setName("asyncHandler");
         asyncHandler.setCallback(true);
         asyncHandler.setClassName(getAsyncClassName(method, "AsyncHandler"));
-        JavaAnnotation asyncHandlerAnnotation = new JavaAnnotation("WebParam");
-        asyncHandlerAnnotation.addArgument("name", "asyncHandler");
-        asyncHandlerAnnotation.addArgument("targetNamespace", "");
-        asyncHandler.setAnnotation(asyncHandlerAnnotation);
         asyncHandler.setStyle(JavaType.Style.IN);
-
+        
         callbackMethod.addParameter(asyncHandler);
+        
+        JAnnotation asyncHandlerAnnotation = new JAnnotation(WebParam.class);
+        asyncHandlerAnnotation.addElement(new JAnnotationElement("name", "asyncHandler"));
+        asyncHandlerAnnotation.addElement(new JAnnotationElement("targetNamespace", ""));
+        asyncHandler.setAnnotation(asyncHandlerAnnotation);                
 
         method.getInterface().addMethod(callbackMethod);
     }

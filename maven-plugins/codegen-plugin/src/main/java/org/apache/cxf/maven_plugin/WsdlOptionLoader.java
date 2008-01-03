@@ -38,16 +38,14 @@ public final class WsdlOptionLoader {
     private static final String WSDL_BINDINGS = "-binding-?\\d*.xml$";
 
     public List<WsdlOption> load(String wsdlRoot) throws MojoExecutionException {
-        return load(new File(wsdlRoot));
-    }
-
-    public List<WsdlOption> load(File wsdlBasedir) throws MojoExecutionException {
-        if (wsdlBasedir == null) {
+        File wsdlBasedir;
+        if (wsdlRoot == null) {
             return new ArrayList<WsdlOption>();
         }
+        wsdlBasedir = new File(wsdlRoot);
 
         if (!wsdlBasedir.exists()) {
-            throw new MojoExecutionException(wsdlBasedir + " not exists");
+            throw new MojoExecutionException(wsdlRoot + " not exists");
         }
 
         return findJobs(wsdlBasedir, getWsdlFiles(wsdlBasedir));

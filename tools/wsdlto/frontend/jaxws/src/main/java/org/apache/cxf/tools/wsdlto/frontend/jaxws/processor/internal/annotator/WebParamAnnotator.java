@@ -19,11 +19,13 @@
 
 package org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal.annotator;
 
+import javax.jws.WebParam;
 import javax.jws.soap.SOAPBinding;
 
 import org.apache.cxf.tools.common.model.Annotator;
+import org.apache.cxf.tools.common.model.JAnnotation;
+import org.apache.cxf.tools.common.model.JAnnotationElement;
 import org.apache.cxf.tools.common.model.JavaAnnotatable;
-import org.apache.cxf.tools.common.model.JavaAnnotation;
 import org.apache.cxf.tools.common.model.JavaMethod;
 import org.apache.cxf.tools.common.model.JavaParameter;
 import org.apache.cxf.tools.common.model.JavaType;
@@ -45,7 +47,7 @@ public class WebParamAnnotator implements Annotator {
             }
         }
 
-        JavaAnnotation webParamAnnotation = new JavaAnnotation("WebParam");
+        JAnnotation webParamAnnotation = new JAnnotation(WebParam.class);
         String name = parameter.getName();
         String targetNamespace = method.getInterface().getNamespace();
         String partName = null;
@@ -68,14 +70,18 @@ public class WebParamAnnotator implements Annotator {
         }
 
         if (partName != null) {
-            webParamAnnotation.addArgument("partName", partName);
+            webParamAnnotation.addElement(new JAnnotationElement("partName", partName));
         }
-        if (parameter.getStyle() == JavaType.Style.OUT || parameter.getStyle() == JavaType.Style.INOUT) {
-            webParamAnnotation.addArgument("mode", "Mode." + parameter.getStyle().toString(), "");
+        if (parameter.getStyle() == JavaType.Style.OUT) {
+            webParamAnnotation.addElement(new JAnnotationElement("mode", WebParam.Mode.OUT));
+        } else if (parameter.getStyle() == JavaType.Style.INOUT) {
+            webParamAnnotation.addElement(new JAnnotationElement("mode", WebParam.Mode.INOUT));
         }
-        webParamAnnotation.addArgument("name", name);
-        if (method.getSoapStyle() == SOAPBinding.Style.DOCUMENT || parameter.isHeader()) {
-            webParamAnnotation.addArgIgnoreEmpty("targetNamespace", targetNamespace, "\"");
+        webParamAnnotation.addElement(new JAnnotationElement("name", name));
+        if (null != targetNamespace 
+                && (method.getSoapStyle() == SOAPBinding.Style.DOCUMENT || parameter.isHeader())) {        
+            webParamAnnotation.addElement(new JAnnotationElement("targetNamespace", 
+                                                                        targetNamespace));        
         }
 
         parameter.setAnnotation(webParamAnnotation);
