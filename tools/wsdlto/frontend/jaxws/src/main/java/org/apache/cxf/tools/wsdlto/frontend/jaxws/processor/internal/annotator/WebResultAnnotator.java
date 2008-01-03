@@ -19,10 +19,14 @@
 
 package org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal.annotator;
 
+import javax.jws.Oneway;
+import javax.jws.WebResult;
 import javax.jws.soap.SOAPBinding;
+
 import org.apache.cxf.tools.common.model.Annotator;
+import org.apache.cxf.tools.common.model.JAnnotation;
+import org.apache.cxf.tools.common.model.JAnnotationElement;
 import org.apache.cxf.tools.common.model.JavaAnnotatable;
-import org.apache.cxf.tools.common.model.JavaAnnotation;
 import org.apache.cxf.tools.common.model.JavaMethod;
 
 public class WebResultAnnotator implements Annotator {
@@ -36,16 +40,15 @@ public class WebResultAnnotator implements Annotator {
         }
             
         if (method.isOneWay()) {
-            JavaAnnotation oneWayAnnotation = new JavaAnnotation("Oneway");
+            JAnnotation oneWayAnnotation = new JAnnotation(Oneway.class);
             method.addAnnotation("Oneway", oneWayAnnotation);
-            method.getInterface().addImport("javax.jws.Oneway");
             return;
         }
 
         if ("void".equals(method.getReturn().getType())) {
             return;
         }
-        JavaAnnotation resultAnnotation = new JavaAnnotation("WebResult");
+        JAnnotation resultAnnotation = new JAnnotation(WebResult.class);
         String targetNamespace = method.getReturn().getTargetNamespace();
         String name = "return";
 
@@ -66,13 +69,15 @@ public class WebResultAnnotator implements Annotator {
         }
 
         
-        
-        resultAnnotation.addArgument("name", name);
-        resultAnnotation.addArgIgnoreEmpty("targetNamespace", targetNamespace, "\"");
+        resultAnnotation.addElement(new JAnnotationElement("name", name));
+        if (null != targetNamespace) {
+            resultAnnotation.addElement(new JAnnotationElement("targetNamespace", targetNamespace));
+        }
 
         if (method.getSoapStyle() == SOAPBinding.Style.RPC
             || (method.getSoapStyle() == SOAPBinding.Style.DOCUMENT && !method.isWrapperStyle())) {
-            resultAnnotation.addArgument("partName", method.getReturn().getName());
+            resultAnnotation.addElement(new JAnnotationElement("partName", 
+                                                                      method.getReturn().getName()));
         }
 
         method.addAnnotation("WebResult", resultAnnotation);

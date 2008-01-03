@@ -19,10 +19,13 @@
 
 package org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal.annotator;
 
+import javax.jws.WebMethod;
+
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.tools.common.model.Annotator;
+import org.apache.cxf.tools.common.model.JAnnotation;
+import org.apache.cxf.tools.common.model.JAnnotationElement;
 import org.apache.cxf.tools.common.model.JavaAnnotatable;
-import org.apache.cxf.tools.common.model.JavaAnnotation;
 import org.apache.cxf.tools.common.model.JavaMethod;
 
 public class WebMethodAnnotator implements Annotator {
@@ -35,15 +38,14 @@ public class WebMethodAnnotator implements Annotator {
             throw new RuntimeException("WebMethod can only annotate JavaMethod");
         }
         String operationName = method.getOperationName();
-        JavaAnnotation methodAnnotation = new JavaAnnotation("WebMethod");
+        JAnnotation methodAnnotation = new JAnnotation(WebMethod.class);
         
         if (!method.getName().equals(operationName)) {
-            methodAnnotation.addArgument("operationName", operationName);
+            methodAnnotation.addElement(new JAnnotationElement("operationName", operationName));
         }
         if (!StringUtils.isEmpty(method.getSoapAction())) {
-            methodAnnotation.addArgument("action", method.getSoapAction());
+            methodAnnotation.addElement(new JAnnotationElement("action", method.getSoapAction()));
         }
         method.addAnnotation("WebMethod", methodAnnotation);
-        method.getInterface().addImport("javax.jws.WebMethod");
     }
 }

@@ -19,9 +19,19 @@
 
 package org.apache.cxf.tools.java2wsdl.generator.wsdl11.annotator;
 
+import java.lang.annotation.Annotation;
+
+import javax.xml.bind.annotation.XmlAttachmentRef;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlList;
+import javax.xml.bind.annotation.XmlMimeType;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
+import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.tools.common.model.Annotator;
+import org.apache.cxf.tools.common.model.JAnnotation;
+import org.apache.cxf.tools.common.model.JAnnotationElement;
 import org.apache.cxf.tools.common.model.JavaAnnotatable;
-import org.apache.cxf.tools.common.model.JavaAnnotation;
 import org.apache.cxf.tools.common.model.JavaField;
 
 public class WrapperBeanFieldAnnotator implements Annotator {
@@ -34,12 +44,32 @@ public class WrapperBeanFieldAnnotator implements Annotator {
             throw new RuntimeException("WrapperBeanFiledAnnotator expect JavaField as input");
         }
         String rawName = jField.getRawName();
-        JavaAnnotation xmlElementAnnotation = new JavaAnnotation("XmlElement");
-        
-        xmlElementAnnotation.addArgument("name", rawName);
-        xmlElementAnnotation.addArgIgnoreEmpty("namespace", jField.getTargetNamespace(), "\"");
+        JAnnotation xmlElementAnnotation = new JAnnotation(XmlElement.class);
+        xmlElementAnnotation.addElement(new JAnnotationElement("name", rawName));
+        if (!StringUtils.isEmpty(jField.getTargetNamespace())) {
+            xmlElementAnnotation.addElement(new JAnnotationElement("namespace", 
+                                                                          jField.getTargetNamespace()));
+        }
 
-        jField.setAnnotation(xmlElementAnnotation);
-        jField.getOwner().addImport("javax.xml.bind.annotation.XmlElement");
+        jField.addAnnotation(xmlElementAnnotation);
+        
+        for (Annotation ann : jField.getJaxbAnnotaions()) {
+            if (ann instanceof XmlMimeType) {
+                JAnnotation mimeAnno = new JAnnotation(XmlMimeType.class);
+                mimeAnno.addElement(new JAnnotationElement("value", ((XmlMimeType)ann).value()));
+                jField.addAnnotation(mimeAnno);
+            } else if (ann instanceof XmlJavaTypeAdapter) {           
+                JAnnotation jaxbAnn = new JAnnotation(XmlJavaTypeAdapter.class);
+                jaxbAnn.addElement(new JAnnotationElement("value", ((XmlJavaTypeAdapter)ann).value()));
+                jaxbAnn.addElement(new JAnnotationElement("type", ((XmlJavaTypeAdapter)ann).type()));
+                jField.addAnnotation(jaxbAnn);
+            } else if (ann instanceof XmlAttachmentRef) {
+                JAnnotation jaxbAnn = new JAnnotation(XmlAttachmentRef.class);
+                jField.addAnnotation(jaxbAnn);
+            } else if (ann instanceof XmlList) {
+                JAnnotation jaxbAnn = new JAnnotation(XmlList.class);
+                jField.addAnnotation(jaxbAnn);
+            }
+        }
     }
 }
