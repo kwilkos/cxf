@@ -1142,5 +1142,5 @@ public class CodeGenTest extends ProcessorTestBase {
         processor.setContext(env);
         processor.execute();
     }
-    
+
 }

@@ -19,9 +19,16 @@
 
 package org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal.annotator;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.xml.ws.RequestWrapper;
+import javax.xml.ws.ResponseWrapper;
+
 import org.apache.cxf.tools.common.model.Annotator;
+import org.apache.cxf.tools.common.model.JAnnotation;
+import org.apache.cxf.tools.common.model.JAnnotationElement;
 import org.apache.cxf.tools.common.model.JavaAnnotatable;
-import org.apache.cxf.tools.common.model.JavaAnnotation;
 import org.apache.cxf.tools.common.model.JavaMethod;
 import org.apache.cxf.tools.common.model.JavaParameter;
 
@@ -42,20 +49,27 @@ public class WrapperAnnotator implements Annotator {
             throw new RuntimeException("RequestWrapper and ResponseWrapper can only annotate JavaMethod");
         }
         if (wrapperRequest != null) {
-            JavaAnnotation wrapperRequestAnnotation = new JavaAnnotation("RequestWrapper");
-            wrapperRequestAnnotation.addArgument("localName", wrapperRequest.getType());
-            wrapperRequestAnnotation.addArgument("targetNamespace", wrapperRequest.getTargetNamespace());
-            wrapperRequestAnnotation.addArgument("className", wrapperRequest.getClassName());
-            method.addAnnotation("RequestWrapper", wrapperRequestAnnotation);
-            method.getInterface().addImport("javax.xml.ws.RequestWrapper");
+            JAnnotation requestAnnotation = new JAnnotation(RequestWrapper.class);
+            requestAnnotation.addElement(new JAnnotationElement("localName",
+                                                                       wrapperRequest.getType()));
+            requestAnnotation.addElement(new JAnnotationElement("targetNamespace",
+                                                                       wrapperRequest.getTargetNamespace()));
+            requestAnnotation.addElement(new JAnnotationElement("className", 
+                                                                       wrapperRequest.getClassName()));
+
+            method.addAnnotation("RequestWrapper", requestAnnotation);
+            method.getInterface().addImports(requestAnnotation.getImports());
         }
         if (wrapperResponse != null) {
-            JavaAnnotation wrapperResponseAnnotation = new JavaAnnotation("ResponseWrapper");
-            wrapperResponseAnnotation.addArgument("localName", wrapperResponse.getType());
-            wrapperResponseAnnotation.addArgument("targetNamespace", wrapperResponse.getTargetNamespace());
-            wrapperResponseAnnotation.addArgument("className", wrapperResponse.getClassName());
-            method.addAnnotation("ResponseWrapper", wrapperResponseAnnotation);
-            method.getInterface().addImport("javax.xml.ws.ResponseWrapper");
+            List<JAnnotationElement> elements = new ArrayList<JAnnotationElement>();
+            elements.add(new JAnnotationElement("localName", wrapperResponse.getType()));
+            elements.add(new JAnnotationElement("targetNamespace", wrapperResponse.getTargetNamespace()));
+            elements.add(new JAnnotationElement("className", wrapperResponse.getClassName()));
+
+            JAnnotation responseAnnotation = new JAnnotation(ResponseWrapper.class);
+            responseAnnotation.getElements().addAll(elements);
+            method.addAnnotation("ResponseWrapper", responseAnnotation);
+            method.getInterface().addImports(responseAnnotation.getImports());
         }
     }
 }

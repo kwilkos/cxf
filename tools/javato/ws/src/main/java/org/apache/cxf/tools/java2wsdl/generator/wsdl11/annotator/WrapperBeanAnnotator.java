@@ -19,39 +19,44 @@
 
 package org.apache.cxf.tools.java2wsdl.generator.wsdl11.annotator;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+
 import org.apache.cxf.tools.common.model.Annotator;
+import org.apache.cxf.tools.common.model.JAnnotation;
+import org.apache.cxf.tools.common.model.JAnnotationElement;
 import org.apache.cxf.tools.common.model.JavaAnnotatable;
-import org.apache.cxf.tools.common.model.JavaAnnotation;
 import org.apache.cxf.tools.java2wsdl.generator.wsdl11.model.WrapperBeanClass;
 public class WrapperBeanAnnotator implements Annotator {
 
     public void annotate(final JavaAnnotatable clz) {
-        WrapperBeanClass wrapperBeanClass = null;
+        WrapperBeanClass beanClass = null;
         if (clz instanceof WrapperBeanClass) {
-            wrapperBeanClass = (WrapperBeanClass) clz;
+            beanClass = (WrapperBeanClass) clz;
         } else {
             throw new RuntimeException("WrapperBeanAnnotator expect JavaClass as input");
         }
 
-        JavaAnnotation xmlRootElement = new JavaAnnotation("XmlRootElement");
-        xmlRootElement.addArgument("name", wrapperBeanClass.getElementName().getLocalPart());
-        xmlRootElement.addArgument("namespace", wrapperBeanClass.getElementName().getNamespaceURI());
+        JAnnotation xmlRootElement = new JAnnotation(XmlRootElement.class);
+        xmlRootElement.addElement(new JAnnotationElement("name", 
+                                                         beanClass.getElementName().getLocalPart()));
+        xmlRootElement.addElement(new JAnnotationElement("namespace", 
+                                                         beanClass.getElementName().getNamespaceURI()));
+        
+        JAnnotation xmlAccessorType = new JAnnotation(XmlAccessorType.class);
+        xmlAccessorType.addElement(new JAnnotationElement(null, XmlAccessType.FIELD));
 
-        JavaAnnotation xmlAccessorType = new JavaAnnotation("XmlAccessorType");
-        xmlAccessorType.addArgument("XmlAccessType.FIELD", "null", "");
-
-        JavaAnnotation xmlType = new JavaAnnotation("XmlType");
-        //xmlType.addArgument("name", wrapperBeanClass.getElementName().getLocalPart());
-        xmlType.addArgument("name", wrapperBeanClass.getElementName().getLocalPart());
-        xmlType.addArgument("namespace", wrapperBeanClass.getElementName().getNamespaceURI());
+        JAnnotation xmlType = new JAnnotation(XmlType.class);
+        xmlType.addElement(new JAnnotationElement("name", 
+                                                  beanClass.getElementName().getLocalPart()));
+        xmlType.addElement(new JAnnotationElement("namespace", 
+                                                  beanClass.getElementName().getNamespaceURI()));
+        
         // Revisit: why annotation is string?
-        wrapperBeanClass.addAnnotation(xmlRootElement.toString());
-        wrapperBeanClass.addAnnotation(xmlAccessorType.toString());
-        wrapperBeanClass.addAnnotation(xmlType.toString());
-
-        wrapperBeanClass.addImport("javax.xml.bind.annotation.XmlAccessType");
-        wrapperBeanClass.addImport("javax.xml.bind.annotation.XmlAccessorType");
-        wrapperBeanClass.addImport("javax.xml.bind.annotation.XmlRootElement");
-        wrapperBeanClass.addImport("javax.xml.bind.annotation.XmlType");
+        beanClass.addAnnotation(xmlRootElement);
+        beanClass.addAnnotation(xmlAccessorType);
+        beanClass.addAnnotation(xmlType);
     }
 }
