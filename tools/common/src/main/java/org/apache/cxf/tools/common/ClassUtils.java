@@ -31,6 +31,7 @@ import java.util.logging.Logger;
 
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.helpers.FileUtils;
 import org.apache.cxf.tools.util.ClassCollector;
 import org.apache.cxf.tools.util.Compiler;
 
@@ -96,6 +97,15 @@ public class ClassUtils {
                             }
                         }
                     }
+                    // JAXB plugins will generate extra files under the runtime directory
+                    // Those files can not be allocated into the ClassCollector
+                    File jaxbRuntime = new File(path, "runtime");
+                    if (jaxbRuntime.isDirectory() && jaxbRuntime.exists()) {
+                        List<File> files = FileUtils.getFiles(jaxbRuntime, ".+\\.java$");
+                        for (File f : files) {
+                            fileList.add(f.toString());
+                        }
+                    }
                 }
             }
 
@@ -115,7 +125,6 @@ public class ClassUtils {
         }
         
         int srcFileIndex = i; 
-        
         for (Object o : fileList.toArray()) {
             String file = (String)o;
             arguments[i] = file;
