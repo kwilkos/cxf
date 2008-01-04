@@ -53,12 +53,17 @@ import org.junit.Test;
 public class RMPolicyTest extends AbstractBusClientServerTestBase {
 
     private static final Logger LOG = LogUtils.getLogger(RMPolicyTest.class);
-    private static final String GREETMEONEWAY_ACTION = null;
-    private static final String GREETME_ACTION = null;
-    private static final String GREETME_RESPONSE_ACTION = null;
-    private static final String PINGME_ACTION = null;
-    private static final String PINGME_RESPONSE_ACTION = 
-        Names.WSA_DEFAULT_FAULT_ACTION;
+    private static final String GREETMEONEWAY_ACTION 
+        = "http://cxf.apache.org/greeter_control/Greeter/greetMeOneWayRequest";
+    private static final String GREETME_ACTION
+        = "http://cxf.apache.org/greeter_control/Greeter/greetMeRequest";
+    private static final String GREETME_RESPONSE_ACTION
+        = "http://cxf.apache.org/greeter_control/Greeter/greetMeResponse";
+    private static final String PINGME_ACTION = "http://cxf.apache.org/greeter_control/Greeter/pingMeRequest";
+    private static final String PINGME_RESPONSE_ACTION
+        = "http://cxf.apache.org/greeter_control/Greeter/pingMeResponse";
+    private static final String GREETER_FAULT_ACTION 
+        = "http://cxf.apache.org/greeter_control/Greeter/Fault/faultDetail";
 
     public static class Server extends AbstractBusTestServerBase {
     
@@ -160,8 +165,8 @@ public class RMPolicyTest extends AbstractBusClientServerTestBase {
         expectedActions = new String[] {
             RMConstants.getCreateSequenceResponseAction(),
             GREETME_RESPONSE_ACTION,
-            GREETME_RESPONSE_ACTION,
-            PINGME_RESPONSE_ACTION
+            PINGME_RESPONSE_ACTION,
+            GREETER_FAULT_ACTION
         };
         mf.verifyActions(expectedActions, false);
         mf.verifyMessageNumbers(new String[] {null, "1", "2", "3"}, false);
