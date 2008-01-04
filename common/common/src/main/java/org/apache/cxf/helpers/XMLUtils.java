@@ -26,9 +26,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Writer;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Properties;
 import java.util.StringTokenizer;
+import java.util.WeakHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.wsdl.Definition;
@@ -66,38 +68,53 @@ import org.apache.cxf.common.logging.LogUtils;
 public final class XMLUtils {
 
     private static final Logger LOG = LogUtils.getL7dLogger(XMLUtils.class);
-    private static DocumentBuilderFactory parserFactory;
-    private static TransformerFactory transformerFactory;
-    private static String omitXmlDecl = "no";
-    private static String charset = "utf-8";
-    private static int indent = -1;
-
-    static {
-        parserFactory = DocumentBuilderFactory.newInstance();
-        parserFactory.setNamespaceAware(true);
-
-        transformerFactory = TransformerFactory.newInstance();
-    }
+    
+    private static final Map<ClassLoader, DocumentBuilderFactory> DOCUMENT_BUILDER_FACTORIES
+        = Collections.synchronizedMap(new WeakHashMap<ClassLoader, DocumentBuilderFactory>());
+    
+    private static final Map<ClassLoader, TransformerFactory> TRANSFORMER_FACTORIES
+        = Collections.synchronizedMap(new WeakHashMap<ClassLoader, TransformerFactory>());
 
     private XMLUtils() {
-
     }
 
+    private static TransformerFactory getTransformerFactory() {
+        ClassLoader loader = Thread.currentThread().getContextClassLoader();
+        if (loader == null) {
+            loader = XMLUtils.class.getClassLoader();
+        }
+        if (loader == null) {
+            return TransformerFactory.newInstance();
+        }
+        TransformerFactory factory = TRANSFORMER_FACTORIES.get(loader);
+        if (factory == null) {
+            factory = TransformerFactory.newInstance();
+            TRANSFORMER_FACTORIES.put(loader, factory);
+        }
+        return factory;
+    }
+    private static DocumentBuilderFactory getDocumentBuilderFactory() {
+        ClassLoader loader = Thread.currentThread().getContextClassLoader();
+        if (loader == null) {
+            loader = XMLUtils.class.getClassLoader();
+        }
+        if (loader == null) {
+            return DocumentBuilderFactory.newInstance();
+        }
+        DocumentBuilderFactory factory = DOCUMENT_BUILDER_FACTORIES.get(loader);
+        if (factory == null) {
+            factory = DocumentBuilderFactory.newInstance();
+            factory.setNamespaceAware(true);
+            DOCUMENT_BUILDER_FACTORIES.put(loader, factory);
+        }
+        return factory;
+    }
     public static Transformer newTransformer() throws TransformerConfigurationException {
-        return transformerFactory.newTransformer();
+        return getTransformerFactory().newTransformer();
     }
 
     public static DocumentBuilder getParser() throws ParserConfigurationException {
-        if (parserFactory.getClass().getClassLoader() != null 
-            && !parserFactory.getClass().getClassLoader().equals(
-                    Thread.currentThread().getContextClassLoader().getParent())    
-            && !parserFactory.getClass().getClassLoader().equals(
-                Thread.currentThread().getContextClassLoader())) {
-            //not the same classloader which init parserFactory, so create parserFactory with new classLoader
-            parserFactory = DocumentBuilderFactory.newInstance();
-            parserFactory.setNamespaceAware(true);
-        }
-        return parserFactory.newDocumentBuilder();
+        return getDocumentBuilderFactory().newDocumentBuilder();
     }
 
     public static Document parse(InputSource is) throws ParserConfigurationException, SAXException,
@@ -133,33 +150,28 @@ public final class XMLUtils {
         return getParser().newDocument();
     }
 
-    public static void setOmitXmlDecl(String value) {
-        omitXmlDecl = value;
-    }
-
-    public static void setCharsetEncoding(String value) {
-        charset = value;
-    }
-
-    public static void setIndention(int i) {
-        indent = i;
-    }
-
-    private static boolean indent() {
-        return indent != -1;
-    }
-
     public static void writeTo(Node node, OutputStream os) {
         writeTo(new DOMSource(node), os);
     }
+    public static void writeTo(Node node, OutputStream os, int indent) {
+        writeTo(new DOMSource(node), os, indent, "utf-8", "no");
+    }
     public static void writeTo(Source src, OutputStream os) {
+        writeTo(src, os, -1, "utf-8", "no");
+    }
+    public static void writeTo(Source src,
+                               OutputStream os,
+                               int indent,
+                               String charset,
+                               String omitXmlDecl) {
         Transformer it;
         try {
             it = newTransformer();
             it.setOutputProperty(OutputKeys.METHOD, "xml");
-            if (indent()) {
+            if (indent > -1) {
                 it.setOutputProperty(OutputKeys.INDENT, "yes");
-                it.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", Integer.toString(indent));
+                it.setOutputProperty("{http://xml.apache.org/xslt}indent-amount",
+                                     Integer.toString(indent));
             }
             it.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, omitXmlDecl);
             it.setOutputProperty(OutputKeys.ENCODING, charset);
@@ -187,6 +199,11 @@ public final class XMLUtils {
         return bos.toString();
     }
 
+    public static String toString(Node node, int indent) {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        writeTo(node, out, indent);
+        return out.toString();
+    }
     public static String toString(Node node) {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         writeTo(node, out);
