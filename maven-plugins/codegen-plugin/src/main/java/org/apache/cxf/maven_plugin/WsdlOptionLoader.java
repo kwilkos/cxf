@@ -20,10 +20,12 @@
 package org.apache.cxf.maven_plugin;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.helpers.FileUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 
@@ -33,15 +35,34 @@ import org.apache.maven.plugin.MojoExecutionException;
  */
 
 public final class WsdlOptionLoader {
-    private static final String WSDL_SUFFIX = ".+\\.wsdl$";
     private static final String WSDL_OPTIONS = "-options$";
     private static final String WSDL_BINDINGS = "-binding-?\\d*.xml$";
 
+    
+    private String getIncludeExcludeString(String[] arr) {
+        if (arr == null) {
+            return "";
+        }
+        StringBuilder str = new StringBuilder();
+
+        if (arr != null) {
+            for (String s : arr) {
+                if (str.length() > 0) {
+                    str.append(',');
+                }
+                str.append(s);
+            }
+        }
+        return str.toString();
+    }
+    
     public List<WsdlOption> load(String wsdlRoot) throws MojoExecutionException {
-        return load(new File(wsdlRoot));
+        return load(new File(wsdlRoot), new String[] {"*.wsdl"}, null);
     }
 
-    public List<WsdlOption> load(File wsdlBasedir) throws MojoExecutionException {
+    public List<WsdlOption> load(File wsdlBasedir, String includes[], String excludes[])
+        throws MojoExecutionException {
+        
         if (wsdlBasedir == null) {
             return new ArrayList<WsdlOption>();
         }
@@ -50,11 +71,27 @@ public final class WsdlOptionLoader {
             throw new MojoExecutionException(wsdlBasedir + " not exists");
         }
 
-        return findJobs(wsdlBasedir, getWsdlFiles(wsdlBasedir));
+        return findJobs(wsdlBasedir, getWsdlFiles(wsdlBasedir, includes, excludes));
     }
 
-    private List<File> getWsdlFiles(File dir) {
-        return FileUtils.getFiles(dir, WSDL_SUFFIX);
+    private List<File> getWsdlFiles(File dir, String includes[], String excludes[])
+        throws MojoExecutionException {
+        
+        List<String> exList = new ArrayList<String>();
+        if (excludes != null) {
+            exList.addAll(Arrays.asList(excludes));
+        }
+        exList.addAll(Arrays.asList(org.codehaus.plexus.util.FileUtils.getDefaultExcludes()));
+        
+        String inc = getIncludeExcludeString(includes);
+        String ex = getIncludeExcludeString(exList.toArray(new String[exList.size()]));
+        
+        try {
+            List newfiles = org.codehaus.plexus.util.FileUtils.getFiles(dir, inc, ex);
+            return CastUtils.cast(newfiles);
+        } catch (IOException exc) {
+            throw new MojoExecutionException(exc.getMessage(), exc);
+        }
     }
 
     private File getOptions(File dir, String pattern) {

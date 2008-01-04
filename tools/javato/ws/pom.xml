@@ -185,7 +185,7 @@
                         <phase>generate-test-sources</phase>
                         <configuration>
                             <testSourceRoot>${basedir}/target/generated/src/test/java</testSourceRoot>
-			    <wsdlRoot>${basedir}/src/test/resources/java2wsdl_wsdl</wsdlRoot>
+                            <testWsdlRoot>${basedir}/src/test/resources/java2wsdl_wsdl</testWsdlRoot>
                         </configuration>
                         <goals>
                             <goal>wsdl2java</goal>
