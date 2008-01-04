@@ -29,10 +29,17 @@ import javax.jws.WebService;
  */
 @WebService(targetNamespace = "urn:org.apache.cxf.1332")
 public class Cxf1332Impl implements Cxf1332 {
+    private static String[] lastStrings;
+    
     /** {@inheritDoc}*/
     @WebMethod(operationName = "SendData", action = "")
     @WebResult(name = "result", targetNamespace = "urn:org.apache.cxf.1332.result")
     public String hostSendData(@WebParam(name = "params", targetNamespace = "") String[] strs) {
+        lastStrings = strs;
         return "Bloop";
+    }
+
+    public static String[] getLastStrings() {
+        return lastStrings;
     }
 }

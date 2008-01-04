@@ -42,9 +42,11 @@ public class Cxf1332Test extends AbstractCXFSpringTest {
     @Test
     public void tryToSendStringArray() throws Exception {
         Cxf1332 client = getBean(Cxf1332.class, "client");
-        client.hostSendData(new String[] {"a", "b", "c"});
+        String[] a = new String[] {"a", "b", "c"};
+        client.hostSendData(a);
+        assertArrayEquals(a, Cxf1332Impl.getLastStrings());
     }
-
+    
     /** {@inheritDoc}*/
     @Override
     protected String[] getConfigLocations() {
