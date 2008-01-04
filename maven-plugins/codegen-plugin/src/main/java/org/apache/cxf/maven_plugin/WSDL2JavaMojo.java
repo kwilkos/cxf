@@ -290,6 +290,7 @@ public class WSDL2JavaMojo extends AbstractMojo {
 
             try {
                 new WSDLToJava((String[])list.toArray(new String[list.size()])).run(new ToolContext());
+                doneFile.createNewFile();
             } catch (Throwable e) {
                 getLog().debug(e);
                 throw new MojoExecutionException(e.getMessage(), e);
