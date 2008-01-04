@@ -90,6 +90,8 @@ public final class XMLUtils {
     public static DocumentBuilder getParser() throws ParserConfigurationException {
         if (parserFactory.getClass().getClassLoader() != null 
             && !parserFactory.getClass().getClassLoader().equals(
+                    Thread.currentThread().getContextClassLoader().getParent())    
+            && !parserFactory.getClass().getClassLoader().equals(
                 Thread.currentThread().getContextClassLoader())) {
             //not the same classloader which init parserFactory, so create parserFactory with new classLoader
             parserFactory = DocumentBuilderFactory.newInstance();
