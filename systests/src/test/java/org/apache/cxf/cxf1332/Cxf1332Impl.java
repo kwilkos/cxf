@@ -32,7 +32,7 @@ public class Cxf1332Impl implements Cxf1332 {
     /** {@inheritDoc}*/
     @WebMethod(operationName = "SendData", action = "")
     @WebResult(name = "result", targetNamespace = "urn:org.apache.cxf.1332.result")
-    public String hostSendData(@WebParam(name = "params") String[] strs) {
+    public String hostSendData(@WebParam(name = "params", targetNamespace = "") String[] strs) {
         return "Bloop";
     }
 }
