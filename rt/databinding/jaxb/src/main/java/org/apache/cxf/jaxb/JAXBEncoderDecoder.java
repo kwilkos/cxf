@@ -52,6 +52,7 @@ import javax.xml.bind.attachment.AttachmentUnmarshaller;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLEventWriter;
+import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
@@ -643,7 +644,10 @@ public final class JAXBEncoderDecoder {
                     obj = ((JAXBElement)obj).getValue();
                 }
                 ret.add(obj);
-                reader.nextTag();
+                while (reader.getEventType() != XMLStreamConstants.START_ELEMENT 
+                    && reader.getEventType() != XMLStreamConstants.END_ELEMENT) {
+                    reader.nextTag();
+                }
             }
             return ret;
         } catch (Fault ex) {
