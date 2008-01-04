@@ -27,6 +27,7 @@ public class WsdlOption {
     String wsdl;
     List<String> packagenames;
     List<String> extraargs = new ArrayList<String>();
+    File outputDir;
     File dependencies[];
     File redundantDirs[];
 
@@ -64,6 +65,13 @@ public class WsdlOption {
     }
     public File[] getDeleteDirs() {
         return redundantDirs;
+    }
+    
+    public File getOutputDir() {
+        return outputDir;
+    }
+    public void setOutputDir(File f) {
+        outputDir = f;
     }
     
     public int hashCode() {
