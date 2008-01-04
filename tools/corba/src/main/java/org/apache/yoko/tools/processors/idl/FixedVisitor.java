@@ -15,9 +15,11 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
-*/
+ */
 
 package org.apache.yoko.tools.processors.idl;
+
+import javax.wsdl.Definition;
 
 import javax.xml.namespace.QName;
 
@@ -25,6 +27,7 @@ import antlr.collections.AST;
 
 import org.apache.schemas.yoko.bindings.corba.Fixed;
 
+import org.apache.ws.commons.schema.XmlSchema;
 import org.apache.ws.commons.schema.XmlSchemaFractionDigitsFacet;
 import org.apache.ws.commons.schema.XmlSchemaSimpleType;
 import org.apache.ws.commons.schema.XmlSchemaSimpleTypeRestriction;
@@ -36,9 +39,11 @@ public class FixedVisitor extends VisitorBase {
     private AST identifierNode;
     
     public FixedVisitor(Scope scope,
+                        Definition defn,
+                        XmlSchema schemaRef,
                         WSDLASTVisitor wsdlVisitor,
                         AST identifierNodeRef) {
-        super(scope, wsdlVisitor);
+        super(scope, defn, schemaRef, wsdlVisitor);
         identifierNode = identifierNodeRef;
     }
     
@@ -103,7 +108,7 @@ public class FixedVisitor extends VisitorBase {
         fixedFractionDigits.setFixed(true);
         fixedRestriction.getFacets().add(fixedTotalDigits);
         fixedRestriction.getFacets().add(fixedFractionDigits);
-        fixedSimpleType.setName(scopedName.toString());
+        fixedSimpleType.setName(mapper.mapToQName(scopedName));
         fixedSimpleType.setContent(fixedRestriction);
 
         // add xmlschema:fixed

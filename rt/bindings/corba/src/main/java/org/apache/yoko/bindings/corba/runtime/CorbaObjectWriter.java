@@ -1,18 +1,18 @@
 /**
  * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
+ * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
+ * regarding copyright ownership. The ASF licenses this file
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * with the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
+ * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
  */
@@ -34,6 +34,7 @@ import org.apache.yoko.bindings.corba.types.CorbaExceptionHandler;
 import org.apache.yoko.bindings.corba.types.CorbaFixedHandler;
 import org.apache.yoko.bindings.corba.types.CorbaObjectHandler;
 import org.apache.yoko.bindings.corba.types.CorbaObjectReferenceHandler;
+import org.apache.yoko.bindings.corba.types.CorbaOctetSequenceHandler;
 import org.apache.yoko.bindings.corba.types.CorbaPrimitiveHandler;
 import org.apache.yoko.bindings.corba.types.CorbaSequenceHandler;
 import org.apache.yoko.bindings.corba.types.CorbaStructHandler;
@@ -254,7 +255,6 @@ public class CorbaObjectWriter {
             OutputStream os = a.create_output_stream();
             CorbaObjectWriter writer = new CorbaObjectWriter(os);
             writer.write(containedType);
-            org.omg.CORBA.portable.InputStream instream = os.create_input_stream();
             a.read_value(os.create_input_stream(), containedType.getTypeCode());
         }
         stream.write_any(a);
@@ -325,12 +325,18 @@ public class CorbaObjectWriter {
     }
 
     public void writeSequence(CorbaObjectHandler obj) throws CorbaBindingException {
-        CorbaSequenceHandler seqHandler = (CorbaSequenceHandler)obj;
-        List<CorbaObjectHandler> seqElements = seqHandler.getElements();
-        int length = seqElements.size();
-        stream.write_ulong(length);
-        for (int i = 0; i < length; ++i) {
-            this.write(seqElements.get(i));
+        if (obj instanceof CorbaOctetSequenceHandler) {
+            byte[] value = ((CorbaOctetSequenceHandler) obj).getValue();
+            stream.write_ulong(value.length);
+            stream.write_octet_array(value, 0, value.length);
+        } else {
+            CorbaSequenceHandler seqHandler = (CorbaSequenceHandler)obj;
+            List<CorbaObjectHandler> seqElements = seqHandler.getElements();
+            int length = seqElements.size();
+            stream.write_ulong(length);
+            for (int i = 0; i < length; ++i) {
+                this.write(seqElements.get(i));
+            }
         }
     }
     

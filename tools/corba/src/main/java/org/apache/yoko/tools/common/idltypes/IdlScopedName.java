@@ -15,9 +15,11 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
-*/
+ */
 
 package org.apache.yoko.tools.common.idltypes;
+
+import org.apache.yoko.tools.common.ToolCorbaConstants;
 
 public class IdlScopedName {
     private String fullName;
@@ -26,7 +28,7 @@ public class IdlScopedName {
 
     IdlScopedName(IdlScopeBase parent, String name) {
         if (parent != null) {
-            fullName = new String(parent.fullName() + "::" + name);
+            fullName = new String(parent.fullName() + ToolCorbaConstants.MODULE_SEPARATOR + name);
             parentNames = parent.name().parentNames();
         } else {
             fullName = new String(name);
@@ -52,7 +54,7 @@ public class IdlScopedName {
         }
 
         StringBuffer nm = new StringBuffer(fullName);
-        String rel = relativeTo.fullName() + "::";
+        String rel = relativeTo.fullName() + ToolCorbaConstants.MODULE_SEPARATOR;
 
         if (fullName.indexOf(rel) == 0) {
             nm.delete(0, rel.length());

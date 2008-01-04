@@ -15,7 +15,7 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
-*/
+ */
 
 package org.apache.yoko.tools.processors.wsdl;
 
@@ -53,11 +53,14 @@ import org.apache.ws.commons.schema.XmlSchemaAttribute;
 import org.apache.ws.commons.schema.XmlSchemaChoice;
 import org.apache.ws.commons.schema.XmlSchemaComplexContent;
 import org.apache.ws.commons.schema.XmlSchemaComplexContentExtension;
+import org.apache.ws.commons.schema.XmlSchemaComplexContentRestriction;
 import org.apache.ws.commons.schema.XmlSchemaComplexType;
 import org.apache.ws.commons.schema.XmlSchemaElement;
 import org.apache.ws.commons.schema.XmlSchemaEnumerationFacet;
+import org.apache.ws.commons.schema.XmlSchemaExternal;
 import org.apache.ws.commons.schema.XmlSchemaFacet;
 import org.apache.ws.commons.schema.XmlSchemaForm;
+import org.apache.ws.commons.schema.XmlSchemaImport;
 import org.apache.ws.commons.schema.XmlSchemaLengthFacet;
 import org.apache.ws.commons.schema.XmlSchemaMaxLengthFacet;
 import org.apache.ws.commons.schema.XmlSchemaParticle;
@@ -135,20 +138,18 @@ public class WSDLToCorbaHelper {
             // need to determine if its a primitive type.
             if (stype.getBaseSchemaType() != null) {
                 corbaTypeImpl = processPrimitiveType(stype.getQName());
-            }
-
-            if (stype instanceof XmlSchemaComplexType) {
-                return corbaTypeImpl = processComplexType((XmlSchemaComplexType)stype, 
-                                                          defaultName, annotation, anonymous);
+            } else if (stype instanceof XmlSchemaComplexType) {
+                corbaTypeImpl = processComplexType((XmlSchemaComplexType)stype, 
+                                                   defaultName, annotation, anonymous);
             } else if (stype instanceof XmlSchemaSimpleType) {            
-                return corbaTypeImpl = processSimpleType((XmlSchemaSimpleType)stype, 
-                                                         defaultName, anonymous);
+                corbaTypeImpl = processSimpleType((XmlSchemaSimpleType)stype, 
+                                                  defaultName, anonymous);
             }  else if (xmlSchemaType.getElementByName(stype.getQName()) != null) {
                 XmlSchemaElement el = xmlSchemaType.getElementByName(stype.getQName());
                 //REVISIT, passing ns uri because of a bug in XmlSchema (Bug: WSCOMMONS-69)
-                return corbaTypeImpl = processElementType(el,
-                                                          defaultName,
-                                                          stype.getQName().getNamespaceURI());
+                corbaTypeImpl = processElementType(el,
+                                                   defaultName,
+                                                   stype.getQName().getNamespaceURI());
             } else {
                 throw new Exception("Couldn't convert schema " + stype.getQName() + " to corba type");
             }
@@ -384,9 +385,13 @@ public class WSDLToCorbaHelper {
         XmlSchemaType type = null;
         Iterator i = xmlSchemaList.iterator();
         while (i.hasNext()) {
-            XmlSchema xmlSchema = (XmlSchema)i.next();      
-            String nspace = xmlSchema.getTargetNamespace();
-            QName tname = createQName(nspace, name.getLocalPart(), "xsd");
+            XmlSchema xmlSchema = (XmlSchema)i.next();            
+            String nspace = name.getNamespaceURI(); 
+            if (nspace == null) {
+                nspace = xmlSchema.getTargetNamespace();
+            }
+            //QName tname = createQName(nspace, name.getLocalPart(), "xsd");
+            QName tname = createQName(nspace, name.getLocalPart(), "");
             type = findSchemaType(tname);                            
             if (type != null) {
                 break;
@@ -515,7 +520,7 @@ public class WSDLToCorbaHelper {
                 attrName = new QName(uri, attrName.getLocalPart());
             }
             CorbaTypeImpl membertype = null;
-            boolean attrQualified = getAttributeQualification(attribute);
+            boolean attrQualified = getAttributeQualification(attribute, uri);
             if (attribute.getUse().getValue().equals("none")
                 || attribute.getUse().getValue().equals(W3CConstants.USE_OPTIONAL)) {                
                 CorbaTypeImpl attType = null;
@@ -649,13 +654,23 @@ public class WSDLToCorbaHelper {
                 if (itemType != null) {
                     return WSDLTypes.mapToSequence(name, checkPrefix(schematypeName), 
                                                    itemType.getQName(), null, 0, false);
-                }
+                } 
                 return itemType;
             }
             QName ltypeName = createQNameXmlSchemaNamespace(ltype.getItemTypeName().getLocalPart());
             itemType = processPrimitiveType(ltypeName);
-            return WSDLTypes.mapToSequence(name, checkPrefix(schematypeName),
+            if (itemType != null) {
+                return WSDLTypes.mapToSequence(name, checkPrefix(schematypeName),
                                            itemType.getQName(), null, 0, false);
+            } else {                
+                // if the type of the simpleContent is a list with another simple type.
+                XmlSchemaType base = getSchemaType(ltype.getItemTypeName());
+                itemType = convertSchemaToCorbaType(base, base.getQName(), base, null, false);
+                if (itemType != null) {
+                    return WSDLTypes.mapToSequence(name, checkPrefix(schematypeName), 
+                                                   itemType.getQName(), null, 0, false);
+                }
+            }
         } else if (stype.getContent() == null) {
             // elements primitive type
             QName stypeName = createQNameXmlSchemaNamespace(stype.getName());
@@ -799,20 +814,51 @@ public class WSDLToCorbaHelper {
     private XmlSchemaType findSchemaType(QName typeName) {
         XmlSchemaType schemaType = null;
         
+        
+        
+        
         Iterator i = xmlSchemaList.iterator();
         while (i.hasNext()) {
-            XmlSchema xmlSchema = (XmlSchema)i.next();        
-            if (xmlSchema.getElementByName(typeName) != null) {
-                XmlSchemaElement schemaElement = xmlSchema.getElementByName(typeName);                
-                schemaType = schemaElement.getSchemaType();                
-            } else if (xmlSchema.getTypeByName(typeName) != null) {                
-                schemaType = xmlSchema.getTypeByName(typeName);                
-            }
+            XmlSchema xmlSchema = (XmlSchema)i.next();                  
+            // if the schema includes other schemas need to search there.
+            schemaType = findTypeInSchema(xmlSchema, typeName);
             if (schemaType != null) {
                 return schemaType;
-            } 
+            }            
         }            
         return schemaType;
+    }
+    
+    private XmlSchemaType findTypeInSchema(XmlSchema xmlSchema, QName typeName) {
+        XmlSchemaType schemaType = null;
+        
+        if (xmlSchema.getElementByName(typeName) != null) {
+            XmlSchemaElement schemaElement = xmlSchema.getElementByName(typeName);                
+            schemaType = schemaElement.getSchemaType();                
+        } else if (xmlSchema.getTypeByName(typeName) != null) {                
+            schemaType = xmlSchema.getTypeByName(typeName);                
+        }
+        if (schemaType != null) {
+            return schemaType;
+        } else {            
+            if (xmlSchema.getIncludes() != null) {
+                Iterator schemas = xmlSchema.getIncludes().getIterator();
+                while (schemas.hasNext()) {
+                    Object obj = schemas.next();
+                    if (obj instanceof XmlSchemaExternal) {
+                        XmlSchemaExternal extSchema = (XmlSchemaExternal) obj;
+                        if (!(extSchema instanceof XmlSchemaImport)) {
+                            schemaType = findTypeInSchema(extSchema.getSchema(), typeName);
+                            if (schemaType != null) {
+                                return schemaType;
+                            }
+                        }
+                    }
+                }                
+            }
+        }
+        
+        return null;        
     }
     
     protected boolean isSchemaTypeException(XmlSchemaType stype) {
@@ -929,9 +975,14 @@ public class WSDLToCorbaHelper {
         QName name;
         Struct corbaStruct = null;
         QName schematypeName = checkPrefix(complex.getQName());               
-        if (schematypeName == null) {
-            schematypeName = checkPrefix(defaultName);
-            name = checkPrefix(createQNameCorbaNamespace(defaultName.getLocalPart()));            
+        if (schematypeName == null) {                       
+            schematypeName = createQNameTargetNamespace(defaultName.getLocalPart());  
+            if (defaultName.getNamespaceURI().equals("")) {
+                schematypeName = checkPrefix(schematypeName);
+            } else {
+                schematypeName = checkPrefix(defaultName);
+            }            
+            name = checkPrefix(createQNameCorbaNamespace(defaultName.getLocalPart()));
         } else {
             name = checkPrefix(createQNameCorbaNamespace(schematypeName.getLocalPart()));            
         }
@@ -1031,10 +1082,15 @@ public class WSDLToCorbaHelper {
                 = (XmlSchemaSimpleContentRestriction)simpleContent.getContent();
                         
             base = restrict.getBaseType();
-            if (base == null) {
-                base = getSchemaType(restrict.getBaseTypeName());
+            
+            if (restrict.getBaseTypeName() != null) {
+                basetype = processPrimitiveType(restrict.getBaseTypeName());
             }
-            basetype = convertSchemaToCorbaType(base, base.getQName(), base, null, false);
+            
+            if (basetype == null) {
+                base = getSchemaType(restrict.getBaseTypeName());            
+                basetype = convertSchemaToCorbaType(base, base.getQName(), base, null, false);
+            }
             
             MemberType basemember = new MemberType();
             basemember.setName("_simpleTypeValue");
@@ -1060,93 +1116,126 @@ public class WSDLToCorbaHelper {
                                                  Struct corbaStruct, QName schematypeName)
         throws Exception {
 
+        if (complex.getContent() instanceof XmlSchemaComplexContentExtension) {
+            XmlSchemaComplexContentExtension extype 
+                = (XmlSchemaComplexContentExtension)complex.getContent();
+            QName extName = extype.getBaseTypeName();
+            Iterator attrs = extype.getAttributes().getIterator();
+            corbaStruct = processComplexContentStructParticle(extype.getParticle(), defaultName, corbaStruct, 
+                                                         schematypeName, extName, attrs);
+        } else {
+            if (complex.getContent() instanceof XmlSchemaComplexContentRestriction) {
+                XmlSchemaComplexContentRestriction extype 
+                    = (XmlSchemaComplexContentRestriction)complex.getContent();
+                QName extName = extype.getBaseTypeName();
+                Iterator attrs = extype.getAttributes().getIterator();
+                corbaStruct = 
+                    processComplexContentStructParticle(extype.getParticle(), defaultName, 
+                                                   corbaStruct, schematypeName, 
+                                                   extName, attrs);                
+            }
+        }
+        return corbaStruct;
+    }
+        
+    private Struct processComplexContentStructParticle(XmlSchemaParticle extype, 
+                                                  QName defaultName, Struct corbaStruct,
+                                                  QName schematypeName, QName extName,
+                                                  Iterator attrs)     
+        throws Exception {                       
+        
         String uri;
         if (schematypeName != null) {
             uri = schematypeName.getNamespaceURI();
         } else {
             uri = defaultName.getNamespaceURI();
         }
-
-        if (complex.getContent() instanceof XmlSchemaComplexContentExtension) {
-            XmlSchemaComplexContentExtension extype 
-                = (XmlSchemaComplexContentExtension)complex.getContent();
-            
-            // Add base as a member of this struct
-            MemberType memberType = new MemberType();     
-            QName extName = extype.getBaseTypeName();
-            memberType.setName(extName.getLocalPart() + "_f");
-            if (extName.getLocalPart().equals("anyType")) {
-                memberType.setIdltype(processPrimitiveType(extName).getQName());                
-            } else {
-                memberType.setIdltype(createQNameCorbaNamespace(extName.getLocalPart()));
-            }            
-            corbaStruct.getMember().add(memberType);
-            
-            // process attributes at complexContent level
-            List attlist1 = processAttributesAsMembers(extype.getAttributes().getIterator(), uri);
-            for (int i = 0; i < attlist1.size(); i++) {
-                MemberType member = (MemberType)attlist1.get(i);
-                corbaStruct.getMember().add(member);
-            }
-            
-            // Process members of Current Type
-            if (extype.getParticle() instanceof XmlSchemaChoice) {
-                XmlSchemaChoice choice = (XmlSchemaChoice)extype.getParticle();
-                MemberType choicemem = processComplexContentStructChoice(choice, schematypeName, defaultName);
-                choicemem.setAnonschematype(true);
-                corbaStruct.getMember().add(choicemem);                                
-            } else if (extype.getParticle() instanceof  XmlSchemaSequence) {
-                XmlSchemaSequence seq = (XmlSchemaSequence)extype.getParticle();
-                CorbaTypeImpl seqtype = 
-                    processSequenceType(seq, defaultName, schematypeName);                               
-
-                if (seqtype != null) {                    
-                    MemberType seqmem = new MemberType();
-                    seqmem.setName(seqtype.getQName().getLocalPart() + "_f");
-                    QName type = createQNameCorbaNamespace(seqtype.getQName().getLocalPart());
-                    seqmem.setIdltype(type);
-                    seqmem.setAnonschematype(true);
-                    if (seqtype.isSetQualified() && seqtype.isQualified()) {
-                        seqmem.setQualified(true);
-                    }
-                    corbaStruct.getMember().add(seqmem);
-                    if (!isDuplicate(seqtype)) {
-                        typeMappingType.getStructOrExceptionOrUnion().add(seqtype);
-                    }
-                } else {                    
-                    LOG.log(Level.WARNING, "Couldnt map Sequence inside extension");
-                }
-
-            } else if (extype.getParticle() instanceof  XmlSchemaAll) {
-                XmlSchemaAll all = (XmlSchemaAll)extype.getParticle();
-                
-                CorbaTypeImpl alltype = processAllType(all, defaultName, schematypeName);
-                if (alltype != null) {
-                    MemberType allmem = new MemberType();
-                    allmem.setName(alltype.getQName().getLocalPart() + "_f");
-                    allmem.setIdltype(alltype.getQName());
-                    allmem.setAnonschematype(true);
-                    if (alltype.isSetQualified() && alltype.isQualified()) {
-                        allmem.setQualified(true);
-                    }
-                    corbaStruct.getMember().add(allmem);
-                    if (!isDuplicate(alltype)) {
-                        typeMappingType.getStructOrExceptionOrUnion().add(alltype);
-                    }
-                } else {
-                    LOG.log(Level.WARNING, "Couldnt map All inside extension");
-                }
-            }
-            
+        
+        // Add base as a member of this struct
+        MemberType memberType = new MemberType();     
+        memberType.setName(extName.getLocalPart() + "_f");
+        if (extName.getLocalPart().equals("anyType")) {
+            memberType.setIdltype(processPrimitiveType(extName).getQName());                
         } else {
-            org.apache.cxf.common.i18n.Message msg = new org.apache.cxf.common.i18n.Message(
-                               "Restriction inside ComplexContent is not yet Supported.", LOG);
-            //throw new Exception(msg.toString());            
-            return null;
+            memberType.setIdltype(createQNameCorbaNamespace(extName.getLocalPart()));
+        }            
+        corbaStruct.getMember().add(memberType);
+            
+        // process attributes at complexContent level
+        List attlist1 = processAttributesAsMembers(attrs, uri);
+        for (int i = 0; i < attlist1.size(); i++) {
+            MemberType member = (MemberType)attlist1.get(i);
+            corbaStruct.getMember().add(member);
         }
-
+            
+        // Process members of Current Type                
+        if (extype instanceof XmlSchemaChoice) {
+            XmlSchemaChoice choice = (XmlSchemaChoice)extype;
+            MemberType choicemem = processComplexContentStructChoice(choice, schematypeName, defaultName);
+            choicemem.setAnonschematype(true);
+            corbaStruct.getMember().add(choicemem);                                
+        } else if (extype instanceof  XmlSchemaSequence) {
+            XmlSchemaSequence seq = (XmlSchemaSequence)extype;
+            corbaStruct = processComplexContentStructSequence(corbaStruct, seq, defaultName, schematypeName);
+        } else if (extype instanceof  XmlSchemaAll) {
+            XmlSchemaAll all = (XmlSchemaAll)extype;
+            corbaStruct = processComplexContentStructSchemaAll(corbaStruct, all, 
+                                                         defaultName, schematypeName);
+        }
         return corbaStruct;
     }
+    
+    private Struct processComplexContentStructSequence(Struct corbaStruct, XmlSchemaSequence seq, 
+                                                 QName defaultName, QName schematypeName) 
+        throws Exception {
+        
+        CorbaTypeImpl seqtype = 
+            processSequenceType(seq, defaultName, schematypeName);                               
+
+        if  (seqtype != null) {                    
+            MemberType seqmem = new MemberType();
+            seqmem.setName(seqtype.getQName().getLocalPart() + "_f");
+            QName type = createQNameCorbaNamespace(seqtype.getQName().getLocalPart());
+            seqmem.setIdltype(type);
+            seqmem.setAnonschematype(true);
+            if (seqtype.isSetQualified() && seqtype.isQualified()) {
+                seqmem.setQualified(true);
+            }
+            corbaStruct.getMember().add(seqmem);
+            if (!isDuplicate(seqtype)) {
+                typeMappingType.getStructOrExceptionOrUnion().add(seqtype);
+            }
+        } else {                    
+            LOG.log(Level.WARNING, "Couldnt map Sequence inside extension");
+        }
+                                                     
+        return corbaStruct;
+    }
+    
+    private Struct processComplexContentStructSchemaAll(Struct corbaStruct, XmlSchemaAll all, 
+                                                  QName defaultName, QName schematypeName) 
+        throws Exception {
+        
+        CorbaTypeImpl alltype = processAllType(all, defaultName, schematypeName);
+        if (alltype != null) {
+            MemberType allmem = new MemberType();
+            allmem.setName(alltype.getQName().getLocalPart() + "_f");
+            allmem.setIdltype(alltype.getQName());
+            allmem.setAnonschematype(true);
+            if (alltype.isSetQualified() && alltype.isQualified()) {
+                allmem.setQualified(true);
+            }
+            corbaStruct.getMember().add(allmem);
+            if (!isDuplicate(alltype)) {
+                typeMappingType.getStructOrExceptionOrUnion().add(alltype);
+            }
+        } else {
+            LOG.log(Level.WARNING, "Couldnt map All inside extension");
+        }
+        
+        return corbaStruct;
+    }
+            
     
     protected MemberType processComplexContentStructChoice(XmlSchemaChoice choice, 
                                                      QName schematypeName, QName defaultName) 
@@ -1381,10 +1470,14 @@ public class WSDLToCorbaHelper {
     protected Union createUnion(QName name, XmlSchemaChoice choice, QName defaultName,
                                 QName schematypeName)
         throws Exception {
-        Union corbaUnion = (Union)recursionMap.get(name);
-        if (corbaUnion != null) {
-            return corbaUnion;
-        }
+            
+        Union corbaUnion = null;
+        if (recursionMap.get(name) instanceof Union) {
+            corbaUnion = (Union)recursionMap.get(name);
+            if (corbaUnion != null) {
+                return corbaUnion;
+            }
+        } 
 
         corbaUnion = new Union();
         corbaUnion.setName(name.getLocalPart());
@@ -1411,6 +1504,9 @@ public class WSDLToCorbaHelper {
         corbaUnion = WSDLTypes.processUnionBranches(corbaUnion, fields, caselist);
 
         recursionMap.remove(name);
+        if (!isDuplicate(corbaUnion)) {
+            typeMappingType.getStructOrExceptionOrUnion().add(corbaUnion);
+        }
         return corbaUnion;
     }
                        
@@ -1542,15 +1638,16 @@ public class WSDLToCorbaHelper {
         return qualified;
     }
 
-    private boolean getAttributeQualification(XmlSchemaAttribute attr) {
+    private boolean getAttributeQualification(XmlSchemaAttribute attr, String uri) {
         QName schemaName = attr.getQName();
         /*
         // workaround for now - sent bug to WSCommons - the attribute
-        // QName should have its namespace included.
+        // QName should have its namespace included. */
+                
         if (schemaName.getNamespaceURI().equals("")) {
             schemaName = new QName(uri, schemaName.getLocalPart());                
         }
-        */
+        
         boolean qualified = false;
         if (attr.getForm().getValue().equals(XmlSchemaForm.QUALIFIED)) {
             qualified = true;

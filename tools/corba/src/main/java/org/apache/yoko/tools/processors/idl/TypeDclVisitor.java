@@ -15,19 +15,23 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
-*/
+ */
 
 package org.apache.yoko.tools.processors.idl;
 
+import javax.wsdl.Definition;
 import antlr.collections.AST;
+import org.apache.ws.commons.schema.XmlSchema;
 
 public class TypeDclVisitor extends VisitorBase {
     
     public TypeDclVisitor(Scope scope,
+                          Definition defn,
+                          XmlSchema schemaRef,
                           WSDLASTVisitor wsdlVisitor) {
-        super(scope, wsdlVisitor);
+        super(scope, defn, schemaRef, wsdlVisitor);
     }
-    
+
     public static boolean accept(AST node) {
         boolean result =
             TypedefVisitor.accept(node)
@@ -49,16 +53,16 @@ public class TypeDclVisitor extends VisitorBase {
         
         if (TypedefVisitor.accept(node)) {
             // "typedef" <type_declarator>
-            visitor = new TypedefVisitor(getScope(), wsdlVisitor);
+            visitor = new TypedefVisitor(getScope(), definition, schema, wsdlVisitor);
         } else if (StructVisitor.accept(node)) {
             // <struct_type>
-            visitor = new StructVisitor(getScope(), wsdlVisitor);
+            visitor = new StructVisitor(getScope(), definition, schema, wsdlVisitor);
         } else if (UnionVisitor.accept(node)) {
             // <union_type>
-            visitor = new UnionVisitor(getScope(), wsdlVisitor);
+            visitor = new UnionVisitor(getScope(), definition, schema, wsdlVisitor);
         } else if (EnumVisitor.accept(node)) {
             // <enum_type>
-            visitor = new EnumVisitor(getScope(), wsdlVisitor);
+            visitor = new EnumVisitor(getScope(), definition, schema, wsdlVisitor);
         } else if (node.getType() == IDLTokenTypes.LITERAL_native) {
             // "native" <simple_declarator>
             //

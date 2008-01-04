@@ -15,7 +15,7 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
-*/
+ */
 
 package org.apache.yoko.tools.processors.idl;
 
@@ -42,6 +42,7 @@ import org.apache.schemas.yoko.bindings.corba.ModeType;
 import org.apache.schemas.yoko.bindings.corba.OperationType;
 import org.apache.schemas.yoko.bindings.corba.ParamType;
 
+import org.apache.ws.commons.schema.XmlSchema;
 import org.apache.ws.commons.schema.XmlSchemaComplexType;
 import org.apache.ws.commons.schema.XmlSchemaElement;
 import org.apache.ws.commons.schema.XmlSchemaSequence;
@@ -61,17 +62,17 @@ public class AttributeVisitor extends VisitorBase {
     private static final String PARAM_NAME        = "_arg";
     private static final String RETURN_PARAM_NAME = "return";
     
-    private Definition          definition;
     private ExtensionRegistry   extReg;
     private PortType            portType;
     private Binding             binding;
     
     public AttributeVisitor(Scope scope,
+                            Definition defn,
+                            XmlSchema schemaRef,
                             WSDLASTVisitor wsdlVisitor,
                             PortType wsdlPortType,
                             Binding wsdlBinding) {
-        super(scope, wsdlVisitor);
-        definition = wsdlVisitor.getDefinition();
+        super(scope, defn, schemaRef, wsdlVisitor);
         extReg = definition.getExtensionRegistry();
         portType = wsdlPortType;
         binding = wsdlBinding;
@@ -146,7 +147,7 @@ public class AttributeVisitor extends VisitorBase {
         OperationType corbaOp = generateCorbaOperation(op, null, corbaReturn);
         
         // generate binding
-        BindingOperation corbaBindingOp = generateCorbaBindingOperation(binding, op, corbaOp);
+        generateCorbaBindingOperation(binding, op, corbaOp);
     }
 
     private void generateSetter(AST typeNode, AST nameNode) {
@@ -180,7 +181,7 @@ public class AttributeVisitor extends VisitorBase {
         OperationType corbaOp = generateCorbaOperation(op, corbaParam, null);
         
         // generate binding
-        BindingOperation corbaBindingOp = generateCorbaBindingOperation(binding, op, corbaOp);
+        generateCorbaBindingOperation(binding, op, corbaOp);
     }
     
     /** Generate a wrapped doc style XmlSchemaElement containing one element.
@@ -213,7 +214,9 @@ public class AttributeVisitor extends VisitorBase {
                                                        String paramName) {
         XmlSchemaElement element = new XmlSchemaElement();
         if (typeNode != null) {
-            ParamTypeSpecVisitor visitor = new ParamTypeSpecVisitor(getScope(), 
+            ParamTypeSpecVisitor visitor = new ParamTypeSpecVisitor(getScope(),
+                                                                    definition,
+                                                                    schema,
                                                                     wsdlVisitor);
             visitor.visit(typeNode);
             XmlSchemaType stype = visitor.getSchemaType();
@@ -226,7 +229,7 @@ public class AttributeVisitor extends VisitorBase {
                 }
             } else {
                 wsdlVisitor.getDeferredActions().
-                    add(new AttributeDeferredAction(element, fqName)); 
+                    add(fqName, new AttributeDeferredAction(element)); 
             }
             
             element.setName(paramName);
@@ -290,7 +293,9 @@ public class AttributeVisitor extends VisitorBase {
         ArgType param = new ArgType();
         param.setName(RETURN_PARAM_NAME);
 
-        ParamTypeSpecVisitor visitor = new ParamTypeSpecVisitor(getScope(), 
+        ParamTypeSpecVisitor visitor = new ParamTypeSpecVisitor(getScope(),
+                                                                definition,
+                                                                schema,
                                                                 wsdlVisitor);
         visitor.visit(type);
         CorbaTypeImpl corbaType = visitor.getCorbaType();
@@ -299,7 +304,7 @@ public class AttributeVisitor extends VisitorBase {
             param.setIdltype(corbaType.getQName());
         } else {
             wsdlVisitor.getDeferredActions().
-                add(new AttributeDeferredAction(param, visitor.getFullyQualifiedName())); 
+                add(visitor.getFullyQualifiedName(), new AttributeDeferredAction(param));
         }
         
         return param;
@@ -310,7 +315,9 @@ public class AttributeVisitor extends VisitorBase {
         param.setName(PARAM_NAME);
         param.setMode(ModeType.IN);
         
-        ParamTypeSpecVisitor visitor = new ParamTypeSpecVisitor(getScope(), 
+        ParamTypeSpecVisitor visitor = new ParamTypeSpecVisitor(getScope(),
+                                                                definition,
+                                                                schema,
                                                                 wsdlVisitor);
         visitor.visit(type);
         CorbaTypeImpl corbaType = visitor.getCorbaType();
@@ -318,7 +325,7 @@ public class AttributeVisitor extends VisitorBase {
             param.setIdltype(corbaType.getQName());
         } else {
             wsdlVisitor.getDeferredActions().
-                add(new AttributeDeferredAction(param, visitor.getFullyQualifiedName()));
+                add(visitor.getFullyQualifiedName(), new AttributeDeferredAction(param));
         }
 
         return param;

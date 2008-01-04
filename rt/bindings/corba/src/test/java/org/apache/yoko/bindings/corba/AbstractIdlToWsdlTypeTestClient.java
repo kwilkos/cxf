@@ -26,17 +26,21 @@ import javax.xml.ws.Holder;
 import junit.framework.TestCase;
 
 import org.apache.schemas.yoko.idl.idltowsdl_type_test.IdltowsdlTypeTest;
+import org.apache.schemas.yoko.idl.idltowsdl_type_test.IdltowsdlTypeTestBuildingAddress6T;
+import org.apache.schemas.yoko.idl.idltowsdl_type_test.IdltowsdlTypeTestBuildingT;
 import org.apache.schemas.yoko.idl.idltowsdl_type_test.IdltowsdlTypeTestEnum1;
 import org.apache.schemas.yoko.idl.idltowsdl_type_test.IdltowsdlTypeTestEnumSet;
+import org.apache.schemas.yoko.idl.idltowsdl_type_test.IdltowsdlTypeTestOctetTwo;
 import org.apache.schemas.yoko.idl.idltowsdl_type_test.IdltowsdlTypeTestRecursiveStruct;
-import org.apache.schemas.yoko.idl.idltowsdl_type_test.IdltowsdlTypeTest1RecursiveStruct;
+import org.apache.schemas.yoko.idl.idltowsdl_type_test.IdltowsdlTypeTestAnon1RecursiveStruct;
 import org.apache.schemas.yoko.idl.idltowsdl_type_test.IdltowsdlTypeTestRecursiveUnion;
-import org.apache.schemas.yoko.idl.idltowsdl_type_test.IdltowsdlTypeTest1RecursiveUnion;
+import org.apache.schemas.yoko.idl.idltowsdl_type_test.IdltowsdlTypeTestAnon1RecursiveUnion;
 import org.apache.schemas.yoko.idl.idltowsdl_type_test.IdltowsdlTypeTestSeqLong;
 import org.apache.schemas.yoko.idl.idltowsdl_type_test.IdltowsdlTypeTestStringSet;
 import org.apache.schemas.yoko.idl.idltowsdl_type_test.IdltowsdlTypeTestStruct1;
 import org.apache.schemas.yoko.idl.idltowsdl_type_test.IdltowsdlTypeTestStruct2;
 import org.apache.schemas.yoko.idl.idltowsdl_type_test.IdltowsdlTypeTestStructSet;
+import org.apache.schemas.yoko.idl.idltowsdl_type_test.IdltowsdlTypeTestStructWithSeq;
 import org.apache.schemas.yoko.idl.idltowsdl_type_test.IdltowsdlTypeTestUnion1;
 import org.apache.schemas.yoko.idl.idltowsdl_type_test.IdltowsdlTypeTestUnion2;
 import org.apache.schemas.yoko.idl.idltowsdl_type_test.IdltowsdlTypeTestUnionSet;
@@ -50,14 +54,14 @@ public abstract class AbstractIdlToWsdlTypeTestClient extends TestCase {
     AbstractIdlToWsdlTypeTestClient(String name) {
         super(name);
     }
-    
+
     public void testGreetMe() {
         String name = new String("Partner");
         String ret = client.greetMe(name);
         String expected = "Hallo there " + name;
         assertTrue(ret.equals(expected));
     }
-    
+
     ////
     // base_type
     public void testAlias() throws Exception {
@@ -944,31 +948,31 @@ public abstract class AbstractIdlToWsdlTypeTestClient extends TestCase {
         // Recursive struct with no children
         IdltowsdlTypeTestRecursiveStruct rStructNoChild1 = new IdltowsdlTypeTestRecursiveStruct();
         rStructNoChild1.setName("RecursiveStruct1");
-        rStructNoChild1.setChildren(new IdltowsdlTypeTest1RecursiveStruct());
+        rStructNoChild1.setChildren(new IdltowsdlTypeTestAnon1RecursiveStruct());
 
         // Recursive struct with no children
         IdltowsdlTypeTestRecursiveStruct rStructNoChild2 = new IdltowsdlTypeTestRecursiveStruct();
         rStructNoChild2.setName("RecursiveStruct2");
-        rStructNoChild2.setChildren(new IdltowsdlTypeTest1RecursiveStruct());
+        rStructNoChild2.setChildren(new IdltowsdlTypeTestAnon1RecursiveStruct());
 
         // Recursive struct with no children
         IdltowsdlTypeTestRecursiveStruct rStructNoChild3 = new IdltowsdlTypeTestRecursiveStruct();
         rStructNoChild3.setName("RecursiveStruct3");
-        rStructNoChild3.setChildren(new IdltowsdlTypeTest1RecursiveStruct());
+        rStructNoChild3.setChildren(new IdltowsdlTypeTestAnon1RecursiveStruct());
 
         // Recursive struct with a single recursive child
         IdltowsdlTypeTestRecursiveStruct rStructSingleChild = new IdltowsdlTypeTestRecursiveStruct();
         rStructSingleChild.setName("RecursiveStructSingleChild");
-        IdltowsdlTypeTest1RecursiveStruct rStructSingleChildChildren = 
-            new IdltowsdlTypeTest1RecursiveStruct();
+        IdltowsdlTypeTestAnon1RecursiveStruct rStructSingleChildChildren = 
+            new IdltowsdlTypeTestAnon1RecursiveStruct();
         rStructSingleChildChildren.getItem().add(rStructNoChild1);
         rStructSingleChild.setChildren(rStructSingleChildChildren);
 
         // Recursive struct with two recursive children
         IdltowsdlTypeTestRecursiveStruct rStructDoubleChild = new IdltowsdlTypeTestRecursiveStruct();
         rStructDoubleChild.setName("RecursiveStructDoubleChild");
-        IdltowsdlTypeTest1RecursiveStruct rStructDoubleChildChildren = 
-            new IdltowsdlTypeTest1RecursiveStruct();
+        IdltowsdlTypeTestAnon1RecursiveStruct rStructDoubleChildChildren = 
+            new IdltowsdlTypeTestAnon1RecursiveStruct();
         rStructDoubleChildChildren.getItem().add(rStructNoChild2);
         rStructDoubleChildChildren.getItem().add(rStructNoChild3);
         rStructDoubleChild.setChildren(rStructDoubleChildChildren);
@@ -976,8 +980,8 @@ public abstract class AbstractIdlToWsdlTypeTestClient extends TestCase {
         // Recursive struct with a child which contains a reference to a recursive child
         IdltowsdlTypeTestRecursiveStruct rStructNestedChildren = new IdltowsdlTypeTestRecursiveStruct();
         rStructNestedChildren.setName("RecursiveStructNestedChildren");
-        IdltowsdlTypeTest1RecursiveStruct rStructNestedChildrenChildren =
-                        new IdltowsdlTypeTest1RecursiveStruct();
+        IdltowsdlTypeTestAnon1RecursiveStruct rStructNestedChildrenChildren =
+                        new IdltowsdlTypeTestAnon1RecursiveStruct();
         rStructNestedChildrenChildren.getItem().add(rStructSingleChild);
         rStructNestedChildren.setChildren(rStructNestedChildrenChildren);
 
@@ -1040,14 +1044,14 @@ public abstract class AbstractIdlToWsdlTypeTestClient extends TestCase {
 
         // Union, two recursive children, case 2 set
         IdltowsdlTypeTestRecursiveUnion rUnion3 = new IdltowsdlTypeTestRecursiveUnion();
-        IdltowsdlTypeTest1RecursiveUnion ru3Children = new IdltowsdlTypeTest1RecursiveUnion();
+        IdltowsdlTypeTestAnon1RecursiveUnion ru3Children = new IdltowsdlTypeTestAnon1RecursiveUnion();
         ru3Children.getItem().add(rUnion1);
         ru3Children.getItem().add(rUnion2);
         rUnion3.setCase2(ru3Children);
 
         // Union, one recursive child with two nested recursive children, case 2 set
         IdltowsdlTypeTestRecursiveUnion rUnion4 = new IdltowsdlTypeTestRecursiveUnion();
-        IdltowsdlTypeTest1RecursiveUnion ru4Children = new IdltowsdlTypeTest1RecursiveUnion();
+        IdltowsdlTypeTestAnon1RecursiveUnion ru4Children = new IdltowsdlTypeTestAnon1RecursiveUnion();
         ru4Children.getItem().add(rUnion3);
         rUnion4.setCase2(ru4Children);
 
@@ -1076,5 +1080,133 @@ public abstract class AbstractIdlToWsdlTypeTestClient extends TestCase {
             assertTrue("testRecursiveUnion(): Incorrect return value", 
                         compareRecursiveUnions(in, ret));
         }                
+    }
+
+
+    public void testStructWithArray() throws Exception {
+    	IdltowsdlTypeTestBuildingT in = new IdltowsdlTypeTestBuildingT();
+        
+        // octet array
+        IdltowsdlTypeTestOctetTwo contents = new IdltowsdlTypeTestOctetTwo();
+        contents.getItem().add(Short.valueOf(Integer.toString(3)));
+        contents.getItem().add(Short.valueOf(Integer.toString(3)));
+        in.setContents(contents);
+        
+        // bounded octed seq
+        byte[] bytes = new byte[5];
+        for (int i=0; i<5; i++) {
+            bytes[i] = Byte.valueOf(Integer.toString(i));
+        }
+        in.setBoundedOctetSeq(bytes);
+        
+        // array of strings
+    	in.setBldAddr(new IdltowsdlTypeTestBuildingAddress6T());
+    	for (int i=0; i<6; i++) {
+    		in.getBldAddr().getItem().add(String.valueOf(i));
+    	}
+        
+    	IdltowsdlTypeTestBuildingT inOutOrig = new IdltowsdlTypeTestBuildingT();
+        inOutOrig.setBoundedOctetSeq(bytes);
+        inOutOrig.setContents(contents);
+    	inOutOrig.setBldAddr(new IdltowsdlTypeTestBuildingAddress6T());
+    	for (int i=6; i<12; i++) {
+    		inOutOrig.getBldAddr().getItem().add(String.valueOf(i));
+    	}    	
+    	
+        Holder<IdltowsdlTypeTestBuildingT> inout = 
+            new Holder<IdltowsdlTypeTestBuildingT>(inOutOrig);
+        Holder<IdltowsdlTypeTestBuildingT> out =
+            new Holder<IdltowsdlTypeTestBuildingT>();
+    	IdltowsdlTypeTestBuildingT ret = client.testStructWithArray(in, inout, out);
+    	
+        assertTrue("testRecursiveUnion(): Incorrect value for out param", 
+                inOutOrig.getBldAddr().getItem().get(2).equals(
+                		out.value.getBldAddr().getItem().get(2)));
+        assertTrue("testRecursiveUnion(): Incorrect value for inout param", 
+                in.getBldAddr().getItem().get(2).equals(
+                		inout.value.getBldAddr().getItem().get(2)));
+        assertTrue("testRecursiveUnion(): Incorrect return value", 
+        		in.getBldAddr().getItem().get(2).equals(
+                		ret.getBldAddr().getItem().get(2)));
+
+    }    
+
+    public void testStructWithSeq() throws Exception {
+        IdltowsdlTypeTestStructWithSeq in = new IdltowsdlTypeTestStructWithSeq();
+        IdltowsdlTypeTestStringSet value = new IdltowsdlTypeTestStringSet();
+        in.setStrings(value); // empty sequence
+        Holder<IdltowsdlTypeTestStructWithSeq> inout = 
+            new Holder<IdltowsdlTypeTestStructWithSeq>(in);
+        Holder<IdltowsdlTypeTestStructWithSeq> out =
+            new Holder<IdltowsdlTypeTestStructWithSeq>();
+        IdltowsdlTypeTestStructWithSeq ret = client.testStructWithSeq(in, inout, out);
+        assert(ret.getStrings().getItem().isEmpty());
+    }
+    
+    private boolean areEqual(byte[] left, byte[] right) {
+        boolean result = true;
+        if (left.length != right.length) {
+            result = false;
+        } else {
+            int i = 0;
+            while (result == true && i < left.length) {
+                //System.out.println("Comparing " + left[i] + " with " + right[i]);
+                if (left[i] != right[i]) {
+                    result = false;
+                }
+                i++;
+            }
+        }
+        return result;
+    }
+    
+    public void testBoundedOctetSequence() throws Exception {
+        byte[] valueSets[][] = {
+                                {{}, {}},
+                                {{0}, {1}},
+                                {{0, 2}, {1, 3}},
+                                {{0, 2, 4}, {1, 3, 5}},
+                                {{0, 2, 4, 6}, {1, 3, 5, 7}},
+                                {{0, 2, 4, 6, 8}, {1, 3, 5, 7, 9}}
+        };
+
+        for (int i = 0; i < valueSets.length; i++) {
+
+            byte[] in = valueSets[i][0];
+            Holder<byte[]> inoutOrig = new Holder<byte[]>(valueSets[i][1]);
+            Holder<byte[]> inout = new Holder<byte[]>(valueSets[i][1]);
+            Holder<byte[]> out = new Holder<byte[]>();
+
+            byte[] ret = client.testBoundedOctetSequence(in, inout, out);
+
+            assertTrue("testBoundedOctetSequence(): Incorrect value for out param", areEqual(inoutOrig.value, out.value));
+            assertTrue("testBoundedOctetSequence(): Incorrect value for inout param", areEqual(in, inout.value));
+            assertTrue("testBoundedOctetSequence(): Incorrect return value", areEqual(in, ret));
+        }
+        
+        // TODO:following block should be commented out after proper exception
+        //      is thrown when attempting to send out of bounds byte[]
+        /*
+	{        
+            byte[] a = new byte[]{1, 3, 5, 7, 9, 11, 13};
+            byte[] b = new byte[]{0, 2, 4, 6, 8, 10, 12};
+
+            byte[] in = a;
+            Holder<byte[]> inoutOrig = new Holder<byte[]>(b);
+            Holder<byte[]> inout = new Holder<byte[]>(b);
+            Holder<byte[]> out = new Holder<byte[]>();
+            try {
+                byte[] ret = client.testBoundedOctetSequence(in, inout, out);
+                assertTrue("testBoundedOctetSequence(): Incorrect value for out param", areEqual(inoutOrig.value, out.value));
+                assertTrue("testBoundedOctetSequence(): Incorrect value for inout param", areEqual(in, inout.value));
+                assertTrue("testBoundedOctetSequence(): Incorrect return value", areEqual(in, ret));
+                
+                fail("Expected out of bounds exception has not been thrown!");
+            } catch (Exception ex) {
+                // TODO: change exception in catch clause to expected type 
+                // ok, caught expected exception
+            }
+        }
+	*/
     }
 }

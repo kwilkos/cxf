@@ -15,20 +15,24 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
-*/
+ */
 
 package org.apache.yoko.tools.processors.idl;
 
+import javax.wsdl.Definition;
 import antlr.collections.AST;
+import org.apache.ws.commons.schema.XmlSchema;
 
 public class TemplateTypeSpecVisitor extends VisitorBase {
     
     private AST identifierNode;
     
     public TemplateTypeSpecVisitor(Scope scope,
+                                   Definition defn,
+                                   XmlSchema schemaRef,
                                    WSDLASTVisitor wsdlVisitor,
                                    AST identifierNodeRef) {
-        super(scope, wsdlVisitor);
+        super(scope, defn, schemaRef, wsdlVisitor);
         identifierNode = identifierNodeRef;
     }
 
@@ -51,14 +55,14 @@ public class TemplateTypeSpecVisitor extends VisitorBase {
         
         if (SequenceVisitor.accept(node)) {
             // <sequence_type>
-            visitor = new SequenceVisitor(getScope(), wsdlVisitor, identifierNode);
+            visitor = new SequenceVisitor(getScope(), definition, schema, wsdlVisitor, identifierNode);
         } else if (StringVisitor.accept(node)) {
             // <string_type>
             // <wstring_type>
-            visitor = new StringVisitor(getScope(), wsdlVisitor, identifierNode);
+            visitor = new StringVisitor(getScope(), definition, schema, wsdlVisitor, identifierNode);
         } else if (FixedVisitor.accept(node)) {
             // <fixed_pt_type>
-            visitor = new FixedVisitor(getScope(), wsdlVisitor, identifierNode);
+            visitor = new FixedVisitor(getScope(), definition, schema, wsdlVisitor, identifierNode);
         }
 
         visitor.visit(node);

@@ -1,18 +1,18 @@
 /**
  * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
+ * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
+ * regarding copyright ownership. The ASF licenses this file
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * with the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
+ * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
  */
@@ -32,6 +32,7 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.EndpointImpl;
+import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.ExchangeImpl;
 import org.apache.cxf.message.Message;
@@ -90,7 +91,7 @@ public class CorbaConduitTest extends TestCase {
     public void setUp() throws Exception {
         control = EasyMock.createNiceControl();
      
-        bus = BusFactory.newInstance().getDefaultBus(); 
+        bus = BusFactory.getDefaultBus(); 
      
         java.util.Properties props = System.getProperties();
         props.put("org.omg.CORBA.ORBClass", "org.apache.yoko.orb.CORBA.ORB");
@@ -203,8 +204,7 @@ public class CorbaConduitTest extends TestCase {
         OperationType opType = control.createMock(OperationType.class);
         CorbaTypeMap typeMap = control.createMock(CorbaTypeMap.class);
         
-        Map<TypeCode, RaisesType> exceptions = control.createMock(HashMap.class);
-        List<RaisesType> exlist = control.createMock(ArrayList.class);                
+        List<RaisesType> exlist = CastUtils.cast(control.createMock(ArrayList.class));                
         opType.getRaises();
         EasyMock.expectLastCall().andReturn(exlist);
         int i = 0;
@@ -225,7 +225,7 @@ public class CorbaConduitTest extends TestCase {
         EasyMock.expectLastCall().andReturn(exchange);        
         ServiceInfo service = control.createMock(ServiceInfo.class);
         EasyMock.expect(exchange.get(ServiceInfo.class)).andReturn(service);
-        List<CorbaTypeMap> list = control.createMock(List.class);
+        List<CorbaTypeMap> list = CastUtils.cast(control.createMock(List.class));
         CorbaTypeMap typeMap = control.createMock(CorbaTypeMap.class);
         EasyMock.expect(service.getExtensors(CorbaTypeMap.class)).andReturn(list);                
         
@@ -323,7 +323,7 @@ public class CorbaConduitTest extends TestCase {
                                                         message,
                                                         opType);
         
-        assertNotNull("ExcepitonList is not null", exList != null);
+        assertNotNull("ExceptionList is not null", exList != null);
         assertNotNull("TypeCode is not null", exList.item(0) != null);
         assertEquals("ID should be equal", exList.item(0).id(), "IDL:BadRecord:1.0");
         assertEquals("ID should be equal", exList.item(0).name(), "BadRecord");
@@ -334,7 +334,6 @@ public class CorbaConduitTest extends TestCase {
             
     public void testInvoke() throws Exception {
         CorbaConduit conduit = setupCorbaConduit(false);
-        Message msg = new MessageImpl();
         //CorbaMessage message = new CorbaMessage(msg);
         CorbaMessage message= control.createMock(CorbaMessage.class);
         /*String opName = "GreetMe";

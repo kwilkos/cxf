@@ -1,18 +1,18 @@
 /**
  * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
+ * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
+ * regarding copyright ownership. The ASF licenses this file
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * with the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
+ * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
  */
@@ -32,6 +32,7 @@ import javax.xml.ws.Endpoint;
 import javax.xml.ws.Service;
 
 import org.apache.cxf.jaxb.JAXBUtils;
+import org.apache.cxf.jaxws.EndpointImpl;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
 import org.apache.cxf.wsdl.EndpointReferenceUtils;
 import org.apache.cxf.wsdl.WSDLManager;
@@ -43,6 +44,7 @@ import org.apache.schemas.yoko.idl.nestedobjref.FooFactory;
 import org.apache.schemas.yoko.idl.nestedobjref.FooFactoryCORBAService;
 import org.apache.schemas.yoko.idl.nestedobjref.FooRefStruct;
 import org.apache.schemas.yoko.idl.nestedobjref.FooRefUnion;
+import org.apache.yoko.bindings.corba.CorbaObjectReferenceTest.TestObjectImpl;
 
 import junit.framework.TestCase;
 
@@ -178,6 +180,25 @@ public class CorbaNestedObjReferenceTest extends TestCase {
         String portName = EndpointReferenceUtils.getPortName(epr);
         assertTrue(portName.equals(OBJECT_PORT_NAME.getLocalPart()));
     }
+    
+    public void testInferredObjectReturn() {
+        
+        EndpointReferenceType ref = client.testInferredObjectReturn();
+
+        assertNotNull(ref.getAddress().getValue());
+
+        QName interfaceName = EndpointReferenceUtils.getInterfaceName(ref);
+        assertNotNull(interfaceName);
+
+        String wsdlLocation = EndpointReferenceUtils.getWSDLLocation(ref);
+        assertNotNull(wsdlLocation);
+
+        QName serviceName = EndpointReferenceUtils.getServiceName(ref);
+        assertNotNull(serviceName);
+
+        String portName = EndpointReferenceUtils.getPortName(ref);
+        assertNotNull(portName);
+    }
 
     // Helper methods that can be used throughout the test
     public EndpointReferenceType createEndpointReferenceType(String name, boolean serverSide) {
@@ -203,11 +224,20 @@ public class CorbaNestedObjReferenceTest extends TestCase {
                                                         OBJECT_SERVICE_NAME,
                                                         OBJECT_PORT_NAME.getLocalPart());
         EndpointReferenceUtils.setInterfaceName(ref, OBJECT_PORT_TYPE);
+                
         EndpointReferenceUtils.setAddress(ref, corbaAddress);
 
         return ref;
+    }   
+    
+    
+    private String resolveAddressFromEndpoint(String corbaAddress, Endpoint ep) {
+        String addr = corbaAddress;
+        EndpointImpl epImpl = (EndpointImpl)ep;
+        addr = epImpl.getServer().getDestination().getAddress().getAddress().getValue();
+        return addr;
     }
-
+    
     public Foo createObjectFromEndpointReferenceType(EndpointReferenceType epr) throws Exception {
             WSDLManager manager = null;
             manager = new WSDLManagerImpl();
@@ -289,6 +319,16 @@ public class CorbaNestedObjReferenceTest extends TestCase {
             ref.setU12(epr);
             return ref;
         }
+        
+        public  EndpointReferenceType createFoo() {            
+            return createEndpointReferenceType("FooRef", true);
+            
+        }
+        
+        
+        public EndpointReferenceType testInferredObjectReturn() {
+            return createEndpointReferenceType("InferredObjectReturn", true);
+         }
     }
     
     // A minimal Foo implementation to test object references

@@ -15,7 +15,7 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
-*/
+ */
 
 package org.apache.yoko.tools.processors.idl;
 
@@ -24,7 +24,7 @@ import java.util.Map;
 
 public final class ScopeNameCollection  {
     
-    Map scopedNames = new HashMap();
+    Map<String, Scope> scopedNames = new HashMap<String, Scope>();
     
     public void add(Scope scope) {
         scopedNames.put(scope.toString(), scope);

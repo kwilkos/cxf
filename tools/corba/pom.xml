@@ -19,14 +19,18 @@
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>yoko-tools</artifactId>
+    <groupId>org.apache.cxf</groupId>
+    <artifactId>cxf-tools-corba</artifactId>
     <packaging>jar</packaging>
-    <name>Apache Yoko Command Line Tools</name>
+    <version>2.1-incubator-SNAPSHOT</version>
+    <name>Apache CXF CORBA Command Line Tools</name>
+    <url>http://cwiki.apache.org/CXF</url>
 
     <parent>
-        <groupId>org.apache.yoko</groupId>
-        <artifactId>yoko</artifactId>
-        <version>1.0-incubating-SNAPSHOT</version>
+        <groupId>org.apache.cxf</groupId>
+        <artifactId>cxf-parent</artifactId>
+        <version>2.1-incubator-SNAPSHOT</version>
+        <relativePath>../../parent/pom.xml</relativePath>
     </parent>
 
     <dependencies>
@@ -38,42 +42,45 @@
         <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-api</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-tools-common</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-tools-validator</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.yoko</groupId>
-            <artifactId>yoko-api</artifactId>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-bindings-corba</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>antlr</groupId>
             <artifactId>antlr</artifactId>
+            <version>2.7.5</version>
         </dependency>
         <dependency>
             <groupId>org.apache.ws.commons.schema</groupId>
             <artifactId>XmlSchema</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.codehaus.woodstox</groupId> 
-            <artifactId>wstx-asl</artifactId> 
-            <version>${stax.version}</version> 
+            <groupId>org.codehaus.woodstox</groupId>
+            <artifactId>wstx-asl</artifactId>
         </dependency>
         <dependency>
             <groupId>wsdl4j</groupId>
             <artifactId>wsdl4j</artifactId>
-            <version>1.6.1</version>
         </dependency>
     </dependencies>
 
 
     <build>
-       <plugins>
+        <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antlr-plugin</artifactId>
@@ -92,60 +99,7 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-checkstyle-plugin</artifactId>
-           </plugin>
-       </plugins>
-     </build>
-
-     <profiles>
-       <profile>
-         <!-- NOTE I: This will not be activated on OS X, since
-          classes.jar already has the tools in it. 
-          NOTE II: This will probably break on the IBM JDK.
-     -->
-         <id>default-tools.jar</id>
-         <activation>
-       <property>
-             <name>java.vendor</name>
-             <value>Sun Microsystems Inc.</value>
-           </property>
-         </activation>
-         <dependencies>
-         <dependency>
-           <groupId>sun.jdk</groupId>
-           <artifactId>tools</artifactId>
-           <version>1.5.0</version>
-           <scope>system</scope>
-           <systemPath>${java.home}/../lib/tools.jar</systemPath>
-           </dependency>
-         </dependencies>
-       </profile>
-     </profiles>
-    
-   <reporting> 
-    <plugins>
-      <plugin>
-        <artifactId>maven-checkstyle-plugin</artifactId>
-      </plugin>
-      <plugin>
-        <artifactId>maven-clover-plugin</artifactId>
-      </plugin>
-      <plugin>
-        <artifactId>maven-pmd-plugin</artifactId>
-      </plugin>
-      <plugin>
-        <artifactId>maven-project-info-reports-plugin</artifactId>
-      </plugin>
-    </plugins>
-  </reporting>
-
-  <scm>
-    <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/yoko/trunk/tools</connection>
-    <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/incubator/yoko/trunk/tools</developerConnection>
-    <url>http://svn.apache.org/viewvc/incubator/yoko/trunk/tools</url>
-  </scm>
-
+        </plugins>
+    </build>
 </project>
 

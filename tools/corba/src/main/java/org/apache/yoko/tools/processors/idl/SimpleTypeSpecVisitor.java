@@ -15,20 +15,24 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
-*/
+ */
 
 package org.apache.yoko.tools.processors.idl;
 
+import javax.wsdl.Definition;
 import antlr.collections.AST;
+import org.apache.ws.commons.schema.XmlSchema;
 
 public class SimpleTypeSpecVisitor extends VisitorBase {
 
     private AST identifierNode;
     
     public SimpleTypeSpecVisitor(Scope scope,
+                                 Definition defn,
+                                 XmlSchema schemaRef,
                                  WSDLASTVisitor wsdlVisitor,
                                  AST identifierNodeRef) {
-        super(scope, wsdlVisitor);
+        super(scope, defn, schemaRef, wsdlVisitor);
         identifierNode = identifierNodeRef;
     }
 
@@ -50,18 +54,20 @@ public class SimpleTypeSpecVisitor extends VisitorBase {
         
         if (PrimitiveTypesVisitor.accept(node)) {
             // simple_type_spec - base_type_spec
-            visitor = new PrimitiveTypesVisitor(getScope(), schemas);
+            visitor = new PrimitiveTypesVisitor(getScope(), definition, schema, schemas);
             
         } else if (TemplateTypeSpecVisitor.accept(node)) {
             // simple_type_spec - template_type_spec
-            visitor = new TemplateTypeSpecVisitor(getScope(), wsdlVisitor, identifierNode);
+            visitor = new TemplateTypeSpecVisitor(getScope(),
+                                                  definition,
+                                                  schema,
+                                                  wsdlVisitor,
+                                                  identifierNode);
 
-        } else if (ScopedNameVisitor.accept(getScope(), schemas, schema, 
-                                            typeMap, wsdlVisitor.getDefinition(),
-                                            node, wsdlVisitor)) {
+        } else if (ScopedNameVisitor.accept(getScope(), definition, schema, node, wsdlVisitor)) {
 
             // simple_type_spec - scoped_name
-            visitor = new ScopedNameVisitor(getScope(), wsdlVisitor);
+            visitor = new ScopedNameVisitor(getScope(), definition, schema, wsdlVisitor);
         
         }
         

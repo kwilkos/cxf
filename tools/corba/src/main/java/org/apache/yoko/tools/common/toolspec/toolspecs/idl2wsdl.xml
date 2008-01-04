@@ -22,9 +22,9 @@
 <!-- The xhtml namespace is for usage documentation -->
 <toolspec xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:xhtml="http://www.w3.org/TR/xhtml1/strict"
-    xsi:schemaLocation="http://www.xsume.com/Xutil/ToolSpecification http://www.xsume.com/schema/xutil/tool-specification.xsd"
-    xmlns="http://www.xsume.com/Xutil/ToolSpecification"
-    xmlns:ts="http://www.xsume.com/Xutil/ToolSpecification">
+    xsi:schemaLocation="http://cxf.apache.org/Xutil/ToolSpecification http://cxf.apache.org/schema/xutil/tool-specification.xsd"
+    xmlns="http://cxf.apache.org/Xutil/ToolSpecification"
+    xmlns:ts="http://cxf.apache.org/Xutil/ToolSpecification">
 
     <annotation> Examples :
         idltowsdl HelloWorld.idl
@@ -115,15 +115,6 @@
                 </associatedArgument>
             </option>
 
-
-            <!-- <option id="referenceimport" maxOccurs="1">
-                <annotation>Specify the pathname of the schema file imported to define the Reference type.</annotation>
-                <switch>r</switch>
-                <associatedArgument placement="afterSpace">
-                    <annotation>reference-schema-file</annotation>
-                </associatedArgument>
-            </option> -->
-
             <option id="logical" maxOccurs="1">
                 <annotation>Split the generated WSDL into two files.
                     The logical portion of the WSDL is generated into the specified file.
@@ -154,24 +145,10 @@
                 </associatedArgument>
             </option>
 
-            <!-- <option id="interface" maxOccurs="1">
-                <annotation>Specify the interface name within idl to use during fast track process.</annotation>
-                <switch>interface</switch>
-                <associatedArgument placement="afterSpace">
-                    <annotation>interface-name</annotation>
-                </associatedArgument>
-            </option> -->
-
-
             <option id="qualified" maxOccurs="1">
                 <annotation>Generate qualified wsdl contract</annotation>
                 <switch>qualified</switch>
             </option>
-
-            <!-- <option id="inline" maxOccurs="1">
-                <annotation>In-line imported schema</annotation>
-                <switch>inline</switch>
-            </option> -->
             
             <option id="encoding" maxOccurs="1">
                 <annotation>Use specified encoding as the value of the generated WSDL xml encoding attribute.
@@ -180,6 +157,36 @@
                 <associatedArgument placement="afterSpace">
                     <annotation>xml-encoding-type</annotation>
                 </associatedArgument>
+            </option>
+
+            <option id="moduletonamespace" maxOccurs="1">
+                <annotation>Map the IDL module to namespace</annotation>
+                <switch>mns</switch>
+                <associatedArgument placement="immediate">
+                    <annotation>Customize the mapping of idl modules</annotation>
+                </associatedArgument>
+            </option>
+
+            <option id="wsdloutputfile" maxOccurs="1">
+                <annotation>The wsdl output file name</annotation>
+                <switch>ow</switch>
+                <associatedArgument placement="afterSpace">
+                    <annotation>wsdloutput-file</annotation>
+                </associatedArgument>
+            </option>
+
+            <option id="excludemodules" maxOccurs="1">
+                <annotation>Exclude the idl modules from generation</annotation>
+                <switch>ex</switch>
+                <switch>exclude</switch>
+                <associatedArgument placement="immediate">
+                    <annotation>Specify the modules to exclude</annotation>
+                </associatedArgument>
+            </option>
+            
+            <option id="polymorphicfactories" maxOccurs="1">
+                <annotation>Support for polymorphic factories</annotation>
+                <switch>pf</switch>
             </option>
 
         </optionGroup>

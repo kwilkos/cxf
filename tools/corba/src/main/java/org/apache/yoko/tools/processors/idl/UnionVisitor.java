@@ -15,13 +15,14 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
-*/
+ */
 
 package org.apache.yoko.tools.processors.idl;
 
 import java.util.Iterator;
 import java.util.List;
 
+import javax.wsdl.Definition;
 import javax.xml.namespace.QName;
 
 import antlr.collections.AST;
@@ -30,6 +31,7 @@ import org.apache.schemas.yoko.bindings.corba.CaseType;
 import org.apache.schemas.yoko.bindings.corba.Union;
 import org.apache.schemas.yoko.bindings.corba.Unionbranch;
 
+import org.apache.ws.commons.schema.XmlSchema;
 import org.apache.ws.commons.schema.XmlSchemaChoice;
 import org.apache.ws.commons.schema.XmlSchemaComplexType;
 import org.apache.ws.commons.schema.XmlSchemaElement;
@@ -41,8 +43,10 @@ import org.apache.yoko.wsdl.CorbaTypeImpl;
 public class UnionVisitor extends VisitorBase {
 
     public UnionVisitor(Scope scope,
+                        Definition defn,
+                        XmlSchema schemaRef,
                         WSDLASTVisitor wsdlVisitor) {
-        super(scope, wsdlVisitor);
+        super(scope, defn, schemaRef, wsdlVisitor);
     }
     
     public static boolean accept(AST node) {
@@ -83,15 +87,14 @@ public class UnionVisitor extends VisitorBase {
         AST caseNode = discriminatorNode.getNextSibling();
         // xmlschema:union
         XmlSchemaComplexType unionSchemaComplexType = new XmlSchemaComplexType(schema);
-        unionSchemaComplexType.setName(unionScope.toString());
+        unionSchemaComplexType.setName(mapper.mapToQName(unionScope));
         
         // REVISIT
         // TEMPORARILY 
         // using TypesVisitor to visit <const_type>
         // it should be visited by a SwitchTypeSpecVisitor
-        TypesVisitor visitor = new TypesVisitor(getScope(), wsdlVisitor, null);
+        TypesVisitor visitor = new TypesVisitor(getScope(), definition, schema, wsdlVisitor, null);
         visitor.visit(discriminatorNode);
-        XmlSchemaType stype = visitor.getSchemaType();
         CorbaTypeImpl ctype = visitor.getCorbaType();
         Scope fullyQualifiedName = visitor.getFullyQualifiedName();
         
@@ -111,8 +114,8 @@ public class UnionVisitor extends VisitorBase {
         } else {
             // Discriminator type is forward declared.
             UnionDeferredAction unionDiscriminatorAction = 
-                new UnionDeferredAction(corbaUnion, fullyQualifiedName);
-            wsdlVisitor.getDeferredActions().add(unionDiscriminatorAction);
+                new UnionDeferredAction(corbaUnion);
+            wsdlVisitor.getDeferredActions().add(fullyQualifiedName, unionDiscriminatorAction);
         }
        
         boolean recursiveAdd = addRecursiveScopedName(identifierNode);
@@ -178,6 +181,8 @@ public class UnionVisitor extends VisitorBase {
             
 
             TypesVisitor visitor = new TypesVisitor(scope,
+                                                    definition,
+                                                    schema,
                                                     wsdlVisitor,
                                                     null);
             visitor.visit(typeNode);
@@ -190,11 +195,13 @@ public class UnionVisitor extends VisitorBase {
             if (ArrayVisitor.accept(nameNode)) {
                 Scope anonScope = new Scope(scope, TypesUtils.getCorbaTypeNameNode(nameNode));
                 ArrayVisitor arrayVisitor = new ArrayVisitor(anonScope,
+                                                             definition,
+                                                             schema,
                                                              wsdlVisitor,
-                                                             stype,
-                                                             ctype,
                                                              null,
                                                              fullyQualifiedName);
+                arrayVisitor.setSchemaType(stype);
+                arrayVisitor.setCorbaType(ctype);
                 arrayVisitor.visit(nameNode);
                 stype = arrayVisitor.getSchemaType();
                 ctype = arrayVisitor.getCorbaType();
@@ -211,8 +218,8 @@ public class UnionVisitor extends VisitorBase {
                 }
             } else {
                 UnionDeferredAction elementAction = 
-                    new UnionDeferredAction(element, fullyQualifiedName);
-                wsdlVisitor.getDeferredActions().add(elementAction); 
+                    new UnionDeferredAction(element);
+                wsdlVisitor.getDeferredActions().add(fullyQualifiedName, elementAction); 
             }
             choice.getItems().add(element);
             
@@ -224,8 +231,8 @@ public class UnionVisitor extends VisitorBase {
             } else {
                 // its type is forward declared.
                 UnionDeferredAction unionBranchAction = 
-                    new UnionDeferredAction(unionBranch, fullyQualifiedName);
-                wsdlVisitor.getDeferredActions().add(unionBranchAction); 
+                    new UnionDeferredAction(unionBranch);
+                wsdlVisitor.getDeferredActions().add(fullyQualifiedName, unionBranchAction); 
             }
             corbaUnion.getUnionbranch().add(unionBranch);
             
@@ -267,14 +274,14 @@ public class UnionVisitor extends VisitorBase {
     private void processForwardUnionActions(Scope unionScope) {
         if (wsdlVisitor.getDeferredActions() != null) {
             DeferredActionCollection deferredActions = wsdlVisitor.getDeferredActions();
-            List list = deferredActions.getActionsList(unionScope);
-            if (!list.isEmpty()) {
+            List list = deferredActions.getActions(unionScope);
+            if ((list != null) && !list.isEmpty()) {
                 XmlSchemaType stype = getSchemaType();
                 CorbaTypeImpl ctype = getCorbaType();
                 Iterator iterator = list.iterator();                    
                 while (iterator.hasNext()) {
-                    DeferredAction action = (DeferredAction)iterator.next();
-                    action.doDeferredAction(stype, ctype);                       
+                    SchemaDeferredAction action = (SchemaDeferredAction)iterator.next();
+                    action.execute(stype, ctype);                       
                 }
                 iterator = list.iterator();                    
                 while (iterator.hasNext()) {

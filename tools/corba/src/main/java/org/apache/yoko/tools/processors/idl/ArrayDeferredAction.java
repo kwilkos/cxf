@@ -15,7 +15,7 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
-*/
+ */
 
 package org.apache.yoko.tools.processors.idl;
 
@@ -26,42 +26,39 @@ import org.apache.ws.commons.schema.XmlSchemaType;
 import org.apache.yoko.tools.common.ReferenceConstants;
 import org.apache.yoko.wsdl.CorbaTypeImpl;
 
-public class ArrayDeferredAction extends DeferredActionBase {
+public class ArrayDeferredAction implements SchemaDeferredAction {
 
     protected Array array;
     protected Anonarray anonarray;
     protected XmlSchemaElement element;
     
     
-    public ArrayDeferredAction(Array arrayType, Anonarray anonArrayType,
-                               XmlSchemaElement elem,  Scope scope) {                           
-        super(scope);
+    public ArrayDeferredAction(Array arrayType,
+                               Anonarray anonArrayType,
+                               XmlSchemaElement elem) {                           
         array = arrayType;
         anonarray = anonArrayType;
         element = elem;        
     }
     
-    public ArrayDeferredAction(Array arrayType, Scope scope) {                           
-        super(scope);
+    public ArrayDeferredAction(Array arrayType) {
         array = arrayType;         
     }
     
-    public ArrayDeferredAction(Anonarray anonarrayType, Scope scope) {                           
-        super(scope);
+    public ArrayDeferredAction(Anonarray anonarrayType) {
         anonarray = anonarrayType;         
     }
     
-    public ArrayDeferredAction(XmlSchemaElement elem, Scope scope) {                           
-        super(scope);
+    public ArrayDeferredAction(XmlSchemaElement elem) {
         element = elem;               
     }
     
-    public void doDeferredAction(XmlSchemaType stype, CorbaTypeImpl ctype) {
+    public void execute(XmlSchemaType stype, CorbaTypeImpl ctype) {
         if (array != null) {
-            array.setType(ctype.getQName());
+            array.setElemtype(ctype.getQName());
         }
         if (anonarray != null) {
-            anonarray.setType(ctype.getQName());
+            anonarray.setElemtype(ctype.getQName());
         }
         if (element != null) {
             element.setSchemaTypeName(stype.getQName());
@@ -72,6 +69,7 @@ public class ArrayDeferredAction extends DeferredActionBase {
     }
         
 }
+
 
 
 

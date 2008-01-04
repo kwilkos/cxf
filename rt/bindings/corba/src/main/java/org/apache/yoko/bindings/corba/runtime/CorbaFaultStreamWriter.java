@@ -37,8 +37,6 @@ import org.omg.CORBA.ORB;
 
 public class CorbaFaultStreamWriter extends CorbaStreamWriter {
 
-    private static final Logger LOG = LogUtils.getL7dLogger(CorbaFaultStreamWriter.class);
-
     private RaisesType exType;
 
     public CorbaFaultStreamWriter(ORB orbRef,

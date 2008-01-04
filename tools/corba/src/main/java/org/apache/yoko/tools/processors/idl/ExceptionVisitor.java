@@ -15,10 +15,13 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
-*/
+ */
 
 package org.apache.yoko.tools.processors.idl;
 
+import javax.wsdl.Definition;
+import javax.wsdl.Message;
+import javax.wsdl.Part;
 import javax.xml.namespace.QName;
 
 import antlr.collections.AST;
@@ -26,6 +29,7 @@ import antlr.collections.AST;
 import org.apache.schemas.yoko.bindings.corba.Exception;
 import org.apache.schemas.yoko.bindings.corba.MemberType;
 
+import org.apache.ws.commons.schema.XmlSchema;
 import org.apache.ws.commons.schema.XmlSchemaComplexType;
 import org.apache.ws.commons.schema.XmlSchemaElement;
 import org.apache.ws.commons.schema.XmlSchemaSequence;
@@ -39,8 +43,10 @@ public class ExceptionVisitor extends VisitorBase {
     private static final String TYPE_SUFFIX = "Type";
     
     public ExceptionVisitor(Scope scope,
+                            Definition defn,
+                            XmlSchema schemaRef,
                             WSDLASTVisitor wsdlASTVisitor) {
-        super(scope, wsdlASTVisitor);
+        super(scope, defn, schemaRef, wsdlASTVisitor);
     }
 
     public static boolean accept(AST node) {
@@ -71,9 +77,9 @@ public class ExceptionVisitor extends VisitorBase {
         
         // xmlschema:exception
         Scope scopedName = new Scope(getScope(), identifierNode);
-        String exceptionName = scopedName.toString();
+        String exceptionName = mapper.mapToQName(scopedName);
         XmlSchemaElement element = new XmlSchemaElement();
-        element.setName(exceptionName);
+        element.setName(mapper.mapToQName(scopedName));
         element.setQName(new QName(schema.getTargetNamespace(), exceptionName));
 
         String exceptionTypeName = exceptionName + TYPE_SUFFIX;
@@ -99,6 +105,8 @@ public class ExceptionVisitor extends VisitorBase {
             AST memberNode = memberTypeNode.getNextSibling();
 
             TypesVisitor visitor = new TypesVisitor(exceptionScope,
+                                                    definition,
+                                                    schema,
                                                     wsdlVisitor,
                                                     null);
             visitor.visit(memberTypeNode);
@@ -111,11 +119,13 @@ public class ExceptionVisitor extends VisitorBase {
                 Scope anonScope = new Scope(exceptionScope, 
                                             TypesUtils.getCorbaTypeNameNode(memberTypeNode));
                 ArrayVisitor arrayVisitor = new ArrayVisitor(anonScope,
+                                                             definition,
+                                                             schema,
                                                              wsdlVisitor,
-                                                             stype,
-                                                             ctype,
                                                              null,
                                                              fullyQualifiedName);
+                arrayVisitor.setSchemaType(stype);
+                arrayVisitor.setCorbaType(ctype);
                 arrayVisitor.visit(memberNode);
                 stype = arrayVisitor.getSchemaType();
                 ctype = arrayVisitor.getCorbaType();
@@ -144,6 +154,27 @@ public class ExceptionVisitor extends VisitorBase {
         
         setSchemaType(complexType);
         setCorbaType(exception);
+        createFaultMessage(element.getQName());
+    }
+
+    private void createFaultMessage(QName qname) {
+        String exceptionName = qname.getLocalPart();
+        // messages
+        Message faultMsg = definition.createMessage();
+
+        faultMsg.setQName(new QName(definition.getTargetNamespace(), exceptionName));        
+        faultMsg.setUndefined(false);
+        // message - part
+        Part part = definition.createPart();
+        part.setName("exception");           
+        part.setElementName(qname);
+        faultMsg.addPart(part);
+
+        //add the fault element namespace to the definition
+        String nsURI = qname.getNamespaceURI();
+        manager.addWSDLDefinitionNamespace(definition, mapper.mapNSToPrefix(nsURI), nsURI);
+
+        definition.addMessage(faultMsg);
     }
     
     private XmlSchemaElement createElementType(AST memberNode, XmlSchemaType stype,
@@ -160,7 +191,7 @@ public class ExceptionVisitor extends VisitorBase {
             }
         } else {
             wsdlVisitor.getDeferredActions().
-                add(new ExceptionDeferredAction(member, fqName)); 
+                add(fqName, new ExceptionDeferredAction(member)); 
         }
         return member;
     }
@@ -174,7 +205,7 @@ public class ExceptionVisitor extends VisitorBase {
             memberType.setIdltype(ctype.getQName());
         } else {
             wsdlVisitor.getDeferredActions().
-                add(new ExceptionDeferredAction(memberType, fqName));
+                add(fqName, new ExceptionDeferredAction(memberType));
         }
         
         return memberType;

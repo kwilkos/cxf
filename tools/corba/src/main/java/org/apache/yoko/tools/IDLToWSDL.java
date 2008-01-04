@@ -15,7 +15,7 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
-*/
+ */
 
 package org.apache.yoko.tools;
 
@@ -137,7 +137,25 @@ public class IDLToWSDL extends AbstractCXFToolContainer {
                     doc.getParameter(ToolCorbaConstants.CFG_IMPORTSCHEMA));
         }
         
-        //need to add all the other options
+        if (env.optionSet(ToolCorbaConstants.CFG_MODULETONS)) {
+            env.put(ToolCorbaConstants.CFG_MODULETONS,
+                    doc.getParameter(ToolCorbaConstants.CFG_MODULETONS));
+        }
+        
+        if (env.optionSet(ToolCorbaConstants.CFG_INCLUDEDIR)) {
+            env.put(ToolCorbaConstants.CFG_INCLUDEDIR,
+                    doc.getParameter(ToolCorbaConstants.CFG_INCLUDEDIR));
+        }
+        if (env.optionSet(ToolCorbaConstants.CFG_WSDLOUTPUTFILE)) {
+            env.put(ToolCorbaConstants.CFG_WSDLOUTPUTFILE,
+                    doc.getParameter(ToolCorbaConstants.CFG_WSDLOUTPUTFILE));
+        }
+
+        if (env.optionSet(ToolCorbaConstants.CFG_EXCLUDEMODULES)) {
+            env.put(ToolCorbaConstants.CFG_EXCLUDEMODULES,
+                    doc.getParameter(ToolCorbaConstants.CFG_EXCLUDEMODULES));
+        }
+        
     }
 
     public static void run(String[] arguments) throws Exception {
@@ -177,6 +195,15 @@ public class IDLToWSDL extends AbstractCXFToolContainer {
             && (doc.hasParameter(ToolCorbaConstants.CFG_IMPORTSCHEMA))) {
             errors.add(new ErrorVisitor.UserError("Options -n & -T cannot be used together"));
         }
+        
+        if ((doc.hasParameter(ToolCorbaConstants.CFG_MODULETONS))
+            && ((doc.hasParameter(ToolCorbaConstants.CFG_LOGICAL))
+                || (doc.hasParameter(ToolCorbaConstants.CFG_PHYSICAL))
+                || (doc.hasParameter(ToolCorbaConstants.CFG_SCHEMA))
+                || (doc.hasParameter(ToolCorbaConstants.CFG_IMPORTSCHEMA)))) {
+            errors.add(new ErrorVisitor.UserError("Options -mns and -L|-P|-T|-n cannot be use together"));
+        }
+
         if (doc.hasParameter(ToolCorbaConstants.CFG_SEQUENCE_OCTET_TYPE)) {
             String sequenceOctetType = doc.getParameter(ToolCorbaConstants.CFG_SEQUENCE_OCTET_TYPE);
             if (sequenceOctetType != null) {

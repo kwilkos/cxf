@@ -15,15 +15,13 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
-*/
+ */
 
 package org.apache.yoko.tools.processors.idl;
 
-import org.apache.ws.commons.schema.XmlSchemaType;
-import org.apache.yoko.wsdl.CorbaTypeImpl;
+/**
+ * Marker Interface to denote a deferred action for a forward declared idl object.
+ */
 
 public interface DeferredAction {
-
-    void doDeferredAction(XmlSchemaType stype, CorbaTypeImpl ctype);    
-    
 }

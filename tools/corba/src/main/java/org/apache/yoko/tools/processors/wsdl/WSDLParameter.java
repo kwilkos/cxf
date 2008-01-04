@@ -40,6 +40,7 @@ import org.apache.ws.commons.schema.XmlSchemaAnnotation;
 import org.apache.ws.commons.schema.XmlSchemaAppInfo;
 import org.apache.ws.commons.schema.XmlSchemaComplexType;
 import org.apache.ws.commons.schema.XmlSchemaElement;
+import org.apache.ws.commons.schema.XmlSchemaExternal;
 import org.apache.ws.commons.schema.XmlSchemaImport;
 import org.apache.ws.commons.schema.XmlSchemaObject;
 import org.apache.ws.commons.schema.XmlSchemaObjectCollection;
@@ -416,36 +417,51 @@ public final class WSDLParameter {
 
         Iterator i = xmlSchemaList.iterator();
         while (i.hasNext()) {
-            XmlSchema xmlSchemaType = (XmlSchema) i.next();
-
+            XmlSchema xmlSchema = (XmlSchema) i.next();
             if (part.getTypeName() != null) {
-                schemaType = xmlSchemaType
-                    .getTypeByName(part.getTypeName());
-
-                // Endpoint reference types will give a null schemaType
-                // here, so we need to
-                // go through the list of imports to find the definition for
-                // an Endpoint
-                // reference type.
-                
-                if (schemaType == null
-                    && xmlSchemaType.getIncludes().getCount() > 0) {
-                    XmlSchemaObjectCollection includes = xmlSchemaType
-                        .getIncludes();
-                    Iterator includeIter = includes.getIterator();
-                    while (includeIter.hasNext()) {
-                        Object obj = includeIter.next();
-                        if (!(obj instanceof XmlSchemaImport)) {
-                            continue;
-                        }
-                        XmlSchemaImport xmlImport = (XmlSchemaImport) obj;
-                        if (xmlImport.getNamespace().equals(part.getTypeName().getNamespaceURI())) {
-                            XmlSchema importSchema = xmlImport.getSchema();
-                            schemaType = importSchema.getTypeByName(part.getTypeName());
-                        }
-                    }
+                schemaType = findSchemaType(xmlSchema, part.getTypeName());                
+                if (schemaType != null) {
+                    return schemaType;
                 }
+            }
+        }
+            
+        return schemaType;
+    }
+
+    // This willl search the current schemas and any included 
+    // schemas for the schema type.
+    private static XmlSchemaType findSchemaType(XmlSchema xmlSchema, QName typeName) {
+                          
+        XmlSchemaType schemaType = xmlSchema.getTypeByName(typeName);
+
+        // Endpoint reference types will give a null schemaType
+        // here, so we need to
+        // go through the list of imports to find the definition for
+        // an Endpoint
+        // reference type.
                 
+        if (schemaType == null
+            && xmlSchema.getIncludes().getCount() > 0) {
+            XmlSchemaObjectCollection includes = xmlSchema.getIncludes();
+            Iterator includeIter = includes.getIterator();
+            while (includeIter.hasNext()) {
+                Object obj = includeIter.next();
+                if (obj instanceof XmlSchemaExternal) {
+                    XmlSchemaExternal extSchema = (XmlSchemaExternal) obj;
+                    if (extSchema instanceof XmlSchemaImport) {
+                        XmlSchemaImport xmlImport = (XmlSchemaImport) obj;
+                        if (xmlImport.getNamespace().equals(typeName.getNamespaceURI())) {
+                            XmlSchema importSchema = xmlImport.getSchema();
+                            schemaType = importSchema.getTypeByName(typeName);
+                        }
+                    } else {
+                        schemaType = findSchemaType(extSchema.getSchema(), typeName);
+                        if (schemaType != null) {
+                            return schemaType;
+                        }
+                    }                    
+                }                                
             }
             if (schemaType != null) {
                 return schemaType;
@@ -459,25 +475,49 @@ public final class WSDLParameter {
         throws Exception {
         XmlSchemaElement schemaElement = null;
 
-        Iterator i = xmlSchemaList.iterator();
+        Iterator i = xmlSchemaList.iterator();        
         while (i.hasNext()) {
-            XmlSchema xmlSchemaType = (XmlSchema) i.next();
+            XmlSchema xmlSchema = (XmlSchema) i.next();
             if (part.getElementName() != null) {
-                schemaElement = xmlSchemaType.getElementByName(part
-                        .getElementName());
-                if (schemaElement == null) {
-                    QName elName = part.getElementName();
-                    String prefix = definition.getPrefix(elName
-                            .getNamespaceURI());
-                    QName name = new QName(elName.getNamespaceURI(), prefix
-                            + ":" + elName.getLocalPart(), prefix);
-                    schemaElement = xmlSchemaType.getElementByName(name);
-                }
-                if (schemaElement != null) {
+                schemaElement = findElement(xmlSchema, part.getElementName()); 
+                if (schemaElement !=  null) {
                     return schemaElement;
                 }
             }
         }
+        return schemaElement;
+    }
+    
+    // Will check if the schema includes other schemas.
+    private static XmlSchemaElement findElement(XmlSchema xmlSchema, QName elName) {
+        XmlSchemaElement schemaElement = null;
+        
+        schemaElement = xmlSchema.getElementByName(elName);
+        if (schemaElement == null) {           
+            String prefix = definition.getPrefix(elName.getNamespaceURI());
+            QName name = new QName(elName.getNamespaceURI(), prefix
+                                   + ":" + elName.getLocalPart(), prefix);
+            schemaElement = xmlSchema.getElementByName(name);
+        }
+        if (schemaElement != null) {
+            return schemaElement;
+        } else {            
+            if (xmlSchema.getIncludes() != null) {
+                Iterator schemas = xmlSchema.getIncludes().getIterator();
+                while (schemas.hasNext()) {
+                    Object obj = schemas.next();
+                    if (obj instanceof XmlSchemaExternal) {
+                        XmlSchemaExternal extSchema = (XmlSchemaExternal) obj;
+                        if (!(extSchema instanceof XmlSchemaImport)) {
+                            schemaElement = findElement(extSchema.getSchema(), elName);
+                            if (schemaElement != null) {
+                                return schemaElement;
+                            }
+                        }
+                    }
+                }                
+            }
+        }      
         return schemaElement;
     }
 

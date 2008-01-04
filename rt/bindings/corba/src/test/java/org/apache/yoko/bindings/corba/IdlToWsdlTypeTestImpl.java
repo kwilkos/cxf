@@ -20,14 +20,19 @@
 package org.apache.yoko.bindings.corba;
 
 import javax.jws.WebService;
+import javax.xml.ws.Holder;
 
 import org.apache.schemas.yoko.idl.idltowsdl_type_test.IdltowsdlTypeTest;
+import org.apache.schemas.yoko.idl.idltowsdl_type_test.IdltowsdlTypeTestBuildingAddress6T;
+import org.apache.schemas.yoko.idl.idltowsdl_type_test.IdltowsdlTypeTestBuildingT;
 import org.apache.schemas.yoko.idl.idltowsdl_type_test.IdltowsdlTypeTestEnum1;
 import org.apache.schemas.yoko.idl.idltowsdl_type_test.IdltowsdlTypeTestRecursiveStruct;
 import org.apache.schemas.yoko.idl.idltowsdl_type_test.IdltowsdlTypeTestRecursiveUnion;
 import org.apache.schemas.yoko.idl.idltowsdl_type_test.IdltowsdlTypeTestSeqLong;
+import org.apache.schemas.yoko.idl.idltowsdl_type_test.IdltowsdlTypeTestStringSet;
 import org.apache.schemas.yoko.idl.idltowsdl_type_test.IdltowsdlTypeTestStruct1;
 import org.apache.schemas.yoko.idl.idltowsdl_type_test.IdltowsdlTypeTestStructSet;
+import org.apache.schemas.yoko.idl.idltowsdl_type_test.IdltowsdlTypeTestStructWithSeq;
 import org.apache.schemas.yoko.idl.idltowsdl_type_test.IdltowsdlTypeTestUnion1;
 import org.apache.schemas.yoko.idl.idltowsdl_type_test.IdltowsdlTypeTestUnion2;
 import org.apache.schemas.yoko.idl.idltowsdl_type_test.IdltowsdlTypeTestUnionSet;
@@ -271,4 +276,30 @@ public class IdlToWsdlTypeTestImpl implements IdltowsdlTypeTest {
         inoutUnion.value = inUnion;
         return inUnion;
     }
+
+    public IdltowsdlTypeTestBuildingT testStructWithArray(IdltowsdlTypeTestBuildingT inBuild,
+    		javax.xml.ws.Holder<IdltowsdlTypeTestBuildingT> inoutBuild,
+    		javax.xml.ws.Holder<IdltowsdlTypeTestBuildingT> outBuild) {
+    	outBuild.value = inoutBuild.value;
+        inoutBuild.value = inBuild;
+    	return inBuild;
+    }
+
+    public IdltowsdlTypeTestStructWithSeq testStructWithSeq(IdltowsdlTypeTestStructWithSeq inStructWithSeq, 
+            Holder<IdltowsdlTypeTestStructWithSeq> inoutStructWithSeq, 
+            Holder<IdltowsdlTypeTestStructWithSeq> outStructWithSeq) {        
+        outStructWithSeq.value = inoutStructWithSeq.value;
+        inoutStructWithSeq.value = inStructWithSeq;
+        return inStructWithSeq;
+    }
+    
+    public byte[] testBoundedOctetSequence(
+        byte[] inBoundedOctetSeq,
+        javax.xml.ws.Holder<byte[]> inoutBoundedOctetSeq,
+        javax.xml.ws.Holder<byte[]> outBoundedOctetSeq) {
+        outBoundedOctetSeq.value = inoutBoundedOctetSeq.value;
+        inoutBoundedOctetSeq.value = inBoundedOctetSeq;
+        return inBoundedOctetSeq;        
+    }
+
 }

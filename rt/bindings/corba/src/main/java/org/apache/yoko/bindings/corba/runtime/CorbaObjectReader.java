@@ -1,18 +1,18 @@
 /**
  * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
+ * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
+ * regarding copyright ownership. The ASF licenses this file
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * with the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
+ * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
  */
@@ -45,6 +45,7 @@ import org.apache.yoko.bindings.corba.types.CorbaExceptionHandler;
 import org.apache.yoko.bindings.corba.types.CorbaFixedHandler;
 import org.apache.yoko.bindings.corba.types.CorbaObjectHandler;
 import org.apache.yoko.bindings.corba.types.CorbaObjectReferenceHandler;
+import org.apache.yoko.bindings.corba.types.CorbaOctetSequenceHandler;
 import org.apache.yoko.bindings.corba.types.CorbaPrimitiveHandler;
 import org.apache.yoko.bindings.corba.types.CorbaSequenceHandler;
 import org.apache.yoko.bindings.corba.types.CorbaStructHandler;
@@ -147,7 +148,7 @@ public class CorbaObjectReader {
     // -- primitive types --
     public Boolean readBoolean() throws CorbaBindingException {
         try {
-            return new Boolean(stream.read_boolean());
+            return stream.read_boolean();
         } catch (org.omg.CORBA.MARSHAL ex) {
             LOG.log(Level.SEVERE, "CorbaObjectReader: could not read boolean");
             throw new CorbaBindingException("CorbaObjectReader: readBoolean MARSHAL exception", ex);
@@ -393,49 +394,46 @@ public class CorbaObjectReader {
     }
 
     public void readSequence(CorbaObjectHandler obj) throws CorbaBindingException {
-        CorbaSequenceHandler sequenceObj = (CorbaSequenceHandler)obj;
-        List<CorbaObjectHandler> seqElements = sequenceObj.getElements();
-        int length = stream.read_ulong();
-        long bound = 0;
-        QName elementName = null;
-        if (obj.getType() instanceof Anonsequence) {
-            Anonsequence anonSeqType = (Anonsequence) obj.getType();
-            bound = anonSeqType.getBound();
-            elementName = anonSeqType.getElemname();
+        if (obj instanceof CorbaOctetSequenceHandler) {
+            int length = stream.read_ulong();
+            byte[] value = new byte[length];
+            stream.read_octet_array(value, 0, length);
+            ((CorbaOctetSequenceHandler) obj).setValue(value);
         } else {
-            Sequence seqType = (Sequence) obj.getType();
-            bound = seqType.getBound();
-            elementName = seqType.getElemname();
-        }
-        List<CorbaObjectHandler> elements = new ArrayList<CorbaObjectHandler>(length);
-        
-        // Simply checking the bound won't handle our recursive types.  We need to check for the
-        // existance of template, which will be present for all unbounded sequences and for bound
-        // sequences with recursive type elements.  Use the template element to construct each
-        // object that is in the input stream.
-        //if (bound == 0) {
-        if (sequenceObj.getTemplateElement() != null) {
-            sequenceObj.clear();
-            CorbaObjectHandler template = sequenceObj.getTemplateElement();
-            for (int i = 0; i < length; ++i) {
-                CorbaObjectHandler seqElement;
-                if (i < seqElements.size()) {
-                    seqElement = seqElements.get(i);
-                } else {
-                    seqElement = initializeCorbaObjectHandler(template);
+            CorbaSequenceHandler sequenceObj = (CorbaSequenceHandler)obj;
+            List<CorbaObjectHandler> seqElements = sequenceObj.getElements();
+            int length = stream.read_ulong();
+
+            List<CorbaObjectHandler> elements = new ArrayList<CorbaObjectHandler>(length);
+            
+            // Simply checking the bound won't handle our recursive types.  We need to check for the
+            // existance of template, which will be present for all unbounded sequences and for bound
+            // sequences with recursive type elements.  Use the template element to construct each
+            // object that is in the input stream.
+            //if (bound == 0) {
+            if (sequenceObj.getTemplateElement() != null) {
+                sequenceObj.clear();
+                CorbaObjectHandler template = sequenceObj.getTemplateElement();
+                for (int i = 0; i < length; ++i) {
+                    CorbaObjectHandler seqElement;
+                    if (i < seqElements.size()) {
+                        seqElement = seqElements.get(i);
+                    } else {
+                        seqElement = initializeCorbaObjectHandler(template);
+                    }
+                    read(seqElement);
+                    elements.add(seqElement);
                 }
-                read(seqElement);
-                elements.add(seqElement);
-            }
-            sequenceObj.setElements(elements);
-        } else {
-            // We have a bounded sequence and the object should already be pre-built
-            for (int i = 0; i < length; ++i) {
-                read(seqElements.get(i));
+                sequenceObj.setElements(elements);
+            } else {
+                // We have a bounded sequence and the object should already be pre-built
+                for (int i = 0; i < length; ++i) {
+                    read(seqElements.get(i));
+                }
             }
         }
     }
-    
+
     public void readObjectReference(CorbaObjectHandler obj) throws CorbaBindingException {
         CorbaObjectReferenceHandler objRefObj = (CorbaObjectReferenceHandler)obj;
         org.omg.CORBA.Object objRef = stream.read_Object();

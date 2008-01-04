@@ -15,18 +15,19 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
-*/
+ */
 
 package org.apache.yoko.tools.processors.idl;
 
+import javax.wsdl.Definition;
 import javax.xml.namespace.QName;
 
 import antlr.collections.AST;
 
-//import org.apache.schemas.yoko.bindings.corba.Alias;
 import org.apache.schemas.yoko.bindings.corba.Anonsequence;
 import org.apache.schemas.yoko.bindings.corba.Sequence;
 
+import org.apache.ws.commons.schema.XmlSchema;
 import org.apache.ws.commons.schema.XmlSchemaComplexType;
 import org.apache.ws.commons.schema.XmlSchemaElement;
 import org.apache.ws.commons.schema.XmlSchemaSequence;
@@ -43,9 +44,11 @@ public class SequenceVisitor extends VisitorBase {
     private AST identifierNode;
     
     public SequenceVisitor(Scope scope,
+                           Definition defn,
+                           XmlSchema schemaRef,
                            WSDLASTVisitor wsdlVisitor,
                            AST identifierNodeRef) {
-        super(scope, wsdlVisitor);
+        super(scope, defn, schemaRef, wsdlVisitor);
         identifierNode = identifierNodeRef;
     }
     
@@ -68,6 +71,8 @@ public class SequenceVisitor extends VisitorBase {
 
         
         SimpleTypeSpecVisitor visitor = new SimpleTypeSpecVisitor(new Scope(getScope(), identifierNode),
+                                                                  definition,
+                                                                  schema,
                                                                   wsdlVisitor,
                                                                   null);
         visitor.visit(simpleTypeSpecNode);
@@ -133,7 +138,7 @@ public class SequenceVisitor extends VisitorBase {
     private XmlSchemaType generateSchemaType(XmlSchemaType stype, Scope scopedName, 
                                              long bound, Scope fullyQualifiedName) {
         XmlSchemaComplexType ct = new XmlSchemaComplexType(schema);
-        ct.setName(scopedName.toString());
+        ct.setName(mapper.mapToQName(scopedName));
         XmlSchemaSequence sequence = new XmlSchemaSequence();
         XmlSchemaElement el = new XmlSchemaElement();
         el.setName(ELEMENT_NAME);
@@ -150,8 +155,8 @@ public class SequenceVisitor extends VisitorBase {
             }
         } else {
             SequenceDeferredAction elementAction = 
-                new SequenceDeferredAction(el, fullyQualifiedName);
-            wsdlVisitor.getDeferredActions().add(elementAction); 
+                new SequenceDeferredAction(el);
+            wsdlVisitor.getDeferredActions().add(fullyQualifiedName, elementAction); 
         }
         sequence.getItems().add(el);
         ct.setParticle(sequence);
@@ -177,8 +182,8 @@ public class SequenceVisitor extends VisitorBase {
             corbaSeq.setElemtype(ctype.getQName());
         } else {
             SequenceDeferredAction seqAction = 
-                new SequenceDeferredAction(corbaSeq, fullyQualifiedName);
-            wsdlVisitor.getDeferredActions().add(seqAction);
+                new SequenceDeferredAction(corbaSeq);
+            wsdlVisitor.getDeferredActions().add(fullyQualifiedName, seqAction);
         }
         corbaSeq.setRepositoryID(scopedName.toIDLRepositoryID());
 
@@ -201,8 +206,8 @@ public class SequenceVisitor extends VisitorBase {
         result.setElemname(new QName("", ELEMENT_NAME));
         if (schemaType == null || ctype == null) {
             SequenceDeferredAction anonSeqAction = 
-                new SequenceDeferredAction(result, fullyQualifiedName);
-            wsdlVisitor.getDeferredActions().add(anonSeqAction);
+                new SequenceDeferredAction(result);
+            wsdlVisitor.getDeferredActions().add(fullyQualifiedName, anonSeqAction);
         } else {
             result.setType(schemaType.getQName());
             result.setElemtype(ctype.getQName());        
@@ -210,14 +215,15 @@ public class SequenceVisitor extends VisitorBase {
 
         // Need to create an action if the type was forward declared.
         if (schemaType != null) {
-            if (schemas.getTypeByQName(schemaType.getQName()) == null) {
+            if (schemas.getTypeByQName(schemaType.getQName()) == null 
+                && schema.getTypeByName(schemaType.getQName()) == null) {
                 schema.getItems().add(schemaType);
                 schema.addType(schemaType);
             }
         } else {
             SequenceDeferredAction anonSeqAction = 
-                new SequenceDeferredAction(schemas, schema, fullyQualifiedName);
-            wsdlVisitor.getDeferredActions().add(anonSeqAction);
+                new SequenceDeferredAction(schemas, schema);
+            wsdlVisitor.getDeferredActions().add(fullyQualifiedName, anonSeqAction);
         }
         
         // add corbaType

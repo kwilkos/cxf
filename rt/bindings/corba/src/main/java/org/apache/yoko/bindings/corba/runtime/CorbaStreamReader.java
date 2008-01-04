@@ -1,18 +1,18 @@
 /**
  * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
+ * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
+ * regarding copyright ownership. The ASF licenses this file
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * with the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
+ * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
  */
@@ -32,14 +32,9 @@ import javax.xml.stream.events.Namespace;
 import org.apache.yoko.bindings.corba.types.CorbaTypeEventProducer;
 
 public class CorbaStreamReader implements XMLStreamReader {
-        
-    private char[] currentText;
+     
     private CorbaTypeEventProducer eventProducer;
     private int currentState;
-    private QName currentQName;
-    private List<Attribute> currentAttributes;
-
-    private String defaultNameSpace;
     
     public CorbaStreamReader(CorbaTypeEventProducer evProducer) {
         eventProducer = evProducer;
@@ -47,13 +42,11 @@ public class CorbaStreamReader implements XMLStreamReader {
     }
 
     public QName getName() {
-        currentQName = eventProducer.getName();
-        return currentQName;
+        return eventProducer.getName();
     }
 
     public char[] getTextCharacters() {
-        currentText = eventProducer.getText().toCharArray();
-        return currentText;
+        return eventProducer.getText().toCharArray();
     }
 
     public int getEventType() {
@@ -61,7 +54,7 @@ public class CorbaStreamReader implements XMLStreamReader {
     }
 
     public String getLocalName() {
-        return currentQName.getLocalPart();
+        return getName().getLocalPart();
     }
 
     public String getNamespaceURI() {
@@ -94,7 +87,7 @@ public class CorbaStreamReader implements XMLStreamReader {
     }
 
     public int getTextLength() {
-        return currentText.length;
+        return eventProducer.getText().length();
     }
 
     public boolean isStartElement() {
@@ -114,7 +107,7 @@ public class CorbaStreamReader implements XMLStreamReader {
     }
 
     public int getAttributeCount() {
-        currentAttributes =  eventProducer.getAttributes();
+        List<Attribute> currentAttributes =  eventProducer.getAttributes();
         if (currentAttributes != null) {
             return currentAttributes.size();
         }
@@ -123,6 +116,7 @@ public class CorbaStreamReader implements XMLStreamReader {
 
     public String getAttributeLocalName(int arg0) {
         String ret = null;
+        List<Attribute> currentAttributes = eventProducer.getAttributes();
         if (currentAttributes != null) {
             Attribute a = currentAttributes.get(arg0);
             if (a != null) {
@@ -134,6 +128,7 @@ public class CorbaStreamReader implements XMLStreamReader {
 
     public QName getAttributeName(int arg0) {
         QName ret = null;
+        List<Attribute> currentAttributes = eventProducer.getAttributes();
         if (currentAttributes != null) {
             Attribute a = currentAttributes.get(arg0);
             if (a != null) {
@@ -146,6 +141,7 @@ public class CorbaStreamReader implements XMLStreamReader {
  
     public String getAttributeNamespace(int arg0) {
         String ret = null;
+        List<Attribute> currentAttributes = eventProducer.getAttributes();
         if (currentAttributes != null) {
             Attribute a = currentAttributes.get(arg0);
             if (a != null) {
@@ -165,6 +161,7 @@ public class CorbaStreamReader implements XMLStreamReader {
 
     public String getAttributeValue(int arg0) {
         String ret = null;
+        List<Attribute> currentAttributes = eventProducer.getAttributes();
         if (currentAttributes != null) {
             Attribute a = currentAttributes.get(arg0);
             if (a != null) {
@@ -289,7 +286,7 @@ public class CorbaStreamReader implements XMLStreamReader {
     }
 
     public String getText() {
-        throw new RuntimeException("Not implemented");
+        return eventProducer.getText();
     }
 
     public int getTextCharacters(int arg0, char[] arg1, int arg2, int arg3) throws XMLStreamException {

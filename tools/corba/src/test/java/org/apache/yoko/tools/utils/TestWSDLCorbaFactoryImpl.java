@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!--
+/**
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -16,5 +15,19 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
--->
-<pmd><useProjectRuleSet>true</useProjectRuleSet><rules/></pmd>
+ */
+package org.apache.yoko.tools.utils;
+
+import javax.wsdl.xml.WSDLWriter;
+
+import com.ibm.wsdl.factory.WSDLFactoryImpl;
+
+public class TestWSDLCorbaFactoryImpl extends WSDLFactoryImpl {
+
+    /**
+     * Create a new instance of a WSDLWriter.
+     */
+    public WSDLWriter newWSDLWriter() {
+        return new TestWSDLCorbaWriterImpl();
+    }
+}

@@ -45,7 +45,7 @@ public class DefaultIncludeResolver implements IncludeResolver {
      * @see IncludeResolver#findSystemInclude(java.lang.String)
      */
     public URL findSystemInclude(String spec) {
-        throw new UnsupportedOperationException("system includes not currently implemented");
+        return findUserInclude(spec);
     }
 
     /**

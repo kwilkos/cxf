@@ -15,10 +15,11 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
-*/
+ */
 
 package org.apache.yoko.tools.processors.idl;
 
+import javax.wsdl.Definition;
 import javax.xml.namespace.QName;
 
 import antlr.collections.AST;
@@ -27,6 +28,7 @@ import org.apache.schemas.yoko.bindings.corba.Alias;
 import org.apache.schemas.yoko.bindings.corba.Anonstring;
 import org.apache.schemas.yoko.bindings.corba.Anonwstring;
 
+import org.apache.ws.commons.schema.XmlSchema;
 import org.apache.ws.commons.schema.XmlSchemaMaxLengthFacet;
 import org.apache.ws.commons.schema.XmlSchemaSimpleType;
 import org.apache.ws.commons.schema.XmlSchemaSimpleTypeRestriction;
@@ -45,9 +47,11 @@ public class StringVisitor extends VisitorBase {
 
     
     public StringVisitor(Scope scope,
+                         Definition definition,
+                         XmlSchema schemaRef,
                          WSDLASTVisitor wsdlVisitor,
                          AST identifierNodeRef) {
-        super(scope, wsdlVisitor);
+        super(scope, definition, schemaRef, wsdlVisitor);
         stringNode = null;
         boundNode = null;
         identifierNode = identifierNodeRef;
@@ -166,10 +170,8 @@ public class StringVisitor extends VisitorBase {
         simpleType.setContent(restriction);
 
         setSchemaType(simpleType);
-        
-        
-        //String anonstringName = new String("_1_" + stringScopedName.toString());
-        Scope anonstringScopedName = new Scope(getScope(), "_1_" + stringScopedName.tail());
+                       
+        Scope anonstringScopedName = new Scope(getScope(), "_Anon1_" + stringScopedName.tail());
         String anonstringName = anonstringScopedName.toString();
         CorbaTypeImpl anon = null;
         if (stringNode.getType() == IDLTokenTypes.LITERAL_string) {
@@ -229,17 +231,6 @@ public class StringVisitor extends VisitorBase {
         corbaString.setType(Constants.XSD_STRING);
 
         setCorbaType(corbaString);
-    }
-    
-    private String getIdentifier(AST node) {
-        String result = null;
-        if (node != null) {
-            String identifierName = node.toString();
-            if (TypesUtils.isValidIdentifier(identifierName)) {
-                result = identifierName;
-            }
-        }
-        return result;
     }
     
 }

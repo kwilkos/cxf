@@ -1,18 +1,18 @@
 /**
  * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
+ * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
+ * regarding copyright ownership. The ASF licenses this file
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * with the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
+ * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
  */
@@ -32,6 +32,7 @@ import java.util.logging.Logger;
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.common.xmlschema.SchemaCollection;
 import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 
@@ -56,7 +57,6 @@ import org.apache.schemas.yoko.bindings.corba.Union;
 import org.apache.schemas.yoko.bindings.corba.Unionbranch;
 
 import org.apache.ws.commons.schema.XmlSchema;
-import org.apache.ws.commons.schema.XmlSchemaCollection;
 import org.apache.ws.commons.schema.XmlSchemaElement;
 import org.apache.ws.commons.schema.XmlSchemaExternal;
 import org.apache.ws.commons.schema.XmlSchemaForm;
@@ -110,6 +110,12 @@ public class CorbaUtils {
                                        CorbaType obj, 
                                        CorbaTypeMap typeMap,
                                        Stack<QName> seenTypes) {
+        if (type == null) {
+            throw new CorbaBindingException("corba:typemap type or elemtype information required" 
+                    + (obj == null ? "" : " for " + obj)  
+                    + (seenTypes.empty() ? "" : ", Enclosing type: " + seenTypes.elementAt(0))); 
+        }       
+        
         TypeCode tc = null;
         // first see if it is a primitive
         tc = getPrimitiveTypeCode(orb, type);
@@ -396,7 +402,6 @@ public class CorbaUtils {
     }
 
     public static CorbaTypeImpl getCorbaType(QName idlType, CorbaTypeMap typeMap) {
-        CorbaTypeMap currentMap = null;
         if (!isPrimitiveIdlType(idlType) && (typeMap != null)) {
             return (CorbaTypeImpl) typeMap.getType(idlType.getLocalPart());
         }
@@ -447,7 +452,7 @@ public class CorbaUtils {
 
         if (url.startsWith("file:")) {
             return importObjectReferenceFromFile(orb, url.substring(5));
-        } else if ((url.equals("ior:")) || (url.equals("IOR:"))) {
+        } else if ("IOR:".equalsIgnoreCase(url)) {
             throw new RuntimeException("Proxy not initialized. URL contains a invalid ior");
         }
         
@@ -485,7 +490,7 @@ public class CorbaUtils {
     public static XmlSchemaType getXmlSchemaType(ServiceInfo serviceInfo, QName name) {
         XmlSchemaType result = null;
         if ((name != null) && (serviceInfo != null)) {
-            XmlSchemaCollection col = serviceInfo.getXmlSchemaCollection();
+            SchemaCollection col = serviceInfo.getXmlSchemaCollection();
             result = col.getTypeByQName(name);
             if (result == null) {
                 //check the name, if it is an element

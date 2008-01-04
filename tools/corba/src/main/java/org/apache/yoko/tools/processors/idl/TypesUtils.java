@@ -15,7 +15,7 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
-*/
+ */
 
 package org.apache.yoko.tools.processors.idl;
 
@@ -85,7 +85,7 @@ public final class TypesUtils {
             id++;
             StringBuffer name = new StringBuffer();
             name.append("_");
-            name.append(id.toString());
+            name.append("Anon" + id.toString());
             name.append("_");
             name.append(scope.tail());
             scopedName = new Scope(scope.getParent(), name.toString());

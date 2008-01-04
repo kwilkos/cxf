@@ -15,7 +15,7 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
-*/
+ */
 
 package org.apache.yoko.tools.processors.idl;
 
@@ -28,7 +28,7 @@ import org.apache.ws.commons.schema.XmlSchemaType;
 import org.apache.yoko.tools.common.ReferenceConstants;
 import org.apache.yoko.wsdl.CorbaTypeImpl;
 
-public class SequenceDeferredAction extends DeferredActionBase {
+public class SequenceDeferredAction implements SchemaDeferredAction {
 
     protected Anonsequence anonSequence;
     protected Sequence sequence;
@@ -36,38 +36,33 @@ public class SequenceDeferredAction extends DeferredActionBase {
     protected XmlSchema schema;
     protected XmlSchemaCollection schemas;    
     
-    public SequenceDeferredAction(Sequence sequenceType, Anonsequence anonSequenceType, 
-                                  XmlSchemaElement elem, Scope scope) {                           
-        super(scope);
+    public SequenceDeferredAction(Sequence sequenceType,
+                                  Anonsequence anonSequenceType,
+                                  XmlSchemaElement elem) {
         anonSequence = anonSequenceType;
         sequence = sequenceType;
         element = elem;        
     }
     
-    public SequenceDeferredAction(Anonsequence anonSequenceType, Scope scope) {                           
-        super(scope);
+    public SequenceDeferredAction(Anonsequence anonSequenceType) {
         anonSequence = anonSequenceType;         
     }
     
-    public SequenceDeferredAction(Sequence sequenceType, Scope scope) {                           
-        super(scope);
+    public SequenceDeferredAction(Sequence sequenceType) {
         sequence = sequenceType;         
     }
     
-    public SequenceDeferredAction(XmlSchemaElement elem, Scope scope) {                           
-        super(scope);
+    public SequenceDeferredAction(XmlSchemaElement elem) {
         element = elem;               
     }
     
     public SequenceDeferredAction(XmlSchemaCollection xmlSchemas,
-                                  XmlSchema xmlSchema,
-                                  Scope scope) {                           
-        super(scope);
+                                  XmlSchema xmlSchema) {
         schemas = xmlSchemas;
         schema = xmlSchema;                       
     }
     
-    public void doDeferredAction(XmlSchemaType stype, CorbaTypeImpl ctype) {
+    public void execute(XmlSchemaType stype, CorbaTypeImpl ctype) {
         if (anonSequence != null) {
             anonSequence.setElemtype(ctype.getQName());
             // This is needed for recursive types
@@ -93,6 +88,7 @@ public class SequenceDeferredAction extends DeferredActionBase {
     }
         
 }
+
 
 
 

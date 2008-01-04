@@ -15,14 +15,17 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
-*/
+ */
 
 package org.apache.yoko.tools.processors.idl;
+
+import javax.wsdl.Definition;
 
 import antlr.collections.AST;
 
 import org.apache.schemas.yoko.bindings.corba.ArgType;
 
+import org.apache.ws.commons.schema.XmlSchema;
 import org.apache.ws.commons.schema.XmlSchemaObject;
 
 public class TypesVisitor extends VisitorBase {
@@ -37,9 +40,11 @@ public class TypesVisitor extends VisitorBase {
 
     // identifierNode null if anonymous type
     public TypesVisitor(Scope scope,
+                        Definition defn,
+                        XmlSchema schemaRef,
                         WSDLASTVisitor wsdlVisitor,
                         AST identifierNodeRef) {
-        super(scope, wsdlVisitor);
+        super(scope, defn, schemaRef, wsdlVisitor);
         identifierNode = identifierNodeRef;
     }
 
@@ -52,10 +57,10 @@ public class TypesVisitor extends VisitorBase {
         
         if (ConstrTypeSpecVisitor.accept(node)) {
             // type_spec - constr_type_spec
-            visitor = new ConstrTypeSpecVisitor(getScope(), wsdlVisitor, identifierNode);
+            visitor = new ConstrTypeSpecVisitor(getScope(), definition, schema, wsdlVisitor, identifierNode);
         } else if (SimpleTypeSpecVisitor.accept(node)) {
             // type_spec - simple_type_spec
-            visitor = new SimpleTypeSpecVisitor(getScope(), wsdlVisitor, identifierNode);
+            visitor = new SimpleTypeSpecVisitor(getScope(), definition, schema, wsdlVisitor, identifierNode);
         } else if (visitor == null) {
             // REVISIT: !!!!!
             // This is ugly. It should be done in the SimpleTypeSpecVisitor.accept(node) method.
@@ -69,7 +74,7 @@ public class TypesVisitor extends VisitorBase {
             // To work around that redesign and get things working now, I am assuming that if visitor
             // is null at this point, then it has to be a scoped_name.
             // REVISIT!!!
-            visitor = new ScopedNameVisitor(getScope(), wsdlVisitor);
+            visitor = new ScopedNameVisitor(getScope(), definition, schema, wsdlVisitor);
         }
         visitor.visit(node);
 

@@ -59,6 +59,7 @@
         <rhino.version>1.6R7</rhino.version>
         <jdom.version>1.0</jdom.version>
         <xmlbeans.version>2.2.0</xmlbeans.version>
+        <checkstyle.extension/>
 
         <spring.validation.mode>VALIDATION_AUTO</spring.validation.mode>
 
@@ -156,13 +157,13 @@
                             <id>validate</id>
                             <phase>validate</phase>
                             <configuration>
-                                <configLocation>cxf-checkstyle.xml</configLocation>
+                                <configLocation>cxf-checkstyle${checkstyle.extension}.xml</configLocation>
                                 <consoleOutput>true</consoleOutput>
                                 <failsOnError>true</failsOnError>
                                 <linkXRef>false</linkXRef>
                                 <suppressionsLocation>cxf-checkstyle-suppressions.xml</suppressionsLocation>
                                 <sourceDirectory>${basedir}/src</sourceDirectory>
-				<excludes>**/archetype-resources/**/*.java</excludes>
+                                <excludes>**/archetype-resources/**/*.java</excludes>
                             </configuration>
                             <goals>
                                 <goal>checkstyle</goal>
@@ -902,7 +903,7 @@
                                     <tasks>
                                         <whichresource resource="/cxf-eclipse-pmd" property="pmd.url" />
                                         <whichresource resource="/cxf-pmd-ruleset.xml" property="pmdruleset.url" />
-                                        <whichresource resource="/cxf-eclipse-checkstyle" property="eclipse.checkstyle.url" />
+                                        <whichresource resource="/cxf-eclipse-checkstyle${checkstyle.extension}" property="eclipse.checkstyle.url" />
 
                                         <get src="${pmdruleset.url}" dest=".ruleset" />
                                         <get src="${pmd.url}" dest=".pmd" />

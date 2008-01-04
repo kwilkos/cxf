@@ -15,7 +15,7 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
-*/
+ */
 
 package org.apache.yoko.tools;
 
@@ -34,6 +34,7 @@ import java.security.Permission;
 import javax.wsdl.Definition;
 import javax.xml.namespace.QName;
 
+import org.apache.cxf.helpers.FileUtils;
 import org.apache.yoko.tools.common.ToolTestBase;
 import org.apache.yoko.tools.processors.wsdl.WSDLToProcessor;
 import org.apache.yoko.tools.utils.TestUtils;
@@ -62,27 +63,16 @@ public class WSDLToIDLTest extends ToolTestBase {
         }
         
         try {
-            File file = File.createTempFile("WSDLToIDLTest", "");
-            output = new File(file.getAbsolutePath() + ".dir");
-            file.delete();
-            
-            if (!output.exists()) {
-                output.mkdir();
-            }            
+            output = new File(getClass().getResource(".").toURI());
+            output = new File(output, "generated-idl");
+            FileUtils.mkDir(output);
         } catch (Exception e) {
             // complete
         }
     }
 
     private void deleteDir(File dir) throws IOException {
-        for (File f : dir.listFiles()) {
-            if (f.isDirectory()) {
-                deleteDir(f);
-            } else {
-                f.delete();
-            }
-        }
-        dir.delete();
+        FileUtils.removeDir(dir);
     }
 
     public void tearDown() {
@@ -136,7 +126,8 @@ public class WSDLToIDLTest extends ToolTestBase {
                 break;
             }
         }
-        
+        origReader.close();
+        genReader.close();
     }
 
     public void testBindingGenDefault() throws Exception {
@@ -158,8 +149,6 @@ public class WSDLToIDLTest extends ToolTestBase {
             assertNotNull("Binding Node not found in WSDL", model.getBinding(bindingName));
         } catch (Exception e) {
             fail("WSDLToCORBA generated an invalid simpleList-corba.wsdl");
-        } finally {
-            f.deleteOnExit();
         }
     }
     
@@ -184,8 +173,6 @@ public class WSDLToIDLTest extends ToolTestBase {
             assertNotNull("Binding Node not found in WSDL", model.getBinding(bindingName));
         } catch (Exception e) {
             fail("WSDLToIDL generated an invalid simpleList-corba.wsdl");
-        } finally {
-            f.deleteOnExit();
         }
     }    
     
@@ -199,15 +186,12 @@ public class WSDLToIDLTest extends ToolTestBase {
 
         File f = new File(output, "simple-binding.idl");
         assertTrue("simple-binding.idl should be generated", f.exists());
-        try {
-            FileInputStream stream = new FileInputStream(f);            
-            BufferedInputStream bis = new BufferedInputStream(stream); 
-            DataInputStream dis = new DataInputStream(bis);
-            String line = dis.toString();
-            assertTrue("Invalid Idl File Generated", line.length() > 0);        
-        } finally {
-            f.deleteOnExit();
-        }
+        FileInputStream stream = new FileInputStream(f);            
+        BufferedInputStream bis = new BufferedInputStream(stream); 
+        DataInputStream dis = new DataInputStream(bis);
+        String line = dis.toString();
+        assertTrue("Invalid Idl File Generated", line.length() > 0);
+        stream.close();       
     }   
     
     public void testIDLGenSpecifiedFile() throws Exception {
@@ -221,15 +205,12 @@ public class WSDLToIDLTest extends ToolTestBase {
         File f = new File(output, "simple-binding_gen.idl");
         assertTrue("simple-binding_gen.idl should be generated", f.exists());
 
-        try {
-            FileInputStream stream = new FileInputStream(f);            
-            BufferedInputStream bis = new BufferedInputStream(stream); 
-            DataInputStream dis = new DataInputStream(bis);
-            String line = dis.toString();
-            assertTrue("Invalid Idl File Generated", line.length() > 0);
-        } finally {
-            f.deleteOnExit();
-        }
+        FileInputStream stream = new FileInputStream(f);            
+        BufferedInputStream bis = new BufferedInputStream(stream); 
+        DataInputStream dis = new DataInputStream(bis);
+        String line = dis.toString();
+        assertTrue("Invalid Idl File Generated", line.length() > 0);
+        stream.close();
     }
 
     // tests generating corba and idl in default wsdl and idl files
@@ -256,19 +237,14 @@ public class WSDLToIDLTest extends ToolTestBase {
             assertNotNull("Binding Node not found in WSDL", model.getBinding(bindingName));
         } catch (Exception e) {
             fail("WSDLToIDL generated an invalid simple-binding-corba.wsdl");
-        } finally {
-            f1.deleteOnExit();
         }
 
-        try {
-            FileInputStream stream = new FileInputStream(f2);            
-            BufferedInputStream bis = new BufferedInputStream(stream); 
-            DataInputStream dis = new DataInputStream(bis);
-            String line = dis.toString();
-            assertTrue("Invalid Idl File Generated", line.length() > 0);
-        } finally {
-            f2.deleteOnExit();
-        }
+        FileInputStream stream = new FileInputStream(f2);            
+        BufferedInputStream bis = new BufferedInputStream(stream); 
+        DataInputStream dis = new DataInputStream(bis);
+        String line = dis.toString();
+        assertTrue("Invalid Idl File Generated", line.length() > 0);
+        stream.close();
     }
     
     public void testNoArgs() throws Exception {

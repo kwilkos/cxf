@@ -15,60 +15,55 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
-*/
+ */
 
 package org.apache.yoko.tools.processors.idl;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-// Class that holds a fully qualified name as the key that represents
-// a type that was forward declared. 
-// Associated with each fully qualified name is a list of actions.
-// Each action represents a task that is deferred until 
-// the type is really declared. 
-public final class DeferredActionCollection {
-    
-    Map deferredActions = new HashMap<String, List>();
-    
-    public void add(DeferredActionBase action) {
-        Object obj = deferredActions.get(action.getFullyQualifiedName().toString());
-        List list = null;
+import org.apache.cxf.helpers.CastUtils;
+
+/**
+ * Class that holds a fully qualified name as the key that represents
+ * a type that was forward declared. 
+ * Associated with each fully qualified name is a list of actions.
+ * Each action represents a task that is deferred until 
+ * the type is really declared. 
+ */
+
+public final class DeferredActionCollection {    
+    Map<String, List<Object>> deferredActions = new HashMap<String, List<Object>>();
+    public void add(Scope scope, DeferredAction action) {
+        Object obj = deferredActions.get(scope.toString());
+        List<Object> list;
         if (obj == null) {
-            // create a new list and add first action
-            list = new ArrayList();
-            list.add(action);
+            list = new ArrayList<Object>();
+            deferredActions.put(scope.toString(), list);
         } else {
-            // add action to list of actions for that scope
-            list = (ArrayList)obj;
-            list.add(action);
+            list = CastUtils.cast((List)obj);
         }
-        deferredActions.put(action.getFullyQualifiedName().toString(), list);
+        list.add(action);
     }
     
-    public void remove(DeferredActionBase action) {
-        deferredActions.remove(action.getFullyQualifiedName().toString());
+    public void remove(Scope scope, DeferredAction action) {
+        List list = deferredActions.get(scope.toString());
+        if (list != null) {
+            list.remove(action);
+        }
+    }
+
+    public void removeScope(Scope scope) {
+        deferredActions.remove(scope.toString());
     }
                    
     public int getSize() {
-        return deferredActions.size();   
+        return deferredActions.size();
     }
     
-    public List getActionsList(Scope scope) {        
-    
-        List list = new ArrayList();
-        if (deferredActions.size() > 0) {
-            for (Iterator iter = deferredActions.keySet().iterator(); iter.hasNext();) {
-                //Scope key = (Scope)iter.next();
-                String key = (String)iter.next();
-                if (key.equals(scope.toString())) {
-                    return list = (List)deferredActions.get(key);                    
-                }
-            }
-        }           
-        return list;
+    public List getActions(Scope scope) {   
+        return deferredActions.get(scope.toString());
     }
 }

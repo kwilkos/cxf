@@ -15,7 +15,7 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
-*/
+ */
 
 @javax.xml.bind.annotation.XmlSchema(namespace = "http://schemas.apache.org/yoko/idl/ParamModes")
 package org.apache.schemas.yoko.idl.parammodes;

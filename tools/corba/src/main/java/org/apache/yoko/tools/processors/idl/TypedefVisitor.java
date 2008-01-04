@@ -15,16 +15,18 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
-*/
+ */
 
 package org.apache.yoko.tools.processors.idl;
 
+import javax.wsdl.Definition;
 import javax.xml.namespace.QName;
 
 import antlr.collections.AST;
 
 import org.apache.schemas.yoko.bindings.corba.Alias;
 
+import org.apache.ws.commons.schema.XmlSchema;
 import org.apache.ws.commons.schema.XmlSchemaType;
 import org.apache.ws.commons.schema.constants.Constants;
 
@@ -34,8 +36,10 @@ import org.apache.yoko.wsdl.CorbaTypeImpl;
 public class TypedefVisitor extends VisitorBase {
     
     public TypedefVisitor(Scope scope,
+                          Definition defn,
+                          XmlSchema schemaRef,
                           WSDLASTVisitor wsdlVisitor) {
-        super(scope, wsdlVisitor);
+        super(scope, defn, schemaRef, wsdlVisitor);
     }
     
     public static boolean accept(AST node) {
@@ -51,7 +55,11 @@ public class TypedefVisitor extends VisitorBase {
 
         AST typeDeclaratorNode = typedefNode.getFirstChild();
         AST identifierNode = TypesUtils.getCorbaTypeNameNode(typeDeclaratorNode);
-        TypesVisitor typesVisitor = new TypesVisitor(getScope(), wsdlVisitor, identifierNode);
+        TypesVisitor typesVisitor = new TypesVisitor(getScope(),
+                                                     definition,
+                                                     schema,
+                                                     wsdlVisitor,
+                                                     identifierNode);
         typesVisitor.visit(typeDeclaratorNode);
 
         XmlSchemaType schemaType = typesVisitor.getSchemaType();
@@ -64,6 +72,8 @@ public class TypedefVisitor extends VisitorBase {
             // Handle cases "typedef sequence"
             //              "typedef fixed"
             DeclaratorVisitor declaratorVisitor = new DeclaratorVisitor(typedefScope,
+                                                                        definition,
+                                                                        schema,
                                                                         wsdlVisitor,
                                                                         schemaType,
                                                                         corbaType,
@@ -77,6 +87,8 @@ public class TypedefVisitor extends VisitorBase {
             if (StringVisitor.isBounded(typeDeclaratorNode)
                 && !wsdlVisitor.getBoundedStringOverride()) {
                 DeclaratorVisitor declaratorVisitor = new DeclaratorVisitor(typedefScope,
+                                                                            definition,
+                                                                            schema,
                                                                             wsdlVisitor,
                                                                             schemaType,
                                                                             corbaType,
@@ -90,11 +102,13 @@ public class TypedefVisitor extends VisitorBase {
                 while (identifierNode != null) {
                     if (ArrayVisitor.accept(identifierNode)) {
                         ArrayVisitor arrayVisitor = new ArrayVisitor(getScope(),
+                                                                     definition,
+                                                                     schema,
                                                                      wsdlVisitor,
-                                                                     schemaType,
-                                                                     corbaType,
                                                                      identifierNode,
-                                                                     fullyQualifiedName); 
+                                                                     fullyQualifiedName);
+                        arrayVisitor.setSchemaType(schemaType);
+                        arrayVisitor.setCorbaType(corbaType);
                         arrayVisitor.visit(identifierNode);
 
                     } else {
@@ -119,6 +133,8 @@ public class TypedefVisitor extends VisitorBase {
                 corbaType = getCorbaType();
             }
             DeclaratorVisitor declaratorVisitor = new DeclaratorVisitor(typedefScope,
+                                                                        definition,
+                                                                        schema,
                                                                         wsdlVisitor,
                                                                         schemaType,
                                                                         corbaType,
@@ -146,7 +162,7 @@ public class TypedefVisitor extends VisitorBase {
             alias.setBasetype(corbaType.getQName());
         } else {
             wsdlVisitor.getDeferredActions().
-                add(new TypedefDeferredAction(alias, fqName));
+                add(fqName, new TypedefDeferredAction(alias));
             scopedNames.add(scopedName);         
         }
         alias.setRepositoryID(scopedName.toIDLRepositoryID());
@@ -162,8 +178,7 @@ public class TypedefVisitor extends VisitorBase {
                                      Scope fqName) {
         
         Scope typedefScope = new Scope(getScope(), identifierNode);
-        Scope scopedName = new Scope(getScope(), identifierNode);
-                
+        
         Alias corbaString = new Alias();
         if (typeDeclaratorNode.getType() == IDLTokenTypes.LITERAL_string) {
             corbaString.setBasetype(CorbaConstants.NT_CORBA_STRING);

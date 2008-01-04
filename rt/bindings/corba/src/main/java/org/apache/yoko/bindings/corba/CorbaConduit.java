@@ -93,7 +93,6 @@ public class CorbaConduit implements Conduit {
                 LOG.log(Level.SEVERE, "Unable to locate a valid CORBA address");
                 throw new CorbaBindingException("Unable to locate a valid CORBA address");
             }
-            List args = message.getContent(List.class);
             String ref = (String)message.get(Message.ENDPOINT_ADDRESS);
             org.omg.CORBA.Object targetObject;
             // A non-null endpoint address from the message means that we want to invoke on a particular

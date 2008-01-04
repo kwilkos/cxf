@@ -46,12 +46,11 @@ import org.omg.CORBA.NVList;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.ServerRequest;
 
-public class CorbaServerConduit implements Conduit {
+public final class CorbaServerConduit implements Conduit {
     private static final Logger LOG = LogUtils.getL7dLogger(CorbaServerConduit.class);
 
     private EndpointInfo endpointInfo;
     private EndpointReferenceType target;
-    private MessageObserver incomingObserver;
     private ORB orb;
     private CorbaTypeMap typeMap;
 
@@ -67,13 +66,17 @@ public class CorbaServerConduit implements Conduit {
 
     public void prepare(Message message) throws IOException {
         try {
-            AddressType address = endpointInfo.getExtensor(AddressType.class);
+            String location = endpointInfo.getAddress();
+            if (location == null) {
+                AddressType address = endpointInfo.getExtensor(AddressType.class);
 
-            if (address == null) {
-                LOG.log(Level.SEVERE, "Unable to locate a valid CORBA address");
-                throw new CorbaBindingException("Unable to locate a valid CORBA address");
-            }            
-            org.omg.CORBA.Object targetObject = CorbaUtils.importObjectReference(orb, address.getLocation());
+                if (address == null) {
+                    LOG.log(Level.SEVERE, "Unable to locate a valid CORBA address");
+                    throw new CorbaBindingException("Unable to locate a valid CORBA address");
+                }
+                location = address.getLocation();
+            }
+            org.omg.CORBA.Object targetObject = CorbaUtils.importObjectReference(orb, location);
             message.put(CorbaConstants.ORB, orb);
             message.put(CorbaConstants.CORBA_ENDPOINT_OBJECT, targetObject);
             message.setContent(OutputStream.class,
@@ -102,7 +105,7 @@ public class CorbaServerConduit implements Conduit {
     }
 
     public void setMessageObserver(MessageObserver observer) {
-        incomingObserver = observer;
+        //NOTHING
     }
 
     public EndpointReferenceType getTargetReference(EndpointReferenceType t) {
@@ -165,10 +168,7 @@ public class CorbaServerConduit implements Conduit {
     
     private class CorbaOutputStream extends CachedOutputStream {
         
-        private Message outMessage;                
-
         CorbaOutputStream(Message m) {
-            outMessage = m;        
         }
 
         /**

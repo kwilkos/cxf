@@ -15,10 +15,11 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
-*/
+ */
 
 package org.apache.yoko.tools.processors.idl;
 
+import javax.wsdl.Definition;
 import javax.xml.namespace.QName;
 
 import antlr.collections.AST;
@@ -26,6 +27,7 @@ import antlr.collections.AST;
 import org.apache.schemas.yoko.bindings.corba.Enum;
 import org.apache.schemas.yoko.bindings.corba.Enumerator;
 
+import org.apache.ws.commons.schema.XmlSchema;
 import org.apache.ws.commons.schema.XmlSchemaEnumerationFacet;
 import org.apache.ws.commons.schema.XmlSchemaSimpleType;
 import org.apache.ws.commons.schema.XmlSchemaSimpleTypeRestriction;
@@ -35,8 +37,10 @@ import org.apache.ws.commons.schema.constants.Constants;
 public class EnumVisitor extends VisitorBase {
 
     public EnumVisitor(Scope scope,
+                       Definition defn,
+                       XmlSchema schemaRef,
                        WSDLASTVisitor wsdlVisitor) {
-        super(scope, wsdlVisitor);
+        super(scope, defn, schemaRef, wsdlVisitor);
     }
     
     public static boolean accept(AST node) {
@@ -56,7 +60,7 @@ public class EnumVisitor extends VisitorBase {
 
         // xmlschema:enum
         XmlSchemaSimpleType enumSchemaSimpleType = new XmlSchemaSimpleType(schema);
-        enumSchemaSimpleType.setName(enumNameScope.toString());
+        enumSchemaSimpleType.setName(mapper.mapToQName(enumNameScope));
         
         XmlSchemaSimpleTypeRestriction enumSchemaSimpleTypeRestriction = new XmlSchemaSimpleTypeRestriction();
         enumSchemaSimpleTypeRestriction.setBaseTypeName(Constants.XSD_STRING);

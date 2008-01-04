@@ -15,22 +15,21 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
-*/
+ */
 
 package org.apache.yoko.tools.processors.idl;
 
 import javax.wsdl.Definition;
-
 import antlr.collections.AST;
+import org.apache.ws.commons.schema.XmlSchema;
 
 public class ParamTypeSpecVisitor extends VisitorBase {
 
-    private Definition wsdlDefinition;
-    
     public ParamTypeSpecVisitor(Scope scope,
+                                Definition defn,
+                                XmlSchema schemaRef,
                                 WSDLASTVisitor wsdlVisitor) {
-        super(scope, wsdlVisitor);
-        wsdlDefinition = wsdlVisitor.getDefinition();
+        super(scope, defn, schemaRef, wsdlVisitor);
     }
 
     public void visit(AST node) {
@@ -45,19 +44,15 @@ public class ParamTypeSpecVisitor extends VisitorBase {
         
         if (PrimitiveTypesVisitor.accept(node)) {
             // base_type_spec
-            visitor = new PrimitiveTypesVisitor(getScope(), schemas);
-            
+            visitor = new PrimitiveTypesVisitor(getScope(), definition, schema, schemas);            
         } else if (StringVisitor.accept(node)) {
             // string_type_spec
             // wstring_type_spec
-            visitor = new StringVisitor(getScope(), wsdlVisitor, null);
+            visitor = new StringVisitor(getScope(), definition, schema, wsdlVisitor, null);
 
-        } else if (ScopedNameVisitor.accept(getScope(), schemas, schema, 
-                                            typeMap, 
-                                            wsdlVisitor.getDefinition(),
-                                            node, wsdlVisitor)) {
+        } else if (ScopedNameVisitor.accept(getScope(), definition, schema, node, wsdlVisitor)) {
             // scoped_name
-            visitor = new ScopedNameVisitor(getScope(), wsdlVisitor);
+            visitor = new ScopedNameVisitor(getScope(), definition, schema, wsdlVisitor);
                
         } else {
             throw new RuntimeException("[ParamTypeSpecVisitor] Invalid IDL: unknown element "
@@ -65,7 +60,6 @@ public class ParamTypeSpecVisitor extends VisitorBase {
         }
         
         visitor.visit(node);
-
         setSchemaType(visitor.getSchemaType());
         setCorbaType(visitor.getCorbaType());
         setFullyQualifiedName(visitor.getFullyQualifiedName());

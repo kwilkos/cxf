@@ -15,11 +15,13 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
-*/
+ */
 
 package org.apache.yoko.tools.processors.idl;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.wsdl.Definition;
 import javax.xml.namespace.QName;
@@ -27,7 +29,9 @@ import javax.xml.namespace.QName;
 import antlr.collections.AST;
 
 import org.apache.schemas.yoko.bindings.corba.Alias;
+import org.apache.schemas.yoko.bindings.corba.Anonarray;
 import org.apache.schemas.yoko.bindings.corba.Anonsequence;
+import org.apache.schemas.yoko.bindings.corba.Array;
 import org.apache.schemas.yoko.bindings.corba.Sequence;
 import org.apache.schemas.yoko.bindings.corba.TypeMappingType;
 import org.apache.ws.commons.schema.XmlSchema;
@@ -43,8 +47,10 @@ public class ScopedNameVisitor extends VisitorBase {
     private static XmlSchemaPrimitiveMap xmlSchemaPrimitiveMap = new XmlSchemaPrimitiveMap();          
 
     public ScopedNameVisitor(Scope scope,
+                             Definition defn,
+                             XmlSchema schemaRef,
                              WSDLASTVisitor wsdlVisitor) {
-        super(scope, wsdlVisitor);             
+        super(scope, defn, schemaRef, wsdlVisitor);             
     }
     
     public void setExceptionMode(boolean value) {
@@ -52,20 +58,22 @@ public class ScopedNameVisitor extends VisitorBase {
     }
     
     public static boolean accept(Scope scope,
-                                 XmlSchemaCollection schemas,
-                                 XmlSchema schema,
-                                 TypeMappingType typeMap,
-                                 Definition def,
+                                 Definition defn,
+                                 XmlSchema schemaRef,
                                  AST node,                                 
                                  WSDLASTVisitor wsdlVisitor) {
         boolean result = false;
         if (PrimitiveTypesVisitor.accept(node)) {
             result = true; 
-        } else if (isforwardDeclared(scope, schema, node, getScopedNames(), wsdlVisitor)) {
+        } else if (isforwardDeclared(scope, node, wsdlVisitor)) {
+            result = true;          
+        } else if (ObjectReferenceVisitor.accept(scope,
+                                                 schemaRef,
+                                                 defn,
+                                                 node,
+                                                 wsdlVisitor)) {
             result = true;
-        } else if (ObjectReferenceVisitor.accept(scope, schema, def, node)) {
-            result = true;
-        } else if (findSchemaType(scope, schemas, schema, typeMap, node, null)) {
+        } else if (findSchemaType(scope, defn, schemaRef, node, wsdlVisitor, null)) {
             result = true;
         }
         return result;
@@ -78,33 +86,39 @@ public class ScopedNameVisitor extends VisitorBase {
 
         XmlSchemaType stype = null;
         CorbaTypeImpl ctype = null;        
-        
         if (PrimitiveTypesVisitor.accept(node)) {
             // primitive type            
-            PrimitiveTypesVisitor primitiveVisitor = new PrimitiveTypesVisitor(null, schemas);
+            PrimitiveTypesVisitor primitiveVisitor =
+                new PrimitiveTypesVisitor(null, definition, schema, schemas);
             primitiveVisitor.visit(node);
             
             stype = primitiveVisitor.getSchemaType();
             ctype = primitiveVisitor.getCorbaType();            
-        } else if (isforwardDeclared(getScope(), schema, node, scopedNames, wsdlVisitor)) {
+        } else if (isforwardDeclared(getScope(), node, wsdlVisitor)) {
             // forward declaration
-            Scope scope = forwardDeclared(getScope(), schema, node, scopedNames, wsdlVisitor);
+            Scope scope = forwardDeclared(getScope(),
+                                          definition,
+                                          schema,
+                                          node,
+                                          wsdlVisitor);
             setFullyQualifiedName(scope);
             // how will we create the corbatype ????
-        } else if (ObjectReferenceVisitor.accept(getScope(), schema, wsdlVisitor.getDefinition(), node)) {
+        } else if (ObjectReferenceVisitor.accept(getScope(), schema, definition, node, wsdlVisitor)) {
             ObjectReferenceVisitor objRefVisitor = new ObjectReferenceVisitor(getScope(),
+                                                                              definition,
+                                                                              schema,
                                                                               wsdlVisitor);
             objRefVisitor.visit(node);
 
             stype = objRefVisitor.getSchemaType();
-            ctype = objRefVisitor.getCorbaType();            
+            ctype = objRefVisitor.getCorbaType();           
         } else {
             VisitorTypeHolder holder = new VisitorTypeHolder();
             boolean found = findSchemaType(getScope(),
-                                           schemas,
+                                           definition,
                                            schema,
-                                           typeMap,
                                            node,
+                                           wsdlVisitor,
                                            holder);
             if (found) {
                 ctype = holder.getCorbaType();
@@ -123,9 +137,10 @@ public class ScopedNameVisitor extends VisitorBase {
         
     }
 
-    private static CorbaTypeImpl getCorbaSchemaType(XmlSchema schema,
+    private static CorbaTypeImpl getCorbaSchemaType(XmlSchema xmlSchema,
                                                     TypeMappingType typeMap,
-                                                    XmlSchemaType stype) {       
+                                                    XmlSchemaType stype,
+                                                    Scope scopedName) {       
         CorbaTypeImpl ctype = null;
         if (stype.getQName().equals(Constants.XSD_STRING)) {
             ctype = new CorbaTypeImpl();
@@ -133,29 +148,17 @@ public class ScopedNameVisitor extends VisitorBase {
             ctype.setQName(CorbaConstants.NT_CORBA_STRING);
             ctype.setType(Constants.XSD_STRING);
         } else {                    
-            QName qname = null; 
-            // Revisit: Exceptions are treated as a special case.
-            // we should be able to do this in a better way.
-            if (exceptionMode) {
-                String name = null;
-                if (stype.getName().endsWith("Type")) {
-                    name = stype.getName().substring(0, stype.getName().length() - 4);
-                } else {
-                    name = stype.getName();
-                }
-                qname = new QName(schema.getTargetNamespace(), name);                     
-            } else {
-                qname = stype.getQName();      
-            }
-            ctype = findCorbaType(typeMap, qname);
+            QName qname = stype.getQName();
+            ctype = findCorbaTypeForSchemaType(typeMap, qname, scopedName);
         }
         return ctype;
     }
          
-    protected static boolean isforwardDeclared(Scope scope, XmlSchema schema, AST node,
-                                               ScopeNameCollection scopedNames, WSDLASTVisitor wsdlVisitor) {
+    protected static boolean isforwardDeclared(Scope scope, AST node, WSDLASTVisitor wsdlVisitor) {
         boolean isForward = false;
         Scope currentScope = scope;
+
+        ScopeNameCollection scopedNames = wsdlVisitor.getScopedNames();
 
         // Check for forward declaration from local scope outwards
         if ((node.getFirstChild() == null)
@@ -191,12 +194,15 @@ public class ScopedNameVisitor extends VisitorBase {
     }
      
     
-    protected static Scope forwardDeclared(Scope scope, XmlSchema schema, AST node,
-                                           ScopeNameCollection scopedNames, 
+    protected static Scope forwardDeclared(Scope scope,
+                                           Definition defn,
+                                           XmlSchema schemaRef,
+                                           AST node,
                                            WSDLASTVisitor wsdlVisitor) {
         //XmlSchemaType result = null;
         Scope result = null;
         Scope currentScope = scope;
+        ScopeNameCollection scopedNames = wsdlVisitor.getScopedNames();
 
         // Check for forward declaration from local scope outwards
         if ((node.getFirstChild() == null)
@@ -210,9 +216,14 @@ public class ScopedNameVisitor extends VisitorBase {
                 }
 
                 if (scopedNames.getScope(scopedName) != null) {
-                    if (ObjectReferenceVisitor.accept(scope, schema, wsdlVisitor.getDefinition(), node)) {
+                    XmlSchema xmlSchema = schemaRef;
+                    String tns = wsdlVisitor.getModuleToNSMapper().map(scopedName.getParent());
+                    if (tns != null) {
+                        xmlSchema = wsdlVisitor.getManager().getXmlSchema(tns);
+                    }
+                    if (ObjectReferenceVisitor.accept(scope, xmlSchema, defn, node, wsdlVisitor)) {
                         // checks if its a forward
-                        Visitor visitor = new ObjectReferenceVisitor(scope, wsdlVisitor);
+                        Visitor visitor = new ObjectReferenceVisitor(scope, defn, xmlSchema, wsdlVisitor);
                         visitor.visit(node);                    
                     }
                     result = scopedName;
@@ -228,29 +239,33 @@ public class ScopedNameVisitor extends VisitorBase {
             } else {
                 scopedName = new Scope(new Scope(), node);
             }
-            if (scopedNames.getScope(scopedName) != null) { 
-                if (ObjectReferenceVisitor.accept(scope, schema, wsdlVisitor.getDefinition(), node)) {
+            if (scopedNames.getScope(scopedName) != null) {
+                XmlSchema xmlSchema = schemaRef;
+                String tns = wsdlVisitor.getModuleToNSMapper().map(scopedName.getParent());
+                if (tns != null) {
+                    xmlSchema = wsdlVisitor.getManager().getXmlSchema(tns);
+                }
+                if (ObjectReferenceVisitor.accept(scope, xmlSchema, defn, node, wsdlVisitor)) {
                     // checks if an object ref
-                    Visitor visitor = new ObjectReferenceVisitor(scope, wsdlVisitor);
+                    Visitor visitor = new ObjectReferenceVisitor(scope, defn, xmlSchema, wsdlVisitor);
                     visitor.visit(node);
                 }
                 result = scopedName;
             }
         }
-
         return result;
     }
     
     
     protected static boolean findSchemaType(Scope scope,
-                                            XmlSchemaCollection schemas,
-                                            XmlSchema schema,
-                                            TypeMappingType typeMap,
+                                            Definition defn,
+                                            XmlSchema schemaRef,
                                             AST node,
+                                            WSDLASTVisitor wsdlVisitor,
                                             VisitorTypeHolder holder) {
                                                 
         boolean result = false;
-        Scope currentScope = scope;
+        Scope currentScope = scope;        
         
         // checks from innermost local scope outwards
         if ((node.getFirstChild() == null)
@@ -267,82 +282,263 @@ public class ScopedNameVisitor extends VisitorBase {
                 } else {
                     scopedName = new Scope(currentScope, node);
                 }
-                
-                result = findNonSchemaType(schemas, schema, typeMap, scopedName.toString(), holder);
-                if (!result) {
-                    QName qname = null;
+                result = findScopeSchemaType(scopedName, schemaRef, wsdlVisitor, holder);
 
-                    // Exceptions are treated as a special case as for the
-                    // doc/literal style
-                    // in the schema we will have an element and a complextype
-                    // so the name
-                    // and the typename will be different.
-                    if (exceptionMode) {
-                        qname = new QName(schema.getTargetNamespace(), scopedName.toString() + "Type");
-                    } else {
-                        qname = new QName(schema.getTargetNamespace(), scopedName.toString());
-                    }
-                    XmlSchemaType stype = schema.getTypeByName(qname);
-                    if (stype == null) {
-                        stype = schemas.getTypeByQName(qname);
-                    }
-                    if (stype != null) {
-                        result = true;
-                        if (holder != null) {
-                            holder.setSchemaType(stype);
-                            holder.setCorbaType(getCorbaSchemaType(schema, typeMap, stype));
-                        }
-                    }
+                // Search inherited scopes for the type        
+                if (!result) {
+                    result = findSchemaTypeInInheritedScope(scope, defn, schemaRef,
+                                                            node, wsdlVisitor, holder);
+                    
                 }
                 currentScope = currentScope.getParent();
             }
-
         }
+        
+        
+        
         if (!result) {
             // Global scope is our last chance to resolve the node
-            Scope scopedName = scope;
-            String name = node.toString();
-            if (isFullyScopedName(node)) {
-                scopedName = getFullyScopedName(new Scope(), node);
-                name = scopedName.toString();
+            result = findSchemaTypeInGlobalScope(scope,
+                                                 defn,
+                                                 schemaRef,
+                                                 node,
+                                                 wsdlVisitor,
+                                                 holder);
+        }
+        return result;
+    }
+    
+    private static boolean findSchemaTypeInGlobalScope(Scope scope,
+                                                       Definition defn,
+                                                       XmlSchema currentSchema,
+                                                       AST node,
+                                                       WSDLASTVisitor wsdlVisitor,
+                                                       VisitorTypeHolder holder) {
+        XmlSchemaCollection schemas = wsdlVisitor.getSchemas();
+        TypeMappingType typeMap = wsdlVisitor.getTypeMap();
+        ModuleToNSMapper mapper = wsdlVisitor.getModuleToNSMapper();
+        WSDLSchemaManager manager = wsdlVisitor.getManager();
+        
+        Scope scopedName = scope;
+        String name = node.toString();
+        if (isFullyScopedName(node)) {
+            scopedName = getFullyScopedName(new Scope(), node);
+            name = scopedName.toString();
+        }
+        boolean result = findNonSchemaType(name, wsdlVisitor, holder);
+        if (!result) {
+            XmlSchema xmlSchema = currentSchema;
+            QName qname = null;
+            String tns = mapper.map(scopedName.getParent());
+            if (tns != null) {
+                xmlSchema = manager.getXmlSchema(tns);
+                if (xmlSchema != null) {
+                    qname = new QName(xmlSchema.getTargetNamespace(), scopedName.tail());
+                }
+            } else {
+                qname = new QName(xmlSchema.getTargetNamespace(), name);
             }
-            
-            result = findNonSchemaType(schemas, schema, typeMap, name, holder);
-            if (!result) {
-                QName qname = new QName(schema.getTargetNamespace(), name);
-
+            XmlSchemaType stype = null;
+            if (qname != null) {
                 // Exceptions are treated as a special case as above
                 if (exceptionMode) {
-                    qname = new QName(schema.getTargetNamespace(), qname.getLocalPart() + "Type");
+                    qname = new QName(xmlSchema.getTargetNamespace(), qname.getLocalPart() + "Type");
                 }
-                XmlSchemaType stype = schema.getTypeByName(qname);
+                stype = xmlSchema.getTypeByName(qname);
                 if (stype == null) {
                     stype = schemas.getTypeByQName(qname);
                 }
-                if (stype != null) {
-                    result = true;
-                    if (holder != null) {
-                        holder.setSchemaType(stype);
-                        holder.setCorbaType(getCorbaSchemaType(schema, typeMap, stype));
+            }
+            if (stype != null) {
+                result = true;
+                if (holder != null) {
+                    holder.setSchemaType(stype);
+                    holder.setCorbaType(getCorbaSchemaType(xmlSchema, typeMap, stype, scopedName));
+                    //add a xmlschema import
+                    if (!currentSchema.getTargetNamespace().equals(xmlSchema.getTargetNamespace())) {
+                        String importFile = wsdlVisitor.getOutputDir()
+                            + System.getProperty("file.separator")
+                            + scopedName.getParent().toString("_");
+                        manager.addXmlSchemaImport(currentSchema, xmlSchema, importFile);
                     }
                 }
             }
         }
         return result;
     }
+
     
-    public static CorbaTypeImpl findCorbaType(TypeMappingType typeMap, QName schemaTypeName) {
+    // Searches all the inherited interfaces for the type.
+    private static boolean findSchemaTypeInInheritedScope(Scope scope, Definition defn, XmlSchema schemaRef,
+                                                          AST node, WSDLASTVisitor wsdlVisitor,
+                                                          VisitorTypeHolder holder) {
+
+        boolean result = false;                
+        List<Scope> baseScopes = (List<Scope>)wsdlVisitor.getTreeMap().get(scope);
+        if (baseScopes != null) {
+            List<Scope> scopeList = new ArrayList<Scope>();
+            for (Scope scopeName : baseScopes) {
+                scopeList.add(scopeName);
+            }
+            result = findSchemaTypeInBaseScope(scopeList, scope, defn, 
+                                               schemaRef, node, wsdlVisitor, holder);
+        }
+        return result;
+    }
+    
+    // Does a breath depth search first.
+    public static boolean findSchemaTypeInBaseScope(List<Scope> scopeList, Scope scope, 
+                                                    Definition defn, XmlSchema schemaRef,
+                                                    AST node, WSDLASTVisitor wsdlVisitor,
+                                                    VisitorTypeHolder holder) {
+        List<Scope> inheritedList = new ArrayList<Scope>();
+        boolean result = false;
+        for (Scope scopeName : scopeList) {
+            inheritedList.add(scopeName);
+        }        
+        
+        if (scopeList != null) {            
+            Iterator iterator = scopeList.iterator();
+            while (iterator.hasNext()) {
+                Scope inheritScope = (Scope)iterator.next();
+
+                Scope scopedName = new Scope(inheritScope, node);
+                result = findScopeSchemaType(scopedName, schemaRef, wsdlVisitor, holder);
+                if (!result) {
+                    inheritedList.remove(inheritScope);
+                    List<Scope> scopes = (List<Scope>)wsdlVisitor.getTreeMap().get(inheritScope);
+                    if (scopes != null) {
+                        for (Scope scopeName : scopes) {
+                            inheritedList.add(scopeName);
+                        }
+                    }
+                } else {
+                    return result;
+                }
+            }
+
+            if (!inheritedList.isEmpty()) {
+                List<Scope> baseList = new ArrayList<Scope>();
+                for (Scope scopeName : inheritedList) {
+                    baseList.add(scopeName);
+                }
+
+                result = findSchemaTypeInBaseScope(baseList, scope, defn, schemaRef, node, wsdlVisitor,
+                                                   holder);
+            }
+        }
+        return result;
+    }
+    
+    // Searches this scope for the schema type.
+    private static boolean findScopeSchemaType(Scope scopedName, XmlSchema schemaRef, 
+                                           WSDLASTVisitor wsdlVisitor, 
+                                           VisitorTypeHolder holder) {
+        
+        XmlSchemaCollection schemas = wsdlVisitor.getSchemas();
+        TypeMappingType typeMap = wsdlVisitor.getTypeMap();
+        ModuleToNSMapper mapper = wsdlVisitor.getModuleToNSMapper();
+        WSDLSchemaManager manager = wsdlVisitor.getManager();
+
+        boolean result = findNonSchemaType(scopedName.toString(), wsdlVisitor, holder);
+        if (!result) {
+            QName qname = null;
+            XmlSchema xmlSchema = schemaRef;
+            String tns = wsdlVisitor.getModuleToNSMapper().map(scopedName.getParent());
+            if (tns != null) {
+                xmlSchema = wsdlVisitor.getManager().getXmlSchema(tns);
+            }
+            XmlSchemaType stype = null;
+            if (xmlSchema != null) {
+                // Exceptions are treated as a special case as for the
+                // doc/literal style
+                // in the schema we will have an element and a complextype
+                // so the name
+                // and the typename will be different.
+
+                String scopedNameString = null;
+                if (mapper.isDefaultMapping()) {
+                    scopedNameString = scopedName.toString();
+                } else {
+                    scopedNameString = scopedName.tail();
+                }
+
+                if (exceptionMode) {
+                    qname = new QName(xmlSchema.getTargetNamespace(), scopedNameString + "Type");
+                } else {
+                    qname = new QName(xmlSchema.getTargetNamespace(), scopedNameString);
+                }
+
+                stype = xmlSchema.getTypeByName(qname);
+                if (stype == null) {
+                    stype = schemas.getTypeByQName(qname);
+                }
+            }
+            if (stype != null) {
+                result = true;
+            }
+            if (result && holder != null) {
+                holder.setSchemaType(stype);
+                holder.setCorbaType(getCorbaSchemaType(xmlSchema, typeMap, stype, scopedName));
+                // add a xmlschema import
+                if (!schemaRef.getTargetNamespace().equals(xmlSchema.getTargetNamespace())) {
+                    String importFile = wsdlVisitor.getOutputDir() + System.getProperty("file.separator")
+                                        + scopedName.getParent().toString("_");
+                    manager.addXmlSchemaImport(schemaRef, xmlSchema, importFile);
+                }
+            }
+        }
+        return result;
+    }
+    
+    
+    
+    public static CorbaTypeImpl findCorbaTypeForSchemaType(TypeMappingType typeMap, 
+                                                           QName schemaTypeName,
+                                                           Scope scopedName) {
         CorbaTypeImpl result = null;
         Iterator corbaTypes = typeMap.getStructOrExceptionOrUnion().iterator();
         while (corbaTypes.hasNext()) {
-            CorbaTypeImpl type = (CorbaTypeImpl) corbaTypes.next();
-            if (type.getQName().getLocalPart().equals(schemaTypeName.getLocalPart())) {
+            CorbaTypeImpl type = (CorbaTypeImpl) corbaTypes.next();         
+            if ((type instanceof Sequence)
+                || (type instanceof Array)
+                || (type.getType() == null)
+                || (type instanceof Anonsequence)
+                || (type instanceof Anonarray)) {
+                //REVISIT, cannot compare the type because they are incorrect
+                if (type.getQName().getLocalPart().equals(schemaTypeName.getLocalPart())) {
+                    result = type;
+                    break;
+                }               
+                
+                // If we are using the module to ns mapping, then the name of the type in schema
+                // and in the typemap are actually different.  We should then compare with the scoped
+                // name that we are given.
+                if (type.getQName().getLocalPart().equals(scopedName.toString())) {
+                    result = type;
+                    break;
+                }
+
+            } else if (schemaTypeName.equals(type.getType())) {
                 result = type;
                 break;
             }
         }
         return result;
-    }       
+    }  
+
+    public static CorbaTypeImpl findCorbaType(TypeMappingType typeMap, QName typeName) {
+        CorbaTypeImpl result = null;
+        Iterator corbaTypes = typeMap.getStructOrExceptionOrUnion().iterator();
+        while (corbaTypes.hasNext()) {
+            CorbaTypeImpl type = (CorbaTypeImpl) corbaTypes.next();
+            if (type.getQName().equals(typeName)) {
+                result = type;
+                break;
+            }
+        }
+        return result;
+    }     
     
     protected static boolean isFullyScopedName(AST node) {
         if (node.getType() == IDLTokenTypes.IDENT) {
@@ -365,47 +561,28 @@ public class ScopedNameVisitor extends VisitorBase {
         AST scopeNode = node.getFirstChild();
         if (node.getFirstChild().getType() == IDLTokenTypes.IDENT) {
             scopedName = new Scope(scopedName, scopeNode);
-        }                                
+        }
         while (scopeNode.getNextSibling() != null) {
             scopeNode = scopeNode.getNextSibling(); 
-            scopedName = new Scope(scopedName, scopeNode);                            
-        }   
-        
+            scopedName = new Scope(scopedName, scopeNode);
+        }
         return scopedName;
     }
 
-    protected static boolean findNonSchemaType(XmlSchemaCollection schemas,
-                                               XmlSchema schema,
-                                               TypeMappingType typeMap,
-                                               String name,
+    protected static boolean findNonSchemaType(String name,
+                                               WSDLASTVisitor wsdlVisitor,
                                                VisitorTypeHolder holder) {
         boolean result = false;
+        TypeMappingType typeMap = wsdlVisitor.getTypeMap();
+        XmlSchemaCollection schemas = wsdlVisitor.getSchemas();
+
         QName qname = new QName(typeMap.getTargetNamespace(), name);
         CorbaTypeImpl corbaType = findCorbaType(typeMap, qname);
         if (corbaType != null) {
             if (corbaType instanceof Alias) {
                 result = true;
                 if (holder != null) {
-                    holder.setCorbaType(corbaType);
-                    Alias alias = (Alias) corbaType;
-                    //loop through alias base types, till you get a non-alias corba type
-                    CorbaTypeImpl type = findCorbaType(typeMap, alias.getBasetype());
-                    while ((type != null) && (type instanceof Alias)) {
-                        alias = (Alias) type;
-                        type = findCorbaType(typeMap, alias.getBasetype());
-                    }
-                    QName tname;
-                    if (type == null) {
-                        //it must be a primitive type
-                        tname = xmlSchemaPrimitiveMap.get(alias.getBasetype());
-                    } else {
-                        tname = type.getType();
-                    }         
-                    XmlSchemaType stype = schemas.getTypeByQName(tname);
-                    if (stype == null) {
-                        stype = schema.getTypeByName(tname);
-                    }
-                    holder.setSchemaType(stype);
+                    populateAliasSchemaType(corbaType, wsdlVisitor, holder);
                 }
             } else if (((corbaType instanceof Sequence) || (corbaType instanceof Anonsequence))
                        && ((corbaType.getType().equals(Constants.XSD_BASE64))
@@ -419,6 +596,38 @@ public class ScopedNameVisitor extends VisitorBase {
             }
         }
         return result;
+    }
+
+    protected static void populateAliasSchemaType(CorbaTypeImpl corbaType,
+                                                  WSDLASTVisitor wsdlVisitor,
+                                                  VisitorTypeHolder holder) {
+        XmlSchemaCollection schemas = wsdlVisitor.getSchemas();
+        TypeMappingType typeMap = wsdlVisitor.getTypeMap();
+        holder.setCorbaType(corbaType);
+        Alias alias = (Alias) corbaType;
+        //loop through alias base types, till you get a non-alias corba type
+        CorbaTypeImpl type = findCorbaType(typeMap, alias.getBasetype());
+        while ((type != null) && (type instanceof Alias)) {
+            alias = (Alias) type;
+            type = findCorbaType(typeMap, alias.getBasetype());
+        }
+        QName tname;
+        if (type == null) {
+            //it must be a primitive type
+            tname = xmlSchemaPrimitiveMap.get(alias.getBasetype());
+        } else {
+            tname = type.getType();
+        }
+        XmlSchemaType stype = schemas.getTypeByQName(tname);
+        if (stype == null) {
+            XmlSchema xmlSchema = wsdlVisitor.getManager().getXmlSchema(tname.getNamespaceURI());
+            if (xmlSchema != null) {
+                stype = xmlSchema.getTypeByName(tname);
+            } else {
+                stype = wsdlVisitor.getSchema().getTypeByName(tname);
+            }
+        }
+        holder.setSchemaType(stype);
     }
         
 }

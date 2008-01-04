@@ -15,67 +15,55 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
-*/
+ */
 
 package org.apache.yoko.tools.processors.idl;
 
-import java.io.File;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import javax.wsdl.Binding;
-import javax.wsdl.BindingOperation;
 import javax.wsdl.Definition;
 import javax.wsdl.Import;
 import javax.wsdl.Message;
-import javax.wsdl.Port;
 import javax.wsdl.PortType;
 import javax.wsdl.Service;
 import javax.wsdl.Types;
 import javax.wsdl.WSDLException;
 import javax.wsdl.extensions.ExtensibilityElement;
-import javax.wsdl.extensions.ExtensionRegistry;
-import javax.wsdl.extensions.schema.Schema;
-import javax.wsdl.extensions.schema.SchemaImport;
-import javax.wsdl.factory.WSDLFactory;
 import javax.xml.bind.JAXBException;
-import javax.xml.namespace.QName;
 
 import antlr.ASTVisitor;
 import antlr.collections.AST;
 
 import org.apache.cxf.tools.common.ToolException;
-import org.apache.cxf.wsdl.JAXBExtensionHelper;
-import org.apache.cxf.wsdl.WSDLConstants;
-import org.apache.schemas.yoko.bindings.corba.AddressType;
-import org.apache.schemas.yoko.bindings.corba.BindingType;
-import org.apache.schemas.yoko.bindings.corba.OperationType;
 import org.apache.schemas.yoko.bindings.corba.TypeMappingType;
 import org.apache.ws.commons.schema.XmlSchema;
 import org.apache.ws.commons.schema.XmlSchemaCollection;
-import org.apache.ws.commons.schema.XmlSchemaSerializer;
+import org.apache.ws.commons.schema.XmlSchemaForm;
 import org.apache.ws.commons.schema.XmlSchemaType;
 import org.apache.ws.commons.schema.constants.Constants;
-import org.apache.ws.commons.schema.utils.NamespaceMap;
 import org.apache.yoko.tools.common.ToolCorbaConstants;
 import org.apache.yoko.tools.common.WSDLUtils;
 import org.apache.yoko.wsdl.CorbaConstants;
 
 public class WSDLASTVisitor implements ASTVisitor {
-    
-    
+
     Definition definition;    
     XmlSchema schema;
-    XmlSchemaCollection schemas;    
+    XmlSchemaCollection schemas;
+    
     TypeMappingType typeMap;
     ScopeNameCollection scopedNames;
     ScopeNameCollection recursionList;
     DeferredActionCollection deferredActions;
     String targetNamespace;
     private boolean declaredWSAImport;
+    private boolean supportPolymorphicFactories;
 
     private XmlSchemaType sequenceOctetType;
     private boolean boundedStringOverride;
@@ -83,43 +71,58 @@ public class WSDLASTVisitor implements ASTVisitor {
     private String outputDir;
     private String importSchemaFilename; 
     private boolean schemaGenerated;
-    
+    private ModuleToNSMapper moduleToNSMapper;    
+    private WSDLSchemaManager manager;
+    private Map treeMap;
+
     public WSDLASTVisitor(String tns, String schemans, String corbatypemaptns)
         throws WSDLException, JAXBException {
         
-        definition = createWsdlDefinition(tns);
+        manager = new WSDLSchemaManager();
+
+        definition = manager.createWSDLDefinition(tns);
         
+        treeMap = new TreeMap();
+
         targetNamespace = tns;
         schemas = new XmlSchemaCollection();
         scopedNames = new ScopeNameCollection();
-        deferredActions = new DeferredActionCollection();       
-        schema = createSchema(schemans);
+        deferredActions = new DeferredActionCollection();
+
+        if (schemans == null) {
+            schemans = tns;
+        }
+        schema = manager.createXmlSchemaForDefinition(definition, schemans, schemas);
         declaredWSAImport = false;
         
         addAnyType();
         
-        createCorbaTypeMap(corbatypemaptns);
+        typeMap = manager.createCorbaTypeMap(definition, corbatypemaptns);
         
         // idl:sequence<octet> maps to xsd:base64Binary by default
         sequenceOctetType = schemas.getTypeByQName(Constants.XSD_BASE64);
         
         // treat bounded corba:string/corba:wstring as unbounded if set to true
         setBoundedStringOverride(false);
+
+        moduleToNSMapper = new ModuleToNSMapper();
     }
 
     public void visit(AST node) {
         // <specification> ::= <definition>+
 
         while (node != null) {
-            DefinitionVisitor definitionVisitor = new DefinitionVisitor(new Scope(),
+            Scope rootScope = new Scope();
+            DefinitionVisitor definitionVisitor = new DefinitionVisitor(rootScope,
+                                                                        definition,
+                                                                        schema,
                                                                         this);
             definitionVisitor.visit(node);
-
             node = node.getNextSibling();
         }
         
         try {           
-            attachSchema();            
+            manager.attachSchemaToWSDL(definition, schema, isSchemaGenerated());            
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }
@@ -136,13 +139,33 @@ public class WSDLASTVisitor implements ASTVisitor {
     public void updateSchemaNamespace(String name) throws Exception  {
         schema.setTargetNamespace(name);                   
     }
-           
+    
+    public void setQualified(boolean qualified) throws Exception  {
+        if (qualified) {
+            XmlSchemaForm form = new XmlSchemaForm("qualified");            
+            schema.setAttributeFormDefault(form);
+            schema.setElementFormDefault(form);
+        }                          
+    }
+    
+    public void setSupportPolymorphicFactories(boolean support) throws Exception  {               
+        supportPolymorphicFactories = support;                      
+    }
+      
+    public boolean getSupportPolymorphicFactories() {
+        return supportPolymorphicFactories;
+    }
+    
     public void setIdlFile(String idl) {
         idlFile = idl;
     }
     
     public String getIdlFile() {
         return idlFile;
+    }
+    
+    public Map getTreeMap() {
+        return treeMap;
     }
     
     public void setOutputDir(String outDir) {
@@ -155,6 +178,10 @@ public class WSDLASTVisitor implements ASTVisitor {
     
     public Definition getDefinition() {
         return definition;
+    }
+
+    public WSDLSchemaManager getManager() {
+        return manager;
     }
 
     public XmlSchema getSchema() {
@@ -243,10 +270,20 @@ public class WSDLASTVisitor implements ASTVisitor {
     }
     
     public boolean writeSchemaDefinition(Definition definit, Writer writer) throws Exception  {
-        Definition def = createWsdlDefinition(targetNamespace + "-types");
+        Definition def = manager.createWSDLDefinition(targetNamespace + "-types");
         def.createTypes();        
         def.setTypes(definit.getTypes());                       
         WSDLUtils.writeSchema(def, writer);
+        return true;
+    }
+
+    public boolean writeSchema(XmlSchema schemaRef, Writer writer) throws Exception  {
+        //REVISIT, it should be easier to  write out the schema directly, but currently,
+        //the XmlSchemaSerializer throws a NullPointerException, when setting up namespaces!!!
+        //schemaRef.write(writer);
+        Definition defn = manager.createWSDLDefinition(schemaRef.getTargetNamespace());
+        manager.attachSchemaToWSDL(defn, schemaRef, true);
+        writeSchemaDefinition(defn, writer);
         return true;
     }
     
@@ -270,69 +307,58 @@ public class WSDLASTVisitor implements ASTVisitor {
         // write out logical file -L and physical in default
         if (logicalFile != null && physicalFile == null) {
             writeDefinition(logicalDef, logicalWriter);            
-            //validateWsdl(logicalFile);
-            physicalDef = addWsdlImport(physicalDef, logicalFile);
+            manager.addWSDLDefinitionImport(physicalDef,
+                                            logicalDef,
+                                            "logicaltns",
+                                            logicalFile);
             writeDefinition(physicalDef, writer);
-            //validateWsdl(physicalFile);            
         } else if (logicalFile != null && physicalFile != null) {
             // write both logical -L and physical files -P           
             writeDefinition(logicalDef, logicalWriter);
-            //validateWsdl(logicalFile);
-            physicalDef = addWsdlImport(physicalDef, logicalFile);
+            manager.addWSDLDefinitionImport(physicalDef,
+                                            logicalDef,
+                                            "logicaltns",
+                                            logicalFile);
             writeDefinition(physicalDef, physicalWriter);            
-            //validateWsdl(physicalFile);
         } else if (logicalFile == null && physicalFile != null) {
             // write pyhsical file -P and logical in default
             writeDefinition(logicalDef, writer);            
-            //validateWsdl(getIdlFile());
-            physicalDef = addWsdlImport(physicalDef, getIdlFile());            
+            manager.addWSDLDefinitionImport(physicalDef,
+                                            logicalDef,
+                                            "logicaltns",
+                                            getIdlFile());            
             writeDefinition(physicalDef, physicalWriter);            
-            //validateWsdl(physicalFile);
         } else if ((logicalFile == null && physicalFile == null)
             && (schemaFilename != null || importSchemaFilename != null)) {           
             // write out the schema file -T and default of logical
             // and physical together.
             writeDefinition(physicalDef, writer);               
-            //validateWsdl(getIdlFile());   
         } else if (logicalFile == null && physicalFile == null
             && schemaFilename == null) {
-            // write out the default file
             writeDefinition(definition, writer);            
-            //validateWsdl(getIdlFile());
         }        
       
         return true;
-    }
-    
-    // Writes import into either a logical, physical or schema file.
-    private Definition addWsdlImport(Definition def, String filename) {
-        Import importDef = def.createImport();
-        File file = new File(filename);        
-        importDef.setLocationURI(file.toURI().toString());
-        importDef.setNamespaceURI(definition.getTargetNamespace());
-        def.addImport(importDef);
-        return def;
-    } 
+    }    
     
     // Gets the logical definition for a file - an import will be added for the 
     // schema types if -T is used and a separate schema file generated.
     // if -n is used an import will be added for the schema types and no types generated.
     private Definition getLogicalDefinition(String schemaFilename, Writer schemaWriter) 
         throws WSDLException, JAXBException, Exception {        
-        Definition def = createWsdlDefinition(targetNamespace);
+        Definition def = manager.createWSDLDefinition(targetNamespace);
 
         // checks for -T option.
         if (schemaFilename != null) {
             writeSchemaDefinition(definition, schemaWriter);            
-            def = addSchemaImport(def, schemaFilename);
+            manager.addWSDLSchemaImport(def, schema.getTargetNamespace(), schemaFilename);
         } else {
             // checks for -n option
             if (importSchemaFilename == null) {                
                 Types types = definition.getTypes();
                 def.setTypes(types);
-            } else {
-                
-                def = addSchemaImport(def, importSchemaFilename);
+            } else {                
+                manager.addWSDLSchemaImport(def, schema.getTargetNamespace(), importSchemaFilename);
             }
         }            
         
@@ -379,7 +405,7 @@ public class WSDLASTVisitor implements ASTVisitor {
         if (schemaOnly) {
             def = logicalDef;
         } else {
-            def = createWsdlDefinition(targetNamespace);
+            def = manager.createWSDLDefinition(targetNamespace);
         }
                 
         Iterator iter = definition.getNamespaces().values().iterator();       
@@ -408,146 +434,8 @@ public class WSDLASTVisitor implements ASTVisitor {
         def.setExtensionRegistry(definition.getExtensionRegistry());
                 
         return def;
-    }         
-
-    private boolean validateWsdl(String wsdlFilename) throws Exception {                   
-        //String[] args = new String[] {wsdlFilename};
-        //WSDLValidator.main(args);
-        // REVISIT - When CXF publishes an api for the wsdlvalidator we can then
-        // switch to it and delete the files if there is an error.
-        // String separator = System.getProperty("file.separator");   
-        /* File file = new File(outDir + separator + wsdlFilename);
-            if (file.exists()) {
-                file.delete();
-            }  
-        }*/
-        // REVISIT - Once the validator is cleaned up in cxf 
-        // will switch uncomment this back in 
-        /*File file = new File(wsdlFilename);
-        URL wsdlURL = file.toURL();        
-
-        try {
-            ToolContext context = new ToolContext(); 
-            context.put(ToolConstants.CFG_WSDLURL, wsdlURL.toString()); 
-            WSDL11Validator wsdlValidator = new WSDL11Validator(null, context);
-            return wsdlValidator.isValid();
-        } catch (ToolException e) {
-         // failed, handle exception here
-        }*/
-
-        return true;
-    }
-        
-    private Definition createWsdlDefinition(String tns) throws WSDLException, JAXBException {
-        WSDLFactory wsdlFactory = WSDLFactory.newInstance();
-        Definition wsdlDefinition = wsdlFactory.newDefinition();        
-        wsdlDefinition.setTargetNamespace(tns);
-
-        // REVISIT when get a new deploy of cxf
-        //wsdlDefinition.addNamespace(WSDLConstants.WSDL_PREFIX, WSDLConstants.WSDL11_NAMESPACE);
-        wsdlDefinition.addNamespace("wsdl", "http://schemas.xmlsoap.org/wsdl/");
-        wsdlDefinition.addNamespace(WSDLConstants.NP_SCHEMA_XSD, WSDLConstants.NU_SCHEMA_XSD);
-        wsdlDefinition.addNamespace(WSDLConstants.SOAP11_PREFIX, WSDLConstants.SOAP11_NAMESPACE);
-       // wsdlDefinition.addNamespace(WSDLConstants.TNS_PREFIX, tns);
-        wsdlDefinition.addNamespace("tns", tns);
-        wsdlDefinition.addNamespace(CorbaConstants.NP_WSDL_CORBA, CorbaConstants.NU_WSDL_CORBA);
-        addCorbaExtensions(wsdlDefinition.getExtensionRegistry());
-        return wsdlDefinition;
     }
     
-    private XmlSchema createSchema(String schemans) {
-        // if no XmlSchema target namespace was specified, default to the 
-        // definition target namespace
-        if (schemans ==  null) {
-            schemans = definition.getTargetNamespace();
-        }
-        XmlSchema xmlSchema = new XmlSchema(schemans, schemas);        
-        return xmlSchema;
-    }
-    
-    private void createCorbaTypeMap(String corbatypemaptns) throws WSDLException { 
-        typeMap = (TypeMappingType)
-            definition.getExtensionRegistry().createExtension(Definition.class,
-                                                              CorbaConstants.NE_CORBA_TYPEMAPPING);
-        if (corbatypemaptns == null) {
-            typeMap.setTargetNamespace(definition.getTargetNamespace()
-                + "/"
-                + CorbaConstants.NS_CORBA_TYPEMAP);
-        } else {
-            typeMap.setTargetNamespace(corbatypemaptns);
-        }
-        definition.addExtensibilityElement(typeMap);
-    }
-
-    private void addCorbaExtensions(ExtensionRegistry extReg) throws JAXBException {
-        try {                      
-            JAXBExtensionHelper.addExtensions(extReg, Binding.class, BindingType.class);
-            JAXBExtensionHelper.addExtensions(extReg, BindingOperation.class, OperationType.class);
-            JAXBExtensionHelper.addExtensions(extReg, Definition.class, TypeMappingType.class);
-            JAXBExtensionHelper.addExtensions(extReg, Port.class, AddressType.class);
-
-            extReg.mapExtensionTypes(Binding.class, CorbaConstants.NE_CORBA_BINDING, BindingType.class);
-            extReg.mapExtensionTypes(BindingOperation.class, CorbaConstants.NE_CORBA_OPERATION,
-                                     org.apache.schemas.yoko.bindings.corba.OperationType.class);
-            extReg.mapExtensionTypes(Definition.class, CorbaConstants.NE_CORBA_TYPEMAPPING,
-                                     TypeMappingType.class);
-            extReg.mapExtensionTypes(Port.class, CorbaConstants.NE_CORBA_ADDRESS,
-                                     org.apache.schemas.yoko.bindings.corba.AddressType.class);
-        } catch (javax.xml.bind.JAXBException ex) {
-            throw new JAXBException(ex.getMessage());
-        }
-    }    
-
-    private void attachSchema() throws Exception {
-        Types types = definition.createTypes();
-        Schema wsdlSchema = (Schema) 
-            definition.getExtensionRegistry().createExtension(Types.class,
-                                                              new QName(Constants.URI_2001_SCHEMA_XSD,
-                                                                        "schema"));
-
-        // See if a NamespaceMap has already been added to the schema (this can be the case with object 
-        // references.  If so, simply add the XSD URI to the map.  Otherwise, create a new one.
-        NamespaceMap nsMap = null;
-        try {
-            nsMap = (NamespaceMap)schema.getNamespaceContext();
-        } catch (ClassCastException ex) {
-            // Consume.  This will mean that the context has not been set.
-        }
-        if (nsMap == null) {
-            nsMap = new NamespaceMap();
-            nsMap.add("xs", Constants.URI_2001_SCHEMA_XSD);
-            schema.setNamespaceContext(nsMap);
-        } else {
-            nsMap.add("xs", Constants.URI_2001_SCHEMA_XSD);
-        }
-        if (isSchemaGenerated()) {
-            nsMap.add("tns", schema.getTargetNamespace());
-        }
-        org.w3c.dom.Element el = XmlSchemaSerializer.serializeSchema(schema, true)[0].getDocumentElement();
-        wsdlSchema.setElement(el);
-                
-        types.addExtensibilityElement(wsdlSchema);
-
-        definition.setTypes(types);
-    }
-    
-    private Definition addSchemaImport(Definition def, String schemaFilename) throws Exception {
-                        
-        Types types = def.createTypes();
-        Schema wsdlSchema = (Schema) 
-            def.getExtensionRegistry().createExtension(Types.class,
-                                                   new QName(Constants.URI_2001_SCHEMA_XSD,
-                                                   "schema"));
-        
-        SchemaImport schemaimport =  wsdlSchema.createImport();
-        schemaimport.setNamespaceURI(schema.getTargetNamespace());
-        schemaimport.setSchemaLocationURI(schemaFilename);
-        wsdlSchema.addImport(schemaimport);               
-        types.addExtensibilityElement(wsdlSchema);
-        def.setTypes(types);
-        return def;
-    }
-
     private void addAnyType() {
         XmlSchema[] schemaList = schemas.getXmlSchemas();
         if (schemaList != null) {
@@ -568,6 +456,19 @@ public class WSDLASTVisitor implements ASTVisitor {
     
     public void setDeclaredWSAImport(boolean declaredImport) {
         declaredWSAImport = declaredImport;        
-    }        
+    }
+
+    public void setModuleToNSMapping(Map<String, String> map) {
+        moduleToNSMapper.setDefaultMapping(false);
+        moduleToNSMapper.setUserMapping(map);
+    }
+
+    public ModuleToNSMapper getModuleToNSMapper() {
+        return moduleToNSMapper;
+    }
+
+    public void setExcludedModules(Map<String, List> modules) {
+        moduleToNSMapper.setExcludedModuleMap(modules);
+    }
 
 }

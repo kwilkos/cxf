@@ -15,7 +15,7 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
-*/
+ */
 
 package org.apache.yoko.tools.processors.idl;
 
@@ -53,22 +53,23 @@ import org.apache.yoko.wsdl.CorbaTypeImpl;
 
 public class ObjectReferenceVisitor extends VisitorBase {
     
-    private Definition wsdlDefinition;
     private WSDLASTVisitor objRefWsdlVisitor;
     
     public ObjectReferenceVisitor(Scope scope,
+                                  Definition defn,
+                                  XmlSchema schemaRef,
                                   WSDLASTVisitor wsdlVisitor) {
-        super(scope, wsdlVisitor);
-        wsdlDefinition = wsdlVisitor.getDefinition();
+        super(scope, defn, schemaRef, wsdlVisitor);
         objRefWsdlVisitor = wsdlVisitor;
         
     }
 
-    public static boolean accept(Scope scope, XmlSchema s, Definition def, AST node) {
+    public static boolean accept(Scope scope, XmlSchema s, 
+                                 Definition def, AST node, WSDLASTVisitor wsdlVisitor) {
         boolean result = false;
         if (node.getType() == IDLTokenTypes.LITERAL_Object) {
             result = true;
-        } else if (node.getType() == IDLTokenTypes.IDENT && hasBinding(scope, s, def, node)) {
+        } else if (node.getType() == IDLTokenTypes.IDENT && hasBinding(scope, s, def, node, wsdlVisitor)) {
             result = true;
         }
         return result;
@@ -76,34 +77,7 @@ public class ObjectReferenceVisitor extends VisitorBase {
     
     public void visit(AST node) {
         if (!objRefWsdlVisitor.getDeclaredWSAImport()) {
-            // We need to add an import statement to include the WS addressing types
-            XmlSchemaImport wsaImport = new XmlSchemaImport();
-            wsaImport.setNamespace(ReferenceConstants.WSADDRESSING_NAMESPACE);
-            wsaImport.setSchemaLocation(ReferenceConstants.WSADDRESSING_LOCATION);
-            schema.getItems().add(wsaImport);
-            
-            // Add the addressing namespace to the WSDLs list of namespaces.
-            wsdlDefinition.addNamespace(ReferenceConstants.WSADDRESSING_PREFIX,
-                                        ReferenceConstants.WSADDRESSING_NAMESPACE);
-            
-            try {
-                // This is used to get the correct prefix in the schema section of
-                // the wsdl.  If we don't have this, then this namespace gets an 
-                // arbitrary prefix (e.g. ns5 instead of wsa).
-                NamespaceMap nsMap = (NamespaceMap)schema.getNamespaceContext();
-                if (nsMap == null) {
-                    nsMap = new NamespaceMap();
-                    nsMap.add(ReferenceConstants.WSADDRESSING_PREFIX, 
-                              ReferenceConstants.WSADDRESSING_NAMESPACE);
-                    schema.setNamespaceContext(nsMap);
-                } else {
-                    nsMap.add(ReferenceConstants.WSADDRESSING_PREFIX, 
-                              ReferenceConstants.WSADDRESSING_NAMESPACE);
-                }
-            } catch (ClassCastException ex) {
-                // Consume the exception.  It is still OK with the default prefix, 
-                // just not as clear.
-            }
+            addWSAddressingImport(schema);
         }
         objRefWsdlVisitor.setDeclaredWSAImport(true);
         
@@ -160,10 +134,15 @@ public class ObjectReferenceVisitor extends VisitorBase {
                     customScope = new Scope(currentScope, node);
                 }
 
-                referenceName = new QName(schema.getTargetNamespace(), customScope.toString() + "Ref");
+                if (mapper.isDefaultMapping()) {
+                    referenceName = new QName(schema.getTargetNamespace(), customScope.toString() + "Ref");
+                } else {
+                    String tns = mapper.map(customScope.getParent());
+                    referenceName = new QName(tns, customScope.tail() + "Ref");
+                }
 
                 repositoryID = customScope.toIDLRepositoryID();
-                bindingName = getBindingQNameByID(wsdlDefinition, repositoryID);
+                bindingName = getBindingQNameByID(definition, repositoryID, objRefWsdlVisitor);
                 currentScope = currentScope.getParent();
 
             }
@@ -174,16 +153,26 @@ public class ObjectReferenceVisitor extends VisitorBase {
            // Global scope is our last chance to resolve the node
             if (ScopedNameVisitor.isFullyScopedName(node)) {
                 customScope = ScopedNameVisitor.getFullyScopedName(new Scope(), node);
-                referenceName = new QName(schema.getTargetNamespace(),
-                                                customScope.toString() + "Ref");           
+                if (mapper.isDefaultMapping()) {
+                    referenceName = new QName(schema.getTargetNamespace(),
+                                              customScope.toString() + "Ref");
+                } else {
+                    String tns = mapper.map(customScope.getParent());
+                    referenceName = new QName(tns, customScope.tail() + "Ref");
+                }
             } else {
                 //customScope = currentScope;
                 customScope = new Scope(new Scope(), node);
-                referenceName = new QName(schema.getTargetNamespace(),
-                                               customScope.toString() + "Ref");               
+                if (mapper.isDefaultMapping()) {
+                    referenceName = new QName(schema.getTargetNamespace(),
+                                              customScope.toString() + "Ref");
+                } else {
+                    String tns = mapper.map(customScope.getParent());
+                    referenceName = new QName(tns, customScope.tail() + "Ref");
+                }
             }
             repositoryID = customScope.toIDLRepositoryID();
-            bindingName = getBindingQNameByID(wsdlDefinition, repositoryID);
+            bindingName = getBindingQNameByID(definition, repositoryID, objRefWsdlVisitor);
         }
         
         if (bindingName == null) {
@@ -199,7 +188,7 @@ public class ObjectReferenceVisitor extends VisitorBase {
         
         // Check to see if we have already defined an element for this reference type.  If
         // we have, then there is no need to add it to the schema again.
-        isDuplicateReference(referenceName, bindingName, wsaType);        
+        isDuplicateReference(referenceName, bindingName, customScope, wsaType, node);        
 
         setSchemaType(wsaType);
         
@@ -218,11 +207,27 @@ public class ObjectReferenceVisitor extends VisitorBase {
         } 
     }
     
-    private void isDuplicateReference(QName referenceName, QName bindingName, 
-                                 XmlSchemaType wsaType) {
+    private void isDuplicateReference(QName referenceName, QName bindingName, Scope refScope, 
+                                      XmlSchemaType wsaType, AST node) {
+        XmlSchema refSchema = null;
+        if (!mapper.isDefaultMapping()) {
+            String tns = mapper.map(refScope.getParent());
+            String refSchemaFileName = getWsdlVisitor().getOutputDir()
+                + System.getProperty("file.separator")
+                + refScope.getParent().toString("_") + ".xsd";
+            refSchema = manager.getXmlSchema(tns);
+            if (refSchema == null) {
+                refSchema = manager.createXmlSchema(tns, wsdlVisitor.getSchemas());
+            }
+            addWSAddressingImport(refSchema);
+            manager.addXmlSchemaImport(schema, refSchema, refSchemaFileName);
+        } else {
+            refSchema = schema;
+        }
+        
         // Check to see if we have already defined an element for this reference type.  If
         // we have, then there is no need to add it to the schema again.
-        if (!isReferenceSchemaTypeDefined(referenceName)) {
+        if (!isReferenceSchemaTypeDefined(referenceName, refSchema)) {
             // We need to add a new element definition to the schema section of our WSDL.
             // For custom endpoint types, this should contain an annotation which points
             // to the binding which will be used for this endpoint type.
@@ -251,8 +256,8 @@ public class ObjectReferenceVisitor extends VisitorBase {
             
             refElement.setAnnotation(annotation);
 
-            schema.getElements().add(referenceName, refElement);
-            schema.getItems().add(refElement);
+            refSchema.getElements().add(referenceName, refElement);
+            refSchema.getItems().add(refElement);
         }        
     }
     
@@ -270,8 +275,9 @@ public class ObjectReferenceVisitor extends VisitorBase {
         return false;
     }
 
-    private boolean isReferenceSchemaTypeDefined(QName objectReferenceName) {
-        XmlSchemaObjectCollection schemaObjects = schema.getItems();
+    private boolean isReferenceSchemaTypeDefined(QName objectReferenceName,
+                                                 XmlSchema refSchema) {
+        XmlSchemaObjectCollection schemaObjects = refSchema.getItems();
 
         for (Iterator iter = schemaObjects.getIterator(); iter.hasNext();) {
             java.lang.Object schemaObj = iter.next();
@@ -288,11 +294,64 @@ public class ObjectReferenceVisitor extends VisitorBase {
         return false;
     }
     
-    private static QName getBindingQNameByID(Definition wsdlDef, String repositoryID) {
+    private void addWSAddressingImport(XmlSchema s) {
+        boolean alreadyImported = false;
+        for (Iterator i = s.getIncludes().getIterator(); i.hasNext();) {
+            java.lang.Object o = i.next();
+            if (o instanceof XmlSchemaImport) {
+                XmlSchemaImport schemaImport = (XmlSchemaImport)o;
+                if (schemaImport.getNamespace().equals(ReferenceConstants.WSADDRESSING_NAMESPACE)) {
+                    alreadyImported = true;
+                    break;
+                }
+            }
+        }
+        
+        if (!alreadyImported) {
+            // We need to add an import statement to include the WS addressing types
+            XmlSchemaImport wsaImport = new XmlSchemaImport();
+            wsaImport.setNamespace(ReferenceConstants.WSADDRESSING_NAMESPACE);
+            wsaImport.setSchemaLocation(ReferenceConstants.WSADDRESSING_LOCATION);
+            s.getItems().add(wsaImport);
+            s.getIncludes().add(wsaImport);
+        }
+        
+        // Add the addressing namespace to the WSDLs list of namespaces.
+        definition.addNamespace(ReferenceConstants.WSADDRESSING_PREFIX,
+                                ReferenceConstants.WSADDRESSING_NAMESPACE);
+        
+        try {
+            // This is used to get the correct prefix in the schema section of
+            // the wsdl.  If we don't have this, then this namespace gets an 
+            // arbitrary prefix (e.g. ns5 instead of wsa).
+            NamespaceMap nsMap = (NamespaceMap)s.getNamespaceContext();
+            if (nsMap == null) {
+                nsMap = new NamespaceMap();
+                nsMap.add(ReferenceConstants.WSADDRESSING_PREFIX, 
+                          ReferenceConstants.WSADDRESSING_NAMESPACE);
+                s.setNamespaceContext(nsMap);
+            } else {
+                nsMap.add(ReferenceConstants.WSADDRESSING_PREFIX, 
+                          ReferenceConstants.WSADDRESSING_NAMESPACE);
+            }
+        } catch (ClassCastException ex) {
+            // Consume the exception.  It is still OK with the default prefix, 
+            // just not as clear.
+        }
+        
+    }
+    
+    private static QName getBindingQNameByID(Definition wsdlDef, String repositoryID, 
+                                             WSDLASTVisitor wsdlVisitor) {
         // We need to find the binding which corresponds with the given repository ID.
         // This is specified in the schema definition for a custom endpoint 
         // reference type.
         Collection bindings = wsdlDef.getBindings().values();
+        if (bindings.isEmpty() && !wsdlVisitor.getModuleToNSMapper().isDefaultMapping()) {
+            // If we are not using the default mapping, then the binding definitions are not 
+            // located in the current Definition object, but nistead in the root Definition 
+            bindings = wsdlVisitor.getDefinition().getBindings().values();
+        }
         
         for (Iterator iter = bindings.iterator(); iter.hasNext();) {
             Binding b = (Binding)iter.next();
@@ -302,9 +361,16 @@ public class ObjectReferenceVisitor extends VisitorBase {
                 java.lang.Object element = extIter.next();
                 
                 if (element instanceof BindingType) {
-                    BindingType bt = (BindingType)element;
-                    if (bt.getRepositoryID().equals(repositoryID)) { 
-                        return b.getQName();    
+                    BindingType bt = (BindingType)element;                    
+                    if (bt.getRepositoryID().equals(repositoryID)) {
+                        if (wsdlVisitor.getSupportPolymorphicFactories()) {
+                            return new QName(b.getQName().getNamespaceURI(),
+                                             "InferFromTypeId",
+                                             b.getQName().getPrefix());
+            
+                        } else {
+                            return b.getQName();
+                        }
                     }
                 }
             }
@@ -317,8 +383,6 @@ public class ObjectReferenceVisitor extends VisitorBase {
                                                ScopeNameCollection scopedNames, WSDLASTVisitor wsdlVisitor) {
         boolean isForward = false;
         Scope currentScope = scope;
-        Scope fqName = null;
-
         
         // Check for forward declaration from local scope outwards
         if ((node.getFirstChild() == null)
@@ -335,7 +399,7 @@ public class ObjectReferenceVisitor extends VisitorBase {
                     isForward = true;
                 }
                 currentScope = currentScope.getParent();
-                fqName = scopedName;
+                //fqName = scopedName;
             }            
         }
         // Check for forward declaration in global scope
@@ -350,7 +414,7 @@ public class ObjectReferenceVisitor extends VisitorBase {
             if (scopedNames.getScope(scopedName) != null) {                
                 isForward = true;
             }
-            fqName = scopedName;
+            //fqName = scopedName;
         }                
 
         return isForward;
@@ -402,9 +466,8 @@ public class ObjectReferenceVisitor extends VisitorBase {
         setSchemaType(result);
     }
 
-
-    
-    private static boolean hasBinding(Scope scope, XmlSchema s, Definition def, AST node) {
+    private static boolean hasBinding(Scope scope, XmlSchema s, Definition def, 
+                                      AST node, WSDLASTVisitor wsdlVisitor) {
         boolean result = false;
         QName bindingName = null;
         String repositoryID = null;
@@ -420,7 +483,7 @@ public class ObjectReferenceVisitor extends VisitorBase {
                     customScope = new Scope(currentScope, node);                    
                 }
                 repositoryID = customScope.toIDLRepositoryID();
-                bindingName = getBindingQNameByID(def, repositoryID);
+                bindingName = getBindingQNameByID(def, repositoryID, wsdlVisitor);
                 currentScope = currentScope.getParent();
             }
         }
@@ -433,7 +496,7 @@ public class ObjectReferenceVisitor extends VisitorBase {
                 customScope = new Scope(new Scope(), node);
             }
             repositoryID = customScope.toIDLRepositoryID();
-            bindingName = getBindingQNameByID(def, repositoryID);
+            bindingName = getBindingQNameByID(def, repositoryID, wsdlVisitor);
         }
         
         if (bindingName != null) {
@@ -442,5 +505,4 @@ public class ObjectReferenceVisitor extends VisitorBase {
 
         return result;
     }
-
 }

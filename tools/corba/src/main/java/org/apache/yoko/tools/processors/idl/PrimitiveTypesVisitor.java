@@ -15,27 +15,27 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
-*/
+ */
 
 package org.apache.yoko.tools.processors.idl;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.wsdl.Definition;
 import javax.xml.namespace.QName;
 
 import antlr.collections.AST;
 
+import org.apache.ws.commons.schema.XmlSchema;
 import org.apache.ws.commons.schema.XmlSchemaCollection;
 import org.apache.ws.commons.schema.XmlSchemaType;
-import org.apache.yoko.tools.common.CorbaPrimitiveMap;
 import org.apache.yoko.tools.common.XmlSchemaPrimitiveMap;
 import org.apache.yoko.wsdl.CorbaConstants;
 import org.apache.yoko.wsdl.CorbaTypeImpl;
 
 public class PrimitiveTypesVisitor implements Visitor {
 
-    private static CorbaPrimitiveMap corbaPrimitiveMap = new CorbaPrimitiveMap();
     private static XmlSchemaPrimitiveMap xmlSchemaPrimitiveMap = new XmlSchemaPrimitiveMap();
     
     private static final List<Integer> PRIMITIVE_TYPES = new ArrayList<Integer>();
@@ -56,10 +56,13 @@ public class PrimitiveTypesVisitor implements Visitor {
 
     private XmlSchemaType schemaType;
     private CorbaTypeImpl corbaType;
-    private Scope scope;   
+    private Scope scope;
     private XmlSchemaCollection schemas;
     
-    public PrimitiveTypesVisitor(Scope scopeRef, XmlSchemaCollection xmlSchemas) {
+    public PrimitiveTypesVisitor(Scope scopeRef,
+                                 Definition defn,
+                                 XmlSchema schemaRef,
+                                 XmlSchemaCollection xmlSchemas) {
         scope = scopeRef;
         schemas = xmlSchemas;
     }

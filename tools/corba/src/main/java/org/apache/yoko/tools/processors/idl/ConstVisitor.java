@@ -15,15 +15,17 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
-*/
+ */
 
 package org.apache.yoko.tools.processors.idl;
 
+import javax.wsdl.Definition;
 import javax.xml.namespace.QName;
 
 import antlr.collections.AST;
 
 import org.apache.schemas.yoko.bindings.corba.Const;
+import org.apache.ws.commons.schema.XmlSchema;
 import org.apache.ws.commons.schema.XmlSchemaType;
 
 import org.apache.yoko.wsdl.CorbaTypeImpl;
@@ -31,8 +33,10 @@ import org.apache.yoko.wsdl.CorbaTypeImpl;
 public class ConstVisitor extends VisitorBase {
 
     public ConstVisitor(Scope scope,
+                        Definition defn,
+                        XmlSchema schemaRef,
                         WSDLASTVisitor wsdlVisitor) {
-        super(scope, wsdlVisitor);
+        super(scope, defn, schemaRef, wsdlVisitor);
     }
     
     public static boolean accept(AST node) {
@@ -73,17 +77,15 @@ public class ConstVisitor extends VisitorBase {
 
         Visitor visitor = null;
         if (PrimitiveTypesVisitor.accept(constTypeNode)) {           
-            visitor = new PrimitiveTypesVisitor(getScope(), schemas);           
+            visitor = new PrimitiveTypesVisitor(getScope(), definition, schema, schemas);           
         } else if (StringVisitor.accept(constTypeNode)) {
             // string_type_spec
             // wstring_type_spec
-            visitor = new StringVisitor(getScope(), wsdlVisitor, constTypeNode); 
+            visitor = new StringVisitor(getScope(), definition, schema, wsdlVisitor, constTypeNode); 
         } else if (FixedPtConstVisitor.accept(constTypeNode)) {           
-            visitor = new FixedPtConstVisitor(getScope(), schemas); 
-        } else if (ScopedNameVisitor.accept(getScope(), schemas, schema, 
-                                            typeMap, wsdlVisitor.getDefinition(),
-                                            constTypeNode, wsdlVisitor)) {
-            visitor = new ScopedNameVisitor(getScope(), wsdlVisitor);            
+            visitor = new FixedPtConstVisitor(getScope(), definition, schema, schemas); 
+        } else if (ScopedNameVisitor.accept(getScope(), definition, schema, constTypeNode, wsdlVisitor)) {
+            visitor = new ScopedNameVisitor(getScope(), definition, schema, wsdlVisitor);            
         }
         
         visitor.visit(constTypeNode);                

@@ -44,8 +44,6 @@ public class CorbaMessage extends AbstractWrappedMessage {
     
     private NVList list;
 
-    private Map<Class<?>, Object> contents = new HashMap<Class<?>, Object>();
-
     public CorbaMessage(Message m) {
         super(m);
         if (m instanceof CorbaMessage) {
@@ -87,7 +85,7 @@ public class CorbaMessage extends AbstractWrappedMessage {
         systemExcept = sysEx;
     }
 
-    public void addStreamableArgument(CorbaStreamable arg) {
+    public final void addStreamableArgument(CorbaStreamable arg) {
         if (this.arguments == null) {
             this.arguments = new ArrayList<CorbaStreamable>(1);
         }
@@ -100,7 +98,7 @@ public class CorbaMessage extends AbstractWrappedMessage {
     }
 
 
-    public void setStreamableArguments(CorbaStreamable[] data) {
+    public final void setStreamableArguments(CorbaStreamable[] data) {
         if (this.arguments == null) {
             this.arguments = new ArrayList<CorbaStreamable>(data.length);
         }

@@ -20,11 +20,9 @@
 package org.apache.yoko.bindings.corba;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
 import org.apache.cxf.binding.AbstractBindingFactory;
@@ -39,10 +37,8 @@ import org.apache.cxf.service.model.EndpointInfo;
 
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.ConduitInitiator;
-import org.apache.cxf.transport.ConduitInitiatorManager;
 import org.apache.cxf.transport.Destination;
 import org.apache.cxf.transport.DestinationFactory;
-import org.apache.cxf.transport.DestinationFactoryManager;
 
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
 
@@ -56,7 +52,6 @@ import org.apache.yoko.bindings.corba.utils.OrbConfig;
 public class CorbaBindingFactory extends AbstractBindingFactory
     implements ConduitInitiator, DestinationFactory {
 
-    private Collection<String> activationNamespaces;
     private List<String> transportIds;
     private OrbConfig orbConfig = new OrbConfig();
 
@@ -68,22 +63,6 @@ public class CorbaBindingFactory extends AbstractBindingFactory
     @Resource(name = "orbSingletonClass")
     public void setOrbSingletonClass(String cls) {
         orbConfig.setOrbSingletonClass(cls);
-    }
-
-    @PostConstruct
-    void registerWithBindingManager() {
-        ConduitInitiatorManager cim = getBus().getExtension(ConduitInitiatorManager.class);
-        if (null != cim) {
-            for (String ns : activationNamespaces) {
-                cim.registerConduitInitiator(ns, this);
-            }
-        }
-        DestinationFactoryManager dfm = getBus().getExtension(DestinationFactoryManager.class);
-        if (null != dfm) {
-            for (String ns : activationNamespaces) {
-                dfm.registerDestinationFactory(ns, this);
-            }
-        }
     }
 
     public Binding createBinding(BindingInfo bindingInfo) {

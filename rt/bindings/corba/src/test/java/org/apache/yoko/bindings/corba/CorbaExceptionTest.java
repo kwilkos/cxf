@@ -1,18 +1,18 @@
 /**
  * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
+ * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
+ * regarding copyright ownership. The ASF licenses this file
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * with the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
+ * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
  */
@@ -147,7 +147,21 @@ public class CorbaExceptionTest extends TestCase {
                 return;
             }
         }
-        assertTrue(false);
+        fail("Expected BadRecord Exception not found");
+    }
+
+    public void testPingMeFault() throws Exception {
+        try {
+            client.pingMe();
+        } catch (org.apache.schemas.idl.except.PingMeFault ex) {
+            return;
+        } catch (Exception ex) {
+            Throwable t = ex.getCause();
+            if ((t != null) && (t instanceof org.apache.schemas.idl.except.BadRecord)) {
+                return;
+            }
+        }
+        fail("Expected PingMeFault Exception not found");
     }
 
     // A small test server for the test case to interact with
@@ -187,6 +201,14 @@ public class CorbaExceptionTest extends TestCase {
             rec.setReason("testReason");
             rec.setCode((short)10);
             throw new org.apache.schemas.idl.except.BadRecord("test", rec);                                                              
+        }
+
+        public void pingMe() throws org.apache.schemas.idl.except.PingMeFault {
+            org.apache.schemas.idltypes.except.FaultDetail detail =
+                new org.apache.schemas.idltypes.except.FaultDetail(); 
+            detail.setMinor((short) 1);
+            detail.setMajor((short) 2);
+            throw new org.apache.schemas.idl.except.PingMeFault("test", detail);
         }
     }
 }

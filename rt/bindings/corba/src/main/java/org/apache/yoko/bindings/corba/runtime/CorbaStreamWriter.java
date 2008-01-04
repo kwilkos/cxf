@@ -44,8 +44,6 @@ import org.omg.CORBA.ORB;
 
 public class CorbaStreamWriter implements XMLStreamWriter {
 
-    private static final Logger LOG = LogUtils.getL7dLogger(CorbaStreamWriter.class);
-
     protected String defaultNS = "";
     protected CorbaTypeListener[] listeners;
     protected ServiceInfo serviceInfo;
@@ -61,6 +59,8 @@ public class CorbaStreamWriter implements XMLStreamWriter {
     private QName wrapElementName;    
 
     private boolean skipWrap;
+    
+    private NamespaceContext ctx;
 
     public CorbaStreamWriter(ORB orbRef,
                              CorbaTypeMap map,
@@ -291,12 +291,11 @@ public class CorbaStreamWriter implements XMLStreamWriter {
 
     public void setNamespaceContext(NamespaceContext context)
         throws XMLStreamException {
-        throw new XMLStreamException("Not yet implemented");
+        this.ctx = context;
     }
 
     public NamespaceContext getNamespaceContext() {
-        //return ctx;
-        return null;
+        return ctx;
     }
 
     public java.lang.Object getProperty(java.lang.String name)

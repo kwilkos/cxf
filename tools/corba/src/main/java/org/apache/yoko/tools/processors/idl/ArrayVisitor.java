@@ -15,10 +15,11 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
-*/
+ */
 
 package org.apache.yoko.tools.processors.idl;
 
+import javax.wsdl.Definition;
 import javax.xml.namespace.QName;
 
 import antlr.collections.AST;
@@ -26,6 +27,7 @@ import antlr.collections.AST;
 import org.apache.schemas.yoko.bindings.corba.Anonarray;
 import org.apache.schemas.yoko.bindings.corba.Array;
 
+import org.apache.ws.commons.schema.XmlSchema;
 import org.apache.ws.commons.schema.XmlSchemaComplexType;
 import org.apache.ws.commons.schema.XmlSchemaElement;
 import org.apache.ws.commons.schema.XmlSchemaSequence;
@@ -38,20 +40,16 @@ public class ArrayVisitor extends VisitorBase {
 
     private static final String ELEMENT_NAME = "item";
     private AST identifierNode;
-    private XmlSchemaType schemaType;
-    private CorbaTypeImpl corbaType;    
     
     public ArrayVisitor(Scope scope,
+                        Definition defn,
+                        XmlSchema schemaRef,
                         WSDLASTVisitor wsdlVisitor,
-                        XmlSchemaType schemaTypeRef,
-                        CorbaTypeImpl corbaTypeRef,
                         AST identifierNodeRef,
                         Scope fqName) {
-        super(scope, wsdlVisitor);
+        super(scope, defn, schemaRef, wsdlVisitor);
         setFullyQualifiedName(fqName);
         identifierNode = identifierNodeRef;
-        schemaType = schemaTypeRef;
-        corbaType = corbaTypeRef;        
     }
 
     public static boolean accept(AST node) {
@@ -87,11 +85,11 @@ public class ArrayVisitor extends VisitorBase {
         
         // process all anonarrays, skip first array as it might not be anonymous
         if (nextSizeNode != null) {
-            result = doAnonarray(nextSizeNode, schemaType, corbaType);
+            result = doAnonarray(nextSizeNode, getSchemaType(), getCorbaType());
         } else {
             result = new Types();
-            result.setSchemaType(schemaType);
-            result.setCorbaType(corbaType);
+            result.setSchemaType(getSchemaType());
+            result.setCorbaType(getCorbaType());
             result.setFullyQualifiedName(getFullyQualifiedName());
         }
         
@@ -102,40 +100,41 @@ public class ArrayVisitor extends VisitorBase {
         if (identifierNode != null) {
             Scope scopedName = getScope();            
             if (result.getSchemaType() != null) {
-                stype = generateSchemaArray(scopedName.toString(), size, 
+                stype = generateSchemaArray(scopedName, size, 
                                             result.getSchemaType(), 
                                             result.getFullyQualifiedName());
             } else {
-                stype = generateSchemaArray(scopedName.toString(), size, 
+                stype = generateSchemaArray(scopedName, size, 
                                             null, result.getFullyQualifiedName());
             }
             if (result.getCorbaType() != null) {
-                ctype = generateCorbaArray(scopedName, size, result.getCorbaType(),
+                ctype = generateCorbaArray(scopedName, size, result.getCorbaType(), stype,
                                            getFullyQualifiedName());
             } else {
-                ctype = generateCorbaArray(scopedName, size, null,
+                ctype = generateCorbaArray(scopedName, size, null, stype, 
                                            getFullyQualifiedName());
             }
         } else {
             // anonymous array
             Scope scopedName = TypesUtils.generateAnonymousScopedName(getScope(), schema);
             if (result.getSchemaType() != null) {
-                stype = generateSchemaArray(scopedName.toString(),
+                stype = generateSchemaArray(scopedName,
                                             size,
                                             result.getSchemaType(),
                                             getFullyQualifiedName());
             } else {
-                stype = generateSchemaArray(scopedName.toString(),
+                stype = generateSchemaArray(scopedName,
                                             size, null, getFullyQualifiedName());
             }
             if (result.getCorbaType() != null) {
                 ctype = generateCorbaAnonarray(scopedName.toString(),
                                                size,
                                                result.getCorbaType(),
+                                               stype,
                                                getFullyQualifiedName());
             } else {
                 ctype = generateCorbaAnonarray(scopedName.toString(),
-                                               size, null, getFullyQualifiedName());
+                                               size, null, stype, getFullyQualifiedName());
             }
         }
         
@@ -162,12 +161,12 @@ public class ArrayVisitor extends VisitorBase {
             Long size = new Long(node.toString());
             
             if (result.getSchemaType() == null) {
-                result.setSchemaType(generateSchemaArray(scopedName.toString(),
+                result.setSchemaType(generateSchemaArray(scopedName,
                                                          size,
                                                          stype,
                                                          getFullyQualifiedName()));
             } else {
-                result.setSchemaType(generateSchemaArray(scopedName.toString(),
+                result.setSchemaType(generateSchemaArray(scopedName,
                                                          size,
                                                          result.getSchemaType(),
                                                          getFullyQualifiedName()));
@@ -177,11 +176,13 @@ public class ArrayVisitor extends VisitorBase {
                 result.setCorbaType(generateCorbaAnonarray(scopedName.toString(),
                                                            size,
                                                            ctype,
+                                                           result.getSchemaType(),
                                                            getFullyQualifiedName()));
             } else {
                 result.setCorbaType(generateCorbaAnonarray(scopedName.toString(),
                                                            size,
                                                            result.getCorbaType(),
+                                                           result.getSchemaType(),
                                                            getFullyQualifiedName()));
             }
             
@@ -197,10 +198,10 @@ public class ArrayVisitor extends VisitorBase {
         return result;
     }
     
-    private XmlSchemaComplexType generateSchemaArray(String name, Long size, 
+    private XmlSchemaComplexType generateSchemaArray(Scope scopedName, Long size, 
                                                      XmlSchemaType type, Scope fQName) {
         XmlSchemaComplexType complexType = new XmlSchemaComplexType(schema);
-        complexType.setName(name);
+        complexType.setName(mapper.mapToQName(scopedName));
 
         XmlSchemaSequence sequence = new XmlSchemaSequence();
 
@@ -215,8 +216,8 @@ public class ArrayVisitor extends VisitorBase {
             }
         } else {
             ArrayDeferredAction arrayAction = 
-                new ArrayDeferredAction(element, fQName);
-            wsdlVisitor.getDeferredActions().add(arrayAction);
+                new ArrayDeferredAction(element);
+            wsdlVisitor.getDeferredActions().add(fQName, arrayAction);
         }
         
         sequence.getItems().add(element);
@@ -227,36 +228,38 @@ public class ArrayVisitor extends VisitorBase {
     }
 
     private Array generateCorbaArray(Scope scopedName, Long size, 
-                                     CorbaTypeImpl type, Scope fQName) {
+                                     CorbaTypeImpl type, XmlSchemaType stype, Scope fQName) {
         Array array = new Array();
         array.setQName(new QName(typeMap.getTargetNamespace(), scopedName.toString()));
         array.setBound(size);
         array.setRepositoryID(scopedName.toIDLRepositoryID());
+        array.setType(stype.getQName());
         //REVISIT, if we add qualification option, then change below.
         array.setElemname(new QName("", ELEMENT_NAME));
         if (type != null) {
-            array.setType(type.getQName());
+            array.setElemtype(type.getQName());
         } else {
             ArrayDeferredAction arrayAction = 
-                new ArrayDeferredAction(array, fQName);
-            wsdlVisitor.getDeferredActions().add(arrayAction);
+                new ArrayDeferredAction(array);
+            wsdlVisitor.getDeferredActions().add(fQName, arrayAction);
         }
         return array;
     }
 
     private Anonarray generateCorbaAnonarray(String name, Long size, 
-                                             CorbaTypeImpl type, Scope fQName) {
+                                             CorbaTypeImpl type, XmlSchemaType stype, Scope fQName) {
         Anonarray anonarray = new Anonarray();
         anonarray.setQName(new QName(typeMap.getTargetNamespace(), name));
         anonarray.setBound(size);
+        anonarray.setType(stype.getQName());
         //REVISIT, if we add qualification option, then change below.
         anonarray.setElemname(new QName("", ELEMENT_NAME));
         if (type != null) {
-            anonarray.setType(type.getQName());
+            anonarray.setElemtype(type.getQName());
         } else {
             ArrayDeferredAction anonarrayAction = 
-                new ArrayDeferredAction(anonarray, fQName);
-            wsdlVisitor.getDeferredActions().add(anonarrayAction);
+                new ArrayDeferredAction(anonarray);
+            wsdlVisitor.getDeferredActions().add(fQName, anonarrayAction);
         }
         return anonarray;
     }

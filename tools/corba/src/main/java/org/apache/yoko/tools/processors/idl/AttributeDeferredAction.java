@@ -15,7 +15,7 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
-*/
+ */
 
 package org.apache.yoko.tools.processors.idl;
 
@@ -26,37 +26,32 @@ import org.apache.ws.commons.schema.XmlSchemaType;
 import org.apache.yoko.tools.common.ReferenceConstants;
 import org.apache.yoko.wsdl.CorbaTypeImpl;
 
-public class AttributeDeferredAction extends DeferredActionBase {
+public class AttributeDeferredAction implements SchemaDeferredAction {
 
     protected ArgType argType;
     protected ParamType param;
     protected XmlSchemaElement element;
     
     
-    public AttributeDeferredAction(ParamType paramType, ArgType arg, 
-                                   XmlSchemaElement elem, Scope scope) {                           
-        super(scope);
+    public AttributeDeferredAction(ParamType paramType, ArgType arg, XmlSchemaElement elem) {
         param = paramType;  
         argType = arg;
         element = elem;        
     }
     
-    public AttributeDeferredAction(ParamType paramType, Scope scope) {                           
-        super(scope);
+    public AttributeDeferredAction(ParamType paramType) {
         param = paramType;         
     }
     
-    public AttributeDeferredAction(ArgType arg, Scope scope) {                           
-        super(scope);
+    public AttributeDeferredAction(ArgType arg) {
         argType = arg;         
     }
     
-    public AttributeDeferredAction(XmlSchemaElement elem, Scope scope) {                           
-        super(scope);
+    public AttributeDeferredAction(XmlSchemaElement elem) {
         element = elem;               
     }
     
-    public void doDeferredAction(XmlSchemaType stype, CorbaTypeImpl ctype) {
+    public void execute(XmlSchemaType stype, CorbaTypeImpl ctype) {
         if (param != null) {
             param.setIdltype(ctype.getQName());
         }
@@ -72,6 +67,7 @@ public class AttributeDeferredAction extends DeferredActionBase {
     }
        
 }
+
 
 
 

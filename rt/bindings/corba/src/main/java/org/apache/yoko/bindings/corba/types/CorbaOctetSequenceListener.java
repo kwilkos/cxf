@@ -15,29 +15,19 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
-*/
+ */
+package org.apache.yoko.bindings.corba.types;
 
-package org.apache.yoko.tools.processors.idl;
+public class CorbaOctetSequenceListener extends AbstractCorbaTypeListener {
 
-import org.apache.ws.commons.schema.XmlSchemaType;
-import org.apache.yoko.wsdl.CorbaTypeImpl;
+    private final CorbaOctetSequenceHandler value;
 
-public abstract class DeferredActionBase implements DeferredAction {         
-    
-    private Scope fullyQualifiedName;       
-    
-    public DeferredActionBase(Scope qualifiedName) {
-        fullyQualifiedName = qualifiedName; 
+    public CorbaOctetSequenceListener(CorbaObjectHandler handler) {
+        super(handler);
+        value = (CorbaOctetSequenceHandler) handler;
     }
 
-    public abstract void doDeferredAction(XmlSchemaType stype, CorbaTypeImpl ctype);
-    
-    public void setFullyQualifiedName(Scope qualifiedName) {
-        fullyQualifiedName = qualifiedName;
+    public void processCharacters(String text) {
+        value.setValueFromData(text);
     }
-    
-    public Scope getFullyQualifiedName() {
-        return fullyQualifiedName;
-    }
-    
 }

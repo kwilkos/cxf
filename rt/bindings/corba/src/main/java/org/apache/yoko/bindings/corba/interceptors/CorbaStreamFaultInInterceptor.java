@@ -29,15 +29,23 @@ import javax.xml.namespace.QName;
 
 import javax.xml.stream.XMLStreamReader;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.databinding.DataReader;
+import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.interceptor.ClientFaultConverter;
+import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.FaultInfo;
+import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.service.model.ServiceModelUtil;
@@ -45,7 +53,6 @@ import org.apache.cxf.service.model.ServiceModelUtil;
 import org.apache.yoko.bindings.corba.CorbaBindingException;
 import org.apache.yoko.bindings.corba.CorbaMessage;
 import org.apache.yoko.bindings.corba.CorbaStreamable;
-import org.apache.yoko.bindings.corba.CorbaTypeMap;
 import org.apache.yoko.bindings.corba.runtime.CorbaStreamReader;
 import org.apache.yoko.bindings.corba.types.CorbaHandlerUtils;
 import org.apache.yoko.bindings.corba.types.CorbaTypeEventProducer;
@@ -65,7 +72,10 @@ public class CorbaStreamFaultInInterceptor extends AbstractPhaseInterceptor<Mess
 
     public void handleMessage(Message msg) {
         CorbaMessage message = (CorbaMessage)msg;
+        
+        
         try {
+            
             SystemException sysEx = message.getSystemException();
             if (sysEx != null) {
                 // TODO: Do we need anything else to handle system exceptions here...i.e. do
@@ -80,12 +90,9 @@ public class CorbaStreamFaultInInterceptor extends AbstractPhaseInterceptor<Mess
 
                 BindingOperationInfo bopInfo = message.getExchange().get(BindingOperationInfo.class);
                 OperationInfo opInfo = bopInfo.getOperationInfo();
-
-                CorbaMessage outMessage = (CorbaMessage)message.getExchange().getOutMessage();
-
+                
                 ServiceInfo service = message.getExchange().get(ServiceInfo.class);
-                CorbaTypeMap typeMap = outMessage.getCorbaTypeMap();
-
+                
                 org.omg.CORBA.ORB orb = (org.omg.CORBA.ORB) message.get(CorbaConstants.ORB);
                 if (orb == null) {
                     orb = (org.omg.CORBA.ORB) message.getExchange().get(org.omg.CORBA.ORB.class); 
@@ -102,10 +109,19 @@ public class CorbaStreamFaultInInterceptor extends AbstractPhaseInterceptor<Mess
                 Object e = reader.read(fault.getMessageParts().get(0), streamReader);
                 if (!(e instanceof Exception)) {
                     Class exClass = fault.getProperty(Class.class.getName(), Class.class);
-                    Class beanClass = e.getClass();
-                    Constructor constructor =
-                        exClass.getConstructor(new Class[]{String.class, beanClass});
-                    e = constructor.newInstance(new Object[]{"", e});
+                    if (exClass != null) {
+                        Class beanClass = e.getClass();
+                        Constructor constructor =
+                            exClass.getConstructor(new Class[]{String.class, beanClass});
+                        e = constructor.newInstance(new Object[]{"", e});
+                    } else {
+                        // Get the Fault                         
+                        Fault faultEx = (Fault) message.getContent(Exception.class);
+                        if (e instanceof Document) {
+                            createFaultDetail((Document)e, fault, faultEx);
+                        }
+                        e = faultEx;
+                    }
                 }
                 message.setContent(Exception.class, (Exception) e);
             }
@@ -116,11 +132,38 @@ public class CorbaStreamFaultInInterceptor extends AbstractPhaseInterceptor<Mess
 
     }
 
+    private void createFaultDetail(Document faultData, FaultInfo faultInfo, Fault faultEx) {
+        MessagePartInfo partInfo =  faultInfo.getMessageParts().get(0);
+        QName partInfoName = partInfo.getElementQName();
+        Document faultDoc = DOMUtils.createDocument();
+        Element faultElement = faultDoc.createElement("detail");
+        faultDoc.appendChild(faultElement);
+        Element partElement = 
+            faultDoc.createElementNS(partInfoName.getNamespaceURI(), partInfoName.getLocalPart());
+        
+        Element faultDataElement = (Element) faultData.getFirstChild();
+        
+        NodeList nodeList = faultDataElement.getChildNodes();
+       
+        for (int i = 0; i < nodeList.getLength(); i++) { 
+            Node importedFaultData = faultDoc.
+                            importNode(nodeList.item(i), true);
+            partElement.appendChild(importedFaultData);
+        }
+        faultElement.appendChild(partElement);
+        faultEx.setDetail(faultElement);
+    }
+
+    
     protected FaultInfo getFaultInfo(OperationInfo opInfo, QName faultName) {
         Iterator<FaultInfo> faults = opInfo.getFaults().iterator();
         while (faults.hasNext()) {
             FaultInfo fault = faults.next();
-            if (fault.getFaultName().getLocalPart().equals(faultName.getLocalPart())) {
+            MessagePartInfo partInfo = fault.getMessageParts().get(0);
+            if (partInfo.isElement()
+                && partInfo.getElementQName().getLocalPart().equals(faultName.getLocalPart())) {
+                return fault;
+            } else if (partInfo.getTypeQName().getLocalPart().equals(faultName.getLocalPart())) {
                 return fault;
             }
         }

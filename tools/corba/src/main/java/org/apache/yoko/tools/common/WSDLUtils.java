@@ -15,7 +15,7 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
-*/
+ */
 
 package org.apache.yoko.tools.common;
 
@@ -45,7 +45,6 @@ public final class WSDLUtils {
 
     public static boolean isElementFormQualified(List<XmlSchema> schemas, QName type) {
         if (type != null) {     
-            String uri = type.getNamespaceURI();
             for (int i = 0; i < schemas.size(); i++) {
                 XmlSchema schema = schemas.get(i);
                 if (isElementFormQualified(schema, type)) {

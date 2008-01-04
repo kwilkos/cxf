@@ -15,10 +15,11 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
-*/
+ */
 
 package org.apache.yoko.tools.processors.idl;
 
+import javax.wsdl.Definition;
 import javax.xml.namespace.QName;
 
 import antlr.collections.AST;
@@ -27,6 +28,7 @@ import org.apache.schemas.yoko.bindings.corba.Alias;
 import org.apache.schemas.yoko.bindings.corba.Fixed;
 import org.apache.schemas.yoko.bindings.corba.Sequence;
 
+import org.apache.ws.commons.schema.XmlSchema;
 import org.apache.ws.commons.schema.XmlSchemaComplexType;
 import org.apache.ws.commons.schema.XmlSchemaSimpleType;
 import org.apache.ws.commons.schema.XmlSchemaType;
@@ -41,11 +43,13 @@ public class DeclaratorVisitor extends VisitorBase {
     // <complex_declarator> ::= <array_declarator>
     
     public DeclaratorVisitor(Scope scope,
+                             Definition defn,
+                             XmlSchema schemaRef,
                              WSDLASTVisitor wsdlASTVisitor,
                              XmlSchemaType schemaTypeRef,
                              CorbaTypeImpl corbaTypeRef,
                              Scope fQName) {
-        super(scope, wsdlASTVisitor);
+        super(scope, defn, schemaRef, wsdlASTVisitor);
         setSchemaType(schemaTypeRef);
         setCorbaType(corbaTypeRef);
         setFullyQualifiedName(fQName);
@@ -55,11 +59,13 @@ public class DeclaratorVisitor extends VisitorBase {
     
         if (ArrayVisitor.accept(node)) {
             ArrayVisitor arrayVisitor = new ArrayVisitor(getScope(),
+                                                         definition,
+                                                         schema,
                                                          wsdlVisitor,
-                                                         getSchemaType(),
-                                                         getCorbaType(),
                                                          node,
-                                                         getFullyQualifiedName()); 
+                                                         getFullyQualifiedName());
+            arrayVisitor.setSchemaType(getSchemaType());
+            arrayVisitor.setCorbaType(getCorbaType());
             arrayVisitor.visit(node);
 
         } else {
@@ -80,84 +86,90 @@ public class DeclaratorVisitor extends VisitorBase {
 
             if (ArrayVisitor.accept(nextDecl)) {
                 ArrayVisitor arrayVisitor = new ArrayVisitor(newScope,
+                                                             definition,
+                                                             schema,
                                                              wsdlVisitor,
-                                                             getSchemaType(),
-                                                             getCorbaType(),
                                                              nextDecl,
                                                              getFullyQualifiedName()); 
+                arrayVisitor.setSchemaType(getSchemaType());
+                arrayVisitor.setCorbaType(getCorbaType());
                 arrayVisitor.visit(nextDecl);
-
             } else {
-                CorbaTypeImpl nextCorbaType = null;
-                XmlSchemaType nextSchemaType = null;
-
-                CorbaTypeImpl oldCorbaType = getCorbaType();
-
-                QName newQname = new QName(getCorbaType().getQName().getNamespaceURI(), newScope.toString());
-
-                if (oldCorbaType instanceof Alias) {
-                    // Alias
-                    //
-                    Alias oldAlias = (Alias) oldCorbaType;
-                    Alias alias = new Alias();
-
-                    alias.setQName(newQname);
-                    alias.setBasetype(oldAlias.getBasetype());
-                    alias.setType(oldAlias.getType());
-                    alias.setRepositoryID(newScope.toIDLRepositoryID());
-
-                    nextCorbaType = alias;
-                } else if (oldCorbaType instanceof Sequence) {
-                    // Sequence
-                    //
-
-                    nextSchemaType = duplicateXmlSchemaComplexType(newScope);
-
-                    Sequence oldSequence = (Sequence) oldCorbaType;
-                    Sequence newSequence = new Sequence();
-
-                    newSequence.setQName(newQname);
-                    newSequence.setType(nextSchemaType.getQName());
-                    newSequence.setElemtype(oldSequence.getElemtype());
-                    newSequence.setElemname(oldSequence.getElemname());
-                    newSequence.setBound(oldSequence.getBound());
-                    newSequence.setRepositoryID(newScope.toIDLRepositoryID());
-
-                    nextCorbaType = newSequence;
-                } else if (oldCorbaType instanceof Fixed) {
-                    // Fixed
-                    //
-
-                    nextSchemaType = duplicateXmlSchemaSimpleType(newScope);
-
-                    Fixed oldFixed = (Fixed) getCorbaType();
-                    Fixed newFixed = new Fixed();
-
-                    newFixed.setQName(newQname);
-                    newFixed.setDigits(oldFixed.getDigits());
-                    newFixed.setScale(oldFixed.getScale());
-                    newFixed.setType(oldFixed.getType());
-                    newFixed.setRepositoryID(newScope.toIDLRepositoryID());
-
-                    nextCorbaType = newFixed;
-                } else {
-                    System.err.println("[DeclaratorVisitor: Unexpected CORBA type error!]");
-                    System.exit(1);
-                }
-
-                if (nextCorbaType != null) {
-                    typeMap.getStructOrExceptionOrUnion().add(nextCorbaType);
-                }
-                if (nextSchemaType != null) {
-                    schema.getItems().add(nextSchemaType);
-                    schema.addType(nextSchemaType);                    
-                }
+                visitNewTypes(newScope);
             }
             
             nextDecl = nextDecl.getNextSibling();
         }
 
     }
+
+    private void visitNewTypes(Scope newScope) {
+        CorbaTypeImpl nextCorbaType = null;
+        XmlSchemaType nextSchemaType = null;
+
+        CorbaTypeImpl oldCorbaType = getCorbaType();
+
+        QName newQname = new QName(getCorbaType().getQName().getNamespaceURI(), newScope.toString());
+
+        if (oldCorbaType instanceof Alias) {
+            // Alias
+            //
+            Alias oldAlias = (Alias) oldCorbaType;
+            Alias alias = new Alias();
+            
+            alias.setQName(newQname);
+            alias.setBasetype(oldAlias.getBasetype());
+            alias.setType(oldAlias.getType());
+            alias.setRepositoryID(newScope.toIDLRepositoryID());
+            
+            nextCorbaType = alias;
+        } else if (oldCorbaType instanceof Sequence) {
+            // Sequence
+            //
+            
+            nextSchemaType = duplicateXmlSchemaComplexType(newScope);
+            
+            Sequence oldSequence = (Sequence) oldCorbaType;
+            Sequence newSequence = new Sequence();
+
+            newSequence.setQName(newQname);
+            newSequence.setType(nextSchemaType.getQName());
+            newSequence.setElemtype(oldSequence.getElemtype());
+            newSequence.setElemname(oldSequence.getElemname());
+            newSequence.setBound(oldSequence.getBound());
+            newSequence.setRepositoryID(newScope.toIDLRepositoryID());
+
+            nextCorbaType = newSequence;
+        } else if (oldCorbaType instanceof Fixed) {
+            // Fixed
+            //
+            
+            nextSchemaType = duplicateXmlSchemaSimpleType(newScope);
+
+            Fixed oldFixed = (Fixed) getCorbaType();
+            Fixed newFixed = new Fixed();
+
+            newFixed.setQName(newQname);
+            newFixed.setDigits(oldFixed.getDigits());
+            newFixed.setScale(oldFixed.getScale());
+            newFixed.setType(oldFixed.getType());
+            newFixed.setRepositoryID(newScope.toIDLRepositoryID());
+            
+            nextCorbaType = newFixed;
+        } else {
+            System.err.println("[DeclaratorVisitor: Unexpected CORBA type error!]");
+            System.exit(1);
+        }
+
+        if (nextCorbaType != null) {
+            typeMap.getStructOrExceptionOrUnion().add(nextCorbaType);
+        }
+        if (nextSchemaType != null) {
+            schema.getItems().add(nextSchemaType);
+            schema.addType(nextSchemaType);                    
+        }
+    }
+
     
     private XmlSchemaComplexType duplicateXmlSchemaComplexType(Scope newScope) {
         XmlSchemaComplexType oldSchemaType = (XmlSchemaComplexType) getSchemaType();

@@ -15,7 +15,7 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
-*/
+ */
 
 package org.apache.yoko.tools.processors.idl;
 
@@ -41,10 +41,8 @@ import antlr.collections.AST;
 import org.apache.schemas.yoko.bindings.corba.ArgType;
 import org.apache.schemas.yoko.bindings.corba.OperationType;
 import org.apache.schemas.yoko.bindings.corba.RaisesType;
-import org.apache.schemas.yoko.bindings.corba.TypeMappingType;
 
 import org.apache.ws.commons.schema.XmlSchema;
-import org.apache.ws.commons.schema.XmlSchemaCollection;
 import org.apache.ws.commons.schema.XmlSchemaComplexType;
 import org.apache.ws.commons.schema.XmlSchemaElement;
 import org.apache.ws.commons.schema.XmlSchemaSequence;
@@ -64,7 +62,6 @@ public class OperationVisitor extends VisitorBase {
     private static final String INOUT_PARAMETER = "inoutparameter";
     private static final String RETURN_PARAMETER = "return";
     
-    private Definition definition;
     private ExtensionRegistry extReg;
     private PortType portType;
     private Binding binding;
@@ -78,18 +75,21 @@ public class OperationVisitor extends VisitorBase {
     private OperationType corbaOperation;
     
     public OperationVisitor(Scope scope,
+                            Definition defn,
+                            XmlSchema schemaRef,
                             WSDLASTVisitor wsdlVisitor,
                             PortType wsdlPortType,
                             Binding wsdlBinding) {
-        super(scope, wsdlVisitor);
-        definition = wsdlVisitor.getDefinition();
+        super(scope, defn, schemaRef, wsdlVisitor);
         extReg = definition.getExtensionRegistry();
         portType = wsdlPortType;
         binding = wsdlBinding;
     }
     
-    public static boolean accept(Scope scope, XmlSchemaCollection schemas, XmlSchema schema,
-                                 TypeMappingType typeMap, Definition def, AST node, 
+    public static boolean accept(Scope scope,
+                                 Definition def,
+                                 XmlSchema schema,
+                                 AST node,
                                  WSDLASTVisitor wsdlVisitor) {
         boolean result = false;
         AST node2 = node.getFirstChild();
@@ -101,9 +101,9 @@ public class OperationVisitor extends VisitorBase {
                 type == IDLTokenTypes.LITERAL_void
                 || PrimitiveTypesVisitor.accept(node2)
                 || StringVisitor.accept(node2)
-                || ScopedNameVisitor.accept(scope, schemas, schema, 
-                                            typeMap, def, node2, wsdlVisitor)
-                || ObjectReferenceVisitor.accept(scope, schema, def, node2);
+                || ScopedNameVisitor.accept(scope, def, schema, node2, wsdlVisitor)
+                //REVISIT, change this to be def & then schema
+                || ObjectReferenceVisitor.accept(scope, schema, def, node2, wsdlVisitor);
         }
         return result;
     }
@@ -118,8 +118,8 @@ public class OperationVisitor extends VisitorBase {
         // <parameter_dcls> ::= "(" <param_dcl> {"," <param_dcl>}* ")"
         //                    | "(" ")"
         // <raises_expr> ::= "raises" "(" <scoped_name> {"," <scoped_name>}* ")"
-        // <context_expr> ::= "context" "(" <string_literal> {"," <string_literal>}* ")"
-     
+        // <context_expr> ::= "context" "(" <string_literal> {"," <string_literal>}* ")"     
+
         QName operationQName = new QName(schema.getTargetNamespace(), node.toString());
         boolean isDuplicate = false;
         if (schema.getElements().contains(operationQName)) {
@@ -169,6 +169,8 @@ public class OperationVisitor extends VisitorBase {
         while (ParamDclVisitor.accept(node)) {
 
             ParamDclVisitor visitor = new ParamDclVisitor(getScope(),
+                                                          definition,
+                                                          schema,
                                                           wsdlVisitor,
                                                           inputWrappingSequence,
                                                           outputWrappingSequence,
@@ -186,13 +188,18 @@ public class OperationVisitor extends VisitorBase {
             while (node != null) {            
                 // 
                 ScopedNameVisitor visitor = new ScopedNameVisitor(getScope(),
+                                                                  definition,
+                                                                  schema,
                                                                   wsdlVisitor);                
                 visitor.setExceptionMode(true);
                 visitor.visit(node);                
                 CorbaTypeImpl corbaType = visitor.getCorbaType();
-                createFaultMessage(corbaType, operation, bindingOperation, 
-                                   visitor.getFullyQualifiedName());
-                
+                XmlSchemaType schemaType = visitor.getSchemaType();
+                //REVISIT, schema type ends with Type for exceptions, so strip it to get the element name.
+                int pos = schemaType.getQName().getLocalPart().indexOf("Type");
+                QName elementQName = new QName(schemaType.getQName().getNamespaceURI(),
+                                               schemaType.getQName().getLocalPart().substring(0, pos));
+                createFaultMessage(corbaType, operation, bindingOperation, elementQName);                
                 node = node.getNextSibling();
                 visitor.setExceptionMode(false);
             }
@@ -235,8 +242,17 @@ public class OperationVisitor extends VisitorBase {
 
 
     public Message generateInputMessage(Operation operation, BindingOperation bindingOperation) {
-        Message msg = definition.createMessage(); 
-        msg.setQName(new QName(definition.getTargetNamespace(), operation.getName()));
+        Message msg = definition.createMessage();
+        QName msgName;
+        if (!mapper.isDefaultMapping()) {
+            //mangle the message name
+            //REVISIT, do we put in the entire scope for mangling
+            msgName = new QName(definition.getTargetNamespace(),
+                                getScope().tail() + "." + operation.getName());
+        } else {
+            msgName = new QName(definition.getTargetNamespace(), operation.getName()); 
+        }
+        msg.setQName(msgName);
         msg.setUndefined(false);
         
         String inputName = operation.getName() + REQUEST_SUFFIX;
@@ -257,8 +273,17 @@ public class OperationVisitor extends VisitorBase {
 
     public Message generateOutputMessage(Operation operation, BindingOperation bindingOperation) {
         Message msg = definition.createMessage(); 
-        msg.setQName(new QName(definition.getTargetNamespace(),
-                               operation.getName() + RESPONSE_SUFFIX));
+        QName msgName;
+        if (!mapper.isDefaultMapping()) {
+            //mangle the message name
+            //REVISIT, do we put in the entire scope for mangling
+            msgName = new QName(definition.getTargetNamespace(),
+                                getScope().tail() + "." + operation.getName() + RESPONSE_SUFFIX);
+        } else {
+            msgName = new QName(definition.getTargetNamespace(),
+                                operation.getName() + RESPONSE_SUFFIX); 
+        }
+        msg.setQName(msgName);
         msg.setUndefined(false);
         
         String outputName = operation.getName() + RESPONSE_SUFFIX;
@@ -333,7 +358,7 @@ public class OperationVisitor extends VisitorBase {
             }
         } else {
             wsdlVisitor.getDeferredActions().
-                add(new OperationDeferredAction(element, fqName));  
+                add(fqName, new OperationDeferredAction(element));  
         }
         
         schemaSequence.getItems().add(element);
@@ -346,7 +371,9 @@ public class OperationVisitor extends VisitorBase {
             // nothing to do here, move along
             return;
         } else {
-            ParamTypeSpecVisitor visitor = new ParamTypeSpecVisitor(getScope(), 
+            ParamTypeSpecVisitor visitor = new ParamTypeSpecVisitor(getScope(),
+                                                                    definition,
+                                                                    schema,
                                                                     wsdlVisitor);
 
             visitor.visit(node);
@@ -367,7 +394,7 @@ public class OperationVisitor extends VisitorBase {
             param.setIdltype(corbaType.getQName());
         } else {
             wsdlVisitor.getDeferredActions().
-                add(new OperationDeferredAction(param, fqName));
+                add(fqName, new OperationDeferredAction(param));
         }
         corbaOperation.setReturn(param);
     }
@@ -375,19 +402,17 @@ public class OperationVisitor extends VisitorBase {
     private void createFaultMessage(CorbaTypeImpl corbaType,
                                     Operation operation, 
                                     BindingOperation bindingOperation,
-                                    Scope fqName) {
+                                    QName elementQName) {
         String exceptionName = corbaType.getQName().getLocalPart();        
 
-        // message
-        Message faultMsg = definition.createMessage();        
-        faultMsg.setQName(new QName(definition.getTargetNamespace(), exceptionName));        
-        faultMsg.setUndefined(false);
-
-        // message - part
-        Part part = definition.createPart();
-        part.setName("exception");            
-        part.setElementName(new QName(schema.getTargetNamespace(), exceptionName));        
-        faultMsg.addPart(part);
+        Definition faultDef = manager.getWSDLDefinition(elementQName.getNamespaceURI());
+        if (faultDef == null) {
+            faultDef = definition;
+        }
+        Message faultMsg = faultDef.getMessage(new QName(faultDef.getTargetNamespace(), exceptionName));
+        if (faultMsg == null) {
+            throw new RuntimeException("Fault message for exception " + exceptionName + " not found");
+        }
 
         // porttype - operation - fault
         Fault fault = definition.createFault();
@@ -398,14 +423,16 @@ public class OperationVisitor extends VisitorBase {
         // binding - operation - corba:operation - corba:raises
         RaisesType raisesType = new RaisesType();        
         raisesType.setException(new QName(typeMap.getTargetNamespace(),
-                                              exceptionName));
+                                          exceptionName));
         corbaOperation.getRaises().add(raisesType);
 
         // binding - operation - fault
         BindingFault bindingFault = definition.createBindingFault();        
         bindingFault.setName(faultMsg.getQName().getLocalPart());        
-        bindingOperation.addBindingFault(bindingFault);
+        bindingOperation.addBindingFault(bindingFault);    
 
-        definition.addMessage(faultMsg);        
+        //add the fault element namespace to the definition
+        String nsURI = elementQName.getNamespaceURI();
+        manager.addWSDLDefinitionNamespace(definition, mapper.mapNSToPrefix(nsURI), nsURI);    
     }
 }

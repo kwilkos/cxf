@@ -15,7 +15,7 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
-*/
+ */
 
 package org.apache.yoko.tools.processors.idl;
 
@@ -25,30 +25,26 @@ import org.apache.ws.commons.schema.XmlSchemaType;
 import org.apache.yoko.tools.common.ReferenceConstants;
 import org.apache.yoko.wsdl.CorbaTypeImpl;
 
-public class ExceptionDeferredAction extends DeferredActionBase {
+public class ExceptionDeferredAction implements SchemaDeferredAction {
 
     protected MemberType member;
     protected XmlSchemaElement element;
     
     
-    public ExceptionDeferredAction(MemberType memberType, XmlSchemaElement elem,
-                                  Scope scope) {                           
-        super(scope);
+    public ExceptionDeferredAction(MemberType memberType, XmlSchemaElement elem) {
         member = memberType;
         element = elem;        
     }
     
-    public ExceptionDeferredAction(MemberType memberType, Scope scope) {                           
-        super(scope);
+    public ExceptionDeferredAction(MemberType memberType) {
         member = memberType;         
     }
     
-    public ExceptionDeferredAction(XmlSchemaElement elem, Scope scope) {                           
-        super(scope);
+    public ExceptionDeferredAction(XmlSchemaElement elem) {
         element = elem;               
     }
     
-    public void doDeferredAction(XmlSchemaType stype, CorbaTypeImpl ctype) {
+    public void execute(XmlSchemaType stype, CorbaTypeImpl ctype) {
         if (member != null) {
             member.setIdltype(ctype.getQName());
         }
@@ -62,6 +58,7 @@ public class ExceptionDeferredAction extends DeferredActionBase {
     }
        
 }
+
 
 
 

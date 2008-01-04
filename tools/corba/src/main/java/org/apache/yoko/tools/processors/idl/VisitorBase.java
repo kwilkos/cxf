@@ -15,9 +15,11 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
-*/
+ */
 
 package org.apache.yoko.tools.processors.idl;
+
+import javax.wsdl.Definition;
 
 import antlr.collections.AST;
 
@@ -31,31 +33,40 @@ public abstract class VisitorBase implements Visitor {
 
     protected static ScopeNameCollection scopedNames;
     protected WSDLASTVisitor wsdlVisitor;
-    protected XmlSchema schema;
     protected XmlSchemaCollection schemas;
     protected TypeMappingType typeMap;
-    
-
+    protected ModuleToNSMapper mapper;
+    protected WSDLSchemaManager manager;
     protected DeferredActionCollection deferredActions;
+    protected XmlSchema schema;
+    protected Definition definition;
+    
     private XmlSchemaType schemaType;
     private CorbaTypeImpl corbaType;
     private Scope fullyQualifiedName;
+
     private Scope scope;
-    
+
     public VisitorBase(Scope scopeRef,
+                       Definition defn,
+                       XmlSchema schemaRef,
                        WSDLASTVisitor wsdlASTVisitor) {
         wsdlVisitor = wsdlASTVisitor;
         schemas = wsdlVisitor.getSchemas();
         scopedNames = wsdlVisitor.getScopedNames();
         deferredActions = wsdlVisitor.getDeferredActions();
-        schema = wsdlVisitor.getSchema();
         typeMap = wsdlVisitor.getTypeMap();
         
-        scope = scopeRef; 
-        fullyQualifiedName = null;
-        
+        manager = wsdlVisitor.getManager();
+        mapper = wsdlVisitor.getModuleToNSMapper();
+
+        scope = scopeRef;
+
+        fullyQualifiedName = null;        
         schemaType = null;
         corbaType = null;
+        definition = defn;
+        schema = schemaRef;
     }
 
     public abstract void visit(AST node);
@@ -80,7 +91,7 @@ public abstract class VisitorBase implements Visitor {
         return scope;
     }
     
-    public static ScopeNameCollection  getScopedNames() {
+    public static ScopeNameCollection getScopedNames() {
         return scopedNames;
     }
     

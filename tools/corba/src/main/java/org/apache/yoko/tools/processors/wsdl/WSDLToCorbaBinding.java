@@ -15,7 +15,7 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
-*/
+ */
 
 package org.apache.yoko.tools.processors.wsdl;
 
@@ -68,6 +68,7 @@ import org.apache.ws.commons.schema.XmlSchemaAppInfo;
 import org.apache.ws.commons.schema.XmlSchemaComplexType;
 import org.apache.ws.commons.schema.XmlSchemaElement;
 import org.apache.ws.commons.schema.XmlSchemaExternal;
+//import org.apache.ws.commons.schema.XmlSchemaImport;
 import org.apache.ws.commons.schema.XmlSchemaObjectTable;
 import org.apache.ws.commons.schema.XmlSchemaType;
 import org.apache.yoko.wsdl.CorbaConstants;
@@ -116,6 +117,28 @@ public class WSDLToCorbaBinding {
     public WSDLToCorbaHelper getHelper() {
         return helper;
     }
+    
+    private void createXmlSchemaList(List<XmlSchema> list) {                
+        List<XmlSchema> schemaList = new ArrayList<XmlSchema>();        
+        Iterator s = list.iterator();
+            
+        while (s.hasNext()) {
+            XmlSchema xmlSchemaTypes = (XmlSchema)s.next();
+            schemaList.add(xmlSchemaTypes);
+                
+            Iterator schemas = xmlSchemaTypes.getIncludes().getIterator();
+            while (schemas.hasNext()) {
+                Object obj = schemas.next();                               
+                if (obj instanceof XmlSchemaExternal) {
+                    XmlSchemaExternal extSchema = (XmlSchemaExternal) obj;                    
+                    schemaList.add(extSchema.getSchema());
+                }
+            }
+        }
+        
+        setXMLSchemaList(schemaList);
+        
+    }
 
     public Definition generateCORBABinding() throws Exception {
         try {
@@ -149,7 +172,7 @@ public class WSDLToCorbaBinding {
         typeProcessor.process();
         
         setXMLSchema(typeProcessor.getXmlSchemaType());
-        setXMLSchemaList(typeProcessor.getXmlSchemaTypes());
+        createXmlSchemaList(typeProcessor.getXmlSchemaTypes());
         List<PortType> intfs = null;
 
         if (interfaceNames.size() > 0) {
@@ -501,8 +524,9 @@ public class WSDLToCorbaBinding {
         addCorbaTypes(definition);
     }
     
-    private void addCorbaTypes(Definition definition) throws Exception {        
-        Iterator s = xmlSchemaList.iterator();
+    private void addCorbaTypes(Definition definition) throws Exception {   
+        List<XmlSchema> xmlSchemaLst = xmlSchemaList;
+        Iterator s = xmlSchemaLst.iterator();
             
         while (s.hasNext()) {
             XmlSchema xmlSchemaTypes = (XmlSchema)s.next();
@@ -511,16 +535,24 @@ public class WSDLToCorbaBinding {
             while (schemas.hasNext()) {
                 Object obj = schemas.next();
                 if (obj instanceof XmlSchemaExternal) {
-                    XmlSchemaExternal extSchema = (XmlSchemaExternal) obj;
+                    XmlSchemaExternal extSchema = (XmlSchemaExternal) obj;                 
                     addCorbaTypes(extSchema.getSchema());
+                    // REVISIT: This was preventing certain types from being added to the corba
+                    // typemap even when they are referenced from other parts of the wsdl.
+                    //
+                    // Should this add the corba types if it IS an instance of the XmlSchemaImport 
+                    // (and not an XmlSchemaInclude or XmlSchemaRedefine)?
+                    //if (!(extSchema instanceof XmlSchemaImport)) {
+                    //    addCorbaTypes(extSchema.getSchema());
+                    //}
                 }
             }
                 
             addCorbaTypes(xmlSchemaTypes);
 
         }
-    }          
-
+    }              
+    
     private void addCorbaTypes(XmlSchema xmlSchemaTypes) throws Exception {
         XmlSchemaObjectTable objs = xmlSchemaTypes.getSchemaTypes(); 
         Iterator i = objs.getValues();

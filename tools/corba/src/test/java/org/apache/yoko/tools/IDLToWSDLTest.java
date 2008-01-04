@@ -15,7 +15,7 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
-*/
+ */
 
 package org.apache.yoko.tools;
 
@@ -36,7 +36,7 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
-
+import org.apache.cxf.helpers.FileUtils;
 import org.apache.yoko.tools.common.ToolCorbaConstants;
 import org.apache.yoko.tools.common.ToolTestBase;
 import org.apache.yoko.tools.utils.TestUtils;
@@ -71,27 +71,16 @@ public class IDLToWSDLTest extends ToolTestBase {
         }
         
         try {
-            File file = File.createTempFile("IDLToWSDLTest", "");
-            output = new File(file.getAbsolutePath() + ".dir");
-            file.delete();
-            
-            if (!output.exists()) {
-                output.mkdir();
-            }            
+            output = new File(getClass().getResource(".").toURI());
+            output = new File(output, "generated-wsdl");
+            FileUtils.mkDir(output);
         } catch (Exception e) {
             // complete
         }
     }
 
     private void deleteDir(File dir) throws IOException {
-        for (File f : dir.listFiles()) {
-            if (f.isDirectory()) {
-                deleteDir(f);
-            } else {
-                f.delete();
-            }
-        }
-        dir.delete();
+        FileUtils.removeDir(dir);               
     }
 
     public void tearDown() {
@@ -145,7 +134,8 @@ public class IDLToWSDLTest extends ToolTestBase {
                 break;
             }
         }
-        
+        origReader.close();
+        genReader.close();
     }   
     
     public void testNoArgs() throws Exception {
@@ -205,8 +195,12 @@ public class IDLToWSDLTest extends ToolTestBase {
     
     private void doTestGeneratedWsdl(File expected, File actual) 
         throws FileNotFoundException, XMLStreamException, Exception {
-        InputStream actualFileStream = new FileInputStream(actual);
-        InputStream expectedFileStream = new FileInputStream(expected);
+        //For testing, esp. in AIX, we need to write out both the defn & schema to see if it matches
+        File expectedWsdlFile = wsdlGenTester.writeDefinition(output, expected);
+        File actualWsdlFile = wsdlGenTester.writeDefinition(output, actual);
+
+        InputStream actualFileStream = new FileInputStream(actualWsdlFile);
+        InputStream expectedFileStream = new FileInputStream(expectedWsdlFile);
         
         XMLInputFactory factory = XMLInputFactory.newInstance();
         
@@ -315,6 +309,21 @@ public class IDLToWSDLTest extends ToolTestBase {
         File expected = new File(getClass().getResource("/idl/expected_Exception_DiffNS.wsdl").getFile());
         
         String[] args = new String[] {"-x", "http://schemas.apache.org/yoko/idl/Exception/types",
+                                      "-o", output.toString(),
+                                      input.toString()
+        };
+        int exc = execute(args);
+        assertEquals("IDLToWSDL Failed", noError, exc);
+        doTestGeneratedWsdl(expected, actual);
+    }
+
+    public void testOutputWSDLFileName() throws Exception {
+        File input = new File(getClass().getResource("/idl/HelloWorld.idl").getFile());
+        File actual = new File(output, "ArtixHelloWorld.wsdl");
+        File expected = 
+            new File(getClass().getResource("/idl/expected_HelloWorld.wsdl").getFile());
+        
+        String[] args = new String[] {"-ow", "ArtixHelloWorld.wsdl",
                                       "-o", output.toString(),
                                       input.toString()
         };

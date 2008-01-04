@@ -1,22 +1,24 @@
 /**
  * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
+ * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
+ * regarding copyright ownership. The ASF licenses this file
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * with the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
+ * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
  */
 package org.apache.yoko.bindings.corba.utils;
+
+import java.util.Stack;
 
 import javax.xml.namespace.QName;
 import junit.framework.TestCase;
@@ -24,6 +26,9 @@ import junit.framework.TestCase;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.TCKind;
 import org.omg.CORBA.TypeCode;
+import org.apache.schemas.yoko.bindings.corba.CorbaType;
+import org.apache.yoko.bindings.corba.CorbaBindingException;
+import org.apache.yoko.bindings.corba.CorbaTypeMap;
 import org.apache.yoko.wsdl.CorbaConstants;
 
 public class CorbaUtilsTest extends TestCase {
@@ -168,6 +173,36 @@ public class CorbaUtilsTest extends TestCase {
         assertNotNull(tc);
         assertTrue(tc.kind().value() == TCKind._tk_wstring);
         assertTrue(CorbaUtils.isPrimitiveIdlType(type));
+    }
+    
+    public void testErrorConditionNullTypeQName() {
+        try {
+            CorbaUtils.getTypeCode(orb, null, new CorbaTypeMap("dud:namespace"));
+            fail("expect exception on null type");
+        } catch (CorbaBindingException expected) {     
+        }
+        
+        CorbaTypeMap typeMap = new CorbaTypeMap("dud:namespace");
+        QName seen = new QName("bla","Bla");
+        Stack<QName> seenTypes = new Stack<QName>();            
+        seenTypes.add(seen);
+        try {
+            CorbaUtils.getTypeCode(orb, null, typeMap, seenTypes);
+            fail("expect exception on null type");
+        } catch (CorbaBindingException expected) { 
+            assertTrue("enclosed type is present",
+                    expected.getMessage().indexOf(seen.toString()) != -1);
+        }
+        
+        CorbaType ctype = new CorbaType();
+        try {
+            CorbaUtils.getTypeCode(orb, null, ctype, typeMap);
+            fail("expect exception on null type");
+        } catch (CorbaBindingException expected) { 
+            assertTrue("enclosed corba type is present",
+                    expected.getMessage().indexOf(ctype.toString()) != -1);
+        }
+
     }
         
 }

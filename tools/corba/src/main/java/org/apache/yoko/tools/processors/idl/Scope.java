@@ -15,7 +15,7 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
-*/
+ */
 
 package org.apache.yoko.tools.processors.idl;
 
@@ -27,7 +27,7 @@ import antlr.collections.AST;
 
 import org.apache.yoko.wsdl.CorbaConstants;
 
-public final class Scope {
+public final class Scope implements Comparable {
 
     private static final String SEPARATOR = ".";
     private List<String> scope;
@@ -38,9 +38,23 @@ public final class Scope {
         parent = this;
     }
     
+    public Scope(String scopes, String separator) {
+        java.util.StringTokenizer tokens = new java.util.StringTokenizer(scopes, separator);
+        Scope rootScope = new Scope();
+        Scope prevScope = rootScope.parent;
+        scope = rootScope.scope;
+        parent = this;
+        while (tokens.hasMoreTokens()) {
+            String token = tokens.nextToken();
+            parent = prevScope;
+            prevScope = new Scope(prevScope, token);
+            scope.add(token);
+        }
+    }
+    
     public Scope(Scope containingScope) {
         scope = new ArrayList<String>(containingScope.scope);
-        parent = containingScope;
+        parent = containingScope.getParent();
     }
     
     public Scope(Scope containingScope, String str) {
@@ -78,7 +92,7 @@ public final class Scope {
         return parent;
     }
     
-    private String toString(String separator) {
+    public String toString(String separator) {
         StringBuffer result = new StringBuffer();
         Iterator<String> it = scope.iterator();
         while (it.hasNext()) {
@@ -101,5 +115,28 @@ public final class Scope {
         result.append(CorbaConstants.IDL_VERSION);
         return result.toString();
     }
-    
+
+    public boolean equals(Object otherScope) {
+        if (otherScope != null && otherScope instanceof Scope) {
+            return toString().equals(((Scope)otherScope).toString());   
+        } else {
+            return false;
+        }
+    }
+
+    public int hashCode() {
+        return toString().hashCode();
+    }
+
+    public int compareTo(Object otherScope) {
+        if (otherScope == null) {
+            throw new RuntimeException("Cannot compare a null object");
+        }
+        if (otherScope instanceof Scope) {
+            return toString().compareTo(otherScope.toString());
+        } else {
+            throw new ClassCastException("Scope class expected but found "
+                                         + otherScope.getClass().getName());
+        }
+    }
 }

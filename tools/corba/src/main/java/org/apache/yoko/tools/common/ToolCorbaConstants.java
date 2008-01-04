@@ -15,7 +15,7 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
-*/
+ */
 
 package org.apache.yoko.tools.common;
 
@@ -43,4 +43,12 @@ public final class ToolCorbaConstants  {
     public static final String CFG_BOUNDEDSTRINGS = "boundedstrings";
     public static final String CFG_LOGICAL = "logical";
     public static final String CFG_PHYSICAL = "physical";
+    public static final String CFG_MODULETONS = "moduletonamespace";
+    public static final String CFG_QUALIFIED = "qualified";
+    public static final String CFG_INCLUDEDIR = "includedir";
+    public static final String CFG_EXCLUDEMODULES = "excludemodules";
+    public static final String CFG_POLYMORPHIC_FACTORIES = "polymorphicfactories";
+                               
+
+    public static final String MODULE_SEPARATOR = "::";
 }

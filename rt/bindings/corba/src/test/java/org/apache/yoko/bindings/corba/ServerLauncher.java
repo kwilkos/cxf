@@ -33,6 +33,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import org.apache.cxf.common.logging.LogUtils;
+
 public class ServerLauncher {
 
     public static final int DEFAULT_TIMEOUT = 3 * 60 * 1000;
@@ -40,7 +42,7 @@ public class ServerLauncher {
     protected static final String SERVER_FAILED = 
         "server startup failed (not a log message)";
 
-    private static final Logger LOG = Logger.getLogger(ServerLauncher.class.getName());
+    private static final Logger LOG = LogUtils.getL7dLogger(ServerLauncher.class);
 
     boolean serverPassed;
     final String className;

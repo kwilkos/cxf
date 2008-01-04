@@ -15,14 +15,16 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
-*/
+ */
 
 package org.apache.yoko.tools.processors.idl;
 
+import javax.wsdl.Definition;
 import javax.xml.namespace.QName;
 
 import antlr.collections.AST;
 
+import org.apache.ws.commons.schema.XmlSchema;
 import org.apache.ws.commons.schema.XmlSchemaCollection;
 import org.apache.ws.commons.schema.XmlSchemaType;
 import org.apache.ws.commons.schema.constants.Constants;
@@ -33,11 +35,15 @@ public class FixedPtConstVisitor implements Visitor {
         
     private XmlSchemaType schemaType;
     private CorbaTypeImpl corbaType;
-    private Scope scope;   
+    private Scope scope;
+    private Scope moduleScope;
     private XmlSchemaCollection schemas;
     
     
-    public FixedPtConstVisitor(Scope scopeRef, XmlSchemaCollection xmlSchemas) {
+    public FixedPtConstVisitor(Scope scopeRef,
+                               Definition defn,
+                               XmlSchema schemaRef,
+                               XmlSchemaCollection xmlSchemas) {
         scope = scopeRef;
         schemas = xmlSchemas;
     }

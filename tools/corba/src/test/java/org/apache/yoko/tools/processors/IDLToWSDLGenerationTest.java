@@ -15,7 +15,7 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
-*/
+ */
 
 package org.apache.yoko.tools.processors;
 
@@ -310,7 +310,7 @@ public class IDLToWSDLGenerationTest extends TestCase {
         
         String userdir = System.getProperty("user.dir");
         String sep = System.getProperty("file.separator");                    
-        File file = file = new File(userdir + sep + importName);            
+        File file = new File(userdir + sep + importName);            
         String location = file.toURI().toString();
         File schemaFile = new File(userdir + sep + schemaFilename);                       
         String schemaLocation = schemaFile.toURI().toString();

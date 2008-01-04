@@ -157,8 +157,9 @@ public final class IdlPreprocessorReader extends Reader {
                 popInclude();
                 continue;
             }
+            line = processComments(line);
             
-            if (!line.startsWith("#")) {
+            if (!line.trim().startsWith("#")) {
                 if (!skips()) {
                     buf.append(line);
                 }
@@ -167,16 +168,18 @@ public final class IdlPreprocessorReader extends Reader {
             }
 
             final IncludeStackEntry ise = includeStack.peek();
-            
+            line = line.trim();
+            line = processPreprocessorComments(buf, line);
+
             if (line.startsWith("#include")) {
                 handleInclude(line, lineNo, ise);
             } else if (line.startsWith("#ifndef")) {
                 handleIfndef(line);
             } else if (line.startsWith("#ifdef")) {
                 handleIfdef(line);
-            } else if (line.trim().startsWith("#endif")) {
+            } else if (line.startsWith("#endif")) {
                 handleEndif(lineNo, ise);
-            } else if (line.trim().startsWith("#else")) {
+            } else if (line.startsWith("#else")) {
                 handleElse(lineNo, ise);
             } else if (line.startsWith("#define")) {
                 handleDefine(line);
@@ -186,6 +189,30 @@ public final class IdlPreprocessorReader extends Reader {
         }
     }
 
+    private String processComments(String line) {
+        int pos = line.indexOf("**/");
+        //The comments need to be end with */, so if the line has ****/,
+        //we need to insert space to make it *** */
+        if ((pos != -1) && (pos != 0)) {
+            line = line.substring(0, pos) + " " + line.substring(pos + 1);
+        }
+        return line;
+    }
+
+    private String processPreprocessorComments(StringBuilder buffer, String line) {
+        int pos = line.indexOf("//");
+        if ((pos != -1) && (pos != 0)) {
+            buffer.append(line.substring(pos));
+            line = line.substring(0, pos);
+        }
+        pos = line.indexOf("/*");
+        if ((pos != -1) && (pos != 0)) {
+            buffer.append(line.substring(pos));
+            line = line.substring(0, pos);
+        }
+        return line;
+    }
+    
     /**
      * TODO: support multiline definitions, functions, etc. 
      */
@@ -250,7 +277,6 @@ public final class IdlPreprocessorReader extends Reader {
 
         String arg = line.replaceFirst("#include", "").trim();
         if (arg.length() == 0) {
-
             throw new PreprocessingException("#include without an argument", ise.getURL(), lineNo);
         }
 

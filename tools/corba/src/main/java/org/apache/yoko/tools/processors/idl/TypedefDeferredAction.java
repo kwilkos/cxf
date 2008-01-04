@@ -15,7 +15,7 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
-*/
+ */
 
 package org.apache.yoko.tools.processors.idl;
 
@@ -23,16 +23,15 @@ import org.apache.schemas.yoko.bindings.corba.Alias;
 import org.apache.ws.commons.schema.XmlSchemaType;
 import org.apache.yoko.wsdl.CorbaTypeImpl;
 
-public class TypedefDeferredAction extends DeferredActionBase {
+public class TypedefDeferredAction implements SchemaDeferredAction {
 
     protected Alias alias;    
     
-    public TypedefDeferredAction(Alias aliasType, Scope scope) {                           
-        super(scope);
+    public TypedefDeferredAction(Alias aliasType) {                         
         alias = aliasType;                
     }                   
     
-    public void doDeferredAction(XmlSchemaType stype, CorbaTypeImpl ctype) {  
+    public void execute(XmlSchemaType stype, CorbaTypeImpl ctype) {  
         if (alias != null) {
             alias.setBasetype(ctype.getQName());            
             alias.setType(stype.getQName());
@@ -40,6 +39,7 @@ public class TypedefDeferredAction extends DeferredActionBase {
     }
        
 }
+
 
 
 

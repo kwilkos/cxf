@@ -15,7 +15,7 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
-*/
+ */
 
 package org.apache.yoko.tools.processors.idl;
 
@@ -26,37 +26,32 @@ import org.apache.ws.commons.schema.XmlSchemaType;
 import org.apache.yoko.tools.common.ReferenceConstants;
 import org.apache.yoko.wsdl.CorbaTypeImpl;
 
-public class UnionDeferredAction extends DeferredActionBase {
+public class UnionDeferredAction implements SchemaDeferredAction {
 
     protected Union union;
     protected Unionbranch unionBranch;
     protected XmlSchemaElement element;
     
     
-    public UnionDeferredAction(Union unionType, Unionbranch unionBranchType, XmlSchemaElement elem,
-                                  Scope scope) {                           
-        super(scope);
+    public UnionDeferredAction(Union unionType, Unionbranch unionBranchType, XmlSchemaElement elem) {
         union = unionType;
         unionBranch = unionBranchType;
         element = elem;        
     }
     
-    public UnionDeferredAction(Union unionType, Scope scope) {                           
-        super(scope);
+    public UnionDeferredAction(Union unionType) {
         union = unionType;         
     }
     
-    public UnionDeferredAction(Unionbranch unionBranchType, Scope scope) {                           
-        super(scope);
+    public UnionDeferredAction(Unionbranch unionBranchType) {
         unionBranch = unionBranchType;         
     }
     
-    public UnionDeferredAction(XmlSchemaElement elem, Scope scope) {                           
-        super(scope);
+    public UnionDeferredAction(XmlSchemaElement elem) {
         element = elem;               
     }
     
-    public void doDeferredAction(XmlSchemaType stype, CorbaTypeImpl ctype) {
+    public void execute(XmlSchemaType stype, CorbaTypeImpl ctype) {
         if (unionBranch != null) {
             unionBranch.setIdltype(ctype.getQName());
         }
@@ -69,6 +64,7 @@ public class UnionDeferredAction extends DeferredActionBase {
     }
         
 }
+
 
 
 

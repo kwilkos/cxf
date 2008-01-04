@@ -21,4 +21,7 @@
     <check-configuration name="CXF Checks" location="@CHECKSTYLE_CONFIG_FILE@" type="external" description="">
         <property name="apache.header.file" value="@APACHE_HEADER_FILE@"/>
     </check-configuration>
+    <check-configuration name="CXF CORBA Checks" location="@CHECKSTYLE_CORBA_CONFIG_FILE@" type="external" description="">
+        <property name="apache.header.file" value="@APACHE_HEADER_FILE@"/>
+    </check-configuration>
 </checkstyle-configurations>

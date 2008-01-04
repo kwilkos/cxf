@@ -15,9 +15,11 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
-*/
+ */
 
 package org.apache.yoko.tools.processors.idl;
+
+import javax.wsdl.Definition;
 
 import antlr.collections.AST;
 
@@ -25,6 +27,7 @@ import org.apache.schemas.yoko.bindings.corba.ModeType;
 import org.apache.schemas.yoko.bindings.corba.OperationType;
 import org.apache.schemas.yoko.bindings.corba.ParamType;
 
+import org.apache.ws.commons.schema.XmlSchema;
 import org.apache.ws.commons.schema.XmlSchemaElement;
 import org.apache.ws.commons.schema.XmlSchemaSequence;
 import org.apache.ws.commons.schema.XmlSchemaType;
@@ -39,11 +42,13 @@ public class ParamDclVisitor extends VisitorBase {
     private OperationType corbaOperation;
     
     public ParamDclVisitor(Scope scope,
+                           Definition defn,
+                           XmlSchema schemaRef,
                            WSDLASTVisitor wsdlVisitor,
                            XmlSchemaSequence inWrapSeq,
                            XmlSchemaSequence outWrapSeq,
                            OperationType corbaOp) {
-        super(scope, wsdlVisitor);
+        super(scope, defn, schemaRef, wsdlVisitor);
         inWrappingSequence = inWrapSeq;
         outWrappingSequence = outWrapSeq;
         corbaOperation = corbaOp;
@@ -68,8 +73,9 @@ public class ParamDclVisitor extends VisitorBase {
 
         AST typeNode = node.getFirstChild();
         AST nameNode = TypesUtils.getCorbaTypeNameNode(typeNode);
-        
-        ParamTypeSpecVisitor visitor = new ParamTypeSpecVisitor(getScope(), 
+        ParamTypeSpecVisitor visitor = new ParamTypeSpecVisitor(getScope(),
+                                                                definition,
+                                                                schema,
                                                                 wsdlVisitor);
         visitor.visit(typeNode);
         XmlSchemaType schemaType = visitor.getSchemaType();
@@ -105,9 +111,22 @@ public class ParamDclVisitor extends VisitorBase {
         XmlSchemaElement element = new XmlSchemaElement();
         element.setName(name);
         if (schemaType == null) {
-            ParamDeferredAction elementAction = 
-                new ParamDeferredAction(element, fullyQualifiedName);
-            wsdlVisitor.getDeferredActions().add(elementAction);
+            ParamDeferredAction elementAction;
+            if (mapper.isDefaultMapping()) {
+                elementAction = new ParamDeferredAction(element);
+            } else {
+                elementAction = new ParamDeferredAction(element,
+                                                        fullyQualifiedName.getParent(),
+                                                        schema,
+                                                        schemas,
+                                                        manager,
+                                                        mapper);
+            }
+            wsdlVisitor.getDeferredActions().add(fullyQualifiedName, elementAction);
+
+            //ParamDeferredAction elementAction = 
+            //    new ParamDeferredAction(element);
+            //wsdlVisitor.getDeferredActions().add(fullyQualifiedName, elementAction);
         } else {
             element.setSchemaTypeName(schemaType.getQName());
             if (schemaType.getQName().equals(ReferenceConstants.WSADDRESSING_TYPE)) {
@@ -125,9 +144,9 @@ public class ParamDclVisitor extends VisitorBase {
         param.setMode(mode);
         if (corbaType ==  null) {            
             ParamDeferredAction paramAction = 
-                new ParamDeferredAction(param, fullyQualifiedName);
-            wsdlVisitor.getDeferredActions().add(paramAction);
-        } else {
+                new ParamDeferredAction(param);
+            wsdlVisitor.getDeferredActions().add(fullyQualifiedName, paramAction);
+        } else {            
             param.setIdltype(corbaType.getQName());
         }
         corbaOperation.getParam().add(param);
