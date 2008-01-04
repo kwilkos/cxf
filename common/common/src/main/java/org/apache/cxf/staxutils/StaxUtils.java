@@ -826,9 +826,8 @@ public final class StaxUtils {
     
 
     public static void printXmlFragment(XMLStreamReader reader) {
-        XMLUtils.setIndention(4);
         try {
-            LOG.info(XMLUtils.toString(StaxUtils.read(reader)));
+            LOG.info(XMLUtils.toString(StaxUtils.read(reader), 4));
         } catch (XMLStreamException e) {
             LOG.severe(e.getMessage());
         }
