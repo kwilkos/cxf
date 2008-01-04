@@ -39,6 +39,7 @@ import javax.xml.stream.XMLStreamReader;
 import junit.framework.Assert;
 
 import org.apache.cxf.wsdl.JAXBExtensionHelper;
+import org.apache.schemas.yoko.bindings.corba.BindingType;
 import org.apache.schemas.yoko.bindings.corba.TypeMappingType;
 import org.apache.ws.commons.schema.XmlSchema;
 import org.apache.ws.commons.schema.XmlSchemaCollection;

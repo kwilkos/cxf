@@ -117,7 +117,7 @@ public final class Scope implements Comparable {
     }
 
     public boolean equals(Object otherScope) {
-        if (otherScope != null && otherScope instanceof Scope) {
+        if (otherScope instanceof Scope) {
             return toString().equals(((Scope)otherScope).toString());   
         } else {
             return false;

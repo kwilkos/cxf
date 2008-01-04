@@ -99,8 +99,8 @@ public class WSDLToIDLAction {
     private static String bindingName;
     private static String wsdlFileName;
     private static String namespace;
-    private static boolean verboseOn;
     private String outputFile;
+    private boolean verboseOn;
     private PrintWriter printWriter;
     private OutputStreamFactory factory = new FileOutputStreamFactory();
     private Definition def;
@@ -480,10 +480,10 @@ public class WSDLToIDLAction {
             // since it is not a type we need to define in our IDL.  This only happens when the 
             // name is "CORBA", we have a name array of length 2 and we are at the beginning of the
             // name array.
-            if (dotScopedName.equals("CORBA") && name.length == 2 && i == 0) {
-                if (name[i + 1].equals("Object")) {
-                    break;
-                }
+            if ("CORBA".equals(dotScopedName)
+                && name.length == 2 && i == 0
+                && name[1].equals("Object")) {
+                break;
             }
             
             IdlDefn idlDef = scope.lookup(name[i]);
@@ -547,10 +547,9 @@ public class WSDLToIDLAction {
             result = checkAnon(corbaTypeImpl, scope, local);                                    
         } 
         
-        if (result == null) {
-            if (corbaTypeImpl instanceof Object) {
-                result = createInterface(corbaTypeImpl, scope, local);            
-            }
+        if (result == null
+            && corbaTypeImpl instanceof Object) {
+            result = createInterface(corbaTypeImpl, scope, local);            
         }
         
         return result; 
@@ -582,7 +581,7 @@ public class WSDLToIDLAction {
         if (binding != null) {
             IdlDefn defn = scope.lookup(local);
 
-            if (defn != null && defn instanceof IdlInterface) {
+            if (defn instanceof IdlInterface) {
                 return (IdlInterface)defn;
             } else if (defn == null) {
                 try {
@@ -889,6 +888,9 @@ public class WSDLToIDLAction {
 
     public void setVerboseOn(boolean verbose) {
         verboseOn = verbose;
+    }
+    public boolean isVerboseOn() {
+        return verboseOn;
     }
 
     public void setBindingName(String bindName) {

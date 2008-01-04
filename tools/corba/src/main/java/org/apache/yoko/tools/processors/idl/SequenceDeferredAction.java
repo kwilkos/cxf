@@ -79,11 +79,10 @@ public class SequenceDeferredAction implements SchemaDeferredAction {
                 element.setNillable(true);
             }
         }        
-        if (schemas != null) {
-            if (schemas.getTypeByQName(stype.getQName()) == null) {
-                schema.getItems().add(stype);
-                schema.addType(stype);
-            }
+        if (schemas != null
+            && schemas.getTypeByQName(stype.getQName()) == null) {
+            schema.getItems().add(stype);
+            schema.addType(stype);
         }
     }
         

@@ -29,6 +29,9 @@ import javax.xml.namespace.QName;
 
 import com.ibm.wsdl.xml.WSDLWriterImpl;
 
+import org.apache.cxf.helpers.CastUtils;
+
+
  /*
   * This class is extending the wsdl4j RI class to print out the 
   * maps in a particular order
@@ -38,65 +41,67 @@ public class TestWSDLCorbaWriterImpl extends WSDLWriterImpl {
 
     private TestComparator comparator = new TestComparator();
 
-    protected void printBindingFaults(java.util.Map bindingFaults, Definition def, java.io.PrintWriter pw)
+    protected void printBindingFaults(Map bindingFaults,
+                                      Definition def,
+                                      java.io.PrintWriter pw)
         throws WSDLException {
-        Map bfaults = new TreeMap(comparator);
-        bfaults.putAll(bindingFaults);
+        Map<Object, Object> bfaults = new TreeMap<Object, Object>(comparator);
+        bfaults.putAll(CastUtils.cast(bindingFaults));
         super.printBindingFaults(bfaults, def, pw);
     }
 
     protected void printBindings(java.util.Map bindings, Definition def, java.io.PrintWriter pw)
         throws WSDLException {
-        Map map = new TreeMap(comparator);
-        map.putAll(bindings);
+        Map<Object, Object> map = new TreeMap<Object, Object>(comparator);
+        map.putAll(CastUtils.cast(bindings));
         super.printBindings(map, def, pw);
     }
     
     protected void printFaults(java.util.Map faults, Definition def, java.io.PrintWriter pw) 
         throws WSDLException {
-        Map map = new TreeMap(comparator);
-        map.putAll(faults);
+        Map<Object, Object> map = new TreeMap<Object, Object>(comparator);
+        map.putAll(CastUtils.cast(faults));
         super.printFaults(map, def, pw);
     }
 
     protected void printImports(java.util.Map imports, Definition def, java.io.PrintWriter pw) 
         throws WSDLException {
-        Map map = new TreeMap(comparator);
-        map.putAll(imports);
+        Map<Object, Object> map = new TreeMap<Object, Object>(comparator);
+        map.putAll(CastUtils.cast(imports));
         super.printImports(map, def, pw);
     }
 
     protected void printMessages(java.util.Map messages, Definition def, java.io.PrintWriter pw) 
         throws WSDLException {
-        Map map = new TreeMap(comparator);
-        map.putAll(messages);
+        Map<Object, Object> map = new TreeMap<Object, Object>(comparator);
+        map.putAll(CastUtils.cast(messages));
         super.printMessages(map, def, pw);
     }
 
     protected void printNamespaceDeclarations(java.util.Map namespaces, java.io.PrintWriter pw) 
         throws WSDLException {
-        Map map = new TreeMap(comparator);
-        map.putAll(namespaces);
+        Map<Object, Object> map = new TreeMap<Object, Object>(comparator);
+        map.putAll(CastUtils.cast(namespaces));
         super.printNamespaceDeclarations(map, pw);
     }
 
     protected void printPorts(java.util.Map ports, Definition def, java.io.PrintWriter pw) 
         throws WSDLException {
-        Map map = new TreeMap(comparator);
-        map.putAll(ports);
+        Map<Object, Object> map = new TreeMap<Object, Object>(comparator);
+        map.putAll(CastUtils.cast(ports));
         super.printPorts(map, def, pw);
     }
     protected void printPortTypes(java.util.Map portTypes, Definition def, java.io.PrintWriter pw) 
         throws WSDLException {
         Map<QName, PortType> map = new TreeMap<QName, PortType>(comparator);
-        map.putAll(portTypes);
+        map.putAll(CastUtils.cast(portTypes, QName.class, PortType.class));
         super.printPortTypes(map, def, pw);
     }
            
     protected void printServices(java.util.Map services, Definition def, java.io.PrintWriter pw) 
         throws WSDLException {
-        Map map = new TreeMap(comparator);
-        map.putAll(services);
+        Map<Object, Object> map = new TreeMap<Object, Object>(comparator);
+        map.putAll(CastUtils.cast(services));
         super.printServices(map, def, pw);
     }
 

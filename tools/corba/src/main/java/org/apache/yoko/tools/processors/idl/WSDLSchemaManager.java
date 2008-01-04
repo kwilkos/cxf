@@ -40,6 +40,7 @@ import javax.wsdl.factory.WSDLFactory;
 import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
 
+import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.wsdl.JAXBExtensionHelper;
 import org.apache.cxf.wsdl.WSDLConstants;
 import org.apache.schemas.yoko.bindings.corba.AddressType;
@@ -238,10 +239,9 @@ public class WSDLSchemaManager {
         if (!wsdlSchema.getImports().containsKey(tns)) {
             SchemaImport schemaimport =  wsdlSchema.createImport();
             schemaimport.setNamespaceURI(tns);
-            if (file != null) {
-                if (!ignoreImports) {
-                    schemaimport.setSchemaLocationURI(file.toURI().toString());
-                }
+            if (file != null
+                && !ignoreImports) {
+                schemaimport.setSchemaLocationURI(file.toURI().toString());
             }
             wsdlSchema.addImport(schemaimport);
         }
@@ -316,14 +316,13 @@ public class WSDLSchemaManager {
         wsdlSchema.setElement(el);
         
         XmlSchemaObjectCollection imports = schema.getIncludes();
-        for (java.util.Iterator<XmlSchemaObject> it = imports.getIterator(); it.hasNext();) {
+        for (java.util.Iterator<XmlSchemaObject> it = CastUtils.cast(imports.getIterator()); it.hasNext();) {
             XmlSchemaImport xmlSchemaImport = (XmlSchemaImport) it.next();
             SchemaImport schemaimport =  wsdlSchema.createImport();
             schemaimport.setNamespaceURI(xmlSchemaImport.getNamespace());
-            if (xmlSchemaImport.getSchemaLocation() != null) {
-                if (!ignoreImports) {
-                    schemaimport.setSchemaLocationURI(xmlSchemaImport.getSchemaLocation());
-                }
+            if (xmlSchemaImport.getSchemaLocation() != null
+                && !ignoreImports) {
+                schemaimport.setSchemaLocationURI(xmlSchemaImport.getSchemaLocation());
             }
             wsdlSchema.addImport(schemaimport);  
         }

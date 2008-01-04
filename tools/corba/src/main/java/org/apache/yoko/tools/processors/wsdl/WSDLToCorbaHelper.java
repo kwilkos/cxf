@@ -183,10 +183,9 @@ public class WSDLToCorbaHelper {
                 CorbaTypeImpl memberType =
                     processSequenceType(sequence, defaultName, schemaTypeName);          
                 QName typeName = memberType.getQName();
-                if (memberType instanceof Struct) {
-                    if (memberType != null && !isDuplicate(memberType)) {
-                        typeMappingType.getStructOrExceptionOrUnion().add(memberType);
-                    }                    
+                if (memberType instanceof Struct
+                    && !isDuplicate(memberType)) {
+                    typeMappingType.getStructOrExceptionOrUnion().add(memberType);
                 }                
                 MemberType member = new MemberType(); 
                 member.setName(memberType.getName() + "_f");
@@ -210,13 +209,7 @@ public class WSDLToCorbaHelper {
                 members.add(member);
             } else if (container instanceof XmlSchemaElement) {
                 XmlSchemaElement element = (XmlSchemaElement)container;
-                //REVISIT, passing ns uri because of a bug in XmlSchema (Bug: WSCOMMONS-69)
-                String uri;
-                if (schemaTypeName != null) {
-                    uri = schemaTypeName.getNamespaceURI();
-                } else {
-                    uri = defaultName.getNamespaceURI();
-                }
+
                 CorbaTypeImpl corbatype = processLocalElement(element, schemaTypeName.getNamespaceURI());
                 QName elName = element.getQName();
                 if (elName == null) {
@@ -292,10 +285,9 @@ public class WSDLToCorbaHelper {
                 createArray(name, corbatype.getQName(), corbatype.getQName(),
                             choice.getMaxOccurs(), choice.getMinOccurs(), false);
             
-            if (arrayType != null) {
-                if (!isDuplicate(arrayType)) {
-                    typeMappingType.getStructOrExceptionOrUnion().add(arrayType);
-                }
+            if (arrayType != null
+                && !isDuplicate(arrayType)) {
+                typeMappingType.getStructOrExceptionOrUnion().add(arrayType);
             }
         }
         return corbatype;
@@ -337,10 +329,9 @@ public class WSDLToCorbaHelper {
                                           elementQualified);
             memName = createQNameCorbaNamespace(memtype.getQName().getLocalPart());
                                     
-            if (memtype != null) {                          
-                if (!isDuplicate(memtype)) {
-                    typeMappingType.getStructOrExceptionOrUnion().add(memtype);
-                }
+            if (memtype != null
+                && !isDuplicate(memtype)) {
+                typeMappingType.getStructOrExceptionOrUnion().add(memtype);
             }
             membertype.setQName(memName);
             membertype.setName(memtype.getName());
@@ -370,10 +361,9 @@ public class WSDLToCorbaHelper {
             membertype.setQName(arraytype.getQName());
             membertype.setType(arraytype.getType());
                         
-            if (arraytype != null) {                
-                if (!isDuplicate(arraytype)) {
-                    typeMappingType.getStructOrExceptionOrUnion().add(arraytype);               
-                }                
+            if (arraytype != null
+                && !isDuplicate(arraytype)) {
+                typeMappingType.getStructOrExceptionOrUnion().add(arraytype);               
             }                   
         }
         membertype.setQualified(elementQualified);
@@ -438,10 +428,9 @@ public class WSDLToCorbaHelper {
             CorbaTypeImpl atype = createArray(name, type.getQName(), type.getQName(),
                                               seq.getMaxOccurs(), seq.getMinOccurs(), false);
             
-            if (atype != null) {
-                if (!isDuplicate(atype)) {
-                    typeMappingType.getStructOrExceptionOrUnion().add(atype);               
-                }
+            if (atype != null
+                && !isDuplicate(atype)) {
+                typeMappingType.getStructOrExceptionOrUnion().add(atype);               
             }
         }
         
@@ -500,10 +489,9 @@ public class WSDLToCorbaHelper {
                 type = WSDLTypes.getOctetCorbaType(name, typeName, 0);
                 corbatype = WSDLTypes.getOctetCorbaType(name, typeName, 0);
             }
-            if (type != null) {
-                if (!isDuplicate(type)) {
-                    typeMappingType.getStructOrExceptionOrUnion().add(type);
-                }
+            if (type != null
+                && !isDuplicate(type)) {
+                typeMappingType.getStructOrExceptionOrUnion().add(type);
             }
         }
         return corbatype;
@@ -892,10 +880,11 @@ public class WSDLToCorbaHelper {
                     // it's a literal array
                     array = true;
                 }                
-                if (el.getMaxOccurs() == 1 && el.getMinOccurs() == 1) {
-                    if (type.getName() != null &&  WSDLTypes.isAnonymous(type.getName())) {                
-                        array = true;
-                    }
+                if (el.getMaxOccurs() == 1 
+                    && el.getMinOccurs() == 1
+                    && type.getName() != null 
+                    &&  WSDLTypes.isAnonymous(type.getName())) {                
+                    array = true;
                 }
             }
         }
@@ -1350,10 +1339,9 @@ public class WSDLToCorbaHelper {
                                             arrayType.getQName(),
                                             isQualified);
             typeName = createQNameCorbaNamespace(arrayType.getQName().getLocalPart());
-            if (arrayType != null) {
-                if (!isDuplicate(arrayType)) {
-                    typeMappingType.getStructOrExceptionOrUnion().add(arrayType);
-                }
+            if (arrayType != null
+                && !isDuplicate(arrayType)) {
+                typeMappingType.getStructOrExceptionOrUnion().add(arrayType);
             }
         }
         
@@ -1543,10 +1531,9 @@ public class WSDLToCorbaHelper {
             while (i.hasNext()) {
                 CorbaTypeImpl type = (CorbaTypeImpl)i.next();
                 if (corbaName.equals(type.getName())
-                                     && corbaType.equals(type.getType().getLocalPart())) {                    
-                    if (type instanceof Struct) {                        
-                        return type;
-                    }
+                    && corbaType.equals(type.getType().getLocalPart())
+                    && type instanceof Struct) {                        
+                    return type;
                 }
             }
         }
@@ -1598,13 +1585,10 @@ public class WSDLToCorbaHelper {
     }
     
     private boolean isAddressingNamespace(QName typeName) {
-        if ((typeName != null) && (!isIDLObjectType(typeName))) {
-            if (typeName.getNamespaceURI().equals(ReferenceConstants.REFERENCE_NAMESPACE)
-                || typeName.getNamespaceURI().equals(ReferenceConstants.WSADDRESSING_NAMESPACE)) {
-                return true;
-            }
-        }
-        return false;
+        return (typeName != null) 
+                && (!isIDLObjectType(typeName))
+                && (typeName.getNamespaceURI().equals(ReferenceConstants.REFERENCE_NAMESPACE)
+                || typeName.getNamespaceURI().equals(ReferenceConstants.WSADDRESSING_NAMESPACE));
     }
 
     protected static boolean queryBinding(Definition definition, QName bqname) {

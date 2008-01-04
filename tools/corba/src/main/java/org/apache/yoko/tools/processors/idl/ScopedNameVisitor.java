@@ -374,7 +374,7 @@ public class ScopedNameVisitor extends VisitorBase {
                                                           VisitorTypeHolder holder) {
 
         boolean result = false;                
-        List<Scope> baseScopes = (List<Scope>)wsdlVisitor.getTreeMap().get(scope);
+        List<Scope> baseScopes = (List<Scope>)wsdlVisitor.getInheritedScopeMap().get(scope);
         if (baseScopes != null) {
             List<Scope> scopeList = new ArrayList<Scope>();
             for (Scope scopeName : baseScopes) {
@@ -406,7 +406,7 @@ public class ScopedNameVisitor extends VisitorBase {
                 result = findScopeSchemaType(scopedName, schemaRef, wsdlVisitor, holder);
                 if (!result) {
                     inheritedList.remove(inheritScope);
-                    List<Scope> scopes = (List<Scope>)wsdlVisitor.getTreeMap().get(inheritScope);
+                    List<Scope> scopes = wsdlVisitor.getInheritedScopeMap().get(inheritScope);
                     if (scopes != null) {
                         for (Scope scopeName : scopes) {
                             inheritedList.add(scopeName);
@@ -541,13 +541,11 @@ public class ScopedNameVisitor extends VisitorBase {
     }     
     
     protected static boolean isFullyScopedName(AST node) {
-        if (node.getType() == IDLTokenTypes.IDENT) {
-            if (node.getFirstChild() != null) {
-                if ((node.getFirstChild().getType() == IDLTokenTypes.SCOPEOP)
-                    || (node.getFirstChild().getType() == IDLTokenTypes.IDENT)) {
-                    return true;
-                }
-            }
+        if (node.getType() == IDLTokenTypes.IDENT
+            && node.getFirstChild() != null
+            && ((node.getFirstChild().getType() == IDLTokenTypes.SCOPEOP)
+                || (node.getFirstChild().getType() == IDLTokenTypes.IDENT))) {
+            return true;
         }
         return false;
     }

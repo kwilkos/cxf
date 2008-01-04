@@ -51,6 +51,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.wsdl.JAXBExtensionHelper;
 import org.apache.schemas.yoko.bindings.corba.AddressType;
@@ -96,7 +97,7 @@ public class WSDLToCorbaBinding {
     String address;
     String addressFile;
     WSDLParameter wsdlParameter;
-    List<Object> bindingNames;
+    List<String> bindingNames;
     List<XmlSchema> xmlSchemaList;
     WSDLToTypeProcessor typeProcessor = new WSDLToTypeProcessor();
     private boolean allbindings;
@@ -268,7 +269,7 @@ public class WSDLToCorbaBinding {
             addExtensions(extReg);
         }
 
-        bindingNames = new ArrayList<Object>();
+        bindingNames = new ArrayList<String>();
         String interfaceName = portType.getQName().getLocalPart();
         String bname = getMappedBindingName(interfaceName);
     
@@ -284,14 +285,14 @@ public class WSDLToCorbaBinding {
             setBindingName(bname);
             bqname = new QName(definition.getTargetNamespace(), bname, prefix);
             int count = 0;
-            while (helper.queryBinding(definition, bqname)) {
+            while (WSDLToCorbaHelper.queryBinding(definition, bqname)) {
                 bname = bname + count;
                 bqname = new QName(definition.getTargetNamespace(), bname, prefix);
             }
         } else {
             bqname = new QName(definition.getTargetNamespace(), bname, prefix);
             // Check if the Binding with name already exists
-            if (helper.queryBinding(definition, bqname)) {
+            if (WSDLToCorbaHelper.queryBinding(definition, bqname)) {
                 String msgStr = "Binding " + bqname.getLocalPart() 
                     + " already exists in WSDL.";
                 org.apache.cxf.common.i18n.Message msg = 
@@ -321,9 +322,9 @@ public class WSDLToCorbaBinding {
         try {
             bindingType = (BindingType)extReg
                 .createExtension(Binding.class, CorbaConstants.NE_CORBA_BINDING);
-            bindingType.setRepositoryID(helper.REPO_STRING
+            bindingType.setRepositoryID(WSDLToCorbaHelper.REPO_STRING
                                         + binding.getPortType().getQName().getLocalPart().replace('.', '/')
-                                        + helper.IDL_VERSION);
+                                        + WSDLToCorbaHelper.IDL_VERSION);
 
             binding.addExtensibilityElement(bindingType);
         } catch (WSDLException ex) {
@@ -409,7 +410,7 @@ public class WSDLToCorbaBinding {
     private void addBindingOperations(Definition definition, PortType portType, Binding binding) 
         throws Exception {
         
-        List<Operation> ops = (List<javax.wsdl.Operation>)portType.getOperations();
+        List<Operation> ops = CastUtils.cast(portType.getOperations());
         for (Operation op : ops) {
             BindingOperation bindingOperation = definition.createBindingOperation();
             addCorbaOperationExtElement(bindingOperation, op);
@@ -562,10 +563,9 @@ public class WSDLToCorbaBinding {
             boolean anonymous = WSDLTypes.isAnonymous(type.getName());
             corbaTypeImpl = helper.convertSchemaToCorbaType(type, type.getQName(), null, 
                                                             null, anonymous);
-            if (corbaTypeImpl != null) {
-                if (!helper.isDuplicate(corbaTypeImpl)) {
-                    typeMappingType.getStructOrExceptionOrUnion().add(corbaTypeImpl);
-                } 
+            if (corbaTypeImpl != null
+                && !helper.isDuplicate(corbaTypeImpl)) {
+                typeMappingType.getStructOrExceptionOrUnion().add(corbaTypeImpl);
             }                   
         }
         addCorbaElements(corbaTypeImpl, xmlSchemaTypes);
@@ -638,10 +638,9 @@ public class WSDLToCorbaBinding {
                                                                isQualified);
                 } 
 
-                if (corbaTypeImpl != null) { 
-                    if (!helper.isDuplicate(corbaTypeImpl)) {
-                        typeMappingType.getStructOrExceptionOrUnion().add(corbaTypeImpl);
-                    }
+                if (corbaTypeImpl != null
+                    && !helper.isDuplicate(corbaTypeImpl)) {
+                    typeMappingType.getStructOrExceptionOrUnion().add(corbaTypeImpl);
                 }
             }                   
         }
@@ -710,7 +709,9 @@ public class WSDLToCorbaBinding {
         } else {
             // Set the repository ID for Exception
             // add to CorbaTypeMapping
-            String repoId = helper.REPO_STRING + corbaex.getName().replace('.', '/') + helper.IDL_VERSION;
+            String repoId = WSDLToCorbaHelper.REPO_STRING 
+                + corbaex.getName().replace('.', '/') 
+                + WSDLToCorbaHelper.IDL_VERSION;
             corbaex.setRepositoryID(repoId);
             CorbaTypeImpl corbaTypeImpl = (CorbaTypeImpl)corbaex;
             if (!helper.isDuplicate(corbaTypeImpl)) {
@@ -740,10 +741,10 @@ public class WSDLToCorbaBinding {
             corbaex.setType(helper.checkPrefix(schemaTypeName));
             corbaex.setName(schemaTypeName.getLocalPart());
 
-            corbaex.setRepositoryID(helper.REPO_STRING
+            corbaex.setRepositoryID(WSDLToCorbaHelper.REPO_STRING
                                     + "/"
                                     + defaultName.getLocalPart()
-                                    + helper.IDL_VERSION);
+                                    + WSDLToCorbaHelper.IDL_VERSION);
             String uri = defaultName.getNamespaceURI();
             List attributeMembers = helper.processAttributesAsMembers(complex.getAttributes().getIterator(),
                                                                       uri);
@@ -823,7 +824,7 @@ public class WSDLToCorbaBinding {
         return (String)bindingNameMap.get(interfaceName);
     }
 
-    public List getGeneratedBindingNames() {
+    public List<String> getGeneratedBindingNames() {
         return bindingNames;
     }
 

@@ -142,8 +142,7 @@ public final class IdlPreprocessorReader extends Reader {
         if (buf.length() == 0) {
             return -1;
         } else {
-            char c = buf.charAt(readPos++);
-            return c;
+            return buf.charAt(readPos++);
         }
     }
 
@@ -321,8 +320,7 @@ public final class IdlPreprocessorReader extends Reader {
             return false;
         }
 
-        boolean top = ifStack.peek();
-        return top;
+        return ifStack.peek();
     }
 
     private void registerIf(boolean skip) {

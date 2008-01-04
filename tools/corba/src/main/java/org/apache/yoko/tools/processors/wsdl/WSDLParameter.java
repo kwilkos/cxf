@@ -385,27 +385,23 @@ public final class WSDLParameter {
 
                 while (it.hasNext()) {
                     ParamType d3 = (ParamType) it.next();
-                    if (!d3.getName().equals(d2.getName())) {
-                        if ((!simpleOrdering)
-                                && (!d3.getMode().value().equals("inout"))) {
-                            // the in/outs are in a different order in the
-                            // output than the input
-                            // we'll try and use the input oder for the INOUT's,
-                            // but also try and
-                            // maintain some sort of ordering for the OUT's
-                            it.remove();
-                            inputit.previous();
-                            inputit.add(d3);
-                            inputit.next();
-                        }
+                    if (!d3.getName().equals(d2.getName()) 
+                        && (!simpleOrdering)
+                        && (!d3.getMode().value().equals("inout"))) {
+                        // the in/outs are in a different order in the
+                        // output than the input
+                        // we'll try and use the input oder for the INOUT's,
+                        // but also try and
+                        // maintain some sort of ordering for the OUT's
+                        it.remove();
+                        inputit.previous();
+                        inputit.add(d3);
+                        inputit.next();
                     }
                 }
             }
         }
-        ListIterator<ParamType> it = outputs.listIterator();
-        while (it.hasNext()) {
-            ParamType d3 = (ParamType) it.next();
-
+        for (ParamType d3 : outputs) {
             inputs.add(d3);
         }
     }

@@ -362,7 +362,9 @@ public class PortTypeVisitor extends VisitorBase {
                                                     manager.getImportedWSDLDefinitionFile(outputNS));
                 }
                 
-                for (Iterator<Fault> faults = op.getFaults().values().iterator(); faults.hasNext();) {
+                for (Iterator<Fault> faults = CastUtils.cast(op.getFaults().values().iterator());
+                    faults.hasNext();) {
+                    
                     String faultNS = faults.next().getMessage().getQName().getNamespaceURI();
                     manager.addWSDLDefinitionNamespace(definition, mapper.mapNSToPrefix(faultNS), faultNS);
                     // Make sure we import the wsdl for the fault namespace
@@ -379,7 +381,8 @@ public class PortTypeVisitor extends VisitorBase {
             }
 
             //add all the binding extensions of the inherited corba binding
-            for (Iterator<BindingOperation> it = inheritedBinding.getBindingOperations().iterator();
+            for (Iterator<BindingOperation> it = 
+                    CastUtils.cast(inheritedBinding.getBindingOperations().iterator());
                  it.hasNext();) {
                 binding.addBindingOperation(it.next());
             }
@@ -387,8 +390,8 @@ public class PortTypeVisitor extends VisitorBase {
         }
         
         if ((!inheritedScopes.isEmpty()) 
-            && (wsdlVisitor.getTreeMap() != null)) {
-            wsdlVisitor.getTreeMap().put(childScope, inheritedScopes);             
+            && (wsdlVisitor.getInheritedScopeMap() != null)) {
+            wsdlVisitor.getInheritedScopeMap().put(childScope, inheritedScopes);             
         }
         
         return interfaceInheritanceSpecNode.getNextSibling();

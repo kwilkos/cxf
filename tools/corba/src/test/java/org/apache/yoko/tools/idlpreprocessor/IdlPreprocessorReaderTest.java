@@ -35,8 +35,7 @@ public class IdlPreprocessorReaderTest extends TestCase {
 
     private URL findTestResource(String spec) {
         String location = "/idlpreprocessor/" + spec;
-        URL url = getClass().getResource(location);
-        return url;
+        return getClass().getResource(location);
     }
 
     private class ClassPathIncludeResolver implements IncludeResolver {

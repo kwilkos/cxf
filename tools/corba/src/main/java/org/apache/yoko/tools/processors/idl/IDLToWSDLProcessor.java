@@ -45,6 +45,7 @@ import javax.xml.namespace.QName;
 
 import antlr.collections.AST;
 
+import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.util.FileWriterUtil;
@@ -311,7 +312,6 @@ public class IDLToWSDLProcessor extends IDLProcessor {
             assert importSchemaWriters.size() == schemas.size();
         }
         
-        int count = 0;
         for (java.util.Iterator<File> it = defns.keySet().iterator(); it.hasNext();) {
             File file = it.next();
             Definition defn = defns.get(file);
@@ -370,12 +370,6 @@ public class IDLToWSDLProcessor extends IDLProcessor {
         return null;
     }
     
-    // check if file has a fully qualified path
-    private boolean isFQPath(String ifile) {
-        File file = new File(ifile);
-        return file.isAbsolute();
-    }
-    
     private Writer createOutputWriter(String name) throws Exception {        
         String outDir = outputDir;
         String filename = name;               
@@ -403,12 +397,12 @@ public class IDLToWSDLProcessor extends IDLProcessor {
     
     public Writer getOutputWriter(String filename, String outputDirectory) throws Exception {
 
-        FileWriterUtil fw = new FileWriterUtil(outputDirectory);        
         
         if (env.optionSet(ToolCorbaConstants.CFG_WSDL_ENCODING)) { 
             String encoding = env.get(ToolCorbaConstants.CFG_WSDL_ENCODING).toString();            
-            return fw.getWriter(new File(outputDirectory, filename), encoding); 
+            return FileWriterUtil.getWriter(new File(outputDirectory, filename), encoding); 
         } else {
+            FileWriterUtil fw = new FileWriterUtil(outputDirectory);        
             return fw.getWriter("", filename); 
         }       
     }
@@ -570,7 +564,8 @@ public class IDLToWSDLProcessor extends IDLProcessor {
                             
                             // add the import and the prefix to the definition
                             def.getTypes().addExtensibilityElement(wsdlSchema);
-                            def.getNamespaces().put(ReferenceConstants.WSADDRESSING_PREFIX, typeNamespace);
+                            CastUtils.cast(def.getNamespaces(), String.class, String.class)
+                                .put(ReferenceConstants.WSADDRESSING_PREFIX, typeNamespace);
                         } else if (!namespaces.contains(typeNamespace)) {
                             String prefix = getModulePrefixForNamespace(userModuleMappings, mapper, 
                                                                         typeNamespace);
@@ -583,7 +578,8 @@ public class IDLToWSDLProcessor extends IDLProcessor {
                                 + prefix + ".xsd";
                             manager.addWSDLSchemaImport(def, typeNamespace, importFile);
                             manager.getImportedXmlSchemas().put(new File(importFile), schema);
-                            def.getNamespaces().put(prefix, typeNamespace);
+                            CastUtils.cast(def.getNamespaces(), String.class, String.class)
+                                .put(prefix, typeNamespace);
                         }
                     } catch (Exception ex) {
                         throw new ToolException("Unable to add schema import for namespace"

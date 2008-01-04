@@ -59,7 +59,7 @@ public class OperationVisitor extends VisitorBase {
     
     private static final String IN_PARAMETER = "inparameter";
     private static final String OUT_PARAMETER = "outparameter";
-    private static final String INOUT_PARAMETER = "inoutparameter";
+    //private static final String INOUT_PARAMETER = "inoutparameter";
     private static final String RETURN_PARAMETER = "return";
     
     private ExtensionRegistry extReg;
@@ -69,8 +69,6 @@ public class OperationVisitor extends VisitorBase {
     private Message inputMsg;
     private Message outputMsg;
     
-    private Part inputPart;
-    private Part outputPart;
     
     private OperationType corbaOperation;
     
@@ -140,7 +138,7 @@ public class OperationVisitor extends VisitorBase {
                                                                   operation.getName()),
                                                         inputWrappingSequence);
         inputMsg = generateInputMessage(operation, bindingOperation);
-        inputPart = generateInputPart(inputMsg, inputElement);
+        generateInputPart(inputMsg, inputElement);
 
         // <op_attribute>
         node = node.getFirstChild();
@@ -158,7 +156,7 @@ public class OperationVisitor extends VisitorBase {
                                                       operation.getName() + RESPONSE_SUFFIX),
                                             outputWrappingSequence);
             outputMsg = generateOutputMessage(operation, bindingOperation);
-            outputPart = generateOutputPart(outputMsg, outputElement);           
+            generateOutputPart(outputMsg, outputElement);           
         }
         
         // <op_type_spec>

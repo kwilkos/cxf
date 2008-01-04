@@ -115,7 +115,7 @@ public class FileOutputStreamFactory implements OutputStreamFactory {
         throws IOException {
         String packageDirName = convertPackageNameToDirectory(packageName);
 
-        if ((!packageDirName.equals("")) && (!packageDirName.endsWith(File.separator))) {
+        if ((!"".equals(packageDirName)) && (!packageDirName.endsWith(File.separator))) {
             packageDirName += File.separator;
         }
 
@@ -129,7 +129,7 @@ public class FileOutputStreamFactory implements OutputStreamFactory {
         throws IOException {
         String packageDirName = convertPackageNameToDirectory(packageName);
 
-        if ((!packageDirName.equals("")) && (!packageDirName.endsWith(File.separator))) {
+        if ((!"".equals(packageDirName)) && (!packageDirName.endsWith(File.separator))) {
             packageDirName += File.separator;
         }
 
@@ -139,7 +139,7 @@ public class FileOutputStreamFactory implements OutputStreamFactory {
             dname = dirName + packageDirName;
         }
         
-        if ((!dname.equals("")) && (!dname.equals("."))) {
+        if ((!"".equals(dname)) && (!".".equals(dname))) {
             File file = new File(dname);
             file.mkdirs();
         }
@@ -193,7 +193,7 @@ public class FileOutputStreamFactory implements OutputStreamFactory {
     public boolean isOutputStreamExists(String packageName, String name) {
         String dname = getClassDirectory(packageName);
 
-        if ((!dname.equals("")) && (!dname.endsWith(File.separator))) {
+        if ((!"".equals(dname)) && (!dname.endsWith(File.separator))) {
             dname += File.separator;
         }
 

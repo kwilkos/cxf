@@ -36,7 +36,6 @@ public class FixedPtConstVisitor implements Visitor {
     private XmlSchemaType schemaType;
     private CorbaTypeImpl corbaType;
     private Scope scope;
-    private Scope moduleScope;
     private XmlSchemaCollection schemas;
     
     

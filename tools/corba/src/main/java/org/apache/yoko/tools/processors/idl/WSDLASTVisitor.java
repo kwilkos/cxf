@@ -51,7 +51,7 @@ import org.apache.yoko.tools.common.ToolCorbaConstants;
 import org.apache.yoko.tools.common.WSDLUtils;
 import org.apache.yoko.wsdl.CorbaConstants;
 
-public class WSDLASTVisitor implements ASTVisitor {
+public final class WSDLASTVisitor implements ASTVisitor {
 
     Definition definition;    
     XmlSchema schema;
@@ -73,7 +73,7 @@ public class WSDLASTVisitor implements ASTVisitor {
     private boolean schemaGenerated;
     private ModuleToNSMapper moduleToNSMapper;    
     private WSDLSchemaManager manager;
-    private Map treeMap;
+    private Map<Scope, List<Scope>> inheritScopeMap;
 
     public WSDLASTVisitor(String tns, String schemans, String corbatypemaptns)
         throws WSDLException, JAXBException {
@@ -82,7 +82,7 @@ public class WSDLASTVisitor implements ASTVisitor {
 
         definition = manager.createWSDLDefinition(tns);
         
-        treeMap = new TreeMap();
+        inheritScopeMap = new TreeMap<Scope, List<Scope>>();
 
         targetNamespace = tns;
         schemas = new XmlSchemaCollection();
@@ -164,8 +164,8 @@ public class WSDLASTVisitor implements ASTVisitor {
         return idlFile;
     }
     
-    public Map getTreeMap() {
-        return treeMap;
+    public Map<Scope, List<Scope>> getInheritedScopeMap() {
+        return inheritScopeMap;
     }
     
     public void setOutputDir(String outDir) {
@@ -378,7 +378,7 @@ public class WSDLASTVisitor implements ASTVisitor {
         while (iter.hasNext()) {
             String namespace = (String)iter.next();
             String prefix = definition.getPrefix(namespace);
-            if (!prefix.equals("corba")) {
+            if (!"corba".equals(prefix)) {
                 def.addNamespace(prefix, namespace);
             } else {
                 def.removeNamespace(prefix);

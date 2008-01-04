@@ -63,7 +63,7 @@ import org.apache.yoko.wsdl.W3CConstants;
 
 public final class WSDLTypes {
     
-    protected static final Logger LOG = LogUtils.getL7dLogger(WSDLTypes.class);
+    private static final Logger LOG = LogUtils.getL7dLogger(WSDLTypes.class);
 
     private WSDLTypes() {
     }
@@ -433,11 +433,10 @@ public final class WSDLTypes {
             StringTokenizer strtok = new StringTokenizer(typeName, ".");
             for (int i = 0; strtok.hasMoreTokens(); ++i) {
                 String token = strtok.nextToken();
-                if (token.startsWith("_")) {                    
-                    if (Character.isDigit(token.charAt(1))) {
-                        anonymous = true;
-                        break;
-                    }                    
+                if (token.startsWith("_")
+                    && Character.isDigit(token.charAt(1))) {
+                    anonymous = true;
+                    break;
                 }
             }
         }

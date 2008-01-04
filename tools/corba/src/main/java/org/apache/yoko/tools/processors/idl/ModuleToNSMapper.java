@@ -61,7 +61,7 @@ public class ModuleToNSMapper {
         return exModules;
     }
 
-    public Iterator getExcludedModules() {
+    public Iterator<String> getExcludedModules() {
         return exModules.keySet().iterator();
     }
 
@@ -96,7 +96,7 @@ public class ModuleToNSMapper {
                        && currentScope != currentScope.getParent()) {
                     parentURI = userMap.get(currentScope.toString(separator));
                     if (parentURI == null) {
-                        if (!uri.equals("")) {
+                        if (!"".equals(uri)) {
                             uri = "/" + uri;
                         }
                         uri = currentScope.tail() + uri;
