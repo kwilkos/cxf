@@ -643,6 +643,7 @@ public final class JAXBEncoderDecoder {
                     obj = ((JAXBElement)obj).getValue();
                 }
                 ret.add(obj);
+                reader.nextTag();
             }
             return ret;
         } catch (Fault ex) {

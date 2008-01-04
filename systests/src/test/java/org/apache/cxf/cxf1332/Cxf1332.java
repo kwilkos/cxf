@@ -27,6 +27,6 @@ import javax.jws.WebService;
 public interface Cxf1332 {
     @WebMethod(operationName = "SendData", action = "")
     @WebResult(name = "result", targetNamespace = "urn:org.apache.cxf.1332.result")
-    String hostSendData(@WebParam(name = "params")String[] strs);
+    String hostSendData(@WebParam(name = "params", targetNamespace = "") String[] strs);
 
 }
