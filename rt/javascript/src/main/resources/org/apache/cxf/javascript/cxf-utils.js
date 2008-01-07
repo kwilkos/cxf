@@ -123,7 +123,7 @@ function org_apache_cxf_any_ns_matcher_match(namespaceURI, localName)
 				var ns = this.nslist[x];
 				if(ns == "##local") {
 					if((namespaceURI == null || namespaceURI == '') 
-						&& (localName != this.nextLocalPart))
+						&& (this.nextLocalPart != null && localName != this.nextLocalPart))
 						return true;  
 				} else {
 					if(ns == namespaceURI)
@@ -249,7 +249,7 @@ CxfApacheOrgUtil.prototype.isNodeNamedNS = org_apache_cxf_isNodeNamedNS;
 function org_apache_cxf_getNodeText(node)
 {
     var r = "";
-    for(x = 0; x < node.childNodes.length; x ++) {
+    for(var x = 0; x < node.childNodes.length; x ++) {
         r = r + node.childNodes[x].nodeValue;
     }
     return r;

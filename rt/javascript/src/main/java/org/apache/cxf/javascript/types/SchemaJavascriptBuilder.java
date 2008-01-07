@@ -456,7 +456,10 @@ public class SchemaJavascriptBuilder {
 
         String anyNamespaceSpec = any.getNamespace();
         // we aren't dealing with any-after-any.
-        XmlSchemaElement nextElement = (XmlSchemaElement)nextItem.getParticle();
+        XmlSchemaElement nextElement = null;
+        if (nextItem != null) {
+            nextElement = (XmlSchemaElement)nextItem.getParticle();
+        }
         String matchType;
         String namespaceList = "[]";
         
@@ -472,11 +475,17 @@ public class SchemaJavascriptBuilder {
             matchType = "org_apache_cxf_any_ns_matcher.LISTED";
             namespaceList = buildNamespaceList(anyNamespaceSpec);
         }
+        
+        String nextLocalPartConstant = "null";
+        if (nextElement != null) {
+            nextLocalPartConstant = "'" + nextElement.getQName().getLocalPart() + "'";
+        }
+        
         utils.appendLine("var matcher = new org_apache_cxf_any_ns_matcher("
                          + matchType
                          + ", '" + schemaInfo.getNamespaceURI() + "'"
                          + ", " + namespaceList
-                         + ", '" + nextElement.getQName().getLocalPart() + "'"
+                         + ", " + nextLocalPartConstant
                          + ");");
         
         if (array) {
