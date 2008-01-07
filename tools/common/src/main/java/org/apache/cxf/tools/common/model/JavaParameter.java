@@ -19,21 +19,24 @@
 
 package org.apache.cxf.tools.common.model;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 public class JavaParameter extends JavaType implements JavaAnnotatable {
 
     private boolean holder;
     private String holderName;
-    private JAnnotation annotation;
     private String partName;
 
     private JavaMethod javaMethod;
+    private Map<String, JAnnotation> annotations = new HashMap<String, JAnnotation>();
 
     /**
      * Describe callback here.
      */
     private boolean callback;
-    
+
     public JavaParameter() {
     }
 
@@ -57,25 +60,31 @@ public class JavaParameter extends JavaType implements JavaAnnotatable {
         this.holderName = hn;
     }
 
-    public void setAnnotation(JAnnotation anno) {
-        this.annotation = anno;
-        for (String importClz : annotation.getImports()) {
-            getMethod().getInterface().addImport(importClz);
-        }        
-    }
+    public void addAnnotation(String tag, JAnnotation ann) {
+        if (ann == null) {
+            return;
+        }
+        this.annotations.put(tag, ann);
 
-    public JAnnotation getAnnotation() {
-        return this.annotation;
+    }
+    
+    public JAnnotation getAnnotation(String tag) {
+        return annotations.get(tag);
+    }
+    
+
+    public Collection<JAnnotation> getAnnotations() {
+        return this.annotations.values();
     }
 
     public void setPartName(String name) {
         this.partName = name;
     }
-    
+
     public String getPartName() {
         return this.partName;
     }
-    
+
     public String toString() {
         final StringBuffer sb = new StringBuffer();
         sb.append(super.toString());
@@ -86,14 +95,12 @@ public class JavaParameter extends JavaType implements JavaAnnotatable {
         if (isHeader()) {
             sb.append("\nIS Header");
         }
-        sb.append("\n Annotation:");
-        sb.append(annotation);
-        
+
         sb.append("\n PartName");
         sb.append(partName);
         return sb.toString();
     }
-    
+
     public void setMethod(JavaMethod jm) {
         this.javaMethod = jm;
     }
@@ -108,7 +115,7 @@ public class JavaParameter extends JavaType implements JavaAnnotatable {
 
     /**
      * Get the <code>Callback</code> value.
-     *
+     * 
      * @return a <code>boolean</code> value
      */
     public final boolean isCallback() {
@@ -117,7 +124,7 @@ public class JavaParameter extends JavaType implements JavaAnnotatable {
 
     /**
      * Set the <code>Callback</code> value.
-     *
+     * 
      * @param newCallback The new Callback value.
      */
     public final void setCallback(final boolean newCallback) {

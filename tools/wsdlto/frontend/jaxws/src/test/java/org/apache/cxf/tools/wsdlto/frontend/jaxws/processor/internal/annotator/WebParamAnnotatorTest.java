@@ -59,7 +59,7 @@ public class WebParamAnnotatorTest extends Assert {
         init(method, parameter, SOAPBinding.Style.DOCUMENT, true);
         parameter.annotate(new WebParamAnnotator());
 
-        JAnnotation annotation = parameter.getAnnotation();
+        JAnnotation annotation = parameter.getAnnotation("WebParam");
         assertEquals("@WebParam(name = \"x\", targetNamespace = \"http://apache.org/cxf\")", 
                          annotation.toString());
         List<JAnnotationElement> elements = annotation.getElements();
@@ -78,7 +78,7 @@ public class WebParamAnnotatorTest extends Assert {
 
         parameter.annotate(new WebParamAnnotator());
 
-        JAnnotation annotation = parameter.getAnnotation();
+        JAnnotation annotation = parameter.getAnnotation("WebParam");
         assertEquals("@WebParam(partName = \"y\", name = \"x\", " 
                      + "targetNamespace = \"http://apache.org/cxf\")", 
                          annotation.toString());
@@ -95,7 +95,7 @@ public class WebParamAnnotatorTest extends Assert {
     public void testAnnotateRPC() throws Exception {
         init(method, parameter, SOAPBinding.Style.RPC, true);
         parameter.annotate(new WebParamAnnotator());
-        JAnnotation annotation = parameter.getAnnotation();
+        JAnnotation annotation = parameter.getAnnotation("WebParam");
         assertEquals(2, annotation.getElements().size());
         assertEquals("@WebParam(partName = \"y\", name = \"y\")",
                      annotation.toString());

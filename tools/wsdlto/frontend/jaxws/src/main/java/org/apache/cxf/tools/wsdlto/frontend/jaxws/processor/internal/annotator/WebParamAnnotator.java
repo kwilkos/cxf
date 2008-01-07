@@ -83,8 +83,10 @@ public class WebParamAnnotator implements Annotator {
             webParamAnnotation.addElement(new JAnnotationElement("targetNamespace", 
                                                                         targetNamespace));        
         }
-
-        parameter.setAnnotation(webParamAnnotation);
+        for (String importClz : webParamAnnotation.getImports()) {
+            parameter.getMethod().getInterface().addImport(importClz);
+        }
+        parameter.addAnnotation("WebParam", webParamAnnotation);
     }
 }
 

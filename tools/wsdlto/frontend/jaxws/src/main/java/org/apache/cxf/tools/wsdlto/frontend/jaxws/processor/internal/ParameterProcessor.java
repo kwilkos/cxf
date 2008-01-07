@@ -43,7 +43,10 @@ import org.apache.cxf.tools.common.model.JavaReturn;
 import org.apache.cxf.tools.common.model.JavaType;
 import org.apache.cxf.tools.wsdlto.core.DataBindingProfile;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal.annotator.WebParamAnnotator;
+import org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal.annotator.XmlListAnotator;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal.mapper.ParameterMapper;
+import org.apache.ws.commons.schema.XmlSchemaSimpleType;
+import org.apache.ws.commons.schema.XmlSchemaSimpleTypeList;
 
 public class ParameterProcessor extends AbstractProcessor {
     public static final String HEADER = "messagepart.isheader";
@@ -94,11 +97,11 @@ public class ParameterProcessor extends AbstractProcessor {
                                                  MessagePartInfo part,
                                                  JavaType.Style style)
         throws ToolException {
-        return addParameter(method, getParameterFromPart(part, style));
+        return addParameter(method, getParameterFromPart(method, part, style));
     }
 
-    private JavaParameter getParameterFromPart(MessagePartInfo part, JavaType.Style style) {
-        return ParameterMapper.map(part, style, context);
+    private JavaParameter getParameterFromPart(JavaMethod jm, MessagePartInfo part, JavaType.Style style) {
+        return ParameterMapper.map(jm, part, style, context);
     }
 
     protected JavaParameter addParameter(JavaMethod method, JavaParameter parameter) throws ToolException {
@@ -127,6 +130,14 @@ public class ParameterProcessor extends AbstractProcessor {
         if (namespace != null && type != null && !"void".equals(type)) {
             returnType.setClassName(ProcessorUtil.getFullClzName(part, context, false));
         }
+        
+        if (part != null && part.getXmlSchema() instanceof XmlSchemaSimpleType) {
+            XmlSchemaSimpleType simpleType = (XmlSchemaSimpleType)part.getXmlSchema();
+            if (simpleType.getContent() instanceof XmlSchemaSimpleTypeList && !part.isElement()) {
+                method.annotate(new XmlListAnotator(method.getInterface()));
+            }
+        }
+        
         method.setReturn(returnType);
     }
 
@@ -170,7 +181,7 @@ public class ParameterProcessor extends AbstractProcessor {
             if (isOutOfBandHeader(part) && !requireOutOfBandHeader()) {
                 continue;
             }
-            addParameter(method, getParameterFromPart(part, JavaType.Style.IN));
+            addParameter(method, getParameterFromPart(method, part, JavaType.Style.IN));
         }
     }
 
@@ -207,7 +218,7 @@ public class ParameterProcessor extends AbstractProcessor {
                 if (!isOutOfBandHeader(hpart)) {
                     continue;
                 }
-                addParameter(method, getParameterFromPart(hpart, JavaType.Style.IN));
+                addParameter(method, getParameterFromPart(method, hpart, JavaType.Style.IN));
             }
         }
     }
@@ -227,7 +238,7 @@ public class ParameterProcessor extends AbstractProcessor {
                     outParts.add(outpart);
                     continue;
                 } else if (isSamePart(inpart, outpart)) {
-                    addParameter(method, getParameterFromPart(outpart, JavaType.Style.INOUT));
+                    addParameter(method, getParameterFromPart(method, outpart, JavaType.Style.INOUT));
                     continue;
                 } else if (!isSamePart(inpart, outpart)) {
                     outParts.add(outpart);
@@ -244,7 +255,7 @@ public class ParameterProcessor extends AbstractProcessor {
         }
         if (isRequestResponse(method)) {
             for (MessagePartInfo part : outParts) {
-                addParameter(method, getParameterFromPart(part, JavaType.Style.OUT));
+                addParameter(method, getParameterFromPart(method, part, JavaType.Style.OUT));
             }
         }
     }
@@ -261,7 +272,7 @@ public class ParameterProcessor extends AbstractProcessor {
                 if (!isOutOfBandHeader(hpart) || !requireOutOfBandHeader()) {
                     continue;
                 }
-                addParameter(method, getParameterFromPart(hpart, JavaType.Style.OUT));
+                addParameter(method, getParameterFromPart(method, hpart, JavaType.Style.OUT));
             }
         }
     }
@@ -545,17 +556,17 @@ public class ParameterProcessor extends AbstractProcessor {
                 style = JavaType.Style.INOUT;
             }
             if (part != null) {
-                addParameter(method, getParameterFromPart(part, style));
+                addParameter(method, getParameterFromPart(method, part, style));
             }
             index++;
         }
         // now from unlisted input parts
         for (MessagePartInfo part : inputUnlistedParts) {
-            addParameter(method, getParameterFromPart(part, JavaType.Style.IN));
+            addParameter(method, getParameterFromPart(method, part, JavaType.Style.IN));
         }
         // now from unlisted output parts
         for (MessagePartInfo part : outputUnlistedParts) {
-            addParameter(method, getParameterFromPart(part, JavaType.Style.INOUT));
+            addParameter(method, getParameterFromPart(method, part, JavaType.Style.INOUT));
         }
     }
 

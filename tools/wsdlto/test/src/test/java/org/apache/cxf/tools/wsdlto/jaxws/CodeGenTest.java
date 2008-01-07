@@ -33,6 +33,7 @@ import javax.jws.WebParam;
 import javax.jws.WebResult;
 import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
+import javax.xml.bind.annotation.XmlList;
 import javax.xml.ws.Holder;
 import javax.xml.ws.RequestWrapper;
 import javax.xml.ws.ResponseWrapper;
@@ -1183,5 +1184,25 @@ public class CodeGenTest extends ProcessorTestBase {
         processor.setContext(env);
         processor.execute();
     }
+    
+    @Test
+    public void testGenerateXmlListAnno() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/cxf-1354/string_array_test.wsdl"));
+        processor.setContext(env);
+        processor.execute();
+        
+        Class sei =  classLoader.loadClass("org.apache.stringarray.StringListTest");
+        Method method = sei.getMethods()[0];
+        assertNotNull("@XmlList is not generated for method", method.getAnnotation(XmlList.class));
+        boolean xmlListGenerated = false;
+        for (Annotation ann : method.getParameterAnnotations()[0]) {
+            if (ann instanceof XmlList) {
+                xmlListGenerated = true;
+            }
+        }
+        assertTrue("@XmlList is not generated for paramter", xmlListGenerated);
+        
+    }
+    
     
 }

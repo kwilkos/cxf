@@ -391,7 +391,7 @@ public class ServiceProcessor extends AbstractProcessor {
 
     private void setParameterAsHeader(JavaParameter parameter) {
         parameter.setHeader(true);
-        JAnnotation parameterAnnotation = parameter.getAnnotation();
+        JAnnotation parameterAnnotation = parameter.getAnnotation("WebParam");
         parameterAnnotation.addElement(new JAnnotationElement("header", true, true));
         parameterAnnotation.addElement(new JAnnotationElement("name", 
                                                                      parameter.getQName().getLocalPart()));

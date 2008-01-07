@@ -22,9 +22,13 @@ package org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal.mapper;
 import org.apache.cxf.jaxb.JAXBUtils;
 import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.tools.common.ToolContext;
+import org.apache.cxf.tools.common.model.JavaMethod;
 import org.apache.cxf.tools.common.model.JavaParameter;
 import org.apache.cxf.tools.common.model.JavaType;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal.ProcessorUtil;
+import org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal.annotator.XmlListAnotator;
+import org.apache.ws.commons.schema.XmlSchemaSimpleType;
+import org.apache.ws.commons.schema.XmlSchemaSimpleTypeList;
 
 
 public final class ParameterMapper {
@@ -32,13 +36,20 @@ public final class ParameterMapper {
     private ParameterMapper() {
     }
     
-    public static JavaParameter map(MessagePartInfo part, JavaType.Style style, ToolContext context) {
+    public static JavaParameter map(JavaMethod jm, MessagePartInfo part, 
+                                    JavaType.Style style, ToolContext context) {
         String name = ProcessorUtil.mangleNameToVariableName(part.getName().getLocalPart());
         String namespace = ProcessorUtil.resolvePartNamespace(part);
         String type = ProcessorUtil.resolvePartType(part, context);
         
         JavaParameter parameter = new JavaParameter(name, type, namespace);
         parameter.setPartName(part.getName().getLocalPart());
+        if (part.getXmlSchema() instanceof XmlSchemaSimpleType) {
+            XmlSchemaSimpleType simpleType = (XmlSchemaSimpleType)part.getXmlSchema();
+            if (simpleType.getContent() instanceof XmlSchemaSimpleTypeList && !part.isElement()) {
+                parameter.annotate(new XmlListAnotator(jm.getInterface()));
+            }
+        }
         parameter.setQName(ProcessorUtil.getElementName(part));
         parameter.setDefaultValueWriter(ProcessorUtil.getDefaultValueWriter(part, context));
         String fullJavaName = ProcessorUtil.getFullClzName(part, context, false);
@@ -55,6 +66,7 @@ public final class ParameterMapper {
             parameter.setClassName(holderClass);
         }
         parameter.setStyle(style);
+        
         return parameter;
     }
 

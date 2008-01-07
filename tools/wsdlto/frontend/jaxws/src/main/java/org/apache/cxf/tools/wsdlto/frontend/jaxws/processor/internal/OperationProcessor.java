@@ -205,7 +205,7 @@ public class OperationProcessor  extends AbstractProcessor {
         JAnnotation asyncHandlerAnnotation = new JAnnotation(WebParam.class);
         asyncHandlerAnnotation.addElement(new JAnnotationElement("name", "asyncHandler"));
         asyncHandlerAnnotation.addElement(new JAnnotationElement("targetNamespace", ""));
-        asyncHandler.setAnnotation(asyncHandlerAnnotation);                
+        asyncHandler.addAnnotation("WebParam", asyncHandlerAnnotation);                
 
         method.getInterface().addMethod(callbackMethod);
     }
