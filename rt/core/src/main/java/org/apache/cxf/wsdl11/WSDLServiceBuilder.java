@@ -73,6 +73,7 @@ import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.service.model.UnwrappedOperationInfo;
 import org.apache.cxf.transport.DestinationFactory;
 import org.apache.cxf.transport.DestinationFactoryManager;
+import org.apache.ws.commons.schema.XmlSchemaComplexContentExtension;
 import org.apache.ws.commons.schema.XmlSchemaComplexType;
 import org.apache.ws.commons.schema.XmlSchemaElement;
 import org.apache.ws.commons.schema.XmlSchemaObject;
@@ -554,8 +555,10 @@ public class WSDLServiceBuilder {
 
         XmlSchemaComplexType xsct = null;
         if (inputEl.getSchemaType() instanceof XmlSchemaComplexType) {
+            
             xsct = (XmlSchemaComplexType)inputEl.getSchemaType();
             if (hasAttributes(xsct)
+                || (inputEl.isNillable() && !relaxed)
                 || !isWrappableSequence(xsct, inputEl.getQName().getNamespaceURI(),
                                         unwrappedInput, relaxed)) {
                 passedRule = false;
@@ -577,6 +580,7 @@ public class WSDLServiceBuilder {
                     passedRule = false;
                 }
                 if (hasAttributes(xsct)
+                    || (outputEl.isNillable() && !relaxed)
                     || !isWrappableSequence(xsct, outputEl.getQName().getNamespaceURI(), unwrappedOutput,
                                             relaxed)) {
                     passedRule = false;
@@ -648,6 +652,12 @@ public class WSDLServiceBuilder {
 
             return ret;
         } else if (type.getParticle() == null) {
+            if (type.getContentModel() == null) {
+                return true;
+            }
+            if (type.getContentModel().getContent() instanceof XmlSchemaComplexContentExtension) {
+                return false;
+            }
             return true;
         }
         return false;
