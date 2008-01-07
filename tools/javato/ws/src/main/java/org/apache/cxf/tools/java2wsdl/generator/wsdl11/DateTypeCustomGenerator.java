@@ -72,7 +72,7 @@ public final class DateTypeCustomGenerator extends AbstractGenerator<File> {
         File xjb = getJAXBCustFile(outputdir);
 
         if (dateType != null) {
-            VelocityGenerator generator = new VelocityGenerator();
+            VelocityGenerator generator = new VelocityGenerator(false);
 
             generator.setCommonAttributes();
             generator.setAttributes("parseMethod", getAdapterMethod(dateType, ".parseDateTime"));

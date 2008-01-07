@@ -104,7 +104,7 @@ public class EclipsePluginMojo extends AbstractMojo {
     }
 
     private void generatePluginXML(List<File> jars) throws Exception {
-        VelocityGenerator velocity = new VelocityGenerator();
+        VelocityGenerator velocity = new VelocityGenerator(false);
 
         String templateFile = getTemplateFile(ECLIPSE_VERSION);
 

@@ -41,7 +41,7 @@ public abstract class AbstractGenerator implements FrontEndGenerator {
     private static final Logger LOG = LogUtils.getL7dLogger(AbstractGenerator.class);
     protected ToolContext env;
     protected String name;
-    protected final VelocityGenerator velocity = new VelocityGenerator();
+    protected VelocityGenerator velocity = new VelocityGenerator(false);
 
     public AbstractGenerator() {
     }
