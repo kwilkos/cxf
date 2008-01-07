@@ -378,7 +378,19 @@ function org_apache_cxf_client_onReadyState() {
     this.utils.trace("onreadystatechange " + ready);
 
     if (ready == this.READY_STATE_DONE) {
-        var httpStatus=req.status;
+    	var httpStatus;
+    	try {
+        	httpStatus=req.status;
+    	} catch(e) {
+    		// Firefox throws when there was an error here. 
+    		this.utils.trace("onreadystatechange DONE ERROR retrieving status (connection error?)");
+    		if(this.onerror != null) {
+   			    this.onerror(e);
+    		}
+    		return;
+
+    	}
+    	
         this.utils.trace("onreadystatechange DONE " + httpStatus);
 
         if (httpStatus==200 || httpStatus==0) {

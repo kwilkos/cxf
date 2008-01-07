@@ -383,7 +383,16 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
         utils.startIf("this._onerror");
         // Is this a good set of parameters for the error function?
         // Not if we want to process faults, it isn't. To be revisited.
-        utils.appendLine("this._onerror(this.client.req.status, this.client.req.statusText);");
+        utils.appendLine("var httpStatus;");
+        utils.appendLine("var httpStatusText;");
+        utils.appendLine("try {");
+        utils.appendLine(" httpStatus = this.client.req.status;");
+        utils.appendLine(" httpStatusText = this.client.req.statusText;");
+        utils.appendLine("} catch(e) {");
+        utils.appendLine(" httpStatus = -1;");
+        utils.appendLine(" httpStatusText = 'Error opening connection to server';");
+        utils.appendLine("}");
+        utils.appendLine("this._onerror(httpStatus, httpStatusText);");
         utils.endBlock();
         code.append("}\n\n");
         code.append(currentInterfaceClassName + ".prototype." 
