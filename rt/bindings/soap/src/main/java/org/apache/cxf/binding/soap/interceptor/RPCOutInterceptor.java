@@ -18,7 +18,6 @@
  */
 
 package org.apache.cxf.binding.soap.interceptor;
-
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -81,6 +80,10 @@ public class RPCOutInterceptor extends AbstractOutDatabindingInterceptor {
                             new org.apache.cxf.common.i18n.Message("BP_2211_RPCLIT_CANNOT_BE_NULL",
                                                                    LOG, part.getConcreteName()));
                     }
+                   //WSI-BP R2737  -RPC/LIG part name space is empty
+                   // part.setConcreteName(new QName("", part.getConcreteName().getLocalPart()));
+                    part.setProperty("honor.jaxb.annotations", true);
+                    
                 }
             }
             writeParts(message, message.getExchange(), operation, objs, parts);
@@ -106,5 +109,4 @@ public class RPCOutInterceptor extends AbstractOutDatabindingInterceptor {
     protected XMLStreamWriter getXMLStreamWriter(Message message) {
         return message.getContent(XMLStreamWriter.class);
     }
-
 }

@@ -313,7 +313,7 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
             if (bindingUri != null) {
                 serverFactory.setBindingId(bindingUri);
             }
-            
+
             if (serviceName != null) {
                 serverFactory.getServiceFactory().setServiceName(serviceName);
             }

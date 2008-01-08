@@ -19,8 +19,12 @@
 
 package org.apache.cxf.jaxb.io;
 
+import java.lang.annotation.Annotation;
+
 import javax.xml.bind.JAXBContext;
 import javax.xml.namespace.QName;
+
+import com.sun.xml.bind.api.TypeReference;
 
 import org.apache.cxf.databinding.DataReader;
 import org.apache.cxf.jaxb.JAXBDataBase;
@@ -37,6 +41,21 @@ public class DataReaderImpl<T> extends JAXBDataBase implements DataReader<T> {
     }
 
     public Object read(MessagePartInfo part, T reader) {
+        boolean honorJaxbAnnotation = false;
+        if (part != null && part.getProperty("honor.jaxb.annotations") != null) {
+            honorJaxbAnnotation = (Boolean)part.getProperty("honor.jaxb.annotations");
+        }
+        Annotation[] anns = getJAXBAnnotion(part);
+        if (honorJaxbAnnotation && anns.length > 0) {
+            //RpcLit will use the JAXB Bridge to unmarshall part message when it is 
+            //annotated with @XmlList,@XmlAttachmentRef,@XmlJavaTypeAdapter
+            //TODO:Cache the JAXBRIContext
+            QName qname = new QName(null, part.getConcreteName().getLocalPart());
+            TypeReference typeReference = new TypeReference(qname, part.getTypeClass(), anns);
+            return JAXBEncoderDecoder.unmarshalWithBridge(typeReference, reader, 
+                                                          getAttachmentUnmarshaller());
+        }
+        
         return JAXBEncoderDecoder.unmarshall(getJAXBContext(), getSchema(), reader, part, 
                                              getAttachmentUnmarshaller(), unwrapJAXBElement);
     }

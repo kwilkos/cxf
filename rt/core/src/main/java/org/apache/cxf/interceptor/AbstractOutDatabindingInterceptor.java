@@ -58,6 +58,8 @@ public abstract class AbstractOutDatabindingInterceptor extends AbstractPhaseInt
         return Boolean.TRUE.equals(message.containsKey(Message.REQUESTOR_ROLE));
     }
     
+
+       
     protected void writeParts(Message message, Exchange exchange, 
                               BindingOperationInfo operation, MessageContentsList objs, 
                               List<MessagePartInfo> parts) {
@@ -81,7 +83,7 @@ public abstract class AbstractOutDatabindingInterceptor extends AbstractPhaseInt
             for (MessagePartInfo part : parts) {
                 if (objs.hasValue(part)) {
                     Object o = objs.get(part);
-                    osWriter.write(o, part, out);
+                    osWriter.write(o, part, out);                  
                 }
             }
         } else {
@@ -95,6 +97,9 @@ public abstract class AbstractOutDatabindingInterceptor extends AbstractPhaseInt
             }
         }
     }
+    
+    
+    
     
     protected boolean writeToOutputStream(Message m, BindingInfo info, Service s) {
         /**

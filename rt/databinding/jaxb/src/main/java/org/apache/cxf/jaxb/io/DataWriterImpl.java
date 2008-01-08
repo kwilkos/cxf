@@ -19,10 +19,14 @@
 
 package org.apache.cxf.jaxb.io;
 
+import java.lang.annotation.Annotation;
 import java.util.Collections;
 import java.util.Map;
 
 import javax.xml.bind.JAXBContext;
+import javax.xml.namespace.QName;
+
+import com.sun.xml.bind.api.TypeReference;
 
 import org.apache.cxf.databinding.DataWriter;
 import org.apache.cxf.jaxb.JAXBDataBase;
@@ -49,6 +53,11 @@ public class DataWriterImpl<T> extends JAXBDataBase implements DataWriter<T> {
     }
     
     public void write(Object obj, MessagePartInfo part, T output) {
+        boolean honorJaxbAnnotation = false;
+        if (part != null && part.getProperty("honor.jaxb.annotations") != null) {
+            honorJaxbAnnotation = (Boolean)part.getProperty("honor.jaxb.annotations");
+        }
+        
         if (obj != null
             || !(part.getXmlSchema() instanceof XmlSchemaElement)) {
             
@@ -60,9 +69,19 @@ public class DataWriterImpl<T> extends JAXBDataBase implements DataWriter<T> {
                                                      part, output, getAttachmentMarshaller(),
                                                      marshallerProperties);                
             } else {
-                JAXBEncoderDecoder.marshall(getJAXBContext(), getSchema(), obj, part, output, 
-                                        getAttachmentMarshaller(),
-                                        marshallerProperties);
+                Annotation[] anns = getJAXBAnnotion(part);
+                if (!honorJaxbAnnotation || anns.length == 0) {
+                    JAXBEncoderDecoder.marshall(getJAXBContext(), getSchema(), obj, part, output,
+                                                getAttachmentMarshaller(), marshallerProperties);
+                } else if (honorJaxbAnnotation && anns.length > 0) {
+                    //RpcLit will use the JAXB Bridge to marshall part message when it is 
+                    //annotated with @XmlList,@XmlAttachmentRef,@XmlJavaTypeAdapter
+                    //TODO:Cache the JAXBRIContext
+                    QName qname = new QName(null, part.getConcreteName().getLocalPart());
+                    TypeReference typeReference = new TypeReference(qname, part.getTypeClass(), anns);
+                    JAXBEncoderDecoder.marshalWithBridge(typeReference, obj, 
+                                                         output, getAttachmentMarshaller());
+                }
             }
         } else if (obj == null && needToRender(obj, part)) {
             JAXBEncoderDecoder.marshallNullElement(getJAXBContext(), getSchema(), output, part,
@@ -85,4 +104,7 @@ public class DataWriterImpl<T> extends JAXBDataBase implements DataWriter<T> {
     public void setMarshallerProperties(Map<String, Object> marshallerProperties) {
         this.marshallerProperties = marshallerProperties;
     }
+    
+
+    
 }

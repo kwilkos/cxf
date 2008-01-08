@@ -77,6 +77,8 @@ public final class JAXBDataBinding extends AbstractDataBinding implements DataBi
     public static final String SCHEMA_RESOURCE = "SCHEMRESOURCE";
     
     public static final String UNWRAP_JAXB_ELEMENT = "unwrap.jaxb.element";
+    
+    public static final String USE_JAXB_BRIDGE = "use.jaxb.bridge";
 
     private static final Logger LOG = LogUtils.getLogger(JAXBDataBinding.class);
 

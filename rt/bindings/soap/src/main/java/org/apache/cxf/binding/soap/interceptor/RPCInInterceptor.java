@@ -61,7 +61,6 @@ public class RPCInInterceptor extends AbstractInDatabindingInterceptor {
     private BindingOperationInfo getOperation(Message message, QName opName) {
         return ServiceModelUtil.getOperation(message.getExchange(), opName);
     }
-
     public void handleMessage(Message message) {
         if (isGET(message)) {
             LOG.info("RPCInInterceptor skipped in HTTP GET method");
@@ -119,10 +118,12 @@ public class RPCInInterceptor extends AbstractInDatabindingInterceptor {
                 // will always generate WSI-BP compliant messages so it's unknown if
                 // the non-WSI-BP toolkits will be able to understand the CXF
                 // generated messages if they are expecting it to be qualified.
+                Iterator<MessagePartInfo> partItr = msg.getMessageParts().iterator();
                 while (!qn.getLocalPart().equals(part.getConcreteName().getLocalPart())
-                    && itr.hasNext()) {
-                    part = itr.next();
+                    && partItr.hasNext()) {
+                    part = partItr.next();
                 }
+                
                 if (!qn.equals(part.getConcreteName())) {
                     throw new Fault(
                                     new org.apache.cxf.common.i18n.Message(
@@ -130,6 +131,8 @@ public class RPCInInterceptor extends AbstractInDatabindingInterceptor {
                                                                            LOG,
                                                                            qn));
                 }
+                //honor JAXBAnnotation
+                part.setProperty("honor.jaxb.annotations", true);
                 parameters.put(part, dr.read(part, xmlReader));
             }
         }

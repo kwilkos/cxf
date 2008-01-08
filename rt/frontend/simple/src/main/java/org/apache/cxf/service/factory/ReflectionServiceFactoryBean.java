@@ -126,6 +126,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     public static final String METHOD = "operation.method";
     public static final String METHOD_PARAM_ANNOTATIONS = "method.parameters.annotations";
     public static final String METHOD_ANNOTATIONS = "method.return.annotations";
+    public static final String PARAM_ANNOTATION = "parameter.annotations";
     private static final Logger LOG = LogUtils.getL7dLogger(ReflectionServiceFactoryBean.class,
                                                             "SimpleMessages");
 
@@ -571,7 +572,8 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
 
             setFaultClassInfo(o, method);
         }
-
+        o.setProperty(METHOD_PARAM_ANNOTATIONS, method.getParameterAnnotations());
+        o.setProperty(METHOD_ANNOTATIONS, method.getAnnotations());
         Class<?>[] paramTypes = method.getParameterTypes();
         Type[] genericTypes = method.getGenericParameterTypes();
         for (int i = 0; i < paramTypes.length; i++) {
@@ -600,6 +602,13 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                                      Class paramType, Type genericType) {
         boolean isIn = isInParam(method, i);
         boolean isOut = isOutParam(method, i);
+        Annotation[] paraAnnos = null;
+        if (i != -1 && o.getProperty(METHOD_PARAM_ANNOTATIONS) != null) {
+            Annotation[][] anns = (Annotation[][])o.getProperty(METHOD_PARAM_ANNOTATIONS);
+            paraAnnos = anns[i];
+        } else if (i == -1 && o.getProperty(METHOD_ANNOTATIONS) != null) {
+            paraAnnos = (Annotation[])o.getProperty(METHOD_ANNOTATIONS);
+        }
 
         MessagePartInfo part = null;
         if (isIn && !isOut) {
@@ -612,6 +621,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                 return false;
             }
             initializeParameter(part, paramType, genericType);
+            
             part.setIndex(i);
         } else if (!isIn && isOut) {
             QName name = getOutPartName(o, method, i);
@@ -645,6 +655,9 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
             part.setProperty(ReflectionServiceFactoryBean.MODE_INOUT, Boolean.TRUE);
             initializeParameter(part, paramType, genericType);
             part.setIndex(i + 1);
+        }
+        if (paraAnnos != null && part != null) {
+            part.setProperty(PARAM_ANNOTATION, paraAnnos);
         }
         return true;
     }    
@@ -711,6 +724,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         OperationInfo op = intf.addOperation(getOperationName(intf, m));
         op.setProperty(m.getClass().getName(), m);
         op.setProperty("action", getAction(op, m));
+        op.setProperty(METHOD_ANNOTATIONS, m.getAnnotations());
 
         if (isWrapped(m)) {
             UnwrappedOperationInfo uOp = new UnwrappedOperationInfo(op);
@@ -1144,6 +1158,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     private Map<Class, Boolean> getJaxbAnnoMap(MessagePartInfo mpi) {
         Map<Class, Boolean> map = new ConcurrentHashMap<Class, Boolean>();
         Annotation[] anns = getMethodParameterAnnotations(mpi);
+       
         if (anns != null) {
             for (Annotation anno : anns) {
                 if (anno instanceof XmlList) {
@@ -1217,7 +1232,9 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                 final QName q2 = getInPartName(op, method, j);
                 MessagePartInfo part = inMsg.addMessagePart(q2);
                 initializeParameter(part, paramClasses[j], method.getGenericParameterTypes()[j]);
+                //TODO:remove method param annotations
                 part.setProperty(METHOD_PARAM_ANNOTATIONS, method.getParameterAnnotations());
+                part.setProperty(PARAM_ANNOTATION, method.getParameterAnnotations()[j]);
                 if (getJaxbAnnoMap(part).size() > 0) {
                     op.setProperty(WRAPPERGEN_NEEDED, true);
                 }
