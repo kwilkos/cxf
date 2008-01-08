@@ -61,7 +61,7 @@ public class BeanGenerator extends AbstractGenerator<File> {
     }
 
     public void generateAndCompile(Collection<JavaClass> wrapperClasses, File dir) {
-        VelocityGenerator generator = new VelocityGenerator();
+        VelocityGenerator generator = new VelocityGenerator(false);
         generator.setBaseDir(dir.toString());
 
         List<File> generatedFiles = new ArrayList<File>();

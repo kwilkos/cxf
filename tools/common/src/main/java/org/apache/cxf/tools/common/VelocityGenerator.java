@@ -38,6 +38,7 @@ import org.apache.cxf.version.Version;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
+import org.apache.velocity.runtime.RuntimeConstants;
 
 public final class VelocityGenerator {
     private static final Logger LOG = LogUtils.getL7dLogger(VelocityGenerator.class);
@@ -45,11 +46,10 @@ public final class VelocityGenerator {
     private String baseDir;
     
     public VelocityGenerator() {
-        init();
+        this(false);
     }
-
-    private void init() {
-        initVelocity();
+    public VelocityGenerator(boolean log) {
+        initVelocity(log);
     }
 
     private String getVelocityLogFile(String logfile) {
@@ -60,14 +60,17 @@ public final class VelocityGenerator {
         return logdir + File.separator + logfile;
     }
 
-    private void initVelocity() throws ToolException {
+    private void initVelocity(boolean log) throws ToolException {
         try {
             Properties props = new Properties();
             String clzName = "org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader";
             props.put("resource.loader", "class");
             props.put("class.resource.loader.class", clzName);
             props.put("runtime.log", getVelocityLogFile("velocity.log"));
-
+            if (!log) {
+                props.put(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM_CLASS, 
+                          "org.apache.velocity.runtime.log.NullLogSystem");
+            }
             Velocity.init(props);
         } catch (Exception e) {
             org.apache.cxf.common.i18n.Message msg =
