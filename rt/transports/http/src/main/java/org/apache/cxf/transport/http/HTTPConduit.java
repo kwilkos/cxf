@@ -1918,17 +1918,20 @@ public class HTTPConduit
             inMessage.put(Message.RESPONSE_CODE, responseCode);
             String ct = connection.getContentType();
             inMessage.put(Message.CONTENT_TYPE, ct);
-            String enc = connection.getContentEncoding();
-            if (enc == null 
-                && ct != null 
+            String charset = null;
+            if (ct != null 
                 && ct.indexOf("charset") != -1) {
-                enc = ct.substring(ct.indexOf("charset") + 8);
-                if (enc.indexOf(";") != -1) {
-                    enc = enc.substring(0, enc.indexOf(";"));
+                charset = ct.substring(ct.indexOf("charset") + 8);
+                if (charset.indexOf(";") != -1) {
+                    charset = charset.substring(0, charset.indexOf(";"));
                 }
             }
+            String enc = connection.getContentEncoding();
+            if (charset == null) {
+                charset = enc;
+            }
             
-            String normalizedEncoding = HttpHeaderHelper.mapCharset(enc);
+            String normalizedEncoding = HttpHeaderHelper.mapCharset(charset);
             if (normalizedEncoding == null) {
                 String m = new org.apache.cxf.common.i18n.Message("INVALID_ENCODING_MSG",
                                                                    LOG, enc).toString();
