@@ -25,8 +25,7 @@ import org.apache.cxf.testutil.common.AbstractBusTestServerBase;
 public class Server extends AbstractBusTestServerBase {
     protected void run() {
         Object implementor = new StringArrayTestImpl();
-        String address = "http://localhost:9999/SOAPServiceRPCLit/SoapPort";
-        // http://localhost:9992/SOAPServiceRPCLit/SoapPort
+        String address = "http://localhost:9992/SOAPServiceRPCLit/SoapPort";
         try {            
             Endpoint.publish(address, implementor);
         } catch (Exception e) {
