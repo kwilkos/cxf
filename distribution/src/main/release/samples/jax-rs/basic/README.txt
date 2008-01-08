@@ -1,7 +1,7 @@
-RESTful JAX-RS World Demo 
-=========================
+JAX-RS Basic Demo 
+=================
 
-The demo shows REST based Web Services using JAX-RS (JSR-311). The REST server provides the following services: 
+The demo shows a basic REST based Web Services using JAX-RS (JSR-311). The REST server provides the following services: 
 
 A RESTful customer service is provided on URL http://localhost:9000/customers. 
 Users access this URI to operate on customer.
@@ -118,7 +118,7 @@ For Windows:
 Running the demo using java
 ---------------------------
 
-From the samples/restful_jaxrs directory run the following commands. They 
+From the samples/jax-rs/basic directory run the following commands. They 
 are entered on a single command line.
 
 For UNIX (must use forward slashes):

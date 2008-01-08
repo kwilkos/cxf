@@ -17,10 +17,10 @@
   specific language governing permissions and limitations
   under the License.
 -->
-<project name="RESTful demo" default="build" basedir=".">
+<project name="JAX-RS basic demo" default="build" basedir=".">
     <property name="codegen.notrequired" value="true"/>
 
-    <import file="../common_build.xml"/>        
+    <import file="../../common_build.xml"/>        
         
     <target name="client" description="run demo client" depends="build">
         <cxfrun classname="demo.jaxrs.client.Client"/>
