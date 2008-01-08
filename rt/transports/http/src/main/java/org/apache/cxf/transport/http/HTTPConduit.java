@@ -1926,15 +1926,10 @@ public class HTTPConduit
                     charset = charset.substring(0, charset.indexOf(";"));
                 }
             }
-            String enc = connection.getContentEncoding();
-            if (charset == null) {
-                charset = enc;
-            }
-            
             String normalizedEncoding = HttpHeaderHelper.mapCharset(charset);
             if (normalizedEncoding == null) {
                 String m = new org.apache.cxf.common.i18n.Message("INVALID_ENCODING_MSG",
-                                                                   LOG, enc).toString();
+                                                                   LOG, charset).toString();
                 LOG.log(Level.WARNING, m);
                 throw new IOException(m);   
             } 
