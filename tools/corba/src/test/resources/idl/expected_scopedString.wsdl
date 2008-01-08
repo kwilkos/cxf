@@ -21,10 +21,10 @@
   <corba:typeMapping targetNamespace="http://schemas.apache.org/yoko/idl/scopedString/typemap">
     <corba:alias xmlns:xs="http://www.w3.org/2001/XMLSchema" basetype="corba:string" repositoryID="IDL:mod/int/str/myString:1.0" type="xs:string" name="mod.int.str.myString" />
     <corba:alias xmlns:xs="http://www.w3.org/2001/XMLSchema" basetype="corba:wstring" repositoryID="IDL:mod/int/str/myWString:1.0" type="xs:string" name="mod.int.str.myWString" />
-    <corba:anonstring xmlns="http://schemas.apache.org/yoko/idl/scopedString" bound="10" type="mod.int.str.myString10" name="mod.int.str._1_myString10" />
-    <corba:alias xmlns:ns4="http://schemas.apache.org/yoko/idl/scopedString" xmlns="http://schemas.apache.org/yoko/idl/scopedString/typemap" basetype="mod.int.str._1_myString10" repositoryID="IDL:mod/int/str/myString10:1.0" type="ns4:mod.int.str.myString10" name="mod.int.str.myString10" />
-    <corba:anonwstring xmlns="http://schemas.apache.org/yoko/idl/scopedString" bound="10" type="mod.int.str.myWString10" name="mod.int.str._1_myWString10" />
-    <corba:alias xmlns:ns4="http://schemas.apache.org/yoko/idl/scopedString" xmlns="http://schemas.apache.org/yoko/idl/scopedString/typemap" basetype="mod.int.str._1_myWString10" repositoryID="IDL:mod/int/str/myWString10:1.0" type="ns4:mod.int.str.myWString10" name="mod.int.str.myWString10" />
+    <corba:anonstring xmlns="http://schemas.apache.org/yoko/idl/scopedString" bound="10" type="mod.int.str.myString10" name="mod.int.str._Anon1_myString10" />
+    <corba:alias xmlns:ns4="http://schemas.apache.org/yoko/idl/scopedString" xmlns="http://schemas.apache.org/yoko/idl/scopedString/typemap" basetype="mod.int.str._Anon1_myString10" repositoryID="IDL:mod/int/str/myString10:1.0" type="ns4:mod.int.str.myString10" name="mod.int.str.myString10" />
+    <corba:anonwstring xmlns="http://schemas.apache.org/yoko/idl/scopedString" bound="10" type="mod.int.str.myWString10" name="mod.int.str._Anon1_myWString10" />
+    <corba:alias xmlns:ns4="http://schemas.apache.org/yoko/idl/scopedString" xmlns="http://schemas.apache.org/yoko/idl/scopedString/typemap" basetype="mod.int.str._Anon1_myWString10" repositoryID="IDL:mod/int/str/myWString10:1.0" type="ns4:mod.int.str.myWString10" name="mod.int.str.myWString10" />
   </corba:typeMapping>
   <wsdl:types>
     <xs:schema attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://schemas.apache.org/yoko/idl/scopedString" xmlns="http://schemas.apache.org/yoko/idl/scopedString" xmlns:xs="http://www.w3.org/2001/XMLSchema">

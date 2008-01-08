@@ -27,7 +27,7 @@
     <corba:exception xmlns="http://schemas.apache.org/yoko/idl/ObjectRef" repositoryID="IDL:TestException:1.0" type="TestExceptionType" name="TestException">
       <corba:member xmlns:ns4="http://schemas.apache.org/yoko/idl/ObjectRef/typemap" name="ref" idltype="ns4:ObjectRef" />
     </corba:exception>
-    <corba:array xmlns:ns4="http://schemas.apache.org/yoko/idl/ObjectRef/typemap" xmlns="" elemname="item" bound="5" repositoryID="IDL:TestArray:1.0" type="ns4:ObjectRef" name="TestArray" />
+    <corba:array xmlns:ns5="http://schemas.apache.org/yoko/idl/ObjectRef" xmlns:ns4="http://schemas.apache.org/yoko/idl/ObjectRef/typemap" xmlns="" elemtype="ns4:ObjectRef" elemname="item" bound="5" repositoryID="IDL:TestArray:1.0" type="ns5:TestArray" name="TestArray" />
     <corba:sequence xmlns:ns5="http://schemas.apache.org/yoko/idl/ObjectRef" xmlns:ns4="http://schemas.apache.org/yoko/idl/ObjectRef/typemap" xmlns="" elemtype="ns4:ObjectRef" elemname="item" bound="0" repositoryID="IDL:TestSequence:1.0" type="ns5:TestSequence" name="TestSequence" />
     <corba:union xmlns="http://schemas.apache.org/yoko/idl/ObjectRef" discriminator="corba:short" repositoryID="IDL:TestUnion:1.0" type="TestUnion" name="TestUnion">
       <corba:unionbranch xmlns:ns4="http://schemas.apache.org/yoko/idl/ObjectRef/typemap" name="ref" idltype="ns4:ObjectRef">
@@ -220,6 +220,10 @@
   </wsdl:message>
   <wsdl:message name="_get_refResponse">
     <wsdl:part name="parameters" element="tns:_get_refResult">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="TestException">
+    <wsdl:part name="exception" element="tns:TestException">
     </wsdl:part>
   </wsdl:message>
   <wsdl:message name="_set_objResponse">

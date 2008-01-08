@@ -17,7 +17,7 @@
  * under the License.
 */ 
 
-#include "include.idl"
+#include "include.idl" //Sample comment should not cause exception
 
 module yoko {
 

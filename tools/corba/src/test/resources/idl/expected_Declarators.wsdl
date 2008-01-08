@@ -31,22 +31,22 @@
     <corba:alias basetype="corba:ushort" repositoryID="IDL:typedef_module/ushort1:1.0" name="typedef_module.ushort1" />
     <corba:alias basetype="corba:ushort" repositoryID="IDL:typedef_module/ushort2:1.0" name="typedef_module.ushort2" />
     <corba:alias basetype="corba:ushort" repositoryID="IDL:typedef_module/ushort3:1.0" name="typedef_module.ushort3" />
-    <corba:anonarray xmlns="" elemname="item" bound="12" type="corba:short" name="_1_array1" />
-    <corba:anonarray xmlns:ns4="http://schemas.apache.org/yoko/idl/Declarators/typemap" xmlns="" elemname="item" bound="11" type="ns4:_1_array1" name="_2_array1" />
-    <corba:array xmlns:ns4="http://schemas.apache.org/yoko/idl/Declarators/typemap" xmlns="" elemname="item" bound="10" repositoryID="IDL:array1:1.0" type="ns4:_2_array1" name="array1" />
-    <corba:anonarray xmlns="" elemname="item" bound="21" type="corba:short" name="_1_array2" />
-    <corba:array xmlns:ns4="http://schemas.apache.org/yoko/idl/Declarators/typemap" xmlns="" elemname="item" bound="20" repositoryID="IDL:array2:1.0" type="ns4:_1_array2" name="array2" />
-    <corba:array xmlns="" elemname="item" bound="30" repositoryID="IDL:array3:1.0" type="corba:short" name="array3" />
-    <corba:anonarray xmlns="" elemname="item" bound="12" type="corba:short" name="array_module._1_array1" />
-    <corba:anonarray xmlns:ns4="http://schemas.apache.org/yoko/idl/Declarators/typemap" xmlns="" elemname="item" bound="11" type="ns4:array_module._1_array1" name="array_module._2_array1" />
-    <corba:array xmlns:ns4="http://schemas.apache.org/yoko/idl/Declarators/typemap" xmlns="" elemname="item" bound="10" repositoryID="IDL:array_module/array1:1.0" type="ns4:array_module._2_array1" name="array_module.array1" />
-    <corba:anonarray xmlns="" elemname="item" bound="21" type="corba:short" name="array_module._1_array2" />
-    <corba:array xmlns:ns4="http://schemas.apache.org/yoko/idl/Declarators/typemap" xmlns="" elemname="item" bound="20" repositoryID="IDL:array_module/array2:1.0" type="ns4:array_module._1_array2" name="array_module.array2" />
-    <corba:array xmlns="" elemname="item" bound="30" repositoryID="IDL:array_module/array3:1.0" type="corba:short" name="array_module.array3" />
+    <corba:anonarray xmlns:ns4="http://schemas.apache.org/yoko/idl/Declarators" xmlns="" elemtype="corba:short" elemname="item" bound="12" type="ns4:_Anon1_array1" name="_Anon1_array1" />
+    <corba:anonarray xmlns:ns5="http://schemas.apache.org/yoko/idl/Declarators" xmlns:ns4="http://schemas.apache.org/yoko/idl/Declarators/typemap" xmlns="" elemtype="ns4:_Anon1_array1" elemname="item" bound="11" type="ns5:_Anon2_array1" name="_Anon2_array1" />
+    <corba:array xmlns:ns5="http://schemas.apache.org/yoko/idl/Declarators" xmlns:ns4="http://schemas.apache.org/yoko/idl/Declarators/typemap" xmlns="" elemtype="ns4:_Anon2_array1" elemname="item" bound="10" repositoryID="IDL:array1:1.0" type="ns5:array1" name="array1" />
+    <corba:anonarray xmlns:ns4="http://schemas.apache.org/yoko/idl/Declarators" xmlns="" elemtype="corba:short" elemname="item" bound="21" type="ns4:_Anon1_array2" name="_Anon1_array2" />
+    <corba:array xmlns:ns5="http://schemas.apache.org/yoko/idl/Declarators" xmlns:ns4="http://schemas.apache.org/yoko/idl/Declarators/typemap" xmlns="" elemtype="ns4:_Anon1_array2" elemname="item" bound="20" repositoryID="IDL:array2:1.0" type="ns5:array2" name="array2" />
+    <corba:array xmlns:ns4="http://schemas.apache.org/yoko/idl/Declarators" xmlns="" elemtype="corba:short" elemname="item" bound="30" repositoryID="IDL:array3:1.0" type="ns4:array3" name="array3" />
+    <corba:anonarray xmlns:ns4="http://schemas.apache.org/yoko/idl/Declarators" xmlns="" elemtype="corba:short" elemname="item" bound="12" type="ns4:array_module._Anon1_array1" name="array_module._Anon1_array1" />
+    <corba:anonarray xmlns:ns5="http://schemas.apache.org/yoko/idl/Declarators" xmlns:ns4="http://schemas.apache.org/yoko/idl/Declarators/typemap" xmlns="" elemtype="ns4:array_module._Anon1_array1" elemname="item" bound="11" type="ns5:array_module._Anon2_array1" name="array_module._Anon2_array1" />
+    <corba:array xmlns:ns5="http://schemas.apache.org/yoko/idl/Declarators" xmlns:ns4="http://schemas.apache.org/yoko/idl/Declarators/typemap" xmlns="" elemtype="ns4:array_module._Anon2_array1" elemname="item" bound="10" repositoryID="IDL:array_module/array1:1.0" type="ns5:array_module.array1" name="array_module.array1" />
+    <corba:anonarray xmlns:ns4="http://schemas.apache.org/yoko/idl/Declarators" xmlns="" elemtype="corba:short" elemname="item" bound="21" type="ns4:array_module._Anon1_array2" name="array_module._Anon1_array2" />
+    <corba:array xmlns:ns5="http://schemas.apache.org/yoko/idl/Declarators" xmlns:ns4="http://schemas.apache.org/yoko/idl/Declarators/typemap" xmlns="" elemtype="ns4:array_module._Anon1_array2" elemname="item" bound="20" repositoryID="IDL:array_module/array2:1.0" type="ns5:array_module.array2" name="array_module.array2" />
+    <corba:array xmlns:ns4="http://schemas.apache.org/yoko/idl/Declarators" xmlns="" elemtype="corba:short" elemname="item" bound="30" repositoryID="IDL:array_module/array3:1.0" type="ns4:array_module.array3" name="array_module.array3" />
     <corba:alias basetype="corba:long" repositoryID="IDL:simple_long:1.0" name="simple_long" />
-    <corba:array xmlns:ns4="http://schemas.apache.org/yoko/idl/Declarators/typemap" xmlns="" elemname="item" bound="10" repositoryID="IDL:array_long:1.0" type="ns4:simple_long" name="array_long" />
+    <corba:array xmlns:ns5="http://schemas.apache.org/yoko/idl/Declarators" xmlns:ns4="http://schemas.apache.org/yoko/idl/Declarators/typemap" xmlns="" elemtype="ns4:simple_long" elemname="item" bound="10" repositoryID="IDL:array_long:1.0" type="ns5:array_long" name="array_long" />
     <corba:alias basetype="corba:long" repositoryID="IDL:mixed_long_module/simple_long:1.0" name="mixed_long_module.simple_long" />
-    <corba:array xmlns:ns4="http://schemas.apache.org/yoko/idl/Declarators/typemap" xmlns="" elemname="item" bound="10" repositoryID="IDL:mixed_long_module/array_long:1.0" type="ns4:mixed_long_module.simple_long" name="mixed_long_module.array_long" />
+    <corba:array xmlns:ns5="http://schemas.apache.org/yoko/idl/Declarators" xmlns:ns4="http://schemas.apache.org/yoko/idl/Declarators/typemap" xmlns="" elemtype="ns4:mixed_long_module.simple_long" elemname="item" bound="10" repositoryID="IDL:mixed_long_module/array_long:1.0" type="ns5:mixed_long_module.array_long" name="mixed_long_module.array_long" />
     <corba:sequence xmlns:ns4="http://schemas.apache.org/yoko/idl/Declarators" xmlns="" elemtype="corba:ulonglong" elemname="item" bound="0" repositoryID="IDL:unboundedSeqUnsignedLongLong1:1.0" type="ns4:unboundedSeqUnsignedLongLong1" name="unboundedSeqUnsignedLongLong1" />
     <corba:sequence xmlns:ns4="http://schemas.apache.org/yoko/idl/Declarators" xmlns="" elemtype="corba:ulonglong" elemname="item" bound="0" repositoryID="IDL:unboundedSeqUnsignedLongLong2:1.0" type="ns4:unboundedSeqUnsignedLongLong2" name="unboundedSeqUnsignedLongLong2" />
     <corba:sequence xmlns:ns4="http://schemas.apache.org/yoko/idl/Declarators" xmlns="" elemtype="corba:ulonglong" elemname="item" bound="0" repositoryID="IDL:unboundedSeqUnsignedLongLong3:1.0" type="ns4:unboundedSeqUnsignedLongLong3" name="unboundedSeqUnsignedLongLong3" />
@@ -203,25 +203,25 @@
   </corba:typeMapping>
   <wsdl:types>
     <xs:schema attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://schemas.apache.org/yoko/idl/Declarators" xmlns="http://schemas.apache.org/yoko/idl/Declarators" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-      <xs:complexType name="_1_array1">
+      <xs:complexType name="_Anon1_array1">
         <xs:sequence>
           <xs:element maxOccurs="12" minOccurs="12" name="item" type="xs:short">
           </xs:element>
         </xs:sequence>
       </xs:complexType>
-      <xs:complexType name="_2_array1">
+      <xs:complexType name="_Anon2_array1">
         <xs:sequence>
-          <xs:element maxOccurs="11" minOccurs="11" name="item" type="_1_array1">
+          <xs:element maxOccurs="11" minOccurs="11" name="item" type="_Anon1_array1">
           </xs:element>
         </xs:sequence>
       </xs:complexType>
       <xs:complexType name="array1">
         <xs:sequence>
-          <xs:element maxOccurs="10" minOccurs="10" name="item" type="_2_array1">
+          <xs:element maxOccurs="10" minOccurs="10" name="item" type="_Anon2_array1">
           </xs:element>
         </xs:sequence>
       </xs:complexType>
-      <xs:complexType name="_1_array2">
+      <xs:complexType name="_Anon1_array2">
         <xs:sequence>
           <xs:element maxOccurs="21" minOccurs="21" name="item" type="xs:short">
           </xs:element>
@@ -229,7 +229,7 @@
       </xs:complexType>
       <xs:complexType name="array2">
         <xs:sequence>
-          <xs:element maxOccurs="20" minOccurs="20" name="item" type="_1_array2">
+          <xs:element maxOccurs="20" minOccurs="20" name="item" type="_Anon1_array2">
           </xs:element>
         </xs:sequence>
       </xs:complexType>
@@ -239,25 +239,25 @@
           </xs:element>
         </xs:sequence>
       </xs:complexType>
-      <xs:complexType name="array_module._1_array1">
+      <xs:complexType name="array_module._Anon1_array1">
         <xs:sequence>
           <xs:element maxOccurs="12" minOccurs="12" name="item" type="xs:short">
           </xs:element>
         </xs:sequence>
       </xs:complexType>
-      <xs:complexType name="array_module._2_array1">
+      <xs:complexType name="array_module._Anon2_array1">
         <xs:sequence>
-          <xs:element maxOccurs="11" minOccurs="11" name="item" type="array_module._1_array1">
+          <xs:element maxOccurs="11" minOccurs="11" name="item" type="array_module._Anon1_array1">
           </xs:element>
         </xs:sequence>
       </xs:complexType>
       <xs:complexType name="array_module.array1">
         <xs:sequence>
-          <xs:element maxOccurs="10" minOccurs="10" name="item" type="array_module._2_array1">
+          <xs:element maxOccurs="10" minOccurs="10" name="item" type="array_module._Anon2_array1">
           </xs:element>
         </xs:sequence>
       </xs:complexType>
-      <xs:complexType name="array_module._1_array2">
+      <xs:complexType name="array_module._Anon1_array2">
         <xs:sequence>
           <xs:element maxOccurs="21" minOccurs="21" name="item" type="xs:short">
           </xs:element>
@@ -265,7 +265,7 @@
       </xs:complexType>
       <xs:complexType name="array_module.array2">
         <xs:sequence>
-          <xs:element maxOccurs="20" minOccurs="20" name="item" type="array_module._1_array2">
+          <xs:element maxOccurs="20" minOccurs="20" name="item" type="array_module._Anon1_array2">
           </xs:element>
         </xs:sequence>
       </xs:complexType>

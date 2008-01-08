@@ -20,7 +20,7 @@
 <wsdl:definitions targetNamespace="http://schemas.apache.org/yoko/idl/OptionsLPT" xmlns:tns="http://schemas.apache.org/yoko/idl/OptionsLPT" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:xsd1="http://schemas.apache.org/yoko/idl/OptionsLPT-types" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
   <wsdl:types>
     <xsd:schema>
-      <xsd:import namespace="http://schemas.apache.org/yoko/idl/OptionsLPT-types" schemaLocation="@LOCATION@"/>
+      <xsd:import namespace="http://schemas.apache.org/yoko/idl/OptionsLPT-types" />
     </xsd:schema>
   </wsdl:types>
   <wsdl:message name="getEmployee">

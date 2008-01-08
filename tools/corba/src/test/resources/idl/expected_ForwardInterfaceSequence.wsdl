@@ -20,14 +20,14 @@
 <wsdl:definitions targetNamespace="http://schemas.apache.org/yoko/idl/ForwardInterfaceSequence" xmlns:tns="http://schemas.apache.org/yoko/idl/ForwardInterfaceSequence" xmlns:wsa="http://www.w3.org/2005/08/addressing" xmlns:corba="http://schemas.apache.org/yoko/bindings/corba" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
   <corba:typeMapping targetNamespace="http://schemas.apache.org/yoko/idl/ForwardInterfaceSequence/typemap">
     <corba:sequence xmlns:ns5="http://www.w3.org/2005/08/addressing" xmlns:ns4="http://schemas.apache.org/yoko/idl/ForwardInterfaceSequence/typemap" xmlns="" elemtype="ns4:org.cc.IpCall" elemname="item" bound="0" repositoryID="IDL:org/cc/myIpCallSequence:1.0" type="ns5:EndpointReferenceType" name="org.cc.myIpCallSequence" />
-    <corba:anonsequence xmlns:ns5="http://www.w3.org/2005/08/addressing" xmlns:ns4="http://schemas.apache.org/yoko/idl/ForwardInterfaceSequence/typemap" xmlns="" elemtype="ns4:org.cc.IpCall" elemname="item" bound="0" type="ns5:EndpointReferenceType" name="org.cc.myCallSeqSeqSeqLong._1_myCallSeqSeqSeqLong" />
-    <corba:anonsequence xmlns:ns5="http://schemas.apache.org/yoko/idl/ForwardInterfaceSequence" xmlns:ns4="http://schemas.apache.org/yoko/idl/ForwardInterfaceSequence/typemap" xmlns="" elemtype="ns4:org.cc.myCallSeqSeqSeqLong._1_myCallSeqSeqSeqLong" elemname="item" bound="0" type="ns5:org.cc._1_myCallSeqSeqSeqLong" name="org.cc._1_myCallSeqSeqSeqLong" />
-    <corba:sequence xmlns:ns5="http://schemas.apache.org/yoko/idl/ForwardInterfaceSequence" xmlns:ns4="http://schemas.apache.org/yoko/idl/ForwardInterfaceSequence/typemap" xmlns="" elemtype="ns4:org.cc._1_myCallSeqSeqSeqLong" elemname="item" bound="0" repositoryID="IDL:org/cc/myCallSeqSeqSeqLong:1.0" type="ns5:org.cc.myCallSeqSeqSeqLong" name="org.cc.myCallSeqSeqSeqLong" />
-    <corba:anonsequence xmlns:ns5="http://www.w3.org/2005/08/addressing" xmlns:ns4="http://schemas.apache.org/yoko/idl/ForwardInterfaceSequence/typemap" xmlns="" elemtype="ns4:org.cc.IpCall" elemname="item" bound="0" type="ns5:EndpointReferenceType" name="org.cc.anonStruct._1_anonStruct" />
-    <corba:anonsequence xmlns:ns5="http://schemas.apache.org/yoko/idl/ForwardInterfaceSequence" xmlns:ns4="http://schemas.apache.org/yoko/idl/ForwardInterfaceSequence/typemap" xmlns="" elemtype="ns4:org.cc.anonStruct._1_anonStruct" elemname="item" bound="0" type="ns5:org.cc.anonStruct._2_anonStruct" name="org.cc.anonStruct._2_anonStruct" />
-    <corba:anonsequence xmlns:ns5="http://schemas.apache.org/yoko/idl/ForwardInterfaceSequence" xmlns:ns4="http://schemas.apache.org/yoko/idl/ForwardInterfaceSequence/typemap" xmlns="" elemtype="ns4:org.cc.anonStruct._2_anonStruct" elemname="item" bound="0" type="ns5:org.cc._1_anonStruct" name="org.cc._1_anonStruct" />
+    <corba:anonsequence xmlns:ns5="http://www.w3.org/2005/08/addressing" xmlns:ns4="http://schemas.apache.org/yoko/idl/ForwardInterfaceSequence/typemap" xmlns="" elemtype="ns4:org.cc.IpCall" elemname="item" bound="0" type="ns5:EndpointReferenceType" name="org.cc.myCallSeqSeqSeqLong._Anon1_myCallSeqSeqSeqLong" />
+    <corba:anonsequence xmlns:ns5="http://schemas.apache.org/yoko/idl/ForwardInterfaceSequence" xmlns:ns4="http://schemas.apache.org/yoko/idl/ForwardInterfaceSequence/typemap" xmlns="" elemtype="ns4:org.cc.myCallSeqSeqSeqLong._Anon1_myCallSeqSeqSeqLong" elemname="item" bound="0" type="ns5:org.cc._Anon1_myCallSeqSeqSeqLong" name="org.cc._Anon1_myCallSeqSeqSeqLong" />
+    <corba:sequence xmlns:ns5="http://schemas.apache.org/yoko/idl/ForwardInterfaceSequence" xmlns:ns4="http://schemas.apache.org/yoko/idl/ForwardInterfaceSequence/typemap" xmlns="" elemtype="ns4:org.cc._Anon1_myCallSeqSeqSeqLong" elemname="item" bound="0" repositoryID="IDL:org/cc/myCallSeqSeqSeqLong:1.0" type="ns5:org.cc.myCallSeqSeqSeqLong" name="org.cc.myCallSeqSeqSeqLong" />
+    <corba:anonsequence xmlns:ns5="http://www.w3.org/2005/08/addressing" xmlns:ns4="http://schemas.apache.org/yoko/idl/ForwardInterfaceSequence/typemap" xmlns="" elemtype="ns4:org.cc.IpCall" elemname="item" bound="0" type="ns5:EndpointReferenceType" name="org.cc.anonStruct._Anon1_anonStruct" />
+    <corba:anonsequence xmlns:ns5="http://schemas.apache.org/yoko/idl/ForwardInterfaceSequence" xmlns:ns4="http://schemas.apache.org/yoko/idl/ForwardInterfaceSequence/typemap" xmlns="" elemtype="ns4:org.cc.anonStruct._Anon1_anonStruct" elemname="item" bound="0" type="ns5:org.cc.anonStruct._Anon2_anonStruct" name="org.cc.anonStruct._Anon2_anonStruct" />
+    <corba:anonsequence xmlns:ns5="http://schemas.apache.org/yoko/idl/ForwardInterfaceSequence" xmlns:ns4="http://schemas.apache.org/yoko/idl/ForwardInterfaceSequence/typemap" xmlns="" elemtype="ns4:org.cc.anonStruct._Anon2_anonStruct" elemname="item" bound="0" type="ns5:org.cc._Anon1_anonStruct" name="org.cc._Anon1_anonStruct" />
     <corba:struct xmlns="http://schemas.apache.org/yoko/idl/ForwardInterfaceSequence" repositoryID="IDL:org/cc/anonStruct:1.0" type="org.cc.anonStruct" name="org.cc.anonStruct">
-      <corba:member xmlns:ns4="http://schemas.apache.org/yoko/idl/ForwardInterfaceSequence/typemap" name="structSeqSeqSeqLong" idltype="ns4:org.cc._1_anonStruct" />
+      <corba:member xmlns:ns4="http://schemas.apache.org/yoko/idl/ForwardInterfaceSequence/typemap" name="structSeqSeqSeqLong" idltype="ns4:org.cc._Anon1_anonStruct" />
     </corba:struct>
     <corba:object xmlns:ns4="http://www.w3.org/2005/08/addressing" xmlns="http://schemas.apache.org/yoko/idl/ForwardInterfaceSequence" binding="org.cc.IpCallCORBABinding" repositoryID="IDL:org/cc/IpCall:1.0" type="ns4:EndpointReferenceType" name="org.cc.IpCall" />
   </corba:typeMapping>
@@ -41,45 +41,45 @@
           </xs:element>
         </xs:sequence>
       </xs:complexType>
-      <xs:complexType name="org.cc.myCallSeqSeqSeqLong._1_myCallSeqSeqSeqLong">
+      <xs:complexType name="org.cc.myCallSeqSeqSeqLong._Anon1_myCallSeqSeqSeqLong">
         <xs:sequence>
           <xs:element maxOccurs="unbounded" minOccurs="0" name="item" nillable="true" type="wsa:EndpointReferenceType">
           </xs:element>
         </xs:sequence>
       </xs:complexType>
-      <xs:complexType name="org.cc._1_myCallSeqSeqSeqLong">
+      <xs:complexType name="org.cc._Anon1_myCallSeqSeqSeqLong">
         <xs:sequence>
-          <xs:element maxOccurs="unbounded" minOccurs="0" name="item" type="org.cc.myCallSeqSeqSeqLong._1_myCallSeqSeqSeqLong">
+          <xs:element maxOccurs="unbounded" minOccurs="0" name="item" type="org.cc.myCallSeqSeqSeqLong._Anon1_myCallSeqSeqSeqLong">
           </xs:element>
         </xs:sequence>
       </xs:complexType>
       <xs:complexType name="org.cc.myCallSeqSeqSeqLong">
         <xs:sequence>
-          <xs:element maxOccurs="unbounded" minOccurs="0" name="item" type="org.cc._1_myCallSeqSeqSeqLong">
+          <xs:element maxOccurs="unbounded" minOccurs="0" name="item" type="org.cc._Anon1_myCallSeqSeqSeqLong">
           </xs:element>
         </xs:sequence>
       </xs:complexType>
-      <xs:complexType name="org.cc.anonStruct._1_anonStruct">
+      <xs:complexType name="org.cc.anonStruct._Anon1_anonStruct">
         <xs:sequence>
           <xs:element maxOccurs="unbounded" minOccurs="0" name="item" nillable="true" type="wsa:EndpointReferenceType">
           </xs:element>
         </xs:sequence>
       </xs:complexType>
-      <xs:complexType name="org.cc.anonStruct._2_anonStruct">
+      <xs:complexType name="org.cc.anonStruct._Anon2_anonStruct">
         <xs:sequence>
-          <xs:element maxOccurs="unbounded" minOccurs="0" name="item" type="org.cc.anonStruct._1_anonStruct">
+          <xs:element maxOccurs="unbounded" minOccurs="0" name="item" type="org.cc.anonStruct._Anon1_anonStruct">
           </xs:element>
         </xs:sequence>
       </xs:complexType>
-      <xs:complexType name="org.cc._1_anonStruct">
+      <xs:complexType name="org.cc._Anon1_anonStruct">
         <xs:sequence>
-          <xs:element maxOccurs="unbounded" minOccurs="0" name="item" type="org.cc.anonStruct._2_anonStruct">
+          <xs:element maxOccurs="unbounded" minOccurs="0" name="item" type="org.cc.anonStruct._Anon2_anonStruct">
           </xs:element>
         </xs:sequence>
       </xs:complexType>
       <xs:complexType name="org.cc.anonStruct">
         <xs:sequence>
-          <xs:element name="structSeqSeqSeqLong" type="org.cc._1_anonStruct">
+          <xs:element name="structSeqSeqSeqLong" type="org.cc._Anon1_anonStruct">
           </xs:element>
         </xs:sequence>
       </xs:complexType>

@@ -23,8 +23,8 @@
     <corba:alias xmlns="http://schemas.apache.org/yoko/idl/Octet/typemap" basetype="TpOctet" repositoryID="IDL:myOctet:1.0" name="myOctet" />
     <corba:sequence xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ns4="http://schemas.apache.org/yoko/idl/Octet/typemap" xmlns="" elemtype="ns4:TpOctet" elemname="item" bound="0" repositoryID="IDL:TpOctetSet:1.0" type="xs:base64Binary" name="TpOctetSet" />
     <corba:sequence xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ns4="http://schemas.apache.org/yoko/idl/Octet/typemap" xmlns="" elemtype="ns4:myOctet" elemname="item" bound="0" repositoryID="IDL:TpOctetSet2:1.0" type="xs:base64Binary" name="TpOctetSet2" />
-    <corba:array xmlns:ns4="http://schemas.apache.org/yoko/idl/Octet/typemap" xmlns="" elemname="item" bound="6" repositoryID="IDL:TpArrayOctet:1.0" type="ns4:TpOctet" name="TpArrayOctet" />
-    <corba:array xmlns:ns4="http://schemas.apache.org/yoko/idl/Octet/typemap" xmlns="" elemname="item" bound="6" repositoryID="IDL:TpArrayOctet2:1.0" type="ns4:myOctet" name="TpArrayOctet2" />
+    <corba:array xmlns:ns5="http://schemas.apache.org/yoko/idl/Octet" xmlns:ns4="http://schemas.apache.org/yoko/idl/Octet/typemap" xmlns="" elemtype="ns4:TpOctet" elemname="item" bound="6" repositoryID="IDL:TpArrayOctet:1.0" type="ns5:TpArrayOctet" name="TpArrayOctet" />
+    <corba:array xmlns:ns5="http://schemas.apache.org/yoko/idl/Octet" xmlns:ns4="http://schemas.apache.org/yoko/idl/Octet/typemap" xmlns="" elemtype="ns4:myOctet" elemname="item" bound="6" repositoryID="IDL:TpArrayOctet2:1.0" type="ns5:TpArrayOctet2" name="TpArrayOctet2" />
   </corba:typeMapping>
   <wsdl:types>
     <xs:schema attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://schemas.apache.org/yoko/idl/Octet" xmlns="http://schemas.apache.org/yoko/idl/Octet" xmlns:xs="http://www.w3.org/2001/XMLSchema">

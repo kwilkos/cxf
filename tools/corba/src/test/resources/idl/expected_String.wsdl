@@ -19,10 +19,10 @@
 -->
 <wsdl:definitions targetNamespace="http://schemas.apache.org/yoko/idl/String" xmlns:tns="http://schemas.apache.org/yoko/idl/String" xmlns:corba="http://schemas.apache.org/yoko/bindings/corba" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
   <corba:typeMapping targetNamespace="http://schemas.apache.org/yoko/idl/String/typemap">
-    <corba:anonstring xmlns="http://schemas.apache.org/yoko/idl/String" bound="10" type="string10" name="_1_string10" />
-    <corba:alias xmlns:ns4="http://schemas.apache.org/yoko/idl/String" xmlns="http://schemas.apache.org/yoko/idl/String/typemap" basetype="_1_string10" repositoryID="IDL:string10:1.0" type="ns4:string10" name="string10" />
-    <corba:anonwstring xmlns="http://schemas.apache.org/yoko/idl/String" bound="20" type="wstring20" name="_1_wstring20" />
-    <corba:alias xmlns:ns4="http://schemas.apache.org/yoko/idl/String" xmlns="http://schemas.apache.org/yoko/idl/String/typemap" basetype="_1_wstring20" repositoryID="IDL:wstring20:1.0" type="ns4:wstring20" name="wstring20" />
+    <corba:anonstring xmlns="http://schemas.apache.org/yoko/idl/String" bound="10" type="string10" name="_Anon1_string10" />
+    <corba:alias xmlns:ns4="http://schemas.apache.org/yoko/idl/String" xmlns="http://schemas.apache.org/yoko/idl/String/typemap" basetype="_Anon1_string10" repositoryID="IDL:string10:1.0" type="ns4:string10" name="string10" />
+    <corba:anonwstring xmlns="http://schemas.apache.org/yoko/idl/String" bound="20" type="wstring20" name="_Anon1_wstring20" />
+    <corba:alias xmlns:ns4="http://schemas.apache.org/yoko/idl/String" xmlns="http://schemas.apache.org/yoko/idl/String/typemap" basetype="_Anon1_wstring20" repositoryID="IDL:wstring20:1.0" type="ns4:wstring20" name="wstring20" />
     <corba:alias xmlns="http://schemas.apache.org/yoko/idl/String/typemap" basetype="string10" repositoryID="IDL:myString10:1.0" name="myString10" />
     <corba:alias xmlns="http://schemas.apache.org/yoko/idl/String/typemap" basetype="wstring20" repositoryID="IDL:myWString20:1.0" name="myWString20" />
     <corba:alias xmlns:xs="http://www.w3.org/2001/XMLSchema" basetype="corba:string" repositoryID="IDL:myString:1.0" type="xs:string" name="myString" />

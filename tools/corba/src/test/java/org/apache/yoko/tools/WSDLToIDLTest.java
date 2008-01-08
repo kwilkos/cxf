@@ -290,7 +290,9 @@ public class WSDLToIDLTest extends ToolTestBase {
 
     
     public void testIdlGenMissingBinding() throws Exception {
-        String[] cmdArgs = {"-idl", getClass().getResource("/wsdl/simpleList.wsdl").toString()};
+        String[] cmdArgs = {"-d", output.getAbsolutePath(),
+                            "-idl",
+                            getClass().getResource("/wsdl/simpleList.wsdl").toString()};
         int exc = execute(cmdArgs);
         assertEquals("WSDLToIDL Failed", error, exc);
         String expected = "Error : Binding Name required for generating IDL";
@@ -298,7 +300,8 @@ public class WSDLToIDLTest extends ToolTestBase {
     }
     
     public void testIdlGenInvalidBinding() throws Exception {
-        String[] cmdArgs = {"-idl", "-b", "TestBinding",
+        String[] cmdArgs = {"-d", output.getAbsolutePath(),
+                            "-idl", "-b", "TestBinding",
                              getClass().getResource("/wsdl/simpleList.wsdl").toString()};
         int exc = execute(cmdArgs);
         assertEquals("WSDLToCORBA Failed", error, exc);
@@ -307,7 +310,8 @@ public class WSDLToIDLTest extends ToolTestBase {
     }
     
     public void testMissingBindingName() throws Exception {
-        String[] cmdArgs = {"-i", "BasePortType", 
+        String[] cmdArgs = {"-d", output.getAbsolutePath(),
+                            "-i", "BasePortType", 
                             getClass().getResource("/wsdl/simpleList.wsdl").toString()};
         assertEquals("WSDLToIDL should succeed even without Binding name. " 
                         + "Name used from creation of CORBA binding to generate IDL.", 

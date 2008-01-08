@@ -35,8 +35,8 @@
     <corba:alias basetype="corba:any" repositoryID="IDL:TypedefIf/myAny:1.0" name="TypedefIf.myAny" />
     <corba:sequence xmlns:ns4="http://schemas.apache.org/yoko/idl/Typedef" xmlns="" elemtype="corba:long" elemname="item" bound="0" repositoryID="IDL:TypedefIf/SeqLong:1.0" type="ns4:TypedefIf.SeqLong" name="TypedefIf.SeqLong" />
     <corba:alias xmlns:xs="http://www.w3.org/2001/XMLSchema" basetype="corba:string" repositoryID="IDL:TypedefIf/aString:1.0" type="xs:string" name="TypedefIf.aString" />
-    <corba:anonstring xmlns="http://schemas.apache.org/yoko/idl/Typedef" bound="10" type="TypedefIf.aBoundedString" name="TypedefIf._1_aBoundedString" />
-    <corba:alias xmlns:ns4="http://schemas.apache.org/yoko/idl/Typedef" xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" basetype="TypedefIf._1_aBoundedString" repositoryID="IDL:TypedefIf/aBoundedString:1.0" type="ns4:TypedefIf.aBoundedString" name="TypedefIf.aBoundedString" />
+    <corba:anonstring xmlns="http://schemas.apache.org/yoko/idl/Typedef" bound="10" type="TypedefIf.aBoundedString" name="TypedefIf._Anon1_aBoundedString" />
+    <corba:alias xmlns:ns4="http://schemas.apache.org/yoko/idl/Typedef" xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" basetype="TypedefIf._Anon1_aBoundedString" repositoryID="IDL:TypedefIf/aBoundedString:1.0" type="ns4:TypedefIf.aBoundedString" name="TypedefIf.aBoundedString" />
     <corba:fixed xmlns="http://schemas.apache.org/yoko/idl/Typedef" scale="2" digits="5" repositoryID="IDL:TypedefIf/Fixed52:1.0" type="TypedefIf.Fixed52" name="TypedefIf.Fixed52" />
     <corba:alias xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" basetype="TypedefIf.SeqLong" repositoryID="IDL:TypedefIf/mySeqLong:1.0" name="TypedefIf.mySeqLong" />
     <corba:alias xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" basetype="TypedefIf.aString" repositoryID="IDL:TypedefIf/myString:1.0" name="TypedefIf.myString" />

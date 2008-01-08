@@ -14,13 +14,13 @@ module c
     const boolean b = TRUE;
 
 
-
+/* #endif _b */
 
 
     const boolean c = FALSE;
 
 
-
+// endif _c
   };
 };
 

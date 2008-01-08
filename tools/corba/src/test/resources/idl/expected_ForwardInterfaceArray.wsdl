@@ -19,17 +19,17 @@
 -->
 <wsdl:definitions targetNamespace="http://schemas.apache.org/yoko/idl/ForwardInterfaceArray" xmlns:tns="http://schemas.apache.org/yoko/idl/ForwardInterfaceArray" xmlns:wsa="http://www.w3.org/2005/08/addressing" xmlns:corba="http://schemas.apache.org/yoko/bindings/corba" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
   <corba:typeMapping targetNamespace="http://schemas.apache.org/yoko/idl/ForwardInterfaceArray/typemap">
-    <corba:array xmlns:ns4="http://schemas.apache.org/yoko/idl/ForwardInterfaceArray/typemap" xmlns="" elemname="item" bound="10" repositoryID="IDL:org/cc/IpCallArray:1.0" type="ns4:org.cc.IpCall" name="org.cc.IpCallArray" />
-    <corba:anonarray xmlns:ns4="http://schemas.apache.org/yoko/idl/ForwardInterfaceArray/typemap" xmlns="" elemname="item" bound="2" type="ns4:org.cc.IpCall" name="org.cc.anonStruct._1_structLongArray" />
-    <corba:anonarray xmlns:ns4="http://schemas.apache.org/yoko/idl/ForwardInterfaceArray/typemap" xmlns="" elemname="item" bound="4" type="ns4:org.cc.IpCall" name="org.cc.anonStruct._1_structLongArrayArray" />
-    <corba:anonarray xmlns:ns4="http://schemas.apache.org/yoko/idl/ForwardInterfaceArray/typemap" xmlns="" elemname="item" bound="2" type="ns4:org.cc.anonStruct._1_structLongArrayArray" name="org.cc.anonStruct._2_structLongArrayArray" />
-    <corba:anonarray xmlns:ns4="http://schemas.apache.org/yoko/idl/ForwardInterfaceArray/typemap" xmlns="" elemname="item" bound="8" type="ns4:org.cc.IpCall" name="org.cc.anonStruct._1_structLongArrayArrayArray" />
-    <corba:anonarray xmlns:ns4="http://schemas.apache.org/yoko/idl/ForwardInterfaceArray/typemap" xmlns="" elemname="item" bound="4" type="ns4:org.cc.anonStruct._1_structLongArrayArrayArray" name="org.cc.anonStruct._2_structLongArrayArrayArray" />
-    <corba:anonarray xmlns:ns4="http://schemas.apache.org/yoko/idl/ForwardInterfaceArray/typemap" xmlns="" elemname="item" bound="2" type="ns4:org.cc.anonStruct._2_structLongArrayArrayArray" name="org.cc.anonStruct._3_structLongArrayArrayArray" />
+    <corba:array xmlns:ns5="http://schemas.apache.org/yoko/idl/ForwardInterfaceArray" xmlns:ns4="http://schemas.apache.org/yoko/idl/ForwardInterfaceArray/typemap" xmlns="" elemtype="ns4:org.cc.IpCall" elemname="item" bound="10" repositoryID="IDL:org/cc/IpCallArray:1.0" type="ns5:org.cc.IpCallArray" name="org.cc.IpCallArray" />
+    <corba:anonarray xmlns:ns5="http://schemas.apache.org/yoko/idl/ForwardInterfaceArray" xmlns:ns4="http://schemas.apache.org/yoko/idl/ForwardInterfaceArray/typemap" xmlns="" elemtype="ns4:org.cc.IpCall" elemname="item" bound="2" type="ns5:org.cc.anonStruct._Anon1_structLongArray" name="org.cc.anonStruct._Anon1_structLongArray" />
+    <corba:anonarray xmlns:ns5="http://schemas.apache.org/yoko/idl/ForwardInterfaceArray" xmlns:ns4="http://schemas.apache.org/yoko/idl/ForwardInterfaceArray/typemap" xmlns="" elemtype="ns4:org.cc.IpCall" elemname="item" bound="4" type="ns5:org.cc.anonStruct._Anon1_structLongArrayArray" name="org.cc.anonStruct._Anon1_structLongArrayArray" />
+    <corba:anonarray xmlns:ns5="http://schemas.apache.org/yoko/idl/ForwardInterfaceArray" xmlns:ns4="http://schemas.apache.org/yoko/idl/ForwardInterfaceArray/typemap" xmlns="" elemtype="ns4:org.cc.anonStruct._Anon1_structLongArrayArray" elemname="item" bound="2" type="ns5:org.cc.anonStruct._Anon2_structLongArrayArray" name="org.cc.anonStruct._Anon2_structLongArrayArray" />
+    <corba:anonarray xmlns:ns5="http://schemas.apache.org/yoko/idl/ForwardInterfaceArray" xmlns:ns4="http://schemas.apache.org/yoko/idl/ForwardInterfaceArray/typemap" xmlns="" elemtype="ns4:org.cc.IpCall" elemname="item" bound="8" type="ns5:org.cc.anonStruct._Anon1_structLongArrayArrayArray" name="org.cc.anonStruct._Anon1_structLongArrayArrayArray" />
+    <corba:anonarray xmlns:ns5="http://schemas.apache.org/yoko/idl/ForwardInterfaceArray" xmlns:ns4="http://schemas.apache.org/yoko/idl/ForwardInterfaceArray/typemap" xmlns="" elemtype="ns4:org.cc.anonStruct._Anon1_structLongArrayArrayArray" elemname="item" bound="4" type="ns5:org.cc.anonStruct._Anon2_structLongArrayArrayArray" name="org.cc.anonStruct._Anon2_structLongArrayArrayArray" />
+    <corba:anonarray xmlns:ns5="http://schemas.apache.org/yoko/idl/ForwardInterfaceArray" xmlns:ns4="http://schemas.apache.org/yoko/idl/ForwardInterfaceArray/typemap" xmlns="" elemtype="ns4:org.cc.anonStruct._Anon2_structLongArrayArrayArray" elemname="item" bound="2" type="ns5:org.cc.anonStruct._Anon3_structLongArrayArrayArray" name="org.cc.anonStruct._Anon3_structLongArrayArrayArray" />
     <corba:struct xmlns="http://schemas.apache.org/yoko/idl/ForwardInterfaceArray" repositoryID="IDL:org/cc/anonStruct:1.0" type="org.cc.anonStruct" name="org.cc.anonStruct">
-      <corba:member xmlns:ns4="http://schemas.apache.org/yoko/idl/ForwardInterfaceArray/typemap" name="structLongArray" idltype="ns4:org.cc.anonStruct._1_structLongArray" />
-      <corba:member xmlns:ns4="http://schemas.apache.org/yoko/idl/ForwardInterfaceArray/typemap" name="structLongArrayArray" idltype="ns4:org.cc.anonStruct._2_structLongArrayArray" />
-      <corba:member xmlns:ns4="http://schemas.apache.org/yoko/idl/ForwardInterfaceArray/typemap" name="structLongArrayArrayArray" idltype="ns4:org.cc.anonStruct._3_structLongArrayArrayArray" />
+      <corba:member xmlns:ns4="http://schemas.apache.org/yoko/idl/ForwardInterfaceArray/typemap" name="structLongArray" idltype="ns4:org.cc.anonStruct._Anon1_structLongArray" />
+      <corba:member xmlns:ns4="http://schemas.apache.org/yoko/idl/ForwardInterfaceArray/typemap" name="structLongArrayArray" idltype="ns4:org.cc.anonStruct._Anon2_structLongArrayArray" />
+      <corba:member xmlns:ns4="http://schemas.apache.org/yoko/idl/ForwardInterfaceArray/typemap" name="structLongArrayArrayArray" idltype="ns4:org.cc.anonStruct._Anon3_structLongArrayArrayArray" />
     </corba:struct>
     <corba:object xmlns:ns4="http://www.w3.org/2005/08/addressing" xmlns="http://schemas.apache.org/yoko/idl/ForwardInterfaceArray" binding="org.cc.IpCallCORBABinding" repositoryID="IDL:org/cc/IpCall:1.0" type="ns4:EndpointReferenceType" name="org.cc.IpCall" />
   </corba:typeMapping>
@@ -43,49 +43,49 @@
           </xs:element>
         </xs:sequence>
       </xs:complexType>
-      <xs:complexType name="org.cc.anonStruct._1_structLongArray">
+      <xs:complexType name="org.cc.anonStruct._Anon1_structLongArray">
         <xs:sequence>
           <xs:element maxOccurs="2" minOccurs="2" name="item" nillable="true" type="wsa:EndpointReferenceType">
           </xs:element>
         </xs:sequence>
       </xs:complexType>
-      <xs:complexType name="org.cc.anonStruct._1_structLongArrayArray">
+      <xs:complexType name="org.cc.anonStruct._Anon1_structLongArrayArray">
         <xs:sequence>
           <xs:element maxOccurs="4" minOccurs="4" name="item" nillable="true" type="wsa:EndpointReferenceType">
           </xs:element>
         </xs:sequence>
       </xs:complexType>
-      <xs:complexType name="org.cc.anonStruct._2_structLongArrayArray">
+      <xs:complexType name="org.cc.anonStruct._Anon2_structLongArrayArray">
         <xs:sequence>
-          <xs:element maxOccurs="2" minOccurs="2" name="item" type="org.cc.anonStruct._1_structLongArrayArray">
+          <xs:element maxOccurs="2" minOccurs="2" name="item" type="org.cc.anonStruct._Anon1_structLongArrayArray">
           </xs:element>
         </xs:sequence>
       </xs:complexType>
-      <xs:complexType name="org.cc.anonStruct._1_structLongArrayArrayArray">
+      <xs:complexType name="org.cc.anonStruct._Anon1_structLongArrayArrayArray">
         <xs:sequence>
           <xs:element maxOccurs="8" minOccurs="8" name="item" nillable="true" type="wsa:EndpointReferenceType">
           </xs:element>
         </xs:sequence>
       </xs:complexType>
-      <xs:complexType name="org.cc.anonStruct._2_structLongArrayArrayArray">
+      <xs:complexType name="org.cc.anonStruct._Anon2_structLongArrayArrayArray">
         <xs:sequence>
-          <xs:element maxOccurs="4" minOccurs="4" name="item" type="org.cc.anonStruct._1_structLongArrayArrayArray">
+          <xs:element maxOccurs="4" minOccurs="4" name="item" type="org.cc.anonStruct._Anon1_structLongArrayArrayArray">
           </xs:element>
         </xs:sequence>
       </xs:complexType>
-      <xs:complexType name="org.cc.anonStruct._3_structLongArrayArrayArray">
+      <xs:complexType name="org.cc.anonStruct._Anon3_structLongArrayArrayArray">
         <xs:sequence>
-          <xs:element maxOccurs="2" minOccurs="2" name="item" type="org.cc.anonStruct._2_structLongArrayArrayArray">
+          <xs:element maxOccurs="2" minOccurs="2" name="item" type="org.cc.anonStruct._Anon2_structLongArrayArrayArray">
           </xs:element>
         </xs:sequence>
       </xs:complexType>
       <xs:complexType name="org.cc.anonStruct">
         <xs:sequence>
-          <xs:element name="structLongArray" type="org.cc.anonStruct._1_structLongArray">
+          <xs:element name="structLongArray" type="org.cc.anonStruct._Anon1_structLongArray">
           </xs:element>
-          <xs:element name="structLongArrayArray" type="org.cc.anonStruct._2_structLongArrayArray">
+          <xs:element name="structLongArrayArray" type="org.cc.anonStruct._Anon2_structLongArrayArray">
           </xs:element>
-          <xs:element name="structLongArrayArrayArray" type="org.cc.anonStruct._3_structLongArrayArrayArray">
+          <xs:element name="structLongArrayArrayArray" type="org.cc.anonStruct._Anon3_structLongArrayArrayArray">
           </xs:element>
         </xs:sequence>
       </xs:complexType>

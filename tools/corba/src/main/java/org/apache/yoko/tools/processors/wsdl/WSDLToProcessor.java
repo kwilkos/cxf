@@ -83,7 +83,7 @@ public class WSDLToProcessor implements Processor {
         try {           
             WSDLFactory factory = WSDLFactory.newInstance();
             WSDLReader reader = factory.newWSDLReader();
-            reader.setFeature("javax.wsdl.verbose", true);
+            reader.setFeature("javax.wsdl.verbose", false);
             reader.setFeature("javax.wsdl.importDocuments", true);            
             if (getExtensionRegistry() != null) {
                 reader.setExtensionRegistry(extReg);

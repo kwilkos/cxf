@@ -26,7 +26,7 @@
   </corba:typeMapping>
   <wsdl:types>
     <xsd:schema>
-      <xsd:import namespace="http://schemas.apache.org/yoko/idl/OptionsSchema-types" schemaLocation="@LOCATION@"/>
+      <xsd:import namespace="http://schemas.apache.org/yoko/idl/OptionsSchema-types" />
     </xsd:schema>
   </wsdl:types>
   <wsdl:message name="getEmployee">

@@ -3,23 +3,23 @@
 #ifdef _a
 #define _b
 #else
-#define _c
+ #define _c
 #endif
 
 module c
 {
   interface C {
-#ifdef _b
+  #ifdef _b 
     const boolean b = TRUE;
-#else
+  #else
     const boolean b = FALSE;
-#endif
+  #endif /* #endif _b */
 
 #ifndef _c
     const boolean c = FALSE;
 #else
     const boolean c = TRUE;
-#endif
+#endif  // endif _c
   };
 };
 

@@ -26,10 +26,10 @@
     <corba:alias basetype="corba:float" repositoryID="IDL:mod/int/str/typeFloat:1.0" name="mod.int.str.typeFloat" />
     <corba:alias xmlns:xs="http://www.w3.org/2001/XMLSchema" basetype="corba:string" repositoryID="IDL:mod/int/str/typeString:1.0" type="xs:string" name="mod.int.str.typeString" />
     <corba:alias xmlns:xs="http://www.w3.org/2001/XMLSchema" basetype="corba:wstring" repositoryID="IDL:mod/int/str/typeWString:1.0" type="xs:string" name="mod.int.str.typeWString" />
-    <corba:anonstring xmlns="http://schemas.apache.org/yoko/idl/ConstScopename" bound="10" type="mod.int.str.typeString10" name="mod.int.str._1_typeString10" />
-    <corba:alias xmlns:ns4="http://schemas.apache.org/yoko/idl/ConstScopename" xmlns="http://schemas.apache.org/yoko/idl/ConstScopename/typemap" basetype="mod.int.str._1_typeString10" repositoryID="IDL:mod/int/str/typeString10:1.0" type="ns4:mod.int.str.typeString10" name="mod.int.str.typeString10" />
-    <corba:anonwstring xmlns="http://schemas.apache.org/yoko/idl/ConstScopename" bound="10" type="mod.int.str.typeWString10" name="mod.int.str._1_typeWString10" />
-    <corba:alias xmlns:ns4="http://schemas.apache.org/yoko/idl/ConstScopename" xmlns="http://schemas.apache.org/yoko/idl/ConstScopename/typemap" basetype="mod.int.str._1_typeWString10" repositoryID="IDL:mod/int/str/typeWString10:1.0" type="ns4:mod.int.str.typeWString10" name="mod.int.str.typeWString10" />
+    <corba:anonstring xmlns="http://schemas.apache.org/yoko/idl/ConstScopename" bound="10" type="mod.int.str.typeString10" name="mod.int.str._Anon1_typeString10" />
+    <corba:alias xmlns:ns4="http://schemas.apache.org/yoko/idl/ConstScopename" xmlns="http://schemas.apache.org/yoko/idl/ConstScopename/typemap" basetype="mod.int.str._Anon1_typeString10" repositoryID="IDL:mod/int/str/typeString10:1.0" type="ns4:mod.int.str.typeString10" name="mod.int.str.typeString10" />
+    <corba:anonwstring xmlns="http://schemas.apache.org/yoko/idl/ConstScopename" bound="10" type="mod.int.str.typeWString10" name="mod.int.str._Anon1_typeWString10" />
+    <corba:alias xmlns:ns4="http://schemas.apache.org/yoko/idl/ConstScopename" xmlns="http://schemas.apache.org/yoko/idl/ConstScopename/typemap" basetype="mod.int.str._Anon1_typeWString10" repositoryID="IDL:mod/int/str/typeWString10:1.0" type="ns4:mod.int.str.typeWString10" name="mod.int.str.typeWString10" />
     <corba:alias basetype="corba:octet" repositoryID="IDL:mod/int/str/typeOctet:1.0" name="mod.int.str.typeOctet" />
     <corba:enum xmlns="http://schemas.apache.org/yoko/idl/ConstScopename" repositoryID="IDL:mod/int/Color:1.0" type="mod.int.Color" name="mod.int.Color">
       <corba:enumerator value="red" />

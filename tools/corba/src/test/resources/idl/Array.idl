@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
 */
- 
+
 
 typedef long LongArray[10];
 typedef long LongArrayArray[10][100];
@@ -35,3 +35,8 @@ typedef myLong MyLongArray[10];
 typedef myLong MyLongArrayArray[10][100];
 typedef myLong MyLongArrayArrayArray[10][100][1000];
 typedef myLong MyLongArrayArrayArrayArray[10][100][1000][10000];
+
+
+typedef string<35> BuildingAddress_T;
+typedef BuildingAddress_T BuildingAddress_6_T[6];
+    

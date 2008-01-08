@@ -100,12 +100,12 @@
     <wsdl:part name="inparameter" element="tns:method">
     </wsdl:part>
   </wsdl:message>
-  <wsdl:message name="ExternalException">
-    <wsdl:part name="exception" element="tns:ExternalException">
-    </wsdl:part>
-  </wsdl:message>
   <wsdl:message name="methodResponse">
     <wsdl:part name="outparameter" element="tns:methodResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="ExternalException">
+    <wsdl:part name="exception" element="tns:ExternalException">
     </wsdl:part>
   </wsdl:message>
   <wsdl:message name="raiseExternalExceptionResponse">

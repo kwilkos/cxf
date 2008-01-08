@@ -19,13 +19,13 @@
 -->
 <wsdl:definitions targetNamespace="http://schemas.apache.org/yoko/idl/Anonstring" xmlns:tns="http://schemas.apache.org/yoko/idl/Anonstring" xmlns:corba="http://schemas.apache.org/yoko/bindings/corba" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
   <corba:typeMapping targetNamespace="http://schemas.apache.org/yoko/idl/Anonstring/typemap">
-    <corba:array xmlns="" elemname="item" bound="10" repositoryID="IDL:AnonStrings:1.0" type="corba:string" name="AnonStrings" />
+    <corba:array xmlns:ns4="http://schemas.apache.org/yoko/idl/Anonstring" xmlns="" elemtype="corba:string" elemname="item" bound="10" repositoryID="IDL:AnonStrings:1.0" type="ns4:AnonStrings" name="AnonStrings" />
     <corba:sequence xmlns:ns4="http://schemas.apache.org/yoko/idl/Anonstring" xmlns="" elemtype="corba:string" elemname="item" bound="0" repositoryID="IDL:AnonStrings/SequenceBoundedString:1.0" type="ns4:AnonStrings.SequenceBoundedString" name="AnonStrings.SequenceBoundedString" />
-    <corba:anonsequence xmlns:ns4="http://schemas.apache.org/yoko/idl/Anonstring" xmlns="" elemtype="corba:string" elemname="item" bound="0" type="ns4:AnonStrings._1_SequenceSequenceBoundedString" name="AnonStrings._1_SequenceSequenceBoundedString" />
-    <corba:sequence xmlns:ns5="http://schemas.apache.org/yoko/idl/Anonstring" xmlns:ns4="http://schemas.apache.org/yoko/idl/Anonstring/typemap" xmlns="" elemtype="ns4:AnonStrings._1_SequenceSequenceBoundedString" elemname="item" bound="0" repositoryID="IDL:AnonStrings/SequenceSequenceBoundedString:1.0" type="ns5:AnonStrings.SequenceSequenceBoundedString" name="AnonStrings.SequenceSequenceBoundedString" />
+    <corba:anonsequence xmlns:ns4="http://schemas.apache.org/yoko/idl/Anonstring" xmlns="" elemtype="corba:string" elemname="item" bound="0" type="ns4:AnonStrings._Anon1_SequenceSequenceBoundedString" name="AnonStrings._Anon1_SequenceSequenceBoundedString" />
+    <corba:sequence xmlns:ns5="http://schemas.apache.org/yoko/idl/Anonstring" xmlns:ns4="http://schemas.apache.org/yoko/idl/Anonstring/typemap" xmlns="" elemtype="ns4:AnonStrings._Anon1_SequenceSequenceBoundedString" elemname="item" bound="0" repositoryID="IDL:AnonStrings/SequenceSequenceBoundedString:1.0" type="ns5:AnonStrings.SequenceSequenceBoundedString" name="AnonStrings.SequenceSequenceBoundedString" />
     <corba:sequence xmlns:ns4="http://schemas.apache.org/yoko/idl/Anonstring" xmlns="" elemtype="corba:string" elemname="item" bound="20" repositoryID="IDL:AnonStrings/BoundedSequenceBoundedString:1.0" type="ns4:AnonStrings.BoundedSequenceBoundedString" name="AnonStrings.BoundedSequenceBoundedString" />
-    <corba:anonsequence xmlns:ns4="http://schemas.apache.org/yoko/idl/Anonstring" xmlns="" elemtype="corba:string" elemname="item" bound="20" type="ns4:AnonStrings._1_SequenceBoundedSequenceBoundedString" name="AnonStrings._1_SequenceBoundedSequenceBoundedString" />
-    <corba:sequence xmlns:ns5="http://schemas.apache.org/yoko/idl/Anonstring" xmlns:ns4="http://schemas.apache.org/yoko/idl/Anonstring/typemap" xmlns="" elemtype="ns4:AnonStrings._1_SequenceBoundedSequenceBoundedString" elemname="item" bound="0" repositoryID="IDL:AnonStrings/SequenceBoundedSequenceBoundedString:1.0" type="ns5:AnonStrings.SequenceBoundedSequenceBoundedString" name="AnonStrings.SequenceBoundedSequenceBoundedString" />
+    <corba:anonsequence xmlns:ns4="http://schemas.apache.org/yoko/idl/Anonstring" xmlns="" elemtype="corba:string" elemname="item" bound="20" type="ns4:AnonStrings._Anon1_SequenceBoundedSequenceBoundedString" name="AnonStrings._Anon1_SequenceBoundedSequenceBoundedString" />
+    <corba:sequence xmlns:ns5="http://schemas.apache.org/yoko/idl/Anonstring" xmlns:ns4="http://schemas.apache.org/yoko/idl/Anonstring/typemap" xmlns="" elemtype="ns4:AnonStrings._Anon1_SequenceBoundedSequenceBoundedString" elemname="item" bound="0" repositoryID="IDL:AnonStrings/SequenceBoundedSequenceBoundedString:1.0" type="ns5:AnonStrings.SequenceBoundedSequenceBoundedString" name="AnonStrings.SequenceBoundedSequenceBoundedString" />
     <corba:struct xmlns="http://schemas.apache.org/yoko/idl/Anonstring" repositoryID="IDL:AnonStrings/anonStringStruct:1.0" type="AnonStrings.anonStringStruct" name="AnonStrings.anonStringStruct">
       <corba:member name="unboundedString" idltype="corba:string" />
       <corba:member name="anotherUnboundedString" idltype="corba:string" />
@@ -73,7 +73,7 @@
           </xs:element>
         </xs:sequence>
       </xs:complexType>
-      <xs:complexType name="AnonStrings._1_SequenceSequenceBoundedString">
+      <xs:complexType name="AnonStrings._Anon1_SequenceSequenceBoundedString">
         <xs:sequence>
           <xs:element maxOccurs="unbounded" minOccurs="0" name="item" type="xs:string">
           </xs:element>
@@ -81,7 +81,7 @@
       </xs:complexType>
       <xs:complexType name="AnonStrings.SequenceSequenceBoundedString">
         <xs:sequence>
-          <xs:element maxOccurs="unbounded" minOccurs="0" name="item" type="AnonStrings._1_SequenceSequenceBoundedString">
+          <xs:element maxOccurs="unbounded" minOccurs="0" name="item" type="AnonStrings._Anon1_SequenceSequenceBoundedString">
           </xs:element>
         </xs:sequence>
       </xs:complexType>
@@ -91,7 +91,7 @@
           </xs:element>
         </xs:sequence>
       </xs:complexType>
-      <xs:complexType name="AnonStrings._1_SequenceBoundedSequenceBoundedString">
+      <xs:complexType name="AnonStrings._Anon1_SequenceBoundedSequenceBoundedString">
         <xs:sequence>
           <xs:element maxOccurs="20" minOccurs="0" name="item" type="xs:string">
           </xs:element>
@@ -99,7 +99,7 @@
       </xs:complexType>
       <xs:complexType name="AnonStrings.SequenceBoundedSequenceBoundedString">
         <xs:sequence>
-          <xs:element maxOccurs="unbounded" minOccurs="0" name="item" type="AnonStrings._1_SequenceBoundedSequenceBoundedString">
+          <xs:element maxOccurs="unbounded" minOccurs="0" name="item" type="AnonStrings._Anon1_SequenceBoundedSequenceBoundedString">
           </xs:element>
         </xs:sequence>
       </xs:complexType>
@@ -197,6 +197,10 @@
   </wsdl:message>
   <wsdl:message name="anotherAnonStringOperation">
     <wsdl:part name="inparameter" element="tns:anotherAnonStringOperation">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="AnonStrings.anonException">
+    <wsdl:part name="exception" element="tns:AnonStrings.anonException">
     </wsdl:part>
   </wsdl:message>
   <wsdl:message name="anotherAnonStringOperationResponse">

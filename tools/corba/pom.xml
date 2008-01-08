@@ -62,7 +62,7 @@
         <dependency>
             <groupId>antlr</groupId>
             <artifactId>antlr</artifactId>
-            <version>2.7.5</version>
+            <version>2.7.7</version>
         </dependency>
         <dependency>
             <groupId>org.apache.ws.commons.schema</groupId>
@@ -78,28 +78,29 @@
         </dependency>
     </dependencies>
 
-
     <build>
         <plugins>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-antlr-plugin</artifactId>
-                <version>2.0-beta-1</version>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>1.0</version>
                 <executions>
                     <execution>
+                        <id>add-source</id>
                         <phase>generate-sources</phase>
-                        <configuration>
-                            <outputDirectory>${basedir}/target/generated/src/main/java</outputDirectory>
-                            <grammars>idl.g</grammars>
-                            <sourceDirectory>${basedir}/src/main/java/org/apache/yoko/tools/processors/idl</sourceDirectory>
-                        </configuration>
                         <goals>
-                            <goal>generate</goal>
+                            <goal>add-source</goal>
                         </goals>
+                        <configuration>
+                            <sources>
+                                <source>${basedir}/src/main/generated</source>
+                            </sources>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
         </plugins>
     </build>
+
 </project>
 

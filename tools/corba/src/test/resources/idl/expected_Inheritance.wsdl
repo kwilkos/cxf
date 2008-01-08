@@ -183,8 +183,20 @@
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:portType name="X.Interface3">
+    <wsdl:operation name="testInterface1">
+      <wsdl:input name="testInterface1Request" message="tns:testInterface1">
+    </wsdl:input>
+      <wsdl:output name="testInterface1Response" message="tns:testInterface1Response">
+    </wsdl:output>
+    </wsdl:operation>
   </wsdl:portType>
   <wsdl:portType name="A.B.C.E.Interface2">
+    <wsdl:operation name="testInterface1">
+      <wsdl:input name="testInterface1Request" message="tns:testInterface1">
+    </wsdl:input>
+      <wsdl:output name="testInterface1Response" message="tns:testInterface1Response">
+    </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="testInterface2">
       <wsdl:input name="testInterface2Request" message="tns:testInterface2">
     </wsdl:input>
@@ -192,7 +204,21 @@
     </wsdl:output>
     </wsdl:operation>
   </wsdl:portType>
+  <wsdl:portType name="rootInterface">
+  </wsdl:portType>
   <wsdl:portType name="A.B.C.E.Interface4">
+    <wsdl:operation name="testInterface1">
+      <wsdl:input name="testInterface1Request" message="tns:testInterface1">
+    </wsdl:input>
+      <wsdl:output name="testInterface1Response" message="tns:testInterface1Response">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="testInterface2">
+      <wsdl:input name="testInterface2Request" message="tns:testInterface2">
+    </wsdl:input>
+      <wsdl:output name="testInterface2Response" message="tns:testInterface2Response">
+    </wsdl:output>
+    </wsdl:operation>
   </wsdl:portType>
   <wsdl:portType name="A.B.C.D.Interface1">
     <wsdl:operation name="testInterface1">
@@ -203,6 +229,18 @@
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:portType name="org.apache.yoko.IpService">
+    <wsdl:operation name="setTest">
+      <wsdl:input name="setTestRequest" message="tns:setTest">
+    </wsdl:input>
+      <wsdl:output name="setTestResponse" message="tns:setTestResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="test">
+      <wsdl:input name="testRequest" message="tns:test">
+    </wsdl:input>
+      <wsdl:output name="testResponse" message="tns:testResponse">
+    </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="setCallback">
       <wsdl:input name="setCallbackRequest" message="tns:setCallback">
     </wsdl:input>
@@ -218,6 +256,20 @@
   </wsdl:portType>
   <wsdl:binding name="A.B.C.E.Interface4CORBABinding" type="tns:A.B.C.E.Interface4">
     <corba:binding repositoryID="IDL:A/B/C/E/Interface4:1.0" bases="IDL:A/B/C/E/Interface2:1.0" />
+    <wsdl:operation name="testInterface1">
+      <corba:operation name="testInterface1" />
+      <wsdl:input name="testInterface1Request">
+      </wsdl:input>
+      <wsdl:output name="testInterface1Response">
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="testInterface2">
+      <corba:operation name="testInterface2" />
+      <wsdl:input name="testInterface2Request">
+      </wsdl:input>
+      <wsdl:output name="testInterface2Response">
+      </wsdl:output>
+    </wsdl:operation>
   </wsdl:binding>
   <wsdl:binding name="org.apache.IpTestCORBABinding" type="tns:org.apache.IpTest">
     <corba:binding repositoryID="IDL:org/apache/IpTest:1.0" />
@@ -243,6 +295,13 @@
   </wsdl:binding>
   <wsdl:binding name="A.B.C.E.Interface2CORBABinding" type="tns:A.B.C.E.Interface2">
     <corba:binding repositoryID="IDL:A/B/C/E/Interface2:1.0" bases="IDL:A/B/C/D/Interface1:1.0" />
+    <wsdl:operation name="testInterface1">
+      <corba:operation name="testInterface1" />
+      <wsdl:input name="testInterface1Request">
+      </wsdl:input>
+      <wsdl:output name="testInterface1Response">
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="testInterface2">
       <corba:operation name="testInterface2" />
       <wsdl:input name="testInterface2Request">
@@ -252,7 +311,23 @@
     </wsdl:operation>
   </wsdl:binding>
   <wsdl:binding name="org.apache.yoko.IpServiceCORBABinding" type="tns:org.apache.yoko.IpService">
-    <corba:binding repositoryID="IDL:org/apache/yoko/IpService:1.0" bases="IDL:org/apache/yoko/IpInterface:1.0 IDL:org/apache/IpTest:1.0" />
+    <corba:binding repositoryID="IDL:org/apache/yoko/IpService:1.0" bases="IDL:org/apache/yoko/IpInterface:1.0 IDL:org/apache/IpTest:1.0 IDL:rootInterface:1.0" />
+    <wsdl:operation name="setTest">
+      <corba:operation name="setTest">
+        <corba:param xmlns="http://schemas.apache.org/yoko/idl/inheritance/typemap" mode="in" name="test" idltype="org.apache.IpTest" />
+      </corba:operation>
+      <wsdl:input name="setTestRequest">
+      </wsdl:input>
+      <wsdl:output name="setTestResponse">
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="test">
+      <corba:operation name="test" />
+      <wsdl:input name="testRequest">
+      </wsdl:input>
+      <wsdl:output name="testResponse">
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="setCallback">
       <corba:operation name="setCallback">
         <corba:param xmlns="http://schemas.apache.org/yoko/idl/inheritance/typemap" mode="in" name="appInterface" idltype="org.apache.yoko.IpInterface" />
@@ -272,6 +347,9 @@
       </wsdl:output>
     </wsdl:operation>
   </wsdl:binding>
+  <wsdl:binding name="rootInterfaceCORBABinding" type="tns:rootInterface">
+    <corba:binding repositoryID="IDL:rootInterface:1.0" />
+  </wsdl:binding>
   <wsdl:binding name="A.B.C.D.Interface1CORBABinding" type="tns:A.B.C.D.Interface1">
     <corba:binding repositoryID="IDL:A/B/C/D/Interface1:1.0" />
     <wsdl:operation name="testInterface1">
@@ -284,6 +362,13 @@
   </wsdl:binding>
   <wsdl:binding name="X.Interface3CORBABinding" type="tns:X.Interface3">
     <corba:binding repositoryID="IDL:X/Interface3:1.0" bases="IDL:A/B/C/D/Interface1:1.0" />
+    <wsdl:operation name="testInterface1">
+      <corba:operation name="testInterface1" />
+      <wsdl:input name="testInterface1Request">
+      </wsdl:input>
+      <wsdl:output name="testInterface1Response">
+      </wsdl:output>
+    </wsdl:operation>
   </wsdl:binding>
   <wsdl:service name="A.B.C.E.Interface4CORBAService">
     <wsdl:port name="A.B.C.E.Interface4CORBAPort" binding="tns:A.B.C.E.Interface4CORBABinding">
@@ -307,6 +392,11 @@
   </wsdl:service>
   <wsdl:service name="X.Interface3CORBAService">
     <wsdl:port name="X.Interface3CORBAPort" binding="tns:X.Interface3CORBABinding">
+      <corba:address location="IOR:" />
+    </wsdl:port>
+  </wsdl:service>
+  <wsdl:service name="rootInterfaceCORBAService">
+    <wsdl:port name="rootInterfaceCORBAPort" binding="tns:rootInterfaceCORBABinding">
       <corba:address location="IOR:" />
     </wsdl:port>
   </wsdl:service>

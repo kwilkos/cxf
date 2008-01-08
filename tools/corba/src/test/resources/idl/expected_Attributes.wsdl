@@ -23,8 +23,8 @@
       <corba:member name="id" idltype="corba:long" />
       <corba:member name="name" idltype="corba:string" />
     </corba:struct>
-    <corba:anonstring xmlns="http://schemas.apache.org/yoko/idl/Attributes" bound="20" type="If.myString" name="If._1_myString" />
-    <corba:alias xmlns:ns4="http://schemas.apache.org/yoko/idl/Attributes" xmlns="http://schemas.apache.org/yoko/idl/Attributes/typemap" basetype="If._1_myString" repositoryID="IDL:If/myString:1.0" type="ns4:If.myString" name="If.myString" />
+    <corba:anonstring xmlns="http://schemas.apache.org/yoko/idl/Attributes" bound="20" type="If.myString" name="If._Anon1_myString" />
+    <corba:alias xmlns:ns4="http://schemas.apache.org/yoko/idl/Attributes" xmlns="http://schemas.apache.org/yoko/idl/Attributes/typemap" basetype="If._Anon1_myString" repositoryID="IDL:If/myString:1.0" type="ns4:If.myString" name="If.myString" />
   </corba:typeMapping>
   <wsdl:types>
     <xs:schema attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://schemas.apache.org/yoko/idl/Attributes" xmlns="http://schemas.apache.org/yoko/idl/Attributes" xmlns:xs="http://www.w3.org/2001/XMLSchema">

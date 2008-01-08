@@ -20,8 +20,8 @@
 <wsdl:definitions targetNamespace="http://schemas.apache.org/yoko/idl/sequence_octet" xmlns:tns="http://schemas.apache.org/yoko/idl/sequence_octet" xmlns:corba="http://schemas.apache.org/yoko/bindings/corba" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
   <corba:typeMapping targetNamespace="http://yoko.org/foobar/typemap">
     <corba:sequence xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="" elemtype="corba:octet" elemname="item" bound="0" repositoryID="IDL:mySequenceOctet:1.0" type="xs:base64Binary" name="mySequenceOctet" />
-    <corba:anonsequence xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="" elemtype="corba:octet" elemname="item" bound="0" type="xs:base64Binary" name="_1_mySequenceSequenceOctet" />
-    <corba:sequence xmlns:ns5="http://schemas.apache.org/yoko/idl/sequence_octet" xmlns:ns4="http://yoko.org/foobar/typemap" xmlns="" elemtype="ns4:_1_mySequenceSequenceOctet" elemname="item" bound="0" repositoryID="IDL:mySequenceSequenceOctet:1.0" type="ns5:mySequenceSequenceOctet" name="mySequenceSequenceOctet" />
+    <corba:anonsequence xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="" elemtype="corba:octet" elemname="item" bound="0" type="xs:base64Binary" name="_Anon1_mySequenceSequenceOctet" />
+    <corba:sequence xmlns:ns5="http://schemas.apache.org/yoko/idl/sequence_octet" xmlns:ns4="http://yoko.org/foobar/typemap" xmlns="" elemtype="ns4:_Anon1_mySequenceSequenceOctet" elemname="item" bound="0" repositoryID="IDL:mySequenceSequenceOctet:1.0" type="ns5:mySequenceSequenceOctet" name="mySequenceSequenceOctet" />
     <corba:alias basetype="corba:octet" repositoryID="IDL:aliasOctet:1.0" name="aliasOctet" />
     <corba:sequence xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ns4="http://yoko.org/foobar/typemap" xmlns="" elemtype="ns4:aliasOctet" elemname="item" bound="0" repositoryID="IDL:octetSeq:1.0" type="xs:base64Binary" name="octetSeq" />
   </corba:typeMapping>

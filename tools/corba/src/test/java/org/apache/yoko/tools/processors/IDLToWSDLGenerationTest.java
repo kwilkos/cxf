@@ -35,33 +35,33 @@ import java.util.Map;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamReader;
 
-import junit.framework.TestCase;
 import org.apache.yoko.tools.common.ProcessorEnvironment;
 import org.apache.yoko.tools.common.ToolCorbaConstants;
 import org.apache.yoko.tools.processors.idl.IDLToWSDLProcessor;
 import org.apache.yoko.tools.utils.WSDLGenerationTester;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-public class IDLToWSDLGenerationTest extends TestCase {
+public class IDLToWSDLGenerationTest extends Assert {
 
     private XMLInputFactory factory;
     private WSDLGenerationTester wsdlGenTester;
 
-    public IDLToWSDLGenerationTest(String name) {
-        super(name);
+    
+    @Before
+    public void setUp() {
+        factory = XMLInputFactory.newInstance();
         wsdlGenTester = new WSDLGenerationTester();
     }
-    
-    protected void setUp() {
-        factory = XMLInputFactory.newInstance();
+
+    @After
+    public void tearDown() {
+        wsdlGenTester = null;
+        factory = null;
     }
 
-    protected void tearDown() {
-    }
-
-    public static void main(String args[]) {
-        junit.textui.TestRunner.run(IDLToWSDLGenerationTest.class);
-    }
-    
     public void testWSDLGeneration(String sourceIdlFilename, 
                                    String expectedWsdlFilename) 
         throws Exception {
@@ -86,182 +86,223 @@ public class IDLToWSDLGenerationTest extends TestCase {
 
     }
     
+    @Test
     public void testHelloWorldWSDLGeneration() throws Exception {
         testWSDLGeneration("/idl/HelloWorld.idl", "/idl/expected_HelloWorld.wsdl");
     }
     
+    @Test
     public void testPrimitivesGeneration() throws Exception {
         testWSDLGeneration("/idl/primitives.idl", "/idl/expected_Primitives.wsdl");
     }
 
+    @Test
     public void testExceptionGeneration() throws Exception {
         testWSDLGeneration("/idl/Exception.idl", "/idl/expected_Exception.wsdl");
     }
 
+    @Test
     public void testStructGeneration() throws Exception {
         testWSDLGeneration("/idl/Struct.idl", "/idl/expected_Struct.wsdl");
     }
     
+    @Test
     public void testScopedStructGeneration() throws Exception {
         testWSDLGeneration("/idl/scopedStruct.idl", "/idl/expected_scopedStruct.wsdl");
     }
 
+    @Test
     public void testOnewayGeneration() throws Exception {
         testWSDLGeneration("/idl/Oneway.idl", "/idl/expected_Oneway.wsdl");
     }
 
+    @Test
     public void testConstGeneration() throws Exception {
         testWSDLGeneration("/idl/Const.idl", "/idl/expected_Const.wsdl");
     }
 
+    @Test
     public void testEnumGeneration() throws Exception {
         testWSDLGeneration("/idl/Enum.idl", "/idl/expected_Enum.wsdl");
     }
 
+    @Test
     public void testUnionGeneration() throws Exception {
         testWSDLGeneration("/idl/Union.idl", "/idl/expected_Union.wsdl");
     }
 
+    @Test
     public void testFixedGeneration() throws Exception {
         testWSDLGeneration("/idl/Fixed.idl", "/idl/expected_Fixed.wsdl");
     }
 
+    @Test
     public void testTypedefGeneration() throws Exception {
         testWSDLGeneration("/idl/Typedef.idl", "/idl/expected_Typedef.wsdl");
     }
 
+    @Test
     public void testStringGeneration() throws Exception {
         testWSDLGeneration("/idl/String.idl", "/idl/expected_String.wsdl");
     }
 
+    @Test
     public void testAttributesGeneration() throws Exception {
         testWSDLGeneration("/idl/Attributes.idl", "/idl/expected_Attributes.wsdl");
     }
 
+    @Test
     public void testSequenceGeneration() throws Exception {
         testWSDLGeneration("/idl/Sequence.idl", "/idl/expected_Sequence.wsdl");
     }
 
+    @Test
     public void testArrayGeneration() throws Exception {
         testWSDLGeneration("/idl/Array.idl", "/idl/expected_Array.wsdl");
     }
 
+    @Test
     public void testAnonarrayGeneration() throws Exception {
         testWSDLGeneration("/idl/Anonarray.idl", "/idl/expected_Anonarray.wsdl");
     }
 
+    @Test
     public void testAnonsequenceGeneration() throws Exception {
         testWSDLGeneration("/idl/Anonsequence.idl", "/idl/expected_Anonsequence.wsdl");
     }
 
+    @Test
     public void testAnonboundedsequenceGeneration() throws Exception {
         testWSDLGeneration("/idl/Anonboundedsequence.idl", "/idl/expected_Anonboundedsequence.wsdl");
     }
 
+    @Test
     public void testAnonstringGeneration() throws Exception {
         testWSDLGeneration("/idl/Anonstring.idl", "/idl/expected_Anonstring.wsdl");
     }
 
+    @Test
     public void testMultipleDeclaratorsGeneration() throws Exception {
         testWSDLGeneration("/idl/Declarators.idl", "/idl/expected_Declarators.wsdl");
     }   
         
+    @Test
     public void testObjectReferenceGeneration() throws Exception {
         testWSDLGeneration("/idl/ObjectRef.idl", "/idl/expected_ObjectRef.wsdl");
     }
-    
-    
+        
+    @Test
     public void testScopingOperationGeneration() throws Exception {
         testWSDLGeneration("/idl/scopingOperation.idl", "/idl/expected_scopingOperation.wsdl");
     }
     
+    @Test
     public void testScopingObjectRefGlobalGeneration() throws Exception {
         testWSDLGeneration("/idl/scopingObjectRefGlobal.idl", "/idl/expected_scopingObjectRefGlobal.wsdl");
     }
         
+    @Test
     public void testScopingObjectRefGeneration() throws Exception {
         testWSDLGeneration("/idl/scopingObjectRef.idl", "/idl/expected_scopingObjectRef.wsdl");
     }
     
+    @Test
     public void testScopingStringGeneration() throws Exception {
         testWSDLGeneration("/idl/scopedString.idl", "/idl/expected_scopedString.wsdl");
     }
        
+    @Test
     public void testForwardInterface() throws Exception {
         testWSDLGeneration("/idl/ForwardInterface.idl", "/idl/expected_ForwardInterface.wsdl");
     }
     
+    @Test
     public void testForwardInterfaceParam() throws Exception {
         testWSDLGeneration("/idl/ForwardInterfaceParam.idl", "/idl/expected_ForwardInterfaceParam.wsdl");
     }
     
+    @Test
     public void testForwardInterfaceStructUnion() throws Exception {
         testWSDLGeneration("/idl/ForwardInterfaceStructUnion.idl", 
                            "/idl/expected_ForwardInterfaceStructUnion.wsdl");
     }
 
+    @Test
     public void testForwardInterfaceSequence() throws Exception {
         testWSDLGeneration("/idl/ForwardInterfaceSequence.idl", 
                            "/idl/expected_ForwardInterfaceSequence.wsdl");
     }
     
+    @Test
     public void testForwardInterfaceArray() throws Exception {
         testWSDLGeneration("/idl/ForwardInterfaceArray.idl", "/idl/expected_ForwardInterfaceArray.wsdl");
     }
     
+    @Test
     public void testForwardInterfaceAttributes() throws Exception {
         testWSDLGeneration("/idl/ForwardInterfaceAttributes.idl", 
                            "/idl/expected_ForwardInterfaceAttributes.wsdl");
     }
     
+    @Test
     public void testForwardInterfaceExceptions() throws Exception {
         testWSDLGeneration("/idl/ForwardInterfaceException.idl", 
                            "/idl/expected_ForwardInterfaceException.wsdl");
     }
     
+    @Test
     public void testForwardInterfaceTypedef() throws Exception {
         testWSDLGeneration("/idl/ForwardInterfaceTypedef.idl", 
                            "/idl/expected_ForwardInterfaceTypedef.wsdl");
     }
     
+    @Test
     public void testForwardStruct() throws Exception {
         testWSDLGeneration("/idl/ForwardStruct.idl", 
                            "/idl/expected_ForwardStruct.wsdl");
     }
     
+    @Test
     public void testForwardUnion() throws Exception {
         testWSDLGeneration("/idl/ForwardUnion.idl", 
                            "/idl/expected_ForwardUnion.wsdl");
     }
     
+    @Test
     public void testIncludeGeneration() throws Exception {
         testWSDLGeneration("/idl/included.idl", "/idl/expected_Included.wsdl");
     }
 
+    @Test
     public void testInterfaceInheritance() throws Exception {
         testWSDLGeneration("/idl/inheritance.idl", "/idl/expected_Inheritance.wsdl");
     }
 
+    @Test
     public void testDuplicateOperationNames() throws Exception {
         // This tests operations with the same name but in different scopes
         testWSDLGeneration("/idl/duplicateOpNames.idl", "/idl/expected_duplicateOpNames.wsdl");
     }
     
+    @Test
     public void testConstScopedNames() throws Exception {
         // This tests consts where their types are scoped names
         testWSDLGeneration("/idl/ConstScopename.idl", "/idl/expected_ConstScopename.wsdl");
     }
     
+    @Test
     public void testTypedfOctet() throws Exception {
         // This tests typedef sequence of octets.
         testWSDLGeneration("/idl/Octet.idl", "/idl/expected_Octet.wsdl");
     }
     
+    @Test
     public void testRecursiveStructs() throws Exception {
         // This tests for recursive structs
         testWSDLGeneration("/idl/RecursiveStruct.idl", "/idl/expected_RecursiveStruct.wsdl");
     }
 
+    @Test
     public void testRecursiveUnions() throws Exception {
         // This tests for recursive unions
         testWSDLGeneration("/idl/RecursiveUnion.idl", "/idl/expected_RecursiveUnion.wsdl");
@@ -379,6 +420,7 @@ public class IDLToWSDLGenerationTest extends TestCase {
     }
     
     
+    @Test
     public void testSchemaOnly() throws Exception {
         // This tests if -T option is only passed.
         testLogicalPhysicalSchemaGeneration("/idl/OptionsSchema.idl", 
@@ -392,6 +434,7 @@ public class IDLToWSDLGenerationTest extends TestCase {
     
     // default files generated in user dir - no full path specified.
     // This tests if -P and -T options are passed.
+    @Test
     public void testPhysicalSchema() throws Exception { 
         testLogicalPhysicalSchemaGeneration("/idl/OptionsPT.idl", null,
                                         "expected_PhysicalPT.wsdl", 
@@ -401,6 +444,7 @@ public class IDLToWSDLGenerationTest extends TestCase {
                                         "expected_SchemaPT.xsd");                                     
     }
             
+    @Test
     public void testLogicalSchema() throws Exception {
         // This tests -L and -T options are passed.
         testLogicalPhysicalSchemaGeneration("/idl/OptionsLT.idl", 
@@ -412,6 +456,7 @@ public class IDLToWSDLGenerationTest extends TestCase {
     }
 
 
+    @Test
     public void testLogicalOnly() throws Exception {
         // This tests if only -L option is passed.
         testLogicalPhysicalSchemaGeneration("/idl/OptionL.idl", 
@@ -422,6 +467,7 @@ public class IDLToWSDLGenerationTest extends TestCase {
                                             "expected_Logical.wsdl");
     }
     
+    @Test
     public void testLogicalPhysical() throws Exception {
         // This tests if -L and -P options are passed.
         testLogicalPhysicalSchemaGeneration("/idl/OptionsLP.idl", "expected_LogicalLP.wsdl",
@@ -431,6 +477,7 @@ public class IDLToWSDLGenerationTest extends TestCase {
                                             null);
     }
     
+    @Test
     public void testPhysicalOnly() throws Exception {
         // This tests if -P option is only passed.
         testLogicalPhysicalSchemaGeneration("/idl/OptionP.idl", null,
@@ -441,6 +488,7 @@ public class IDLToWSDLGenerationTest extends TestCase {
                                             "null");
     }            
     
+    @Test
     public void testLogicalPyhsicalSchema() throws Exception {
         // This tests if -L, -P and -T options are passed. 
         testLogicalPhysicalSchemaGeneration("/idl/OptionsLPT.idl", 
@@ -454,6 +502,7 @@ public class IDLToWSDLGenerationTest extends TestCase {
         
     }
                 
+    @Test
     public void testEncodingGeneration() throws Exception {     
         
         try {

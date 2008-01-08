@@ -100,12 +100,12 @@
     <wsdl:part name="inparameter" element="xsd1:method">
     </wsdl:part>
   </wsdl:message>
-  <wsdl:message name="ExternalException">
-    <wsdl:part name="exception" element="xsd1:ExternalException">
-    </wsdl:part>
-  </wsdl:message>
   <wsdl:message name="methodResponse">
     <wsdl:part name="outparameter" element="xsd1:methodResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="ExternalException">
+    <wsdl:part name="exception" element="xsd1:ExternalException">
     </wsdl:part>
   </wsdl:message>
   <wsdl:message name="raiseExternalExceptionResponse">

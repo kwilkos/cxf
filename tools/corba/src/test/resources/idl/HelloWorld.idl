@@ -18,6 +18,9 @@
 */ 
 
 interface HelloWorld {
+   /**
+    * when extra "*******" are added below no exception should be thrown
+    *********/ 
     string
     greetMe(
         in string return_message
