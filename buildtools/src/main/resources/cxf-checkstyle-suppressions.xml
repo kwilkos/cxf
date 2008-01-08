@@ -27,5 +27,8 @@
     <suppress checks=".*"
               files=".+[\\\/]build[\\\/]src[\\\/].+\.java"
               />
-
+              
+    <suppress checks=".*"
+              files=".+[\\\/]contrib[\\\/].+\.java"
+              />
 </suppressions>
