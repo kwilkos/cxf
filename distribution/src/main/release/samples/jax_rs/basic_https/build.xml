@@ -17,7 +17,7 @@
   specific language governing permissions and limitations
   under the License.
 -->
-<project name="RESTful demo" default="build" basedir=".">
+<project name="JAX-RS Basic demo with HTTPS" default="build" basedir=".">
     <property name="codegen.notrequired" value="true"/>
 
     <import file="../../common_build.xml"/>        
@@ -31,5 +31,24 @@
     <target name="server" description="run demo server" depends="build">
         <cxfrun classname="demo.jaxrs.server.Server"  jvmarg1="-Dcxf.config.file=CherryServer.cxf"/>
     </target>
+    
+    <target name="compile" depends="maybe.generate.code">
+        <mkdir dir="${build.classes.dir}"/>
+        <mkdir dir="${build.src.dir}"/>
 
+        <javac destdir="${build.classes.dir}" debug="true">
+            <src path="${build.src.dir}"/>
+            <src path="${basedir}/src"/>
+            <src path="${basedir}/contrib"/>
+            <classpath>
+                <path refid="cxf.classpath"/>
+                <pathelement path="${thirdparty.classpath}"/>
+            </classpath>
+        </javac>
+
+        <copy todir="${build.classes.dir}">
+            <fileset dir="${basedir}/src" includes="**/*.xml, **/*.txt" />
+            <fileset dir="${build.src.dir}" includes="**/*.xml, **/*.txt" />
+        </copy>
+    </target>
 </project>
