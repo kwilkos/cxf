@@ -57,7 +57,10 @@ import org.omg.CORBA.ORB;
 import org.omg.CORBA.TCKind;
 import org.omg.CORBA.TypeCode;
 
-public class CorbaHandlerUtils {
+public final class CorbaHandlerUtils {
+    private CorbaHandlerUtils() {
+        //utility class
+    }
 
     public static CorbaObjectHandler createTypeHandler(ORB orb,
                                                        QName name, 

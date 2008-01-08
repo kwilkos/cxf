@@ -24,36 +24,30 @@ import javax.xml.namespace.QName;
 import org.apache.yoko.bindings.corba.CorbaTypeMap;
 import org.apache.yoko.wsdl.CorbaConstants;
 
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.TCKind;
 import org.omg.CORBA.TypeCode;
 
-import junit.framework.TestCase;
 
-public class CorbaAnyHandlerTest extends TestCase {
+public class CorbaAnyHandlerTest extends Assert {
 
     private ORB orb;
-    
-    public CorbaAnyHandlerTest(String arg0) {
-        super(arg0);
-    }
 
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(CorbaAnyHandlerTest.class);
-    }
-    
-    protected void setUp() throws Exception {
-        super.setUp();
+    @Before
+    public void setUp() throws Exception {
 
         java.util.Properties props = System.getProperties();
-        props.put("org.omg.CORBA.ORBClass", "org.apache.yoko.orb.CORBA.ORB");
-        props.put("org.omg.CORBA.ORBSingletonClass", "org.apache.yoko.orb.CORBA.ORBSingleton");
         props.put("yoko.orb.id", "Yoko-Server-Binding");
         orb = ORB.init(new String[0], props);
     }
     
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         if (orb != null) {
             try {
                 orb.destroy();
@@ -63,6 +57,7 @@ public class CorbaAnyHandlerTest extends TestCase {
         } 
     }
 
+    @Test
     public void testCorbaAnyHandler() {
 
         Any a = orb.create_any();
@@ -82,12 +77,8 @@ public class CorbaAnyHandlerTest extends TestCase {
 
         assertNotNull(resultAny);
 
-        try {
-            String value = resultAny.extract_string();
-            assertTrue(value.equals("TestMessage"));
-        } catch (Exception ex) {
-            assertTrue(false);
-        }
+        String value = resultAny.extract_string();
+        assertEquals("TestMessage", value);
 
         // Test get/set CorbaTypeMap methods
         CorbaTypeMap resultTM = anyHandler.getTypeMap();

@@ -18,16 +18,13 @@
  */
 package org.apache.yoko.bindings.corba;
 
-import java.io.File;
-import java.util.HashMap;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 
 import javax.jws.WebService;
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
-import javax.xml.ws.BindingType;
 import javax.xml.ws.Endpoint;
 import javax.xml.ws.Service;
 
@@ -39,58 +36,47 @@ import org.apache.cxf.wsdl.EndpointReferenceUtils;
 import org.apache.cxf.wsdl.WSDLManager;
 import org.apache.cxf.wsdl11.WSDLManagerImpl;
 
-import org.apache.schemas.yoko.idl.objectref.TestDefaultObjectParam;
-import org.apache.schemas.yoko.idl.objectref.TestDefaultObjectParamResponse;
-import org.apache.schemas.yoko.idl.objectref.TestDefaultObjectReturn;
-import org.apache.schemas.yoko.idl.objectref.TestDefaultObjectReturnResponse;
 import org.apache.schemas.yoko.idl.objectref.TestInterface;
 import org.apache.schemas.yoko.idl.objectref.TestInterfaceCORBAService;
 import org.apache.schemas.yoko.idl.objectref.TestObject;
-import org.apache.schemas.yoko.idl.objectref.TestObjectCORBAService;
-import org.apache.yoko.bindings.corba.utils.CorbaBindingHelper;
-import org.apache.yoko.orb.CORBA.ORB;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-import junit.framework.TestCase;
 
-public class CorbaObjectReferenceTest extends TestCase {
 
-    private final QName OBJECT_PORT_NAME = 
+public class CorbaObjectReferenceTest extends Assert {
+
+    private static final QName OBJECT_PORT_NAME = 
         new QName("http://schemas.apache.org/yoko/idl/ObjectRef", "TestObjectCORBAPort"); 
     
-    private final QName OBJECT_PORT_TYPE = 
+    private static final QName OBJECT_PORT_TYPE = 
         new QName("http://schemas.apache.org/yoko/idl/ObjectRef", "TestObject"); 
     
-    private final QName OBJECT_SERVICE_NAME = 
+    private static final QName OBJECT_SERVICE_NAME = 
         new QName("http://schemas.apache.org/yoko/idl/ObjectRef", "TestObjectCORBAService"); 
     
-    private final QName INTERFACE_PORT_NAME = 
+    private static final QName INTERFACE_PORT_NAME = 
         new QName("http://schemas.apache.org/yoko/idl/ObjectRef", "TestInterfaceCORBAPort"); 
 
-    private final QName INFERRED_INTERFACE_PORT_NAME = 
+    private static final QName INFERRED_INTERFACE_PORT_NAME = 
         new QName("http://schemas.apache.org/yoko/idl/ObjectRef", "TestInterfaceCORBAPort"); 
 
-    private final QName INTERFACE_SERVICE_NAME = 
+    private static final QName INTERFACE_SERVICE_NAME = 
         new QName("http://schemas.apache.org/yoko/idl/ObjectRef", "TestInterfaceCORBAService"); 
     
-    private final static String WSDL_LOCATION = "/wsdl/ObjectRef.wsdl";
-    private final static int MAX_WAIT_COUNT = 15;
+    private static final String WSDL_LOCATION = "/wsdl/ObjectRef.wsdl";
+    private static final int MAX_WAIT_COUNT = 15;
     
     private static TestServer server;
     private static boolean testServerReady;
     private TestInterface client;
     private URL wsdlUrl;
 
-    public CorbaObjectReferenceTest(String arg0) {
-        super(arg0);
-    }
     
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(CorbaObjectReferenceTest.class);
-    }
-    
-    protected void setUp() throws Exception {
-        super.setUp();
-       
+    @Before
+    public void setUp() throws Exception {
         if (server == null) {
             System.out.println("Initializing object reference support test...");
             server = new TestServer();
@@ -130,9 +116,8 @@ public class CorbaObjectReferenceTest extends TestCase {
         }
     }
 
-    protected void tearDown() throws Exception {
-        super.tearDown();
-
+    @After
+    public void tearDown() throws Exception {
         server.interrupt();
 
         try {
@@ -147,6 +132,7 @@ public class CorbaObjectReferenceTest extends TestCase {
         }
     }
 
+    @Test
     public void testCustomObjectParam() {
         System.out.println("Testing custom object reference as a parameter...");
         EndpointReferenceType ref = null;
@@ -156,6 +142,7 @@ public class CorbaObjectReferenceTest extends TestCase {
         assertTrue(result);
     }
 
+    @Test
     public void testDefaultObjectParam() {
         System.out.println("Testing default object reference as a parameter...");
         EndpointReferenceType ref = null;
@@ -199,24 +186,28 @@ public class CorbaObjectReferenceTest extends TestCase {
         assertNull(portName);
     }
 
+    @Test
     public void testNilObjectParam() {
         System.out.println("Testing nil object reference as a parameter...");
         boolean result = client.testNilObjectParam(null);
         assertTrue(result);
     }
     
+    @Test
     public void testNilObjectReturn() {
         System.out.println("Testing nil object reference as a return value...");
         EndpointReferenceType result = client.testNilObjectReturn();
         assertTrue(result == null);
     }
     
+    @Test
     public void testInferredObjectParam() {
         EndpointReferenceType ref = null;
         ref = createEndpointReferenceType("InferredObjectParam", false);
         assertTrue(client.testInferredObjectParam(ref));      
     }
     
+    @Test
     public void testInferredObjectReturn() {
         
         EndpointReferenceType ref = client.testInferredObjectReturn();
@@ -277,30 +268,30 @@ public class CorbaObjectReferenceTest extends TestCase {
     }
 
     public TestObject createObjectFromEndpointReferenceType(EndpointReferenceType epr) throws Exception {
-            WSDLManager manager = null;
-            manager = new WSDLManagerImpl();
+        WSDLManager manager = null;
+        manager = new WSDLManagerImpl();
 
-            QName interfaceName = EndpointReferenceUtils.getInterfaceName(epr);
-            QName serviceName = EndpointReferenceUtils.getServiceName(epr);
-            String portName = EndpointReferenceUtils.getPortName(epr);
+        QName interfaceName = EndpointReferenceUtils.getInterfaceName(epr);
+        QName serviceName = EndpointReferenceUtils.getServiceName(epr);
+        String portName = EndpointReferenceUtils.getPortName(epr);
 
-            QName port = new QName(serviceName.getNamespaceURI(), portName);
+        QName port = new QName(serviceName.getNamespaceURI(), portName);
 
-            StringBuffer seiName = new StringBuffer();
-            seiName.append("org.apache.schemas.yoko.idl.objectref.");
-            seiName.append(JAXBUtils.nameToIdentifier(interfaceName.getLocalPart(),
-                           JAXBUtils.IdentifierType.INTERFACE));
+        StringBuffer seiName = new StringBuffer();
+        seiName.append("org.apache.schemas.yoko.idl.objectref.");
+        seiName.append(JAXBUtils.nameToIdentifier(interfaceName.getLocalPart(),
+                       JAXBUtils.IdentifierType.INTERFACE));
 
-            Class<?> sei = null;
-            sei = Class.forName(seiName.toString(), true, manager.getClass().getClassLoader());
+        Class<?> sei = null;
+        sei = Class.forName(seiName.toString(), true, manager.getClass().getClassLoader());
 
-            Service service = Service.create(wsdlUrl, serviceName);
-            TestObject testObj = (TestObject)service.getPort(port, sei);
+        Service service = Service.create(wsdlUrl, serviceName);
+        TestObject testObj = (TestObject)service.getPort(port, sei);
 
-            Map<String, Object> requestContext = ((BindingProvider)testObj).getRequestContext();
-            requestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, epr.getAddress().getValue());
+        Map<String, Object> requestContext = ((BindingProvider)testObj).getRequestContext();
+        requestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, epr.getAddress().getValue());
 
-            return testObj;
+        return testObj;
     }
 
     
@@ -376,10 +367,10 @@ public class CorbaObjectReferenceTest extends TestCase {
             QName serviceName = EndpointReferenceUtils.getServiceName(param);
             String portName = EndpointReferenceUtils.getPortName(param);
 
-            if (interfaceName != null ||
-                wsdlLocation != null ||
-                serviceName != null ||
-                portName != null) {
+            if (interfaceName != null
+                || wsdlLocation != null
+                || serviceName != null 
+                || portName != null) {
                 return false;
             }
 
@@ -417,13 +408,13 @@ public class CorbaObjectReferenceTest extends TestCase {
             String portName = EndpointReferenceUtils.getPortName(param);
 
             // EPR should be complete
-            if (param.getAddress().getValue() != null && 
-                interfaceName != null &&
-                wsdlLocation != null &&
-                serviceName != null &&
-                portName != null) {
+            if (param.getAddress().getValue() != null
+                && interfaceName != null 
+                && wsdlLocation != null 
+                && serviceName != null 
+                && portName != null) {
                 
-                 ret = true;
+                ret = true;
             }
             
             return ret;

@@ -31,12 +31,16 @@ import org.apache.cxf.common.logging.LogUtils;
 import org.apache.yoko.bindings.corba.CorbaBindingException;
 import org.omg.CORBA.ORB;
 
-public class CorbaBindingHelper {
+public final class CorbaBindingHelper {
 
     private static final Logger LOG = LogUtils.getL7dLogger(CorbaBindingHelper.class);
     private static Map<String, ORB> orbList = new HashMap<String, ORB>();
     private static Map<String, Integer> orbUseCount = new HashMap<String, Integer>();
     private static ORB defaultORB;
+    
+    private CorbaBindingHelper() {
+        //utility class
+    }
     
     public static ORB getDefaultORB(OrbConfig config) {        
         if (defaultORB == null) {
@@ -74,7 +78,7 @@ public class CorbaBindingHelper {
         // A corbaloc address gives us host and port information to use when setting up the
         // endpoint for the ORB.  Other types of references will just create ORBs on the 
         // host and port used when no preference has been specified.
-        if (scheme.equals("corbaloc")) {
+        if ("corbalob".equals(scheme)) {
             String schemeSpecificPart = addressURI.getSchemeSpecificPart();
             int keyIndex = schemeSpecificPart.indexOf('/');
             String corbaAddr = schemeSpecificPart.substring(0, keyIndex);
@@ -94,8 +98,10 @@ public class CorbaBindingHelper {
             orb = ORB.init(orbArgs.toArray(new String[orbArgs.size()]), props);
             
             orbList.put(getORBNameFromAddress(address), orb);
-        } else if (scheme.equals("file") || scheme.equals("relfile") 
-                   || scheme.equals("IOR") || scheme.equals("ior")) {
+        } else if ("file".equals(scheme)
+            || "relfile".equals(scheme)
+            || "IOR".equals(scheme)
+            || "ior".equals(scheme)) {
             orb = ORB.init(orbArgs.toArray(new String[orbArgs.size()]), props);
             
             orbList.put(getORBNameFromAddress(address), orb);
@@ -125,13 +131,13 @@ public class CorbaBindingHelper {
         }
         
         String scheme = addressURI.getScheme();
-        if (scheme.equals("corbaloc") || scheme.equals("corbaname")) {
+        if ("corbaloc".equals(scheme) || "corbaname".equals(scheme)) {
             String schemeSpecificPart = addressURI.getSchemeSpecificPart();
             int keyIndex = schemeSpecificPart.indexOf('/');
             name = schemeSpecificPart.substring(0, keyIndex);        
-        } else if (scheme.equals("IOR") || scheme.equals("ior")) {        
+        } else if ("IOR".equals(scheme) || "ior".equals(scheme)) {        
             name = addressURI.toString();
-        } else if (scheme.equals("file") || scheme.equals("relfile")) {
+        } else if ("file".equals(scheme) || "relfile".equals(scheme)) {
             name = addressURI.getPath();
             if (name == null) {
                 name = addressURI.getSchemeSpecificPart();

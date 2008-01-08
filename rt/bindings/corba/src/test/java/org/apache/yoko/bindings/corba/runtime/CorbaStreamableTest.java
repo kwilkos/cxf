@@ -20,42 +20,44 @@ package org.apache.yoko.bindings.corba.runtime;
 
 import javax.xml.namespace.QName;
 
-import org.omg.CORBA.portable.InputStream;
-import org.omg.CORBA.ORB;
-import org.omg.CORBA.TCKind;
-import org.omg.CORBA.TypeCode;
-
-import junit.framework.TestCase;
 
 import org.apache.yoko.bindings.corba.CorbaStreamable;
 import org.apache.yoko.bindings.corba.types.CorbaPrimitiveHandler;
 import org.apache.yoko.wsdl.CorbaConstants;
-import org.apache.yoko.orb.CORBA.OutputStream;
-import org.apache.yoko.orb.OCI.Buffer;
 
-public class CorbaStreamableTest extends TestCase {
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
+
+import org.omg.CORBA.ORB;
+import org.omg.CORBA.TCKind;
+import org.omg.CORBA.TypeCode;
+import org.omg.CORBA.portable.InputStream;
+import org.omg.CORBA.portable.OutputStream;
+
+
+
+
+
+
+public class CorbaStreamableTest extends Assert {
 
     private static ORB orb;
     
-    public CorbaStreamableTest(String arg0) {
-        super(arg0);
-    }
-    
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(CorbaStreamableTest.class);
-    }
-    
-    protected void setUp() throws Exception {
-        super.setUp();
-        
+     
+    @Before
+    public void setUp() throws Exception {
         java.util.Properties props = System.getProperties();
-        props.put("org.omg.CORBA.ORBClass", "org.apache.yoko.orb.CORBA.ORB");
-        props.put("org.omg.CORBA.ORBSingletonClass", "org.apache.yoko.orb.CORBA.ORBSingleton");
+        
+        
         props.put("yoko.orb.id", "Yoko-Binding");
         orb = ORB.init(new String[0], props);
     }
     
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         if (orb != null) {
             try {
                 orb.destroy();
@@ -65,6 +67,7 @@ public class CorbaStreamableTest extends TestCase {
         }
     }
     
+    @Test
     public void testCreateStreamable() {
         QName objName = new QName("object");
         QName objIdlType = new QName(CorbaConstants.NU_WSDL_CORBA, "short", CorbaConstants.NP_WSDL_CORBA);
@@ -75,6 +78,7 @@ public class CorbaStreamableTest extends TestCase {
         assertNotNull(streamable);
     }
     
+    @Test
     public void testGetStreamableAttributes() {
         QName objName = new QName("object");
         QName objIdlType = new QName(CorbaConstants.NU_WSDL_CORBA, "float", CorbaConstants.NP_WSDL_CORBA);
@@ -95,6 +99,7 @@ public class CorbaStreamableTest extends TestCase {
         assertTrue(name.equals(objName.getLocalPart()));
     }
     
+    @Test
     public void testSetStreamableAttributes() {
         QName objName = new QName("object");
         QName objIdlType = new QName(CorbaConstants.NU_WSDL_CORBA, "boolean", CorbaConstants.NP_WSDL_CORBA);
@@ -107,6 +112,7 @@ public class CorbaStreamableTest extends TestCase {
         assertTrue(mode == org.omg.CORBA.ARG_IN.value);
     }
     
+    @Test
     public void testReadStreamable() {
         QName objName = new QName("object");
         QName objIdlType = new QName(CorbaConstants.NU_WSDL_CORBA, "char", CorbaConstants.NP_WSDL_CORBA);
@@ -128,6 +134,7 @@ public class CorbaStreamableTest extends TestCase {
         assertTrue(charValue.charValue() == 'c');
     }
     
+    @Test
     public void testWriteStreamable() {
         QName objName = new QName("object");
         QName objIdlType = new QName(CorbaConstants.NU_WSDL_CORBA, "wstring", CorbaConstants.NP_WSDL_CORBA);
@@ -136,12 +143,11 @@ public class CorbaStreamableTest extends TestCase {
         obj.setValueFromData("TestWString");
         CorbaStreamable streamable = new CorbaStreamableImpl(obj, objName);
         
-        Buffer buf = new Buffer();
-        OutputStream oStream = new OutputStream(buf);
+        OutputStream oStream = new OutputStream();
         streamable._write(oStream);
         
         InputStream iStream = oStream.create_input_stream();
         String value = iStream.read_wstring();
-        assertTrue(value.equals("TestWString"));
+        assertEquals("TestWString", value);
     }
 }

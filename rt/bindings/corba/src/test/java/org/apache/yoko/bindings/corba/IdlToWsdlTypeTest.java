@@ -24,21 +24,23 @@ import java.net.URL;
 
 import javax.xml.namespace.QName;
 
-import junit.extensions.TestSetup;
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
 import org.apache.schemas.yoko.idl.idltowsdl_type_test.IdltowsdlTypeTestSeqLong;
 import org.apache.schemas.yoko.idl.idltowsdl_type_test.IdltowsdlTypeTestStruct1;
 import org.apache.schemas.yoko.idl.idltowsdl_type_test.IdltowsdlTypeTestUnion1;
 import org.apache.schemas.yoko.idl.idltowsdl_type_test.IdltowsdlTypeTestEnum1;
+import org.junit.Ignore;
+import org.junit.Test;
 
 public class IdlToWsdlTypeTest extends AbstractIdlToWsdlTypeTestClient {
     protected static final String WSDL_PATH = "/wsdl/type_test/idltowsdl_type_test.wsdl";
-    protected static final QName SERVICE_NAME = new QName("http://schemas.apache.org/yoko/idl/idltowsdl_type_test", "idltowsdlTypeTestCORBAService");
-    protected static final QName PORT_NAME = new QName("http://schemas.apache.org/yoko/idl/idltowsdl_type_test", "idltowsdlTypeTestCORBAPort");
+    protected static final QName SERVICE_NAME
+        = new QName("http://schemas.apache.org/yoko/idl/idltowsdl_type_test",
+                    "idltowsdlTypeTestCORBAService");
+    protected static final QName PORT_NAME
+        = new QName("http://schemas.apache.org/yoko/idl/idltowsdl_type_test",
+                     "idltowsdlTypeTestCORBAPort");
     
-    static boolean serverStarted = false;
+    static boolean serverStarted;
     
     public IdlToWsdlTypeTest(String name) {
         super(name);
@@ -111,9 +113,30 @@ public class IdlToWsdlTypeTest extends AbstractIdlToWsdlTypeTestClient {
     
     
     // following empty methods override real implementation until test failures are resolved
-    public void testUnsignedLong() { }
-    public void testWchar() { }
-    public void testOctet () { }
-    public void testWstring() { }
-    public void testAnonWstring() { }
+    @Test
+    @Ignore
+    public void testUnsignedLong() {
+        //failure
+    }
+    @Test
+    @Ignore
+    public void testWchar() {
+        //failure
+    }
+    @Test
+    @Ignore
+    public void testOctet() {
+        //failure
+    }
+    @Test
+    @Ignore
+    public void testWstring() {
+        //failure        
+    }
+
+    @Test
+    @Ignore
+    public void testAnonWstring() {
+        //failure
+    }
 }

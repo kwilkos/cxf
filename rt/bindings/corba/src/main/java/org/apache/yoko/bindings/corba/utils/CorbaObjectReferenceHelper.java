@@ -38,7 +38,7 @@ import org.apache.cxf.common.logging.LogUtils;
 import org.apache.schemas.yoko.bindings.corba.BindingType;
 import org.omg.CORBA.Object;
 
-public class CorbaObjectReferenceHelper {
+public final class CorbaObjectReferenceHelper {
 
     public static final String WSDLI_NAMESPACE_URI = "http://www.w3.org/2006/01/wsdl-instance";
     public static final String ADDRESSING_NAMESPACE_URI = "http://www.w3.org/2005/08/addressing";
@@ -51,6 +51,10 @@ public class CorbaObjectReferenceHelper {
     public static final int YOKO_SERVICE_NAME_ID = 1004;
     
     private static final Logger LOG = LogUtils.getL7dLogger(CorbaObjectReferenceHelper.class);
+    
+    private CorbaObjectReferenceHelper() {
+        //utility class
+    }
 
     public static String getWSDLLocation(Definition wsdlDef) {
         return wsdlDef.getDocumentBaseURI();
@@ -185,7 +189,7 @@ public class CorbaObjectReferenceHelper {
         return new String(arr);
     }
 
-    public static final int readIntFromAlignedCDREncaps(byte[] data, int index, boolean bigEndian) {
+    public static int readIntFromAlignedCDREncaps(byte[] data, int index, boolean bigEndian) {
         if (bigEndian) {
             int partial = ((((int)data[index]) << 24) & 0xff000000)
                 | ((((int)data[index + 1]) << 16) & 0x00ff0000);

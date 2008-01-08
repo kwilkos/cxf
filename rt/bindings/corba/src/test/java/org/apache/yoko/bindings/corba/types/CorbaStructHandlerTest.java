@@ -20,12 +20,16 @@ package org.apache.yoko.bindings.corba.types;
 
 import javax.xml.namespace.QName;
 
-import junit.framework.TestCase;
+
 
 import org.apache.schemas.yoko.bindings.corba.MemberType;
 import org.apache.schemas.yoko.bindings.corba.Struct;
 import org.apache.yoko.wsdl.CorbaConstants;
 
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.StructMember;
 import org.omg.CORBA.TCKind;
@@ -33,29 +37,20 @@ import org.omg.CORBA.TypeCode;
 
 // Since the exception handler is essentially the same as the struct handler (just included in case 
 // structs and exceptions diverge at a later date), this test should cover both.
-public class CorbaStructHandlerTest extends TestCase {
+public class CorbaStructHandlerTest extends Assert {
 
     private ORB orb;
     
-    public CorbaStructHandlerTest(String arg0) {
-        super(arg0);
-    }
     
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(CorbaObjectHandlerTest.class);
-    }
-    
-    protected void setUp() throws Exception {
-        super.setUp();
-        
+    @Before
+    public void setUp() throws Exception {
         java.util.Properties props = System.getProperties();
-        props.put("org.omg.CORBA.ORBClass", "org.apache.yoko.orb.CORBA.ORB");
-        props.put("org.omg.CORBA.ORBSingletonClass", "org.apache.yoko.orb.CORBA.ORBSingleton");
         props.put("yoko.orb.id", "Yoko-Server-Binding");
         orb = ORB.init(new String[0], props);
     }
     
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         if (orb != null) {
             try {
                 orb.destroy();
@@ -65,6 +60,7 @@ public class CorbaStructHandlerTest extends TestCase {
         }
     }
     
+    @Test
     public void testCorbaStructHandler() {
         Struct structType = new Struct();
         structType.setName("TestStruct");

@@ -20,15 +20,19 @@ package org.apache.yoko.bindings.corba.types;
 
 import javax.xml.namespace.QName;
 
-import junit.framework.TestCase;
+
 
 import org.apache.schemas.yoko.bindings.corba.Sequence;
 import org.apache.yoko.wsdl.CorbaConstants;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.TCKind;
 import org.omg.CORBA.TypeCode;
 
-public class CorbaSequenceHandlerTest extends TestCase {
+public class CorbaSequenceHandlerTest extends Assert {
 
     private ORB orb;
     private CorbaSequenceHandler obj;
@@ -36,20 +40,13 @@ public class CorbaSequenceHandlerTest extends TestCase {
     private QName objIdlType;
     private TypeCode objTypeCode;
     
-    public CorbaSequenceHandlerTest(String arg0) {
-        super(arg0);
-    }
-
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(CorbaArrayHandlerTest.class);
-    }
     
-    protected void setUp() throws Exception {
-        super.setUp();
+    @Before
+    public void setUp() throws Exception {
         
         java.util.Properties props = System.getProperties();
-        props.put("org.omg.CORBA.ORBClass", "org.apache.yoko.orb.CORBA.ORB");
-        props.put("org.omg.CORBA.ORBSingletonClass", "org.apache.yoko.orb.CORBA.ORBSingleton");
+        
+        
         props.put("yoko.orb.id", "Yoko-Server-Binding");
         orb = ORB.init(new String[0], props);
         obj = null;
@@ -58,7 +55,8 @@ public class CorbaSequenceHandlerTest extends TestCase {
         objTypeCode = null;
     }
     
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         if (orb != null) {
             try {
                 orb.destroy();
@@ -68,6 +66,7 @@ public class CorbaSequenceHandlerTest extends TestCase {
         }
     }
 
+    @Test
     public void testCorbaSequenceHandler() {
         objName = new QName("object");
         objIdlType = new QName(CorbaConstants.NU_WSDL_CORBA, "sequenceType", CorbaConstants.NP_WSDL_CORBA);
@@ -80,8 +79,8 @@ public class CorbaSequenceHandlerTest extends TestCase {
         obj = new CorbaSequenceHandler(objName, objIdlType, objTypeCode, sequenceType);
         assertNotNull(obj);
 
-        int sequenceData[] = { 2, 4, 6, 8, 10 };
-        for (int i = 0 ; i < sequenceData.length; ++i) {
+        int sequenceData[] = {2, 4, 6, 8, 10};
+        for (int i = 0; i < sequenceData.length; ++i) {
             QName elName = new QName("item");
             QName elIdlType = CorbaConstants.NT_CORBA_LONG;
             TypeCode elTC = orb.get_primitive_tc(TCKind.tk_long);

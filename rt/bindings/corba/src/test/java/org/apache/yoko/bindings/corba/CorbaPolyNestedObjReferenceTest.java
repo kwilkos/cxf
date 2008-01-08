@@ -18,16 +18,13 @@
  */
 package org.apache.yoko.bindings.corba;
 
-import java.io.File;
-import java.util.HashMap;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 
 import javax.jws.WebService;
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
-import javax.xml.ws.BindingType;
 import javax.xml.ws.Endpoint;
 import javax.xml.ws.Holder;
 import javax.xml.ws.Service;
@@ -40,52 +37,42 @@ import org.apache.cxf.wsdl.WSDLManager;
 import org.apache.cxf.wsdl11.WSDLManagerImpl;
 
 import org.apache.schemas.yoko.idl.polynestedobjref.Foo;
-import org.apache.schemas.yoko.idl.polynestedobjref.FooCORBAService;
 import org.apache.schemas.yoko.idl.polynestedobjref.FooFactory;
 import org.apache.schemas.yoko.idl.polynestedobjref.FooFactoryCORBAService;
 import org.apache.schemas.yoko.idl.polynestedobjref.FooRefStruct;
 import org.apache.schemas.yoko.idl.polynestedobjref.FooRefUnion;
-import org.apache.type_test.types1.EmptyStruct;
-import org.apache.yoko.bindings.corba.CorbaObjectReferenceTest.TestObjectImpl;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-import junit.framework.TestCase;
 
-public class CorbaPolyNestedObjReferenceTest extends TestCase {
 
-    private final QName OBJECT_PORT_NAME = 
+public class CorbaPolyNestedObjReferenceTest extends Assert {
+
+    private static final QName OBJECT_PORT_NAME = 
         new QName("http://schemas.apache.org/yoko/idl/PolyNestedObjRef", "FooCORBAPort"); 
     
-    private final QName OBJECT_PORT_TYPE = 
+    private static final QName OBJECT_PORT_TYPE = 
         new QName("http://schemas.apache.org/yoko/idl/PolyNestedObjRef", "Foo"); 
     
-    private final QName OBJECT_SERVICE_NAME = 
+    private static final QName OBJECT_SERVICE_NAME = 
         new QName("http://schemas.apache.org/yoko/idl/PolyNestedObjRef", "FooCORBAService"); 
     
-    private final QName INTERFACE_PORT_NAME = 
+    private static final QName INTERFACE_PORT_NAME = 
         new QName("http://schemas.apache.org/yoko/idl/PolyNestedObjRef", "FooFactoryCORBAPort"); 
     
-    private final QName INTERFACE_SERVICE_NAME = 
+    private static final QName INTERFACE_SERVICE_NAME = 
         new QName("http://schemas.apache.org/yoko/idl/PolyNestedObjRef", "FooFactoryCORBAService"); 
     
-    private final static String WSDL_LOCATION = "/wsdl/PolyNestedObjRef.wsdl";
-    private final static int MAX_WAIT_COUNT = 15;
+    private static final String WSDL_LOCATION = "/wsdl/PolyNestedObjRef.wsdl";
+    private static final int MAX_WAIT_COUNT = 15;
     
     private static TestServer server;
-    private static boolean testServerReady;
     private FooFactory client;
     private URL wsdlUrl;
 
-    public CorbaPolyNestedObjReferenceTest(String arg0) {
-        super(arg0);
-    }
-    
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(CorbaPolyNestedObjReferenceTest.class);
-    }
-    
-    protected void setUp() throws Exception {
-        super.setUp();
-       
+    @Before
+    public void setUp() throws Exception {
         if (server == null) {
             server = new TestServer();
             server.start();
@@ -124,7 +111,8 @@ public class CorbaPolyNestedObjReferenceTest extends TestCase {
         }
     }
 
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         super.tearDown();
 
         server.interrupt();
@@ -141,6 +129,7 @@ public class CorbaPolyNestedObjReferenceTest extends TestCase {
         }
     }
 
+    @Test
     public void testCreateFooRefInStruct() {       
         FooRefStruct ref = client.createFooRefInStruct("FooRefInStruct");
         //EndpointReferenceType epr = createObjectFromEndpointReferenceType(ref.getRef());
@@ -165,6 +154,7 @@ public class CorbaPolyNestedObjReferenceTest extends TestCase {
         assertNull("Null EPR expected", ref.getRef());
     }
 
+    @Test
     public void testCreateFooRefInUnion() {
         FooRefUnion ref = client.createFooRefInUnion();
         EndpointReferenceType epr = ref.getU12();
@@ -183,6 +173,7 @@ public class CorbaPolyNestedObjReferenceTest extends TestCase {
         assertTrue(portName.equals(OBJECT_PORT_NAME.getLocalPart()));
     }
     
+    @Test
     public void testInferredObjectReturn() {
         
         EndpointReferenceType ref = client.testInferredObjectReturn();
@@ -202,6 +193,7 @@ public class CorbaPolyNestedObjReferenceTest extends TestCase {
         assertNotNull(portName);
     }
 
+    @Test
     public void testNestedInferredObjectParam() {
         FooRefStruct ref = client.createFooRefInStruct("FooRefInStruct");
         FooRefStruct ref2 = client.createFooRefInStruct("FooRefInStruct");        

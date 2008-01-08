@@ -26,13 +26,11 @@ import java.util.Set;
 
 import javax.xml.namespace.QName;
 
-import junit.framework.TestCase;
+
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
-import org.apache.cxf.binding.BindingFactory;
 import org.apache.cxf.binding.BindingFactoryManager;
-import org.apache.cxf.binding.BindingFactoryManagerImpl;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.service.Service;
@@ -43,12 +41,16 @@ import org.apache.cxf.transport.Destination;
 import org.apache.cxf.transport.MessageObserver;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
 import org.apache.cxf.wsdl11.WSDLServiceFactory;
+import org.apache.yoko.wsdl.CorbaConstants;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-import org.apache.yoko.wsdl.CorbaConstants;
 
-public class CorbaBindingFactoryTest extends TestCase {
+public class CorbaBindingFactoryTest extends Assert {
     
     protected Bus bus;
     protected EndpointInfo endpointInfo;
@@ -57,16 +59,8 @@ public class CorbaBindingFactoryTest extends TestCase {
     protected Message inMessage;
     CorbaBindingFactory factory;
     
-    public CorbaBindingFactoryTest(String arg0) {
-        super(arg0);
-    }
-    
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(CorbaBindingFactoryTest.class);
-    }
-    
-    protected void setUp() throws Exception {
-        super.setUp();
+    @Before
+    public void setUp() throws Exception {
         System.setProperty("cxf.config.file", "cxf-extension-corba.xml");
         bus = BusFactory.getDefaultBus();       
         BindingFactoryManager bfm = bus.getExtension(BindingFactoryManager.class);        
@@ -74,6 +68,7 @@ public class CorbaBindingFactoryTest extends TestCase {
         bfm.registerBindingFactory(CorbaConstants.NU_WSDL_CORBA, factory);               
     }
     
+    @After
     public void tearDown() {
         bus.shutdown(true);     
     }
@@ -81,13 +76,14 @@ public class CorbaBindingFactoryTest extends TestCase {
     protected void setupServiceInfo(String ns, String wsdl, String serviceName, String portName) {        
         URL wsdlUrl = getClass().getResource(wsdl);
         assertNotNull(wsdlUrl);
-        WSDLServiceFactory factory = new WSDLServiceFactory(bus, wsdlUrl, new QName(ns, serviceName));
+        WSDLServiceFactory f = new WSDLServiceFactory(bus, wsdlUrl, new QName(ns, serviceName));
 
-        Service service = factory.create();        
+        Service service = f.create();        
         endpointInfo = service.getEndpointInfo(new QName(ns, portName));
    
     }
     
+    @Test
     public void testCreateBinding() throws Exception {
         IMocksControl control = EasyMock.createNiceControl();
         BindingInfo bindingInfo = control.createMock(BindingInfo.class);
@@ -103,6 +99,7 @@ public class CorbaBindingFactoryTest extends TestCase {
         assertEquals(2, outInterceptors.size());        
     }
 
+    @Test
     public void testGetCorbaConduit() throws Exception {
         setupServiceInfo("http://yoko.apache.org/simple", 
                          "/wsdl/simpleIdl.wsdl", 
@@ -116,6 +113,7 @@ public class CorbaBindingFactoryTest extends TestCase {
         assertNotNull(conduit);
     }
             
+    @Test
     public void testGetDestination() throws Exception {                
         setupServiceInfo("http://yoko.apache.org/simple", 
                          "/wsdl/simpleIdl.wsdl", 
@@ -128,6 +126,7 @@ public class CorbaBindingFactoryTest extends TestCase {
         assertNotNull(target);
     }
     
+    @Test
     public void testTransportIds() throws Exception {
         setupServiceInfo("http://yoko.apache.org/simple", 
                          "/wsdl/simpleIdl.wsdl", 
@@ -146,28 +145,23 @@ public class CorbaBindingFactoryTest extends TestCase {
         assertEquals("two", str.toString());
     }
     
+    @Test
     public void testGetUriPrefixes() throws Exception {
         Set<String> prefixes = factory.getUriPrefixes();
         assertNotNull("Prefixes should not be null", prefixes != null);
     }
     
     // check this
+    @Test
     public void testSetBus() throws Exception {
         factory.setBus(bus);    
     }
 
     // check this
+    @Test
     public void testSetActivationNamespaces() throws Exception {
         Collection<String> strs = new ArrayList<String>();
         strs.add("http://schemas.apache.org/yoko/bindings/corba");
     }
-    
-    public void testRegisterSelf() throws Exception {
-        
-    }
-    
-    public void testRegisterWithBindingManager() throws Exception {
-    
-    }
-    
+
 }

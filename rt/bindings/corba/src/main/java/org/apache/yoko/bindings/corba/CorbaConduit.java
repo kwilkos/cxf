@@ -66,7 +66,7 @@ import org.omg.CORBA.SystemException;
 import org.omg.CORBA.TypeCode;
 import org.omg.CORBA.UnknownUserException;
 
-public class CorbaConduit implements Conduit {
+public final class CorbaConduit implements Conduit {
     private static final Logger LOG = LogUtils.getL7dLogger(CorbaConduit.class);
 
 

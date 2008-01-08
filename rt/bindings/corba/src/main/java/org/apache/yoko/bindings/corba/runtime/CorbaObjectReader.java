@@ -29,11 +29,9 @@ import java.util.logging.Logger;
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.common.logging.LogUtils;
-import org.apache.schemas.yoko.bindings.corba.Anonsequence;
 import org.apache.schemas.yoko.bindings.corba.CaseType;
 import org.apache.schemas.yoko.bindings.corba.Enum;
 import org.apache.schemas.yoko.bindings.corba.Enumerator;
-import org.apache.schemas.yoko.bindings.corba.Sequence;
 import org.apache.schemas.yoko.bindings.corba.Union;
 import org.apache.schemas.yoko.bindings.corba.Unionbranch;
 

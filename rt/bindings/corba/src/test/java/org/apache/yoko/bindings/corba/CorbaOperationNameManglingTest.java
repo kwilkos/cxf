@@ -18,65 +18,51 @@
  */
 package org.apache.yoko.bindings.corba;
 
-import java.io.File;
-import java.util.HashMap;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 
 import javax.jws.WebService;
 import javax.xml.namespace.QName;
-import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Endpoint;
-import javax.xml.ws.Service;
-
-import org.apache.cxf.jaxb.JAXBUtils;
-import org.apache.cxf.ws.addressing.EndpointReferenceType;
-import org.apache.cxf.wsdl.EndpointReferenceUtils;
-import org.apache.cxf.wsdl.WSDLManager;
-import org.apache.cxf.wsdl11.WSDLManagerImpl;
 
 import org.apache.schemas.yoko.idl.opnames.M1M1Interface;
 import org.apache.schemas.yoko.idl.opnames.M1M1InterfaceCORBAService;
 import org.apache.schemas.yoko.idl.opnames.M2M2Interface;
 import org.apache.schemas.yoko.idl.opnames.M2M2InterfaceCORBAService;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-import junit.framework.TestCase;
 
-public class CorbaOperationNameManglingTest extends TestCase {
 
-    private final QName INTERFACE1_PORT_NAME = 
+public class CorbaOperationNameManglingTest extends Assert {
+
+    private static final QName INTERFACE1_PORT_NAME = 
         new QName("http://schemas.apache.org/yoko/idl/OpNames", "M1.M1InterfaceCORBAPort"); 
     
-    private final QName INTERFACE1_SERVICE_NAME = 
+    private static final QName INTERFACE1_SERVICE_NAME = 
         new QName("http://schemas.apache.org/yoko/idl/OpNames", "M1.M1InterfaceCORBAService"); 
     
-    private final QName INTERFACE2_PORT_NAME = 
+    private static final QName INTERFACE2_PORT_NAME = 
         new QName("http://schemas.apache.org/yoko/idl/OpNames", "M2.M2InterfaceCORBAPort"); 
     
-    private final QName INTERFACE2_SERVICE_NAME = 
+    private static final QName INTERFACE2_SERVICE_NAME = 
         new QName("http://schemas.apache.org/yoko/idl/OpNames", "M2.M2InterfaceCORBAService"); 
     
-    private final static String WSDL_LOCATION = "/wsdl/OpNames.wsdl";
-    private final static int MAX_WAIT_COUNT = 15;
+    private static final String WSDL_LOCATION = "/wsdl/OpNames.wsdl";
+    private static final int MAX_WAIT_COUNT = 15;
     
     private static TestInterface1Server server1;
     private static TestInterface2Server server2;
-    private static boolean testServerReady;
     private M1M1Interface client1;
     private M2M2Interface client2;
     private URL wsdlUrl;
 
-    public CorbaOperationNameManglingTest(String arg0) {
-        super(arg0);
-    }
     
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(CorbaOperationNameManglingTest.class);
-    }
-    
-    protected void setUp() throws Exception {
-        super.setUp();
+    @Before
+    public void setUp() throws Exception {
        
         if (server1 == null) {
             server1 = new TestInterface1Server();
@@ -142,9 +128,8 @@ public class CorbaOperationNameManglingTest extends TestCase {
         }
     }
 
-    protected void tearDown() throws Exception {
-        super.tearDown();
-
+    @After
+    public void tearDown() throws Exception {
         server1.interrupt();
 
         try {
@@ -172,6 +157,7 @@ public class CorbaOperationNameManglingTest extends TestCase {
         }
     }
 
+    @Test
     public void testM1M1InterfaceTestOp() {
         String result = null;
         try {
@@ -181,9 +167,10 @@ public class CorbaOperationNameManglingTest extends TestCase {
             assertTrue(false);
         }
         assertNotNull(result);
-        assertTrue(result.equals("M1Interface"));
+        assertEquals("M1Interface", result);
     }
     
+    @Test
     public void testM2M2InterfaceTestOp() {
         String result = null;
         try {
@@ -193,7 +180,7 @@ public class CorbaOperationNameManglingTest extends TestCase {
             assertTrue(false);
         }
         assertNotNull(result);
-        assertTrue(result.equals("M2Interface"));
+        assertEquals("M2Interface", result);
     }
 
     
@@ -252,9 +239,9 @@ public class CorbaOperationNameManglingTest extends TestCase {
                           targetNamespace = "http://schemas.apache.org/yoko/idl/OpNames",
                           endpointInterface = "org.apache.schemas.yoko.idl.opnames.M1M1Interface")
     public class M1InterfaceImpl implements M1M1Interface {
-       public String testOp() {
-           return "M1Interface";
-       }
+        public String testOp() {
+            return "M1Interface";
+        }
     }
 
     @WebService(portName = "M2.M2InterfaceCORBAPort",
@@ -262,8 +249,8 @@ public class CorbaOperationNameManglingTest extends TestCase {
                           targetNamespace = "http://schemas.apache.org/yoko/idl/OpNames",
                           endpointInterface = "org.apache.schemas.yoko.idl.opnames.M2M2Interface")
     public class M2InterfaceImpl implements M2M2Interface {
-       public String m2M2InterfaceTestOp() {
-           return "M2Interface";
-       }
+        public String m2M2InterfaceTestOp() {
+            return "M2Interface";
+        }
     }
 }

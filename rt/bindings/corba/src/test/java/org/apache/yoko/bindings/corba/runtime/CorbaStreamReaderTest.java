@@ -18,52 +18,49 @@
  */
 package org.apache.yoko.bindings.corba.runtime;
 
-import java.util.Arrays;
 import javax.xml.namespace.QName;
-import junit.framework.TestCase;
+
 
 import org.apache.yoko.bindings.corba.types.CorbaTypeEventProducer;
 import org.easymock.classextension.EasyMock;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 
-public class CorbaStreamReaderTest extends TestCase {
+public class CorbaStreamReaderTest extends Assert {
     
     private CorbaStreamReader reader;
     private CorbaTypeEventProducer mock;
     
-    public CorbaStreamReaderTest(String arg0) {
-        super(arg0);
-        
-    }
-    
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(CorbaStreamReaderTest.class);
-    }
-    
-    protected void setUp() throws Exception {
-        super.setUp();
+    @Before
+    public void setUp() throws Exception {
         mock = EasyMock.createMock(CorbaTypeEventProducer.class);
         reader = new CorbaStreamReader(mock);
     }
     
+    @Test
     public void testGetName() throws Exception {
         EasyMock.expect(mock.getName()).andReturn(new QName("http://foo.org", "test"));
         EasyMock.replay(mock);
         assertEquals("checking getName ", new QName("http://foo.org", "test"), reader.getName());
     }
     
+    @Test
     public void testGetLocalName() throws Exception {
         EasyMock.expect(mock.getName()).andReturn(new QName("http://foo.org", "test"));
         EasyMock.replay(mock);
         assertEquals("checking localName ", "test", reader.getLocalName());
     }
     
+    @Test
     public void testGetNamespaceURI() throws Exception {
         EasyMock.expect(mock.getName()).andReturn(new QName("http://foo.org", "test"));
         EasyMock.replay(mock);
         assertEquals("checking namespace ", "http://foo.org", reader.getNamespaceURI());   
     }
     
+    @Test
     public void testGetText() throws Exception {
         EasyMock.expect(mock.getText()).andReturn("abcdef");
         EasyMock.replay(mock);
@@ -71,13 +68,11 @@ public class CorbaStreamReaderTest extends TestCase {
     }
     
     
+    @Test
     public void testGetTextCharacters() throws Exception {
         EasyMock.expect(mock.getText()).andReturn("abcdef");
         EasyMock.replay(mock);
-        assertTrue("checking getTextCharacters", 
-                    Arrays.equals("abcdef".toCharArray(), reader.getTextCharacters()));
-    }
-    
-    
-    
+        assertEquals("checking getTextCharacters", 
+                    "abcdef".toCharArray(), reader.getTextCharacters());
+    }    
 }

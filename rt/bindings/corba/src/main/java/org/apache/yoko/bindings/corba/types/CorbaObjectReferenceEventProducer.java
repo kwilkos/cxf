@@ -46,7 +46,7 @@ import org.apache.yoko.bindings.corba.utils.EprMetaData;
 
 import org.omg.CORBA.ORB;
 
-public class CorbaObjectReferenceEventProducer extends AbstractStartEndEventProducer {
+public final class CorbaObjectReferenceEventProducer extends AbstractStartEndEventProducer {
 
     static final String WSDLI_NAMESPACE_URI = "http://www.w3.org/2006/01/wsdl-instance";
     static final String XSI_NAMESPACE_URI = "http://www.w3.org/2001/XMLSchema-instance";

@@ -19,12 +19,10 @@
 
 package org.apache.yoko.bindings.corba.runtime;
 
-import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 
-import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.schemas.yoko.bindings.corba.RaisesType;
 

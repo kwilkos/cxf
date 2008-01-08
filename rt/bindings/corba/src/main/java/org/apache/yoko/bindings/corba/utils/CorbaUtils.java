@@ -74,12 +74,17 @@ import org.omg.CORBA.TCKind;
 import org.omg.CORBA.TypeCode;
 import org.omg.CORBA.UnionMember;
 
-public class CorbaUtils {
+public final class CorbaUtils {
 
-    static QName EMPTY_QNAME = new QName("", "");
-    static Map<QName, TCKind> PRIMITIVE_TYPECODES = new HashMap<QName, TCKind>();
+    static final QName EMPTY_QNAME = new QName("", "");
+    static final Map<QName, TCKind> PRIMITIVE_TYPECODES = new HashMap<QName, TCKind>();
 
     private static final Logger LOG = LogUtils.getL7dLogger(CorbaUtils.class);
+    
+    private CorbaUtils() {
+        //utility class
+    }
+
     
     public static QName getEmptyQName() {
         return EMPTY_QNAME;

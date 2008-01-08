@@ -20,38 +20,30 @@ package org.apache.yoko.bindings.corba.types;
 
 import javax.xml.namespace.QName;
 
-import junit.framework.TestCase;
-
 import org.apache.schemas.yoko.bindings.corba.Enum;
 import org.apache.schemas.yoko.bindings.corba.Enumerator;
 import org.apache.yoko.wsdl.CorbaConstants;
 
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.TypeCode;
 
-public class CorbaEnumHandlerTest extends TestCase {
+public class CorbaEnumHandlerTest extends Assert {
 
     private ORB orb;
-    
-    public CorbaEnumHandlerTest(String arg0) {
-        super(arg0);
-    }
-    
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(CorbaObjectHandlerTest.class);
-    }
-    
-    protected void setUp() throws Exception {
-        super.setUp();
-        
+
+    @Before
+    public void setUp() throws Exception {
         java.util.Properties props = System.getProperties();
-        props.put("org.omg.CORBA.ORBClass", "org.apache.yoko.orb.CORBA.ORB");
-        props.put("org.omg.CORBA.ORBSingletonClass", "org.apache.yoko.orb.CORBA.ORBSingleton");
         props.put("yoko.orb.id", "Yoko-Server-Binding");
         orb = ORB.init(new String[0], props);
     }
     
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         if (orb != null) {
             try {
                 orb.destroy();
@@ -61,6 +53,7 @@ public class CorbaEnumHandlerTest extends TestCase {
         }
     }
     
+    @Test
     public void testCorbaEnumHandler() {
         Enum enumType = new Enum();
         enumType.setName("EnumType");

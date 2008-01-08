@@ -37,6 +37,9 @@ import org.apache.yoko.bindings.corba.CorbaMessage;
  * Holder for utility methods relating to contexts.
  */
 public final class ContextUtils {
+    private ContextUtils() {
+        //utility class
+    }
     
     public static boolean isRequestor(Message message) {
         return Boolean.TRUE.equals(message.containsKey(Message.REQUESTOR_ROLE));

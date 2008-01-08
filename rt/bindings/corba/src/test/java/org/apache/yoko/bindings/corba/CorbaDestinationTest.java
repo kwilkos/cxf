@@ -18,70 +18,57 @@
  */
 package org.apache.yoko.bindings.corba;
 
-import java.io.File;
 
-import junit.framework.TestCase;
 
-import org.apache.cxf.Bus;
-import org.apache.cxf.BusFactory;
-import org.apache.cxf.endpoint.Endpoint;
-import org.apache.cxf.endpoint.EndpointImpl;
+
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
-import org.apache.cxf.service.Service;
-import org.apache.cxf.service.ServiceImpl;
 import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.EndpointInfo;
-import org.apache.cxf.transport.ChainInitiationObserver;
-import org.apache.cxf.transport.MessageObserver;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
 
 import org.apache.yoko.bindings.corba.utils.OrbConfig;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-public class CorbaDestinationTest extends TestCase {    
+public class CorbaDestinationTest extends Assert {    
     
     protected static TestUtils testUtils;
     EndpointInfo endpointInfo;
     OrbConfig orbConfig;
     
-    public CorbaDestinationTest() {
-        super();
-    }
     
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(CorbaDestinationTest.class);
-    }
-    
-    protected void setUp() throws Exception {
-        super.setUp();     
+    @Before
+    public void setUp() throws Exception {
         testUtils = new TestUtils();
         orbConfig = new OrbConfig();
         orbConfig.setOrbClass("org.apache.yoko.orb.CORBA.ORB");
         orbConfig.setOrbSingletonClass("org.apache.yoko.orb.CORBA.ORBSingleton");
     }
     
-    public void tearDown() {        
-    }
-    
+    @Test
     public void testDestination() throws Exception {       
-       endpointInfo = testUtils.setupServiceInfo("http://yoko.apache.org/simple",
+        endpointInfo = testUtils.setupServiceInfo("http://yoko.apache.org/simple",
                         "/wsdl/simpleIdl.wsdl", "SimpleCORBAService",
                         "SimpleCORBAPort");
-       CorbaDestination destination = new CorbaDestination(endpointInfo, orbConfig);
-       
-       EndpointReferenceType  rtype = destination.getAddress();
-       assertTrue("EndpointReferenceType should not be null", rtype != null);       
-       BindingInfo bindingInfo = destination.getBindingInfo();
-       assertTrue("BindingInfo should not be null", bindingInfo != null);       
-       EndpointInfo endpointInfo = destination.getEndPointInfo();
-       assertTrue("EndpointInfo should not be null", endpointInfo != null);
-       
-       Message m = new MessageImpl();
-       CorbaServerConduit serverConduit = (CorbaServerConduit)destination.getBackChannel(m, m, rtype);
-       assertTrue("CorbaServerConduit should not be null", serverConduit != null);             
-   }
+        CorbaDestination destination = new CorbaDestination(endpointInfo, orbConfig);
    
-   /*public void testSetMessageObserverActivate() throws Exception {
+        EndpointReferenceType  rtype = destination.getAddress();
+        assertTrue("EndpointReferenceType should not be null", rtype != null);       
+        BindingInfo bindingInfo = destination.getBindingInfo();
+        assertTrue("BindingInfo should not be null", bindingInfo != null);       
+        EndpointInfo e2 = destination.getEndPointInfo();
+        assertTrue("EndpointInfo should not be null", e2 != null);
+   
+        Message m = new MessageImpl();
+        CorbaServerConduit serverConduit = (CorbaServerConduit)destination.getBackChannel(m, m, rtype);
+        assertNotNull("CorbaServerConduit should not be null", serverConduit);             
+    }
+   
+   /*
+    @Test
+    public void testSetMessageObserverActivate() throws Exception {
        endpointInfo = testUtils.setupServiceInfo("http://yoko.apache.org/simple",
                         "/wsdl/simpleIdl.wsdl", "SimpleCORBAService",
                         "SimpleCORBAPort");

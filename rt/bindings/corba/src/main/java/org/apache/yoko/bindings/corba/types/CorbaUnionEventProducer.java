@@ -27,7 +27,6 @@ import javax.xml.stream.events.Attribute;
 
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.schemas.yoko.bindings.corba.Union;
-import org.apache.schemas.yoko.bindings.corba.Unionbranch;
 import org.omg.CORBA.ORB;
 
 public class CorbaUnionEventProducer extends AbstractStartEndEventProducer {

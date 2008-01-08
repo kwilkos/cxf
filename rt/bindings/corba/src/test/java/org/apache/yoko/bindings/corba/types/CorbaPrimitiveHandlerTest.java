@@ -20,35 +20,29 @@ package org.apache.yoko.bindings.corba.types;
 
 import javax.xml.namespace.QName;
 
-import junit.framework.TestCase;
+
 
 import org.apache.yoko.wsdl.CorbaConstants;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.TCKind;
 
-public class CorbaPrimitiveHandlerTest extends TestCase {
+public class CorbaPrimitiveHandlerTest extends Assert {
 
     private ORB orb;
     
-    public CorbaPrimitiveHandlerTest(String arg0) {
-        super(arg0);
-    }
-
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(CorbaArrayHandlerTest.class);
-    }
-    
-    protected void setUp() throws Exception {
-        super.setUp();
-        
+    @Before
+    public void setUp() throws Exception {
         java.util.Properties props = System.getProperties();
-        props.put("org.omg.CORBA.ORBClass", "org.apache.yoko.orb.CORBA.ORB");
-        props.put("org.omg.CORBA.ORBSingletonClass", "org.apache.yoko.orb.CORBA.ORBSingleton");
         props.put("yoko.orb.id", "Yoko-Server-Binding");
         orb = ORB.init(new String[0], props);
     }
     
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         if (orb != null) {
             try {
                 orb.destroy();
@@ -58,8 +52,9 @@ public class CorbaPrimitiveHandlerTest extends TestCase {
         }
     }
 
+    @Test
     public void testCreateCorbaBoolean() {
-        Boolean val = new Boolean(false);
+        Boolean val = Boolean.FALSE;
         CorbaPrimitiveHandler obj = 
             new CorbaPrimitiveHandler(new QName("boolean"),
                                       CorbaConstants.NT_CORBA_BOOLEAN,
@@ -79,6 +74,7 @@ public class CorbaPrimitiveHandlerTest extends TestCase {
         assertTrue(boolResult.booleanValue() == val.booleanValue());
     }
     
+    @Test
     public void testCreateCorbaChararacter() {
         Character val = new Character('c');
         CorbaPrimitiveHandler obj = 
@@ -106,6 +102,7 @@ public class CorbaPrimitiveHandlerTest extends TestCase {
         
     }
 
+    @Test
     public void testCreateCorbaWChararacter() {
         Character val = new Character('w');
         CorbaPrimitiveHandler obj = 
@@ -127,6 +124,7 @@ public class CorbaPrimitiveHandlerTest extends TestCase {
         assertTrue(charResult.charValue() == val.charValue());
     }
 
+    @Test
     public void testCreateCorbaOctet() {
         Byte val = new Byte((byte)100);
         CorbaPrimitiveHandler obj = 
@@ -148,6 +146,7 @@ public class CorbaPrimitiveHandlerTest extends TestCase {
         assertTrue(byteResult.byteValue() == val.byteValue());
     }
     
+    @Test
     public void testCreateCorbaShort() {
         Short val = new Short((short)1234);
         CorbaPrimitiveHandler obj = 
@@ -169,6 +168,7 @@ public class CorbaPrimitiveHandlerTest extends TestCase {
         assertTrue(shortResult.shortValue() == val.shortValue());
     }
 
+    @Test
     public void testCreateCorbaUShort() {
         Short val = new Short((short)4321);
         CorbaPrimitiveHandler obj = 
@@ -190,6 +190,7 @@ public class CorbaPrimitiveHandlerTest extends TestCase {
         assertTrue(shortResult.shortValue() == val.shortValue());
     }
 
+    @Test
     public void testCreateCorbaLong() {
         Integer val = new Integer(123456);
         CorbaPrimitiveHandler obj = 
@@ -211,6 +212,7 @@ public class CorbaPrimitiveHandlerTest extends TestCase {
         assertTrue(longResult.intValue() == val.intValue());
     }
 
+    @Test
     public void testCreateCorbaULong() {
         Integer val = new Integer(654321);
         CorbaPrimitiveHandler obj = 
@@ -232,6 +234,7 @@ public class CorbaPrimitiveHandlerTest extends TestCase {
         assertTrue(ulongResult.intValue() == val.intValue());
     }
 
+    @Test
     public void testCreateCorbaLongLong() {
         Long val = new Long(123456789);
         CorbaPrimitiveHandler obj = 
@@ -253,6 +256,7 @@ public class CorbaPrimitiveHandlerTest extends TestCase {
         assertTrue(longlongResult.longValue() == val.longValue());
     }
 
+    @Test
     public void testCreateCorbaULongLong() {
         Long val = new Long(987654321);
         CorbaPrimitiveHandler obj = 
@@ -274,6 +278,7 @@ public class CorbaPrimitiveHandlerTest extends TestCase {
         assertTrue(longlongResult.longValue() == val.longValue());
     }
 
+    @Test
     public void testCreateCorbaFloat() {
         Float val = new Float(1234.56);
         CorbaPrimitiveHandler obj = 
@@ -295,6 +300,7 @@ public class CorbaPrimitiveHandlerTest extends TestCase {
         assertTrue(floatResult.floatValue() == val.floatValue());
     }
 
+    @Test
     public void testCreateCorbaDouble() {
         Double val = new Double(123456.789);
         CorbaPrimitiveHandler obj = 
@@ -316,6 +322,7 @@ public class CorbaPrimitiveHandlerTest extends TestCase {
         assertTrue(doubleResult.doubleValue() == val.doubleValue());
     }
 
+    @Test
     public void testCreateCorbaString() {
         String val = "Test String";
         CorbaPrimitiveHandler obj = 
@@ -337,6 +344,7 @@ public class CorbaPrimitiveHandlerTest extends TestCase {
         assertTrue(stringResult.equals(val));
     }
 
+    @Test
     public void testCreateCorbaWString() {
         String val = "Test Wide String";
         CorbaPrimitiveHandler obj = 

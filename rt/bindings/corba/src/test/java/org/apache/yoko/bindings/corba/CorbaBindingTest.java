@@ -18,56 +18,28 @@
  */
 package org.apache.yoko.bindings.corba;
 
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
-import javax.xml.namespace.QName;
-import javax.xml.ws.Binding;
 
-import junit.framework.TestCase;
 
-import org.apache.cxf.Bus;
-import org.apache.cxf.BusFactory;
-import org.apache.cxf.binding.BindingFactory;
-import org.apache.cxf.binding.BindingFactoryManager;
-import org.apache.cxf.binding.BindingFactoryManagerImpl;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
-import org.apache.cxf.service.Service;
-import org.apache.cxf.service.model.BindingInfo;
-import org.apache.cxf.service.model.EndpointInfo;
-import org.apache.cxf.transport.Conduit;
-import org.apache.cxf.transport.Destination;
-import org.apache.cxf.transport.MessageObserver;
-import org.apache.cxf.ws.addressing.EndpointReferenceType;
-import org.apache.cxf.wsdl11.WSDLServiceFactory;
-import org.easymock.classextension.EasyMock;
-import org.easymock.classextension.IMocksControl;
-import org.apache.cxf.wsdl.EndpointReferenceUtils;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.omg.CORBA.ORB;
 
-import org.apache.yoko.wsdl.CorbaConstants;
 
-public class CorbaBindingTest extends TestCase {
+public class CorbaBindingTest extends Assert {
     
     private ORB orb;
     
-    public CorbaBindingTest(String arg0) {
-        super(arg0);
-    }
-    
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(CorbaBindingFactoryTest.class);
-    }
-    
-    protected void setUp() throws Exception {
-        super.setUp();                   
+    @Before
+    public void setUp() throws Exception {
         java.util.Properties props = System.getProperties();
-        props.put("org.omg.CORBA.ORBClass", "org.apache.yoko.orb.CORBA.ORB");
-        props.put("org.omg.CORBA.ORBSingletonClass", "org.apache.yoko.orb.CORBA.ORBSingleton");
+        
+        
         props.put("yoko.orb.id", "Yoko-Server-Binding");
         orb = ORB.init(new String[0], props);
     }
@@ -82,6 +54,7 @@ public class CorbaBindingTest extends TestCase {
         } 
     }
            
+    @Test
     public void testCorbaBinding() {
         CorbaBinding binding = new CorbaBinding();
         List<Interceptor> in = binding.getInInterceptors();

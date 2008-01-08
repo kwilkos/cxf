@@ -34,10 +34,14 @@ import org.omg.CORBA.Any;
 import org.omg.CORBA.TCKind;
 import org.omg.CORBA.TypeCode;
 
-public class CorbaAnyHelper {
+public final class CorbaAnyHelper {
    
-    private static Map<QName, QName> SCHEMA_TO_IDL_TYPES = new HashMap<QName, QName>();
-    private static Map<QName, QName> IDL_TO_SCHEMA_TYPES = new HashMap<QName, QName>();
+    private static final Map<QName, QName> SCHEMA_TO_IDL_TYPES = new HashMap<QName, QName>();
+    private static final Map<QName, QName> IDL_TO_SCHEMA_TYPES = new HashMap<QName, QName>();
+    
+    private CorbaAnyHelper() {
+        //utility class
+    }
 
     public static boolean isPrimitiveSchemaType(QName schemaType) {
         return SCHEMA_TO_IDL_TYPES.get(schemaType) != null;

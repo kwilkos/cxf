@@ -18,31 +18,28 @@
  */
 package org.apache.yoko.bindings.corba.runtime;
 
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 
 import javax.xml.namespace.QName;
 
-import junit.framework.TestCase;
+
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
-import org.apache.cxf.endpoint.Endpoint;
-import org.apache.cxf.endpoint.EndpointImpl;
 import org.apache.cxf.message.Message;
-import org.apache.cxf.service.Service;
-import org.apache.cxf.service.ServiceImpl;
-import org.apache.cxf.transport.ChainInitiationObserver;
 import org.apache.cxf.transport.MessageObserver; 
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.ServerRequest;
-import org.omg.PortableServer.POA;
 
-import org.apache.yoko.bindings.corba.TestUtils;
 
-public class CorbaDSIServantTest extends TestCase {
+public class CorbaDSIServantTest extends Assert {
     protected static ORB orb;
     protected static Bus bus;
         
@@ -50,27 +47,19 @@ public class CorbaDSIServantTest extends TestCase {
         super();
     }
     
-    public CorbaDSIServantTest(String arg0) {
-        super(arg0);
-    }
-    
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(CorbaDSIServantTest.class);
-    }
-    
-    protected void setUp() throws Exception {        
-        super.setUp();
+    @Before
+    public void setUp() throws Exception {        
         bus = BusFactory.getDefaultBus();
         java.util.Properties props = System.getProperties();
-        props.put("org.omg.CORBA.ORBClass", "org.apache.yoko.orb.CORBA.ORB");
-        props.put("org.omg.CORBA.ORBSingletonClass", "org.apache.yoko.orb.CORBA.ORBSingleton");
+        
+        
         props.put("yoko.orb.id", "Yoko-Server-Binding");
         orb = ORB.init(new String[0], props);
                
     }
     
+    @After
     public void tearDown() throws Exception {
-        super.tearDown();
         if (orb != null) {
             try {
                 orb.destroy();
@@ -107,6 +96,7 @@ public class CorbaDSIServantTest extends TestCase {
         
     }*/
         
+    @Test
     public void testInvoke() throws Exception {
         CorbaDSIServant dsiServant = new CorbaDSIServant();       
         IMocksControl control = EasyMock.createNiceControl();

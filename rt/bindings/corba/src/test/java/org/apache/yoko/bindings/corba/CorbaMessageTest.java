@@ -20,14 +20,16 @@ package org.apache.yoko.bindings.corba;
 
 import javax.xml.namespace.QName;
 
-import junit.framework.TestCase;
+
 
 import org.apache.cxf.message.Message;
-import org.apache.cxf.service.model.BindingInfo;
 import org.apache.yoko.bindings.corba.types.CorbaPrimitiveHandler;
 import org.apache.yoko.wsdl.CorbaConstants;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 import org.omg.CORBA.Any;
 import org.omg.CORBA.NVList;
@@ -35,49 +37,42 @@ import org.omg.CORBA.ORB;
 import org.omg.CORBA.TCKind;
 import org.omg.CORBA.TypeCode;
 
-public class CorbaMessageTest extends TestCase {
+public class CorbaMessageTest extends Assert {
 
     private static ORB orb;
     private Message message;
     
-    public CorbaMessageTest(String arg0) {
-        super(arg0);
-    }
-    
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(CorbaMessageTest.class);
-    }
-    
-    protected void setUp() throws Exception {
-        super.setUp();
-        
+    @Before
+    public void setUp() throws Exception {
         java.util.Properties props = System.getProperties();
-        props.put("org.omg.CORBA.ORBClass", "org.apache.yoko.orb.CORBA.ORB");
-        props.put("org.omg.CORBA.ORBSingletonClass", "org.apache.yoko.orb.CORBA.ORBSingleton");
+        
+        
         props.put("yoko.orb.id", "Yoko-Server-Binding");
         orb = ORB.init(new String[0], props);
         IMocksControl control = EasyMock.createNiceControl();
         message = control.createMock(Message.class);
     }
     
-    public void testCreateCorbaMessage(Message message) {
-        CorbaMessage msg = new CorbaMessage(message);
-        assertNotNull(msg);
-    }
-    
+    @Test
     public void testGetCorbaMessageAttributes() {
         CorbaMessage msg = new CorbaMessage(message);
                         
         QName param1Name = new QName("param1");
         QName param1IdlType = new QName(CorbaConstants.NU_WSDL_CORBA, "long", CorbaConstants.NP_WSDL_CORBA);
         TypeCode param1TypeCode = orb.get_primitive_tc(TCKind.tk_long);
-        CorbaPrimitiveHandler param1 = new CorbaPrimitiveHandler(param1Name, param1IdlType, param1TypeCode, null);
+        CorbaPrimitiveHandler param1 = new CorbaPrimitiveHandler(param1Name,
+                                                                 param1IdlType,
+                                                                 param1TypeCode,
+                                                                 null);
         CorbaStreamable p1 = msg.createStreamableObject(param1, param1Name);
         
         QName param2Name = new QName("param2");
         QName param2IdlType = new QName(CorbaConstants.NU_WSDL_CORBA, "string", CorbaConstants.NP_WSDL_CORBA);
         TypeCode param2TypeCode = orb.get_primitive_tc(TCKind.tk_string);
-        CorbaPrimitiveHandler param2 = new CorbaPrimitiveHandler(param2Name, param2IdlType, param2TypeCode, null);
+        CorbaPrimitiveHandler param2 = new CorbaPrimitiveHandler(param2Name,
+                                                                 param2IdlType,
+                                                                 param2TypeCode,
+                                                                 null);
         CorbaStreamable p2 = msg.createStreamableObject(param2, param2Name);
         
         msg.addStreamableArgument(p1);
@@ -91,13 +86,19 @@ public class CorbaMessageTest extends TestCase {
         QName param3Name = new QName("param3");
         QName param3IdlType = new QName(CorbaConstants.NU_WSDL_CORBA, "short", CorbaConstants.NP_WSDL_CORBA);
         TypeCode param3TypeCode = orb.get_primitive_tc(TCKind.tk_short);
-        CorbaPrimitiveHandler param3 = new CorbaPrimitiveHandler(param3Name, param3IdlType, param3TypeCode, null);
+        CorbaPrimitiveHandler param3 = new CorbaPrimitiveHandler(param3Name,
+                                                                 param3IdlType,
+                                                                 param3TypeCode,
+                                                                 null);
         CorbaStreamable p3 = msg.createStreamableObject(param3, param3Name);
         
         QName param4Name = new QName("param4");
         QName param4IdlType = new QName(CorbaConstants.NU_WSDL_CORBA, "float", CorbaConstants.NP_WSDL_CORBA);
         TypeCode param4TypeCode = orb.get_primitive_tc(TCKind.tk_float);
-        CorbaPrimitiveHandler param4 = new CorbaPrimitiveHandler(param4Name, param4IdlType, param4TypeCode, null);
+        CorbaPrimitiveHandler param4 = new CorbaPrimitiveHandler(param4Name,
+                                                                 param4IdlType,
+                                                                 param4TypeCode,
+                                                                 null);
         CorbaStreamable p4 = msg.createStreamableObject(param4, param4Name);
         
         CorbaStreamable[] args = new CorbaStreamable[2];
@@ -124,9 +125,12 @@ public class CorbaMessageTest extends TestCase {
         assertTrue(resultList.count() == 2);        
         
         QName returnName = new QName("param2");
-        QName returnIdlType = new QName(CorbaConstants.NU_WSDL_CORBA, "boolean", CorbaConstants.NP_WSDL_CORBA);
+        QName returnIdlType = new QName(CorbaConstants.NU_WSDL_CORBA, "boolean",
+                                        CorbaConstants.NP_WSDL_CORBA);
         TypeCode returnTypeCode = orb.get_primitive_tc(TCKind.tk_boolean);
-        CorbaPrimitiveHandler returnValue = new CorbaPrimitiveHandler(returnName, returnIdlType, returnTypeCode, null);
+        CorbaPrimitiveHandler returnValue = new CorbaPrimitiveHandler(returnName,
+                                                                      returnIdlType,
+                                                                      returnTypeCode, null);
         CorbaStreamable ret = msg.createStreamableObject(returnValue, returnName);
         
         msg.setStreamableReturn(ret);

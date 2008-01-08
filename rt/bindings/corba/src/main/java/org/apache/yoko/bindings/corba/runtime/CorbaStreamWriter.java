@@ -21,7 +21,6 @@ package org.apache.yoko.bindings.corba.runtime;
 
 import java.util.List;
 import java.util.Stack;
-import java.util.logging.Logger;
 
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;
@@ -29,7 +28,6 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
-import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.schemas.yoko.bindings.corba.ArgType;
 

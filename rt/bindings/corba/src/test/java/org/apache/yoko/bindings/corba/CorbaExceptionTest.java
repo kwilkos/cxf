@@ -18,59 +18,45 @@
  */
 package org.apache.yoko.bindings.corba;
 
-import java.io.File;
-import java.util.HashMap;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 
 import javax.jws.WebService;
 import javax.xml.namespace.QName;
-import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Endpoint;
-import javax.xml.ws.Service;
-
-import org.apache.cxf.jaxb.JAXBUtils;
-import org.apache.cxf.ws.addressing.EndpointReferenceType;
-import org.apache.cxf.wsdl.EndpointReferenceUtils;
-import org.apache.cxf.wsdl.WSDLManager;
-import org.apache.cxf.wsdl11.WSDLManagerImpl;
 
 import org.apache.schemas.idl.except.ExceptionTest;
 import org.apache.schemas.idl.except.ExceptionTestCORBAService;
 import org.apache.schemas.idltypes.except.ExceptionTestReviewData;
 import org.apache.schemas.idltypes.except.ExceptionTestReviewDataResult;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-import junit.framework.TestCase;
 
-public class CorbaExceptionTest extends TestCase {
 
-    private final QName PORT_NAME = 
+public class CorbaExceptionTest extends Assert {
+
+    private static final QName PORT_NAME = 
         new QName("http://schemas.apache.org/idl/except", "ExceptionTestCORBAPort"); 
     
-    private final QName SERVICE_NAME = 
+    private static final QName SERVICE_NAME = 
         new QName("http://schemas.apache.org/idl/except", "ExceptionTestCORBAService"); 
         
 
-    private final static String WSDL_LOCATION = "/wsdl/exceptions.wsdl";
-    private final static int MAX_WAIT_COUNT = 15;
+    private static final String WSDL_LOCATION = "/wsdl/exceptions.wsdl";
+    private static final int MAX_WAIT_COUNT = 15;
     
     private static TestServer server;
     private static boolean testServerReady;
     private ExceptionTest client;
     private URL wsdlUrl;
 
-    public CorbaExceptionTest(String arg0) {
-        super(arg0);
-    }
-    
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(CorbaExceptionTest.class);
-    }
-    
-    protected void setUp() throws Exception {
-        super.setUp();
-       
+
+    @Before
+    public void setUp() throws Exception {
         if (server == null) {
             server = new TestServer();
             server.start();
@@ -107,9 +93,8 @@ public class CorbaExceptionTest extends TestCase {
         }
     }
 
-    protected void tearDown() throws Exception {
-        super.tearDown();
-
+    @After
+    public void tearDown() throws Exception {
         server.interrupt();
 
         try {
@@ -124,6 +109,7 @@ public class CorbaExceptionTest extends TestCase {
         }
     }
 
+    @Test
     public void testBadRecordException() throws Exception {
         try {
             ExceptionTestReviewData data = new ExceptionTestReviewData();
@@ -150,6 +136,7 @@ public class CorbaExceptionTest extends TestCase {
         fail("Expected BadRecord Exception not found");
     }
 
+    @Test
     public void testPingMeFault() throws Exception {
         try {
             client.pingMe();
@@ -197,7 +184,8 @@ public class CorbaExceptionTest extends TestCase {
     public class ExceptionTestImpl implements ExceptionTest {
         public ExceptionTestReviewDataResult reviewData(ExceptionTestReviewData exId)
             throws org.apache.schemas.idl.except.BadRecord {
-            org.apache.schemas.idltypes.except.BadRecord rec = new org.apache.schemas.idltypes.except.BadRecord();
+            org.apache.schemas.idltypes.except.BadRecord rec
+                = new org.apache.schemas.idltypes.except.BadRecord();
             rec.setReason("testReason");
             rec.setCode((short)10);
             throw new org.apache.schemas.idl.except.BadRecord("test", rec);                                                              

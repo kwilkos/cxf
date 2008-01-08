@@ -20,37 +20,33 @@ package org.apache.yoko.bindings.corba.types;
 
 import javax.xml.namespace.QName;
 
-import junit.framework.TestCase;
+
 
 import org.apache.yoko.wsdl.CorbaConstants;
 
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.TCKind;
 import org.omg.CORBA.TypeCode;
 
-public class CorbaObjectHandlerTest extends TestCase {
+public class CorbaObjectHandlerTest extends Assert {
 
     private ORB orb;
-    
-    public CorbaObjectHandlerTest(String arg0) {
-        super(arg0);
-    }
-    
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(CorbaObjectHandlerTest.class);
-    }
-    
-    protected void setUp() throws Exception {
-        super.setUp();
-        
+
+    @Before
+    public void setUp() throws Exception {
         java.util.Properties props = System.getProperties();
-        props.put("org.omg.CORBA.ORBClass", "org.apache.yoko.orb.CORBA.ORB");
-        props.put("org.omg.CORBA.ORBSingletonClass", "org.apache.yoko.orb.CORBA.ORBSingleton");
+        
+        
         props.put("yoko.orb.id", "Yoko-Server-Binding");
         orb = ORB.init(new String[0], props);
     }
     
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         if (orb != null) {
             try {
                 orb.destroy();
@@ -60,6 +56,7 @@ public class CorbaObjectHandlerTest extends TestCase {
         }
     }
     
+    @Test
     public void testCreateCorbaObjectHandler() {
         QName objName = new QName("object");
         QName objIdlType = new QName(CorbaConstants.NU_WSDL_CORBA, "long", CorbaConstants.NP_WSDL_CORBA);
@@ -68,6 +65,7 @@ public class CorbaObjectHandlerTest extends TestCase {
         assertNotNull(obj);
     }
     
+    @Test
     public void testGetObjectAttributes() {
         QName objName = new QName("object");
         QName objIdlType = new QName(CorbaConstants.NU_WSDL_CORBA, "long", CorbaConstants.NP_WSDL_CORBA);

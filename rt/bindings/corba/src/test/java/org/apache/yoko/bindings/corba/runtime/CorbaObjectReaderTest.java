@@ -24,8 +24,12 @@ import java.util.List;
 
 import javax.xml.namespace.QName;
 
-import junit.framework.TestCase;
 
+
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.StructMember;
 import org.omg.CORBA.TCKind;
@@ -54,29 +58,21 @@ import org.apache.yoko.orb.OCI.Buffer;
 
 import org.apache.yoko.wsdl.CorbaConstants;
 
-public class CorbaObjectReaderTest extends TestCase {
+public class CorbaObjectReaderTest extends Assert {
 
     private static ORB orb;
     
-    public CorbaObjectReaderTest(String arg0) {
-        super(arg0);
-    }
-    
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(CorbaObjectReaderTest.class);
-    }
-    
-    protected void setUp() throws java.lang.Exception {
-        super.setUp();
-
+    @Before
+    public void setUp() throws java.lang.Exception {
         java.util.Properties props = System.getProperties();
-        props.put("org.omg.CORBA.ORBClass", "org.apache.yoko.orb.CORBA.ORB");
-        props.put("org.omg.CORBA.ORBSingletonClass", "org.apache.yoko.orb.CORBA.ORBSingleton");
+        
+        
         props.put("yoko.orb.id", "Yoko-Binding");
         orb = ORB.init(new String[0], props);
     }
     
-    protected void tearDown() throws java.lang.Exception {
+    @After
+    public void tearDown() throws java.lang.Exception {
         if (orb != null) {
             try {
                 orb.destroy();
@@ -86,6 +82,7 @@ public class CorbaObjectReaderTest extends TestCase {
         }
     }
 
+    @Test
     public void testReadBoolean() {
         Buffer buf = new Buffer();
         OutputStream oStream = new OutputStream(buf);
@@ -95,9 +92,10 @@ public class CorbaObjectReaderTest extends TestCase {
         CorbaObjectReader reader = new CorbaObjectReader(iStream);
         
         Boolean boolValue = reader.readBoolean();
-        assertTrue(boolValue.booleanValue() == true);
+        assertTrue(boolValue.booleanValue());
     }
     
+    @Test
     public void testReadChar() {
         Buffer buf = new Buffer();
         OutputStream oStream = new OutputStream(buf);
@@ -110,6 +108,7 @@ public class CorbaObjectReaderTest extends TestCase {
         assertTrue(charValue.charValue() == 'c');
     }
     
+    @Test
     public void testReadWChar() {
         Buffer buf = new Buffer();
         OutputStream oStream = new OutputStream(buf);
@@ -122,6 +121,7 @@ public class CorbaObjectReaderTest extends TestCase {
         assertTrue(wcharValue.charValue() == 'w');
     }
     
+    @Test
     public void testReadOctet() {
         Buffer buf = new Buffer();
         OutputStream oStream = new OutputStream(buf);
@@ -134,6 +134,7 @@ public class CorbaObjectReaderTest extends TestCase {
         assertTrue(octetValue.byteValue() == (byte)27);
     }
     
+    @Test
     public void testReadShort() {
         Buffer buf = new Buffer();
         OutputStream oStream = new OutputStream(buf);
@@ -146,6 +147,7 @@ public class CorbaObjectReaderTest extends TestCase {
         assertTrue(shortValue.shortValue() == (short)-100);
     }
     
+    @Test
     public void testReadUShort() {
         Buffer buf = new Buffer();
         OutputStream oStream = new OutputStream(buf);
@@ -158,6 +160,7 @@ public class CorbaObjectReaderTest extends TestCase {
         assertTrue(ushortValue.intValue() == 100);
     }
     
+    @Test
     public void testReadLong() {
         Buffer buf = new Buffer();
         OutputStream oStream = new OutputStream(buf);
@@ -170,6 +173,7 @@ public class CorbaObjectReaderTest extends TestCase {
         assertTrue(longValue.intValue() == -100000);
     }
     
+    @Test
     public void testReadULong() {
         Buffer buf = new Buffer();
         OutputStream oStream = new OutputStream(buf);
@@ -182,6 +186,7 @@ public class CorbaObjectReaderTest extends TestCase {
         assertTrue(ulongValue.longValue() == 100000);
     }
     
+    @Test
     public void testReadLongLong() {
         Buffer buf = new Buffer();
         OutputStream oStream = new OutputStream(buf);
@@ -194,6 +199,7 @@ public class CorbaObjectReaderTest extends TestCase {
         assertTrue(longlongValue.longValue() == 1000000000);
     }
     
+    @Test
     public void testReadULongLong() {
         Buffer buf = new Buffer();
         OutputStream oStream = new OutputStream(buf);
@@ -206,6 +212,7 @@ public class CorbaObjectReaderTest extends TestCase {
         assertTrue(ulonglongValue.longValue() == -1000000000);
     }
     
+    @Test
     public void testReadFloat() {
         Buffer buf = new Buffer();
         OutputStream oStream = new OutputStream(buf);
@@ -218,6 +225,7 @@ public class CorbaObjectReaderTest extends TestCase {
         assertTrue(floatValue.floatValue() == (float)1234.56);
     }
     
+    @Test
     public void testReadDouble() {
         Buffer buf = new Buffer();
         OutputStream oStream = new OutputStream(buf);
@@ -230,6 +238,7 @@ public class CorbaObjectReaderTest extends TestCase {
         assertTrue(doubleValue.doubleValue() == 6543.21);
     }
     
+    @Test
     public void testReadString() {
         Buffer buf = new Buffer();
         OutputStream oStream = new OutputStream(buf);
@@ -242,6 +251,7 @@ public class CorbaObjectReaderTest extends TestCase {
         assertTrue(stringValue.equals("String"));
     }
     
+    @Test
     public void testReadWString() {
         Buffer buf = new Buffer();
         OutputStream oStream = new OutputStream(buf);
@@ -255,9 +265,10 @@ public class CorbaObjectReaderTest extends TestCase {
     }
     
     // need to add tests for arrays, sequences, struct, exceptions
+    @Test
     public void testReadArray() {
         
-        int data[] = { 1, 1, 2, 3, 5, 8, 13, 21 };
+        int data[] = {1, 1, 2, 3, 5, 8, 13, 21};
         
         Buffer buf = new Buffer();
         OutputStream oStream = new OutputStream(buf);
@@ -292,8 +303,9 @@ public class CorbaObjectReaderTest extends TestCase {
         }
     }
     
+    @Test
     public void testReadSequence() {
-        String data[] = { "one", "one", "two", "three", "five", "eight", "thirteen", "twenty-one" };
+        String data[] = {"one", "one", "two", "three", "five", "eight", "thirteen", "twenty-one"};
         
         Buffer buf = new Buffer();
         OutputStream oStream = new OutputStream(buf);
@@ -331,6 +343,7 @@ public class CorbaObjectReaderTest extends TestCase {
         }
     }
     
+    @Test
     public void testReadStruct() {        
         Buffer buf = new Buffer();
         OutputStream oStream = new OutputStream(buf);
@@ -398,6 +411,7 @@ public class CorbaObjectReaderTest extends TestCase {
                    == member3);
     }
   
+    @Test
     public void testReadException() {
         Buffer buf = new Buffer();
         OutputStream oStream = new OutputStream(buf);
@@ -452,6 +466,7 @@ public class CorbaObjectReaderTest extends TestCase {
         assertTrue(((CorbaPrimitiveHandler)nestedObjs.get(1)).getDataFromValue().equals(message));
     } 
     
+    @Test
     public void testReadEnum() {
         Buffer buf = new Buffer();
         OutputStream oStream = new OutputStream(buf);
@@ -484,6 +499,7 @@ public class CorbaObjectReaderTest extends TestCase {
         assertTrue(obj.getValue().equals(enums[1]));
     }
     
+    @Test
     public void testReadFixed() {
         Buffer buf = new Buffer();
         OutputStream oStream = new OutputStream(buf);
@@ -509,6 +525,7 @@ public class CorbaObjectReaderTest extends TestCase {
         assertTrue(obj.getValue().equals(new java.math.BigDecimal("12345.67")));
     }
     
+    @Test
     public void testReadObjectReference() {
         Buffer buf = new Buffer();
         OutputStream oStream = new OutputStream(buf);

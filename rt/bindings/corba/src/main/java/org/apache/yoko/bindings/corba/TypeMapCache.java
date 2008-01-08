@@ -19,35 +19,33 @@
 package org.apache.yoko.bindings.corba;
 
 import java.util.List;
-import java.util.Map;
-import java.util.WeakHashMap;
 
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.schemas.yoko.bindings.corba.TypeMappingType;
 import org.apache.yoko.bindings.corba.utils.CorbaUtils;
 
-public class TypeMapCache {
+public final class TypeMapCache {
 
-    private static Map<ServiceInfo, CorbaTypeMap> cache =
-        new WeakHashMap<ServiceInfo, CorbaTypeMap>();
+    private static final String KEY = CorbaTypeMap.class.getName();
 
+    private TypeMapCache() {
+        //utility class
+    }
+    
     public static CorbaTypeMap get(ServiceInfo service) {
         if (service != null) {
-            synchronized (cache) {
-                if (!cache.containsKey(service)) {
+            synchronized (service) {
+                CorbaTypeMap map = service.getProperty(KEY, CorbaTypeMap.class);
+                if (map == null) {
                     List<TypeMappingType> corbaTypes = service.getDescription()
                             .getExtensors(TypeMappingType.class);
-                    if (corbaTypes != null) {                    
-                        cache.put(service, CorbaUtils.createCorbaTypeMap(corbaTypes));
-                    }   
+                    if (corbaTypes != null) {
+                        service.setProperty(KEY, CorbaUtils.createCorbaTypeMap(corbaTypes));
+                    }                   
                 }
+                return map; 
             }
-            return cache.get(service);
         }
         return null;
-    }
-
-    public static void clear() {
-        cache.clear();
     }
 }

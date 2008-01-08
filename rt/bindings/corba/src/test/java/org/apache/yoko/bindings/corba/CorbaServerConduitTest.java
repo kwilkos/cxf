@@ -21,9 +21,8 @@ package org.apache.yoko.bindings.corba;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.net.URL;
-import java.util.List;
 import javax.xml.namespace.QName;
-import junit.framework.TestCase;
+
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
@@ -35,20 +34,24 @@ import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.MessageObserver;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
 import org.apache.cxf.wsdl11.WSDLServiceFactory;
+import org.apache.yoko.bindings.corba.runtime.CorbaStreamableImpl;
+import org.apache.yoko.bindings.corba.types.CorbaPrimitiveHandler;
+import org.apache.yoko.bindings.corba.utils.OrbConfig;
+import org.apache.yoko.wsdl.CorbaConstants;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.omg.CORBA.Any;
+import org.omg.CORBA.NVList;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.ServerRequest;
 import org.omg.CORBA.TCKind;
 import org.omg.CORBA.TypeCode;
-import org.apache.yoko.bindings.corba.runtime.CorbaStreamableImpl;
-import org.apache.yoko.bindings.corba.types.CorbaPrimitiveHandler;
-import org.apache.yoko.bindings.corba.utils.OrbConfig;
-import org.apache.yoko.orb.CORBA.NVList;
-import org.apache.yoko.wsdl.CorbaConstants;
 
-public class CorbaServerConduitTest extends TestCase {
+public class CorbaServerConduitTest extends Assert {
         
     IMocksControl control;
     ORB orb;
@@ -62,22 +65,16 @@ public class CorbaServerConduitTest extends TestCase {
     OrbConfig orbConfig;
     CorbaTypeMap corbaTypeMap;
 
-    public CorbaServerConduitTest(String arg0) {
-        super(arg0);
-    }
-    
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(CorbaBindingFactoryTest.class);
-    }
-    
+
+    @Before
     public void setUp() throws Exception {
         control = EasyMock.createNiceControl();
      
         bus = BusFactory.getDefaultBus(); 
      
         java.util.Properties props = System.getProperties();
-        props.put("org.omg.CORBA.ORBClass", "org.apache.yoko.orb.CORBA.ORB");
-        props.put("org.omg.CORBA.ORBSingletonClass", "org.apache.yoko.orb.CORBA.ORBSingleton");
+        
+        
         props.put("yoko.orb.id", "Yoko-Server-Binding");
         orb = ORB.init(new String[0], props);
         orbConfig = new OrbConfig();
@@ -85,6 +82,7 @@ public class CorbaServerConduitTest extends TestCase {
         orbConfig.setOrbSingletonClass("org.apache.yoko.orb.CORBA.ORBSingleton");
     }
     
+    @After
     public void tearDown() {        
         bus.shutdown(true);
         if (orb != null) {
@@ -96,11 +94,13 @@ public class CorbaServerConduitTest extends TestCase {
         } 
     }
     
+    @Test
     public void testCorbaServerConduit() throws Exception {
         CorbaServerConduit conduit = setupCorbaServerConduit(false);        
         assertTrue("conduit should not be null", conduit != null);
     }
     
+    @Test
     public void testPrepare() throws Exception {       
         setupServiceInfo("http://yoko.apache.org/simple",
                          "/wsdl/simpleIdl.wsdl", "SimpleCORBAService",
@@ -126,6 +126,7 @@ public class CorbaServerConduitTest extends TestCase {
     }
        
     
+    @Test
     public void testGetTargetReference() throws Exception {
         setupServiceInfo("http://yoko.apache.org/simple",
                          "/wsdl/simpleIdl.wsdl", "SimpleCORBAService",
@@ -143,6 +144,7 @@ public class CorbaServerConduitTest extends TestCase {
         destination.shutdown();
     }
     
+    @Test
     public void testGetAddress() throws Exception  {
         setupServiceInfo("http://yoko.apache.org/simple",
                          "/wsdl/simpleIdl.wsdl", "SimpleCORBAService",
@@ -159,6 +161,7 @@ public class CorbaServerConduitTest extends TestCase {
         assertEquals(address, "corbaloc::localhost:40000/Simple");        
     }
     
+    @Test
     public void testClose() throws Exception {   
         
         Method m = CorbaServerConduit.class.getDeclaredMethod("buildRequestResult", 
@@ -168,7 +171,7 @@ public class CorbaServerConduitTest extends TestCase {
         CorbaMessage msg = control.createMock(CorbaMessage.class);        
         conduit.buildRequestResult(msg);
         EasyMock.expectLastCall();
-        OutputStream stream =control.createMock(OutputStream.class);
+        OutputStream stream = control.createMock(OutputStream.class);
         EasyMock.expect(msg.getContent(OutputStream.class)).andReturn(stream);
         stream.close();
         EasyMock.expectLastCall();
@@ -178,6 +181,7 @@ public class CorbaServerConduitTest extends TestCase {
         control.verify();
     }        
                 
+    @Test
     public void testBuildRequestResult() {
         NVList list = (NVList)orb.create_list(0);        
         CorbaServerConduit conduit = setupCorbaServerConduit(false);  
@@ -203,6 +207,7 @@ public class CorbaServerConduitTest extends TestCase {
         control.verify();        
     }
     
+    @Test
     public void testBuildRequestResultException() {
         NVList list = (NVList)orb.create_list(0);        
         CorbaServerConduit conduit = setupCorbaServerConduit(false);  
@@ -233,6 +238,7 @@ public class CorbaServerConduitTest extends TestCase {
         control.verify();        
     }
 
+    @Test
     public void testBuildRequestResultArgumentReturn() {
         CorbaStreamable[] arguments = new CorbaStreamable[1];
         QName objName = new QName("object");
@@ -301,9 +307,9 @@ public class CorbaServerConduitTest extends TestCase {
     protected void setupServiceInfo(String ns, String wsdl, String serviceName, String portName) {        
         URL wsdlUrl = getClass().getResource(wsdl);
         assertNotNull(wsdlUrl);
-        WSDLServiceFactory factory = new WSDLServiceFactory(bus, wsdlUrl, new QName(ns, serviceName));
+        WSDLServiceFactory f = new WSDLServiceFactory(bus, wsdlUrl, new QName(ns, serviceName));
 
-        Service service = factory.create();        
+        Service service = f.create();        
         endpointInfo = service.getEndpointInfo(new QName(ns, portName));
    
     }

@@ -18,16 +18,13 @@
  */
 package org.apache.yoko.bindings.corba;
 
-import java.io.File;
-import java.util.HashMap;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 
 import javax.jws.WebService;
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
-import javax.xml.ws.BindingType;
 import javax.xml.ws.Endpoint;
 import javax.xml.ws.Service;
 
@@ -39,50 +36,44 @@ import org.apache.cxf.wsdl.WSDLManager;
 import org.apache.cxf.wsdl11.WSDLManagerImpl;
 
 import org.apache.schemas.yoko.idl.nestedobjref.Foo;
-import org.apache.schemas.yoko.idl.nestedobjref.FooCORBAService;
 import org.apache.schemas.yoko.idl.nestedobjref.FooFactory;
 import org.apache.schemas.yoko.idl.nestedobjref.FooFactoryCORBAService;
 import org.apache.schemas.yoko.idl.nestedobjref.FooRefStruct;
 import org.apache.schemas.yoko.idl.nestedobjref.FooRefUnion;
-import org.apache.yoko.bindings.corba.CorbaObjectReferenceTest.TestObjectImpl;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-import junit.framework.TestCase;
 
-public class CorbaNestedObjReferenceTest extends TestCase {
 
-    private final QName OBJECT_PORT_NAME = 
+public class CorbaNestedObjReferenceTest extends Assert {
+
+    private static final QName OBJECT_PORT_NAME = 
         new QName("http://schemas.apache.org/yoko/idl/NestedObjRef", "FooCORBAPort"); 
     
-    private final QName OBJECT_PORT_TYPE = 
+    private static final QName OBJECT_PORT_TYPE = 
         new QName("http://schemas.apache.org/yoko/idl/NestedObjRef", "Foo"); 
     
-    private final QName OBJECT_SERVICE_NAME = 
+    private static final QName OBJECT_SERVICE_NAME = 
         new QName("http://schemas.apache.org/yoko/idl/NestedObjRef", "FooCORBAService"); 
     
-    private final QName INTERFACE_PORT_NAME = 
+    private static final QName INTERFACE_PORT_NAME = 
         new QName("http://schemas.apache.org/yoko/idl/NestedObjRef", "FooFactoryCORBAPort"); 
     
-    private final QName INTERFACE_SERVICE_NAME = 
+    private static final QName INTERFACE_SERVICE_NAME = 
         new QName("http://schemas.apache.org/yoko/idl/NestedObjRef", "FooFactoryCORBAService"); 
     
-    private final static String WSDL_LOCATION = "/wsdl/NestedObjRef.wsdl";
-    private final static int MAX_WAIT_COUNT = 15;
+    private static final String WSDL_LOCATION = "/wsdl/NestedObjRef.wsdl";
+    private static final int MAX_WAIT_COUNT = 15;
     
     private static TestServer server;
     private static boolean testServerReady;
     private FooFactory client;
     private URL wsdlUrl;
 
-    public CorbaNestedObjReferenceTest(String arg0) {
-        super(arg0);
-    }
-    
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(CorbaNestedObjReferenceTest.class);
-    }
-    
-    protected void setUp() throws Exception {
-        super.setUp();
+    @Before
+    public void setUp() throws Exception {
        
         if (server == null) {
             server = new TestServer();
@@ -122,9 +113,8 @@ public class CorbaNestedObjReferenceTest extends TestCase {
         }
     }
 
-    protected void tearDown() throws Exception {
-        super.tearDown();
-
+    @After
+    public void tearDown() throws Exception {
         server.interrupt();
 
         try {
@@ -139,6 +129,7 @@ public class CorbaNestedObjReferenceTest extends TestCase {
         }
     }
 
+    @Test
     public void testCreateFooRefInStruct() {
         FooRefStruct ref = client.createFooRefInStruct("FooRefInStruct");
         //EndpointReferenceType epr = createObjectFromEndpointReferenceType(ref.getRef());
@@ -163,6 +154,7 @@ public class CorbaNestedObjReferenceTest extends TestCase {
         assertNull("Null EPR expected", ref.getRef());
     }
 
+    @Test
     public void testCreateFooRefInUnion() {
         FooRefUnion ref = client.createFooRefInUnion();
         EndpointReferenceType epr = ref.getU12();
@@ -181,6 +173,7 @@ public class CorbaNestedObjReferenceTest extends TestCase {
         assertTrue(portName.equals(OBJECT_PORT_NAME.getLocalPart()));
     }
     
+    @Test
     public void testInferredObjectReturn() {
         
         EndpointReferenceType ref = client.testInferredObjectReturn();
@@ -239,31 +232,32 @@ public class CorbaNestedObjReferenceTest extends TestCase {
     }
     
     public Foo createObjectFromEndpointReferenceType(EndpointReferenceType epr) throws Exception {
-            WSDLManager manager = null;
-            manager = new WSDLManagerImpl();
+        WSDLManager manager = null;
+        manager = new WSDLManagerImpl();
 
-            QName interfaceName = EndpointReferenceUtils.getInterfaceName(epr);
-            String wsdlLocation = EndpointReferenceUtils.getWSDLLocation(epr);
-            QName serviceName = EndpointReferenceUtils.getServiceName(epr);
-            String portName = EndpointReferenceUtils.getPortName(epr);
+        QName interfaceName = EndpointReferenceUtils.getInterfaceName(epr);
+        String wsdlLocation = EndpointReferenceUtils.getWSDLLocation(epr);
+        assertNotNull(wsdlLocation);
+        QName serviceName = EndpointReferenceUtils.getServiceName(epr);
+        String portName = EndpointReferenceUtils.getPortName(epr);
 
-            QName port = new QName(serviceName.getNamespaceURI(), portName);
+        QName port = new QName(serviceName.getNamespaceURI(), portName);
 
-            StringBuffer seiName = new StringBuffer();
-            seiName.append("org.apache.schemas.yoko.idl.nestedobjref.");
-            seiName.append(JAXBUtils.nameToIdentifier(interfaceName.getLocalPart(),
-                           JAXBUtils.IdentifierType.INTERFACE));
+        StringBuffer seiName = new StringBuffer();
+        seiName.append("org.apache.schemas.yoko.idl.nestedobjref.");
+        seiName.append(JAXBUtils.nameToIdentifier(interfaceName.getLocalPart(),
+                       JAXBUtils.IdentifierType.INTERFACE));
 
-            Class<?> sei = null;
-            sei = Class.forName(seiName.toString(), true, manager.getClass().getClassLoader());
+        Class<?> sei = null;
+        sei = Class.forName(seiName.toString(), true, manager.getClass().getClassLoader());
 
-            Service service = Service.create(wsdlUrl, serviceName);
-            Foo testObj = (Foo)service.getPort(port, sei);
+        Service service = Service.create(wsdlUrl, serviceName);
+        Foo testObj = (Foo)service.getPort(port, sei);
 
-            Map<String, Object> requestContext = ((BindingProvider)testObj).getRequestContext();
-            requestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, epr.getAddress().getValue());
+        Map<String, Object> requestContext = ((BindingProvider)testObj).getRequestContext();
+        requestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, epr.getAddress().getValue());
 
-            return testObj;
+        return testObj;
     }
     
     
@@ -328,7 +322,7 @@ public class CorbaNestedObjReferenceTest extends TestCase {
         
         public EndpointReferenceType testInferredObjectReturn() {
             return createEndpointReferenceType("InferredObjectReturn", true);
-         }
+        }
     }
     
     // A minimal Foo implementation to test object references

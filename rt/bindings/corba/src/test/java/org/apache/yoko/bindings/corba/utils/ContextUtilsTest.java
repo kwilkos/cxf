@@ -20,40 +20,27 @@
 
 package org.apache.yoko.bindings.corba.utils;
 
-import junit.framework.TestCase;
-
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.ExchangeImpl;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * Holder for utility methods relating to contexts.
  */
-public final class ContextUtilsTest extends TestCase {
+public final class ContextUtilsTest extends Assert {
     
-    public ContextUtilsTest(String arg0) {
-        super(arg0);
-    }
-    
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(ContextUtilsTest.class);
-    }
-    
-    protected void setUp() throws Exception {
-        super.setUp();        
-    }
-    
-    protected void tearDown() throws Exception {        
-    }
-    
-    
+
+    @Test
     public void testIsRequestor() throws Exception {
         Message message = new MessageImpl();
         message.put("org.apache.cxf.client", "org.apache.cxf.client");
         assertEquals(ContextUtils.isRequestor(message), true);               
     }
 
+    @Test
     public void testIsOutbound() throws Exception {
         Message message = new MessageImpl();
         Exchange exchange = new ExchangeImpl();

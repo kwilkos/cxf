@@ -96,7 +96,7 @@ public class CorbaPrimitiveHandler extends CorbaObjectHandler {
     public void setValueFromData(String data) {
         switch (typeCode.kind().value()) {
         case TCKind._tk_boolean:
-            value = new Boolean(data);
+            value = Boolean.valueOf(data);
             break;
         case TCKind._tk_char:
             // A char is mapped to a byte, we need it as a character

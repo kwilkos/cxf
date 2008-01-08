@@ -22,20 +22,12 @@ package org.apache.yoko.bindings.corba;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.jws.WebMethod;
-import javax.jws.WebParam;
-import javax.jws.WebResult;
-import javax.jws.WebService;
-import javax.jws.WebParam.Mode;
 import javax.xml.ws.Endpoint;
-import javax.xml.ws.RequestWrapper;
-import javax.xml.ws.ResponseWrapper;
 
-import org.apache.schemas.yoko.idl.idltowsdl_type_test.*;
 
 public class IdlToWsdlTypeTestServer {
 
-    boolean serverReady = false;
+    boolean serverReady;
 
     public void _start() {
         Object implementor = new IdlToWsdlTypeTestImpl();

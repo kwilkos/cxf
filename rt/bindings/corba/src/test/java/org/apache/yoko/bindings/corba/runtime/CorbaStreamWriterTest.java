@@ -19,30 +19,25 @@
 package org.apache.yoko.bindings.corba.runtime;
 
 import javax.xml.namespace.NamespaceContext;
-import junit.framework.TestCase;
+
 
 import org.easymock.classextension.EasyMock;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-public class CorbaStreamWriterTest extends TestCase {
+public class CorbaStreamWriterTest extends Assert {
     
     private CorbaStreamWriter writer;
     private NamespaceContext mock;
     
-    public CorbaStreamWriterTest(String arg0) {
-        super(arg0);
-        
-    }
-    
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(CorbaStreamWriterTest.class);
-    }
-    
-    protected void setUp() throws Exception {
-        super.setUp();
+    @Before
+    public void setUp() throws Exception {
         mock = EasyMock.createMock(NamespaceContext.class);
         writer = new CorbaStreamWriter(null, null, null);
     }
     
+    @Test
     public void testSetNamespaceContext() throws Exception {
         writer.setNamespaceContext(mock);
         assertSame("checking namespace context. ", mock, writer.getNamespaceContext());

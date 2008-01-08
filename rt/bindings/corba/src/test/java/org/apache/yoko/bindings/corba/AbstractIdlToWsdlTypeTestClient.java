@@ -602,18 +602,25 @@ public abstract class AbstractIdlToWsdlTypeTestClient extends TestCase {
         
         for (int i = 0; i < valueSets.length; i++) {
             IdltowsdlTypeTestStruct1 in = valueSets[i][0];
-            Holder<IdltowsdlTypeTestStruct1> inoutOrig = new Holder<IdltowsdlTypeTestStruct1>(valueSets[i][1]);
+            Holder<IdltowsdlTypeTestStruct1> inoutOrig = 
+                new Holder<IdltowsdlTypeTestStruct1>(valueSets[i][1]);
             Holder<IdltowsdlTypeTestStruct1> inout = new Holder<IdltowsdlTypeTestStruct1>(valueSets[i][1]);
             Holder<IdltowsdlTypeTestStruct1> out = new Holder<IdltowsdlTypeTestStruct1>();
 
             IdltowsdlTypeTestStruct1 ret = client.testStruct(in, inout, out);
 
-            assertEquals("testStruct(): Incorrect value for out param", inoutOrig.value.getStruct1Long(), out.value.getStruct1Long());
-            assertEquals("testStruct(): Incorrect value for out param", inoutOrig.value.getStruct1Short(), out.value.getStruct1Short());
-            assertEquals("testStruct(): Incorrect value for inout param", in.getStruct1Long() ,inout.value.getStruct1Long());
-            assertEquals("testStruct(): Incorrect value for inout param", in.getStruct1Short() ,inout.value.getStruct1Short());
-            assertEquals("testStruct(): Incorrect return value", in.getStruct1Long(), ret.getStruct1Long());
-            assertEquals("testStruct(): Incorrect return value", in.getStruct1Short(), ret.getStruct1Short());
+            assertEquals("testStruct(): Incorrect value for out param", 
+                         inoutOrig.value.getStruct1Long(), out.value.getStruct1Long());
+            assertEquals("testStruct(): Incorrect value for out param", 
+                         inoutOrig.value.getStruct1Short(), out.value.getStruct1Short());
+            assertEquals("testStruct(): Incorrect value for inout param", 
+                         in.getStruct1Long(), inout.value.getStruct1Long());
+            assertEquals("testStruct(): Incorrect value for inout param", 
+                         in.getStruct1Short(), inout.value.getStruct1Short());
+            assertEquals("testStruct(): Incorrect return value", 
+                         in.getStruct1Long(), ret.getStruct1Long());
+            assertEquals("testStruct(): Incorrect return value", 
+                         in.getStruct1Short(), ret.getStruct1Short());
         }                        
     }
 
@@ -643,7 +650,7 @@ public abstract class AbstractIdlToWsdlTypeTestClient extends TestCase {
             IdltowsdlTypeTestUnion1 ret = client.testUnion(in, inout, out);
 
             assertTrue("testUnion(): Incorrect value for out param", compareUnion(inoutOrig.value, out.value));
-            assertTrue("testUnion(): Incorrect value for inout param", compareUnion(in,inout.value));
+            assertTrue("testUnion(): Incorrect value for inout param", compareUnion(in, inout.value));
             assertTrue("testUnion(): Incorrect return value", compareUnion(in, ret));
         }                        
     }
@@ -677,7 +684,7 @@ public abstract class AbstractIdlToWsdlTypeTestClient extends TestCase {
             IdltowsdlTypeTestEnum1 ret = client.testEnum(in, inout, out);
 
             assertEquals("testEnum(): Incorrect value for out param", inoutOrig.value, out.value);
-            assertEquals("testEnum(): Incorrect value for inout param", in,inout.value);
+            assertEquals("testEnum(): Incorrect value for inout param", in, inout.value);
             assertEquals("testEnum(): Incorrect return value", in, ret);
         }
     }
@@ -785,8 +792,10 @@ public abstract class AbstractIdlToWsdlTypeTestClient extends TestCase {
             Holder<IdltowsdlTypeTestUnion2> out = new Holder<IdltowsdlTypeTestUnion2>();
 
             IdltowsdlTypeTestUnion2 ret = client.testUnionVariants(in, inout, out);
-            assertTrue("testUnionVariants(): Incorrect value for out param", compareUnionVariants(inoutOrig.value, out.value));
-            assertTrue("testUnionVariants(): Incorrect value for inout param", compareUnionVariants(in,inout.value));
+            assertTrue("testUnionVariants(): Incorrect value for out param", 
+                       compareUnionVariants(inoutOrig.value, out.value));
+            assertTrue("testUnionVariants(): Incorrect value for inout param", 
+                       compareUnionVariants(in, inout.value));
             assertTrue("testUnionVariants(): Incorrect return value", compareUnionVariants(in, ret));
         }                        
     }
@@ -1094,14 +1103,14 @@ public abstract class AbstractIdlToWsdlTypeTestClient extends TestCase {
         
         // bounded octed seq
         byte[] bytes = new byte[5];
-        for (int i=0; i<5; i++) {
+        for (int i = 0; i < 5; i++) {
             bytes[i] = Byte.valueOf(Integer.toString(i));
         }
         in.setBoundedOctetSeq(bytes);
         
         // array of strings
     	in.setBldAddr(new IdltowsdlTypeTestBuildingAddress6T());
-    	for (int i=0; i<6; i++) {
+    	for (int i = 0; i < 6; i++) {
     		in.getBldAddr().getItem().add(String.valueOf(i));
     	}
         
@@ -1109,7 +1118,7 @@ public abstract class AbstractIdlToWsdlTypeTestClient extends TestCase {
         inOutOrig.setBoundedOctetSeq(bytes);
         inOutOrig.setContents(contents);
     	inOutOrig.setBldAddr(new IdltowsdlTypeTestBuildingAddress6T());
-    	for (int i=6; i<12; i++) {
+    	for (int i = 6; i < 12; i++) {
     		inOutOrig.getBldAddr().getItem().add(String.valueOf(i));
     	}    	
     	

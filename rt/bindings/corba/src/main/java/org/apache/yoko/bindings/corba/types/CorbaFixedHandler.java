@@ -27,7 +27,7 @@ import org.apache.schemas.yoko.bindings.corba.Fixed;
 
 import org.omg.CORBA.TypeCode;
 
-public class CorbaFixedHandler extends CorbaObjectHandler {
+public final class CorbaFixedHandler extends CorbaObjectHandler {
 
     private final long digits;
     private final long scale;

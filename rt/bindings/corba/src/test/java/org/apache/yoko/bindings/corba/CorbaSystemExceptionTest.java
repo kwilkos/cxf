@@ -39,9 +39,9 @@ import org.apache.cxf.wsdl11.WSDLManagerImpl;
 import org.apache.schemas.yoko.idl.systemex.SystemExceptionTester;
 import org.apache.schemas.yoko.idl.systemex.SystemExceptionTesterCORBAService;
 
-import junit.framework.TestCase;
 
-public class CorbaSystemExceptionTest extends TestCase {
+
+public class CorbaSystemExceptionTest extends Assert {
 
     public final static int COMM_FAILURE = 1;
     public final static int TRANSIENT = 2;
@@ -69,7 +69,8 @@ public class CorbaSystemExceptionTest extends TestCase {
         junit.textui.TestRunner.run(CorbaSystemExceptionTest.class);
     }
     
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         super.setUp();
        
         if (server == null) {
@@ -108,7 +109,8 @@ public class CorbaSystemExceptionTest extends TestCase {
         }
     }
 
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         super.tearDown();
 
         server.interrupt();

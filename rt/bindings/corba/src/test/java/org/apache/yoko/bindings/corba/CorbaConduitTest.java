@@ -22,52 +22,49 @@ import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import javax.xml.namespace.QName;
-import junit.framework.TestCase;
+
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
-import org.apache.cxf.endpoint.Endpoint;
-import org.apache.cxf.endpoint.EndpointImpl;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.message.Exchange;
-import org.apache.cxf.message.ExchangeImpl;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.model.BindingOperationInfo;
-import org.apache.cxf.service.model.DescriptionInfo;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 
 import org.apache.cxf.transport.MessageObserver;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
 import org.apache.cxf.wsdl11.WSDLServiceFactory;
-import org.easymock.classextension.EasyMock;
-import org.easymock.classextension.IMocksControl;
-import org.omg.CORBA.Any;
-import org.omg.CORBA.Context;
-import org.omg.CORBA.ContextList;
-import org.omg.CORBA.ExceptionList;
-import org.omg.CORBA.NamedValue;
-import org.omg.CORBA.ORB;
-import org.omg.CORBA.Request;
-import org.omg.CORBA.TCKind;
-import org.omg.CORBA.TypeCode;
-
 import org.apache.schemas.yoko.bindings.corba.OperationType;
 import org.apache.schemas.yoko.bindings.corba.RaisesType;
 import org.apache.schemas.yoko.bindings.corba.TypeMappingType;
 import org.apache.yoko.bindings.corba.types.CorbaPrimitiveHandler;
 import org.apache.yoko.bindings.corba.utils.CorbaUtils;
 import org.apache.yoko.bindings.corba.utils.OrbConfig;
-import org.apache.yoko.orb.CORBA.NVList;
 import org.apache.yoko.wsdl.CorbaConstants;
+import org.easymock.classextension.EasyMock;
+import org.easymock.classextension.IMocksControl;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.omg.CORBA.Context;
+import org.omg.CORBA.ContextList;
+import org.omg.CORBA.ExceptionList;
+import org.omg.CORBA.NVList;
+import org.omg.CORBA.NamedValue;
+import org.omg.CORBA.ORB;
+import org.omg.CORBA.Request;
+import org.omg.CORBA.TCKind;
+import org.omg.CORBA.TypeCode;
 
-public class CorbaConduitTest extends TestCase {
+
+public class CorbaConduitTest extends Assert {
     
     private static IMocksControl control;
     private static ORB orb;
@@ -80,29 +77,21 @@ public class CorbaConduitTest extends TestCase {
     TestUtils testUtils;
     OrbConfig orbConfig;
 
-    public CorbaConduitTest(String arg0) {
-        super(arg0);
-    }
-    
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(CorbaBindingFactoryTest.class);
-    }
-    
+    @Before
     public void setUp() throws Exception {
         control = EasyMock.createNiceControl();
      
         bus = BusFactory.getDefaultBus(); 
      
         java.util.Properties props = System.getProperties();
-        props.put("org.omg.CORBA.ORBClass", "org.apache.yoko.orb.CORBA.ORB");
-        props.put("org.omg.CORBA.ORBSingletonClass", "org.apache.yoko.orb.CORBA.ORBSingleton");
+        
+        
         props.put("yoko.orb.id", "Yoko-Server-Binding");
         orb = ORB.init(new String[0], props);
         orbConfig = new OrbConfig();
-        orbConfig.setOrbClass("org.apache.yoko.orb.CORBA.ORB");
-        orbConfig.setOrbSingletonClass("org.apache.yoko.orb.CORBA.ORBSingleton");
     }
-    
+
+    @After
     public void tearDown() {
         if (orb != null) {
             try {
@@ -113,11 +102,13 @@ public class CorbaConduitTest extends TestCase {
         } 
     }
     
+    @Test
     public void testCorbaConduit() throws Exception {
         CorbaConduit conduit = setupCorbaConduit(false);        
         assertTrue("conduit should not be null", conduit != null);
     }
     
+    @Test
     public void testPrepare() throws Exception {       
         setupServiceInfo("http://yoko.apache.org/simple",
                          "/wsdl/simpleIdl.wsdl", "SimpleCORBAService",
@@ -133,13 +124,14 @@ public class CorbaConduitTest extends TestCase {
         }
         OutputStream os = message.getContent(OutputStream.class);
         assertTrue("OutputStream should not be null", os != null);        
-        ORB orb = (ORB)message.get("orb");
-        assertTrue("Orb should not be null", orb != null);
+        ORB orb2 = (ORB)message.get("orb");
+        assertTrue("Orb should not be null", orb2 != null);
         Object obj = message.get("endpoint");
         assertTrue("EndpointReferenceType should not be null", obj != null);  
     }
        
     
+    @Test
     public void testGetTargetReference() throws Exception {
         setupServiceInfo("http://yoko.apache.org/simple",
                          "/wsdl/simpleIdl.wsdl", "SimpleCORBAService",
@@ -153,6 +145,7 @@ public class CorbaConduitTest extends TestCase {
         assertTrue("ref should not be null", ref != null);
     }
     
+    @Test
     public void testGetAddress() throws Exception  {
         setupServiceInfo("http://yoko.apache.org/simple",
                          "/wsdl/simpleIdl.wsdl", "SimpleCORBAService",
@@ -166,6 +159,7 @@ public class CorbaConduitTest extends TestCase {
         assertEquals(address, "corbaloc::localhost:40000/Simple");                
     }
     
+    @Test
     public void testClose() throws Exception {       
         Method m = CorbaConduit.class.getDeclaredMethod("buildRequest", 
             new Class[] {CorbaMessage.class, OperationType.class});
@@ -183,7 +177,7 @@ public class CorbaConduitTest extends TestCase {
         EasyMock.expectLastCall().andReturn(opType);
         conduit.buildRequest(msg, opType);
         EasyMock.expectLastCall();
-        OutputStream os =control.createMock(OutputStream.class);
+        OutputStream os = control.createMock(OutputStream.class);
         EasyMock.expect(msg.getContent(OutputStream.class)).andReturn(os);
         os.close();
         EasyMock.expectLastCall();
@@ -193,12 +187,14 @@ public class CorbaConduitTest extends TestCase {
         control.verify();
     }
     
+    @Test
     public void testGetTarget() throws Exception {
         CorbaConduit conduit = setupCorbaConduit(false);
         EndpointReferenceType endpoint = conduit.getTarget();
         assertTrue("EndpointReferenceType should not be null", endpoint != null);
     }
     
+    @Test
     public void testGetOperationExceptions() {    
         CorbaConduit conduit = control.createMock(CorbaConduit.class);    
         OperationType opType = control.createMock(OperationType.class);
@@ -214,9 +210,10 @@ public class CorbaConduitTest extends TestCase {
         
         control.replay();
         conduit.getOperationExceptions(opType, typeMap);
-        assertEquals(exlist.size(),0);        
+        assertEquals(exlist.size(), 0);        
     }
     
+    @Test
     public void testBuildRequest() throws Exception {
         CorbaConduit conduit = setupCorbaConduit(false);            
         CorbaMessage message = control.createMock(CorbaMessage.class);
@@ -243,6 +240,7 @@ public class CorbaConduitTest extends TestCase {
         EasyMock.expectLastCall();
     }
     
+    @Test
     public void testBuildArguments() throws Exception {
         Message msg = new MessageImpl();
         CorbaMessage message = new CorbaMessage(msg);
@@ -256,7 +254,7 @@ public class CorbaConduitTest extends TestCase {
         arguments[0].setMode(org.omg.CORBA.ARG_OUT.value);
         
         CorbaConduit conduit = setupCorbaConduit(false);
-        NVList list = (NVList)conduit.getArguments(message);
+        NVList list = conduit.getArguments(message);
         assertNotNull("list should not be null", list != null);
         
         message.setStreamableArguments(arguments);
@@ -268,6 +266,7 @@ public class CorbaConduitTest extends TestCase {
         assertNotNull("Any Value should not be null", listArgs.item(0).value() != null);        
     }
     
+    @Test
     public void testBuildReturn() throws Exception {
         Message msg = new MessageImpl();
         CorbaMessage message = new CorbaMessage(msg);
@@ -289,6 +288,7 @@ public class CorbaConduitTest extends TestCase {
         assertEquals("name should be equal", ret2.name(), "returnName");               
     }
     
+    @Test
     public void testBuildExceptionListEmpty() throws Exception {
         CorbaConduit conduit = setupCorbaConduit(false);
         Message msg = new MessageImpl();
@@ -302,19 +302,19 @@ public class CorbaConduitTest extends TestCase {
         assertEquals("The list should be empty", exList.count(), 0);        
     }
     
+    @Test
     public void testBuildExceptionListWithExceptions() throws Exception {        
         CorbaConduit conduit = setupCorbaConduit(false);
         Message msg = new MessageImpl();
         CorbaMessage message = new CorbaMessage(msg);
-        TestUtils testUtils = new TestUtils();
         CorbaDestination destination = testUtils.getExceptionTypesTestDestination();
-        EndpointInfo endpointInfo = destination.getEndPointInfo();
+        EndpointInfo endpointInfo2 = destination.getEndPointInfo();
         QName name = new QName("http://schemas.apache.org/idl/except", "review_data", "");
         BindingOperationInfo bInfo = destination.getBindingInfo().getOperation(name);
         OperationType opType = bInfo.getExtensor(OperationType.class);
         CorbaTypeMap typeMap = null;
         List<TypeMappingType> corbaTypes =
-            endpointInfo.getService().getDescription().getExtensors(TypeMappingType.class);        
+            endpointInfo2.getService().getDescription().getExtensors(TypeMappingType.class);        
         if (corbaTypes != null) {
             typeMap = CorbaUtils.createCorbaTypeMap(corbaTypes);
         }
@@ -332,10 +332,11 @@ public class CorbaConduitTest extends TestCase {
         assertNotNull("Member type is not null", exList.item(0).member_type(0) != null);                
     }
             
+    @Test
     public void testInvoke() throws Exception {
         CorbaConduit conduit = setupCorbaConduit(false);
         //CorbaMessage message = new CorbaMessage(msg);
-        CorbaMessage message= control.createMock(CorbaMessage.class);
+        CorbaMessage message = control.createMock(CorbaMessage.class);
         /*String opName = "GreetMe";
         NVList nvlist = (NVList)orb.create_list(0);
         
@@ -401,9 +402,9 @@ public class CorbaConduitTest extends TestCase {
     protected void setupServiceInfo(String ns, String wsdl, String serviceName, String portName) {        
         URL wsdlUrl = getClass().getResource(wsdl);
         assertNotNull(wsdlUrl);
-        WSDLServiceFactory factory = new WSDLServiceFactory(bus, wsdlUrl, new QName(ns, serviceName));
+        WSDLServiceFactory f = new WSDLServiceFactory(bus, wsdlUrl, new QName(ns, serviceName));
 
-        Service service = factory.create();        
+        Service service = f.create();        
         endpointInfo = service.getEndpointInfo(new QName(ns, portName));
    
     }

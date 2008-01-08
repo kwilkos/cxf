@@ -39,18 +39,21 @@ public class TestUtils {
         bus = BusFactory.getDefaultBus();
         BindingFactoryManager bfm = bus.getExtension(BindingFactoryManager.class);
         try {
-            factory = (CorbaBindingFactory)bfm.getBindingFactory("http://schemas.apache.org/yoko/bindings/corba");
+            factory = (CorbaBindingFactory)bfm.getBindingFactory(
+                       "http://schemas.apache.org/yoko/bindings/corba");
             bfm.registerBindingFactory(CorbaConstants.NU_WSDL_CORBA, factory);
         } catch (BusException ex) {
             ex.printStackTrace();            
         }
     }        
     
-    public EndpointInfo setupServiceInfo(String ns, String wsdl, String serviceName, String portName) throws Exception {      
+    public EndpointInfo setupServiceInfo(String ns, String wsdl,
+                                         String serviceName, String portName) throws Exception {      
         URL wsdlUrl = getClass().getResource(wsdl);
-        WSDLServiceFactory factory = new WSDLServiceFactory(bus, wsdlUrl, new QName(ns, serviceName));
+        WSDLServiceFactory f = new WSDLServiceFactory(bus, wsdlUrl,
+                                                      new QName(ns, serviceName));
 
-        Service service = factory.create();
+        Service service = f.create();
         return service.getEndpointInfo(new QName(ns, portName));
     }                  
 

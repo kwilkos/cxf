@@ -18,59 +18,47 @@
  */
 package org.apache.yoko.bindings.corba.types;
 
-import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 import javax.xml.namespace.QName;
 
+
+import org.apache.cxf.Bus;
+import org.apache.cxf.BusFactory;
+import org.apache.cxf.binding.BindingFactory;
+import org.apache.cxf.binding.BindingFactoryManager;
+import org.apache.cxf.service.model.EndpointInfo;
+import org.apache.cxf.service.model.ServiceInfo;
+
 import org.apache.schemas.yoko.bindings.corba.TypeMappingType;
-import org.apache.yoko.bindings.corba.CorbaBindingFactory;
-import org.apache.yoko.bindings.corba.CorbaBinding;
 import org.apache.yoko.bindings.corba.CorbaDestination;
 import org.apache.yoko.bindings.corba.CorbaTypeMap;
 import org.apache.yoko.bindings.corba.TestUtils;
 import org.apache.yoko.bindings.corba.utils.CorbaUtils;
 import org.apache.yoko.wsdl.CorbaConstants;
 
-import org.apache.cxf.Bus;
-import org.apache.cxf.BusFactory;
-import org.apache.cxf.binding.BindingFactory;
-import org.apache.cxf.binding.BindingFactoryManager;
-import org.apache.cxf.interceptor.Interceptor;
-import org.apache.cxf.service.Service;
-import org.apache.cxf.service.model.BindingInfo;
-import org.apache.cxf.service.model.EndpointInfo;
-import org.apache.cxf.service.model.ServiceInfo;
-import org.apache.cxf.transport.Destination;
-import org.apache.cxf.wsdl11.WSDLServiceFactory;
-
-import org.easymock.classextension.EasyMock;
-import org.easymock.classextension.IMocksControl;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.omg.CORBA.ORB;
 
-import junit.framework.TestCase;
 
-public class CorbaHandlerUtilsTest extends TestCase {
+
+public class CorbaHandlerUtilsTest extends Assert {
+
+    protected EndpointInfo endpointInfo;
+    BindingFactory factory;
+    CorbaTypeMap typeMap;
+    ServiceInfo service;
 
     private final String complexTypesNamespaceURI = "http://yoko.apache.org/ComplexTypes/idl_types";
     private final String complexTypesPrefix = "corbatm";    
     private ORB orb;
     private Bus bus;    
-    protected EndpointInfo endpointInfo;
-    BindingFactory factory;
-    CorbaTypeMap typeMap;
-    ServiceInfo service;
     
-    public CorbaHandlerUtilsTest(String arg0) {
-        super(arg0);
-    }
-
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(CorbaHandlerUtilsTest.class);
-    }    
     
-    protected void setUp() throws Exception {
-        super.setUp();
+    @Before
+    public void setUp() throws Exception {
 
         bus = BusFactory.getDefaultBus();              
         BindingFactoryManager bfm = bus.getExtension(BindingFactoryManager.class);        
@@ -78,8 +66,8 @@ public class CorbaHandlerUtilsTest extends TestCase {
         bfm.registerBindingFactory(CorbaConstants.NU_WSDL_CORBA, factory);        
 
         java.util.Properties props = System.getProperties();
-        props.put("org.omg.CORBA.ORBClass", "org.apache.yoko.orb.CORBA.ORB");
-        props.put("org.omg.CORBA.ORBSingletonClass", "org.apache.yoko.orb.CORBA.ORBSingleton");
+        
+        
         props.put("yoko.orb.id", "Yoko-Server-Binding");
         orb = ORB.init(new String[0], props);
         
@@ -87,11 +75,13 @@ public class CorbaHandlerUtilsTest extends TestCase {
         //CorbaDestination destination = (CorbaDestination)getDestination();
         CorbaDestination destination = testUtils.getComplexTypesTestDestination();
         service = destination.getBindingInfo().getService();
-        List<TypeMappingType> corbaTypes = service.getDescription().getExtensors(TypeMappingType.class);        
+        List<TypeMappingType> corbaTypes 
+            = service.getDescription().getExtensors(TypeMappingType.class);        
         typeMap = CorbaUtils.createCorbaTypeMap(corbaTypes);
     }
     
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         bus.shutdown(true); 
         if (orb != null) {
             try {
@@ -123,6 +113,7 @@ public class CorbaHandlerUtilsTest extends TestCase {
         return destination;
     }*/
     
+    @Test
     public void testCreateTypeHandler() {
         QName objName = null;
         QName objIdlType = null;
@@ -171,6 +162,7 @@ public class CorbaHandlerUtilsTest extends TestCase {
         assertTrue(result instanceof CorbaUnionHandler);
     }
     
+    @Test
     public void testInitializeObjectHandler() {        
         QName objName = null;
         QName objIdlType = null;

@@ -22,8 +22,12 @@ import java.math.BigInteger;
 import java.net.URL;
 
 import javax.xml.namespace.QName;
-import junit.framework.TestCase;
 
+
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.StructMember;
 import org.omg.CORBA.TCKind;
@@ -46,29 +50,21 @@ import org.apache.yoko.orb.CORBA.OutputStream;
 import org.apache.yoko.orb.OCI.Buffer;
 import org.apache.yoko.wsdl.CorbaConstants;
 
-public class CorbaObjectWriterTest extends TestCase {
+public class CorbaObjectWriterTest extends Assert {
 
     private static ORB orb;
     
-    public CorbaObjectWriterTest(String arg0) {
-        super(arg0);
-    }
-    
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(CorbaObjectWriterTest.class);
-    }
-    
-    protected void setUp() throws java.lang.Exception {
-        super.setUp();
-
+    @Before
+    public void setUp() throws java.lang.Exception {
         java.util.Properties props = System.getProperties();
-        props.put("org.omg.CORBA.ORBClass", "org.apache.yoko.orb.CORBA.ORB");
-        props.put("org.omg.CORBA.ORBSingletonClass", "org.apache.yoko.orb.CORBA.ORBSingleton");
+        
+        
         props.put("yoko.orb.id", "Yoko-Binding");
         orb = ORB.init(new String[0], props);
     }
     
-    protected void tearDown() throws java.lang.Exception {
+    @After
+    public void tearDown() throws java.lang.Exception {
         if (orb != null) {
             try {
                 orb.destroy();
@@ -78,6 +74,7 @@ public class CorbaObjectWriterTest extends TestCase {
         }
     }
 
+    @Test
     public void testWriteBoolean() {
         Buffer buf = new Buffer();
         OutputStream oStream = new OutputStream(buf);
@@ -91,6 +88,7 @@ public class CorbaObjectWriterTest extends TestCase {
         assertTrue(b == boolValue.booleanValue());
     }
     
+    @Test
     public void testWriteChar() {
         Buffer buf = new Buffer();
         OutputStream oStream = new OutputStream(buf);
@@ -104,6 +102,7 @@ public class CorbaObjectWriterTest extends TestCase {
         assertTrue(c == charValue.charValue());
     }
 
+    @Test
     public void testWriteWChar() {
         Buffer buf = new Buffer();
         OutputStream oStream = new OutputStream(buf);
@@ -117,6 +116,7 @@ public class CorbaObjectWriterTest extends TestCase {
         assertTrue(wc == wcharValue.charValue());
     }
     
+    @Test
     public void testWriteShort() {
         Buffer buf = new Buffer();
         OutputStream oStream = new OutputStream(buf);
@@ -130,6 +130,7 @@ public class CorbaObjectWriterTest extends TestCase {
         assertTrue(s == shortValue.shortValue());
     }
     
+    @Test
     public void testWriteUShort() {
         Buffer buf = new Buffer();
         OutputStream oStream = new OutputStream(buf);
@@ -143,6 +144,7 @@ public class CorbaObjectWriterTest extends TestCase {
         assertTrue(us == ushortValue.intValue());
     }
     
+    @Test
     public void testWriteLong() {
         Buffer buf = new Buffer();
         OutputStream oStream = new OutputStream(buf);
@@ -156,6 +158,7 @@ public class CorbaObjectWriterTest extends TestCase {
         assertTrue(l == longValue.intValue());
     }
     
+    @Test
     public void testWriteULong() {
         Buffer buf = new Buffer();
         OutputStream oStream = new OutputStream(buf);
@@ -169,6 +172,7 @@ public class CorbaObjectWriterTest extends TestCase {
         assertTrue(ul == ulongValue.longValue());
     }
     
+    @Test
     public void testWriteLongLong() {
         Buffer buf = new Buffer();
         OutputStream oStream = new OutputStream(buf);
@@ -182,6 +186,7 @@ public class CorbaObjectWriterTest extends TestCase {
         assertTrue(ll == longlongValue.longValue());
     }
     
+    @Test
     public void testWriteULongLong() {
         Buffer buf = new Buffer();
         OutputStream oStream = new OutputStream(buf);
@@ -195,6 +200,7 @@ public class CorbaObjectWriterTest extends TestCase {
         assertTrue(ul == ulonglongValue.longValue());
     }
     
+    @Test
     public void testWriteFloat() {
         Buffer buf = new Buffer();
         OutputStream oStream = new OutputStream(buf);
@@ -208,6 +214,7 @@ public class CorbaObjectWriterTest extends TestCase {
         assertTrue(f == floatValue.floatValue());
     }
     
+    @Test
     public void testWriteDouble() {
         Buffer buf = new Buffer();
         OutputStream oStream = new OutputStream(buf);
@@ -221,6 +228,7 @@ public class CorbaObjectWriterTest extends TestCase {
         assertTrue(d == doubleValue.doubleValue());
     }
     
+    @Test
     public void testWriteString() {
         Buffer buf = new Buffer();
         OutputStream oStream = new OutputStream(buf);
@@ -234,6 +242,7 @@ public class CorbaObjectWriterTest extends TestCase {
         assertTrue(s.equals(stringValue));
     }
 
+    @Test
     public void testWriteWString() {
         Buffer buf = new Buffer();
         OutputStream oStream = new OutputStream(buf);
@@ -247,8 +256,9 @@ public class CorbaObjectWriterTest extends TestCase {
         assertTrue(s.equals(wstringValue));
     }
     
+    @Test
     public void testWriteArray() {
-        int data[] = { 1, 1, 2, 3, 5, 8, 13, 21 };
+        int data[] = {1, 1, 2, 3, 5, 8, 13, 21};
         
         // create an array of longs
         QName longIdlType = new QName(CorbaConstants.NU_WSDL_CORBA, "long", CorbaConstants.NP_WSDL_CORBA);
@@ -281,8 +291,9 @@ public class CorbaObjectWriterTest extends TestCase {
         }
     }
     
+    @Test
     public void testWriteSequence() {
-        String data[] = { "one", "one", "two", "three", "five", "eight", "thirteen", "twenty-one" };
+        String data[] = {"one", "one", "two", "three", "five", "eight", "thirteen", "twenty-one"};
         
         // create an sequence of strings
         QName stringIdlType = new QName(CorbaConstants.NU_WSDL_CORBA, "string", CorbaConstants.NP_WSDL_CORBA);
@@ -317,6 +328,7 @@ public class CorbaObjectWriterTest extends TestCase {
         }
     }
     
+    @Test
     public void testWriteStruct() {
         // create the following struct
         // struct TestStruct {
@@ -386,6 +398,7 @@ public class CorbaObjectWriterTest extends TestCase {
         assertTrue(readMember3 == member3);
     }
     
+    @Test
     public void testWriteException() {
         // create the following exception
         // exception TestExcept {
@@ -444,6 +457,7 @@ public class CorbaObjectWriterTest extends TestCase {
         assertTrue(readMessage.equals(message));
     }
     
+    @Test
     public void testWriteObject() {
         URL refUrl = getClass().getResource("/references/account.ref");
         org.omg.CORBA.Object objRef = 

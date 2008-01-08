@@ -19,27 +19,22 @@
 package org.apache.yoko.bindings.corba;
 
 import javax.xml.namespace.QName;
-import junit.framework.TestCase;
-import org.apache.yoko.wsdl.CorbaTypeImpl;
 
-public class CorbaTypeMapTest extends TestCase {
-    
-    public CorbaTypeMapTest(String arg0) {
-        super(arg0);
-    }    
-    
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(CorbaTypeMapTest.class);
-    }
-        
+import org.apache.yoko.wsdl.CorbaTypeImpl;
+import org.junit.Assert;
+import org.junit.Test;
+
+public class CorbaTypeMapTest extends Assert {
+
+    @Test
     public void testCorbaTypeMap() throws Exception {
         CorbaTypeMap typeMap = new CorbaTypeMap("http://yoko.apache.org/ComplexTypes");
                 
         String targetNamespace = typeMap.getTargetNamespace();
-        assertEquals(targetNamespace,"http://yoko.apache.org/ComplexTypes");
+        assertEquals(targetNamespace, "http://yoko.apache.org/ComplexTypes");
         
-        QName qname = new QName("http://yoko.apache.org/ComplexTypes","Test.MultiPart.Colour", "");
-        QName type = new QName("http://yoko.apache.org/ComplexTypes","xsd1:Test.MultiPart.Colour", "");
+        QName qname = new QName("http://yoko.apache.org/ComplexTypes", "Test.MultiPart.Colour", "");
+        QName type = new QName("http://yoko.apache.org/ComplexTypes", "xsd1:Test.MultiPart.Colour", "");
                 
         CorbaTypeImpl corbaTypeImpl = new CorbaTypeImpl();
         corbaTypeImpl.setQName(qname);
