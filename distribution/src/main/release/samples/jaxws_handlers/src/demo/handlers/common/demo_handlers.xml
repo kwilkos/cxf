@@ -18,8 +18,6 @@
   under the License.
 -->
 <handler-chains xmlns="http://java.sun.com/xml/ns/javaee" 
-xmlns:cfg="http://cxf.apache.org/configuration/cfg" 
-xmlns:jaxb="http://java.sun.com/xml/ns/jaxb" 
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
 xsi:schemaLocation="http://java.sun.com/xml/ns/javaee">
     <handler-chain>
