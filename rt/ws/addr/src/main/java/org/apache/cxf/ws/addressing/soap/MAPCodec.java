@@ -699,7 +699,7 @@ public class MAPCodec extends AbstractSoapInterceptor {
      * @param maps the addressing properties
      */
     private void cacheExchange(SoapMessage message, AddressingProperties maps) {
-        if (maps.getRelatesTo() == null && !message.getExchange().isOneWay()) {
+        if (ContextUtils.isRequestor(message) && !message.getExchange().isOneWay()) {
             uncorrelatedExchanges.put(maps.getMessageID().getValue(),
                                       message.getExchange());
         }
