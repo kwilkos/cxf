@@ -517,18 +517,24 @@ public class JavaToProcessorTest extends ProcessorTestBase {
         assertTrue(getStringFromFile(wsdlFile).indexOf("name=\"bye\"") != -1);
     }
 
-//     @Test
-//     public void testWSARefParam() throws Exception {
-//         env.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/refparam.wsdl");
-//         env.put(ToolConstants.CFG_CLASSNAME, "org.apache.cxf.tools.fortest.refparam.AddNumbersImpl");
-//         env.put(ToolConstants.CFG_VERBOSE, ToolConstants.CFG_VERBOSE);
-//         env.put(ToolConstants.CFG_WRAPPERBEAN, ToolConstants.CFG_WRAPPERBEAN);
-//         try {
-//             processor.setEnvironment(env);
-//             processor.process();
-//         } catch (Exception e) {
-//             e.printStackTrace();
-//         }
-//     }
+    @Test
+    public void testWSARefParam() throws Exception {
+        env.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/refparam.wsdl");
+        env.put(ToolConstants.CFG_CLASSNAME, "org.apache.cxf.tools.fortest.refparam.AddNumbersImpl");
+        env.put(ToolConstants.CFG_VERBOSE, ToolConstants.CFG_VERBOSE);
+        env.put(ToolConstants.CFG_WRAPPERBEAN, ToolConstants.CFG_WRAPPERBEAN);
+        try {
+            processor.setEnvironment(env);
+            processor.process();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
+        String pkgBase = "org/apache/cxf/tools/fortest/refparam/jaxws";
+        File requestWrapperClass = new File(output, pkgBase + "/AddNumbers.java");
+        assertTrue(requestWrapperClass.exists());
+
+        String expectedString = "@XmlElement(name  =  \"number2\",  namespace  =  \"http://example.com\")";
+        assertTrue(getStringFromFile(requestWrapperClass).indexOf(expectedString) != -1);
+    }
 }

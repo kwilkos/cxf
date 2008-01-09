@@ -25,6 +25,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
+import javax.jws.WebParam;
 
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.service.model.MessageInfo;
@@ -66,14 +67,16 @@ public class RequestWrapper extends Wrapper {
         String type = "Object";
 
         final Type[] paramClasses = method.getGenericParameterTypes();
+        final Annotation[][] paramAnnotations = method.getParameterAnnotations();
+
         for (MessagePartInfo mpi : message.getMessageParts()) {
             int idx = mpi.getIndex();
             name = mpi.getName().getLocalPart();
             Type t = paramClasses[idx];
 
-
+            Class clz = null;
             if (t instanceof Class) {
-                Class clz = (Class) t;
+                clz = (Class) t;
                 if (clz.isArray()) {
                     if (isBuiltInTypes(clz.getComponentType())) {
                         type = clz.getComponentType().getSimpleName() + "[]";
@@ -87,18 +90,38 @@ public class RequestWrapper extends Wrapper {
                 ParameterizedType pt = (ParameterizedType) t;
                 if (pt.getActualTypeArguments().length > 0
                     && pt.getActualTypeArguments()[0] instanceof Class) {
-                    type = ((Class)pt.getActualTypeArguments()[0]).getName();
+                    clz = (Class)pt.getActualTypeArguments()[0];
+                    type = clz.getName();
                 }
             }
 
             JavaField field = new JavaField(name, type, "");
-            field.setTargetNamespace("");
+
+            if (paramAnnotations != null 
+                && paramAnnotations.length == paramClasses.length) {
+                WebParam wParam = getWebParamAnnotation(paramAnnotations[idx]);
+                if (wParam != null && !StringUtils.isEmpty(wParam.targetNamespace())) {
+                    field.setTargetNamespace(wParam.targetNamespace());
+                } else {
+                    field.setTargetNamespace("");
+                }
+            }
+
             List<Annotation> jaxbAnns = WrapperUtil.getJaxbAnnotations(method, idx);
             field.setJaxbAnnotations(jaxbAnns.toArray(new Annotation[jaxbAnns.size()]));
             fields.add(field);
         }
 
         return fields;
+    }
+
+    private WebParam getWebParamAnnotation(final Annotation[] annotations) {
+        for (Annotation annotation : annotations) {
+            if (annotation instanceof WebParam) {
+                return (WebParam) annotation;
+            }
+        }
+        return null;
     }
 
     @Override
