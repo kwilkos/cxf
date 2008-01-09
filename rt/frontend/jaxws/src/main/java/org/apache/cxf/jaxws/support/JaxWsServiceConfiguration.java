@@ -128,10 +128,7 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
         }
     }
 
-    @Override
-    public Boolean isOperation(Method method) {
-        Method origMethod = method;
-        method = getDeclaredMethod(method);
+    public Boolean isWebMethod(final Method method) {
         if (method == null
             || method.getReturnType().equals(Future.class)
             || method.getReturnType().equals(Response.class)) {
@@ -148,13 +145,21 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
                 }
             } else {
                 if (method.getDeclaringClass().isInterface()) {
-                    return hasWebServiceAnnotation(method) 
-                        ||  hasWebServiceAnnotation(origMethod);
+                    return hasWebServiceAnnotation(method);
                 }
                 return hasWebServiceAnnotation(method);              
             }
         }
         return Boolean.FALSE;
+    }
+
+    @Override
+    public Boolean isOperation(final Method method) {
+        Class implClz = implInfo.getImplementorClass();
+        if (isWebMethod(getDeclaredMethod(implClz, method))) {
+            return true;
+        }
+        return isWebMethod(getDeclaredMethod(method));
     }
     
     private boolean hasWebServiceAnnotation(Method method) {
@@ -162,8 +167,10 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
     }
 
     Method getDeclaredMethod(Method method) {
-        Class<?> endpointClass = implInfo.getEndpointClass();
+        return getDeclaredMethod(implInfo.getEndpointClass(), method);
+    }
 
+    private Method getDeclaredMethod(Class<?> endpointClass, Method method) {
         if (!method.getDeclaringClass().equals(endpointClass)) {
             try {
                 method = endpointClass.getMethod(method.getName(), (Class[])method.getParameterTypes());

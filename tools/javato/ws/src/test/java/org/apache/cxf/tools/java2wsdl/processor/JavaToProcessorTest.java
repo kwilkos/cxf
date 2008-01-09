@@ -485,10 +485,6 @@ public class JavaToProcessorTest extends ProcessorTestBase {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        //File wsdlFile = new File(output, "add_numbers.wsdl");
-        //assertTrue("Generate Wsdl Fail", wsdlFile.exists());
-        //String expectedFile = getClass().getResource("expected/add_numbers_expected.wsdl").getFile();
-        //assertWsdlEquals(new File(expectedFile), wsdlFile);
 
         String pkgBase = "org/apache/cxf/tools/fortest/addr/jaxws";
         File requestWrapperClass = new File(output, pkgBase + "/AddNumbers.java");
@@ -502,20 +498,24 @@ public class JavaToProcessorTest extends ProcessorTestBase {
         assertTrue(getStringFromFile(responseWrapperClass).indexOf("Holder") == -1);
     }
 
-//     @Test
-//     public void testInherit() throws Exception {
-//         env.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/inherit.wsdl");
-//         env.put(ToolConstants.CFG_CLASSNAME, "org.apache.cxf.tools.fortest.inherit.A");
-//         env.put(ToolConstants.CFG_VERBOSE, ToolConstants.CFG_VERBOSE);
-//         env.put(ToolConstants.CFG_WRAPPERBEAN, ToolConstants.CFG_WRAPPERBEAN);
-//         //env.put(ToolConstants.CFG_CREATE_XSD_IMPORTS, ToolConstants.CFG_CREATE_XSD_IMPORTS);
-//         try {
-//             processor.setEnvironment(env);
-//             processor.process();
-//         } catch (Exception e) {
-//             e.printStackTrace();
-//         }
-//     }
+    @Test
+    public void testInherit() throws Exception {
+        env.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/inherit.wsdl");
+        env.put(ToolConstants.CFG_CLASSNAME, "org.apache.cxf.tools.fortest.inherit.A");
+        env.put(ToolConstants.CFG_VERBOSE, ToolConstants.CFG_VERBOSE);
+        env.put(ToolConstants.CFG_WRAPPERBEAN, ToolConstants.CFG_WRAPPERBEAN);
+        env.put(ToolConstants.CFG_CREATE_XSD_IMPORTS, ToolConstants.CFG_CREATE_XSD_IMPORTS);
+        try {
+            processor.setEnvironment(env);
+            processor.process();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        File wsdlFile = new File(output, "inherit.wsdl");
+        assertTrue(wsdlFile.exists());
+        assertTrue(getStringFromFile(wsdlFile).indexOf("name=\"bye\"") != -1);
+    }
 
 //     @Test
 //     public void testWSARefParam() throws Exception {
