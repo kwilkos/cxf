@@ -470,4 +470,65 @@ public class JavaToProcessorTest extends ProcessorTestBase {
         String expectedFile = getClass().getResource("expected/add_numbers_expected.wsdl").getFile();
         assertWsdlEquals(new File(expectedFile), wsdlFile);
     }
+
+    // Test the Holder Parameter in the RequestWrapperBean and ResponseWrapperBean
+    @Test
+    public void testWSAImpl2() throws Exception {
+        env.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/add_numbers_2.wsdl");
+        env.put(ToolConstants.CFG_CLASSNAME, "org.apache.cxf.tools.fortest.addr.WSAImpl2");
+        env.put(ToolConstants.CFG_VERBOSE, ToolConstants.CFG_VERBOSE);
+        env.put(ToolConstants.CFG_WRAPPERBEAN, ToolConstants.CFG_WRAPPERBEAN);
+        env.put(ToolConstants.CFG_CREATE_XSD_IMPORTS, ToolConstants.CFG_CREATE_XSD_IMPORTS);
+        try {
+            processor.setEnvironment(env);
+            processor.process();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        //File wsdlFile = new File(output, "add_numbers.wsdl");
+        //assertTrue("Generate Wsdl Fail", wsdlFile.exists());
+        //String expectedFile = getClass().getResource("expected/add_numbers_expected.wsdl").getFile();
+        //assertWsdlEquals(new File(expectedFile), wsdlFile);
+
+        String pkgBase = "org/apache/cxf/tools/fortest/addr/jaxws";
+        File requestWrapperClass = new File(output, pkgBase + "/AddNumbers.java");
+        File responseWrapperClass = new File(output, pkgBase + "/AddNumbersResponse.java");
+        assertTrue(requestWrapperClass.exists());
+        assertTrue(responseWrapperClass.exists());
+
+        assertTrue(getStringFromFile(requestWrapperClass).indexOf("String  arg0") != -1);
+        assertTrue(getStringFromFile(requestWrapperClass).indexOf("Holder") == -1);
+        assertTrue(getStringFromFile(responseWrapperClass).indexOf("String  arg0") != -1);
+        assertTrue(getStringFromFile(responseWrapperClass).indexOf("Holder") == -1);
+    }
+
+//     @Test
+//     public void testInherit() throws Exception {
+//         env.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/inherit.wsdl");
+//         env.put(ToolConstants.CFG_CLASSNAME, "org.apache.cxf.tools.fortest.inherit.A");
+//         env.put(ToolConstants.CFG_VERBOSE, ToolConstants.CFG_VERBOSE);
+//         env.put(ToolConstants.CFG_WRAPPERBEAN, ToolConstants.CFG_WRAPPERBEAN);
+//         //env.put(ToolConstants.CFG_CREATE_XSD_IMPORTS, ToolConstants.CFG_CREATE_XSD_IMPORTS);
+//         try {
+//             processor.setEnvironment(env);
+//             processor.process();
+//         } catch (Exception e) {
+//             e.printStackTrace();
+//         }
+//     }
+
+//     @Test
+//     public void testWSARefParam() throws Exception {
+//         env.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/refparam.wsdl");
+//         env.put(ToolConstants.CFG_CLASSNAME, "org.apache.cxf.tools.fortest.refparam.AddNumbersImpl");
+//         env.put(ToolConstants.CFG_VERBOSE, ToolConstants.CFG_VERBOSE);
+//         env.put(ToolConstants.CFG_WRAPPERBEAN, ToolConstants.CFG_WRAPPERBEAN);
+//         try {
+//             processor.setEnvironment(env);
+//             processor.process();
+//         } catch (Exception e) {
+//             e.printStackTrace();
+//         }
+//     }
+
 }

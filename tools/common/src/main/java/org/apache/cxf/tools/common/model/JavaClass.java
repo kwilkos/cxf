@@ -44,7 +44,7 @@ public class JavaClass extends JavaInterface {
     }
 
     public JavaMethod appendGetter(JavaField field) {
-        String getterName = "get" + StringUtils.capitalize(field.getParaName());
+        String getterName = "get" + StringUtils.capitalize(field.getName());
         JavaMethod jMethod = new JavaMethod(this);
         jMethod.setName(getterName);
         jMethod.setReturn(new JavaReturn(field.getParaName(),
@@ -63,7 +63,7 @@ public class JavaClass extends JavaInterface {
     }
 
     public JavaMethod appendSetter(JavaField field) {
-        String setterName = "set" + StringUtils.capitalize(field.getParaName());
+        String setterName = "set" + StringUtils.capitalize(field.getName());
         JavaMethod jMethod = new JavaMethod(this);
         jMethod.setReturn(new JavaReturn("return", "void", null));
         String paramName = getSetterParamName(field.getParaName());

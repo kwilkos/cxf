@@ -74,13 +74,13 @@ public class JavaClassTest extends Assert {
         clz = new JavaClass();
         clz.setFullClassName("org.apache.cxf.tools.fortest.withannotation.doc.jaxws.SayHiResponse");
         getter = clz.appendGetter(field);
-        assertEquals("get_return", getter.getName());
+        assertEquals("getReturn", getter.getName());
         assertEquals("String[]",
                      getter.getReturn().getClassName());
         assertEquals("_return", getter.getReturn().getName());
 
         setter = clz.appendSetter(field);
-        assertEquals("set_return", setter.getName());
+        assertEquals("setReturn", setter.getName());
         assertEquals("void", setter.getReturn().getClassName());
         assertEquals("_return", getter.getReturn().getName());
         assertEquals("String[]",

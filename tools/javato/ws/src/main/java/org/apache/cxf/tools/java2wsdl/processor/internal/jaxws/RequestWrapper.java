@@ -21,6 +21,8 @@ package org.apache.cxf.tools.java2wsdl.processor.internal.jaxws;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -61,24 +63,36 @@ public class RequestWrapper extends Wrapper {
     protected List<JavaField> buildFields(final Method method, final MessageInfo message) {
         List<JavaField> fields = new ArrayList<JavaField>();
         String name;
-        String type;
+        String type = "Object";
 
-        final Class[] paramClasses = method.getParameterTypes();
+        final Type[] paramClasses = method.getGenericParameterTypes();
         for (MessagePartInfo mpi : message.getMessageParts()) {
             int idx = mpi.getIndex();
             name = mpi.getName().getLocalPart();
-            Class clz = paramClasses[idx];
-            if (clz.isArray()) {
-                if (isBuiltInTypes(clz.getComponentType())) {
-                    type = clz.getComponentType().getSimpleName() + "[]";
+            Type t = paramClasses[idx];
+
+
+            if (t instanceof Class) {
+                Class clz = (Class) t;
+                if (clz.isArray()) {
+                    if (isBuiltInTypes(clz.getComponentType())) {
+                        type = clz.getComponentType().getSimpleName() + "[]";
+                    } else {
+                        type = clz.getComponentType().getName() + "[]";
+                    }
                 } else {
-                    type = clz.getComponentType().getName() + "[]";
+                    type = clz.getName();
                 }
-            } else {
-                type = clz.getName();
+            } else if (t instanceof ParameterizedType) {
+                ParameterizedType pt = (ParameterizedType) t;
+                if (pt.getActualTypeArguments().length > 0
+                    && pt.getActualTypeArguments()[0] instanceof Class) {
+                    type = ((Class)pt.getActualTypeArguments()[0]).getName();
+                }
             }
+
             JavaField field = new JavaField(name, type, "");
-            field.setTargetNamespace("");           
+            field.setTargetNamespace("");
             List<Annotation> jaxbAnns = WrapperUtil.getJaxbAnnotations(method, idx);
             field.setJaxbAnnotations(jaxbAnns.toArray(new Annotation[jaxbAnns.size()]));
             fields.add(field);
