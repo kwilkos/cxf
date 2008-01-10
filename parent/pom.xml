@@ -39,7 +39,7 @@
         <surefire.format>brief</surefire.format>
         <surefire.usefile>false</surefire.usefile>
         <compile.flags>-Xlint:unchecked,deprecation,fallthrough,finally</compile.flags>
-
+        <eclipse.outputDirectory>${basedir}/target/classes</eclipse.outputDirectory>
         <saaj.impl.groupId>com.sun.xml.messaging.saaj</saaj.impl.groupId>
         <saaj.impl.artifactId>saaj-impl</saaj.impl.artifactId>
 
@@ -860,6 +860,12 @@
                 </plugins>
             </build>
         </profile>
+        <profile>
+            <id>set.eclipse.output</id>
+            <properties>
+                 <eclipse.outputDirectory>${basedir}/eclipse-classes</eclipse.outputDirectory>
+            </properties> 
+        </profile>
 
         <profile>
             <id>setup.eclipse</id>
@@ -869,6 +875,9 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-eclipse-plugin</artifactId>
+                        <configuration>
+                            <outputDirectory>${eclipse.outputDirectory}</outputDirectory>
+                        </configuration>
                         <executions>
                             <execution>
                                 <id>setup.eclipse.project</id>
