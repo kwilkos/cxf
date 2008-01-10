@@ -537,4 +537,23 @@ public class JavaToProcessorTest extends ProcessorTestBase {
         String expectedString = "@XmlElement(name  =  \"number2\",  namespace  =  \"http://example.com\")";
         assertTrue(getStringFromFile(requestWrapperClass).indexOf(expectedString) != -1);
     }
+
+    // Generated schema should use unquolified form in the jaxws case
+    @Test
+    public void testAction() throws Exception {
+        env.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/action.wsdl");
+        env.put(ToolConstants.CFG_CLASSNAME, "org.apache.cxf.tools.fortest.action.AddNumbersImpl");
+        env.put(ToolConstants.CFG_VERBOSE, ToolConstants.CFG_VERBOSE);
+        env.put(ToolConstants.CFG_WRAPPERBEAN, ToolConstants.CFG_WRAPPERBEAN);
+        try {
+            processor.setEnvironment(env);
+            processor.process();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        File wsdlFile = new File(output, "action.wsdl");
+        assertTrue(wsdlFile.exists());
+        assertTrue(getStringFromFile(wsdlFile).indexOf("elementFormDefault=\"unqualified\"") != -1);
+    }
 }

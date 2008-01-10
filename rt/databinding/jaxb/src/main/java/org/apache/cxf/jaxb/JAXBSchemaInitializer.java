@@ -58,11 +58,16 @@ class JAXBSchemaInitializer extends ServiceModelVisitor {
 
     private SchemaCollection schemas;
     private JAXBContextImpl context;
+    private final boolean qualifiedSchemas;
     
-    public JAXBSchemaInitializer(ServiceInfo serviceInfo, SchemaCollection col, JAXBContextImpl context) {
+    public JAXBSchemaInitializer(ServiceInfo serviceInfo, 
+                                 SchemaCollection col, 
+                                 JAXBContextImpl context, 
+                                 boolean q) {
         super(serviceInfo);
         schemas = col;
         this.context = context;
+        this.qualifiedSchemas = q;
     }
 
     @Override
@@ -307,7 +312,10 @@ class JAXBSchemaInitializer extends ServiceModelVisitor {
         XmlSchema schema;
         if (schemaInfo == null) {
             schema = schemas.newXmlSchemaInCollection(part.getElementQName().getNamespaceURI());
-            schema.setElementFormDefault(new XmlSchemaForm(XmlSchemaForm.QUALIFIED));
+
+            if (qualifiedSchemas) {
+                schema.setElementFormDefault(new XmlSchemaForm(XmlSchemaForm.QUALIFIED));
+            }
 
             NamespaceMap nsMap = new NamespaceMap();
             nsMap.add(WSDLConstants.CONVENTIONAL_TNS_PREFIX, schema.getTargetNamespace());
