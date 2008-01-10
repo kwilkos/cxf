@@ -46,16 +46,8 @@ public class ProviderFactoryImpl extends ProviderFactory {
         entityProviders.add(new JSONProvider());
         entityProviders.add(new StringProvider());
         entityProviders.add(new DOMSourceProvider());
-        
-        for (EntityProvider ep : entityProviders) {
-            System.out.println("---" + ep.getClass().getName());
-        }
-        sort();
-        
-        for (EntityProvider ep : entityProviders) {
-            System.out.println("---" + ep.getClass().getName());
-        }
 
+        sort();
     }
     
     public <T> T createInstance(Class<T> type) {
@@ -81,8 +73,6 @@ public class ProviderFactoryImpl extends ProviderFactory {
                                                       boolean isConsumeMime) {
 
         for (EntityProvider<T> ep : entityProviders) {
-            System.out.println("-2222--" + ep.getClass().getName());
-            
             String[] supportedMimeTypes = {"*/*"};            
             if (isConsumeMime) {
                 ConsumeMime c = ep.getClass().getAnnotation(ConsumeMime.class);
