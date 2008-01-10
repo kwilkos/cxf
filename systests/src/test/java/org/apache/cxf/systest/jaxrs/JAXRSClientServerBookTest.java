@@ -292,14 +292,47 @@ public class JAXRSClientServerBookTest extends AbstractBusClientServerTestBase {
     public void testGetCDJSON() throws Exception {
         String endpointAddress =
             "http://localhost:9080/bookstore/cd/123"; 
-        URL url = new URL(endpointAddress);
-        InputStream in = url.openStream();
-        assertNotNull(in);           
 
-        InputStream expected = getClass()
-            .getResourceAsStream("resources/expected_get_cdjson.txt");
+        GetMethod get = new GetMethod(endpointAddress);
+        get.addRequestHeader("Accept" , "application/json");
 
-        assertEquals(getStringFromInputStream(expected), getStringFromInputStream(in)); 
+        HttpClient httpclient = new HttpClient();
+        
+        try {
+            int result = httpclient.executeMethod(get);
+            assertEquals(200, result);
+
+            InputStream expected = getClass().getResourceAsStream("resources/expected_get_cdjson.txt");
+            
+            assertEquals(getStringFromInputStream(expected), get.getResponseBodyAsString());
+        } finally {
+            // Release current connection to the connection pool once you are done
+            get.releaseConnection();
+        }  
+    }
+    
+    
+    @Test
+    public void testGetCDXML() throws Exception {
+        String endpointAddress =
+            "http://localhost:9080/bookstore/cd/123"; 
+
+        GetMethod get = new GetMethod(endpointAddress);
+        get.addRequestHeader("Accept" , "application/xml");
+
+        HttpClient httpclient = new HttpClient();
+        
+        try {
+            int result = httpclient.executeMethod(get);
+            assertEquals(200, result);
+
+            InputStream expected = getClass().getResourceAsStream("resources/expected_get_cd.txt");
+            
+            assertEquals(getStringFromInputStream(expected), get.getResponseBodyAsString());
+        } finally {
+            // Release current connection to the connection pool once you are done
+            get.releaseConnection();
+        }  
     }
     
     private String getStringFromInputStream(InputStream in) throws Exception {        

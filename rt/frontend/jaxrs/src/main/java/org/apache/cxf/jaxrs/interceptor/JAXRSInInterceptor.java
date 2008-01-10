@@ -22,7 +22,9 @@ package org.apache.cxf.jaxrs.interceptor;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.jaxrs.JAXRSServiceImpl;
 import org.apache.cxf.jaxrs.JAXRSUtils;
 import org.apache.cxf.jaxrs.model.ClassResourceInfo;
@@ -37,7 +39,7 @@ public class JAXRSInInterceptor extends AbstractPhaseInterceptor<Message> {
 
     public static final String RELATIVE_PATH = "relative.path";
 
-    //private static final Logger LOG = Logger.getLogger(RESTDispatchInterceptor.class.getName());
+    private static final Logger LOG = LogUtils.getL7dLogger(JAXRSInInterceptor.class);
     //private static final ResourceBundle BUNDLE = BundleUtils.getBundle(RESTDispatchInterceptor.class);
 
     public JAXRSInInterceptor() {
@@ -48,6 +50,15 @@ public class JAXRSInInterceptor extends AbstractPhaseInterceptor<Message> {
         String path = (String)message.get(Message.PATH_INFO);
         String address = (String)message.get(Message.BASE_PATH);
         String httpMethod = (String)message.get(Message.HTTP_REQUEST_METHOD);
+        String contentType = (String)message.get(Message.CONTENT_TYPE);
+        if (contentType == null) {
+            contentType = "*/*";
+        }
+        String acceptContentType = (String)message.get(Message.ACCEPT_CONTENT_TYPE);
+        if (acceptContentType == null) {
+            acceptContentType = "*/*";
+        }
+        message.getExchange().put(Message.ACCEPT_CONTENT_TYPE, acceptContentType);
         
         if (address.startsWith("http")) {
             int idx = address.indexOf('/', 7);
@@ -68,20 +79,30 @@ public class JAXRSInInterceptor extends AbstractPhaseInterceptor<Message> {
             path = path + "/";
         }
         message.put(RELATIVE_PATH, path);
+        
+        LOG.info("Request path is: " + path);
+        LOG.info("Request HTTP method is: " + httpMethod);
+        LOG.info("Request contentType is: " + contentType);
+        LOG.info("Accept contentType is: " + acceptContentType);
+
 
         //1. Matching target resource classes and method
         Service service = message.getExchange().get(Service.class);
         List<ClassResourceInfo> resources = ((JAXRSServiceImpl)service).getClassResourceInfos();
 
         Map<String, String> values = new HashMap<String, String>();
-        OperationResourceInfo ori = JAXRSUtils.findTargetResourceClass(resources, path, httpMethod, values);
+        OperationResourceInfo ori = JAXRSUtils.findTargetResourceClass(resources, path, httpMethod, values,
+                                                                       contentType, acceptContentType);
 
         if (ori == null) {
+            LOG.severe("No operation found");
             //throw new Fault(new org.apache.cxf.common.i18n.Message("NO_OP", BUNDLE, method, path));
         }
+        LOG.info("Found operation: " + ori.getMethod().getName());
+        
         message.getExchange().put(OperationResourceInfo.class, ori);
         message.put(RELATIVE_PATH, values.get(URITemplate.RIGHT_HAND_VALUE));
-        
+      
         //2. Process parameters
         List<Object> params = JAXRSUtils
             .processParameters(ori.getMethod(), values, message);

@@ -53,9 +53,13 @@ public class JAXRSServiceFactoryBeanTest extends Assert {
         assertTrue(template.match("/bookstore/books/123", values));     
         assertFalse(rootCri.hasSubResources());   
         MethodDispatcher md = rootCri.getMethodDispatcher();
-        assertEquals(4, md.getOperationResourceInfos().size());  
+        assertEquals(5, md.getOperationResourceInfos().size());  
         for (OperationResourceInfo ori : md.getOperationResourceInfos()) {
             if ("getBook".equals(ori.getMethod().getName())) {
+                assertEquals("GET", ori.getHttpMethod());
+                assertNotNull(ori.getURITemplate());
+                assertFalse(ori.isSubResourceLocator());
+            } else if ("getBookJSON".equals(ori.getMethod().getName())) {
                 assertEquals("GET", ori.getHttpMethod());
                 assertNotNull(ori.getURITemplate());
                 assertFalse(ori.isSubResourceLocator());

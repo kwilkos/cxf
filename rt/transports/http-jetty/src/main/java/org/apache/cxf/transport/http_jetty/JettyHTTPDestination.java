@@ -271,6 +271,7 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
             inMessage.put(Message.ENCODING, normalizedEncoding);
             inMessage.put(Message.QUERY_STRING, req.getQueryString());
             inMessage.put(Message.CONTENT_TYPE, req.getContentType());
+            inMessage.put(Message.ACCEPT_CONTENT_TYPE, req.getHeader("Accept"));
             if (!StringUtils.isEmpty(endpointInfo.getAddress())) {
                 inMessage.put(Message.BASE_PATH, new URL(endpointInfo.getAddress()).getPath());
             }

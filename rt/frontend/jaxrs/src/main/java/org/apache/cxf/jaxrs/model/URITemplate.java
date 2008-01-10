@@ -101,7 +101,7 @@ public final class URITemplate {
     }
 
     public boolean match(String uri, Map<String, String> templateVariableToValue) {
-        templateVariableToValue.clear();
+        //templateVariableToValue.clear();
 
         if (uri == null) {
             return (templateRegexPattern == null) ? true : false;

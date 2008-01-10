@@ -21,6 +21,7 @@
 package org.apache.cxf.jaxrs.resources;
 
 import javax.ws.rs.HttpMethod;
+import javax.ws.rs.ProduceMime;
 import javax.ws.rs.UriParam;
 import javax.ws.rs.UriTemplate;
 import javax.ws.rs.core.Response;
@@ -33,9 +34,17 @@ public class BookStoreNoSubResource {
 
     @HttpMethod("GET")
     @UriTemplate("/books/{bookId}/")
+    @ProduceMime("application/xml")
     public Book getBook(@UriParam("bookId") String id) {
         return null;
     }    
+    
+    @HttpMethod("GET")
+    @UriTemplate("/books/{bookId}/")
+    @ProduceMime("application/json")
+    public Book getBookJSON(@UriParam("bookId") String id) {
+        return null;
+    } 
 
     @HttpMethod("POST")
     @UriTemplate("/books")

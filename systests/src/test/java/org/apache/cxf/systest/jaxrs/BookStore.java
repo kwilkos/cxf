@@ -77,7 +77,7 @@ public class BookStore {
     
     @HttpMethod("GET")
     @UriTemplate("/booknames/{bookId}/")
-    @ProduceMime("text/plain")
+    @ProduceMime("text/*")
     public String getBookName(@UriParam("bookId") int id) throws BookNotFoundFault {
         System.out.println("----invoking getBookName with id: " + id);
         Book book = books.get(new Long(id));
@@ -92,6 +92,7 @@ public class BookStore {
 
     @HttpMethod("POST")
     @UriTemplate("/books")
+    @ProduceMime("text/xml")
     public Response addBook(Book book) {
         System.out.println("----invoking addBook, book name is: " + book.getName());
         book.setId(++bookId);
@@ -160,11 +161,17 @@ public class BookStore {
 
     @HttpMethod("GET")
     @UriTemplate("/cd/{CDId}/")
+    @ProduceMime("application/xml")
+    public CD getCD(@UriParam("CDId") String id) {
+        System.out.println("----invoking getCD with cdId: " + id);
+        CD cd = cds.get(Long.parseLong(id));
+
+        return cd;
+    }
+    
+    @HttpMethod("GET")
+    @UriTemplate("/cd/{CDId}/")
     @ProduceMime("application/json")
-    // FIXME: getCDJSON and getCDs dont have to use different URLs, but it looks
-    // like we are having problem
-    // to match "/cds/" and "/cds/123" correctly using ".*?" as suggested by
-    // spec. The former one's pattern is "/cds/(/)?" the later one is "/cds/(.*?)(/)?
     public CD getCDJSON(@UriParam("CDId") String id) {
         System.out.println("----invoking getCDJSON with cdId: " + id);
         CD cd = cds.get(Long.parseLong(id));

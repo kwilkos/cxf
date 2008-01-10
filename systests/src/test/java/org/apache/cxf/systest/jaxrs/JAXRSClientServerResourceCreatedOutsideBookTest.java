@@ -66,7 +66,7 @@ public class JAXRSClientServerResourceCreatedOutsideBookTest extends AbstractBus
         httpUrlConnection.setDoOutput(true);   
         httpUrlConnection.setDoInput(true);   
         httpUrlConnection.setRequestMethod("POST");   
-        httpUrlConnection.setRequestProperty("Accept",   "text/html");   
+        httpUrlConnection.setRequestProperty("Accept",   "text/xml");   
         httpUrlConnection.setRequestProperty("Content-type",   "text/html");   
         httpUrlConnection.setRequestProperty("Connection",   "close");   
         //httpurlconnection.setRequestProperty("Content-Length",   String.valueOf(is.available()));   

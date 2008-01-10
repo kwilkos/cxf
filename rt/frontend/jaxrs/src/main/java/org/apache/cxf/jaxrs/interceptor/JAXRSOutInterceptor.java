@@ -21,12 +21,18 @@ package org.apache.cxf.jaxrs.interceptor;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.logging.Logger;
 
+import javax.activation.MimeType;
+import javax.activation.MimeTypeParseException;
+import javax.ws.rs.ProduceMime;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.EntityProvider;
 import javax.ws.rs.ext.ProviderFactory;
 
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.interceptor.AbstractOutDatabindingInterceptor;
+import org.apache.cxf.jaxrs.JAXRSUtils;
 import org.apache.cxf.jaxrs.model.OperationResourceInfo;
 import org.apache.cxf.jaxrs.provider.ProviderFactoryImpl;
 import org.apache.cxf.message.Exchange;
@@ -35,6 +41,7 @@ import org.apache.cxf.message.MessageContentsList;
 import org.apache.cxf.phase.Phase;
 
 public class JAXRSOutInterceptor extends AbstractOutDatabindingInterceptor {
+    private static final Logger LOG = LogUtils.getL7dLogger(JAXRSInInterceptor.class);
 
     public JAXRSOutInterceptor() {
         super(Phase.MARSHAL);
@@ -71,28 +78,25 @@ public class JAXRSOutInterceptor extends AbstractOutDatabindingInterceptor {
             } 
             
             Class targetType = responseObj.getClass();
-/*            if (responseObj.getClass().isArray()) {
-                targetType = responseObj.getClass().getComponentType();
-            } else if (responseObj instanceof List && ((List)responseObj).get(0) != null) {
-                //NOTE: if its a List, the provider should try to determine if it can support
-                //every object inside the List instead of the first one only.
-                targetType = ((List)responseObj).get(0).getClass();
-                
-            }*/
- 
-            //TODO: decide the output media type based on resource method/resource class/provider
-            String[] methodMimeTypes = exchange.get(OperationResourceInfo.class).getProduceMimeTypes();
+            String[] availableContentTypes = computeAvailableContentTypes(message);  
             
+            StringBuffer typesTmp = new StringBuffer();
+            for (String type : availableContentTypes) {
+                typesTmp.append(type + ",");
+            }
+            LOG.info("Available content types for response is: " + typesTmp);
+
             EntityProvider provider = ((ProviderFactoryImpl)ProviderFactory.getInstance())
-                .createEntityProvider(targetType, methodMimeTypes, false);
+                .createEntityProvider(targetType, availableContentTypes, false);
+            LOG.info("Response EntityProvider is: " + provider.getClass().getName());
 
             try {
-                if (!"*/*".equals(methodMimeTypes[0])) {
-                    message.put(Message.CONTENT_TYPE, methodMimeTypes[0]);
-                }
+                String outputContentType = computeFinalContentTypes(availableContentTypes, provider);
+                LOG.info("Response content type is: " + outputContentType);
+               
+                message.put(Message.CONTENT_TYPE, computeFinalContentTypes(availableContentTypes, provider));
                 
                 provider.writeTo(responseObj, null, null, out);
-
             } catch (IOException e) {
                 e.printStackTrace();
             }        
@@ -100,5 +104,34 @@ public class JAXRSOutInterceptor extends AbstractOutDatabindingInterceptor {
         }
 
     }
+    
+    private String[] computeAvailableContentTypes(Message message) {
+        Exchange exchange = message.getExchange();
+        
+        String[] methodMimeTypes = exchange.get(OperationResourceInfo.class).getProduceMimeTypes();
+        String acceptContentType = (String)exchange.get(Message.ACCEPT_CONTENT_TYPE);
 
+        if (acceptContentType != null) {
+            try {
+                MimeType mt = new MimeType(acceptContentType);
+                acceptContentType = mt.getBaseType();
+            } catch (MimeTypeParseException e) {
+                // ignore
+            }
+        }
+        
+        return JAXRSUtils.intersectMimeTypes(methodMimeTypes, acceptContentType);        
+    }
+    
+    private String computeFinalContentTypes(String[] requestContentTypes, EntityProvider provider) {
+        String[] providerMimeTypes = {"*/*"};            
+
+        ProduceMime c = provider.getClass().getAnnotation(ProduceMime.class);
+        if (c != null) {
+            providerMimeTypes = c.value();               
+        } 
+        
+        String[] list = JAXRSUtils.intersectMimeTypes(requestContentTypes, providerMimeTypes);
+        return list[0];      
+    }
 }

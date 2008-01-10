@@ -31,6 +31,8 @@ import javax.ws.rs.ext.EntityProvider;
 import javax.ws.rs.ext.HeaderProvider;
 import javax.ws.rs.ext.ProviderFactory;
 
+import org.apache.cxf.jaxrs.JAXRSUtils;
+
 
 
 //NOTE: ProviderFactory should provide a method that can pass in media types
@@ -44,7 +46,16 @@ public class ProviderFactoryImpl extends ProviderFactory {
         entityProviders.add(new JSONProvider());
         entityProviders.add(new StringProvider());
         entityProviders.add(new DOMSourceProvider());
+        
+        for (EntityProvider ep : entityProviders) {
+            System.out.println("---" + ep.getClass().getName());
+        }
         sort();
+        
+        for (EntityProvider ep : entityProviders) {
+            System.out.println("---" + ep.getClass().getName());
+        }
+
     }
     
     public <T> T createInstance(Class<T> type) {
@@ -70,6 +81,8 @@ public class ProviderFactoryImpl extends ProviderFactory {
                                                       boolean isConsumeMime) {
 
         for (EntityProvider<T> ep : entityProviders) {
+            System.out.println("-2222--" + ep.getClass().getName());
+            
             String[] supportedMimeTypes = {"*/*"};            
             if (isConsumeMime) {
                 ConsumeMime c = ep.getClass().getAnnotation(ConsumeMime.class);
@@ -83,7 +96,10 @@ public class ProviderFactoryImpl extends ProviderFactory {
                 }                  
             }
             
-            if (matchMimeTypes(supportedMimeTypes, requestedMimeTypes) && ep.supports(type)) {
+            String[] availableMimeTypes = JAXRSUtils.intersectMimeTypes(requestedMimeTypes,
+                                                                        supportedMimeTypes);
+
+            if (availableMimeTypes.length != 0 && ep.supports(type)) {
                 return ep;
             }
         }     
@@ -115,34 +131,7 @@ public class ProviderFactoryImpl extends ProviderFactory {
     public List<EntityProvider> getEntityProviders() {
         return entityProviders;
     }
-    
-    private boolean matchMimeTypes(String[] supportedMimeTypes, String[] requestedMimeTypes) {
-        //TODO:
-        for (String supportedMimeType : supportedMimeTypes) {
-            for (String requestedMimeType : requestedMimeTypes) {
-                if (isMimeTypeSupported(requestedMimeType, supportedMimeType)) {
-                    return true;
-                }
-            }
-        }
-        
-        return false;
-    }
-    
-    private boolean isMimeTypeSupported(String requestedMimeType, String supportedMimeType) {
-        // REVISIT: better algorithm
-        if (supportedMimeType.equals(requestedMimeType)) {
-            return true;
-        } else if (supportedMimeType.startsWith("*/")) {
-            return true;
-        } else if (supportedMimeType.regionMatches(0, requestedMimeType, 0, supportedMimeType.indexOf("/"))
-                   && supportedMimeType.endsWith("/*")) {
-            return true;
-        } 
-
-        return false;
-    }
-    
+   
     /*
      * sorts the available providers according to the media types they declare
      * support for. Sorting of media types follows the general rule: x/y < * x < *,
@@ -174,8 +163,13 @@ public class ProviderFactoryImpl extends ProviderFactory {
         }
         
         private int compareString(String str1, String str2) {
-            //TODO:
-            return str2.compareTo(str1);
+            if (!str1.startsWith("*/") && str2.startsWith("*/")) {
+                return -1;
+            } else if (str1.startsWith("*/") && !str2.startsWith("*/")) {
+                return 1;
+            } 
+            
+            return str1.compareTo(str2);
         }
     }
 

@@ -79,9 +79,18 @@ public class JAXRSInvoker extends AbstractInvoker {
             Message msg = exchange.getInMessage();
             String subResourcePath = (String)msg.get(JAXRSInInterceptor.RELATIVE_PATH);
             String httpMethod = (String)msg.get(Message.HTTP_REQUEST_METHOD); 
+            String contentType = (String)msg.get(Message.CONTENT_TYPE);
+            if (contentType == null) {
+                contentType = "*/*";
+            }
+            String acceptContentType = (String)msg.get(Message.ACCEPT_CONTENT_TYPE);
+            if (acceptContentType == null) {
+                acceptContentType = "*/*";
+            }
             ClassResourceInfo subCri = JAXRSUtils.findSubResourceClass(classResourceInfo, result.getClass());
-            OperationResourceInfo subOri = JAXRSUtils.findTargetMethod(subCri, subResourcePath,
-                                                                                     httpMethod, values);
+            OperationResourceInfo subOri = JAXRSUtils.findTargetMethod(subCri, subResourcePath, 
+                                                                       httpMethod, values, 
+                                                                       contentType, acceptContentType);
             exchange.put(OperationResourceInfo.class, subOri);
             msg.put(JAXRSInInterceptor.RELATIVE_PATH, subResourcePath);
             // work out request parameters for the sub-resouce class. Here we
