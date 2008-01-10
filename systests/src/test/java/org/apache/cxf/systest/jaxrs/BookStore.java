@@ -161,24 +161,23 @@ public class BookStore {
 
     @HttpMethod("GET")
     @UriTemplate("/cd/{CDId}/")
-    @ProduceMime("application/xml")
     public CD getCD(@UriParam("CDId") String id) {
         System.out.println("----invoking getCD with cdId: " + id);
         CD cd = cds.get(Long.parseLong(id));
 
         return cd;
     }
-    
+
     @HttpMethod("GET")
-    @UriTemplate("/cd/{CDId}/")
-    @ProduceMime("application/json")
-    public CD getCDJSON(@UriParam("CDId") String id) {
-        System.out.println("----invoking getCDJSON with cdId: " + id);
+    @UriTemplate("/cdwithmultitypes/{CDId}/")
+    @ProduceMime({"application/xml", "application/json" }) 
+    public CD getCDWithMultiContentTypes(@UriParam("CDId") String id) {
+        System.out.println("----invoking getCDWithMultiContentTypes with cdId: " + id);
         CD cd = cds.get(Long.parseLong(id));
 
         return cd;
     }
-
+    
     @HttpMethod("GET")
     @UriTemplate("/cds/")
     public CDs getCDs() {

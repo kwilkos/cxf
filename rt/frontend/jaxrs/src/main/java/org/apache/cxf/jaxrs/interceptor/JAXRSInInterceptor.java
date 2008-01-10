@@ -95,7 +95,8 @@ public class JAXRSInInterceptor extends AbstractPhaseInterceptor<Message> {
                                                                        contentType, acceptContentType);
 
         if (ori == null) {
-            LOG.severe("No operation found");
+            LOG.severe("No operation found for path: " + path + ", contentType: " + contentType
+                       + ", Accept contentType: " + acceptContentType);
             //throw new Fault(new org.apache.cxf.common.i18n.Message("NO_OP", BUNDLE, method, path));
         }
         LOG.info("Found operation: " + ori.getMethod().getName());

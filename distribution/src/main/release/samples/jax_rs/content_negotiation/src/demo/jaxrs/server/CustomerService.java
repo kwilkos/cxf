@@ -44,16 +44,6 @@ public class CustomerService {
         return c;
     }
 
-    @HttpMethod("GET")
-    @UriTemplate("/customersjson/{id}/")
-    @ProduceMime("application/json")
-    public Customer getCustomerJSON(@UriParam("id") String id) {
-        System.out.println("----invoking getCustomerJSON, Customer id is: " + id);
-        long idNumber = Long.parseLong(id);
-        Customer c = customers.get(idNumber);
-        return c;
-    }
-
     final void init() {
         Customer c = new Customer();
         c.setName("John");

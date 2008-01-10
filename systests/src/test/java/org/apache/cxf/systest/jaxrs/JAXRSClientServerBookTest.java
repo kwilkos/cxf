@@ -309,8 +309,7 @@ public class JAXRSClientServerBookTest extends AbstractBusClientServerTestBase {
             // Release current connection to the connection pool once you are done
             get.releaseConnection();
         }  
-    }
-    
+    }    
     
     @Test
     public void testGetCDXML() throws Exception {
@@ -327,6 +326,53 @@ public class JAXRSClientServerBookTest extends AbstractBusClientServerTestBase {
             assertEquals(200, result);
 
             InputStream expected = getClass().getResourceAsStream("resources/expected_get_cd.txt");
+            
+            assertEquals(getStringFromInputStream(expected), get.getResponseBodyAsString());
+        } finally {
+            // Release current connection to the connection pool once you are done
+            get.releaseConnection();
+        }  
+    }
+    
+    
+    @Test
+    public void testGetCDWithMultiContentTypesXML() throws Exception {
+        String endpointAddress =
+            "http://localhost:9080/bookstore/cdwithmultitypes/123"; 
+
+        GetMethod get = new GetMethod(endpointAddress);
+        get.addRequestHeader("Accept" , "application/xml");
+
+        HttpClient httpclient = new HttpClient();
+        
+        try {
+            int result = httpclient.executeMethod(get);
+            assertEquals(200, result);
+
+            InputStream expected = getClass().getResourceAsStream("resources/expected_get_cd.txt");
+            
+            assertEquals(getStringFromInputStream(expected), get.getResponseBodyAsString());
+        } finally {
+            // Release current connection to the connection pool once you are done
+            get.releaseConnection();
+        }  
+    }
+    
+    @Test
+    public void testGetCDWithMultiContentTypesJSON() throws Exception {
+        String endpointAddress =
+            "http://localhost:9080/bookstore/cdwithmultitypes/123"; 
+
+        GetMethod get = new GetMethod(endpointAddress);
+        get.addRequestHeader("Accept" , "application/json");
+
+        HttpClient httpclient = new HttpClient();
+        
+        try {
+            int result = httpclient.executeMethod(get);
+            assertEquals(200, result);
+
+            InputStream expected = getClass().getResourceAsStream("resources/expected_get_cdjson.txt");
             
             assertEquals(getStringFromInputStream(expected), get.getResponseBodyAsString());
         } finally {
