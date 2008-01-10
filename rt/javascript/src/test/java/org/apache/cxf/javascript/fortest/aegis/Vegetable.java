@@ -22,19 +22,19 @@ package org.apache.cxf.javascript.fortest.aegis;
 /**
  * 
  */
-public class Mammal {
-    private String name;
+public class Vegetable {
     
-    public Mammal() {
-        name = "shrew";
+    private String family;
+    
+    public Vegetable() {
+        family = "brasica";
+    }
+    
+    public String getFamily() {
+        return family;
     }
 
-    public String getName() {
-        return name;
+    public void setFamily(String family) {
+        this.family = family;
     }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
 }

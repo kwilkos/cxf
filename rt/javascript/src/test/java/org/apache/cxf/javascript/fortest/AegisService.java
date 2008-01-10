@@ -21,9 +21,12 @@ package org.apache.cxf.javascript.fortest;
 
 import java.util.Collection;
 
+import org.apache.cxf.javascript.fortest.aegis.BeanWithAnyTypeArray;
+
 public interface AegisService {
     void acceptAny(String before, Collection<org.jdom.Element> anything);
     void acceptObjects(Collection<Object> anything);
     void acceptStrings(Collection<String> someStrings);
+    BeanWithAnyTypeArray returnBeanWithAnyTypeArray();
 }
 

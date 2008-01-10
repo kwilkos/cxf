@@ -34,14 +34,17 @@ function resetGlobals() {
 	globalResponseObject = null;
 }
 
-// aegis/simple doesn't understand 'oneway'
-
+// aegis/simple doesn't understand 'oneway', so we have a dummy success function.
 function success()
 {
 }
 
-function error()
+function error(httpStatus, httpStatusText) 
 {
+    org_apache_cxf_trace.trace("error");
+	globalErrorStatus = httpStatus;
+	globalStatusText = httpStatusText;
+	globalNotifier.notify();
 }
 
 function testAnyNToServerRaw(url)
@@ -76,5 +79,23 @@ function testAnyNToServerRawTyped(url)
 	holderArray.push(holder);
 	arrayItem.setAnyType(holderArray);
 	service.acceptObjects(success, error, arrayItem);
+}
+
+function returnBeanWithAnyTypeArraySuccess(bean)
+{
+	// let the Java code sort out what we got.
+	globalResponseObject = bean;
+	globalNotifier.notify();
+}
+
+function testReturningBeanWithAnyTypeArray(url) 
+{
+    resetGlobals();
+	globalNotifier = new org_apache_cxf_notifier();
+
+	var service = new fortest_javascript_cxf_apache_org__AegisServicePortType();
+	service.url = url;
+	service.returnBeanWithAnyTypeArray(returnBeanWithAnyTypeArraySuccess, error);
+	return globalNotifier; 
 }
 

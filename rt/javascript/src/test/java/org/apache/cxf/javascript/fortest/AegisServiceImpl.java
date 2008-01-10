@@ -21,6 +21,10 @@ package org.apache.cxf.javascript.fortest;
 
 import java.util.Collection;
 
+import org.apache.cxf.javascript.fortest.aegis.BeanWithAnyTypeArray;
+import org.apache.cxf.javascript.fortest.aegis.Mammal;
+import org.apache.cxf.javascript.fortest.aegis.Vegetable;
+
 /**
  * Service used to test out JavaScript talking to Aegis.
  */
@@ -63,7 +67,8 @@ public class AegisServiceImpl implements AegisService {
         acceptedStrings = someStrings;
     }
 
-    /** * @return Returns the acceptedStrings.
+    /**
+     * @return Returns the acceptedStrings.
      */
     public Collection<String> getAcceptedStrings() {
         return acceptedStrings;
@@ -71,5 +76,16 @@ public class AegisServiceImpl implements AegisService {
 
     public void acceptObjects(Collection<Object> anything) {
         acceptedObjects = anything;
+    }
+
+    public BeanWithAnyTypeArray returnBeanWithAnyTypeArray() {
+        BeanWithAnyTypeArray bwata = new BeanWithAnyTypeArray();
+        bwata.setString("lima");
+        Object[] obs = new Object[3];
+        obs[0] = new Mammal();
+        obs[1] = new Integer(42);
+        obs[2] = new Vegetable(); // this is NOT in the WSDL.
+        bwata.setObjects(obs);
+        return bwata;
     }
 }

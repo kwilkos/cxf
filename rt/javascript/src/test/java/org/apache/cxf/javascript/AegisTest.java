@@ -25,6 +25,7 @@ import java.util.logging.Logger;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.interceptor.LoggingInInterceptor;
 import org.apache.cxf.javascript.JavascriptTestUtilities.JSRunnable;
+import org.apache.cxf.javascript.JavascriptTestUtilities.Notifier;
 import org.apache.cxf.javascript.fortest.AegisServiceImpl;
 import org.junit.Before;
 import org.junit.Test;
@@ -101,4 +102,35 @@ public class AegisTest extends JavascriptRhinoTest {
             }
         });
     }
+    
+    private Void returnBeanWithAnyTypeArray(Context context) {
+        Notifier notifier = 
+            testUtilities.rhinoCallConvert("testReturningBeanWithAnyTypeArray", Notifier.class, 
+                                           testUtilities.javaToJS(getAddress()));
+        
+        boolean notified = notifier.waitForJavascript(1000 * 10);
+        assertTrue(notified);
+        Integer errorStatus = testUtilities.rhinoEvaluateConvert("globalErrorStatus", Integer.class);
+        assertNull(errorStatus);
+        String errorText = testUtilities.rhinoEvaluateConvert("globalErrorStatusText", String.class);
+        assertNull(errorText);
+
+        //This method returns a 'BeanWithAnyTypeArray'. 
+        //start by looking at the string.
+        String beanString = (String)testUtilities.rhinoEvaluate("globalResponseObject._return._string");
+        assertEquals("lima", beanString);
+        Object o1 = testUtilities.rhinoEvaluate("globalResponseObject._return._objects._anyType[0]");
+        assertTrue(o1 instanceof JsSimpleDomNode);
+        return null;
+    }
+    
+    @Test
+    public void callReturnBeanWithAnyTypeArray() {
+        testUtilities.runInsideContext(Void.class, new JSRunnable<Void>() {
+            public Void run(Context context) {
+                return returnBeanWithAnyTypeArray(context);
+            }
+        });
+    }
+
 }
