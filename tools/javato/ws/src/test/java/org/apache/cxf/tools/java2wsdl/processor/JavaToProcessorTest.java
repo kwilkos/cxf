@@ -556,4 +556,23 @@ public class JavaToProcessorTest extends ProcessorTestBase {
         assertTrue(wsdlFile.exists());
         assertTrue(getStringFromFile(wsdlFile).indexOf("elementFormDefault=\"unqualified\"") != -1);
     }
+
+    @Test
+    public void testEPR() throws Exception {
+        env.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/epr.wsdl");
+        env.put(ToolConstants.CFG_CLASSNAME, "org.apache.cxf.tools.fortest.epr.AddNumbersImpl");
+        env.put(ToolConstants.CFG_VERBOSE, ToolConstants.CFG_VERBOSE);
+        env.put(ToolConstants.CFG_CREATE_XSD_IMPORTS, ToolConstants.CFG_CREATE_XSD_IMPORTS);
+        try {
+            processor.setEnvironment(env);
+            processor.process();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        File wsdlFile = new File(output, "epr_schema1.xsd");
+        assertTrue(wsdlFile.exists());
+        String expectedString = "schemaLocation=\"http://www.w3.org/2006/03/addressing/ws-addr.xsd\"";
+        assertTrue(getStringFromFile(wsdlFile).indexOf(expectedString) != -1);
+    }
 }

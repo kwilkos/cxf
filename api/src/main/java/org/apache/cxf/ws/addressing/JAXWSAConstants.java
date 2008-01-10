@@ -37,6 +37,7 @@ public final class JAXWSAConstants {
     
     public static final String NS_WSA = "http://www.w3.org/2005/08/addressing";
     public static final String WSA_PREFIX = "wsa";
+    public static final String WSA_XSD = "http://www.w3.org/2006/03/addressing/ws-addr.xsd";
     
     public static final String WSA_ERF_NAME = "EndpointReference";
     public static final String WSA_REFERENCEPARAMETERS_NAME = "ReferenceParameters";

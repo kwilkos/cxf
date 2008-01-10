@@ -134,6 +134,8 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
 
     protected Class<?> serviceClass;
 
+    protected final Map<String, String> schemaLocationMapping = new HashMap<String, String>();
+
     private List<AbstractServiceConfiguration> serviceConfigurations = 
         new ArrayList<AbstractServiceConfiguration>();
     private QName serviceName;
@@ -150,7 +152,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     private boolean qualifiedSchemas = true;
 
     private List<AbstractFeature> features;
-
+    
     public ReflectionServiceFactoryBean() {
         getServiceConfigurations().add(0, new DefaultServiceConfiguration());
 
@@ -980,11 +982,14 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     }
 
     private void addImport(XmlSchema schema, String ns) {
-        if (!ns.equals(schema.getTargetNamespace()) && !ns.equals(WSDLConstants.NS_SCHEMA_XSD)
+        if (!ns.equals(schema.getTargetNamespace()) 
+            && !ns.equals(WSDLConstants.NS_SCHEMA_XSD)
             && !isExistImport(schema, ns)) {
-
             XmlSchemaImport is = new XmlSchemaImport();
             is.setNamespace(ns);
+            if (this.schemaLocationMapping.get(ns) != null) {
+                is.setSchemaLocation(this.schemaLocationMapping.get(ns));
+            }
             schema.getItems().add(is);
         }
     }
@@ -1185,6 +1190,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         SchemaInfo schemaInfo = new SchemaInfo(serviceInfo, namespaceURI);
         SchemaCollection col = serviceInfo.getXmlSchemaCollection();
         XmlSchema schema = col.getSchemaByTargetNamespace(namespaceURI);
+
         if (schema != null) {
             schemaInfo.setSchema(schema);
             serviceInfo.addSchema(schemaInfo);
@@ -1195,7 +1201,6 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         if (qualified) {
             schema.setElementFormDefault(new XmlSchemaForm(XmlSchemaForm.QUALIFIED));
         }
-
         schemaInfo.setSchema(schema);
 
         Map<String, String> explicitNamespaceMappings = this.getDataBinding().getDeclaredNamespaceMappings();

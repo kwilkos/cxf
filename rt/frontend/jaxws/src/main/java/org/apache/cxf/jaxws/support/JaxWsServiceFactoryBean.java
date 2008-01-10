@@ -86,6 +86,7 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
         //the JAXWS-RI doesn't qualify the schemas for the wrapper types
         //and thus won't work if we do.
         setQualifyWrapperSchema(false);
+        initSchemaLocations();
     }
 
     public JaxWsServiceFactoryBean(JaxWsImplementorInfo implInfo) {
@@ -93,6 +94,11 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
         this.implInfo = implInfo;
         initConfiguration(implInfo);
         this.serviceClass = implInfo.getEndpointClass();
+    }
+
+    private void initSchemaLocations() {
+        this.schemaLocationMapping.put(JAXWSAConstants.NS_WSA, 
+                                       JAXWSAConstants.WSA_XSD);
     }
 
     @Override
