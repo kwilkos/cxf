@@ -49,18 +49,7 @@ public final class Client {
         System.out.println("Sent HTTPS GET request to query customer info");
         HttpClient httpclient = new HttpClient();
         GetMethod httpget = new GetMethod("https://localhost:9000/customerservice/customers/123");
-        try {
-            httpclient.executeMethod(httpget);
-            System.out.println(httpget.getResponseBodyAsString());
-        } finally {
-            httpget.releaseConnection();
-        }
-
-        // Sent HTTP GET request to query sub resource product info
-        System.out.println("\n");
-        System.out.println("Sent HTTPS GET request to query sub resource product info");
-
-        httpget = new GetMethod("https://localhost:9000/customerservice/orders/223/products/323");
+        httpget.addRequestHeader("Accept" , "text/xml");
         try {
             httpclient.executeMethod(httpget);
             System.out.println(httpget.getResponseBodyAsString());
@@ -88,10 +77,12 @@ public final class Client {
         }
 
         // Sent HTTP POST request to add customer
+        System.out.println("\n");
         System.out.println("Sent HTTPS POST request to add customer");
         inputFile = client.getClass().getResource("add_customer.txt").getFile();
         input = new File(inputFile);
         PostMethod post = new PostMethod("https://localhost:9000/customerservice/customers");
+        post.addRequestHeader("Accept" , "text/xml");
         entity = new FileRequestEntity(input, "text/xml; charset=ISO-8859-1");
         post.setRequestEntity(entity);
 
@@ -106,18 +97,7 @@ public final class Client {
             post.releaseConnection();
         }
 
-        // Sent HTTP GET request to query customer info, expect JSON.
         System.out.println("\n");
-        System.out.println("Sent HTTPS GET request to query customer info in JSON");
-
-        httpget = new GetMethod("https://localhost:9000/customerservice/customersjson/123");
-        try {
-            httpclient.executeMethod(httpget);
-            System.out.println(httpget.getResponseBodyAsString());
-        } finally {
-            httpget.releaseConnection();
-        }
-
         System.out.println("Client Invoking is succeeded!");
         System.exit(0);
     }

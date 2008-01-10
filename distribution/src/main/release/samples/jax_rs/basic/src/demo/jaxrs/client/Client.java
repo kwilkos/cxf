@@ -53,12 +53,14 @@ public final class Client {
         System.out.println(getStringFromInputStream(in));
 
         // Sent HTTP GET request to query sub resource product info
+        System.out.println("\n");
         System.out.println("Sent HTTP GET request to query sub resource product info");
         url = new URL("http://localhost:9000/customerservice/orders/223/products/323");
         in = url.openStream();
         System.out.println(getStringFromInputStream(in));
 
         // Sent HTTP PUT request to update customer info
+        System.out.println("\n");
         System.out.println("Sent HTTP PUT request to update customer info");
         Client client = new Client();
         String inputFile = client.getClass().getResource("update_customer.txt").getFile();
@@ -80,10 +82,12 @@ public final class Client {
         }
 
         // Sent HTTP POST request to add customer
+        System.out.println("\n");
         System.out.println("Sent HTTP POST request to add customer");
         inputFile = client.getClass().getResource("add_customer.txt").getFile();
         input = new File(inputFile);
         PostMethod post = new PostMethod("http://localhost:9000/customerservice/customers");
+        post.addRequestHeader("Accept" , "text/xml");
         entity = new FileRequestEntity(input, "text/xml; charset=ISO-8859-1");
         post.setRequestEntity(entity);
         httpclient = new HttpClient();
@@ -99,13 +103,7 @@ public final class Client {
             post.releaseConnection();
         }
 
-        // Sent HTTP GET request to query customer info, expect JSON.
-        System.out.println("Sent HTTP GET request to query customer info");
-        url = new URL("http://localhost:9000/customerservice/customersjson/123");
-        in = url.openStream();
-        System.out.println(getStringFromInputStream(in));
-
-
+        System.out.println("\n");
         System.out.println("Client Invoking is succeeded!");
         System.exit(0);
     }

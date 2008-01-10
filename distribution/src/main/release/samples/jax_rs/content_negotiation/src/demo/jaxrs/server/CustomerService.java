@@ -20,49 +20,45 @@ package demo.jaxrs.server;
 
 import java.util.HashMap;
 import java.util.Map;
+
 import javax.ws.rs.HttpMethod;
+import javax.ws.rs.ProduceMime;
 import javax.ws.rs.UriParam;
 import javax.ws.rs.UriTemplate;
-import javax.xml.bind.annotation.XmlRootElement;
 
-@XmlRootElement(name = "Order")
-public class Order {
-    private long id;
-    private String description;
-    private Map<Long, Product> products = new HashMap<Long, Product>();
+@UriTemplate("/customerservice/")
+public class CustomerService {
+    long currentId = 123;
+    Map<Long, Customer> customers = new HashMap<Long, Customer>();
 
-    public Order() {
+    public CustomerService() {
         init();
     }
 
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String d) {
-        this.description = d;
+    @HttpMethod("GET")
+    @UriTemplate("/customers/{id}/")
+    public Customer getCustomer(@UriParam("id") String id) {
+        System.out.println("----invoking getCustomer, Customer id is: " + id);
+        long idNumber = Long.parseLong(id);
+        Customer c = customers.get(idNumber);
+        return c;
     }
 
     @HttpMethod("GET")
-    @UriTemplate("products/{productId}/")
-    public Product getProduct(@UriParam("productId")int productId) {
-        System.out.println("----invoking getProduct with id: " + productId);
-        Product p = products.get(new Long(productId));
-        return p;
+    @UriTemplate("/customersjson/{id}/")
+    @ProduceMime("application/json")
+    public Customer getCustomerJSON(@UriParam("id") String id) {
+        System.out.println("----invoking getCustomerJSON, Customer id is: " + id);
+        long idNumber = Long.parseLong(id);
+        Customer c = customers.get(idNumber);
+        return c;
     }
 
     final void init() {
-        Product p = new Product();
-        p.setId(323);
-        p.setDescription("product 323");
-        products.put(p.getId(), p);
+        Customer c = new Customer();
+        c.setName("John");
+        c.setId(123);
+        customers.put(c.getId(), c);
     }
+
 }

@@ -20,10 +20,10 @@ package demo.jaxrs.server;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
-@XmlRootElement(name = "Product")
-public class Product {
+@XmlRootElement(name = "Customer")
+public class Customer {
     private long id;
-    private String description;
+    private String name;
 
     public long getId() {
         return id;
@@ -33,11 +33,11 @@ public class Product {
         this.id = id;
     }
 
-    public String getDescription() {
-        return description;
+    public String getName() {
+        return name;
     }
 
-    public void setDescription(String d) {
-        this.description = d;
+    public void setName(String name) {
+        this.name = name;
     }
 }
