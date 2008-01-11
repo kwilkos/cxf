@@ -19,12 +19,10 @@
 package org.apache.cxf.aegis.type.java5;
 
 import java.beans.PropertyDescriptor;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.WildcardType;
 import java.util.Collection;
-
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.aegis.type.AbstractTypeCreator;
@@ -34,6 +32,15 @@ import org.apache.cxf.aegis.util.NamespaceHelper;
 import org.apache.cxf.aegis.util.ServiceUtils;
 
 public class Java5TypeCreator extends AbstractTypeCreator {
+    private AnnotationReader annotationReader;
+
+    public Java5TypeCreator() {
+        this(new AnnotationReader());
+    }
+
+    public Java5TypeCreator(AnnotationReader annotationReader) {
+        this.annotationReader = annotationReader;
+    }
 
     @Override
     public TypeClassInfo createClassInfo(Method m, int index) {
@@ -49,14 +56,13 @@ public class Java5TypeCreator extends AbstractTypeCreator {
             }
             info.setTypeClass(m.getParameterTypes()[index]);
 
-            XmlParamType xmlParam = getXmlParamAnnotation(m, index);
-            if (xmlParam != null) {
-                if (xmlParam.type() != Type.class) {
-                    info.setType(xmlParam.type());
-                }
+            info.setType(annotationReader.getParamType(m, index));
 
-                info.setTypeName(createQName(m.getParameterTypes()[index], xmlParam.name(), xmlParam
-                    .namespace()));
+            String paramName = annotationReader.getParamName(m, index);
+            if (paramName != null) {
+                info.setTypeName(createQName(m.getParameterTypes()[index],
+                        paramName,
+                        annotationReader.getParamNamespace(m, index)));
             }
 
             return info;
@@ -70,41 +76,24 @@ public class Java5TypeCreator extends AbstractTypeCreator {
                 info.setDescription("method " + m.getName() + " parameter " + index);
                 info.setGenericType(genericReturnType);
             }
+
             info.setTypeClass(m.getReturnType());
+
             if (m.getParameterAnnotations() != null && m.getAnnotations().length > 0) {
                 info.setAnnotations(m.getAnnotations());
             }
 
-            XmlReturnType xmlParam = m.getAnnotation(XmlReturnType.class);
-            if (xmlParam != null) {
-                if (xmlParam.type() != Type.class) {
-                    info.setType(xmlParam.type());
-                }
+            info.setType(annotationReader.getReturnType(m));
 
-                info.setTypeName(createQName(m.getReturnType(), xmlParam.name(), xmlParam.namespace()));
+            String returnName = annotationReader.getReturnName(m);
+            if (returnName != null) {
+                info.setTypeName(createQName(m.getReturnType(),
+                        returnName,
+                        annotationReader.getReturnNamespace(m)));
             }
 
             return info;
         }
-    }
-
-    public XmlParamType getXmlParamAnnotation(Method m, int index) {
-        if (m.getParameterAnnotations() == null
-            || m.getParameterAnnotations().length <= index
-            || m.getParameterAnnotations()[index] == null) {
-            return null;
-        }
-
-        Annotation[] annotations = m.getParameterAnnotations()[index];
-
-        for (int i = 0; i < annotations.length; i++) {
-            Annotation annotation = annotations[i];
-            if (annotation.annotationType().equals(XmlParamType.class)) {
-                return (XmlParamType)annotations[i];
-            }
-        }
-
-        return null;
     }
 
     @Override
@@ -112,16 +101,7 @@ public class Java5TypeCreator extends AbstractTypeCreator {
         TypeClassInfo info = createBasicClassInfo(pd.getPropertyType());
         info.setGenericType(pd.getReadMethod().getGenericReturnType());
         info.setAnnotations(pd.getReadMethod().getAnnotations());
-
-        XmlElement el = pd.getReadMethod().getAnnotation(XmlElement.class);
-        if (el != null && !el.type().equals(Type.class)) {
-            info.setType(el.type());
-        }
-
-        XmlAttribute att = pd.getReadMethod().getAnnotation(XmlAttribute.class);
-        if (att != null && !att.type().equals(Type.class)) {
-            info.setType(att.type());
-        }
+        info.setType(annotationReader.getType(pd.getReadMethod()));
 
         return info;
     }
@@ -220,16 +200,17 @@ public class Java5TypeCreator extends AbstractTypeCreator {
             typeName = createQName(info.getTypeClass());
         }
 
-        AnnotatedTypeInfo typeInfo = new AnnotatedTypeInfo(getTypeMapping(), info.getTypeClass(), typeName
-            .getNamespaceURI());
-        XmlType xtype = (XmlType)info.getTypeClass().getAnnotation(XmlType.class);
-        if (xtype != null) {
-            typeInfo.setExtensibleElements(xtype.extensibleElements());
-            typeInfo.setExtensibleAttributes(xtype.extensibleAttributes());
-        } else {
-            typeInfo.setExtensibleElements(getConfiguration().isDefaultExtensibleElements());
-            typeInfo.setExtensibleAttributes(getConfiguration().isDefaultExtensibleAttributes());
-        }
+        AnnotatedTypeInfo typeInfo = new AnnotatedTypeInfo(
+                getTypeMapping(),
+                info.getTypeClass(),
+                typeName.getNamespaceURI());
+
+        typeInfo.setExtensibleElements(annotationReader.isExtensibleElements(
+                info.getTypeClass(),
+                getConfiguration().isDefaultExtensibleElements()));
+        typeInfo.setExtensibleAttributes(annotationReader.isExtensibleAttributes(
+                info.getTypeClass(),
+                getConfiguration().isDefaultExtensibleAttributes()));
 
         typeInfo.setDefaultMinOccurs(getConfiguration().getDefaultMinOccurs());
         typeInfo.setDefaultNillable(getConfiguration().isDefaultNillable());
@@ -255,26 +236,22 @@ public class Java5TypeCreator extends AbstractTypeCreator {
     @SuppressWarnings("unchecked")
     @Override
     public QName createQName(Class typeClass) {
-        String name = null;
-        String ns = null;
-
-        XmlType xtype = (XmlType)typeClass.getAnnotation(XmlType.class);
-        if (xtype != null) {
-            name = xtype.name();
-            ns = xtype.namespace();
-        }
-
+        String name = annotationReader.getName(typeClass);
+        String ns = annotationReader.getNamespace(typeClass);
         return createQName(typeClass, name, ns);
     }
 
     private QName createQName(Class typeClass, String name, String ns) {
-        String clsName = typeClass.getName();
         if (name == null || name.length() == 0) {
             name = ServiceUtils.makeServiceNameFromClassName(typeClass);
         }
 
+        // check jaxb package annotation
         if (ns == null || ns.length() == 0) {
-            ns = NamespaceHelper.makeNamespaceFromClassName(clsName, "http");
+            ns = annotationReader.getNamespace(typeClass.getPackage());
+        }
+        if (ns == null || ns.length() == 0) {
+            ns = NamespaceHelper.makeNamespaceFromClassName(typeClass.getName(), "http");
         }
 
         return new QName(ns, name);

@@ -75,14 +75,32 @@ public class EnumTypeTest extends AbstractAegisTest {
 
     @Test
     public void testAutoCreation() throws Exception {
-        Type type = (Type)tm.getTypeCreator().createType(smallEnum.class);
+        Type type = tm.getTypeCreator().createType(smallEnum.class);
 
         assertTrue(type instanceof EnumType);
     }
 
     @Test
     public void testTypeAttributeOnEnum() throws Exception {
-        Type type = (Type)tm.getTypeCreator().createType(TestEnum.class);
+        Type type = tm.getTypeCreator().createType(TestEnum.class);
+
+        assertEquals("urn:xfire:foo", type.getSchemaType().getNamespaceURI());
+
+        assertTrue(type instanceof EnumType);
+    }
+
+    @Test
+    public void testXFireTypeAttributeOnEnum() throws Exception {
+        Type type = tm.getTypeCreator().createType(XFireTestEnum.class);
+
+        assertEquals("urn:xfire:foo", type.getSchemaType().getNamespaceURI());
+
+        assertTrue(type instanceof EnumType);
+    }
+
+    @Test
+    public void testJaxbTypeAttributeOnEnum() throws Exception {
+        Type type = tm.getTypeCreator().createType(JaxbTestEnum.class);
 
         assertEquals("urn:xfire:foo", type.getSchemaType().getNamespaceURI());
 
