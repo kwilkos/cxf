@@ -69,7 +69,7 @@ public class AbstractDataBinding {
         }
         SchemaInfo schema = new SchemaInfo(serviceInfo, ns);
         schema.setSystemId(systemId);
-        XmlSchema xmlSchema = col.read(d.getDocumentElement());
+        XmlSchema xmlSchema = col.read(d, null);
         schema.setSchema(xmlSchema);
         serviceInfo.addSchema(schema);
         return xmlSchema;

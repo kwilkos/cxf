@@ -21,6 +21,8 @@ package org.apache.cxf.wsdl;
 
 import java.io.InputStream;
 import java.io.Reader;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -62,7 +64,6 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.StringUtils;
-import org.apache.cxf.common.xmlschema.SchemaCollection;
 import org.apache.cxf.endpoint.EndpointResolverRegistry;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.endpoint.ServerRegistry;
@@ -83,6 +84,70 @@ import org.apache.ws.commons.schema.XmlSchema;
  * Provides utility methods for obtaining endpoint references, wsdl definitions, etc.
  */
 public final class EndpointReferenceUtils {
+
+    /**
+     * We want to load the schemas, including references to external schemas, into a SchemaFactory
+     * to validate. There seem to be bugs in resolving inter-schema references in Xerces, so even when we are 
+     * handing the factory all the schemas, interrelated with &lt;import&gt; elements, we need
+     * to also hand over extra copies (!) as character images when requested.
+     * 
+     * To do this, we use the DOM representation kept in the SchemaInfo. This has the bonus
+     * of benefiting from the use of the catalog resolver in there, which is missing from
+     * the code in here.
+     */
+    private static final class SchemaLSResourceResolver implements LSResourceResolver {
+        private final ServiceInfo si;
+
+        private SchemaLSResourceResolver(ServiceInfo serviceInfo) {
+            this.si = serviceInfo;
+        }
+        
+        private Reader getSchemaAsStream(Element schemaElement) {
+            DOMSource source = new DOMSource(schemaElement);
+            StringWriter writer = new StringWriter();
+            StreamResult result = new StreamResult(writer);
+            try {
+                TransformerFactory.newInstance().newTransformer().transform(source, result);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+            return new StringReader(writer.toString());
+        }
+
+        public LSInput resolveResource(String type, String namespaceURI, String publicId,
+                                       String systemId, String baseURI) {
+            for (SchemaInfo schemaInfo : si.getSchemas()) {
+                XmlSchema sch = schemaInfo.getSchema();
+                if (namespaceURI.equals(sch.getTargetNamespace())) {
+                    LSInputImpl impl = new LSInputImpl();
+                    Element schemaAsDom = schemaInfo.getElement();
+                    if (schemaAsDom != null) {
+                        impl.setCharacterStream(getSchemaAsStream(schemaAsDom));
+                        return impl;
+                    }
+                    // otherwise, go ahead and assume it's out there somewhere.
+                    // this needs catalog support, does it not?
+                    InputStream ins = null;
+                    try {
+                        URL url = new URL(sch.getSourceURI());
+                        ins = url.openStream();
+                    } catch (Exception e) {
+                        //ignore, we'll just use what we have.  (though
+                        //bugs in XmlSchema could make this less useful)
+                    }
+                    
+                    if (ins == null) {
+                        LoadingByteArrayOutputStream out = new LoadingByteArrayOutputStream();
+                        sch.write(out);
+                        ins = out.createInputStream();
+                    }
+                    impl.setByteStream(ins);
+                    return impl;
+                }
+            }
+            return null;
+        }
+    }
 
     public static final String ANONYMOUS_ADDRESS = "http://www.w3.org/2005/08/addressing/anonymous";
 
@@ -455,52 +520,26 @@ public final class EndpointReferenceUtils {
             SchemaFactory factory = SchemaFactory.newInstance(
                 XMLConstants.W3C_XML_SCHEMA_NS_URI);
             List<Source> schemaSources = new ArrayList<Source>();
-            final SchemaCollection sc = serviceInfo.getXmlSchemaCollection();
             for (SchemaInfo schemaInfo : serviceInfo.getSchemas()) {
                 Source source = new DOMSource(schemaInfo.getElement());
-                if (source != null) {
-                    source.setSystemId(schemaInfo.getElement().getBaseURI());
-                    schemaSources.add(source);
+                String baseURI = schemaInfo.getElement().getBaseURI();
+                if (baseURI != null) {
+                    source.setSystemId(baseURI);
+                } else {
+                    source.setSystemId(schemaInfo.getSystemId());
                 }
+                schemaSources.add(source);
             }
             try {
-                factory.setResourceResolver(new LSResourceResolver() {
-                    public LSInput resolveResource(String type, String namespaceURI, String publicId,
-                                                   String systemId, String baseURI) {
-                        for (XmlSchema sch : sc.getXmlSchemas()) {
-                            if (namespaceURI.equals(sch.getTargetNamespace())) {
-                                LSInputImpl impl = new LSInputImpl();
-                                InputStream ins = null;
-                                try {
-                                    URL url = new URL(sch.getSourceURI());
-                                    ins = url.openStream();
-                                } catch (Exception e) {
-                                    //ignore, we'll just use what we have.  (though
-                                    //bugs in XmlSchema could make this less useful)
-                                }
-                                
-                                if (ins == null) {
-                                    LoadingByteArrayOutputStream out = new LoadingByteArrayOutputStream();
-                                    sch.write(out);
-                                    ins = out.createInputStream();
-                                }
-                                impl.setByteStream(ins);
-                                return impl;
-                            }
-                        }
-                        return null;
-                    }
-                    
-                });
-                schema = factory.newSchema(schemaSources.toArray(
-                    new Source[schemaSources.size()]));
+                factory.setResourceResolver(new SchemaLSResourceResolver(serviceInfo));
+                schema = factory.newSchema(schemaSources.toArray(new Source[schemaSources.size()]));
                 if (schema != null) {
                     serviceInfo.setProperty(Schema.class.getName(), schema);
                     LOG.log(Level.FINE, "Obtained schema from ServiceInfo");
                 }
             } catch (SAXException ex) {
                 // Something not right with the schema from the wsdl.
-                LOG.log(Level.WARNING, "SAXException for newSchema()", ex);
+                LOG.log(Level.WARNING, "SAXException for newSchema() on ", ex);
             }
             
         }
