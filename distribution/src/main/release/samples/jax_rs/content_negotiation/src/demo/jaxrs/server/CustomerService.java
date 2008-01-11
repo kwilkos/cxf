@@ -22,7 +22,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.ws.rs.HttpMethod;
-import javax.ws.rs.ProduceMime;
 import javax.ws.rs.UriParam;
 import javax.ws.rs.UriTemplate;
 
