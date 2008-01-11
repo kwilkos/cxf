@@ -44,7 +44,7 @@ public class JAXRSClientServerSpringBookTest extends AbstractBusClientServerTest
         assertNotNull(in);           
 
         InputStream expected = getClass()
-            .getResourceAsStream("resources/expected_get_book123.txt");
+            .getResourceAsStream("resources/expected_get_book123json.txt");
 
         //System.out.println("---" + getStringFromInputStream(in));
         assertEquals(getStringFromInputStream(expected), getStringFromInputStream(in)); 
