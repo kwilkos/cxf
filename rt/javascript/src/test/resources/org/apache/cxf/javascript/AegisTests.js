@@ -72,9 +72,9 @@ function testAnyNToServerRawTyped(url)
 														 "Mammal",
 														 "<name xmlns='http://aegis.fortest.javascript.cxf.apache.org'>cat</name>");
 	holderArray.push(holder);
-	holder = new org_apache_cxf_raw_any_holder("http://www.w3.org/2001/XMLSchema", 
+	holder = new org_apache_cxf_raw_typed_any_holder("http://www.w3.org/2001/XMLSchema", 
 													 "string",
-													 "This is the cereal < shot from guns");
+													 "This is the cereal &lt; shot from guns");
 	
 	holderArray.push(holder);
 	arrayItem.setAnyType(holderArray);
