@@ -21,6 +21,9 @@
 // Alternative, it could be made 'static', but this allowed us to use this same object
 // to carry some state.
  
+const org_apache_cxf_XSI_namespace_uri = "http://www.w3.org/2001/XMLSchema-instance";
+const org_apache_cxf_XSD_namespace_uri = "http://www.w3.org/2001/XMLSchema";
+
 function cxf_apache_org_util_null_trace(message)
 {
 }
@@ -446,5 +449,63 @@ function org_apache_cxf_raw_typed_any_holder(namespaceURI, localName, xml)
 	this.xml = xml;
 	this.raw = true;
 	this.xsiType = true;
+}
+
+function org_apache_cxf_get_xsi_type(elementNode)
+{
+    var attributes = elementNode.attributes;
+    if ((attributes!=null) && (attributes.length > 0)) {
+        for (var x=0; x<attributes.length; x++) {
+            var attributeNodeName = attributes.item(x).nodeName;
+            var attributeNamespacePrefix = org_apache_cxf_getPrefix(attributes.item(x).nodeName);
+            var attributeNamespaceSuffix = org_apache_cxf_getLocalName(attributes.item(x).nodeName);
+			if(attributeNamespaceSuffix == 'type') {
+				// perhaps this is ours
+				var ns = org_apache_cxf_getNamespaceURI(elementNode, attributeNamespacePrefix);
+				if(ns == org_apache_cxf_XSI_namespace_uri) {
+					return attributes.item(x).nodeValue;
+				}
+			}
+        }
+        return null;
+    }
+}
+
+// return the an object if we can deserialize an object, otherwise return the element itself.
+function org_apache_cxf_deserialize_anyType(cxfjsutils, element)
+{
+	var type = org_apache_cxf_get_xsi_type(element);
+	if(type != null) {
+		// type is a :-qualified name.
+		var namespacePrefix = org_apache_cxf_getPrefix(type);
+        var localName = org_apache_cxf_getLocalName(type);
+        var uri = org_apache_cxf_getNamespaceURI(element, namespacePrefix);
+        if(uri == org_apache_cxf_XSD_namespace_uri) {
+        	// we expect a Text node below
+        	var textNode = element.firstChild;
+        	if(textNode == null)
+        		return null;
+        	var text = textNode.nodeValue;
+        	if(text == null)
+        		return null;
+        	// For any of the basic types, assume that the nodeValue is what the doctor ordered,
+            //  converted to the appropriate type.
+        	// For some of the more interesting types this needs more work.
+        	if(localName == "int" || localName == "unsignedInt" || localName == "long" || localName == "unsignedLong") {
+        		return parseInt(text);
+        	}
+        	if(localName == "float" || localName == "double")
+        		return parseFloat(text);
+        	if(localName == "boolean") 
+        		return text == 'true';
+        	return text;
+        }
+		var qname = "{" + uri + "}" + localName;
+		var deserializer = cxfjsutils.interfaceObject.globalElementDeserializers[qname];
+		if(deserializer != null) {
+			return deserializer(cxfjsutils, element);
+		}
+	}
+	return element;
 }
 	

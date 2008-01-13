@@ -93,7 +93,6 @@ public class AegisTest extends JavascriptRhinoTest {
         return null;
     }
     
-//    @org.junit.Ignore
     @Test
     public void callAcceptAnyTyped() {
         testUtilities.runInsideContext(Void.class, new JSRunnable<Void>() {
@@ -120,7 +119,14 @@ public class AegisTest extends JavascriptRhinoTest {
         String beanString = (String)testUtilities.rhinoEvaluate("globalResponseObject._return._string");
         assertEquals("lima", beanString);
         Object o1 = testUtilities.rhinoEvaluate("globalResponseObject._return._objects._anyType[0]");
-        assertTrue(o1 instanceof JsSimpleDomNode);
+        assertNotNull(o1);
+        String marker = 
+            testUtilities.rhinoEvaluateConvert("globalResponseObject._return._objects._anyType[0].typeMarker",
+                                               String.class);
+        assertEquals("aegis_fortest_javascript_cxf_apache_org_Mammal", marker);
+        Object intValue = 
+            testUtilities.rhinoEvaluate("globalResponseObject._return._objects._anyType[1]");
+        assertEquals(new Integer(42), intValue);
         return null;
     }
     

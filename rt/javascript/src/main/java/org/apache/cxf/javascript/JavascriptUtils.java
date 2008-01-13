@@ -203,7 +203,7 @@ public class JavascriptUtils {
         } else if (floatTypes.contains(name)) {
             return "parseFloat(" + value + ")";
         } else if ("boolean".equals(name)) {
-            return "(" + value + " == true)";
+            return "(" + value + " == 'true')";
         } else {
             return value;
         }

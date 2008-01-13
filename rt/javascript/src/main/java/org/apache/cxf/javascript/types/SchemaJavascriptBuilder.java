@@ -592,9 +592,8 @@ public class SchemaJavascriptBuilder {
         utils.appendLine("var value = null;");
         utils.startIf("!cxfjsutils.isElementNil(curElement)");
         if (itemInfo.isAnyType()) {
-            // All I can think of to do is deliver the DOM.
-            // unless we have xsi:type
-            utils.appendLine(valueTarget + " = curElement;");
+            // use our utility
+            utils.appendLine(valueTarget + " = org_apache_cxf_deserialize_anyType(cxfjsutils, curElement);");
         } else if (simple) {
             utils.appendLine("value = cxfjsutils.getNodeText(curElement);");
             utils.appendLine(valueTarget 

@@ -183,8 +183,24 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
                                  + "_deserialize;");
             }
             
+            globalElements = schemaInfo.getSchemaTypes();
+            namesIterator = globalElements.getNames();
+            while (namesIterator.hasNext()) {
+                QName name = (QName)namesIterator.next();
+                XmlSchemaType type = (XmlSchemaType) globalElements.getItem(name);
+                // For now, at least, don't handle simple types.
+                if (!(type instanceof XmlSchemaComplexType)) {
+                    continue;
+                }
+                // the names are misleading, but that's OK.
+                utils.appendLine("this.globalElementSerializers['" + name.toString() + "'] = "
+                                 + nameManager.getJavascriptName(name)
+                                 + "_serialize;");
+                utils.appendLine("this.globalElementDeserializers['" + name.toString() + "'] = "
+                                 + nameManager.getJavascriptName(name)
+                                 + "_deserialize;");
+            }
         }
-
     }
 
     private String getFunctionGlobalName(QName itemName, String itemType) {
