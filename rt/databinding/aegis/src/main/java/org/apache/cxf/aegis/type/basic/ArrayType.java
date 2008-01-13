@@ -38,6 +38,7 @@ import org.apache.cxf.aegis.util.NamespaceHelper;
 import org.apache.cxf.aegis.xml.MessageReader;
 import org.apache.cxf.aegis.xml.MessageWriter;
 import org.apache.cxf.common.util.SOAPConstants;
+import org.apache.cxf.common.xmlschema.XmlSchemaConstants;
 import org.jdom.Attribute;
 import org.jdom.Element;
 import org.jdom.Namespace;
@@ -49,7 +50,7 @@ import org.jdom.Namespace;
  */
 public class ArrayType extends Type {
     private static final Log LOG = LogFactory.getLog(ArrayType.class);
-    
+
     private QName componentName;
     private long minOccurs;
     private long maxOccurs = Long.MAX_VALUE;
@@ -159,20 +160,22 @@ public class ArrayType extends Type {
                 Array.set(array, i, objects[i]);
             }
         }
-        return array == null
-            ? values.toArray((Object[])Array.newInstance(getComponentType().getTypeClass(), values.size()))
-            : array;
+        return array == null ? values.toArray((Object[])Array.newInstance(getComponentType().getTypeClass(),
+                                                                          values.size())) : array;
     }
 
     @Override
-    public void writeObject(Object values,
-                            MessageWriter writer,
-                            Context context) throws DatabindingException {
+    public void writeObject(Object values, MessageWriter writer, Context context) 
+        throws DatabindingException {
+        boolean forceXsiWrite = false;
         if (values == null) {
             return;
         }
 
         Type type = getComponentType();
+        if (XmlSchemaConstants.ANY_TYPE_QNAME.equals(type.getSchemaType())) {
+            forceXsiWrite = true;
+        }
 
         String ns = null;
         if (type.isAbstract()) {
@@ -189,53 +192,62 @@ public class ArrayType extends Type {
 
         Class arrayType = type.getTypeClass();
 
-        int i;
-        int n;
-        if (Object.class.isAssignableFrom(arrayType)) {
-            Object[] objects = (Object[])values;
-            for (i = 0, n = objects.length; i < n; i++) {
-                writeValue(objects[i], writer, context, type, name, ns);
+        boolean oldXsiWrite = context.getGlobalContext().isWriteXsiTypes();
+        try {
+            if (forceXsiWrite) {
+                context.getGlobalContext().setWriteXsiTypes(true);
             }
-        } else if (Integer.TYPE.equals(arrayType)) {
-            int[] objects = (int[])values;
-            for (i = 0, n = objects.length; i < n; i++) {
-                writeValue(new Integer(objects[i]), writer, context, type, name, ns);
+
+            int i;
+            int n;
+            if (Object.class.isAssignableFrom(arrayType)) {
+                Object[] objects = (Object[])values;
+                for (i = 0, n = objects.length; i < n; i++) {
+                    writeValue(objects[i], writer, context, type, name, ns);
+                }
+            } else if (Integer.TYPE.equals(arrayType)) {
+                int[] objects = (int[])values;
+                for (i = 0, n = objects.length; i < n; i++) {
+                    writeValue(new Integer(objects[i]), writer, context, type, name, ns);
+                }
+            } else if (Long.TYPE.equals(arrayType)) {
+                long[] objects = (long[])values;
+                for (i = 0, n = objects.length; i < n; i++) {
+                    writeValue(new Long(objects[i]), writer, context, type, name, ns);
+                }
+            } else if (Short.TYPE.equals(arrayType)) {
+                short[] objects = (short[])values;
+                for (i = 0, n = objects.length; i < n; i++) {
+                    writeValue(new Short(objects[i]), writer, context, type, name, ns);
+                }
+            } else if (Double.TYPE.equals(arrayType)) {
+                double[] objects = (double[])values;
+                for (i = 0, n = objects.length; i < n; i++) {
+                    writeValue(new Double(objects[i]), writer, context, type, name, ns);
+                }
+            } else if (Float.TYPE.equals(arrayType)) {
+                float[] objects = (float[])values;
+                for (i = 0, n = objects.length; i < n; i++) {
+                    writeValue(new Float(objects[i]), writer, context, type, name, ns);
+                }
+            } else if (Byte.TYPE.equals(arrayType)) {
+                byte[] objects = (byte[])values;
+                for (i = 0, n = objects.length; i < n; i++) {
+                    writeValue(new Byte(objects[i]), writer, context, type, name, ns);
+                }
+            } else if (Boolean.TYPE.equals(arrayType)) {
+                boolean[] objects = (boolean[])values;
+                for (i = 0, n = objects.length; i < n; i++) {
+                    writeValue(Boolean.valueOf(objects[i]), writer, context, type, name, ns);
+                }
+            } else if (Character.TYPE.equals(arrayType)) {
+                char[] objects = (char[])values;
+                for (i = 0, n = objects.length; i < n; i++) {
+                    writeValue(new Character(objects[i]), writer, context, type, name, ns);
+                }
             }
-        } else if (Long.TYPE.equals(arrayType)) {
-            long[] objects = (long[])values;
-            for (i = 0, n = objects.length; i < n; i++) {
-                writeValue(new Long(objects[i]), writer, context, type, name, ns);
-            }
-        } else if (Short.TYPE.equals(arrayType)) {
-            short[] objects = (short[])values;
-            for (i = 0, n = objects.length; i < n; i++) {
-                writeValue(new Short(objects[i]), writer, context, type, name, ns);
-            }
-        } else if (Double.TYPE.equals(arrayType)) {
-            double[] objects = (double[])values;
-            for (i = 0, n = objects.length; i < n; i++) {
-                writeValue(new Double(objects[i]), writer, context, type, name, ns);
-            }
-        } else if (Float.TYPE.equals(arrayType)) {
-            float[] objects = (float[])values;
-            for (i = 0, n = objects.length; i < n; i++) {
-                writeValue(new Float(objects[i]), writer, context, type, name, ns);
-            }
-        } else if (Byte.TYPE.equals(arrayType)) {
-            byte[] objects = (byte[])values;
-            for (i = 0, n = objects.length; i < n; i++) {
-                writeValue(new Byte(objects[i]), writer, context, type, name, ns);
-            }
-        } else if (Boolean.TYPE.equals(arrayType)) {
-            boolean[] objects = (boolean[])values;
-            for (i = 0, n = objects.length; i < n; i++) {
-                writeValue(Boolean.valueOf(objects[i]), writer, context, type, name, ns);
-            }
-        } else if (Character.TYPE.equals(arrayType)) {
-            char[] objects = (char[])values;
-            for (i = 0, n = objects.length; i < n; i++) {
-                writeValue(new Character(objects[i]), writer, context, type, name, ns);
-            }
+        } finally {
+            context.getGlobalContext().setWriteXsiTypes(oldXsiWrite);
         }
     }
 
@@ -248,7 +260,7 @@ public class ArrayType extends Type {
         } else {
             cwriter = writer;
         }
-        
+
         if (value == null && type.isNillable()) {
             cwriter.writeXsiNil();
         } else {
@@ -264,7 +276,7 @@ public class ArrayType extends Type {
             if (hasDefinedArray(root)) {
                 return;
             }
-            
+
             Element complex = new Element("complexType", SOAPConstants.XSD_PREFIX, SOAPConstants.XSD);
             complex.setAttribute(new Attribute("name", getSchemaType().getLocalPart()));
             root.addContent(complex);
@@ -276,8 +288,8 @@ public class ArrayType extends Type {
             seq.addContent(element);
 
             Type componentType = getComponentType();
-            String prefix = NamespaceHelper.getUniquePrefix(root, componentType
-                .getSchemaType().getNamespaceURI());
+            String prefix = NamespaceHelper.getUniquePrefix(root, componentType.getSchemaType()
+                .getNamespaceURI());
 
             String typeName = prefix + ":" + componentType.getSchemaType().getLocalPart();
 
@@ -302,17 +314,17 @@ public class ArrayType extends Type {
     }
 
     /**
-     * Since both an Array and a List can have the same type definition, double check
-     * that there isn't already a defined type already.
+     * Since both an Array and a List can have the same type definition, double
+     * check that there isn't already a defined type already.
+     * 
      * @param root
      * @return
      */
     private boolean hasDefinedArray(Element root) {
         List children = root.getChildren("complexType", Namespace.getNamespace(SOAPConstants.XSD));
         for (Iterator itr = children.iterator(); itr.hasNext();) {
-            Element e = (Element) itr.next();
-            
-            
+            Element e = (Element)itr.next();
+
             if (e.getAttributeValue("name").equals(getSchemaType().getLocalPart())) {
                 return true;
             }
@@ -368,8 +380,7 @@ public class ArrayType extends Type {
             // We couldn't find the type the user specified. One is created
             // below instead.
             if (type == null) {
-                LOG.debug("Couldn't find array component type " + componentName
-                             + ". Creating one instead.");
+                LOG.debug("Couldn't find array component type " + componentName + ". Creating one instead.");
             }
         }
 

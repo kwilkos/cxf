@@ -184,17 +184,14 @@ public class ObjectType extends Type {
                 type = tm.getTypeCreator().createType(object.getClass());
                 tm.register(type);
             }
-
-            String prefix = writer.getPrefixForNamespace(type.getSchemaType().getNamespaceURI(),
-                                                         type.getSchemaType().getPrefix());
-
-            if (null == prefix || prefix.length() == 0) {
-                addXsiType(writer, type.getSchemaType().getLocalPart());
+            
+            writer.writeXsiType(type.getSchemaType());
+            boolean nextIsBeanType = type instanceof BeanType;
+            if (nextIsBeanType) {
+                ((BeanType)type).writeObjectFromObjectType(object, writer, context, true);
             } else {
-                addXsiType(writer, prefix + ":" + type.getSchemaType().getLocalPart());
+                type.writeObject(object, writer, context);
             }
-
-            type.writeObject(object, writer, context);
         }
     }
 
@@ -230,14 +227,6 @@ public class ObjectType extends Type {
         return determineType(context, superclass);
     }
 
-    private void addXsiType(MessageWriter writer, String prefixedType) {
-        MessageWriter typeWriter = writer.getAttributeWriter(XSI_TYPE);
-
-        typeWriter.writeValue(prefixedType);
-
-        typeWriter.close();
-    }
-
     public boolean isReadToDocument() {
         return readToDocument;
     }
@@ -270,25 +259,21 @@ public class ObjectType extends Type {
 
     @Override
     public boolean isAbstract() {
-        // TODO Auto-generated method stub
         return super.isAbstract();
     }
 
     @Override
     public boolean isNillable() {
-        // TODO Auto-generated method stub
         return super.isNillable();
     }
 
     @Override
     public boolean isWriteOuter() {
-        // TODO Auto-generated method stub
         return super.isWriteOuter();
     }
 
     @Override
     public void setNillable(boolean nillable) {
-        // TODO Auto-generated method stub
         super.setNillable(nillable);
     }
 

@@ -266,14 +266,30 @@ public class BeanType extends Type {
 
         return impl.getMethod(name, new Class[] {pd.getPropertyType()});
     }
-
+    
     /**
-     * @see org.apache.cxf.aegis.type.Type#writeObject(Object,
-     *      org.apache.cxf.aegis.xml.MessageWriter,
-     *      org.apache.cxf.aegis.Context)
+     * To avoid double-writing xsi:type attributes, ObjectType uses this special entrypoint.
+     * @param object
+     * @param writer
+     * @param context
+     * @param wroteXsiType
+     */
+    void writeObjectFromObjectType(Object object, MessageWriter writer, 
+                                   Context context, boolean wroteXsiType) {
+        writeObjectInternal(object, writer, context, wroteXsiType);
+    }
+    
+    /**
+     * {@inheritDoc}
      */
     @Override
     public void writeObject(Object object, MessageWriter writer, Context context)
+        throws DatabindingException {
+        writeObjectInternal(object, writer, context, false);
+    }
+
+    private void writeObjectInternal(Object object, MessageWriter writer, Context context, 
+                                     boolean wroteXsiType)
         throws DatabindingException {
         if (object == null) {
             return;
@@ -281,7 +297,8 @@ public class BeanType extends Type {
 
         BeanTypeInfo inf = getTypeInfo();
 
-        if (object.getClass() == getTypeClass()
+        if (!wroteXsiType 
+            && object.getClass() == getTypeClass()
             && context.isWriteXsiTypes()) {
             writer.writeXsiType(getSchemaType());
         }
