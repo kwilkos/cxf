@@ -650,8 +650,12 @@ public class CodeGenBugTest extends ProcessorTestBase {
             String ns = "http://bugs.cxf/services/bug1";
             QName bug1 = new QName(ns, "myBug1");
             QName bug2 = new QName(ns, "myBug2");
-            Message msg = new Message("NON_UNIQUE_BODY", UniqueBodyValidator.LOG, bug1, bug1, bug2, bug1);
-            assertEquals(msg.toString().trim(), e.getMessage().trim());
+            Message msg1 = new Message("NON_UNIQUE_BODY", UniqueBodyValidator.LOG, bug1, bug1, bug2, bug1);
+            Message msg2 = new Message("NON_UNIQUE_BODY", UniqueBodyValidator.LOG, bug1, bug2, bug1, bug1);
+
+            boolean boolA = msg1.toString().trim().equals(e.getMessage().trim());
+            boolean boolB = msg2.toString().trim().equals(e.getMessage().trim());
+            assertTrue(boolA || boolB);
         }
     }
 
