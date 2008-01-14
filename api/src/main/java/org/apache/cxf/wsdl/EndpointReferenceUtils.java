@@ -44,6 +44,7 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
@@ -292,6 +293,11 @@ public final class EndpointReferenceUtils {
             }
         }
         return null;
+    }
+    
+    public static QName getPortQName(EndpointReferenceType ref) {
+        QName serviceName = getServiceName(ref); 
+        return new QName(serviceName.getNamespaceURI(), getPortName(ref));
     }
     
     public static void setPortName(EndpointReferenceType ref, String portName) {
