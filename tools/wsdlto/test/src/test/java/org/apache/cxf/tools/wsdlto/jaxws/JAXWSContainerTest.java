@@ -111,8 +111,14 @@ public class JAXWSContainerTest extends ProcessorTestBase {
 
             List<JavaMethod> methods = intf.getMethods();
             assertEquals(6, methods.size());
-            JavaMethod m1 = methods.get(0);
-            assertEquals("testDocLitFault", m1.getName());
+            Boolean methodSame = false;
+            for (JavaMethod m1 : methods) {
+                if (m1.getName().equals("testDocLitFault")) {
+                    methodSame = true;
+                    break;
+                }
+            }
+            assertTrue(methodSame);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -159,9 +165,18 @@ public class JAXWSContainerTest extends ProcessorTestBase {
 
             List<JavaMethod> methods = intf.getMethods();
             assertEquals(6, methods.size());
-            JavaMethod m1 = methods.get(0);
-            assertEquals("testDocLitFault", m1.getName());
 
+            Boolean methodSame = false;
+            JavaMethod m1 = null;
+            for (JavaMethod m2 : methods) {
+                if (m2.getName().equals("testDocLitFault")) {
+                    methodSame = true;
+                    m1 = m2;
+                    break;
+                }
+            }
+            assertTrue(methodSame);
+            
             assertEquals(2, m1.getExceptions().size());
             assertEquals("BadRecordLitFault", m1.getExceptions().get(0).getName());
             assertEquals("NoSuchCodeLitFault", m1.getExceptions().get(1).getName());
