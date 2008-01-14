@@ -349,7 +349,6 @@ public final class EndpointReferenceUtils {
             for (Object obj : metadata.getAny()) {
                 if (obj instanceof Element) {
                     Node node = (Element)obj;
-                    System.out.println(node.getNamespaceURI() + ":" + node.getNodeName());
                     if (node.getNamespaceURI().equals(JAXWSAConstants.NS_WSAW)
                         && node.getNodeName().contains("InterfaceName")) {
                         
