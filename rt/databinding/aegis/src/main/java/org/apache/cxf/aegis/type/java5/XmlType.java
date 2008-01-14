@@ -36,5 +36,5 @@ public @interface XmlType {
 
     boolean extensibleElements() default true;
 
-    boolean extensibleAttributes() default true;
+    boolean extensibleAttributes() default false;
 }
