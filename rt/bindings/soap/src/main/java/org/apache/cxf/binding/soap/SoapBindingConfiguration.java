@@ -18,10 +18,13 @@
  */
 package org.apache.cxf.binding.soap;
 
+import javax.xml.namespace.QName;
+
 import org.apache.cxf.binding.BindingConfiguration;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.OperationInfo;
+import org.apache.cxf.service.model.ServiceInfo;
 
 public class SoapBindingConfiguration extends BindingConfiguration {
     private SoapVersion soapVersion = Soap11.getInstance();
@@ -30,6 +33,8 @@ public class SoapBindingConfiguration extends BindingConfiguration {
     private String transportURI = "http://schemas.xmlsoap.org/soap/http";
     private String defaultSoapAction = "";
     private boolean mtomEnabled;
+    private QName bindingName;
+    private String bindingNamePostfix = "SoapBinding";
 
     @Override
     public String getBindingId() {
@@ -92,6 +97,30 @@ public class SoapBindingConfiguration extends BindingConfiguration {
 
     public void setMtomEnabled(boolean mtomEnabled) {
         this.mtomEnabled = mtomEnabled;
+    }
+    
+    public QName getBindingName(ServiceInfo si) {
+        if (bindingName == null) {
+            return new QName(si.getName().getNamespaceURI(),
+                             si.getName().getLocalPart() + bindingNamePostfix);
+        }
+        return bindingName;
+    }
+
+    public QName getBindingName() {
+        return bindingName;
+    }
+    
+    public void setBindingName(QName b) {
+        bindingName = b;
+    }
+    
+    public String getBindingNamePostfix() {
+        return bindingNamePostfix;
+    }
+    
+    public void setBindingNamePostfix(String b) {
+        bindingNamePostfix = b;
     }
     
 }
