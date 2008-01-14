@@ -297,7 +297,6 @@ public class BeanType extends Type {
 
         BeanTypeInfo inf = getTypeInfo();
 
-        if (object.getClass() == getTypeClass() 
         if (!wroteXsiType 
             && object.getClass() == getTypeClass()
             && context.isWriteXsiTypes()) {

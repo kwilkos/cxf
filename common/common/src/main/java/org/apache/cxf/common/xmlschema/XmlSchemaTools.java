@@ -19,12 +19,20 @@
 
 package org.apache.cxf.common.xmlschema;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.ws.commons.schema.XmlSchemaElement;
+import org.apache.ws.commons.schema.XmlSchemaEnumerationFacet;
+import org.apache.ws.commons.schema.XmlSchemaFacet;
+import org.apache.ws.commons.schema.XmlSchemaObjectCollection;
+import org.apache.ws.commons.schema.XmlSchemaSimpleType;
+import org.apache.ws.commons.schema.XmlSchemaSimpleTypeContent;
+import org.apache.ws.commons.schema.XmlSchemaSimpleTypeRestriction;
 
 /**
  * Some functions that avoid problems with Commons XML Schema.  
@@ -98,5 +106,46 @@ public final class XmlSchemaTools {
         element.setRefName(name);
         // cxf conventionally keeps something in the name slot.
         setNameFromQName(element, name);
+    }
+    
+    /**
+     * Return true if a simple type is a straightforward XML Schema representation of an enumeration.
+     * If we discover schemas that are 'enum-like' with more complex structures, we might
+     * make this deal with them.
+     * @param type Simple type, possible an enumeration.
+     * @return true for an enumeration.
+     */
+    public static boolean isEumeration(XmlSchemaSimpleType type) {
+        XmlSchemaSimpleTypeContent content = type.getContent();
+        if (!(content instanceof XmlSchemaSimpleTypeRestriction)) {
+            return false;
+        }
+        XmlSchemaSimpleTypeRestriction restriction = (XmlSchemaSimpleTypeRestriction) content;
+        XmlSchemaObjectCollection facets = restriction.getFacets();
+        for (int x = 0; x < facets.getCount(); x++) {
+            XmlSchemaFacet facet = (XmlSchemaFacet) facets.getItem(x);
+            if (!(facet instanceof XmlSchemaEnumerationFacet)) {
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    /**
+     * Retrieve the string values for an enumeration.
+     * @param type
+     * @return
+     */
+    public static List<String> enumeratorValues(XmlSchemaSimpleType type) {
+        XmlSchemaSimpleTypeContent content = type.getContent();
+        XmlSchemaSimpleTypeRestriction restriction = (XmlSchemaSimpleTypeRestriction) content;
+        XmlSchemaObjectCollection facets = restriction.getFacets();
+        List<String> values = new ArrayList<String>(); 
+        for (int x = 0; x < facets.getCount(); x++) {
+            XmlSchemaFacet facet = (XmlSchemaFacet) facets.getItem(x);
+            XmlSchemaEnumerationFacet enumFacet = (XmlSchemaEnumerationFacet) facet;
+            values.add(enumFacet.getValue().toString());
+        }
+        return values;
     }
 }

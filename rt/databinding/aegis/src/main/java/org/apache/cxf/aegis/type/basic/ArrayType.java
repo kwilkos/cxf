@@ -192,10 +192,10 @@ public class ArrayType extends Type {
 
         Class arrayType = type.getTypeClass();
 
-        boolean oldXsiWrite = context.getGlobalContext().isWriteXsiTypes();
+        boolean oldXsiWrite = context.isWriteXsiTypes();
         try {
             if (forceXsiWrite) {
-                context.getGlobalContext().setWriteXsiTypes(true);
+                context.setWriteXsiTypes(true);
             }
 
             int i;
@@ -247,7 +247,7 @@ public class ArrayType extends Type {
                 }
             }
         } finally {
-            context.getGlobalContext().setWriteXsiTypes(oldXsiWrite);
+            context.setWriteXsiTypes(oldXsiWrite);
         }
     }
 
