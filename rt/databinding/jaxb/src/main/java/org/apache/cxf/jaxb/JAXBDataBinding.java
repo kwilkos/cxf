@@ -102,8 +102,14 @@ public final class JAXBDataBinding extends AbstractDataBinding implements DataBi
     private Map<String, Object> contextProperties = Collections.emptyMap();
     private Map<String, Object> marshallerProperties = Collections.emptyMap();
 
+    private boolean qualifiedSchemas;
+
     
     public JAXBDataBinding() {
+    }
+
+    public JAXBDataBinding(boolean q) {
+        this.qualifiedSchemas = q;
     }
     
     public JAXBDataBinding(Class<?>...classes) throws JAXBException {
@@ -278,7 +284,10 @@ public final class JAXBDataBinding extends AbstractDataBinding implements DataBi
                 }
             }
             
-            JAXBSchemaInitializer schemaInit = new JAXBSchemaInitializer(serviceInfo, col, riContext);
+            JAXBSchemaInitializer schemaInit = new JAXBSchemaInitializer(serviceInfo, 
+                                                                         col, 
+                                                                         riContext, 
+                                                                         this.qualifiedSchemas);
             schemaInit.walk();
         }
     }
