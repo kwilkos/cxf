@@ -73,6 +73,7 @@ import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.service.model.MessagePartInfo;
+import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.staxutils.StaxUtils;
 import org.apache.cxf.staxutils.W3CDOMStreamWriter;
 import org.apache.ws.commons.schema.XmlSchemaElement;
@@ -290,7 +291,7 @@ public final class JAXBEncoderDecoder {
         XMLStreamWriter writer = getStreamWriter(source);
         QName qn = part.getElementQName();
         try {
-            writer.writeStartElement(qn.getNamespaceURI(), qn.getLocalPart());
+            writer.writeStartElement("ns1", qn.getLocalPart(), qn.getNamespaceURI());
             Class<?> cls = part.getTypeClass();
             XmlAccessorType accessorType = cls.getAnnotation(XmlAccessorType.class);
             if (accessorType == null && cls.getPackage() != null) {
@@ -299,6 +300,14 @@ public final class JAXBEncoderDecoder {
             XmlAccessType accessType = accessorType != null
                 ? accessorType.value() : XmlAccessType.PUBLIC_MEMBER;
             String namespace = part.getElementQName().getNamespaceURI();
+            
+            SchemaInfo sch = part.getMessageInfo().getOperation().getInterface()
+                .getService().getSchema(namespace);
+            if (!sch.isElementFormQualified()) {
+                namespace = null;
+            }
+            
+            
             Marshaller u = createMarshaller(context, cls, marshallerProperties);
             try {
                 // override anything the user asked us to set.
