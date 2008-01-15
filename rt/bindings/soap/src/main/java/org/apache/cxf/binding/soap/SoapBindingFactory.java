@@ -119,8 +119,7 @@ public class SoapBindingFactory extends AbstractBindingFactory {
                                                    bindingid,
                                                    config.getVersion());
 
-        info.setName(new QName(si.getName().getNamespaceURI(),
-                               si.getName().getLocalPart() + "SoapBinding"));
+        info.setName(config.getBindingName(si));
         info.setStyle(config.getStyle());
         info.setTransportURI(config.getTransportURI());
 
