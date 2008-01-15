@@ -27,8 +27,8 @@ import org.apache.cxf.message.Message;
 /**
  * A phase interceptor participates in a PhaseInterceptorChain.
  * <pre>
- * The before and after properties contain a list of Ids that the
- * particular interceptor runs before or after.
+ * The before and after properties contain a list of Ids that can control 
+ * where in the chain the interceptor is placed relative to other interceptors
  * </pre> 
  * @see org.apache.cxf.phase.PhaseInterceptorChain
  * @author Dan Diephouse
@@ -36,14 +36,16 @@ import org.apache.cxf.message.Message;
 public interface PhaseInterceptor<T extends Message> extends Interceptor<T> {
 
     /**
-     * Returns a set of IDs specifying the interceptors that should be run after this interceptor.
-     * @return the ids of the interceptors to be run after
+     * Returns a set of IDs specifying the interceptors that this interceptor should 
+     * be placed after in the interceptor chain
+     * @return the ids of the interceptorsr
      */
     Set<String> getAfter();
 
     /**
-     * Returns a set of IDs specifying the interceptors that should be run before this interceptor.
-     * @return the ids of the interceptors to be run before
+     * Returns a set of IDs specifying the interceptors that this interceptor needs 
+     * to be before in the inteceptor chain.
+     * @return the ids of the interceptors 
      */
     Set<String> getBefore();
 
