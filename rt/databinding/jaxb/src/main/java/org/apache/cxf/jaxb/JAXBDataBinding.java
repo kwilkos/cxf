@@ -498,5 +498,22 @@ public final class JAXBDataBinding extends AbstractDataBinding implements DataBi
         this.contextProperties = contextProperties;
     }
     
-    
+    /**
+     * Return a map of properties. These properties are set into the JAXB Marshaller 
+     * (via Marshaller.setProperty(...) when the marshaller is created. 
+     * @return the map of JAXB marshaller properties.
+     */
+    public Map<String, Object> getMarshallerProperties() {
+        return marshallerProperties;
+    }
+
+    /**
+     * Set a map of JAXB marshaller properties.  These properties are set into the JAXB Marshaller 
+     * (via Marshaller.setProperty(...) when the marshaller is created.
+     * 
+     * @param marshallerProperties map of properties.
+     */
+    public void setMarshallerProperties(Map<String, Object> marshallerProperties) {
+        this.marshallerProperties = marshallerProperties;
+    }
 }
