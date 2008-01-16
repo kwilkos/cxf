@@ -32,6 +32,7 @@ import org.w3c.dom.Node;
 
 import org.xml.sax.SAXException;
 
+import org.apache.cxf.Bus;
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.extension.BusExtension;
@@ -45,6 +46,8 @@ import org.apache.neethi.PolicyOperator;
 import org.apache.neethi.PolicyReference;
 
 
+
+
 /**
  * PolicyBuilderImpl is an implementation of the PolicyBuilder interface,
  * provides methods to create Policy and PolicyReferenceObjects
@@ -55,11 +58,20 @@ public class PolicyBuilderImpl implements PolicyBuilder, BusExtension {
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(PolicyBuilderImpl.class);
  
     private AssertionBuilderRegistry assertionBuilderRegistry;
+    private Bus bus;
    
     public Class<?> getRegistrationType() {
         return PolicyBuilder.class;
     }
  
+    public void setBus(Bus theBus) {
+        bus = theBus;
+    }
+    
+    public Bus getBus() {
+        return bus;
+    }
+    
     public void setAssertionBuilderRegistry(AssertionBuilderRegistry abr) {
         assertionBuilderRegistry = abr;        
     }
@@ -157,6 +169,10 @@ public class PolicyBuilderImpl implements PolicyBuilder, BusExtension {
             }            
         }
 
+        String policyNsURI = 
+            bus == null ? PolicyConstants.NAMESPACE_WS_POLICY
+                        : bus.getExtension(PolicyConstants.class).getNamespace();
+        
         Element childElement;
         for (Node n = operationElement.getFirstChild(); n != null; n = n.getNextSibling()) {
             if (Node.ELEMENT_NODE != n.getNodeType()) {
@@ -166,7 +182,7 @@ public class PolicyBuilderImpl implements PolicyBuilder, BusExtension {
             String namespaceURI = childElement.getNamespaceURI();
             String localName = childElement.getLocalName();
 
-            if (Constants.URI_POLICY_NS.equals(namespaceURI)) {
+            if (policyNsURI.equals(namespaceURI)) {
 
                 if (Constants.ELEM_POLICY.equals(localName)) {
                     operator.addPolicyComponent(getPolicyOperator(childElement));
