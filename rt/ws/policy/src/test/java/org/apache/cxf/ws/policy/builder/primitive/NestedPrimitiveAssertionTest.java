@@ -70,6 +70,7 @@ public class NestedPrimitiveAssertionTest extends Assert {
         
         AssertionBuilderRegistry abr = new AssertionBuilderRegistryImpl();
         builder = new PolicyBuilderImpl();
+        builder.setBus(bus);
         builder.setAssertionBuilderRegistry(abr);
         
         NestedPrimitiveAssertionBuilder npab = new NestedPrimitiveAssertionBuilder();
