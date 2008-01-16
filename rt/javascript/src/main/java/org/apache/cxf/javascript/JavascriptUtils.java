@@ -27,11 +27,16 @@ import java.util.Stack;
 
 import javax.xml.namespace.QName;
 
+import org.w3c.dom.Attr;
+
 import org.apache.cxf.common.xmlschema.SchemaCollection;
+import org.apache.cxf.databinding.source.mime.MimeAttribute;
 import org.apache.cxf.wsdl.WSDLConstants;
 import org.apache.ws.commons.schema.XmlSchemaComplexType;
+import org.apache.ws.commons.schema.XmlSchemaObject;
 import org.apache.ws.commons.schema.XmlSchemaSimpleType;
 import org.apache.ws.commons.schema.XmlSchemaType;
+import org.apache.ws.commons.schema.constants.Constants;
 
 /**
  * A set of functions that assist in JavaScript generation. This includes
@@ -212,6 +217,22 @@ public class JavascriptUtils {
     public static String javaScriptNameToken(String token) {
         return token;
     }
+    
+    private String getMtomContentTypes(XmlSchemaObject schemaObject) {
+        if (schemaObject == null) {
+            return null;
+        }
+        
+        Map metaInfoMap = schemaObject.getMetaInfoMap();
+        if (metaInfoMap != null) {
+            Map attribMap = (Map)metaInfoMap.get(Constants.MetaDataConstants.EXTERNAL_ATTRIBUTES);
+            Attr ctAttr = (Attr)attribMap.get(MimeAttribute.MIME_QNAME);
+            if (ctAttr != null) {
+                return ctAttr.getValue();
+            }
+        }
+        return null;
+    }
 
     /**
      * Given an element, generate the serialization code.
@@ -228,6 +249,7 @@ public class JavascriptUtils {
         boolean nillable = elementInfo.isNillable();
         boolean optional = elementInfo.isOptional();
         boolean array = elementInfo.isArray();
+        String mtomContentTypes = getMtomContentTypes(elementInfo.getParticle());
         String jsVar = referencePrefix + elementInfo.getJavascriptName();
         appendLine("// block for local variables");
         startBlock(); // allow local variables.
@@ -263,42 +285,7 @@ public class JavascriptUtils {
         }
         
         if (elementInfo.isAnyType()) {
-            // name a variable for convenience.
-            appendLine("var anyHolder = " + jsVar + ";");
-            appendLine("var anySerializer;");
-            appendLine("var typeAttr = '';");
-            // we look in the global array for a serializer.
-            startIf("anyHolder != null");
-            startIf("!anyHolder.raw"); // no serializer for raw.
-            // In anyType, the QName is for the type, not an element.
-            appendLine("anySerializer = "
-                       + "cxfjsutils.interfaceObject.globalElementSerializers[anyHolder.qname];");
-            endBlock();
-            startIf("anyHolder.xsiType");
-            appendLine("var typePrefix = 'cxfjst" + anyTypePrefixCounter + "';");
-            anyTypePrefixCounter++;
-            appendLine("var typeAttr = 'xmlns:' + typePrefix + '=\\\''"
-                       + " + anyHolder.namespaceURI + '\\\'';");
-            appendLine("typeAttr = typeAttr + ' xsi:type=\\\'' + typePrefix + ':' "
-                       + "+ anyHolder.localName + '\\\'';");
-            endBlock();
-            startIf("anySerializer");
-            appendExpression(jsVar 
-                             + ".serialize(cxfjsutils, '" 
-                             + elementInfo.getXmlName() + "', typeAttr)");
-            appendElse(); // simple type or raw
-            appendExpression("'<" + elementInfo.getXmlName() + " ' + typeAttr + " + "'>'");
-            startIf("!anyHolder.raw");
-            appendExpression("cxfjsutils.escapeXmlEntities(" + jsVar + ")");
-            appendElse();
-            appendExpression("anyHolder.xml");
-            endBlock();
-            appendString("</" + elementInfo.getXmlName() + ">");
-            endBlock();
-            appendElse(); // nil (from null holder)
-            appendString("<" + elementInfo.getXmlName() 
-                         + " " + XmlSchemaUtils.XSI_NIL + "/>");
-            endBlock();
+            serializeAnyTypeElement(elementInfo, jsVar);
         } else if (type instanceof XmlSchemaComplexType) {
             // it has a value
             // pass the extra null in the slot for the 'extra namespaces' needed
@@ -308,7 +295,11 @@ public class JavascriptUtils {
                              + elementInfo.getXmlName() + "', null)");
         } else { // simple type
             appendString("<" + elementInfo.getXmlName() + ">");
-            appendExpression("cxfjsutils.escapeXmlEntities(" + jsVar + ")");
+            if (mtomContentTypes != null) {
+                appendExpression("cxfjsutils.packageMtom(" + jsVar + ")");
+            } else {
+                appendExpression("cxfjsutils.escapeXmlEntities(" + jsVar + ")");
+            }
             appendString("</" + elementInfo.getXmlName() + ">");
         }
         
@@ -327,6 +318,45 @@ public class JavascriptUtils {
             endBlock();
         }
         endBlock(); // local variables
+    }
+
+    private void serializeAnyTypeElement(ParticleInfo elementInfo, String jsVar) {
+        // name a variable for convenience.
+        appendLine("var anyHolder = " + jsVar + ";");
+        appendLine("var anySerializer;");
+        appendLine("var typeAttr = '';");
+        // we look in the global array for a serializer.
+        startIf("anyHolder != null");
+        startIf("!anyHolder.raw"); // no serializer for raw.
+        // In anyType, the QName is for the type, not an element.
+        appendLine("anySerializer = "
+                   + "cxfjsutils.interfaceObject.globalElementSerializers[anyHolder.qname];");
+        endBlock();
+        startIf("anyHolder.xsiType");
+        appendLine("var typePrefix = 'cxfjst" + anyTypePrefixCounter + "';");
+        anyTypePrefixCounter++;
+        appendLine("var typeAttr = 'xmlns:' + typePrefix + '=\\\''"
+                   + " + anyHolder.namespaceURI + '\\\'';");
+        appendLine("typeAttr = typeAttr + ' xsi:type=\\\'' + typePrefix + ':' "
+                   + "+ anyHolder.localName + '\\\'';");
+        endBlock();
+        startIf("anySerializer");
+        appendExpression(jsVar 
+                         + ".serialize(cxfjsutils, '" 
+                         + elementInfo.getXmlName() + "', typeAttr)");
+        appendElse(); // simple type or raw
+        appendExpression("'<" + elementInfo.getXmlName() + " ' + typeAttr + " + "'>'");
+        startIf("!anyHolder.raw");
+        appendExpression("cxfjsutils.escapeXmlEntities(" + jsVar + ")");
+        appendElse();
+        appendExpression("anyHolder.xml");
+        endBlock();
+        appendString("</" + elementInfo.getXmlName() + ">");
+        endBlock();
+        appendElse(); // nil (from null holder)
+        appendString("<" + elementInfo.getXmlName() 
+                     + " " + XmlSchemaUtils.XSI_NIL + "/>");
+        endBlock();
     }
 
     /**

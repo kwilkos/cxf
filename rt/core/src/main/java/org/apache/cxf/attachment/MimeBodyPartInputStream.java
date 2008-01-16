@@ -77,8 +77,9 @@ public class MimeBodyPartInputStream extends InputStream {
         if (boundaryIndex == boundary.length) {
             // boundary found
             boundaryFound = true;
+            int dashNext = inStream.read();
             // read the end of line character
-            if (inStream.read() == 45 && value == 45) {
+            if (dashNext == 45 && value == 45) {
                 // Last mime boundary should have a succeeding "--"
                 // as we are on it, read the terminating CRLF
                 inStream.read();

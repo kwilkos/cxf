@@ -336,6 +336,7 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
                     + "("  + responseCallbackParams
                     + ((parameterList.length() > 0 && !currentOperation.isOneWay()) 
                         ? ", " : "") + parameterList + ") {\n");
+        utils.appendLine("this.client = new CxfApacheOrgClient(this.jsutils);");
         utils.appendLine("var xml = null;");
         if (inputMessage != null) {
             utils.appendLine("var args = new Array(" + inputParameterNames.size() + ");");
@@ -351,7 +352,7 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
                              + "_serializeInput"
                              + "(this.jsutils, args);");
         }
-        utils.appendLine("this.client = new CxfApacheOrgClient(this.jsutils);");
+
         // we need to pass the caller's callback functions to our callback
         // functions.
         if (!currentOperation.isOneWay()) {

@@ -290,6 +290,8 @@ CxfApacheOrgUtil.prototype.endSoap11Message = org_apache_cxf_end_soap11_message;
 function CxfApacheOrgClient(utils) {
 	utils.trace("Client constructor");
     this.utils = utils;
+    utils.client = this; // we aren't worried about multithreading!
+    this.mtomparts = [];
     this.soapAction = "";
     this.messageType = "CALL";
     // handler functions
@@ -303,6 +305,79 @@ function CxfApacheOrgClient(utils) {
     this.READY_STATE_INTERACTIVE = 3;
     this.READY_STATE_DONE = 4;
 }
+
+const org_apache_cxf_pad_string_PAD_LEFT  = 0;
+const org_apache_cxf_pad_string_PAD_RIGHT = 1;
+const org_apache_cxf_pad_string_PAD_BOTH  = 2;
+
+function org_apache_cxf_pad_string(string, len, pad, type) {
+	var append = new String();
+
+	len = isNaN(len) ? 0 : len - string.length;
+	pad = typeof(pad) == 'string' ? pad : ' ';
+
+	if (type == org_apache_cxf_pad_string_PAD_BOTH) {
+		string = org_apache_cxf_pad_sring(Math.floor(len / 2) + string.length,
+				pad, org_apache_cxf_pad_string_PAD_LEFT);
+		return (org_apache_cxf_pad_string(Math.ceil(len / 2) + string.length,
+				pad, org_apache_cxf_pad_string_PAD_RIGHT));
+	}
+
+	while ((len -= pad.length) > 0)
+		append += pad;
+	append += pad.substr(0, len + pad.length);
+
+	return (type == org_apache_cxf_pad_string_PAD_LEFT
+			? append.concat(string)
+			: string.concat(append));
+}
+
+/*
+ * Generate a uniformly distributed random integer within the range <min> ..
+ * <max>. (min) - Lower limit: random >= min (default: 0) (max) - Upper limit:
+ * random <= max (default: 1)
+ */
+function org_apache_cxf_random_int(min, max) {
+    if (! isFinite(min)) min = 0;
+    if (! isFinite(max)) max = 1;
+    return Math.floor((Math.random () % 1) * (max - min + 1) + min);
+}
+
+function org_apache_cxf_random_hex_string(len)
+{
+	var random = org_apache_cxf_random_int(0, Math.pow (16, len) - 1);
+    return org_apache_cxf_pad_string(random.toString(16), len, '0', org_apache_cxf_pad_string_PAD_LEFT);
+}
+
+
+function org_apache_cxf_make_uuid(type) {
+	switch ((type || 'v4').toUpperCase()) {
+		// Version 4 UUID (Section 4.4 of RFC 4122)
+		case 'V4' :
+			var tl = org_apache_cxf_random_hex_string(8);
+			// time_low
+			var tm = org_apache_cxf_random_hex_string(4);
+			// time_mid
+			var thav = '4' + org_apache_cxf_random_hex_string(3);
+			// time_hi_and_version
+			var cshar = org_apache_cxf_random_int(0, 0xFF);
+			// clock_seq_hi_and_reserved
+			cshar = ((cshar & ~(1 << 6)) | (1 << 7)).toString(16);
+			var csl = org_apache_cxf_random_hex_string(2);
+			// clock_seq_low
+			var n = org_apache_cxf_random_hex_string(12);
+			// node
+
+			return (tl + '-' + tm + '-' + thav + '-' + cshar + csl + '-' + n);
+
+			// Nil UUID (Section 4.1.7 of RFC 4122)
+		case 'NIL' :
+			return '00000000-0000-0000-0000-000000000000';
+	}
+	return null;
+}
+
+const ORG_APACHE_CXF_MTOM_REQUEST_HEADER = 'Content-Type: application/xop+xml; type="text/xml"; charset=utf-8\r\n';
 
 // Caller must avoid stupid mistakes like 'GET' with a request body.
 // This does not support attempts to cross-script.
@@ -345,8 +420,19 @@ function org_apache_cxf_client_request(url, requestXML, method, sync, headers)
 
 	this.utils.trace("about to open " + this.method + " " + this.url);
     this.req.open(this.method, this.url, !this.sync);
-
-    this.req.setRequestHeader("Content-Type", "application/xml");   
+ 
+    var mimeBoundary;
+    
+    // we can't do binary MTOM, but we can do 'text/plain' !
+	if(this.mtomparts.length > 0) {
+		var uuid = org_apache_cxf_make_uuid('v4');
+		mimeBoundary = '@_bOuNDaRy_' + uuid;
+		var ctHeader = 'Multipart/Related; start-info="text/xml"; type="application/xop+xml"; boundary="' + mimeBoundary + '"';
+    	this.req.setRequestHeader("Content-Type", ctHeader);
+		
+	} else {
+    	this.req.setRequestHeader("Content-Type", "application/xml");
+	}
 
     if (headers) { // must be array indexed by header field.
         for (var h in headers) {
@@ -366,10 +452,23 @@ function org_apache_cxf_client_request(url, requestXML, method, sync, headers)
     // NOTE: we do not call the onerror callback for a synchronous error
     // at request time. We let the request object throw as it will. 
     // onError will only be called for asynchronous errors.
-    this.utils.trace("about to send " + this.method + " " + this.url);
-    this.utils.trace(requestXML);
+    this.utils.trace("about to send data" + this.method + " " + this.url);
+    var dataToSend;
+    if(this.mtomparts.length == 0) {
+    	dataToSend = requestXML;
+    } else {
+    	dataToSend = "--" + mimeBoundary + "\r\n";
+    	dataToSend = dataToSend + ORG_APACHE_CXF_MTOM_REQUEST_HEADER + "\r\n";
+    	dataToSend = dataToSend + requestXML;
+    	for(var bx in this.mtomparts) {
+    		var part = this.mtomparts[bx];
+    		dataToSend += "\r\n\r\n--" + mimeBoundary + "\r\n";
+    		dataToSend += part;
+    	}
+   		dataToSend += "--" + mimeBoundary + "--\r\n";
+    }
     
-    this.req.send(requestXML);
+    this.req.send(dataToSend);
 }
 
 CxfApacheOrgClient.prototype.request = org_apache_cxf_client_request;
@@ -414,7 +513,18 @@ function org_apache_cxf_client_onReadyState() {
 	}
 }
 
-CxfApacheOrgClient.prototype.onReadyState = org_apache_cxf_client_onReadyState; 
+CxfApacheOrgClient.prototype.onReadyState = org_apache_cxf_client_onReadyState;
+
+function org_apache_cxf_package_mtom(value) {
+	var uuid = org_apache_cxf_make_uuid('v4');
+    var placeholder = '<xop:Include xmlns:xop="http://www.w3.org/2004/08/xop/include" '
+        +'href="cid:' + uuid + '" />';
+    var mtomObject = 'Content-Type: text/plain; charset="utf-8";\r\nContent-ID: <' + uuid + '>\r\n\r\n' + value + '\r\n';
+    this.client.mtomparts.push(mtomObject);
+	return placeholder;
+}
+
+CxfApacheOrgUtil.prototype.packageMtom = org_apache_cxf_package_mtom; 
 
 // Holder object used for xs:any
 // The namespaceURI and localName identify the global element from the schema.

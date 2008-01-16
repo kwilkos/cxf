@@ -103,7 +103,7 @@ public class AttachmentDeserializer {
             if (null == boundaryString) {
                 throw new IOException("Couldn't determine the boundary from the message!");
             }
-            boundary = boundaryString.getBytes();
+            boundary = boundaryString.getBytes("utf-8");
 
             stream = new PushbackInputStream(message.getContent(InputStream.class),
                     boundary.length * 2);
