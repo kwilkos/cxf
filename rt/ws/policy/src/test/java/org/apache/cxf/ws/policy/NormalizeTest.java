@@ -50,13 +50,31 @@ public class NormalizeTest extends Assert {
     }
     
     @Test
-    public void testNormalise() throws Exception {
-        Bus bus = control.createMock(Bus.class);
-        PolicyConstants constants = new PolicyConstants();
-        constants.setNamespace(PolicyConstants.NAMESPACE_XMLSOAP_200409);
-        EasyMock.expect(bus.getExtension(PolicyConstants.class)).andReturn(constants).anyTimes();
-        control.replay();
+    public void testNormalize() throws Exception {
+        Bus bus = createBus(PolicyConstants.NAMESPACE_XMLSOAP_200409);
+        PolicyBuilderImpl builder = createBuilder(bus);
+        
+        int n = 26;
+        for (int i = 1; i < n; i++) {
+            String sample = "/samples/test" + i + ".xml";
+            String normalized = "/normalized/test" + i + ".xml";
+            doTestNormalize(builder, sample, normalized);
+        }       
+    }
+    
+    @Test
+    public void testNormalizeDefaultNs() throws Exception {
+        Bus bus = createBus(PolicyConstants.NAMESPACE_WS_POLICY);
+        PolicyBuilderImpl builder = createBuilder(bus);
+        
+        String sample = "/samples/test1DefaultNs.xml";
+        String normalized = "/normalized/test1DefaultNs.xml";
+        doTestNormalize(builder, sample, normalized);
+    }
+    
+    private PolicyBuilderImpl createBuilder(Bus bus) {
         PolicyBuilderImpl builder = new PolicyBuilderImpl();
+        builder.setBus(bus);
         AssertionBuilderRegistry abr = new AssertionBuilderRegistryImpl();
         builder.setAssertionBuilderRegistry(abr);
         XMLPrimitiveAssertionBuilder ab = new XMLPrimitiveAssertionBuilder();
@@ -68,25 +86,33 @@ public class NormalizeTest extends Assert {
         abr.register(new QName("http://sample.org/Assertions", "A"), ab);
         abr.register(new QName("http://sample.org/Assertions", "B"), ab);
         abr.register(new QName("http://sample.org/Assertions", "C"), ab);
-        
-        int n = 26;
-        for (int i = 1; i < n; i++) {
-            String sample = "/samples/test" + i + ".xml";
-            String normalised = "/normalized/test" + i + ".xml";
-            
-            InputStream sampleIn = NormalizeTest.class.getResourceAsStream(sample);
-            assertNotNull("Could not get input stream for resource " + sample, sampleIn);
-            InputStream normalisedIn = NormalizeTest.class.getResourceAsStream(normalised);
-            assertNotNull("Could not get input stream for resource " + normalised, normalisedIn);
-                        
-            Policy samplePolicy = builder.getPolicy(sampleIn);
-            Policy normalisedPolicy = builder.getPolicy(normalisedIn);
-            assertNotNull(samplePolicy);
-            assertNotNull(normalisedPolicy);
-            
-            Policy normalisedSamplePolicy = (Policy)samplePolicy.normalize(true);
-            assertTrue(PolicyComparator.compare(normalisedPolicy, normalisedSamplePolicy));
-            
-        }       
+        return builder;
     }
+    
+    private Bus createBus(String policyNamespace) {
+        Bus bus = control.createMock(Bus.class);
+        PolicyConstants constants = new PolicyConstants();
+        constants.setNamespace(policyNamespace);
+        EasyMock.expect(bus.getExtension(PolicyConstants.class)).andReturn(constants).anyTimes();
+        control.replay();
+        return bus;
+    }
+    
+    private void doTestNormalize(
+        PolicyBuilderImpl builder, String sample, String normalized) throws Exception {
+        
+        InputStream sampleIn = NormalizeTest.class.getResourceAsStream(sample);
+        assertNotNull("Could not get input stream for resource " + sample, sampleIn);
+        InputStream normalisedIn = NormalizeTest.class.getResourceAsStream(normalized);
+        assertNotNull("Could not get input stream for resource " + normalized, normalisedIn);
+                    
+        Policy samplePolicy = builder.getPolicy(sampleIn);
+        Policy normalisedPolicy = builder.getPolicy(normalisedIn);
+        assertNotNull(samplePolicy);
+        assertNotNull(normalisedPolicy);
+        
+        Policy normalisedSamplePolicy = (Policy)samplePolicy.normalize(true);
+        assertTrue(PolicyComparator.compare(normalisedPolicy, normalisedSamplePolicy));
+    }
+    
 }

@@ -55,6 +55,7 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
     <bean class="org.apache.cxf.ws.policy.attachment.external.EndpointReferenceDomainExpressionBuilder"/> 
     
     <bean id="org.apache.cxf.ws.policy.PolicyBuilder" class="org.apache.cxf.ws.policy.PolicyBuilderImpl">
+        <property name="bus" ref="cxf"/>
         <property name="assertionBuilderRegistry" ref="org.apache.cxf.ws.policy.AssertionBuilderRegistry"/>
     </bean>
   
