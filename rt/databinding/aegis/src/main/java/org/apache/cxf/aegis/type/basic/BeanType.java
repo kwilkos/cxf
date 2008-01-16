@@ -27,6 +27,7 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 import javax.xml.namespace.QName;
 
@@ -40,9 +41,11 @@ import org.apache.cxf.aegis.xml.MessageReader;
 import org.apache.cxf.aegis.xml.MessageWriter;
 import org.apache.cxf.common.classloader.ClassLoaderUtils;
 import org.apache.cxf.common.util.SOAPConstants;
+import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.interceptor.Fault;
 import org.jdom.Attribute;
 import org.jdom.Element;
+import org.jdom.Namespace;
 
 /**
  * Serializes JavaBeans.
@@ -480,7 +483,7 @@ public class BeanType extends Type {
 
             String prefix = NamespaceHelper.getUniquePrefix(root, type.getSchemaType().getNamespaceURI());
 
-            writeTypeReference(name, nameWithPrefix, element, type, prefix);
+            writeTypeReference(name, nameWithPrefix, element, type, prefix, root);
         }
 
         /**
@@ -508,7 +511,7 @@ public class BeanType extends Type {
 
             String prefix = NamespaceHelper.getUniquePrefix(root, type.getSchemaType().getNamespaceURI());
             element.setAttribute(new Attribute("name", nameWithPrefix));
-            element.setAttribute(new Attribute("type", prefix + ':' + type.getSchemaType().getLocalPart()));
+            element.setAttribute(createTypeAttribute(prefix, type, root));
         }
 
         /**
@@ -519,6 +522,27 @@ public class BeanType extends Type {
         }
     }
 
+    static Attribute createTypeAttribute(String prefix, Type type, Element root) {
+        String ns = type.getSchemaType().getNamespaceURI();
+        if (!ns.equals(root.getAttributeValue("targetNamespace"))
+            && !ns.equals(SOAPConstants.XSD)) {
+            //find import statement
+            List<Element> l = CastUtils.cast(root.getChildren("import", 
+                                                              Namespace.getNamespace(SOAPConstants.XSD)));
+            boolean found = false;
+            for (Element e : l) {
+                if (ns.equals(e.getAttributeValue("namespace"))) {
+                    found = true;
+                }
+            }
+            if (!found) {
+                Element element = new Element("import", SOAPConstants.XSD_PREFIX, SOAPConstants.XSD);
+                root.addContent(0, element);
+                element.setAttribute("namespace", ns);
+            }
+        }
+        return new Attribute("type", prefix + ':' + type.getSchemaType().getLocalPart()); 
+    }
     private String getNameWithPrefix(Element root, String nameNS, String localName) {
         if (!nameNS.equals(getSchemaType().getNamespaceURI())) {
             String prefix = NamespaceHelper.getUniquePrefix((Element)root.getParent(), nameNS);
@@ -553,11 +577,12 @@ public class BeanType extends Type {
         return type;
     }
 
-    private void writeTypeReference(QName name, String nameWithPrefix, Element element, Type type,
-                                    String prefix) {
+    private void writeTypeReference(QName name, String nameWithPrefix, 
+                                    Element element, Type type, String prefix,
+                                    Element root) {
         if (type.isAbstract()) {
             element.setAttribute(new Attribute("name", nameWithPrefix));
-            element.setAttribute(new Attribute("type", prefix + ':' + type.getSchemaType().getLocalPart()));
+            element.setAttribute(createTypeAttribute(prefix, type, root));
 
             int minOccurs = getTypeInfo().getMinOccurs(name);
             if (minOccurs != 1) {

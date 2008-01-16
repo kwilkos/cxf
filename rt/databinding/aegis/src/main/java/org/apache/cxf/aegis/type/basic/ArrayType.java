@@ -291,10 +291,8 @@ public class ArrayType extends Type {
             String prefix = NamespaceHelper.getUniquePrefix(root, componentType.getSchemaType()
                 .getNamespaceURI());
 
-            String typeName = prefix + ":" + componentType.getSchemaType().getLocalPart();
-
             element.setAttribute(new Attribute("name", componentType.getSchemaType().getLocalPart()));
-            element.setAttribute(new Attribute("type", typeName));
+            element.setAttribute(BeanType.createTypeAttribute(prefix, componentType, root));
 
             if (componentType.isNillable()) {
                 element.setAttribute(new Attribute("nillable", "true"));
