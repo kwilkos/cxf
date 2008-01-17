@@ -24,6 +24,7 @@ import javax.jws.WebService;
 import javax.xml.ws.Holder;
 
 import org.apache.cxf.mime.TestMtom;
+import org.apache.cxf.mime.types.XopStringType;
 
 @WebService(serviceName = "TestMtomService", 
         portName = "TestMtomPort", 
@@ -34,8 +35,13 @@ import org.apache.cxf.mime.TestMtom;
 public class TestMtomImpl implements TestMtom {
 
     public void testXop(Holder<String> name, Holder<DataHandler> attachinfo) {
-        // TODO Auto-generated method stub
         name.value = "return detail + " + name.value;
+    }
+
+    public XopStringType testXopString(XopStringType data) {
+        XopStringType d2 = new XopStringType();
+        d2.setAttachinfo("This is the cereal shot from guns" + data.getAttachinfo());
+        return d2;
     }
 
 }

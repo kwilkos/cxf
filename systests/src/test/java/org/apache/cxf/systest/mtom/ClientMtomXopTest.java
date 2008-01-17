@@ -39,6 +39,7 @@ import org.apache.cxf.jaxws.binding.soap.SOAPBindingImpl;
 import org.apache.cxf.jaxws.support.JaxWsEndpointImpl;
 import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
 import org.apache.cxf.mime.TestMtom;
+import org.apache.cxf.mime.types.XopStringType;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
 import org.apache.cxf.service.model.EndpointInfo;
@@ -53,51 +54,36 @@ public class ClientMtomXopTest extends AbstractBusClientServerTestBase {
     public static final QName MTOM_PORT = new QName("http://cxf.apache.org/mime", "TestMtomPort");
     public static final QName MTOM_SERVICE = new QName("http://cxf.apache.org/mime", "TestMtomService");
 
-
     @BeforeClass
     public static void startServers() throws Exception {
         TestUtilities.setKeepAliveSystemProperty(false);
         assertTrue("server did not launch correctly", launchServer(Server.class));
     }
-    
+
     @AfterClass
     public static void cleanup() {
         TestUtilities.recoverKeepAliveSystemProperty();
     }
 
     /*
-    @Test
-    @Ignore
-    public void testMtomSWA() throws Exception {
-        TestMtom mtomPort = createPort(MTOM_SERVICE, MTOM_PORT, TestMtom.class);
-        try {
-            InputStream pre = this.getClass().getResourceAsStream("/wsdl/mtom_xop.wsdl");
-            long fileSize = 0;
-            for (int i = pre.read(); i != -1; i = pre.read()) {
-                fileSize++;
-            }
+     * @Test @Ignore public void testMtomSWA() throws Exception { TestMtom
+     * mtomPort = createPort(MTOM_SERVICE, MTOM_PORT, TestMtom.class); try {
+     * InputStream pre =
+     * this.getClass().getResourceAsStream("/wsdl/mtom_xop.wsdl"); long fileSize =
+     * 0; for (int i = pre.read(); i != -1; i = pre.read()) { fileSize++; }
+     * ByteArrayDataSource bads = new
+     * ByteArrayDataSource(this.getClass().getResourceAsStream(
+     * "/wsdl/mtom_xop.wsdl"), "application/octet-stream"); DataHandler dh = new
+     * DataHandler(bads); DataHandler dhResp = mtomPort.testSWA(dh); DataSource
+     * ds = dhResp.getDataSource(); InputStream in = ds.getInputStream(); long
+     * count = 0; for (int i = in.read(); i != -1; i = in.read()) { count++; }
+     * assertEquals("attachemnt length different", fileSize, count); } catch
+     * (UndeclaredThrowableException ex) { throw (Exception) ex.getCause(); } }
+     */
 
-            ByteArrayDataSource bads = new ByteArrayDataSource(this.getClass().getResourceAsStream(
-                    "/wsdl/mtom_xop.wsdl"), "application/octet-stream");
-            DataHandler dh = new DataHandler(bads);
-            DataHandler dhResp = mtomPort.testSWA(dh);
-            DataSource ds = dhResp.getDataSource();
-            InputStream in = ds.getInputStream();
-
-            long count = 0;
-            for (int i = in.read(); i != -1; i = in.read()) {
-                count++;
-            }
-            assertEquals("attachemnt length different", fileSize, count);
-        } catch (UndeclaredThrowableException ex) {
-            throw (Exception) ex.getCause();
-        }
-    }
-    */
-    
     @Test
     public void testMtomXop() throws Exception {
-        TestMtom mtomPort = createPort(MTOM_SERVICE, MTOM_PORT, TestMtom.class, true);
+        TestMtom mtomPort = createPort(MTOM_SERVICE, MTOM_PORT, TestMtom.class, true, true);
         try {
             InputStream pre = this.getClass().getResourceAsStream("/wsdl/mtom_xop.wsdl");
             long fileSize = 0;
@@ -105,24 +91,40 @@ public class ClientMtomXopTest extends AbstractBusClientServerTestBase {
                 fileSize++;
             }
             Holder<DataHandler> param = new Holder<DataHandler>();
-            byte[] data = new byte[(int) fileSize];
+            byte[] data = new byte[(int)fileSize];
             this.getClass().getResourceAsStream("/wsdl/mtom_xop.wsdl").read(data);
-            
+
             param.value = new DataHandler(new ByteArrayDataSource(data, "application/octet-stream"));
             Holder<String> name = new Holder<String>("call detail");
             mtomPort.testXop(name, param);
             assertEquals("name unchanged", "return detail + call detail", name.value);
             assertNotNull(param.value);
         } catch (UndeclaredThrowableException ex) {
-            throw (Exception) ex.getCause();
+            throw (Exception)ex.getCause();
         }
     }
 
-    private static <T> T createPort(QName serviceName, 
-                                    QName portName, 
-                                    Class<T> serviceEndpointInterface,
-                                    boolean enableMTOM)
-        throws Exception {
+    @org.junit.Ignore
+    @Test
+    public void testMtoMString() throws Exception {
+        TestMtom mtomPort = createPort(MTOM_SERVICE, MTOM_PORT, TestMtom.class, true, false);
+        InputStream pre = this.getClass().getResourceAsStream("/wsdl/mtom_xop.wsdl");
+        long fileSize = 0;
+        for (int i = pre.read(); i != -1; i = pre.read()) {
+            fileSize++;
+        }
+        byte[] data = new byte[(int)fileSize];
+        this.getClass().getResourceAsStream("/wsdl/mtom_xop.wsdl").read(data);
+        String stringValue = new String(data, "utf-8");
+        XopStringType xsv = new XopStringType();
+        xsv.setAttachinfo(stringValue);
+        xsv.setName("eman");
+        XopStringType r = mtomPort.testXopString(xsv);
+        assertNotNull(r);
+    }
+
+    private static <T> T createPort(QName serviceName, QName portName, Class<T> serviceEndpointInterface,
+                                    boolean enableMTOM, boolean installInterceptors) throws Exception {
         Bus bus = BusFactory.getDefaultBus();
         ReflectionServiceFactoryBean serviceFactory = new JaxWsServiceFactoryBean();
         serviceFactory.setBus(bus);
@@ -134,14 +136,17 @@ public class ClientMtomXopTest extends AbstractBusClientServerTestBase {
         JaxWsEndpointImpl jaxwsEndpoint = new JaxWsEndpointImpl(bus, service, ei);
         SOAPBinding jaxWsSoapBinding = new SOAPBindingImpl(ei.getBinding());
         jaxWsSoapBinding.setMTOMEnabled(enableMTOM);
-        
-        jaxwsEndpoint.getBinding().getInInterceptors().add(new TestMultipartMessageInterceptor());
-        jaxwsEndpoint.getBinding().getOutInterceptors().add(new TestAttachmentOutInterceptor());
-        
+
+        if (installInterceptors) {
+            jaxwsEndpoint.getBinding().getInInterceptors().add(new TestMultipartMessageInterceptor());
+            jaxwsEndpoint.getBinding().getOutInterceptors().add(new TestAttachmentOutInterceptor());
+        }
+
         Client client = new ClientImpl(bus, jaxwsEndpoint);
         InvocationHandler ih = new JaxWsClientProxy(client, jaxwsEndpoint.getJaxwsBinding());
-        Object obj = Proxy.newProxyInstance(serviceEndpointInterface.getClassLoader(), new Class[] {
-            serviceEndpointInterface, BindingProvider.class }, ih);
+        Object obj = Proxy
+            .newProxyInstance(serviceEndpointInterface.getClassLoader(),
+                              new Class[] {serviceEndpointInterface, BindingProvider.class}, ih);
         return serviceEndpointInterface.cast(obj);
     }
 }

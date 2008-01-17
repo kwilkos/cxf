@@ -35,7 +35,7 @@ public class TestAttachmentOutInterceptor extends AbstractPhaseInterceptor<Messa
     }
 
     public void handleMessage(Message message) throws Fault {
-        Assert.assertEquals("check attachment count", message.getAttachments().size(), 1);
+        Assert.assertEquals("check attachment count", 1, message.getAttachments().size());
         Attachment att = message.getAttachments().iterator().next();
         Assert.assertNotNull("Attachment is null", att);
         Assert.assertNotNull("Attachment content-type is null", att.getDataHandler().getDataSource()
