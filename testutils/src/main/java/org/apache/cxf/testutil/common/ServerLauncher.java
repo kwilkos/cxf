@@ -248,7 +248,13 @@ public class ServerLauncher {
                 try {
                     fos = new FileOutputStream(outputDir + className + ".out");
                 } catch (FileNotFoundException fex) {
-                    outputDir = System.getProperty("basedir") + "/target/surefire-reports/";
+                    outputDir = System.getProperty("basedir");
+                    if (outputDir == null) {
+                        outputDir = "target/surefire-reports/";
+                    } else {
+                        outputDir += "/target/surefire-reports/";
+                    }
+                    
                     File file = new File(outputDir);
                     file.mkdirs();
                     fos = new FileOutputStream(outputDir + className + ".out");
