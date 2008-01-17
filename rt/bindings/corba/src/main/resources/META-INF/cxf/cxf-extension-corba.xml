@@ -24,7 +24,8 @@
        xsi:schemaLocation="
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
     
-    <bean class="org.apache.yoko.bindings.corba.CorbaBindingFactory" lazy-init="true">
+    <bean id="org.apache.yoko.bindings.corba.CorbaBindingFactory"
+	class="org.apache.yoko.bindings.corba.CorbaBindingFactory" lazy-init="true">
         <property name="bus" ref="cxf"/>
         <property name="activationNamespaces">
             <set>
@@ -34,17 +35,6 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
         <property name="transportIds">
             <list>
 	        <value>http://schemas.apache.org/yoko/bindings/corba</value>
-            </list>
-        </property>
-        <property name="orbClass">
-            <value>org.apache.yoko.orb.CORBA.ORB</value>
-        </property>
-        <property name="orbSingletonClass">
-            <value>org.apache.yoko.orb.CORBA.ORBSingleton</value>
-        </property>
-        <property name="orbArgs">
-            <list>
-                <value/>
             </list>
         </property>
     </bean>
