@@ -206,6 +206,11 @@ public class AegisDatabinding extends AbstractDataBinding implements DataBinding
                 overrideTypes.addAll(typeNames);
             }
             
+            val = s.get("mtom-enabled");
+            if ("true".equals(val) || Boolean.TRUE.equals(val) || mtomEnabled) {
+                aegisContext.setMtomEnabled(true);
+            }
+            
             Map<Class<?>, String> implMap = new HashMap<Class<?>, String>();
             // now for a really annoying case, the .implementation objects.
             for (String key : s.keySet()) {

@@ -36,7 +36,8 @@ import org.apache.cxf.message.Attachment;
  * @author Dan Diephouse
  */
 public class ByteArrayType extends AbstractXOPType {
-    public ByteArrayType() {
+    public ByteArrayType(String expectedContentTypes) {
+        super(expectedContentTypes);
         setTypeClass(byte[].class);
         setSchemaType(new QName(SOAPConstants.XSD, "base64Binary"));
     }
@@ -94,5 +95,15 @@ public class ByteArrayType extends AbstractXOPType {
     @Override
     protected String getContentType(Object object, Context context) {
         return "application/octet-stream";
+    }
+
+    @Override
+    protected Object wrapBytes(byte[] bareBytes, String contentType) {
+        return bareBytes;
+    }
+
+    @Override
+    protected byte[] getBytes(Object object) {
+        return (byte[])object;
     }
 }

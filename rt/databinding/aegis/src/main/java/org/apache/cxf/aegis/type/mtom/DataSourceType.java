@@ -18,14 +18,23 @@
  */
 package org.apache.cxf.aegis.type.mtom;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
 import javax.activation.DataHandler;
 import javax.activation.DataSource;
 
 import org.apache.cxf.aegis.Context;
 import org.apache.cxf.attachment.AttachmentImpl;
+import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.message.Attachment;
 
 public class DataSourceType extends AbstractXOPType {
+    public DataSourceType(String expectedContentTypes) {
+        super(expectedContentTypes);
+    }
+
     @Override
     protected Object readAttachment(Attachment att, Context context) {
         return att.getDataHandler().getDataSource();
@@ -44,5 +53,23 @@ public class DataSourceType extends AbstractXOPType {
     @Override
     protected String getContentType(Object object, Context context) {
         return ((DataSource)object).getContentType();
+    }
+
+    @Override
+    protected Object wrapBytes(byte[] bareBytes, String contentType) {
+        return new DataHandler(bareBytes, contentType).getDataSource();
+    }
+
+    @Override
+    protected byte[] getBytes(Object object) {
+        DataSource dataSource = (DataSource) object;
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try {
+            InputStream stream = dataSource.getInputStream();
+            IOUtils.copy(stream, baos);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return baos.toByteArray();
     }
 }

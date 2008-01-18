@@ -71,7 +71,20 @@ public abstract class Type {
     public abstract void writeObject(Object object, MessageWriter writer, Context context)
         throws DatabindingException;
 
+    /**
+     * If this type should correspond to a global, named, schema type, here is where the
+     * type object adds it to the schema.
+     * @param root root of the XSD document.
+     */
     public void writeSchema(Element root) {
+    }
+    
+    /**
+     * If the type object merely wants to contribute attributes to the 
+     * xsd:element element, it can implement this. 
+     * @param schemaElement
+     */
+    public void addToSchemaElement(Element schemaElement) {
     }
 
     /**

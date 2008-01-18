@@ -341,8 +341,10 @@ public final class DefaultTypeMappingRegistry extends AbstractTypeMappingRegistr
         register(soapTM, Element.class, XSD_ANY, new JDOMElementType());
         register(soapTM, org.jdom.Document.class, XSD_ANY, new JDOMDocumentType());
         register(soapTM, Object.class, XSD_ANY, new ObjectType());
-        register(soapTM, DataSource.class, XSD_BASE64, new DataSourceType());
-        register(soapTM, DataHandler.class, XSD_BASE64, new DataHandlerType());
+        // unless there is customization, we use no expectedContentTypes.
+        // however, if we want to implement xmime:contentType, we'll need to make this more complex.
+        register(soapTM, DataSource.class, XSD_BASE64, new DataSourceType(null));
+        register(soapTM, DataHandler.class, XSD_BASE64, new DataHandlerType(null));
         register(soapTM, BigInteger.class, XSD_INTEGER, new BigIntegerType());
 
         register(ENCODED_NS, soapTM);
@@ -384,8 +386,9 @@ public final class DefaultTypeMappingRegistry extends AbstractTypeMappingRegistr
         register(tm, Element.class, XSD_ANY, new JDOMElementType());
         register(tm, org.jdom.Document.class, XSD_ANY, new JDOMDocumentType());
         register(tm, Object.class, XSD_ANY, new ObjectType());
-        register(tm, DataSource.class, XSD_BASE64, new DataSourceType());
-        register(tm, DataHandler.class, XSD_BASE64, new DataHandlerType());
+        // no expected content types in default registry.
+        register(tm, DataSource.class, XSD_BASE64, new DataSourceType(null));
+        register(tm, DataHandler.class, XSD_BASE64, new DataHandlerType(null));
 
         if (isJDK5andAbove()) {
             registerIfAvailable(tm, "javax.xml.datatype.Duration", XSD_DURATION,

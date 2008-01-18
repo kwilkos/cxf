@@ -36,16 +36,23 @@ import org.apache.cxf.common.util.Base64Utility;
 
 /**
  * Converts back and forth to byte[] objects.
- * 
+ * There is a co-routine between this class and the MTOM ByteArrayType. This class can accept either 
+ * inline base64 or an MTOM attachment. It passes the problem over the ByteArrayType for the later. 
  * @author <a href="mailto:dan@envoisolutions.com">Dan Diephouse</a>
  */
 public class Base64Type extends Type {
-    private static ByteArrayType optimizedType = new ByteArrayType();
+    private AbstractXOPType optimizedType;
 
     public Base64Type() {
         super();
+        optimizedType = new ByteArrayType(null);
     }
-
+    
+    public Base64Type(AbstractXOPType xopType) {
+        super();
+        optimizedType = xopType;
+    }
+    
     @Override
     public Object readObject(MessageReader mreader, Context context) throws DatabindingException {
         boolean mtomEnabled = context.isMtomEnabled();
@@ -58,10 +65,16 @@ public class Base64Type extends Type {
             while (!reader.isCharacters() && !reader.isEndElement() && !reader.isStartElement()) {
                 reader.next();
             }
-
+            
+            if (reader.isStartElement()) {
+                String contentType = reader.getAttributeValue(AbstractXOPType.XML_MIME_NS,
+                                                              AbstractXOPType.XML_MIME_ATTR_LOCAL_NAME);
+                context.setContentType(contentType);
+            }
+            
             if (reader.isStartElement() && reader.getName().equals(AbstractXOPType.XOP_INCLUDE)) {
                 if (mtomEnabled) {
-                    return optimizedType.readObject(mreader, context);
+                    return optimizedType.readMtoM(mreader, context);
                 } else {
                     throw new DatabindingException("Unexpected element: " + reader.getName());
                 }
@@ -111,7 +124,7 @@ public class Base64Type extends Type {
             optimizedType.writeObject(object, writer, context);
             return;
         }
-
+        
         byte[] data = (byte[])object;
 
         if (data != null && data.length > 0) {
