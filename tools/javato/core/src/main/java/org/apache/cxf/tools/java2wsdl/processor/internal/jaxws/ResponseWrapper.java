@@ -65,12 +65,10 @@ public final class ResponseWrapper extends Wrapper {
         List<JavaField> fields = new ArrayList<JavaField>();
         
         final Class<?> returnType = method.getReturnType();
-        JavaField field = new JavaField();
         if (CollectionUtils.isEmpty(message.getMessageParts())) {
             return fields;
         }
         MessagePartInfo part = message.getMessageParts().get(0);
-        field.setName(part.getName().getLocalPart());
         
         if (!returnType.isAssignableFrom(void.class)) {
             String type;            
@@ -83,11 +81,11 @@ public final class ResponseWrapper extends Wrapper {
             } else {
                 type = returnType.getName();
             }
-            field.setType(type);
+            String name = part.getName().getLocalPart();
+            JavaField field = new JavaField(name, type, "");
             field.setTargetNamespace("");
-            
+            fields.add(field);            
         }
-        fields.add(field);
         
         final Class[] paramClasses = method.getParameterTypes();
         for (MessagePartInfo mpi : message.getMessageParts()) {
@@ -105,8 +103,9 @@ public final class ResponseWrapper extends Wrapper {
                 } else {
                     type = clz.getName();
                 }
-                fields.add(new JavaField(name, type, ""));
-               
+                JavaField field = new JavaField(name, type, "");
+                field.setTargetNamespace("");
+                fields.add(field);
             }
         }
         
