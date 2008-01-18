@@ -81,6 +81,7 @@ public class AegisContext {
     private Set<Type> rootTypes;
     private Map<Class<?>, String> beanImplementationMap;
     private Configuration configuration;
+    private boolean mtomEnabled;
     
     /**
      * Construct a context.
@@ -319,6 +320,18 @@ public class AegisContext {
 
     public void setRootClasses(Set<Class<?>> rootClasses) {
         this.rootClasses = rootClasses;
+    }
+
+    /**
+     * Is MTOM enabled in this context?
+     * @return
+     */
+    public boolean isMtomEnabled() {
+        return mtomEnabled;
+    }
+
+    public void setMtomEnabled(boolean mtomEnabled) {
+        this.mtomEnabled = mtomEnabled;
     }
 
 }

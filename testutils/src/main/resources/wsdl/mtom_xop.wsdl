@@ -36,7 +36,7 @@
             <complexType name="XopStringType">
                 <sequence>
                     <element name="name" type="xsd:string" />
-                    <element name="attachinfo" type="xsd:base64Binary" xmime:expectedContentTypes="text/plain"/>
+                    <element name="attachinfo" type="xsd:base64Binary" xmime:expectedContentTypes="text/plain; charset=utf-8"/>
                 </sequence>
             </complexType>
             <element name="testXop" type="types:XopType" />

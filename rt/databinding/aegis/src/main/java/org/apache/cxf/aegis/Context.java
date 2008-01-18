@@ -37,7 +37,6 @@ public class Context {
     private AegisContext globalContext;
     private Collection<Attachment> attachments;
     private Fault fault;
-    private boolean mtomEnabled;
     private Map<Class<?>, Object> properties;
     
     public Context(AegisContext aegisContext) {
@@ -78,13 +77,9 @@ public class Context {
     }
 
     public boolean isMtomEnabled() {
-        return mtomEnabled;
+        return globalContext.isMtomEnabled();
     }
 
-    public void setMtomEnabled(boolean isMtomEnabled) {
-        this.mtomEnabled = isMtomEnabled;
-    }
-    
     // bus-style properties for internal state management.
     public <T> T getProperty(Class<T> key) {
         return key.cast(properties.get(key));

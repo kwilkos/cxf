@@ -24,7 +24,6 @@ import java.util.Map;
 
 import javax.xml.validation.Schema;
 
-import org.apache.cxf.common.util.SOAPConstants;
 import org.apache.cxf.databinding.DataReader;
 import org.apache.cxf.interceptor.Fault;
 
@@ -57,13 +56,7 @@ public abstract class AbstractAegisIoImpl  {
         
     /** {@inheritDoc}*/
     public void setProperty(String prop, Object value) {
-        if (SOAPConstants.MTOM_ENABLED.equals(prop)) {
-            if (value instanceof String) {
-                context.setMtomEnabled(Boolean.valueOf((String)value));
-            } else if (value instanceof Boolean) {
-                context.setMtomEnabled((Boolean)value);
-            }
-        } else if (DataReader.FAULT.equals(prop)) { 
+        if (DataReader.FAULT.equals(prop)) { 
             context.setFault((Fault)value);
         }
     }

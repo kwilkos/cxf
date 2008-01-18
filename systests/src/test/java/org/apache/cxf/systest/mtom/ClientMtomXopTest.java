@@ -34,6 +34,8 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.endpoint.ClientImpl;
+import org.apache.cxf.interceptor.LoggingInInterceptor;
+import org.apache.cxf.interceptor.LoggingOutInterceptor;
 import org.apache.cxf.jaxws.JaxWsClientProxy;
 import org.apache.cxf.jaxws.binding.soap.SOAPBindingImpl;
 import org.apache.cxf.jaxws.support.JaxWsEndpointImpl;
@@ -104,7 +106,7 @@ public class ClientMtomXopTest extends AbstractBusClientServerTestBase {
         }
     }
 
-    @org.junit.Ignore
+    @org.junit.Ignore // see CXF-1395
     @Test
     public void testMtoMString() throws Exception {
         TestMtom mtomPort = createPort(MTOM_SERVICE, MTOM_PORT, TestMtom.class, true, false);
@@ -141,6 +143,9 @@ public class ClientMtomXopTest extends AbstractBusClientServerTestBase {
             jaxwsEndpoint.getBinding().getInInterceptors().add(new TestMultipartMessageInterceptor());
             jaxwsEndpoint.getBinding().getOutInterceptors().add(new TestAttachmentOutInterceptor());
         }
+        
+        jaxwsEndpoint.getBinding().getInInterceptors().add(new LoggingInInterceptor());
+        jaxwsEndpoint.getBinding().getOutInterceptors().add(new LoggingOutInterceptor());
 
         Client client = new ClientImpl(bus, jaxwsEndpoint);
         InvocationHandler ih = new JaxWsClientProxy(client, jaxwsEndpoint.getJaxwsBinding());

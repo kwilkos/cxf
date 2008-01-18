@@ -95,12 +95,6 @@ public abstract class AbstractXOPType extends Type {
 
         attachments.add(att);
 
-        String contentType = getContentType(object, context);
-        if (contentType != null) {
-            MessageWriter mt = writer.getAttributeWriter(XML_MIME_TYPE);
-            mt.writeValue(contentType);
-        }
-
         MessageWriter include = writer.getElementWriter(XOP_INCLUDE);
         MessageWriter href = include.getAttributeWriter(XOP_HREF);
         href.writeValue("cid:" + id);

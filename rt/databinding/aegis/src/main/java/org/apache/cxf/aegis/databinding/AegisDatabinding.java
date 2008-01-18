@@ -101,6 +101,7 @@ public class AegisDatabinding extends AbstractDataBinding implements DataBinding
     private boolean isInitialized;
     private Set<String> overrideTypes;
     private Configuration configuration;
+    private boolean mtomEnabled;
 
     public AegisDatabinding() {
         super();
@@ -120,6 +121,9 @@ public class AegisDatabinding extends AbstractDataBinding implements DataBinding
                 }
                 if (configuration != null) {
                     aegisContext.setConfiguration(configuration);
+                }
+                if (mtomEnabled) {
+                    aegisContext.setMtomEnabled(true);
                 }
                 aegisContext.initialize();
             }
@@ -553,5 +557,13 @@ public class AegisDatabinding extends AbstractDataBinding implements DataBinding
     
     public void setConfiguration(Configuration configuration) {
         this.configuration = configuration;
+    }
+
+    public boolean isMtomEnabled() {
+        return mtomEnabled;
+    }
+
+    public void setMtomEnabled(boolean mtomEnabled) {
+        this.mtomEnabled = mtomEnabled;
     }
 }
