@@ -39,6 +39,7 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
+import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -113,6 +114,27 @@ public class TestUtilities {
         addNamespace("soap", "http://schemas.xmlsoap.org/soap/");
         addNamespace("soap12env", "http://www.w3.org/2003/05/soap-envelope");
         addNamespace("xml", "http://www.w3.org/XML/1998/namespace");
+    }
+    
+    /**
+     * Handy function for checking correctness of qualifies names in schema attribute values.
+     * @param prefix
+     * @param node
+     * @return
+     * @throws Exception
+     */
+    public String resolveNamespacePrefix(String prefix, Node node) throws Exception {
+        String url = null;
+        NodeList nodeNamespaces = this.assertValid("namespace::*", node);
+        for (int x = 0; x < nodeNamespaces.getLength(); x++) {
+            Attr nsAttr = (Attr)nodeNamespaces.item(x);
+            String localName = nsAttr.getLocalName();
+            if (localName.equals(prefix)) {
+                url = nsAttr.getValue();
+                break;
+            }
+        }
+        return url;
     }
 
     /**

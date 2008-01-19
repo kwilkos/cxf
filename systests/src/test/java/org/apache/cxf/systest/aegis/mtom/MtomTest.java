@@ -25,10 +25,14 @@ import java.util.Map;
 import javax.activation.DataHandler;
 import javax.xml.namespace.QName;
 
+import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.aegis.databinding.AegisDatabinding;
+import org.apache.cxf.aegis.type.mtom.AbstractXOPType;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.frontend.ClientProxyFactoryBean;
 import org.apache.cxf.interceptor.LoggingOutInterceptor;
@@ -95,7 +99,7 @@ public class MtomTest extends AbstractDependencyInjectionSpringContextTests {
         setupForTest(false);
         DataHandlerBean dhBean = new DataHandlerBean();
         dhBean.setName("some name");
-        // some day, we might need this to be higher than some threshold.
+        // some day, we might need this to be longer than some threshold.
         String someData = "This is the cereal shot from guns.";
         DataHandler dataHandler = new DataHandler(someData, "text/plain;charset=utf-8");
         dhBean.setDataHandler(dataHandler);
@@ -118,6 +122,19 @@ public class MtomTest extends AbstractDependencyInjectionSpringContextTests {
                                           "MtomTest"));
         Document wsdl = testUtilities.getWSDLDocument(s); 
         assertNotNull(wsdl);
+        NodeList typeAttrList = 
+            testUtilities.assertValid("//xsd:complexType[@name='inputDhBean']/xsd:sequence/"
+                                      + "xsd:element[@name='dataHandler']/"
+                                      + "@type", 
+                                      wsdl);
+        Attr typeAttr = (Attr)typeAttrList.item(0);
+        String typeAttrValue = typeAttr.getValue();
+        // now, this thing is a qname with a :, and we have to work out if it's correct.
+        String[] pieces = typeAttrValue.split(":");
+        assertEquals("base64Binary", pieces[1]);
+        Node elementNode = typeAttr.getOwnerElement();
+        String url = testUtilities.resolveNamespacePrefix(pieces[0], elementNode);
+        assertEquals(AbstractXOPType.XML_MIME_NS, url);
         
         /*
         testUtilities.assertValid("//xsd:complexType[@name='inputDhBean']/xsd:sequence/"

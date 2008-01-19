@@ -34,7 +34,6 @@ import org.apache.cxf.aegis.xml.MessageWriter;
 import org.apache.cxf.common.util.SOAPConstants;
 import org.apache.cxf.message.Attachment;
 import org.jaxen.JaxenException;
-import org.jaxen.XPath;
 import org.jaxen.jdom.JDOMXPath;
 import org.jdom.Attribute;
 import org.jdom.Element;
@@ -51,34 +50,36 @@ public abstract class AbstractXOPType extends Type {
     public static final QName XOP_INCLUDE = new QName(XOP_NS, "Include");
     public static final QName XML_MIME_CONTENT_TYPE = new QName(XML_MIME_NS, "contentType");
     public static final QName XOP_HREF = new QName("href");
+    public static final QName XML_MIME_BASE64 = new QName(XML_MIME_NS, "base64Binary", "xmime");
+    private static JDOMXPath importXmimeXpath;
     
-    private String expectedContentTypes;
-    // the base64 type knows how to deal with just plain base64 here, which is essentially always 
-    // what we get in the absence of the optimization. So we need something of a coroutine.
-    private Base64Type fallbackDelegate;
-    private XPath importXmimeXpath;
-
-    public AbstractXOPType(String expectedContentTypes) {
-        this.expectedContentTypes = expectedContentTypes;
-        fallbackDelegate = new Base64Type(this);
-        importXmimeXpath = getXmimeXpathImport();
-    }
-    
-    public static JDOMXPath getXmimeXpathImport() {
-        JDOMXPath importXmimeXpath;
+    static {
         try {
             importXmimeXpath = new JDOMXPath("xsd:import[@namespace='"
                                              + XML_MIME_NS
                                              + "']");
             importXmimeXpath.addNamespace(SOAPConstants.XSD_PREFIX, SOAPConstants.XSD);
-            return importXmimeXpath;
         } catch (JaxenException e) {
             throw new RuntimeException(e);
         }
-        
-        
     }
     
+    private String expectedContentTypes;
+    // the base64 type knows how to deal with just plain base64 here, which is essentially always 
+    // what we get in the absence of the optimization. So we need something of a coroutine.
+    private Base64Type fallbackDelegate;
+    
+    public AbstractXOPType(String expectedContentTypes) {
+        this.expectedContentTypes = expectedContentTypes;
+        fallbackDelegate = new Base64Type(this);
+        // we use the XMIME type instead of the XSD type to allow for our content type attribute.
+        setSchemaType(XML_MIME_BASE64);
+    }
+    
+    public static JDOMXPath getXmimeXpathImport() {
+        return importXmimeXpath;
+    }
+
     /**
      * This is called from base64Type when it recognizes an XOP attachment.
      * @param reader
@@ -207,17 +208,7 @@ public abstract class AbstractXOPType extends Type {
     }
     
     @Override
-    public void writeSchema(Element root) {
-        try {
-            Object node = importXmimeXpath.selectSingleNode(root);
-            if (node != null) {
-                return;
-            }
-        } catch (JaxenException e) {
-            throw new RuntimeException(e);
-        }
-        Element element = new Element("import", SOAPConstants.XSD_PREFIX, SOAPConstants.XSD);
-        root.addContent(0, element);
-        element.setAttribute("namespace", XML_MIME_NS);
+    public boolean usesXmime() {
+        return true;
     }
 }

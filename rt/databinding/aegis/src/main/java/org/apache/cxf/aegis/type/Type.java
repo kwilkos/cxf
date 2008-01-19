@@ -208,6 +208,10 @@ public abstract class Type {
     public void setWriteOuter(boolean writeOuter) {
         this.writeOuter = writeOuter;
     }
+    
+    public boolean usesXmime() {
+        return false;
+    }
 
     @Override
     public String toString() {

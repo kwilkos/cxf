@@ -36,6 +36,7 @@ import org.apache.cxf.aegis.DatabindingException;
 import org.apache.cxf.aegis.type.Type;
 import org.apache.cxf.aegis.type.TypeMapping;
 import org.apache.cxf.aegis.type.TypeUtil;
+import org.apache.cxf.aegis.type.mtom.AbstractXOPType;
 import org.apache.cxf.aegis.util.NamespaceHelper;
 import org.apache.cxf.aegis.xml.MessageReader;
 import org.apache.cxf.aegis.xml.MessageWriter;
@@ -43,6 +44,7 @@ import org.apache.cxf.common.classloader.ClassLoaderUtils;
 import org.apache.cxf.common.util.SOAPConstants;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.interceptor.Fault;
+import org.jaxen.JaxenException;
 import org.jdom.Attribute;
 import org.jdom.Element;
 import org.jdom.Namespace;
@@ -453,7 +455,8 @@ public class BeanType extends Type {
         }
 
         Element seq = null;
-
+        boolean needXmime = false;
+        
         // Write out schema for elements
         for (Iterator itr = inf.getElements(); itr.hasNext();) {
 
@@ -484,6 +487,11 @@ public class BeanType extends Type {
             String prefix = NamespaceHelper.getUniquePrefix(root, type.getSchemaType().getNamespaceURI());
 
             writeTypeReference(name, nameWithPrefix, element, type, prefix, root);
+            needXmime |= type.usesXmime();
+        }
+        
+        if (needXmime) {
+            addXmimeToSchema(root);
         }
 
         /**
@@ -749,5 +757,19 @@ public class BeanType extends Type {
     private Element createAnyAttribute() {
         return new Element("anyAttribute", SOAPConstants.XSD_PREFIX, SOAPConstants.XSD);
     }
-
+    
+    private void addXmimeToSchema(Element root) {
+        try {
+            Object node = AbstractXOPType.getXmimeXpathImport().selectSingleNode(root);
+            if (node != null) {
+                return;
+            }
+        } catch (JaxenException e) {
+            throw new RuntimeException(e);
+        }
+        Element element = new Element("import", SOAPConstants.XSD_PREFIX, SOAPConstants.XSD);
+        root.addContent(0, element);
+        element.setAttribute("namespace", AbstractXOPType.XML_MIME_NS);
+        root.addNamespaceDeclaration(Namespace.getNamespace("xmime", AbstractXOPType.XML_MIME_NS));
+    }
 }
