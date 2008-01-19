@@ -65,8 +65,7 @@ public class SchemaJavascriptBuilder {
 
     // In general, I (bimargulies) hate fields that are temporary communications
     // between members of a class. However, given the style restrictions on the
-    // number
-    // of parameters, it's the least of the evils.
+    // number of parameters, it's the least of the evils.
     private StringBuilder code;
     private StringBuilder accessors;
     private JavascriptUtils utils;
@@ -96,7 +95,8 @@ public class SchemaJavascriptBuilder {
             if (xmlSchemaObject instanceof XmlSchemaComplexType) {
                 try {
                     XmlSchemaComplexType complexType = (XmlSchemaComplexType)xmlSchemaObject;
-                    if (complexType.getName() != null) {
+                    if (!JavascriptUtils.notVeryComplexType(complexType)
+                        && complexType.getName() != null) {
                         complexTypeConstructorAndAccessors(complexType.getQName(), complexType);
                         complexTypeSerializerFunction(complexType.getQName(), complexType);
                         domDeserializerFunction(complexType.getQName(), complexType);
@@ -153,7 +153,8 @@ public class SchemaJavascriptBuilder {
                     XmlSchemaComplexType complexType = (XmlSchemaComplexType)type;
                     // for named types we don't bother to generate for the
                     // element.
-                    if (complexType.getName() == null) {
+                    if (!JavascriptUtils.notVeryComplexType(complexType)
+                        && complexType.getName() == null) {
                         complexTypeConstructorAndAccessors(element.getQName(), complexType);
                         complexTypeSerializerFunction(element.getQName(), complexType);
                         domDeserializerFunction(element.getQName(), complexType);
@@ -555,7 +556,8 @@ public class SchemaJavascriptBuilder {
                                                           prefixAccumulator, 
                                                           type.getQName());
         XmlSchemaType itemType = itemInfo.getType();
-        boolean simple = itemType instanceof XmlSchemaSimpleType;
+        boolean simple = itemType instanceof XmlSchemaSimpleType
+            || JavascriptUtils.notVeryComplexType(itemType);
         String accessorName = "set" + StringUtils.capitalize(itemInfo.getJavascriptName());
         utils.appendLine("cxfjsutils.trace('processing " + itemInfo.getJavascriptName() + "');");
         XmlSchemaElement element = (XmlSchemaElement) itemInfo.getParticle();

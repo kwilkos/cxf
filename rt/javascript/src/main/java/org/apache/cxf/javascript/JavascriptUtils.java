@@ -29,11 +29,14 @@ import javax.xml.namespace.QName;
 
 import org.w3c.dom.Attr;
 
+import org.apache.cxf.aegis.type.mtom.AbstractXOPType;
 import org.apache.cxf.common.xmlschema.SchemaCollection;
 import org.apache.cxf.databinding.source.mime.MimeAttribute;
 import org.apache.cxf.wsdl.WSDLConstants;
 import org.apache.ws.commons.schema.XmlSchemaComplexType;
+import org.apache.ws.commons.schema.XmlSchemaElement;
 import org.apache.ws.commons.schema.XmlSchemaObject;
+import org.apache.ws.commons.schema.XmlSchemaSimpleContent;
 import org.apache.ws.commons.schema.XmlSchemaSimpleType;
 import org.apache.ws.commons.schema.XmlSchemaType;
 import org.apache.ws.commons.schema.constants.Constants;
@@ -218,9 +221,15 @@ public class JavascriptUtils {
         return token;
     }
     
-    private String getMtomContentTypes(XmlSchemaObject schemaObject) {
+    /**
+     * We really don't want to take the attitude that 'all base64Binary elements are candidates for MTOM'.
+     * So we look for clues.
+     * @param schemaObject
+     * @return
+     */
+    private boolean treatAsMtom(XmlSchemaObject schemaObject) {
         if (schemaObject == null) {
-            return null;
+            return false;
         }
         
         Map metaInfoMap = schemaObject.getMetaInfoMap();
@@ -228,10 +237,38 @@ public class JavascriptUtils {
             Map attribMap = (Map)metaInfoMap.get(Constants.MetaDataConstants.EXTERNAL_ATTRIBUTES);
             Attr ctAttr = (Attr)attribMap.get(MimeAttribute.MIME_QNAME);
             if (ctAttr != null) {
-                return ctAttr.getValue();
+                return true;
             }
         }
-        return null;
+        
+        if (schemaObject instanceof XmlSchemaElement) {
+            XmlSchemaElement element = (XmlSchemaElement) schemaObject;
+            if (element.getSchemaType() == null) {
+                return false;
+            }
+            QName typeName = element.getSchemaType().getQName();
+            // We could do something much more complex in terms of evaluating whether the type
+            // permits the contentType attribute. This, however, is enough to clue us in for what Aegis
+            // does.
+            if (AbstractXOPType.XML_MIME_BASE64.equals(typeName)) {
+                return true;
+            }
+            
+        }
+        
+        return false;
+    }
+    
+    /**
+     * We don't want to generate Javascript overhead for complex types with simple content models,
+     * at least until or unless we decide to cope with attributes in a general way.
+     * @param type
+     * @return
+     */
+    public static boolean notVeryComplexType(XmlSchemaType type) {
+        return type instanceof XmlSchemaSimpleType 
+               || (type instanceof XmlSchemaComplexType 
+                   && ((XmlSchemaComplexType)type).getContentModel() instanceof XmlSchemaSimpleContent);
     }
 
     /**
@@ -249,7 +286,7 @@ public class JavascriptUtils {
         boolean nillable = elementInfo.isNillable();
         boolean optional = elementInfo.isOptional();
         boolean array = elementInfo.isArray();
-        String mtomContentTypes = getMtomContentTypes(elementInfo.getParticle());
+        boolean mtom = treatAsMtom(elementInfo.getParticle());
         String jsVar = referencePrefix + elementInfo.getJavascriptName();
         appendLine("// block for local variables");
         startBlock(); // allow local variables.
@@ -286,7 +323,9 @@ public class JavascriptUtils {
         
         if (elementInfo.isAnyType()) {
             serializeAnyTypeElement(elementInfo, jsVar);
-        } else if (type instanceof XmlSchemaComplexType) {
+            // mtom can be turned on for the special complex type that is really a basic type with 
+            // a content-type attribute.
+        } else if (!mtom && type instanceof XmlSchemaComplexType) {
             // it has a value
             // pass the extra null in the slot for the 'extra namespaces' needed
             // by 'any'.
@@ -295,7 +334,7 @@ public class JavascriptUtils {
                              + elementInfo.getXmlName() + "', null)");
         } else { // simple type
             appendString("<" + elementInfo.getXmlName() + ">");
-            if (mtomContentTypes != null) {
+            if (mtom) {
                 appendExpression("cxfjsutils.packageMtom(" + jsVar + ")");
             } else {
                 appendExpression("cxfjsutils.escapeXmlEntities(" + jsVar + ")");

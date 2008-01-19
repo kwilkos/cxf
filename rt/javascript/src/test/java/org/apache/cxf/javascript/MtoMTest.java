@@ -88,7 +88,7 @@ public class MtoMTest extends JavascriptRhinoTest {
 
     @org.junit.Ignore
     @Test
-    public void jaxwsClientExperimentExpectAutoBase64() {
+    public void jaxwsClientExperimentExpectAutoBase64() throws Exception {
         MtoM client = getBean(MtoM.class, "mtom-client");
         assertNotNull(client);
         MtoMParameterBeanNoDataHandler param = new MtoMParameterBeanNoDataHandler();

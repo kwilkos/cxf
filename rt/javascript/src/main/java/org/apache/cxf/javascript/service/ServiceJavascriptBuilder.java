@@ -167,7 +167,7 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
                 XmlSchemaElement element = (XmlSchemaElement) globalElements.getItem(name);
                 // For now, at least, don't handle elements with simple types.
                 // That comes later to improve deserialization.
-                if (!(element.getSchemaType() instanceof XmlSchemaComplexType)) {
+                if (JavascriptUtils.notVeryComplexType(element.getSchemaType())) {
                     continue;
                 }
                 // If the element uses a named type, we use the functions for the type.
@@ -189,7 +189,7 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
                 QName name = (QName)namesIterator.next();
                 XmlSchemaType type = (XmlSchemaType) globalElements.getItem(name);
                 // For now, at least, don't handle simple types.
-                if (!(type instanceof XmlSchemaComplexType)) {
+                if (JavascriptUtils.notVeryComplexType(type)) {
                     continue;
                 }
                 // the names are misleading, but that's OK.
