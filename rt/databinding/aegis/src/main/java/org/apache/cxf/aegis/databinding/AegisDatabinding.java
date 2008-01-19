@@ -18,6 +18,7 @@
  */
 package org.apache.cxf.aegis.databinding;
 
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.HashMap;
@@ -28,10 +29,13 @@ import java.util.Set;
 import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 
 import org.w3c.dom.Node;
+
+import org.xml.sax.SAXException;
 
 import org.apache.cxf.aegis.AegisContext;
 import org.apache.cxf.aegis.DatabindingException;
@@ -40,6 +44,7 @@ import org.apache.cxf.aegis.type.Configuration;
 import org.apache.cxf.aegis.type.Type;
 import org.apache.cxf.aegis.type.TypeCreator;
 import org.apache.cxf.aegis.type.TypeMapping;
+import org.apache.cxf.aegis.type.mtom.AbstractXOPType;
 import org.apache.cxf.common.classloader.ClassLoaderUtils;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
@@ -52,6 +57,7 @@ import org.apache.cxf.databinding.source.AbstractDataBinding;
 import org.apache.cxf.frontend.MethodDispatcher;
 import org.apache.cxf.frontend.SimpleMethodDispatcher;
 import org.apache.cxf.helpers.CastUtils;
+import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.factory.ServiceConstructionException;
 import org.apache.cxf.service.model.AbstractMessageContainer;
@@ -63,6 +69,8 @@ import org.apache.cxf.wsdl.WSDLConstants;
 import org.apache.ws.commons.schema.XmlSchema;
 import org.apache.ws.commons.schema.XmlSchemaAnnotated;
 import org.apache.ws.commons.schema.utils.NamespaceMap;
+import org.jaxen.JaxenException;
+import org.jaxen.jdom.JDOMXPath;
 import org.jdom.Attribute;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -94,6 +102,7 @@ public class AegisDatabinding extends AbstractDataBinding implements DataBinding
     protected static final int FAULT_PARAM = 2;
     
     private static final Logger LOG = LogUtils.getL7dLogger(AegisDatabinding.class);
+    private static org.w3c.dom.Document xmimeSchemaDocument;
 
     private AegisContext aegisContext;
     private Map<MessagePartInfo, Type> part2Type;
@@ -102,10 +111,36 @@ public class AegisDatabinding extends AbstractDataBinding implements DataBinding
     private Set<String> overrideTypes;
     private Configuration configuration;
     private boolean mtomEnabled;
+    private JDOMXPath importXmimeXpath;
 
     public AegisDatabinding() {
         super();
         part2Type = new HashMap<MessagePartInfo, Type>();
+        // we have this also in AbstractXOPType. There has to be a better way.
+        importXmimeXpath = AbstractXOPType.getXmimeXpathImport();
+    }
+    
+    private boolean schemaImportsXmime(Element schemaElement) {
+        try {
+            return importXmimeXpath.selectSingleNode(schemaElement) != null;
+        } catch (JaxenException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    
+    private void ensureXmimeSchemaDocument() {
+        if (xmimeSchemaDocument != null) {
+            return;
+        }
+        try {
+            xmimeSchemaDocument = DOMUtils.readXml(getClass().getResourceAsStream("/schemas/wsdl/xmime.xsd"));
+        } catch (SAXException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (ParserConfigurationException e) {
+            throw new RuntimeException(e);
+        }
     }
     
     /**
@@ -383,6 +418,7 @@ public class AegisDatabinding extends AbstractDataBinding implements DataBinding
             }
             types.add(t);
         }
+        
         for (ServiceInfo si : s.getServiceInfos()) {
             SchemaCollection col = si.getXmlSchemaCollection();
             if (col.getXmlSchemas().length > 1) {
@@ -392,6 +428,7 @@ public class AegisDatabinding extends AbstractDataBinding implements DataBinding
         }
 
         Map<String, String> namespaceMap = getDeclaredNamespaceMappings();
+        boolean needXmimeSchema = false;
         
         for (Map.Entry<String, Set<Type>> entry : tns2Type.entrySet()) {
             String xsdPrefix = SOAPConstants.XSD_PREFIX;
@@ -427,6 +464,10 @@ public class AegisDatabinding extends AbstractDataBinding implements DataBinding
             if (e.getChildren().size() == 0) {
                 continue;
             }
+            
+            if (schemaImportsXmime(e)) {
+                needXmimeSchema = true;
+            }
 
             try {
                 NamespaceMap nsMap = new NamespaceMap();
@@ -457,8 +498,17 @@ public class AegisDatabinding extends AbstractDataBinding implements DataBinding
             } catch (JDOMException e1) {
                 throw new ServiceConstructionException(e1);
             }
+            
         }
 
+        if (needXmimeSchema) {
+            ensureXmimeSchemaDocument();
+            for (ServiceInfo si : s.getServiceInfos()) {
+                SchemaCollection col = si.getXmlSchemaCollection();
+                // invented systemId.
+                addSchemaDocument(si, col, xmimeSchemaDocument, AbstractXOPType.XML_MIME_NS);
+            }
+        }
     }
 
     public QName getSuggestedName(Service s, TypeMapping tm, OperationInfo op, int param) {

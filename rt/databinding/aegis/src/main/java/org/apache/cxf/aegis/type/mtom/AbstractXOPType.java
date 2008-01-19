@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamReader;
 
 import org.apache.cxf.aegis.Context;
 import org.apache.cxf.aegis.DatabindingException;
@@ -30,7 +31,11 @@ import org.apache.cxf.aegis.type.Type;
 import org.apache.cxf.aegis.type.basic.Base64Type;
 import org.apache.cxf.aegis.xml.MessageReader;
 import org.apache.cxf.aegis.xml.MessageWriter;
+import org.apache.cxf.common.util.SOAPConstants;
 import org.apache.cxf.message.Attachment;
+import org.jaxen.JaxenException;
+import org.jaxen.XPath;
+import org.jaxen.jdom.JDOMXPath;
 import org.jdom.Attribute;
 import org.jdom.Element;
 import org.jdom.Namespace;
@@ -43,20 +48,37 @@ public abstract class AbstractXOPType extends Type {
     public static final String XOP_NS = "http://www.w3.org/2004/08/xop/include";
     public static final String XML_MIME_NS = "http://www.w3.org/2005/05/xmlmime";
     public static final String XML_MIME_ATTR_LOCAL_NAME = "expectedContentTypes";
-
     public static final QName XOP_INCLUDE = new QName(XOP_NS, "Include");
+    public static final QName XML_MIME_CONTENT_TYPE = new QName(XML_MIME_NS, "contentType");
     public static final QName XOP_HREF = new QName("href");
     
     private String expectedContentTypes;
     // the base64 type knows how to deal with just plain base64 here, which is essentially always 
     // what we get in the absence of the optimization. So we need something of a coroutine.
     private Base64Type fallbackDelegate;
+    private XPath importXmimeXpath;
 
     public AbstractXOPType(String expectedContentTypes) {
         this.expectedContentTypes = expectedContentTypes;
         fallbackDelegate = new Base64Type(this);
+        importXmimeXpath = getXmimeXpathImport();
     }
-
+    
+    public static JDOMXPath getXmimeXpathImport() {
+        JDOMXPath importXmimeXpath;
+        try {
+            importXmimeXpath = new JDOMXPath("xsd:import[@namespace='"
+                                             + XML_MIME_NS
+                                             + "']");
+            importXmimeXpath.addNamespace(SOAPConstants.XSD_PREFIX, SOAPConstants.XSD);
+            return importXmimeXpath;
+        } catch (JaxenException e) {
+            throw new RuntimeException(e);
+        }
+        
+        
+    }
+    
     /**
      * This is called from base64Type when it recognizes an XOP attachment.
      * @param reader
@@ -85,12 +107,16 @@ public abstract class AbstractXOPType extends Type {
      */
     @Override
     public Object readObject(MessageReader reader, Context context) throws DatabindingException {
+        XMLStreamReader xreader = reader.getXMLStreamReader();
+        String contentType = 
+            xreader.getAttributeValue(AbstractXOPType.XML_MIME_NS,
+                                      AbstractXOPType.XML_MIME_CONTENT_TYPE.getLocalPart());
+
         Object thingRead = fallbackDelegate.readObject(reader, context);
         // If there was actually an attachment, the delegate will have called back to us and gotten
         // the appropriate data type. If there wasn't an attachment, it just returned the bytes. 
         // Our subclass have to package them.
         if (thingRead.getClass() == (new byte[0]).getClass()) {
-            String contentType = context.getContentType();
             return wrapBytes((byte[])thingRead, contentType);
         }
 
@@ -119,6 +145,13 @@ public abstract class AbstractXOPType extends Type {
     @Override
     public void writeObject(Object object, MessageWriter writer,
                             Context context) throws DatabindingException {
+        // add the content type attribute even if we are going to fall back.
+        String contentType = getContentType(object, context);
+        if (contentType != null) {
+            MessageWriter ctWriter = writer.getAttributeWriter(XML_MIME_CONTENT_TYPE);
+            ctWriter.writeValue(contentType);
+        }
+
         if (!context.isMtomEnabled()) {
             fallbackDelegate.writeObject(getBytes(object), writer, context);
             return;
@@ -135,7 +168,7 @@ public abstract class AbstractXOPType extends Type {
         Attachment att = createAttachment(object, id);
 
         attachments.add(att);
-
+        
         MessageWriter include = writer.getElementWriter(XOP_INCLUDE);
         MessageWriter href = include.getAttributeWriter(XOP_HREF);
         href.writeValue("cid:" + id);
@@ -171,5 +204,20 @@ public abstract class AbstractXOPType extends Type {
                                                                    ns);
             schemaElement.setAttribute(expectedContentTypeAttribute);
         }
+    }
+    
+    @Override
+    public void writeSchema(Element root) {
+        try {
+            Object node = importXmimeXpath.selectSingleNode(root);
+            if (node != null) {
+                return;
+            }
+        } catch (JaxenException e) {
+            throw new RuntimeException(e);
+        }
+        Element element = new Element("import", SOAPConstants.XSD_PREFIX, SOAPConstants.XSD);
+        root.addContent(0, element);
+        element.setAttribute("namespace", XML_MIME_NS);
     }
 }

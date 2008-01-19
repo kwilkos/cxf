@@ -36,7 +36,7 @@ import org.jdom.Element;
 public abstract class Type {
 
     protected Class typeClass;
-    
+
     private QName schemaType;
 
     private TypeMapping typeMapping;

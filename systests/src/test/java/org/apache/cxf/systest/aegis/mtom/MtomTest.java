@@ -104,7 +104,7 @@ public class MtomTest extends AbstractDependencyInjectionSpringContextTests {
         assertNotNull(accepted);
         Object data = accepted.getDataHandler().getContent();
         assertNotNull(data);
-        // we would like to see the right content type. However, without xmime:contentType, we cannot.
+        assertEquals("This is the cereal shot from guns.", data);
     }
 
     // we aren't ready for this one ...

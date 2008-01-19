@@ -38,8 +38,6 @@ public class Context {
     private Collection<Attachment> attachments;
     private Fault fault;
     private Map<Class<?>, Object> properties;
-    // this is used as part of dealing with unoptimized base64binary issues.
-    private String contentType;
     
     public Context(AegisContext aegisContext) {
         this.globalContext = aegisContext;
@@ -90,13 +88,4 @@ public class Context {
     public void setProperty(Object value) {
         properties.put(value.getClass(), value);
     }
-
-    public String getContentType() {
-        return contentType;
-    }
-
-    public void setContentType(String contentType) {
-        this.contentType = contentType;
-    }
-
 }

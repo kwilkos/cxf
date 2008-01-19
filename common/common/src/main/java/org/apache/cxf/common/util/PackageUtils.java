@@ -117,7 +117,7 @@ public final class PackageUtils {
             token = removeIllegalIdentifierChars(token);
 
             // this will check for reserved keywords
-            if (contiansReservedKeywords(token)) {
+            if (containsReservedKeywords(token)) {
                 token = '_' + token;
             }
 
@@ -177,7 +177,7 @@ public final class PackageUtils {
         return buf.toString();
     }
 
-    private static boolean contiansReservedKeywords(String token) {
+    private static boolean containsReservedKeywords(String token) {
         return KEYWORDS.contains(token);
     }
 

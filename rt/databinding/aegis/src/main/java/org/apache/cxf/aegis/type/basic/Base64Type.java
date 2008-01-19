@@ -66,12 +66,6 @@ public class Base64Type extends Type {
                 reader.next();
             }
             
-            if (reader.isStartElement()) {
-                String contentType = reader.getAttributeValue(AbstractXOPType.XML_MIME_NS,
-                                                              AbstractXOPType.XML_MIME_ATTR_LOCAL_NAME);
-                context.setContentType(contentType);
-            }
-            
             if (reader.isStartElement() && reader.getName().equals(AbstractXOPType.XOP_INCLUDE)) {
                 if (mtomEnabled) {
                     return optimizedType.readMtoM(mreader, context);

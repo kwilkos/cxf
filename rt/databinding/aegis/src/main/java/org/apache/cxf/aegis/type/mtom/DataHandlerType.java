@@ -21,11 +21,13 @@ package org.apache.cxf.aegis.type.mtom;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 
 import javax.activation.DataHandler;
 
 import org.apache.cxf.aegis.Context;
 import org.apache.cxf.attachment.AttachmentImpl;
+import org.apache.cxf.helpers.HttpHeaderHelper;
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.message.Attachment;
 
@@ -57,6 +59,24 @@ public class DataHandlerType extends AbstractXOPType {
 
     @Override
     protected Object wrapBytes(byte[] bareBytes, String contentType) {
+        // for the benefit of those who are working with string data, we have the following
+        // trickery
+        String charset = null;
+        if (contentType != null
+            && contentType.indexOf("text/") != -1
+            && contentType.indexOf("charset") != -1) {
+            charset = contentType.substring(contentType.indexOf("charset") + 8);
+            if (charset.indexOf(";") != -1) {
+                charset = charset.substring(0, charset.indexOf(";"));
+            }
+        }
+        String normalizedEncoding = HttpHeaderHelper.mapCharset(charset);
+        try {
+            String stringData = new String(bareBytes, normalizedEncoding);
+            return new DataHandler(stringData, contentType);
+        } catch (UnsupportedEncodingException e) {
+            // this space intentionally left blank.
+        }
         return new DataHandler(bareBytes, contentType);
     }
     
