@@ -23,10 +23,10 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 
+import org.apache.cxf.common.util.Compiler;
 import org.apache.cxf.helpers.FileUtils;
 import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolTestBase;
-import org.apache.cxf.tools.util.Compiler;
 
 import org.junit.After;
 import org.junit.Before;

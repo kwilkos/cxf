@@ -265,7 +265,7 @@
                                         </concat>
                                         <loadfile property="eclipse.code.format" srcFile="${basedir}/etc/eclipse/CXFCodeFormatter.xml" />
                                         <loadfile property="eclipse.code.templates" srcFile="${basedir}/etc/eclipse/codetemplates.xml" />
-					<loadfile property="eclipse.xml.templates" srcFile="${basedir}/etc/eclipse/xmltemplates.xml" />
+                                        <loadfile property="eclipse.xml.templates" srcFile="${basedir}/etc/eclipse/xmltemplates.xml" />
                                         <propertyfile file="${full.eclipse.workspace}/.metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.jdt.ui.prefs">
                                             <entry key="formatter_profile" value="_CXF Java Conventions" />
                                             <entry key="org.eclipse.jdt.ui.formatterprofiles" value="${eclipse.code.format}" />
@@ -393,7 +393,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>2.3</version>
+                    <version>2.4</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -414,6 +414,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
+                    <version>2.2</version>
                     <configuration>
                         <archive>
                             <manifestEntries>
@@ -427,7 +428,6 @@
                             </manifestEntries>
                          </archive>
                     </configuration>
-                    <version>2.1</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -448,7 +448,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-eclipse-plugin</artifactId>
-                    <version>2.3</version>
+                    <version>2.4</version>
                     <configuration>
                         <buildcommands>
                             <java.lang.String>org.eclipse.jdt.core.javabuilder</java.lang.String>

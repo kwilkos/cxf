@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.cxf.tools.util;
+package org.apache.cxf.common.util;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -25,8 +25,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-
-import org.apache.cxf.tools.common.ToolException;
 
 public class StreamPrinter extends Thread {
     InputStream is;
@@ -62,7 +60,7 @@ public class StreamPrinter extends Thread {
                 pw.flush();
             }
         } catch (IOException ioe) {
-            throw new ToolException(ioe);
+            throw new RuntimeException(ioe);
         }
     }
 }

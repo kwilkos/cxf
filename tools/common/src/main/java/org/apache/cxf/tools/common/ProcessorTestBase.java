@@ -21,8 +21,10 @@ package org.apache.cxf.tools.common;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -32,6 +34,9 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
+import java.util.jar.Attributes;
+import java.util.jar.JarFile;
+
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.common.util.StringUtils;
@@ -67,7 +72,7 @@ public class ProcessorTestBase extends Assert {
         env = null;
     }
 
-    protected String getClassPath() throws URISyntaxException {
+    protected String getClassPath() throws URISyntaxException, IOException {
         ClassLoader loader = getClass().getClassLoader();
         StringBuffer classPath = new StringBuffer();
         if (loader instanceof URLClassLoader) {
@@ -79,6 +84,30 @@ public class ProcessorTestBase extends Assert {
                 if (filename.indexOf("junit") == -1) {
                     classPath.append(filename);
                     classPath.append(System.getProperty("path.separator"));
+                }
+                if (filename.indexOf("surefirebooter") != -1) {
+                    //surefire 2.4 uses a MANIFEST classpath that javac doesn't like
+                    JarFile jar = new JarFile(filename);
+                    Attributes attr = jar.getManifest().getMainAttributes();
+                    if (attr != null) {
+                        String cp = attr.getValue("Class-Path");
+                        while (cp != null) {
+                            String fileName = cp;
+                            int idx = fileName.indexOf(' ');
+                            if (idx != -1) {
+                                fileName = fileName.substring(0, idx);
+                                cp =  cp.substring(idx + 1).trim();
+                            } else {
+                                cp = null;
+                            }
+                            URI uri = new URI(fileName);
+                            File f2 = new File(uri);
+                            if (f2.exists()) {
+                                classPath.append(f2.getAbsolutePath());
+                                classPath.append(System.getProperty("path.separator"));
+                            }
+                        }
+                    }
                 }
             }
         }

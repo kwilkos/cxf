@@ -22,14 +22,18 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
+import java.util.jar.Attributes;
+import java.util.jar.JarFile;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -69,10 +73,6 @@ import org.apache.cxf.service.Service;
 import org.apache.cxf.service.factory.ServiceConstructionException;
 import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.service.model.ServiceInfo;
-import org.apache.tools.ant.Project;
-import org.apache.tools.ant.types.DirSet;
-import org.apache.tools.ant.types.FileSet;
-import org.apache.tools.ant.types.Path;
 /**
  * 
  *
@@ -208,16 +208,15 @@ public final class DynamicClientFactory {
         if (!classes.mkdir()) {
             throw new IllegalStateException("Unable to create working directory " + src.getPath());
         }
-        Project project = new Project();
-        project.setBaseDir(new File(tmpdir));
-        Path classPath = new Path(project);
-        setupClasspath(classPath, classLoader);
-        Path srcPath = new Path(project);
-        FileSet fileSet = new FileSet();
-        fileSet.setDir(src);
-        srcPath.addFileset(fileSet);
+        StringBuilder classPath = new StringBuilder();
+        try {
+            setupClasspath(classPath, classLoader);
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
         
-        if (!compileJavaSrc(classPath, srcPath, classes.toString())) {
+        List<File> srcFiles = FileUtils.getFilesRecurse(src, ".+\\.java$"); 
+        if (!compileJavaSrc(classPath.toString(), srcFiles, classes.toString())) {
             LOG.log(Level.SEVERE , new Message("COULD_NOT_COMPILE_SRC", LOG, wsdlUrl).toString());
         }
         FileUtils.removeDir(src);
@@ -339,28 +338,61 @@ public final class DynamicClientFactory {
         this.simpleBindingEnabled = simpleBindingEnabled;
     }
 
-    static boolean compileJavaSrc(Path classPath, Path srcPath, String dest) {
-        String[] srcList = srcPath.list();        
-        String[] javacCommand = new String[srcList.length + 7];
+    static boolean compileJavaSrc(String classPath, List<File> srcList, String dest) {
+        String[] javacCommand = new String[srcList.size() + 7];
         
         javacCommand[0] = "javac";
         javacCommand[1] = "-classpath";
-        javacCommand[2] = classPath.toString();        
+        javacCommand[2] = classPath;        
         javacCommand[3] = "-d";
-        javacCommand[4] = dest.toString();
+        javacCommand[4] = dest;
         javacCommand[5] = "-target";
         javacCommand[6] = "1.5";
         
-        for (int i = 0; i < srcList.length; i++) {
-            javacCommand[7 + i] = srcList[i];            
+        int i = 7;
+        for (File f : srcList) {
+            javacCommand[i++] = f.getAbsolutePath();            
         }
-        org.apache.cxf.tools.util.Compiler javaCompiler 
-            = new org.apache.cxf.tools.util.Compiler();
+        org.apache.cxf.common.util.Compiler javaCompiler 
+            = new org.apache.cxf.common.util.Compiler();
         
         return javaCompiler.internalCompile(javacCommand, 7); 
     }
+    
+    static void addClasspathFromManifest(StringBuilder classPath, File file) 
+        throws URISyntaxException, IOException {
+        
+        JarFile jar = new JarFile(file);
+        Attributes attr = jar.getManifest().getMainAttributes();
+        if (attr != null) {
+            String cp = attr.getValue("Class-Path");
+            while (cp != null) {
+                String fileName = cp;
+                int idx = fileName.indexOf(' ');
+                if (idx != -1) {
+                    fileName = fileName.substring(0, idx);
+                    cp =  cp.substring(idx + 1).trim();
+                } else {
+                    cp = null;
+                }
+                URI uri = new URI(fileName);
+                File f2;
+                if (uri.isAbsolute()) {
+                    f2 = new File(uri);
+                } else {
+                    f2 = new File(file, fileName);
+                }
+                if (f2.exists()) {
+                    classPath.append(f2.getAbsolutePath());
+                    classPath.append(System.getProperty("path.separator"));
+                }
+            }
+        }         
+    }
 
-    static void setupClasspath(Path classPath, ClassLoader classLoader) {
+    static void setupClasspath(StringBuilder classPath, ClassLoader classLoader)
+        throws URISyntaxException, IOException {
+        
         ClassLoader scl = ClassLoader.getSystemClassLoader();        
         ClassLoader tcl = classLoader;
         do {
@@ -370,14 +402,14 @@ public final class DynamicClientFactory {
                     if (url.getProtocol().startsWith("file")) {
                         try {
                             File file = new File(url.toURI().getPath());
-                            if (file.isDirectory()) {
-                                DirSet ds = new DirSet();
-                                ds.setFile(file);
-                                classPath.addDirset(ds);
-                            } else {
-                                FileSet fs = new FileSet();
-                                fs.setFile(file);
-                                classPath.addFileset(fs);
+                            if (file.exists()) {
+                                classPath.append(file.getAbsolutePath())
+                                    .append(System
+                                            .getProperty("path.separator"));                                
+                            }
+                               
+                            if (file.getName().endsWith(".jar")) {
+                                addClasspathFromManifest(classPath, file);
                             }
                         } catch (URISyntaxException e) {
                             throw new UncheckedException(e);
@@ -389,7 +421,7 @@ public final class DynamicClientFactory {
             if (null == tcl) {
                 break;
             }
-        } while(!tcl.equals(scl));
+        } while(!tcl.equals(scl.getParent()));
     }
 
     private URL composeUrl(String s) {

@@ -31,9 +31,9 @@ import java.util.logging.Logger;
 
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.common.util.Compiler;
 import org.apache.cxf.helpers.FileUtils;
 import org.apache.cxf.tools.util.ClassCollector;
-import org.apache.cxf.tools.util.Compiler;
 
 public class ClassUtils {
     

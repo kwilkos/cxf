@@ -23,13 +23,14 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public final class FileUtils {
     private static final int RETRY_SLEEP_MILLIS = 10;
@@ -245,23 +246,32 @@ public final class FileUtils {
     public static List<File> getFiles(File dir, final String pattern) {
         return getFiles(dir, pattern, null);
     }
+    public static List<File> getFilesRecurse(File dir, final String pattern) {
+        return getFilesRecurse(dir, pattern, null);
+    }
 
     public static List<File> getFiles(File dir, final String pattern, File exclude) {
-        File[] files =  dir.listFiles(new FilenameFilter() {
-                public boolean accept(File dir, String name) {
-                    return name.matches(pattern);
-                }
-            });
-        if (files == null) {
-            return new ArrayList<File>();
-        }
-
-        List<File> fileList = new ArrayList<File>();
-        for (File file : files) {
+        return getFilesRecurse(dir, Pattern.compile(pattern), exclude, false, new ArrayList<File>());
+    }
+    public static List<File> getFilesRecurse(File dir, final String pattern, File exclude) {
+        return getFilesRecurse(dir, Pattern.compile(pattern), exclude, true, new ArrayList<File>());    
+    }
+    private static List<File> getFilesRecurse(File dir, 
+                                              Pattern pattern,
+                                              File exclude, boolean rec,
+                                              List<File> fileList) {
+        for (File file : dir.listFiles()) {
             if (file.equals(exclude)) {
                 continue;
             }
-            fileList.add(file);
+            if (file.isDirectory() && rec) {
+                getFilesRecurse(file, pattern, exclude, rec, fileList);
+            } else {
+                Matcher m = pattern.matcher(file.getName());
+                if (m.matches()) {
+                    fileList.add(file);                                
+                }
+            }
         }
         return fileList;
     }
