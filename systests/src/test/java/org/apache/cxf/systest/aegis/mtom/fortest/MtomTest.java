@@ -30,4 +30,5 @@ import javax.xml.ws.soap.MTOM;
 @MTOM
 public interface MtomTest {
     void acceptDataHandler(@WebParam(name = "inputDhBean") DataHandlerBean dhBean);
+    DataHandlerBean produceDataHandlerBean();
 }

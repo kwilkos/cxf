@@ -35,6 +35,8 @@ import org.apache.cxf.aegis.databinding.AegisDatabinding;
 import org.apache.cxf.aegis.type.mtom.AbstractXOPType;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.frontend.ClientProxyFactoryBean;
+import org.apache.cxf.frontend.ServerFactoryBean;
+import org.apache.cxf.interceptor.LoggingInInterceptor;
 import org.apache.cxf.interceptor.LoggingOutInterceptor;
 import org.apache.cxf.systest.aegis.mtom.fortest.DataHandlerBean;
 import org.apache.cxf.systest.aegis.mtom.fortest.MtomTestImpl;
@@ -72,11 +74,24 @@ public class MtomTest extends AbstractDependencyInjectionSpringContextTests {
             props.put("mtom-enabled", Boolean.TRUE);
         }
         proxyFac.setProperties(props);
-        proxyFac.getOutInterceptors().add(new LoggingOutInterceptor());
+        ServerFactoryBean server = (ServerFactoryBean)applicationContext.getBean("mtom-server");
+        
+        server.getServer().getEndpoint().getInInterceptors().add(new LoggingInInterceptor());
+        server.getServer().getEndpoint().getOutInterceptors().add(new LoggingOutInterceptor());
+        
         client = (org.apache.cxf.systest.aegis.mtom.fortest.MtomTest)proxyFac.create();
         impl = (MtomTestImpl)applicationContext.getBean("mtomImpl");
     }
     
+    
+    @Test 
+    public void testMtomReply() throws Exception {
+        setupForTest(true);
+        DataHandlerBean dhBean = client.produceDataHandlerBean();
+        assertNotNull(dhBean);
+        assertEquals(MtomTestImpl.STRING_DATA, dhBean.getDataHandler().getContent());
+    }
+
     @Test 
     public void testAcceptDataHandler() throws Exception {
         setupForTest(true);
@@ -143,6 +158,4 @@ public class MtomTest extends AbstractDependencyInjectionSpringContextTests {
                                   wsdl);
                                   */
     }
-
-
 }
