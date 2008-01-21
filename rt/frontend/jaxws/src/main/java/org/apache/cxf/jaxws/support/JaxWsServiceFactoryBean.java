@@ -28,6 +28,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import javax.wsdl.Operation;
+import javax.xml.bind.annotation.XmlNsForm;
+import javax.xml.bind.annotation.XmlSchema;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Action;
@@ -321,8 +323,17 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
             jaxWsConfiguration = new JaxWsServiceConfiguration();
             jaxWsConfiguration.setServiceFactory(this);
             getServiceConfigurations().add(0, jaxWsConfiguration);
+            
+            Class<?> seiClass = ii.getEndpointClass();
+            if (seiClass != null) {
+                XmlSchema schema = seiClass.getPackage().getAnnotation(XmlSchema.class);
+                if (schema != null && XmlNsForm.QUALIFIED.equals(schema.elementFormDefault())) {
+                    setQualifyWrapperSchema(true);
+                }
+            }
         }
         setMethodDispatcher(new JAXWSMethodDispatcher(implInfo));
+        
     }
 
     public List<WebServiceFeature> getWsFeatures() {

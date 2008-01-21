@@ -44,7 +44,6 @@ public class MissingQualification1226Test extends AbstractCXFSpringTest {
     protected void additionalSpringConfiguration(GenericApplicationContext context) throws Exception {
     }
     
-    @org.junit.Ignore
     @Test
     public void lookForMissingNamespace() throws Exception {
         EndpointImpl endpoint = (EndpointImpl) getBean(EndpointImpl.class, "helloWorld");
