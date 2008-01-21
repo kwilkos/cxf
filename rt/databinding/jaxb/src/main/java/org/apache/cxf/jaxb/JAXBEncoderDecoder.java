@@ -586,8 +586,8 @@ public final class JAXBEncoderDecoder {
         } catch (Fault ex) {
             ex.fillInStackTrace();
             throw ex;
-        } catch (Exception ex) {                        
-            if (ex instanceof javax.xml.bind.UnmarshalException) {                
+        } catch (Throwable ex) {
+            if (ex instanceof javax.xml.bind.UnmarshalException) {
                 javax.xml.bind.UnmarshalException unmarshalEx = (javax.xml.bind.UnmarshalException)ex;
                 throw new Fault(new Message("UNMARSHAL_ERROR", 
                                             BUNDLE, unmarshalEx.getLinkedException().getMessage()), ex); 
