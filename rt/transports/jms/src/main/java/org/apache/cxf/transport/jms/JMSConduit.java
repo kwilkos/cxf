@@ -24,6 +24,8 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -38,6 +40,7 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.configuration.Configurable;
 import org.apache.cxf.configuration.Configurer;
+import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.io.CachedOutputStream;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
@@ -310,8 +313,10 @@ public class JMSConduit extends AbstractConduit implements Configurable, JMSTran
                 ttl = getClientConfig().getMessageTimeToLive();
             }
             
-            base.setMessageProperties(headers, jmsMessage);           
-            
+            base.setMessageProperties(headers, jmsMessage);
+            Map<String, List<String>> protHeaders = 
+                CastUtils.cast((Map<?, ?>)outMessage.get(Message.PROTOCOL_HEADERS));
+            base.addProtocolHeaders(jmsMessage, protHeaders);
             if (!isOneWay) {
                 String id = pooledSession.getCorrelationID();
 
