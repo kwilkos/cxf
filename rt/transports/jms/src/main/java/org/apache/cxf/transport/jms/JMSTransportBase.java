@@ -19,8 +19,11 @@
 
 package org.apache.cxf.transport.jms;
 
+import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.jms.BytesMessage;
 import javax.jms.Destination;
@@ -146,6 +149,7 @@ public class JMSTransportBase {
         headers.setJMSTimeStamp(new Long(message.getJMSTimestamp()));
         headers.setJMSType(message.getJMSType());
 
+        Map<String, List<String>> protHeaders = new HashMap<String, List<String>>();
         List<JMSPropertyType> props = headers.getProperty();
         Enumeration enm = message.getPropertyNames();
         while (enm.hasMoreElements()) {
@@ -155,8 +159,10 @@ public class JMSTransportBase {
             prop.setName(name);
             prop.setValue(val);
             props.add(prop);
+            
+            protHeaders.put(name, Collections.singletonList(val));
         }
-
+        inMessage.put(org.apache.cxf.message.Message.PROTOCOL_HEADERS, protHeaders);
         return headers;
     }
 
@@ -194,6 +200,25 @@ public class JMSTransportBase {
         return correlationId;
     }
 
+    protected void addProtocolHeaders(Message message, Map<String, List<String>> headers) 
+        throws JMSException {
+        if (headers == null) {
+            return;
+        }
+        StringBuilder value = new StringBuilder(256);
+        for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
+            value.setLength(0);
+            boolean first = true;
+            for (String s : entry.getValue()) {
+                if (!first) {
+                    value.append("; ");
+                }
+                value.append(s);
+                first = false;
+            }
+            message.setStringProperty(entry.getKey(), value.toString());
+        }
+    }
     protected void setMessageProperties(JMSMessageHeadersType headers, Message message)
         throws JMSException {
 
