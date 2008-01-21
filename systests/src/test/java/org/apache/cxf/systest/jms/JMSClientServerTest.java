@@ -348,8 +348,15 @@ public class JMSClientServerTest extends AbstractBusClientServerTestBase {
                            "JMS_SAMPLE_CORRELATION_ID".equals(responseHdr.getJMSCorrelationID()));
                 assertTrue("response Headers must conain the app property set in request context.", 
                            responseHdr.getProperty() != null);
-                assertEquals("response Headers must match the app property set in request context.",
-                             testReturnPropertyName, responseHdr.getProperty().iterator().next().getName());
+                
+                boolean found = false;
+                for (JMSPropertyType p : responseHdr.getProperty()) {
+                    if (testReturnPropertyName.equals(p.getName())) {
+                        found = true;
+                    }
+                }
+                assertTrue("response Headers must match the app property set in request context.",
+                             found);
             }
         } catch (UndeclaredThrowableException ex) {
             throw (Exception)ex.getCause();
