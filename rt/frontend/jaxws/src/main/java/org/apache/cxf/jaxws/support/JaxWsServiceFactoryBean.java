@@ -320,7 +320,7 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
                 }
             }
         }
-        setMethodDispatcher(new JAXWSMethodDispatcher(implInfo));
+        methodDispatcher = new JAXWSMethodDispatcher(implInfo);
         
     }
 }
