@@ -1,4 +1,4 @@
-Apache CXF 2.0.3 (incubating) Release Notes
+Apache CXF 2.0.4 (incubating) Release Notes
 
 1. Overview
 
