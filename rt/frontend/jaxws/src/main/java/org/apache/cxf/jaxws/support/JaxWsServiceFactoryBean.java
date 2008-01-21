@@ -27,6 +27,16 @@ import java.util.Arrays;
 import java.util.List;
 
 import javax.wsdl.Operation;
+<<<<<<< .working
+import javax.xml.bind.annotation.XmlNsForm;
+import javax.xml.bind.annotation.XmlSchema;
+=======
+import javax.xml.bind.annotation.XmlNsForm;
+import javax.xml.bind.annotation.XmlSchema;
+import javax.xml.bind.annotation.XmlSeeAlso;
+import javax.xml.namespace.QName;
+import javax.xml.ws.Action;
+>>>>>>> .merge-right.r614001
 import javax.xml.ws.AsyncHandler;
 import javax.xml.ws.Service;
 import javax.xml.ws.Service.Mode;
@@ -309,7 +319,16 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
             jaxWsConfiguration = new JaxWsServiceConfiguration();
             jaxWsConfiguration.setServiceFactory(this);
             getServiceConfigurations().add(0, jaxWsConfiguration);
+            
+            Class<?> seiClass = ii.getEndpointClass();
+            if (seiClass != null) {
+                XmlSchema schema = seiClass.getPackage().getAnnotation(XmlSchema.class);
+                if (schema != null && XmlNsForm.QUALIFIED.equals(schema.elementFormDefault())) {
+                    setQualifyWrapperSchema(true);
+                }
+            }
         }
-        methodDispatcher = new JAXWSMethodDispatcher(implInfo);
+        setMethodDispatcher(new JAXWSMethodDispatcher(implInfo));
+        
     }
 }
