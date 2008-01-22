@@ -781,8 +781,12 @@ function org_apache_cxf_parse_multipart_related() {
 				}
 			}
 			seenOneHeader = true;
-			var hparts = headerLine.split(":");
-			headers[hparts[0].toLowerCase()] = org_apache_cxf_trim_string(hparts[1]);
+
+			var colonIndex = headerLine.indexOf(":");
+            var headerName = headerLine.slice(0, colonIndex).toLowerCase();
+            var headerValue = headerLine.substr(colonIndex+1);
+			headers[headerName] = org_apache_cxf_trim_string(headerValue);
+
 			if (parttext.charAt(endX + 1) == '\n')
 				endX++;
 		}
