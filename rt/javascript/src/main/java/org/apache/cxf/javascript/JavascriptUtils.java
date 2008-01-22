@@ -31,12 +31,14 @@ import org.w3c.dom.Attr;
 
 import org.apache.cxf.aegis.type.mtom.AbstractXOPType;
 import org.apache.cxf.common.xmlschema.SchemaCollection;
+import org.apache.cxf.common.xmlschema.XmlSchemaConstants;
 import org.apache.cxf.databinding.source.mime.MimeAttribute;
 import org.apache.cxf.wsdl.WSDLConstants;
 import org.apache.ws.commons.schema.XmlSchemaComplexType;
 import org.apache.ws.commons.schema.XmlSchemaElement;
 import org.apache.ws.commons.schema.XmlSchemaObject;
 import org.apache.ws.commons.schema.XmlSchemaSimpleContent;
+import org.apache.ws.commons.schema.XmlSchemaSimpleContentExtension;
 import org.apache.ws.commons.schema.XmlSchemaSimpleType;
 import org.apache.ws.commons.schema.XmlSchemaType;
 import org.apache.ws.commons.schema.constants.Constants;
@@ -269,6 +271,34 @@ public class JavascriptUtils {
         return type instanceof XmlSchemaSimpleType 
                || (type instanceof XmlSchemaComplexType 
                    && ((XmlSchemaComplexType)type).getContentModel() instanceof XmlSchemaSimpleContent);
+    }
+
+    /**
+     * Return true for xsd:base64Binary or simple restrictions of it, as in the xmime stock type.
+     * @param type
+     * @return
+     */
+    public static boolean mtomCandidateType(XmlSchemaType type) {
+        if (XmlSchemaConstants.BASE64BINARY_QNAME.equals(type.getQName())) {
+            return true;
+        }
+        // there could be some disagreement whether the following is a good enough test.
+        // what if 'base64binary' was extended in some crazy way? At runtime, either it has
+        // an xop:Include or it doesn't.
+        if (type instanceof XmlSchemaComplexType) {
+            XmlSchemaComplexType complexType = (XmlSchemaComplexType)type; 
+            if (complexType.getContentModel() instanceof XmlSchemaSimpleContent) {
+                XmlSchemaSimpleContent content = (XmlSchemaSimpleContent)complexType.getContentModel();
+                if (content.getContent() instanceof XmlSchemaSimpleContentExtension) {
+                    XmlSchemaSimpleContentExtension extension = 
+                        (XmlSchemaSimpleContentExtension)content.getContent();
+                    if (XmlSchemaConstants.BASE64BINARY_QNAME.equals(extension.getBaseTypeName())) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     /**

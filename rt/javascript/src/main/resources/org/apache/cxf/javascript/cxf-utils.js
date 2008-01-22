@@ -268,6 +268,243 @@ function org_apache_cxf_end_soap11_message() {
 
 CxfApacheOrgUtil.prototype.endSoap11Message = org_apache_cxf_end_soap11_message;
 
+const org_apache_cxf_base64_keyStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+
+function org_apache_cxf_base64_encode64array(input) {
+	var output = "";
+	var chr1, chr2, chr3;
+	var enc1, enc2, enc3, enc4;
+	var i = 0;
+
+	do {
+		var count = 1;
+		chr1 = chr2 = chr3 = 0;
+
+		chr1 = input[i++];
+		if (i < input.length) {
+			chr2 = input[i++];
+			count++;
+		}
+
+		if (i < input.length) {
+			chr3 = input[i++];
+			count++;
+		}
+
+		enc1 = chr1 >> 2;
+		enc2 = ((chr1 & 3) << 4) | (chr2 >> 4);
+		if (count > 1) {
+			enc3 = ((chr2 & 15) << 2) | (chr3 >> 6);
+			if (count > 2)
+				enc4 = chr3 & 63;
+			else
+				enc4 = 64;
+		} else
+			enc3 = enc4 = 64;
+
+		output = output + org_apache_cxf_base64_keyStr.charAt(enc1)
+				+ org_apache_cxf_base64_keyStr.charAt(enc2)
+				+ org_apache_cxf_base64_keyStr.charAt(enc3)
+				+ org_apache_cxf_base64_keyStr.charAt(enc4);
+	} while (i < input.length);
+
+	return output;
+}
+
+function org_apache_cxf_base64_encode64Unicode(input) {
+	var data = new Array(2 + (input.length * 2));
+	data[0] = 0xff;
+	data[1] = 0xfe;
+	for (var x = 0;x < input.length; x++) {
+		var c = input.charCodeAt(x);
+		data[2 + (x * 2)] = c & 0xff;
+		data[3 + (x * 2)] = (c >> 8) & 0xff;
+	}
+	return encode64array(data);
+}
+
+// we may be able to do this more cleanly with unescape( encodeURIComponent(
+// input ) );
+function org_apache_cxf_base64_encode64UTF8(input) {
+
+	// determine how many bytes are needed for the complete conversion
+	var bytesNeeded = 0;
+	for (var i = 0;i < input.length; i++) {
+		if (input.charCodeAt(i) < 0x80) {
+			++bytesNeeded;
+		} else if (input.charCodeAt(i) < 0x0800) {
+			bytesNeeded += 2;
+		} else if (input.charCodeAt(i) < 0x10000) {
+			bytesNeeded += 3;
+		} else {
+			bytesNeeded += 4;
+		}
+	}
+
+	// allocate a byte[] of the necessary size
+	var data = new Array(bytesNeeded);
+	// do the conversion from character code points to utf-8
+	var bytes = 0;
+	for (var i = 0;i < input.length; i++) {
+		if (input.charCodeAt(i) < 0x80) {
+			data[bytes++] = input.charCodeAt(i);
+		} else if (input.charCodeAt(i) < 0x0800) {
+			data[bytes++] = ((input.charCodeAt(i) >> 6) | 0xC0);
+			data[bytes++] = ((input.charCodeAt(i) & 0x3F) | 0x80);
+		} else if (input.charCodeAt(i) < 0x10000) {
+			data[bytes++] = ((input.charCodeAt(i) >> 12) | 0xE0);
+			data[bytes++] = (((input.charCodeAt(i) >> 6) & 0x3F) | 0x80);
+			data[bytes++] = ((input.charCodeAt(i) & 0x3F) | 0x80);
+		} else {
+			data[bytes++] = ((input.charCodeAt(i) >> 18) | 0xF0);
+			data[bytes++] = (((input.charCodeAt(i) >> 12) & 0x3F) | 0x80);
+			data[bytes++] = (((input.charCodeAt(i) >> 6) & 0x3F) | 0x80);
+			data[bytes++] = ((input.charCodeAt(i) & 0x3F) | 0x80);
+		}
+	}
+	return encode64array(data);
+}
+
+function org_apache_cxf_base64_decode64array(input) {
+	var output = new Array();
+	var chr1, chr2, chr3;
+	var enc1, enc2, enc3, enc4;
+	var i = 0;
+
+	// remove all characters that are not A-Z, a-z, 0-9, +, /, or =
+	input = input.replace(/[^A-Za-z0-9\+\/\=]/g, "");
+
+	do {
+		enc1 = org_apache_cxf_base64_keyStr.indexOf(input.charAt(i++));
+		enc2 = org_apache_cxf_base64_keyStr.indexOf(input.charAt(i++));
+		enc3 = org_apache_cxf_base64_keyStr.indexOf(input.charAt(i++));
+		enc4 = org_apache_cxf_base64_keyStr.indexOf(input.charAt(i++));
+
+		chr1 = (enc1 << 2) | (enc2 >> 4);
+		chr2 = ((enc2 & 15) << 4) | (enc3 >> 2);
+		chr3 = ((enc3 & 3) << 6) | enc4;
+
+		output[output.length] = chr1;
+
+		if (enc3 != 64) {
+			output[output.length] = chr2;
+		}
+		if (enc4 != 64) {
+			output[output.length] = chr3;
+		}
+	} while (i < input.length);
+
+	return output;
+}
+
+const org_apache_cxf_base64_hD = "0123456789ABCDEF";
+function org_apache_cxf_base64_d2h(d) {
+	var h = org_apache_cxf_base64_hD.substr(d & 15, 1);
+	while (d > 15) {
+		d >>= 4;
+		h = org_apache_cxf_base64_hD.substr(d & 15, 1) + h;
+	}
+	return h;
+}
+
+function org_apache_cxf_base64_decode64Unicode(input) {
+	var bytes = org_apache_cxf_base64_decode64array(input);
+	var swap;
+	var output = "";
+	if (bytes[0] == 0xff && bytes[1] == 0xfe) {
+		swap = true;
+	} else if (bytes[0] == 0xfe && bytes[1] == 0xff) {
+		swap = false;
+	} else {
+		confirm("Problem with decoding utf-16");
+	}
+	for (var x = 2;x < bytes.length; x = x + 2) {
+		var c;
+		if (swap)
+			c = (bytes[x + 1] << 8) | bytes[x];
+		else
+			c = (bytes[x] << 8) | bytes[x + 1];
+
+		output = output + String.fromCharCode(c);
+	}
+	return output;
+}
+
+// we may be able to do this more cleanly with decodeURIComponent( escape( input
+// ) );
+function org_apache_cxf_base64_decode64UTF8(input) {
+	var utftext = org_apache_cxf_base64_decode64array(input);
+	var plaintext = "";
+	var cRay = new Array();
+	var i = 0;
+	var c;
+	var c2;
+	var c3;
+	while (i < utftext.length) {
+		c = utftext[i];
+		if (c < 128) {
+			plaintext += String.fromCharCode(c);
+			i++;
+		} else if ((c > 191) && (c < 224)) {
+			c2 = utftext[i + 1];
+			plaintext += String.fromCharCode(((c & 31) << 6) | (c2 & 63));
+			i += 2;
+		} else {
+			c2 = utftext[i + 1];
+			c3 = utftext[i + 2];
+			plaintext += String.fromCharCode(((c & 15) << 12)
+					| ((c2 & 63) << 6) | (c3 & 63));
+			i += 3;
+		}
+	}
+	return plaintext;
+}
+
+// var placeholder = '<xop:Include
+// xmlns:xop="http://www.w3.org/2004/08/xop/include" '
+// + 'href="cid:' + uuid + '" />';
+// var mtomObject = 'Content-Type: text/plain; charset="utf-8";\r\nContent-ID:
+// <'
+// + uuid + '>\r\n\r\n' + value + '\r\n';
+
+const org_apache_cxf_XOP_NS = 'http://www.w3.org/2004/08/xop/include';
+
+function org_apache_cxf_deserialize_MTOM_or_base64(element) {
+	var elementChild = this.getFirstElementChild(element);
+	if (elementChild == null) { // no MTOM, assume base64
+		var base64Text = this.getNodeText(element);
+		// we assume this is text/plain;charset=utf-8. We could check for the
+		// xmime attribute.
+		return org_apache_cxf_base64_decode64UTF8(base64Text);
+	}
+	// 
+	if (!org_apache_cxf_isNodeNamedNS(elementChild, org_apache_cxf_XOP_NS, 'Include')) {
+		this.trace('Invalid child element of base64 element');
+		return ''; // we don't knoww what this is, so we throw it out. We could
+					// throw.
+	}
+	var href = elementChild.getAttribute('href');
+	if(!href) {
+		this.trace('missing href for xop:Include');
+		return ''; // we don't knoww what this is, so we throw it out. We could
+					// throw.
+	}
+	// we only support cid:, not URLs.
+	if(href.length < 4 || href.substr(0, 4) != 'cid:') {
+		this.trace('Non-cid href in xop:Include: ' + href);
+		return ''; 
+	}
+	var cid = href.substr(4);
+	var partobject = this.client.parts[cid];
+	if(!partobject) {
+		this.trace('xop:Include href points to missing attachment: ' + href);
+		return ''; 
+	}
+	// success.
+	return partobject.data;
+}
+
+CxfApacheOrgUtil.prototype.deserializeBase64orMom = org_apache_cxf_deserialize_MTOM_or_base64;
 /*
  * Client object sends requests and calls back with responses.
  */
@@ -471,15 +708,15 @@ function org_apache_cxf_parse_mime_keyword_value_pairs(strings) {
 	for (var x = 1;x < strings.length; x = x + 1) {
 		var str = strings[x];
 		var valequal = str.indexOf("=");
-		if(valequal != -1) {
+		if (valequal != -1) {
 			var k = str.substr(0, valequal);
-			var v = str.substr(valequal+1);
+			var v = str.substr(valequal + 1);
 			v = org_apache_cxf_trim_string(v);
-			if(v.charAt(0) == '"') {
-				v = v.substr(1, v.length-2);
+			if (v.charAt(0) == '"') {
+				v = v.substr(1, v.length - 2);
 			}
-			if(v.charAt(0) == "'") {
-				v = v.substr(1, v.length-2);
+			if (v.charAt(0) == "'") {
+				v = v.substr(1, v.length - 2);
 			}
 
 			result[org_apache_cxf_trim_string(k.toLowerCase())] = v;
@@ -517,21 +754,22 @@ function org_apache_cxf_parse_multipart_related() {
 	if (!boundary)
 		return false;
 	boundary = "--" + boundary; // the annoying 'extra-dash' convention.
-	//var boundarySplitter = org_apache_cxf_regexp_escape(boundary);
+	// var boundarySplitter = org_apache_cxf_regexp_escape(boundary);
 	var text = this.req.responseText;
 	// we are willing to use a lot of memory here.
 	var parts = text.split(boundary);
 	// now we have the parts.
 	// now we have to pull headers off the parts.
 	this.parts = [];
-	// the first one is noise due to the initial boundary. The last will just be -- due to MIME.
-	for (var px = 1;px < parts.length-1; px++) {
+	// the first one is noise due to the initial boundary. The last will just be
+	// -- due to MIME.
+	for (var px = 1;px < parts.length - 1; px++) {
 		var seenOneHeader = false;
 		var x = 0; // misc index.
 		var parttext = parts[px];
 		var headers = [];
-		nextHeaderLine:
-		for(var endX = parttext.indexOf('\r', x); endX != -1; x = endX + 1, endX = parttext.indexOf('\r', x)) {
+		nextHeaderLine : for (var endX = parttext.indexOf('\r', x);endX != -1; x = endX
+				+ 1, endX = parttext.indexOf('\r', x)) {
 			var headerLine = parttext.slice(x, endX);
 			if (headerLine == "") {
 				if (parttext.charAt(endX + 1) == '\n')
@@ -547,8 +785,7 @@ function org_apache_cxf_parse_multipart_related() {
 			headers[hparts[0].toLowerCase()] = org_apache_cxf_trim_string(hparts[1]);
 			if (parttext.charAt(endX + 1) == '\n')
 				endX++;
-		} 
-		
+		}
 
 		// Now, see about the mime type (if any) and the ID.
 		var thispart = new Object(); // a constructor seems excessive.
@@ -560,7 +797,7 @@ function org_apache_cxf_parse_multipart_related() {
 		if (px > 1) {
 			var cid = headers['content-id'];
 			// take of < and >
-			cid = cid.substr(1, cid.length-2);
+			cid = cid.substr(1, cid.length - 2);
 			thispart.cid = cid;
 			this.parts[cid] = thispart;
 		} else {

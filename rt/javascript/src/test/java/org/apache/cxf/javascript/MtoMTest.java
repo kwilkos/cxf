@@ -90,7 +90,8 @@ public class MtoMTest extends JavascriptRhinoTest {
         String errorText = testUtilities.rhinoEvaluateConvert("globalErrorStatusText", String.class);
         assertNull(errorStatus);
         assertNull(errorText);
-        // read out the result string and check it.
+        String unpacked = testUtilities.rhinoEvaluateConvert("globalResponseObject._notXml10", String.class);
+        assertNotNull(unpacked);
         return null;
     }
 

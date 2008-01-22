@@ -558,6 +558,7 @@ public class SchemaJavascriptBuilder {
         XmlSchemaType itemType = itemInfo.getType();
         boolean simple = itemType instanceof XmlSchemaSimpleType
             || JavascriptUtils.notVeryComplexType(itemType);
+        boolean mtomCandidate = JavascriptUtils.mtomCandidateType(itemType);
         String accessorName = "set" + StringUtils.capitalize(itemInfo.getJavascriptName());
         utils.appendLine("cxfjsutils.trace('processing " + itemInfo.getJavascriptName() + "');");
         XmlSchemaElement element = (XmlSchemaElement) itemInfo.getParticle();
@@ -597,10 +598,14 @@ public class SchemaJavascriptBuilder {
             // use our utility
             utils.appendLine(valueTarget + " = org_apache_cxf_deserialize_anyType(cxfjsutils, curElement);");
         } else if (simple) {
-            utils.appendLine("value = cxfjsutils.getNodeText(curElement);");
-            utils.appendLine(valueTarget 
-                             + " = " 
-                             + utils.javascriptParseExpression(itemType, "value") + ";");
+            if (mtomCandidate) {
+                utils.appendLine(valueTarget + " = cxfjsutils.deserializeBase64orMom(curElement);");
+            } else {
+                utils.appendLine("value = cxfjsutils.getNodeText(curElement);");
+                utils.appendLine(valueTarget 
+                                 + " = " 
+                                 + utils.javascriptParseExpression(itemType, "value") + ";");
+            }
         } else {
             XmlSchemaComplexType complexType = (XmlSchemaComplexType)itemType;
             QName baseQName = complexType.getQName();
