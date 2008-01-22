@@ -40,4 +40,9 @@ Portions of the included xbean library were originally based on the following:
 Additional copyright notices and license terms applicable are
 present in the licenses directory of this distribution.
 
+Portions of the file cxf-utils.js derives from code marked:
+
+This code was written by Tyler Akins and has been placed in the
+public domain.  It would be nice if you left this header intact.
+Base64 code from Tyler Akins -- http://rumkin.com
 
