@@ -279,6 +279,9 @@ public class JavascriptUtils {
      * @return
      */
     public static boolean mtomCandidateType(XmlSchemaType type) {
+        if (type == null) {
+            return false;
+        }
         if (XmlSchemaConstants.BASE64BINARY_QNAME.equals(type.getQName())) {
             return true;
         }
