@@ -59,3 +59,12 @@ function testMtoMString(url) {
 	service.receiveNonXmlDH(successCallback, errorCallback, param);
 	return globalNotifier;
 }
+
+function testMtoMReply(url) {
+	globalNotifier = new org_apache_cxf_notifier();
+
+	var service = new org_apache_cxf_javascript_fortest_MtoM();
+	service.url = url;
+	service.sendNonXmlDH(successCallback, errorCallback);
+	return globalNotifier;
+}

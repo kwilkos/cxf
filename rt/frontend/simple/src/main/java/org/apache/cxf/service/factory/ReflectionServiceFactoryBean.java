@@ -314,7 +314,6 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         col.getExtReg().registerSerializer(MimeAttribute.class, new MimeSerializer());
 
         ServiceImpl service = new ServiceImpl(serviceInfo);
-
         setService(service);
 
         setServiceProperties();
@@ -331,7 +330,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                 si.setProperty(EXTRA_CLASS, wrapperClasses);
             }
         }
-        
+
         getDataBinding().initialize(service);
 
         boolean isWrapped = isWrapped();

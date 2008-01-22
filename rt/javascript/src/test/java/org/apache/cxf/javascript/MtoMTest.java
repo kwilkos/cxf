@@ -22,15 +22,9 @@ package org.apache.cxf.javascript;
 import java.io.IOException;
 import java.io.InputStream;
 
-import javax.activation.DataHandler;
-import javax.mail.util.ByteArrayDataSource;
-
 import org.apache.cxf.javascript.JavascriptTestUtilities.JSRunnable;
 import org.apache.cxf.javascript.JavascriptTestUtilities.Notifier;
-import org.apache.cxf.javascript.fortest.MtoM;
 import org.apache.cxf.javascript.fortest.MtoMImpl;
-import org.apache.cxf.javascript.fortest.MtoMParameterBeanNoDataHandler;
-import org.apache.cxf.javascript.fortest.MtoMParameterBeanWithDataHandler;
 import org.junit.Before;
 import org.junit.Test;
 import org.mozilla.javascript.Context;
@@ -86,41 +80,32 @@ public class MtoMTest extends JavascriptRhinoTest {
         return null;
     }
 
-    @org.junit.Ignore
-    @Test
-    public void jaxwsClientExperimentExpectAutoBase64() throws Exception {
-        MtoM client = getBean(MtoM.class, "mtom-client");
-        assertNotNull(client);
-        MtoMParameterBeanNoDataHandler param = new MtoMParameterBeanNoDataHandler();
-        param.setOrdinary("blither<blather");
-        param.setNotXml10("<html>\u0027</html>");
-        client.receiveNonXmlNoDH(param);
-        MtoMParameterBeanNoDataHandler got = implementor.getLastBean();
-        assertEquals(param.getOrdinary(), got.getOrdinary());
-        assertEquals(param.getNotXml10(), got.getNotXml10());
+    private Void sendMtoMString(Context context) throws IOException {
+        Notifier notifier = 
+            testUtilities.rhinoCallConvert("testMtoMReply", Notifier.class, 
+                                           testUtilities.javaToJS(getAddress()));
+        boolean notified = notifier.waitForJavascript(1000 * 10);
+        assertTrue(notified);
+        Integer errorStatus = testUtilities.rhinoEvaluateConvert("globalErrorStatus", Integer.class);
+        String errorText = testUtilities.rhinoEvaluateConvert("globalErrorStatusText", String.class);
+        assertNull(errorStatus);
+        assertNull(errorText);
+        // read out the result string and check it.
+        return null;
     }
 
-    // doesn't run right in mvn, only a devo tool, anyhow.
-    @org.junit.Ignore
+    
     @Test
-    public void jaxwsClientExperiment() throws IOException {
-        MtoM client = getBean(MtoM.class, "mtom-client");
-        assertNotNull(client);
-        MtoMParameterBeanWithDataHandler param = new MtoMParameterBeanWithDataHandler();
-        param.setOrdinary("blither<blather");
-        byte[] notXmlBytes = "Hello\u0027Sailor".getBytes("utf-8");
-        DataHandler byteDataHandler = 
-            new DataHandler(new ByteArrayDataSource(notXmlBytes,
-                            "text/plain"));
-        param.setNotXml10(byteDataHandler);
-        client.receiveNonXmlDH(param);
-        MtoMParameterBeanWithDataHandler got = implementor.getLastDHBean();
-        InputStream dis = got.getNotXml10().getInputStream();
-        byte[] bytes = new byte[2048];
-        int byteCount = dis.read(bytes, 0, 2048);
-        String stuff = new String(bytes, 0, byteCount);
-        assertEquals(param.getOrdinary(), got.getOrdinary());
-        assertEquals("Hello\u0027Sailor", stuff);
+    public void sendMtoMStringTest() {
+        testUtilities.runInsideContext(Void.class, new JSRunnable<Void>() {
+            public Void run(Context context) {
+                try {
+                    return sendMtoMString(context);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
     }
     
     @Test

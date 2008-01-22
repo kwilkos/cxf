@@ -45,9 +45,8 @@ public abstract class JAXBDataBase {
     protected JAXBContext context; 
     protected Schema schema;
     protected Collection<Attachment> attachments;
-    protected boolean attachmentProcessingEnabled;
     protected boolean unwrapJAXBElement = true;
- 
+    protected Integer mtomThreshold; // null if we should default.
     
     protected JAXBDataBase(JAXBContext ctx) {
         context = ctx;
@@ -81,7 +80,7 @@ public abstract class JAXBDataBase {
     }
 
     protected AttachmentMarshaller getAttachmentMarshaller() {
-        return new JAXBAttachmentMarshaller(attachments);
+        return new JAXBAttachmentMarshaller(attachments, mtomThreshold);
     }
     
     public void setProperty(String prop, Object value) {
@@ -90,7 +89,7 @@ public abstract class JAXBDataBase {
         }
     }
     
-    protected Annotation[] getJAXBAnnotion(MessagePartInfo mpi) {
+    protected Annotation[] getJAXBAnnotation(MessagePartInfo mpi) {
         List<Annotation> annoList = new java.util.concurrent.CopyOnWriteArrayList<Annotation>();
         
         if (mpi != null && mpi.getProperty("parameter.annotations") != null) {
@@ -117,6 +116,14 @@ public abstract class JAXBDataBase {
             
         }
         return annoList.toArray(new Annotation[]{});       
+    }
+
+    public Integer getMtomThreshold() {
+        return mtomThreshold;
+    }
+
+    public void setMtomThreshold(Integer threshold) {
+        this.mtomThreshold = threshold;
     }
     
     

@@ -31,4 +31,5 @@ import javax.jws.soap.SOAPBinding;
 public interface MtoM {
     void receiveNonXmlDH(@WebParam(name = "theArg") MtoMParameterBeanWithDataHandler param);
     void receiveNonXmlNoDH(@WebParam(name = "theArg") MtoMParameterBeanNoDataHandler param);
+    MtoMParameterBeanWithDataHandler sendNonXmlDH();
 }

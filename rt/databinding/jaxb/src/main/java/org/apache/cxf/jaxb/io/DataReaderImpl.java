@@ -45,7 +45,7 @@ public class DataReaderImpl<T> extends JAXBDataBase implements DataReader<T> {
         if (part != null && part.getProperty("honor.jaxb.annotations") != null) {
             honorJaxbAnnotation = (Boolean)part.getProperty("honor.jaxb.annotations");
         }
-        Annotation[] anns = getJAXBAnnotion(part);
+        Annotation[] anns = getJAXBAnnotation(part);
         if (honorJaxbAnnotation && anns.length > 0) {
             //RpcLit will use the JAXB Bridge to unmarshall part message when it is 
             //annotated with @XmlList,@XmlAttachmentRef,@XmlJavaTypeAdapter

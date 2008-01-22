@@ -69,7 +69,7 @@ public class DataWriterImpl<T> extends JAXBDataBase implements DataWriter<T> {
                                                      part, output, getAttachmentMarshaller(),
                                                      marshallerProperties);                
             } else {
-                Annotation[] anns = getJAXBAnnotion(part);
+                Annotation[] anns = getJAXBAnnotation(part);
                 if (!honorJaxbAnnotation || anns.length == 0) {
                     JAXBEncoderDecoder.marshall(getJAXBContext(), getSchema(), obj, part, output,
                                                 getAttachmentMarshaller(), marshallerProperties);

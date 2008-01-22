@@ -39,6 +39,10 @@ import javax.xml.ws.Service;
 import javax.xml.ws.Service.Mode;
 import javax.xml.ws.WebFault;
 import javax.xml.ws.WebServiceFeature;
+import javax.xml.ws.soap.Addressing;
+import javax.xml.ws.soap.AddressingFeature;
+import javax.xml.ws.soap.MTOM;
+import javax.xml.ws.soap.MTOMFeature;
 
 import org.apache.cxf.binding.AbstractBindingFactory;
 import org.apache.cxf.common.classloader.ClassLoaderUtils;
@@ -72,6 +76,8 @@ import org.apache.cxf.wsdl11.WSDLServiceBuilder;
  * @see org.apache.cxf.jaxws.JaxWsServerFactoryBean
  */
 public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
+    // used to tag property on service.
+    public static final  String WS_FEATURES = "JAXWS-WS-FEATURES";
     private AbstractServiceConfiguration jaxWsConfiguration;
 
     private JaxWsImplementorInfo implInfo;
@@ -96,11 +102,40 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
         this.implInfo = implInfo;
         initConfiguration(implInfo);
         this.serviceClass = implInfo.getEndpointClass();
+        loadWSFeatureAnnotation(implInfo.getSEIClass(), implInfo.getImplementorClass());
     }
 
     private void initSchemaLocations() {
         this.schemaLocationMapping.put(JAXWSAConstants.NS_WSA, 
                                        JAXWSAConstants.WSA_XSD);
+    }
+    
+    private void loadWSFeatureAnnotation(Class<?> serviceClass, Class<?> implementorClass) {
+        List<WebServiceFeature> features = new ArrayList<WebServiceFeature>();
+        MTOM mtom = implInfo.getImplementorClass().getAnnotation(MTOM.class);        
+        if (mtom == null && serviceClass != null) {
+            mtom = serviceClass.getAnnotation(MTOM.class);
+        }
+        if (mtom != null) {
+            features.add(new MTOMFeature(mtom.enabled(), mtom.threshold()));
+        }
+
+        Addressing addressing = null;
+        if (implementorClass != null) {
+            addressing = implementorClass.getAnnotation(Addressing.class);
+        }
+
+        if (addressing == null && serviceClass != null) {
+            addressing = serviceClass.getAnnotation(Addressing.class);
+        }
+
+        if (addressing != null) {
+            features.add(new AddressingFeature(addressing.enabled(), addressing.required()));
+        }
+
+        if (features.size() > 0) {
+            wsFeatures = features;
+        }
     }
 
     @Override
@@ -332,6 +367,7 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
                 }
             }
         }
+        loadWSFeatureAnnotation(ii.getSEIClass(), ii.getImplementorClass());
         setMethodDispatcher(new JAXWSMethodDispatcher(implInfo));
         
     }
@@ -412,8 +448,12 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
     private Set<Class<?>> generatedWrapperBeanClass() {
         ServiceInfo serviceInfo = getService().getServiceInfos().get(0);
         WrapperClassGenerator wrapperGen = new WrapperClassGenerator(serviceInfo.getInterface());
-        return wrapperGen.genearte();
+        return wrapperGen.generate();
     }
-    
-    
+
+    @Override
+    protected void buildServiceFromClass() {
+        super.buildServiceFromClass();
+        getService().put(WS_FEATURES, getWsFeatures()); 
+    }
 }

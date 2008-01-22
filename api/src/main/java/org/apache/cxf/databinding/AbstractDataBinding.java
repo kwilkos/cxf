@@ -25,11 +25,18 @@ import java.util.Map;
  * Supply default implementations, as appropriate, for DataBinding. 
  */
 public abstract class AbstractDataBinding implements DataBinding {
+    protected int mtomThreshold;
 
     /** {@inheritDoc}*/
     public Map<String, String> getDeclaredNamespaceMappings() {
         return null;
     }
 
+    public int getMtomThreshold() {
+        return mtomThreshold;
+    }
 
+    public void setMtomThreshold(int threshold) {
+        mtomThreshold = threshold;
+    }
 }

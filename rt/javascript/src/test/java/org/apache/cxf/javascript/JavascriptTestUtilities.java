@@ -143,6 +143,9 @@ public class JavascriptTestUtilities extends TestUtilities {
             ScriptableObject.defineClass(rhinoScope, JsAssert.class);
             ScriptableObject.defineClass(rhinoScope, Trace.class);
             ScriptableObject.defineClass(rhinoScope, Notifier.class);
+            // so that the stock test for IE can gracefully fail.
+            rhinoContext.evaluateString(rhinoScope, "var window = new Object();", 
+                                        "<internal>", 0, null);
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         } catch (InstantiationException e) {

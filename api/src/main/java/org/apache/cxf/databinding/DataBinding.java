@@ -46,5 +46,13 @@ public interface DataBinding {
      * @return the map, or null if there are none.
      */
     Map<String, String> getDeclaredNamespaceMappings();
+    
+    /**
+     * If the binding supports MTOM, set the size threshold for its use.
+     * may be overridden by (e.g.) JAXWS configuration.
+     * @param threshold
+     */
+    void setMtomThreshold(int threshold);
+    int getMtomThreshold();
 
 }

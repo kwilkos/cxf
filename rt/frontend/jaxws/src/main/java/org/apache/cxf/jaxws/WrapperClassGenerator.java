@@ -92,7 +92,7 @@ public final class WrapperClassGenerator extends ASMHelper {
         return list;
     }
 
-    public Set<Class<?>> genearte() {
+    public Set<Class<?>> generate() {
         for (OperationInfo opInfo : interfaceInfo.getOperations()) {
             if (opInfo.isUnwrappedCapable()
                 && (opInfo.getUnwrappedOperation()

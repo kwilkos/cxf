@@ -62,7 +62,6 @@ import org.apache.cxf.common.util.CacheMap;
 import org.apache.cxf.common.util.PackageUtils;
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.common.xmlschema.SchemaCollection;
-import org.apache.cxf.databinding.DataBinding;
 import org.apache.cxf.databinding.DataReader;
 import org.apache.cxf.databinding.DataWriter;
 import org.apache.cxf.databinding.source.AbstractDataBinding;
@@ -73,13 +72,14 @@ import org.apache.cxf.service.factory.ServiceConstructionException;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.ws.addressing.ObjectFactory;
 
-public final class JAXBDataBinding extends AbstractDataBinding implements DataBinding {
+public final class JAXBDataBinding extends AbstractDataBinding {
     public static final String SCHEMA_RESOURCE = "SCHEMRESOURCE";
+    public static final String MTOM_THRESHOLD = "org.apache.cxf.jaxb.mtomThreshold";
     
     public static final String UNWRAP_JAXB_ELEMENT = "unwrap.jaxb.element";
     
     public static final String USE_JAXB_BRIDGE = "use.jaxb.bridge";
-
+    
     private static final Logger LOG = LogUtils.getLogger(JAXBDataBinding.class);
 
 
@@ -90,7 +90,7 @@ public final class JAXBDataBinding extends AbstractDataBinding implements DataBi
                                                                                Node.class,
                                                                                XMLEventWriter.class,
                                                                                XMLStreamWriter.class};
-
+    
     private static final Map<Set<Class<?>>, JAXBContext> JAXBCONTEXT_CACHE = 
         new CacheMap<Set<Class<?>>, JAXBContext>();
 
@@ -105,7 +105,7 @@ public final class JAXBDataBinding extends AbstractDataBinding implements DataBi
     private Map<String, Object> marshallerProperties = Collections.emptyMap();
 
     private boolean qualifiedSchemas;
-
+    private Service service;
     
     public JAXBDataBinding() {
     }
@@ -162,19 +162,28 @@ public final class JAXBDataBinding extends AbstractDataBinding implements DataBi
             currentMarshallerProperties.put("com.sun.xml.bind.namespacePrefixMapper",
                                             getNamespacePrefixMapper());
         }
-        currentMarshallerProperties.putAll(marshallerProperties);
-        if (c == XMLStreamWriter.class) {
-            return (DataWriter<T>)new DataWriterImpl<XMLStreamWriter>(context, currentMarshallerProperties);
-        } else if (c == OutputStream.class) {
-            return (DataWriter<T>)new DataWriterImpl<OutputStream>(context, 
-                currentMarshallerProperties);            
-        } else if (c == XMLEventWriter.class) {
-            return (DataWriter<T>)new DataWriterImpl<XMLEventWriter>(context,
-                                                                     currentMarshallerProperties);           
-        } else if (c == Node.class) {
-            return (DataWriter<T>)new DataWriterImpl<Node>(context, currentMarshallerProperties);      
-        }
         
+        Integer mtomThresholdInt = new Integer(getMtomThreshold());
+        if (c == XMLStreamWriter.class) {
+            DataWriterImpl<XMLStreamWriter> r = 
+                new DataWriterImpl<XMLStreamWriter>(context, currentMarshallerProperties);
+            r.setMtomThreshold(mtomThresholdInt);
+            return (DataWriter<T>)r;
+        } else if (c == OutputStream.class) {
+            DataWriterImpl<OutputStream> r = 
+                new DataWriterImpl<OutputStream>(context, currentMarshallerProperties);
+            r.setMtomThreshold(mtomThresholdInt);
+            return (DataWriter<T>)r;    
+        } else if (c == XMLEventWriter.class) {
+            DataWriterImpl<XMLEventWriter> r = new DataWriterImpl<XMLEventWriter>(context,
+                currentMarshallerProperties);
+            r.setMtomThreshold(mtomThresholdInt);
+            return (DataWriter<T>)r;        
+        } else if (c == Node.class) {
+            DataWriterImpl<Node> r = new DataWriterImpl<Node>(context, currentMarshallerProperties);
+            r.setMtomThreshold(mtomThresholdInt);
+            return (DataWriter<T>)r;      
+        }
         return null;
     }
 
@@ -201,7 +210,8 @@ public final class JAXBDataBinding extends AbstractDataBinding implements DataBi
     }
     
     @SuppressWarnings("unchecked")
-    public void initialize(Service service) {
+    public void initialize(Service aservice) {
+        this.service = aservice;
         //context is already set, don't redo it
         if (context != null) {
             return;

@@ -27,12 +27,12 @@ function assertionFailed(explanation)
 function parseXml(xmlString) 
 {
 	var parser = new DOMParser();
-	return parser.parse(xmlString, "text/xml");
+	return parser.parseFromString(xmlString, "text/xml").documentElement;
 }
 
-function deserializeTestBean3_1(xml)
+function deserializeTestBean3_1(xmlString)
 {
-	var dom = parseXml(xml);
+	var dom = parseXml(xmlString);
 	var bean = org_apache_cxf_javascript_testns_testBean1_deserialize(jsutils, dom);
 	if(bean.getStringItem() != "bean1>stringItem")
 		assertionFailed("deserializeTestBean3_1 stringItem " + bean.getStringItem());

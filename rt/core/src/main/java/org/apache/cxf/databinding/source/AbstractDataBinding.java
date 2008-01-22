@@ -33,13 +33,15 @@ import org.w3c.dom.NodeList;
 
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.common.xmlschema.SchemaCollection;
+import org.apache.cxf.databinding.DataBinding;
 import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.ws.commons.schema.XmlSchema;
 
-public class AbstractDataBinding {
+public abstract class AbstractDataBinding implements DataBinding {
     private Collection<DOMSource> schemas;
     private Map<String, String> namespaceMap;
+    private int mtomThreshold;
 
     public Collection<DOMSource> getSchemas() {
         return schemas;
@@ -116,5 +118,13 @@ public class AbstractDataBinding {
                 }
             }
         }
+    }
+
+    public int getMtomThreshold() {
+        return mtomThreshold;
+    }
+
+    public void setMtomThreshold(int threshold) {
+        mtomThreshold = threshold;
     }
 }

@@ -19,19 +19,45 @@
 
 package org.apache.cxf.javascript.fortest;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
+
+import javax.activation.DataHandler;
 import javax.jws.WebService;
 import javax.xml.ws.soap.MTOM;
+
+import org.apache.cxf.helpers.IOUtils;
 
 /**
  * 
  */
 @org.apache.cxf.feature.Features(features = "org.apache.cxf.feature.LoggingFeature")   
 @WebService(targetNamespace = "uri:org.apache.cxf.javascript.fortest")
-@MTOM
+@MTOM(enabled = true, threshold = 0)
 public class MtoMImpl implements MtoM {
-    
+
+    private String returnData;
     private MtoMParameterBeanNoDataHandler lastBean;
     private MtoMParameterBeanWithDataHandler lastDHBean;
+    
+    public MtoMImpl() {
+        InputStream someData = 
+            getClass().getClassLoader().getResourceAsStream("org/apache/cxf/javascript/cxf-utils.js");
+        StringWriter sw = new StringWriter();
+        try {
+            InputStreamReader isr = new InputStreamReader(someData, "utf-8");
+            IOUtils.copy(isr, sw, 4096);
+            returnData = sw.toString();
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        
+    }
 
     public void reset() {
         lastBean = null;
@@ -56,5 +82,12 @@ public class MtoMImpl implements MtoM {
 
     public void receiveNonXmlNoDH(MtoMParameterBeanNoDataHandler param) {
         lastBean = param;
+    }
+
+    public MtoMParameterBeanWithDataHandler sendNonXmlDH() {
+        MtoMParameterBeanWithDataHandler result = new MtoMParameterBeanWithDataHandler();
+        result.setOrdinary("ordinarius");
+        result.setNotXml10(new DataHandler(returnData, "text/plain;charset=utf-8"));
+        return result;
     }
 }

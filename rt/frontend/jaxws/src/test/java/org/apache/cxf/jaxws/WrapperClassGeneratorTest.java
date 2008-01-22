@@ -58,7 +58,7 @@ public class WrapperClassGeneratorTest extends Assert {
         
         InterfaceInfo interfaceInfo = serviceInfo.getInterface();
         WrapperClassGenerator wrapperClassGenerator = new WrapperClassGenerator(interfaceInfo);
-        Set<Class<?>> wrapperClassSet = wrapperClassGenerator.genearte();
+        Set<Class<?>> wrapperClassSet = wrapperClassGenerator.generate();
         assertEquals(2, wrapperClassSet.size());
 
         Class[] wrapperClasses = wrapperClassSet.toArray(new Class[]{});

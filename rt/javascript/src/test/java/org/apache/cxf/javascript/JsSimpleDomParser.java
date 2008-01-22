@@ -72,7 +72,7 @@ public class JsSimpleDomParser extends ScriptableObject {
     
     //CHECKSTYLE:OFF
     
-    public Object jsFunction_parse(String xml, String mimeType) {
+    public Object jsFunction_parseFromString(String xml, String mimeType) {
         StringReader reader = new StringReader(xml);
         InputSource inputSource = new InputSource(reader);
         Document document;
@@ -86,12 +86,10 @@ public class JsSimpleDomParser extends ScriptableObject {
         
         Context context = Context.enter();
         JsSimpleDomNode domNode = (JsSimpleDomNode)context.newObject(getParentScope(), "Node");
-        domNode.initialize(document.getDocumentElement(), null);
+        domNode.initialize(document, null);
         return domNode;
     }
-    
-    
-    
+
     //CHECKSTYLE:ON
 
 }

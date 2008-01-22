@@ -73,7 +73,7 @@ public class JaxWsServerFactoryBean extends ServerFactoryBean {
     }
 
     /**
-     * Add annotationed Interceptors and Features to the Endpoint
+     * Add annotated Interceptors and Features to the Endpoint
      * @param ep
      */
     protected void initializeAnnotationInterceptors(Endpoint ep, Class<?> cls) {

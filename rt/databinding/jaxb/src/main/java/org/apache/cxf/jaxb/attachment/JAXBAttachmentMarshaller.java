@@ -35,13 +35,15 @@ import org.apache.cxf.message.Attachment;
 
 public class JAXBAttachmentMarshaller extends AttachmentMarshaller {
 
-    private static final int THRESHOLD = 5 * 1024;
+    private int threshold = 5 * 1024;
     private Collection<Attachment> atts;
     private boolean isXop;
 
-    public JAXBAttachmentMarshaller(Collection<Attachment> attachments) {
+    public JAXBAttachmentMarshaller(Collection<Attachment> attachments, Integer mtomThreshold) {
         super();
-
+        if (mtomThreshold != null) {
+            threshold = mtomThreshold.intValue();
+        }
         atts = attachments;
         isXop = attachments != null;
     }
@@ -55,8 +57,7 @@ public class JAXBAttachmentMarshaller extends AttachmentMarshaller {
         if (mimeType == null) {
             mimeType = "application/octet-stream";
         }
-        if ("application/octet-stream".equals(mimeType)
-            && length < THRESHOLD) {
+        if (length < threshold) {
             return null;
         }
         ByteDataSource source = new ByteDataSource(data, offset, length);
@@ -82,19 +83,18 @@ public class JAXBAttachmentMarshaller extends AttachmentMarshaller {
             return null;
         }        
 
-        if ("application/octet-stream".equals(handler.getContentType())) {
-            try {
-                Object o = handler.getContent();
-                if (o instanceof String 
-                    && ((String)o).length() < THRESHOLD) {
-                    return null;
-                } else if (o instanceof byte[]
-                            && ((byte[])o).length < THRESHOLD) {
-                    return null;
-                }
-            } catch (IOException e1) {
-                //ignore, just do the normal attachment thing
+        // The following is just wrong. Even if the DataHandler has a stream, we should still
+        // apply the threshold.
+        try {
+            Object o = handler.getContent();
+            if (o instanceof String 
+                && ((String)o).length() < threshold) {
+                return null;
+            } else if (o instanceof byte[] && ((byte[])o).length < threshold) {
+                return null;
             }
+        } catch (IOException e1) {
+        //      ignore, just do the normal attachment thing
         }
         
         String id;

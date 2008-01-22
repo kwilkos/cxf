@@ -31,12 +31,7 @@ import javax.xml.transform.Source;
 import javax.xml.ws.Binding;
 import javax.xml.ws.EndpointReference;
 import javax.xml.ws.WebServiceException;
-import javax.xml.ws.WebServiceFeature;
 import javax.xml.ws.WebServicePermission;
-import javax.xml.ws.soap.Addressing;
-import javax.xml.ws.soap.AddressingFeature;
-import javax.xml.ws.soap.MTOM;
-import javax.xml.ws.soap.MTOMFeature;
 import javax.xml.ws.wsaddressing.W3CEndpointReference;
 import javax.xml.ws.wsaddressing.W3CEndpointReferenceBuilder;
 
@@ -111,7 +106,6 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
         this.bus = b;
         this.serverFactory = sf;
         this.implementor = implementor;
-        loadWSFeatureAnnotation();
     }
     
     /**
@@ -128,7 +122,6 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
         this.bindingUri = bindingUri;
         wsdlLocation = wsdl == null ? null : new String(wsdl);
         serverFactory = new JaxWsServerFactoryBean();
-        loadWSFeatureAnnotation();
     }
         
     public EndpointImpl(Bus b, Object i, String bindingUri) {
@@ -139,20 +132,6 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
         this(bus, implementor, (String) null);
     }
     
-    private void loadWSFeatureAnnotation() {
-        List<WebServiceFeature> wsFeatures = new ArrayList<WebServiceFeature>();
-        MTOM mtom = implementor.getClass().getAnnotation(MTOM.class);        
-        if (mtom != null) {
-            wsFeatures.add(new MTOMFeature(mtom.enabled(), mtom.threshold()));
-        }
-
-        Addressing addressing = implementor.getClass().getAnnotation(Addressing.class);
-        if (addressing != null) {
-            wsFeatures.add(new AddressingFeature(addressing.enabled(), addressing.required()));
-        }
-        ((JaxWsServiceFactoryBean) serverFactory.getServiceFactory()).setWsFeatures(wsFeatures);
-    }
-
     public Binding getBinding() {
         return ((JaxWsEndpointImpl) getEndpoint()).getJaxwsBinding();
     }

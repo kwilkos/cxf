@@ -31,7 +31,9 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.attachment.AttachmentDeserializer;
+import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.helpers.IOUtils;
+import org.apache.cxf.jaxb.JAXBDataBinding;
 import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
 import org.apache.cxf.message.Attachment;
 import org.apache.cxf.message.ExchangeImpl;
@@ -131,6 +133,7 @@ public class MtomServerTest extends AbstractCXFTest {
     @Test
     public void testURLBasedAttachment() throws Exception {
         JaxWsServerFactoryBean sf = new JaxWsServerFactoryBean();
+        JAXBDataBinding db = (JAXBDataBinding)sf.getDataBinding();
         sf.setServiceBean(new EchoService());
         sf.setBus(getBus());
         String address = "http://localhost:9036/EchoService";
@@ -138,7 +141,8 @@ public class MtomServerTest extends AbstractCXFTest {
         Map<String, Object> props = new HashMap<String, Object>();
         props.put(Message.MTOM_ENABLED, "true");
         sf.setProperties(props);
-        sf.create();
+        Server server = sf.create();
+        server.getEndpoint().getService().getDataBinding().setMtomThreshold(0);
         
         servStatic(getClass().getResource("mtom-policy.xml"), 
                    "http://localhost:9036/policy.xsd");
