@@ -25,6 +25,7 @@ import java.util.Set;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamReader;
+import javax.xml.stream.XMLStreamWriter;
 
 import org.apache.cxf.aegis.type.Configuration;
 import org.apache.cxf.aegis.type.DefaultTypeMappingRegistry;
@@ -119,6 +120,16 @@ public class AegisContext {
     public AegisReader<XMLStreamReader>
     createXMLStreamReader() {
         return new AegisXMLStreamDataReader(this);
+    }
+    
+    public AegisWriter<org.w3c.dom.Element>
+    createDomElementWriter() {
+        return new AegisElementDataWriter(this);
+    }
+    
+    public AegisWriter<XMLStreamWriter>
+    createXMLStreamWriter() {
+        return new AegisXMLStreamDataWriter(this);
     }
     
     /**
