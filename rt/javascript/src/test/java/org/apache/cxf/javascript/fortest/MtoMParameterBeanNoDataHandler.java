@@ -22,14 +22,11 @@ package org.apache.cxf.javascript.fortest;
 import java.io.UnsupportedEncodingException;
 
 import javax.xml.bind.annotation.XmlMimeType;
-import javax.xml.bind.annotation.XmlSchemaType;
-import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
 
 /**
  * 
  */
-@XmlSeeAlso(Base64Binary.class)
 @XmlType(namespace = "uri:org.apache.cxf.javascript.testns")
 public class MtoMParameterBeanNoDataHandler {
     private String ordinary;
@@ -43,11 +40,17 @@ public class MtoMParameterBeanNoDataHandler {
     }
     
     @XmlMimeType("text/plain;charset=utf-8")
-    @XmlSchemaType(namespace = "http://www.w3.org/2005/05/xmlmime", name = "base64Binary")
     public byte[] getNotXml10() throws UnsupportedEncodingException {
         return notXml10.getBytes("utf-8");
     }
-    
+    public void setNotXml10(byte[] notXml10) {
+        try {
+            this.notXml10 = new String(notXml10, "utf-8");
+        } catch (UnsupportedEncodingException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
     public void setNotXml10(String notXml10) {
         this.notXml10 = notXml10;
     }

@@ -292,7 +292,7 @@ public class ArrayType extends Type {
                 .getNamespaceURI());
 
             element.setAttribute(new Attribute("name", componentType.getSchemaType().getLocalPart()));
-            element.setAttribute(BeanType.createTypeAttribute(prefix, componentType, root));
+            element.setAttribute(TypeUtil.createTypeAttribute(prefix, componentType, root));
 
             if (componentType.isNillable()) {
                 element.setAttribute(new Attribute("nillable", "true"));

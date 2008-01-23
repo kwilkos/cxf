@@ -56,7 +56,7 @@ public class MtoMTest extends JavascriptRhinoTest {
     public void before() throws Exception {
         setupRhino("mtom-service-endpoint", 
                    "/org/apache/cxf/javascript/MtoMTests.js",
-                   true);
+                   false);
         implementor = (MtoMImpl)rawImplementor;
         implementor.reset();
     }

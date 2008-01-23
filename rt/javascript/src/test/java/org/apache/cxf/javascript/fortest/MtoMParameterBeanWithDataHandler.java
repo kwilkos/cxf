@@ -21,14 +21,12 @@ package org.apache.cxf.javascript.fortest;
 
 import javax.activation.DataHandler;
 import javax.xml.bind.annotation.XmlMimeType;
-import javax.xml.bind.annotation.XmlSchemaType;
-import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
+
 
 /**
  * 
  */
-@XmlSeeAlso(Base64Binary.class)
 @XmlType(namespace = "uri:org.apache.cxf.javascript.testns")
 public class MtoMParameterBeanWithDataHandler {
     private String ordinary;
@@ -42,7 +40,6 @@ public class MtoMParameterBeanWithDataHandler {
     }
     
     @XmlMimeType("text/plain;charset=utf-8")
-    @XmlSchemaType(namespace = "http://www.w3.org/2005/05/xmlmime", name = "base64Binary")
     public DataHandler getNotXml10() {
         return notXml10;
     }

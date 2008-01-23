@@ -18,11 +18,15 @@
  */
 package org.apache.cxf.binding.http;
 
-public class HttpConstants {
+public final class HttpConstants {
 
     public static final String CONTENT_TYPE = "Content-Type";
     public static final String POST = "POST";
     public static final String PUT = "PUT";
     public static final String DELETE = "DELETE";
     public static final String GET = "GET";
+    
+    private HttpConstants() {
+        //utility class
+    }
 }

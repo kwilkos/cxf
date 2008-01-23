@@ -58,6 +58,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.ls.LSInput;
 import org.w3c.dom.ls.LSResourceResolver;
 
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import org.apache.cxf.Bus;
@@ -68,6 +69,8 @@ import org.apache.cxf.endpoint.EndpointResolverRegistry;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.endpoint.ServerRegistry;
 import org.apache.cxf.helpers.LoadingByteArrayOutputStream;
+import org.apache.cxf.helpers.XMLUtils;
+import org.apache.cxf.resource.ExtendedURIResolver;
 import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.transport.Destination;
@@ -97,7 +100,7 @@ public final class EndpointReferenceUtils {
      */
     private static final class SchemaLSResourceResolver implements LSResourceResolver {
         private final ServiceInfo si;
-
+        private final ExtendedURIResolver resolver = new ExtendedURIResolver();
         private SchemaLSResourceResolver(ServiceInfo serviceInfo) {
             this.si = serviceInfo;
         }
@@ -145,6 +148,21 @@ public final class EndpointReferenceUtils {
                     return impl;
                 }
             }
+            //REVIST - we need to get catalogs in here somehow  :-(
+            if (systemId == null) {
+                systemId = publicId;
+            }
+            if (systemId != null) {
+                InputSource source = resolver.resolve(systemId, baseURI);
+                if (source != null) {
+                    LSInputImpl impl = new LSInputImpl();
+                    impl.setByteStream(source.getByteStream());
+                    impl.setSystemId(source.getSystemId());
+                    impl.setPublicId(source.getPublicId());
+                    return impl;
+                }
+            }
+            LOG.warning("Could not resolve Schema for " + systemId);
             return null;
         }
     }
@@ -515,7 +533,7 @@ public final class EndpointReferenceUtils {
             return null;
         }
         Schema schema = serviceInfo.getProperty(Schema.class.getName(), Schema.class);
-        if (schema == null) {
+        if (schema == null && !serviceInfo.hasProperty(Schema.class.getName())) {
             SchemaFactory factory = SchemaFactory.newInstance(
                 XMLConstants.W3C_XML_SCHEMA_NS_URI);
             List<Source> schemaSources = new ArrayList<Source>();
@@ -532,15 +550,15 @@ public final class EndpointReferenceUtils {
             try {
                 factory.setResourceResolver(new SchemaLSResourceResolver(serviceInfo));
                 schema = factory.newSchema(schemaSources.toArray(new Source[schemaSources.size()]));
-                if (schema != null) {
-                    serviceInfo.setProperty(Schema.class.getName(), schema);
-                    LOG.log(Level.FINE, "Obtained schema from ServiceInfo");
-                }
             } catch (SAXException ex) {
                 // Something not right with the schema from the wsdl.
                 LOG.log(Level.WARNING, "SAXException for newSchema() on ", ex);
+                for (SchemaInfo schemaInfo : serviceInfo.getSchemas()) {
+                    String s = XMLUtils.toString(schemaInfo.getElement(), 4);
+                    LOG.log(Level.WARNING, "Schema for: " + schemaInfo.getNamespaceURI() + "\n" + s);
+                }
             }
-            
+            serviceInfo.setProperty(Schema.class.getName(), schema);            
         }
         return schema;
     }

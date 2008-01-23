@@ -24,7 +24,8 @@ package org.apache.cxf.common.util;
  * @author <a href="mailto:dan@envoisolutions.com">Dan Diephouse</a>
  * @since Feb 18, 2004
  */
-public class SOAPConstants {
+public final class SOAPConstants {
+    
     /** Document styles. */
 
     public static final String WSDL11_NS = "http://schemas.xmlsoap.org/wsdl/";
@@ -80,4 +81,9 @@ public class SOAPConstants {
      */
     public static final String MTOM_ENABLED = "mtom-enabled";
 
+    
+    private SOAPConstants() {
+        //utility class
+    }
+    
 }

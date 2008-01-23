@@ -28,7 +28,7 @@ import org.apache.commons.lang.builder.ToStringStyle;
 /*
  * Override default styles to recognise JAXBElement as needing introspection
  */
-public class JAXBToStringStyle {
+public final class JAXBToStringStyle {
 
     public static final ToStringStyle MULTI_LINE_STYLE =
         new JAXBToStringStyleImpl(true);
@@ -39,6 +39,9 @@ public class JAXBToStringStyle {
     public static final ToStringStyle DEFAULT_STYLE =
         new JAXBToStringStyleImpl();
     
+    private JAXBToStringStyle() {
+        //utility class
+    }
 }
 
 class JAXBToStringStyleImpl extends ToStringStyle {

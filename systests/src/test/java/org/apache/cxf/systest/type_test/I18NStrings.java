@@ -18,7 +18,7 @@
  */
 package org.apache.cxf.systest.type_test;
 
-public class I18NStrings {
+public final class I18NStrings {
 
     public static final String JAP_SIMPLE_STRING;
     public static final String CHINESE_COMPLEX_STRING;
@@ -174,5 +174,8 @@ public class I18NStrings {
         CHINESE_COMPLEX_STRING = tmp;
     }
 
+    private I18NStrings()  {
+        //utility class
+    }
 }
 

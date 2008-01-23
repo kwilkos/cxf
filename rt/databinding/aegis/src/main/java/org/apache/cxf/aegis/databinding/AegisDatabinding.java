@@ -50,9 +50,9 @@ import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.SOAPConstants;
 import org.apache.cxf.common.xmlschema.SchemaCollection;
-import org.apache.cxf.databinding.AbstractDataBinding;
 import org.apache.cxf.databinding.DataReader;
 import org.apache.cxf.databinding.DataWriter;
+import org.apache.cxf.databinding.source.AbstractDataBinding;
 import org.apache.cxf.frontend.MethodDispatcher;
 import org.apache.cxf.frontend.SimpleMethodDispatcher;
 import org.apache.cxf.helpers.CastUtils;
@@ -299,6 +299,7 @@ public class AegisDatabinding extends AbstractDataBinding {
                 if (!deps.contains(t)) {
                     deps.add(t);
                 }
+                addDependencies(deps, t);
             }
         }
 

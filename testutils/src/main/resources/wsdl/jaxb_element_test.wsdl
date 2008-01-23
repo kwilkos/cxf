@@ -23,14 +23,14 @@
     targetNamespace="http://cxf.apache.org/jaxb_element_test/">
     <wsdl:types>
         <xsd:schema targetNamespace="http://cxf.apache.org/jaxb_element_test/">
-            <xsd:element name="NewOperationResponse" type="xsd:string">
+            <xsd:element name="NewOperationResponse">
                 <xsd:complexType>
                     <xsd:sequence>
                         <xsd:element name="out" minOccurs="0" nillable="true" type="xsd:string" />
                     </xsd:sequence>
                 </xsd:complexType>
             </xsd:element>
-            <xsd:element name="NewOperation" type="xsd:string">
+            <xsd:element name="NewOperation">
                 <xsd:complexType>
                     <xsd:sequence>
                         <xsd:element name="in" minOccurs="0" nillable="true" type="xsd:string" />

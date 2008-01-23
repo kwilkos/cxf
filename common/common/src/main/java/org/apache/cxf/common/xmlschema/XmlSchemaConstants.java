@@ -74,4 +74,8 @@ public final class XmlSchemaConstants {
     public static final QName UNSIGNEDLONG_QNAME = new QName(XSD_NAMESPACE_URI, "unsignedLong");
     public static final QName UNSIGNEDSHORT_QNAME = new QName(XSD_NAMESPACE_URI, "unsignedShort");
 
+    private XmlSchemaConstants() {
+        //utility class
+    }
+    
 }
