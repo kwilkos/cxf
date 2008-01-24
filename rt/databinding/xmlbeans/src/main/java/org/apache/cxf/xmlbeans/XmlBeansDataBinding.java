@@ -31,10 +31,9 @@ import org.w3c.dom.Node;
 
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.xmlschema.SchemaCollection;
-import org.apache.cxf.databinding.DataBinding;
+import org.apache.cxf.databinding.AbstractDataBinding;
 import org.apache.cxf.databinding.DataReader;
 import org.apache.cxf.databinding.DataWriter;
-import org.apache.cxf.databinding.source.AbstractDataBinding;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.model.ServiceInfo;
 
@@ -42,7 +41,7 @@ import org.apache.cxf.service.model.ServiceInfo;
 /**
  * 
  */
-public class XmlBeansDataBinding extends AbstractDataBinding implements DataBinding {
+public class XmlBeansDataBinding extends AbstractDataBinding {
     private static final Logger LOG = LogUtils.getLogger(XmlBeansDataBinding.class);
 
     private static final Class<?> SUPPORTED_READER_FORMATS[] = new Class<?>[] {XMLStreamReader.class};
