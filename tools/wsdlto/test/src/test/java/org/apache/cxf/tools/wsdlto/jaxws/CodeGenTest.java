@@ -55,10 +55,12 @@ import org.junit.Test;
 public class CodeGenTest extends ProcessorTestBase {
     private JAXWSContainer processor;
     private ClassLoader classLoader;
+    private String origCP;
 
     @Before
     public void setUp() throws Exception {
         super.setUp();
+        origCP = System.getProperty("java.class.path");
         File classFile = new java.io.File(output.getCanonicalPath() + "/classes");
         classFile.mkdir();
         System.setProperty("java.class.path", getClassPath() + classFile.getCanonicalPath()
@@ -77,6 +79,7 @@ public class CodeGenTest extends ProcessorTestBase {
     @After
     public void tearDown() {
         super.tearDown();
+        System.setProperty("java.class.path", origCP);
         processor = null;
         env = null;
     }
@@ -1204,5 +1207,13 @@ public class CodeGenTest extends ProcessorTestBase {
         
     }
     
-    
+    @Test
+    public void testWrapperWithWildcard()  throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/cxf-1404/hello_world.wsdl"));
+        processor.setContext(env);
+        processor.execute();
+        Class sei =  classLoader.loadClass("org.apache.cxf.cxf1404.hello_world_soap_http.Greeter");
+        assertEquals(1, sei.getMethods().length);
+        assertFalse(Void.TYPE.equals(sei.getMethods()[0].getReturnType()));
+    }
 }
