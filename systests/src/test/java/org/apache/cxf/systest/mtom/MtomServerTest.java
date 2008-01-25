@@ -53,20 +53,20 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class MtomServerTest extends AbstractCXFTest {
-   
-    
+
+
     private static final String HTTP_ID = "http://schemas.xmlsoap.org/wsdl/http/";
-    
+
     @BeforeClass
     public static void setKeepAliveProperty() {
         TestUtilities.setKeepAliveSystemProperty(false);
     }
-    
+
     @AfterClass
     public static void cleanKeepAliveProperty() {
         TestUtilities.recoverKeepAliveSystemProperty();
     }
-    
+
     @Test
     public void testMtomRequest() throws Exception {
         JaxWsServerFactoryBean sf = new JaxWsServerFactoryBean();
@@ -78,7 +78,7 @@ public class MtomServerTest extends AbstractCXFTest {
         props.put(Message.MTOM_ENABLED, "true");
         sf.setProperties(props);
         sf.create();
-        
+
         EndpointInfo ei = new EndpointInfo(null, HTTP_ID);
         ei.setAddress(address);
 
@@ -141,11 +141,9 @@ public class MtomServerTest extends AbstractCXFTest {
         sf.setProperties(props);
         Server server = sf.create();
         server.getEndpoint().getService().getDataBinding().setMtomThreshold(0);
-        
-        servStatic(getClass().getResource("mtom-policy.xml"), 
-                   "http://localhost:9036/policy.xsd");
-        
 
+        servStatic(getClass().getResource("mtom-policy.xml"),
+                   "http://localhost:9036/policy.xsd");
 
         EndpointInfo ei = new EndpointInfo(null, HTTP_ID);
         ei.setAddress(address);
@@ -156,7 +154,7 @@ public class MtomServerTest extends AbstractCXFTest {
 
         TestMessageObserver obs = new TestMessageObserver();
         conduit.setMessageObserver(obs);
-        
+
         Message m = new MessageImpl();
         String ct = "multipart/related; type=\"application/xop+xml\"; "
                     + "start=\"<soap.xml@xfire.codehaus.org>\"; "
@@ -177,7 +175,7 @@ public class MtomServerTest extends AbstractCXFTest {
         os.flush();
         is.close();
         os.close();
-        
+
         byte[] res = obs.getResponseStream().toByteArray();
         MessageImpl resMsg = new MessageImpl();
         resMsg.setContent(InputStream.class, new ByteArrayInputStream(res));
@@ -197,17 +195,33 @@ public class MtomServerTest extends AbstractCXFTest {
         assertTrue("Wrong size: " + out.size()
                    + "\n" + out.toString(),
                    out.size() > 970 && out.size() < 1020);
+        unregisterServStatic("http://localhost:9036/policy.xsd");
+
+    }
+
+    private void unregisterServStatic(String add) throws Exception {
+        Bus bus = getBus();
+        DestinationFactoryManager dfm = bus.getExtension(DestinationFactoryManager.class);
+        DestinationFactory df = dfm
+            .getDestinationFactory("http://cxf.apache.org/transports/http/configuration");
+
+        EndpointInfo ei = new EndpointInfo();
+        ei.setAddress(add);
+
+        Destination d = df.getDestination(ei);
+        d.setMessageObserver(null);
+
     }
 
     @Override
     protected Bus createBus() throws BusException {
         return BusFactory.getDefaultBus();
     }
-    
+
     /**
      * Serve static file
      */
-    private void servStatic(final URL resource, 
+    private void servStatic(final URL resource,
                                    final String add) throws Exception {
         Bus bus = getBus();
         DestinationFactoryManager dfm = bus.getExtension(DestinationFactoryManager.class);
