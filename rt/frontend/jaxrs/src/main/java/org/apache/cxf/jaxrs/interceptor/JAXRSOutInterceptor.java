@@ -21,6 +21,8 @@ package org.apache.cxf.jaxrs.interceptor;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 
 import javax.activation.MimeType;
@@ -41,7 +43,7 @@ import org.apache.cxf.message.MessageContentsList;
 import org.apache.cxf.phase.Phase;
 
 public class JAXRSOutInterceptor extends AbstractOutDatabindingInterceptor {
-    private static final Logger LOG = LogUtils.getL7dLogger(JAXRSInInterceptor.class);
+    private static final Logger LOG = LogUtils.getL7dLogger(JAXRSOutInterceptor.class);
 
     public JAXRSOutInterceptor() {
         super(Phase.MARSHAL);
@@ -111,16 +113,31 @@ public class JAXRSOutInterceptor extends AbstractOutDatabindingInterceptor {
         String[] methodMimeTypes = exchange.get(OperationResourceInfo.class).getProduceMimeTypes();
         String acceptContentType = (String)exchange.get(Message.ACCEPT_CONTENT_TYPE);
 
+        List<String> types = new ArrayList<String>();
         if (acceptContentType != null) {
-            try {
-                MimeType mt = new MimeType(acceptContentType);
-                acceptContentType = mt.getBaseType();
-            } catch (MimeTypeParseException e) {
-                // ignore
+            while (acceptContentType.length() > 0) {
+                String tp = acceptContentType;
+                if (acceptContentType.contains(",")) {
+                    tp = acceptContentType.substring(0, acceptContentType.indexOf(','));
+                    acceptContentType = acceptContentType
+                        .substring(acceptContentType.indexOf(',') + 1).trim();
+                } else {
+                    acceptContentType = "";
+                }
+                try {
+                    MimeType mt = new MimeType(tp);
+                    types.add(mt.getBaseType());
+                } catch (MimeTypeParseException e) {
+                    // ignore
+                }
             }
         }
+        if (types.isEmpty()) {
+            types.add("*/*");
+        }
         
-        return JAXRSUtils.intersectMimeTypes(methodMimeTypes, acceptContentType);        
+        return JAXRSUtils.intersectMimeTypes(methodMimeTypes,
+                                             types.toArray(new String[types.size()]));        
     }
     
     private String computeFinalContentTypes(String[] requestContentTypes, EntityProvider provider) {

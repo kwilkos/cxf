@@ -19,11 +19,9 @@
 package org.apache.cxf.transport.http_jetty;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.GeneralSecurityException;
-import java.security.Principal;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -34,17 +32,12 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.common.logging.LogUtils;
-import org.apache.cxf.common.util.StringUtils;
-import org.apache.cxf.helpers.HttpHeaderHelper;
 import org.apache.cxf.message.ExchangeImpl;
-import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
-import org.apache.cxf.security.SecurityContext;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.ConduitInitiator;
 import org.apache.cxf.transport.http.AbstractHTTPDestination;
 import org.apache.cxf.transport.http.HTTPSession;
-import org.apache.cxf.transport.https.SSLUtils;
 import org.apache.cxf.transports.http.QueryHandler;
 import org.apache.cxf.transports.http.QueryHandlerRegistry;
 import org.apache.cxf.transports.http.StemMatchingQueryHandler;
@@ -172,7 +165,7 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
         return conduitInitiator;
     }
     
-    private String getBasePath(String addr) {
+    protected String getBasePathForFullAddress(String addr) {
         try {
             return new URL(addr).getPath();
         } catch (MalformedURLException e) {
@@ -193,7 +186,8 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
         // only update the EndpointAddress if the base path is equal
         // make sure we don't broke the get operation?parament query 
         String address = removeTrailingSeparator(endpointInfo.getAddress());
-        if (getBasePath(address).equals(removeTrailingSeparator(getStem(getBasePath(addr))))) {
+        if (getBasePathForFullAddress(address)
+            .equals(removeTrailingSeparator(getStem(getBasePathForFullAddress(addr))))) {
             endpointInfo.setAddress(addr);
         }
         return address;
@@ -273,41 +267,9 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
             }
 
             MessageImpl inMessage = new MessageImpl();
-            inMessage.setContent(InputStream.class, req.getInputStream());
-            inMessage.put(HTTP_REQUEST, req);
-            inMessage.put(HTTP_RESPONSE, resp);
-            inMessage.put(HTTP_CONTEXT, context);
-            inMessage.put(Message.HTTP_REQUEST_METHOD, req.getMethod());
-            inMessage.put(Message.PATH_INFO, req.getContextPath() + req.getPathInfo());
-            String normalizedEncoding = HttpHeaderHelper.mapCharset(req.getCharacterEncoding());
-            if (normalizedEncoding == null) {
-                String m = new org.apache.cxf.common.i18n.Message("INVALID_ENCODING_MSG",
-                                                                  LOG, req.getCharacterEncoding()).toString();
-                LOG.log(Level.WARNING, m);
-                throw new IOException(m);   
-            }
-            inMessage.put(Message.ENCODING, normalizedEncoding);
-            inMessage.put(Message.QUERY_STRING, req.getQueryString());
-            inMessage.put(Message.CONTENT_TYPE, req.getContentType());
-            inMessage.put(Message.ACCEPT_CONTENT_TYPE, req.getHeader("Accept"));
-            if (!StringUtils.isEmpty(endpointInfo.getAddress())) {
-                inMessage.put(Message.BASE_PATH, new URL(endpointInfo.getAddress()).getPath());
-            }
-            inMessage.put(Message.FIXED_PARAMETER_ORDER, isFixedParameterOrder());
-            inMessage.put(Message.ASYNC_POST_RESPONSE_DISPATCH, Boolean.TRUE);
-            inMessage.put(SecurityContext.class, new SecurityContext() {
-                public Principal getUserPrincipal() {
-                    return req.getUserPrincipal();
-                }
-                public boolean isUserInRole(String role) {
-                    return req.isUserInRole(role);
-                }
-            });
+            setupMessage(inMessage, context, req, resp);
             
-            setHeaders(inMessage);
             inMessage.setDestination(this);
-            
-            SSLUtils.propogateSecureSession(req, inMessage);
 
             ExchangeImpl exchange = new ExchangeImpl();
             exchange.setInMessage(inMessage);

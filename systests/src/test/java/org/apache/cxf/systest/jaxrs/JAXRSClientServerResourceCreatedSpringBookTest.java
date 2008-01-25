@@ -21,6 +21,7 @@ package org.apache.cxf.systest.jaxrs;
 
 import java.io.InputStream;
 import java.net.URL;
+import java.net.URLConnection;
 
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.io.CachedOutputStream;
@@ -32,7 +33,8 @@ public class JAXRSClientServerResourceCreatedSpringBookTest extends AbstractBusC
 
     @BeforeClass
     public static void startServers() throws Exception {
-        assertTrue("server did not launch correctly", launchServer(BookServerResourceCreatedOutside.class));
+        assertTrue("server did not launch correctly",
+                   launchServer(BookServerResourceCreatedOutside.class));
     }
     
     @Test
@@ -41,7 +43,9 @@ public class JAXRSClientServerResourceCreatedSpringBookTest extends AbstractBusC
         String endpointAddress =
             "http://localhost:9080/bookstore/books/123"; 
         URL url = new URL(endpointAddress);
-        InputStream in = url.openStream();
+        URLConnection connect = url.openConnection();
+        connect.addRequestProperty("Accept", "application/xml");
+        InputStream in = connect.getInputStream();
         assertNotNull(in);           
 
         InputStream expected = getClass()

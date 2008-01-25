@@ -24,6 +24,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLConnection;
 
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.io.CachedOutputStream;
@@ -44,7 +45,9 @@ public class JAXRSClientServerResourceCreatedOutsideBookTest extends AbstractBus
         String endpointAddress =
             "http://localhost:9080/bookstore/books/123"; 
         URL url = new URL(endpointAddress);
-        InputStream in = url.openStream();
+        URLConnection connect = url.openConnection();
+        connect.addRequestProperty("Accept", "application/xml");
+        InputStream in = connect.getInputStream();
         assertNotNull(in);           
 
         InputStream expected = getClass()

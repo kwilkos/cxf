@@ -22,6 +22,7 @@ package org.apache.cxf.systest.jaxrs;
 import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
+import java.net.URLConnection;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.FileRequestEntity;
@@ -47,7 +48,9 @@ public class JAXRSClientServerBookTest extends AbstractBusClientServerTestBase {
         String endpointAddress =
             "http://localhost:9080/bookstore/books/123"; 
         URL url = new URL(endpointAddress);
-        InputStream in = url.openStream();
+        URLConnection connect = url.openConnection();
+        connect.addRequestProperty("Accept", "application/xml");
+        InputStream in = connect.getInputStream();
         assertNotNull(in);           
 
         InputStream expected = getClass()
@@ -61,7 +64,9 @@ public class JAXRSClientServerBookTest extends AbstractBusClientServerTestBase {
         String endpointAddress =
             "http://localhost:9080/bookstore/booksubresource/123/chapters/1"; 
         URL url = new URL(endpointAddress);
-        InputStream in = url.openStream();
+        URLConnection connect = url.openConnection();
+        connect.addRequestProperty("Accept", "application/xml");
+        InputStream in = connect.getInputStream();
         assertNotNull(in);           
 
         InputStream expected = getClass()
@@ -153,7 +158,9 @@ public class JAXRSClientServerBookTest extends AbstractBusClientServerTestBase {
         // Verify result
         endpointAddress = "http://localhost:9080/bookstore/books/123";
         URL url = new URL(endpointAddress);
-        InputStream in = url.openStream();
+        URLConnection connect = url.openConnection();
+        connect.addRequestProperty("Accept", "application/xml");
+        InputStream in = connect.getInputStream();
         assertNotNull(in);
 
         InputStream expected = getClass().getResourceAsStream("resources/expected_update_book.txt");
@@ -227,7 +234,9 @@ public class JAXRSClientServerBookTest extends AbstractBusClientServerTestBase {
         // Verify result
         endpointAddress = "http://localhost:9080/bookstore/books/123";
         URL url = new URL(endpointAddress);
-        InputStream in = url.openStream();
+        URLConnection connection = url.openConnection();
+        connection.addRequestProperty("Accept", "application/xml");
+        InputStream in = connection.getInputStream();
         assertNotNull(in);
 
         InputStream expected = getClass().getResourceAsStream("resources/expected_update_book.txt");
