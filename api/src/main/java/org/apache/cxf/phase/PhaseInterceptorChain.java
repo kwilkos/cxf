@@ -160,20 +160,22 @@ public class PhaseInterceptorChain implements InterceptorChain {
     public void add(Interceptor i, boolean force) {
         PhaseInterceptor pi = (PhaseInterceptor)i;
 
-        if (LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Adding interceptor " + i + " to phase " + pi.getPhase());
-        }
-
-        String phaseName = pi.getPhase();
-        
+        String phaseName = pi.getPhase();        
         Integer phase = nameMap.get(phaseName);
+        
         if (phase == null) {
-            LOG.fine("Phase " + phaseName + " does not exist. Skipping handler "
-                      + i.getClass().getName());
+            LOG.fine("Skipping interceptor " + i.getClass().getName() 
+                + ((phaseName == null) ? ": Phase declaration is missing." 
+                : ": Phase " + phaseName + " specified does not exist."));
         } else {            
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.fine("Adding interceptor " + i + " to phase " + phaseName);
+            }
+
             insertInterceptor(phase, pi, force);
         }
     }
+
 
     public synchronized void pause() {
         state = State.PAUSED;
