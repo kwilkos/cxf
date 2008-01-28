@@ -222,7 +222,8 @@ class JAXBContextInitializer extends ServiceModelVisitor {
             return false;
         }
 
-        if (accessType == XmlAccessType.NONE) {
+        if (accessType == XmlAccessType.NONE
+            || accessType == XmlAccessType.PROPERTY) {
             return checkJaxbAnnotation(field.getAnnotations());
         } else {
             return true;
@@ -264,7 +265,8 @@ class JAXBContextInitializer extends ServiceModelVisitor {
             return false;
         }
 
-        if (accessType == XmlAccessType.NONE) {
+        if (accessType == XmlAccessType.NONE
+            || accessType == XmlAccessType.FIELD) {
             return checkJaxbAnnotation(method.getAnnotations());
         } else {
             return true;
