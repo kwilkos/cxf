@@ -83,7 +83,8 @@ public interface DocLitWrappedCodeFirstService {
     List<Foo[]> listObjectArrayOutput();
     
     @WebMethod
-    int throwException(int i) throws ServiceTestFault, CustomException;
+    int throwException(int i) 
+        throws ServiceTestFault, CustomException, ComplexException;
     
     @RequestWrapper(localName = "echoIntX")
     @ResponseWrapper(localName = "echoIntXResponse")

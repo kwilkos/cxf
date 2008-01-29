@@ -23,6 +23,7 @@ import java.util.Map;
 
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
+import javax.jws.WebResult;
 import javax.jws.WebService;
 
 import org.apache.cxf.customer.Customer;
@@ -47,6 +48,7 @@ public class CustomerService {
     @Get
     @HttpResource(location = "/customers")
     @WebMethod
+    @WebResult(name = "customers")
     public Customers getCustomers() {
         Customers cbean = new Customers();
         cbean.setCustomer(customers.values());
@@ -56,6 +58,7 @@ public class CustomerService {
     @Get
     @HttpResource(location = "/customers/{id}")
     @WebMethod
+    @WebResult(name = "customer")
     public Customer getCustomer(@WebParam(name = "id") Long id) {
         return customers.get(id);
     }
@@ -63,7 +66,8 @@ public class CustomerService {
     @Put
     @HttpResource(location = "/customers/{id}")
     @WebMethod
-    public void updateCustomer(@WebParam(name = "id") String id, Customer c) {
+    public void updateCustomer(@WebParam(name = "id") String id,
+                               @WebParam(name = "customer") Customer c) {
         customers.put(c.getId(), c);
     }
 

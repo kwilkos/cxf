@@ -573,6 +573,9 @@ public class JavaToProcessorTest extends ProcessorTestBase {
         File wsdlFile = new File(output, "epr_schema1.xsd");
         assertTrue(wsdlFile.exists());
         String expectedString = "schemaLocation=\"http://www.w3.org/2006/03/addressing/ws-addr.xsd\"";
-        assertTrue(getStringFromFile(wsdlFile).indexOf(expectedString) != -1);
+        String xsd = getStringFromFile(wsdlFile);
+        assertTrue(xsd.indexOf(expectedString) != -1);
+        assertTrue(xsd.indexOf("ref=") == -1);
+        
     }
 }
