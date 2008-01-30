@@ -30,6 +30,6 @@ import javax.jws.soap.SOAPBinding;
 @WebService(targetNamespace = "uri:org.apache.cxf.javascript.fortest")
 public interface MtoM {
     void receiveNonXmlDH(@WebParam(name = "theArg") MtoMParameterBeanWithDataHandler param);
-    void receiveNonXmlNoDH(@WebParam(name = "theArg") MtoMParameterBeanNoDataHandler param);
+    void receiveNonXmlNoDH(@WebParam(name = "theArgNoDH") MtoMParameterBeanNoDataHandler param);
     MtoMParameterBeanWithDataHandler sendNonXmlDH();
 }

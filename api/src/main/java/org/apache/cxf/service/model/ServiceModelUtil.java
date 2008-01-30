@@ -64,6 +64,9 @@ public final class ServiceModelUtil {
 
     public static BindingOperationInfo getOperation(Exchange exchange, QName opName) {
         Endpoint ep = exchange.get(Endpoint.class);
+        if (ep == null) {
+            return null;
+        }
         BindingInfo service = ep.getEndpointInfo().getBinding();
         return service.getOperation(opName);
     }
@@ -72,6 +75,9 @@ public final class ServiceModelUtil {
                                                                      boolean output) {
         
         Endpoint ep = exchange.get(Endpoint.class);
+        if (ep == null) {
+            return null;
+        }
         BindingInfo service = ep.getEndpointInfo().getBinding();
         Map<QName, BindingOperationInfo> wrapperMap = 
             CastUtils.cast(service.getProperty("ServiceModel.WRAPPER.MAP"
@@ -92,6 +98,13 @@ public final class ServiceModelUtil {
                     }
                     if (part != null) {
                         wrapperMap.put(part.getConcreteName(), b);
+                    }
+                } else {
+                    //check for single bare elements
+                    BindingMessageInfo info = output ? b.getOutput() : b.getInput();
+                    if (info != null && info.getMessageParts().size() == 1) {
+                        wrapperMap.put(info.getMessageParts().get(0).getConcreteName(),
+                                       b);
                     }
                 }
             }
