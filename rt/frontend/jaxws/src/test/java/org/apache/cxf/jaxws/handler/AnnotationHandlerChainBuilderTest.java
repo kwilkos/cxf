@@ -44,7 +44,11 @@ public class AnnotationHandlerChainBuilderTest extends Assert {
     public void testFindHandlerChainAnnotation() {
         HandlerTestImpl handlerTestImpl = new HandlerTestImpl();
         AnnotationHandlerChainBuilder chainBuilder = new AnnotationHandlerChainBuilder();
-        List<Handler> handlers = chainBuilder.buildHandlerChainFromClass(handlerTestImpl.getClass());
+        List<Handler> handlers = chainBuilder
+            .buildHandlerChainFromClass(handlerTestImpl.getClass(), 
+                                        null, 
+                                        null, 
+                                        null);
         assertNotNull(handlers);
         assertEquals(9, handlers.size());
         assertEquals(TestLogicalHandler.class, handlers.get(0).getClass());
@@ -68,7 +72,7 @@ public class AnnotationHandlerChainBuilderTest extends Assert {
         List<Handler> handlers = chainBuilder
             .buildHandlerChainFromClass(handlerTestImpl.getClass(), portQName, serviceQName, bindingID);
         assertNotNull(handlers);
-        assertEquals(9, handlers.size());
+        assertEquals(5, handlers.size());
     }
     
     @Test

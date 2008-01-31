@@ -25,6 +25,7 @@ import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.ExchangeImpl;
 import org.apache.cxf.message.MessageImpl;
+import org.apache.cxf.phase.PhaseInterceptor;
 import org.apache.ws.security.WSConstants;
 import org.apache.ws.security.handler.WSHandlerConstants;
 import org.junit.Test;
@@ -38,7 +39,8 @@ public class WSS4JOutInterceptorTest extends AbstractSecurityTest {
     public void testUsernameTokenText() throws Exception {
         SOAPMessage saaj = readSAAJDocument("wsse-request-clean.xml");
 
-        WSS4JOutInterceptor handler = new WSS4JOutInterceptor();
+        WSS4JOutInterceptor ohandler = new WSS4JOutInterceptor();
+        PhaseInterceptor<SoapMessage> handler = ohandler.createEndingInterceptor();
 
         SoapMessage msg = new SoapMessage(new MessageImpl());
         Exchange ex = new ExchangeImpl();
@@ -65,7 +67,8 @@ public class WSS4JOutInterceptorTest extends AbstractSecurityTest {
     public void testUsernameTokenDigest() throws Exception {
         SOAPMessage saaj = readSAAJDocument("wsse-request-clean.xml");
 
-        WSS4JOutInterceptor handler = new WSS4JOutInterceptor();
+        WSS4JOutInterceptor ohandler = new WSS4JOutInterceptor();
+        PhaseInterceptor<SoapMessage> handler = ohandler.createEndingInterceptor();
 
         SoapMessage msg = new SoapMessage(new MessageImpl());
         Exchange ex = new ExchangeImpl();
@@ -92,7 +95,8 @@ public class WSS4JOutInterceptorTest extends AbstractSecurityTest {
     public void testEncrypt() throws Exception {
         SOAPMessage saaj = readSAAJDocument("wsse-request-clean.xml");
 
-        WSS4JOutInterceptor handler = new WSS4JOutInterceptor();
+        WSS4JOutInterceptor ohandler = new WSS4JOutInterceptor();
+        PhaseInterceptor<SoapMessage> handler = ohandler.createEndingInterceptor();
 
         SoapMessage msg = new SoapMessage(new MessageImpl());
         Exchange ex = new ExchangeImpl();
@@ -117,7 +121,8 @@ public class WSS4JOutInterceptorTest extends AbstractSecurityTest {
     public void testSignature() throws Exception {
         SOAPMessage saaj = readSAAJDocument("wsse-request-clean.xml");
 
-        WSS4JOutInterceptor handler = new WSS4JOutInterceptor();
+        WSS4JOutInterceptor ohandler = new WSS4JOutInterceptor();
+        PhaseInterceptor<SoapMessage> handler = ohandler.createEndingInterceptor();
 
         SoapMessage msg = new SoapMessage(new MessageImpl());
         Exchange ex = new ExchangeImpl();
@@ -141,7 +146,8 @@ public class WSS4JOutInterceptorTest extends AbstractSecurityTest {
     public void testTimestamp() throws Exception {
         SOAPMessage saaj = readSAAJDocument("wsse-request-clean.xml");
 
-        WSS4JOutInterceptor handler = new WSS4JOutInterceptor();
+        WSS4JOutInterceptor ohandler = new WSS4JOutInterceptor();
+        PhaseInterceptor<SoapMessage> handler = ohandler.createEndingInterceptor();
 
         SoapMessage msg = new SoapMessage(new MessageImpl());
         Exchange ex = new ExchangeImpl();
@@ -149,8 +155,8 @@ public class WSS4JOutInterceptorTest extends AbstractSecurityTest {
 
         msg.setContent(SOAPMessage.class, saaj);
         
-        handler.setProperty(WSHandlerConstants.ACTION, WSHandlerConstants.TIMESTAMP);
-        handler.setProperty(WSHandlerConstants.SIG_PROP_FILE, "META-INF/cxf/outsecurity.properties");
+        ohandler.setProperty(WSHandlerConstants.ACTION, WSHandlerConstants.TIMESTAMP);
+        ohandler.setProperty(WSHandlerConstants.SIG_PROP_FILE, "META-INF/cxf/outsecurity.properties");
         msg.put(WSHandlerConstants.USER, "myalias");
         msg.put("password", "myAliasPassword");
 

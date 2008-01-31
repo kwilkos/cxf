@@ -37,7 +37,6 @@ import javax.xml.ws.handler.LogicalHandler;
 import org.apache.cxf.Bus;
 import org.apache.cxf.common.injection.ResourceInjector;
 import org.apache.cxf.common.logging.LogUtils;
-import org.apache.cxf.jaxws.javaee.HandlerChainType;
 import org.apache.cxf.jaxws.javaee.ParamValueType;
 import org.apache.cxf.jaxws.javaee.PortComponentHandlerType;
 import org.apache.cxf.resource.ResourceManager;
@@ -58,11 +57,21 @@ public class HandlerChainBuilder {
         this(null);
     }
 
-    public List<Handler> buildHandlerChainFromConfiguration(HandlerChainType hc) {
+    public List<Handler> buildHandlerChainFromConfiguration(PortComponentHandlerType hc) {
         if (null == hc) {
             return null;
         }
         return sortHandlers(buildHandlerChain(hc, getHandlerClassLoader()));
+    }
+    public List<Handler> buildHandlerChainFromConfiguration(List<PortComponentHandlerType> hc) {
+        if (null == hc || hc.size() == 0) {
+            return null;
+        }
+        List<Handler> handlers = new ArrayList<Handler>();
+        for (PortComponentHandlerType pt : hc) {
+            handlers.addAll(buildHandlerChain(pt, getHandlerClassLoader()));
+        }
+        return sortHandlers(handlers);
     }
 
     // methods used by Geronimo to allow configuring things themselves
@@ -104,24 +113,22 @@ public class HandlerChainBuilder {
         return getClass().getClassLoader();
     }
 
-    protected List<Handler> buildHandlerChain(HandlerChainType hc, ClassLoader classLoader) {
+    protected List<Handler> buildHandlerChain(PortComponentHandlerType ht, ClassLoader classLoader) {
         List<Handler> handlerChain = new ArrayList<Handler>();
-        for (PortComponentHandlerType ht : hc.getHandler()) {
-            try {
-                LOG.log(Level.FINE, "loading handler", trimString(ht.getHandlerName().getValue()));
+        try {
+            LOG.log(Level.FINE, "loading handler", trimString(ht.getHandlerName().getValue()));
 
-                Class<? extends Handler> handlerClass = Class.forName(
-                                                                      trimString(ht.getHandlerClass()
-                                                                          .getValue()), true, classLoader)
-                    .asSubclass(Handler.class);
+            Class<? extends Handler> handlerClass = Class.forName(
+                                                                  trimString(ht.getHandlerClass()
+                                                                      .getValue()), true, classLoader)
+                .asSubclass(Handler.class);
 
-                Handler handler = handlerClass.newInstance();
-                LOG.fine("adding handler to chain: " + handler);
-                configureHandler(handler, ht);
-                handlerChain.add(handler);
-            } catch (Exception e) {
-                throw new WebServiceException(BUNDLE.getString("HANDLER_INSTANTIATION_EXC"), e);
-            }
+            Handler handler = handlerClass.newInstance();
+            LOG.fine("adding handler to chain: " + handler);
+            configureHandler(handler, ht);
+            handlerChain.add(handler);
+        } catch (Exception e) {
+            throw new WebServiceException(BUNDLE.getString("HANDLER_INSTANTIATION_EXC"), e);
         }
         return handlerChain;
     }

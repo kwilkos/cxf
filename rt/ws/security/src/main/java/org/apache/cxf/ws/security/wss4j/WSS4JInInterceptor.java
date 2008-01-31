@@ -67,6 +67,7 @@ public class WSS4JInInterceptor extends AbstractWSS4JInterceptor {
                                                                  null,
                                                                  WSS4JInInterceptor.class.getName()
                                                                      + "-Time");
+    private SAAJInInterceptor saajIn = new SAAJInInterceptor();
     
     public WSS4JInInterceptor() {
         super();
@@ -82,6 +83,12 @@ public class WSS4JInInterceptor extends AbstractWSS4JInterceptor {
 
     @SuppressWarnings("unchecked")
     public void handleMessage(SoapMessage msg) throws Fault {
+        SOAPMessage doc = msg.getContent(SOAPMessage.class);
+        if (doc == null) {
+            saajIn.handleMessage(msg);
+            doc = msg.getContent(SOAPMessage.class);
+        }
+        
         boolean doDebug = LOG.isLoggable(Level.FINE);
         boolean doTimeLog = TIME_LOG.isLoggable(Level.FINE);
 
@@ -113,12 +120,6 @@ public class WSS4JInInterceptor extends AbstractWSS4JInterceptor {
             int doAction = WSSecurityUtil.decodeAction(action, actions);
 
             String actor = (String)getOption(WSHandlerConstants.ACTOR);
-
-            SOAPMessage doc = msg.getContent(SOAPMessage.class);
-
-            if (doc == null) {
-                throw new SoapFault(new Message("NO_SAAJ_DOC", LOG), version.getReceiver());
-            }
 
             CallbackHandler cbHandler = getCallback(reqData, doAction);
 

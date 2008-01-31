@@ -19,6 +19,7 @@
 
 package org.apache.cxf.common.i18n;
 
+import java.text.MessageFormat;
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
@@ -106,5 +107,17 @@ public final class BundleUtils {
                                             Thread.currentThread().getContextClassLoader());
             
         }
+    }
+    
+    /**
+     * Encapsulates the logic to format a string based on the key in the resource bundle
+     * 
+     * @param b Resource bundle to use
+     * @param key The key in the bundle to lookup
+     * @param params the params to expand into the string
+     * @return the formatted string
+     */
+    public static String getFormattedString(ResourceBundle b, String key, Object ... params) {
+        return MessageFormat.format(b.getString(key), params);
     }
 }

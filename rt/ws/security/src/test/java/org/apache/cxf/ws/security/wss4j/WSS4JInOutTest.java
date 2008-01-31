@@ -46,6 +46,7 @@ import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.ExchangeImpl;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.phase.Phase;
+import org.apache.cxf.phase.PhaseInterceptor;
 import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.apache.cxf.staxutils.StaxUtils;
 import org.apache.ws.security.WSSecurityEngineResult;
@@ -81,7 +82,8 @@ public class WSS4JInOutTest extends AbstractSecurityTest {
     public void testSignature() throws Exception {
         Document doc = readDocument("wsse-request-clean.xml");
 
-        WSS4JOutInterceptor handler = new WSS4JOutInterceptor();
+        WSS4JOutInterceptor ohandler = new WSS4JOutInterceptor();
+        PhaseInterceptor<SoapMessage> handler = ohandler.createEndingInterceptor();
 
         SoapMessage msg = new SoapMessage(new MessageImpl());
         Exchange ex = new ExchangeImpl();
@@ -142,7 +144,8 @@ public class WSS4JInOutTest extends AbstractSecurityTest {
     public void testDirectReferenceSignature() throws Exception {
         Document doc = readDocument("wsse-request-clean.xml");
 
-        WSS4JOutInterceptor handler = new WSS4JOutInterceptor();
+        WSS4JOutInterceptor ohandler = new WSS4JOutInterceptor();
+        PhaseInterceptor<SoapMessage> handler = ohandler.createEndingInterceptor();
 
         SoapMessage msg = new SoapMessage(new MessageImpl());
         Exchange ex = new ExchangeImpl();

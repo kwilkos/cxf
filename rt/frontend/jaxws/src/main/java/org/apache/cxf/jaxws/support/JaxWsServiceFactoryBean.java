@@ -34,6 +34,7 @@ import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Action;
 import javax.xml.ws.AsyncHandler;
+import javax.xml.ws.BindingType;
 import javax.xml.ws.FaultAction;
 import javax.xml.ws.Service;
 import javax.xml.ws.Service.Mode;
@@ -43,6 +44,7 @@ import javax.xml.ws.soap.Addressing;
 import javax.xml.ws.soap.AddressingFeature;
 import javax.xml.ws.soap.MTOM;
 import javax.xml.ws.soap.MTOMFeature;
+import javax.xml.ws.soap.SOAPBinding;
 
 import org.apache.cxf.binding.AbstractBindingFactory;
 import org.apache.cxf.common.classloader.ClassLoaderUtils;
@@ -118,7 +120,16 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
         }
         if (mtom != null) {
             features.add(new MTOMFeature(mtom.enabled(), mtom.threshold()));
+        } else {
+            //deprecated way to set mtom
+            BindingType bt = implInfo.getImplementorClass().getAnnotation(BindingType.class);
+            if (bt != null
+                && (SOAPBinding.SOAP11HTTP_MTOM_BINDING.equals(bt.value())
+                || SOAPBinding.SOAP12HTTP_MTOM_BINDING.equals(bt.value()))) {
+                features.add(new MTOMFeature(true));                
+            }
         }
+        
 
         Addressing addressing = null;
         if (implementorClass != null) {

@@ -19,6 +19,7 @@
 
 package org.apache.cxf.jaxws.handler;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +31,6 @@ import javax.xml.ws.handler.MessageContext;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.jaxws.javaee.FullyQualifiedClassType;
-import org.apache.cxf.jaxws.javaee.HandlerChainType;
 import org.apache.cxf.jaxws.javaee.ParamValueType;
 import org.apache.cxf.jaxws.javaee.PortComponentHandlerType;
 import org.easymock.classextension.EasyMock;
@@ -59,7 +59,7 @@ public class HandlerChainBuilderTest extends Assert {
     @Test
     public void testBuildHandlerChainFromConfiguration() {
 
-        HandlerChainType hc = createHandlerChainType();
+        List<PortComponentHandlerType> hc = createHandlerChainType();
         List<Handler> chain = builder.buildHandlerChainFromConfiguration(hc);
 
         assertNotNull(chain);
@@ -76,12 +76,12 @@ public class HandlerChainBuilderTest extends Assert {
 
     @Test
     public void testBuilderCallsInit() {
-        HandlerChainType hc = createHandlerChainType();
-        hc.getHandler().remove(3);
-        hc.getHandler().remove(2);
-        hc.getHandler().remove(1);
+        List<PortComponentHandlerType> hc = createHandlerChainType();
+        hc.remove(3);
+        hc.remove(2);
+        hc.remove(1);
 
-        PortComponentHandlerType h = hc.getHandler().get(0);
+        PortComponentHandlerType h = hc.get(0);
         List<ParamValueType> params = h.getInitParam();
 
         ParamValueType p = new ParamValueType();
@@ -117,12 +117,12 @@ public class HandlerChainBuilderTest extends Assert {
 
     @Test
     public void testBuilderCallsInitWithNoInitParamValues() {
-        HandlerChainType hc = createHandlerChainType();
-        hc.getHandler().remove(3);
-        hc.getHandler().remove(2);
-        hc.getHandler().remove(1);
+        List<PortComponentHandlerType> hc = createHandlerChainType();
+        hc.remove(3);
+        hc.remove(2);
+        hc.remove(1);
 
-        PortComponentHandlerType h = hc.getHandler().get(0);
+        PortComponentHandlerType h = hc.get(0);
         List<ParamValueType> params = h.getInitParam();
 
         ParamValueType p = new ParamValueType();
@@ -143,13 +143,13 @@ public class HandlerChainBuilderTest extends Assert {
 
     @Test
     public void testBuilderCannotLoadHandlerClass() {
-        HandlerChainType hc = createHandlerChainType();
-        hc.getHandler().remove(3);
-        hc.getHandler().remove(2);
-        hc.getHandler().remove(1);
+        List<PortComponentHandlerType> hc = createHandlerChainType();
+        hc.remove(3);
+        hc.remove(2);
+        hc.remove(1);
         FullyQualifiedClassType type = new FullyQualifiedClassType();
         type.setValue("no.such.class");
-        hc.getHandler().get(0).setHandlerClass(type);
+        hc.get(0).setHandlerClass(type);
 
         try {
             builder.buildHandlerChainFromConfiguration(hc);
@@ -161,9 +161,8 @@ public class HandlerChainBuilderTest extends Assert {
         }
     }
 
-    private HandlerChainType createHandlerChainType() {
-        HandlerChainType hc = new HandlerChainType();
-        List<PortComponentHandlerType> handlers = hc.getHandler();
+    private List<PortComponentHandlerType> createHandlerChainType() {
+        List<PortComponentHandlerType> handlers = new ArrayList<PortComponentHandlerType>();
 
         PortComponentHandlerType h = new PortComponentHandlerType();
         org.apache.cxf.jaxws.javaee.String name = new org.apache.cxf.jaxws.javaee.String();
@@ -201,7 +200,7 @@ public class HandlerChainBuilderTest extends Assert {
         h.setHandlerClass(type);
         handlers.add(h);
 
-        return hc;
+        return handlers;
     }
 
     public static class TestLogicalHandler implements LogicalHandler {
