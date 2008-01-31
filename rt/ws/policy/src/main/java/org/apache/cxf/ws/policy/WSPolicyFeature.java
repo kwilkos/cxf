@@ -21,7 +21,6 @@ package org.apache.cxf.ws.policy;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 import java.util.ResourceBundle;
 
 import org.w3c.dom.Element;
@@ -33,7 +32,7 @@ import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.feature.AbstractFeature;
-import org.apache.cxf.service.model.ServiceInfo;
+import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.ws.policy.attachment.reference.ReferenceResolver;
 import org.apache.cxf.ws.policy.attachment.reference.RemoteReferenceResolver;
 import org.apache.neethi.Policy;
@@ -104,18 +103,24 @@ public class WSPolicyFeature extends AbstractFeature implements ApplicationConte
     @Override
     public void initialize(Client client, Bus bus) {
         Endpoint endpoint = client.getEndpoint();
-        
-        intializeEndpoint(endpoint, bus);
+        Policy p = initializeEndpointPolicy(endpoint, bus);
+        PolicyEngine pe = bus.getExtension(PolicyEngine.class);
+        EndpointInfo ei = endpoint.getEndpointInfo();
+        EndpointPolicy ep = pe.getClientEndpointPolicy(ei, null);
+        pe.setClientEndpointPolicy(ei, ep.updatePolicy(p));
     }
 
     @Override
     public void initialize(Server server, Bus bus) {
         Endpoint endpoint = server.getEndpoint();
-        
-        intializeEndpoint(endpoint, bus);
+        Policy p = initializeEndpointPolicy(endpoint, bus);
+        PolicyEngine pe = bus.getExtension(PolicyEngine.class);
+        EndpointInfo ei = endpoint.getEndpointInfo();
+        EndpointPolicy ep = pe.getServerEndpointPolicy(ei, null);
+        pe.setServerEndpointPolicy(ei, ep.updatePolicy(p));
     }
 
-    private void intializeEndpoint(Endpoint endpoint, Bus bus) {
+    private Policy initializeEndpointPolicy(Endpoint endpoint, Bus bus) {
         
         initialize(bus);
         
@@ -139,20 +144,21 @@ public class WSPolicyFeature extends AbstractFeature implements ApplicationConte
             }
         } 
         
-        List<ServiceInfo> sis = endpoint.getService().getServiceInfos();
-        for (ServiceInfo si : sis) {
-            if (policies != null) {
-                for (Policy p : policies) {
-                    si.addExtensor(p);
-                }
-            }
-            
-            if (loadedPolicies != null) {
-                for (Policy p : loadedPolicies) {
-                    si.addExtensor(p);
-                }
+        Policy thePolicy = new Policy();
+        
+        if (policies != null) {
+            for (Policy p : policies) {
+                thePolicy = thePolicy.merge(p);
             }
         }
+        
+        if (loadedPolicies != null) {
+            for (Policy p : loadedPolicies) {
+                thePolicy = thePolicy.merge(p);
+            }
+        }
+        
+        return thePolicy;
     }
     
     public Collection<Policy> getPolicies() {
@@ -210,6 +216,7 @@ public class WSPolicyFeature extends AbstractFeature implements ApplicationConte
         if (null == p) {
             throw new PolicyException(new Message("UNRESOLVED_POLICY_REFERENCE_EXC", BUNDLE, ref.getURI()));
         }
+        
         return p;
     }   
     

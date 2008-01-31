@@ -91,7 +91,6 @@ public class PolicyEngineTest extends Assert {
         assertTrue(engine.isEnabled()); 
         assertSame(selector, engine.getAlternativeSelector());
         assertNotNull(engine.createOutPolicyInfo());
-        assertNotNull(engine.createEndpointPolicyInfo());
         
     }
     
@@ -306,30 +305,48 @@ public class PolicyEngineTest extends Assert {
     
     @Test
     public void testCreateEndpointPolicyInfo() throws NoSuchMethodException {
-        Method m = PolicyEngineImpl.class.getDeclaredMethod("createEndpointPolicyInfo", new Class[] {});
-        engine = control.createMock(PolicyEngineImpl.class, new Method[] {m});
+        Method m1 = PolicyEngineImpl.class.getDeclaredMethod("createEndpointPolicyInfo", 
+            new Class[] {EndpointInfo.class, boolean.class, Assertor.class});
+        engine = control.createMock(PolicyEngineImpl.class, new Method[] {m1});
         engine.init();
         EndpointInfo ei = control.createMock(EndpointInfo.class);
         Assertor assertor = control.createMock(Assertor.class);
         EndpointPolicyImpl epi = control.createMock(EndpointPolicyImpl.class);
-        EasyMock.expect(engine.createEndpointPolicyInfo()).andReturn(epi);
-        epi.initialise(ei, false, engine, assertor);
-        EasyMock.expectLastCall();
+        EasyMock.expect(engine.createEndpointPolicyInfo(ei, false, assertor)).andReturn(epi);
         control.replay();
         assertSame(epi, engine.createEndpointPolicyInfo(ei, false, assertor));
         control.verify();
     }
     
     @Test
-    public void testSetEndpointPolicy() {
+    public void testEndpointPolicyWithEqualPolicies() {
         engine = new PolicyEngineImpl();
         EndpointInfo ei = control.createMock(EndpointInfo.class);
+        ServiceInfo si = control.createMock(ServiceInfo.class);
+        ei.getService();
+        EasyMock.expectLastCall().andReturn(si).times(2);
+        si.getExtensor(Policy.class);
+        EasyMock.expectLastCall().andReturn(null).times(2);
         EndpointPolicyImpl epi = control.createMock(EndpointPolicyImpl.class);
-        engine.setEndpointPolicy(ei, epi);
+        control.replay();
+        engine.setServerEndpointPolicy(ei, epi);
+        engine.setClientEndpointPolicy(ei, epi);
+        
         assertSame(epi, engine.getClientEndpointPolicy(ei, (Conduit)null));
-        assertSame(epi, engine.getServerEndpointPolicy(ei, (Destination)null)); 
+        assertSame(epi, engine.getServerEndpointPolicy(ei, (Destination)null));
+        
+        control.reset();
+        ei.getService();
+        EasyMock.expectLastCall().andReturn(si).times(2);
+        Policy p = new Policy();
+        si.getExtensor(Policy.class);
+        EasyMock.expectLastCall().andReturn(p).times(2);
+        epi.getPolicy();
+        EasyMock.expectLastCall().andReturn(p).times(2);
+        control.replay();
+        assertSame(epi, engine.getServerEndpointPolicy(ei, (Destination)null));
     }
-    
+       
     
     @Test
     public void testDontAddBusInterceptors() {        
