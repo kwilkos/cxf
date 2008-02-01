@@ -122,9 +122,9 @@ public class BusApplicationContext extends ClassPathXmlApplicationContext {
             resources.add(cpr);
         } else {
             if (!usingDefault) {
-                LogUtils.log(LOG, Level.INFO, "USER_CFG_FILE_NOT_FOUND_MSG", cfgFile);
+                LogUtils.log(LOG, Level.WARNING, "USER_CFG_FILE_NOT_FOUND_MSG", cfgFile);
             } else {
-                LogUtils.log(LOG, Level.FINE, "USER_CFG_FILE_NOT_FOUND_MSG", cfgFile);
+                LogUtils.log(LOG, Level.INFO, "USER_CFG_FILE_NOT_SPECIFIED_MSG", cfgFile);
             }
         }
         
@@ -133,7 +133,7 @@ public class BusApplicationContext extends ClassPathXmlApplicationContext {
             if (ur.exists()) {
                 resources.add(ur);
             } else {
-                LogUtils.log(LOG, Level.INFO, "USER_CFG_FILE_URL_NOT_FOUND_MSG", cfgFileURL);
+                LogUtils.log(LOG, Level.WARNING, "USER_CFG_FILE_URL_NOT_FOUND_MSG", cfgFileURL);
             }    
         } 
         
@@ -144,10 +144,10 @@ public class BusApplicationContext extends ClassPathXmlApplicationContext {
                 if (ur.exists()) {
                     resources.add(ur);
                 } else {
-                    LogUtils.log(LOG, Level.INFO, "USER_CFG_FILE_URL_NOT_FOUND_MSG", sysCfgFileUrl);
+                    LogUtils.log(LOG, Level.WARNING, "USER_CFG_FILE_URL_NOT_FOUND_MSG", sysCfgFileUrl);
                 }            
             } catch (MalformedURLException e) {            
-                LogUtils.log(LOG, Level.INFO, "USER_CFG_FILE_URL_ERROR_MSG", sysCfgFileUrl);
+                LogUtils.log(LOG, Level.WARNING, "USER_CFG_FILE_URL_ERROR_MSG", sysCfgFileUrl);
             }
         }
         
