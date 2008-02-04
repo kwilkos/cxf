@@ -18,9 +18,12 @@
  */
 package org.apache.cxf.jaxrs;
 
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.ws.rs.ProduceMime;
 
 import org.apache.cxf.jaxrs.model.ClassResourceInfo;
 import org.apache.cxf.jaxrs.model.OperationResourceInfo;
@@ -30,9 +33,15 @@ import org.junit.Test;
 
 public class JAXRSUtilsTest extends Assert {
 
+    public class Customer {
+        @ProduceMime("text/xml")   
+        public void test() {
+            // complete
+        }
+    };
+    
     @Before
-    public void setUp() throws Exception {
-
+    public void setUp() {
     }
 
     @Test
@@ -224,5 +233,26 @@ public class JAXRSUtilsTest extends Assert {
         candidateList = JAXRSUtils.intersectMimeTypes(acceptedMimeTypes, providerMimeTypes);
 
         assertEquals(0, candidateList.length);
+    }
+    
+    @Test
+    public void testAcceptTypesMatch() throws Exception {
+        
+        Method m = Customer.class.getMethod("test", new Class[]{});
+        
+        assertTrue("Accept types with multiple values can not be matched properly",
+                   JAXRSUtils.matchMimeTypes(null, "text/xml,text/bar", m));
+        assertTrue("Accept types with multiple values can not be matched properly",
+                   JAXRSUtils.matchMimeTypes(null, "text/foo, text/bar, text/xml ", m));
+        assertTrue("Accept types with multiple values can not be matched properly",
+                   JAXRSUtils.matchMimeTypes(null, "text/bar,text/xml", m));
+        assertTrue("Accept types with multiple values can not be matched properly",
+                   JAXRSUtils.matchMimeTypes(null, "text/*", m));
+        assertTrue("Accept types with multiple values can not be matched properly",
+                   JAXRSUtils.matchMimeTypes(null, "*/*", m));
+        assertTrue("Accept types with multiple values can not be matched properly",
+                   JAXRSUtils.matchMimeTypes(null, null, m));
+        
+        
     }
 }

@@ -53,6 +53,8 @@ import org.apache.cxf.message.Message;
 
 public final class JAXRSUtils {
     
+    private static final String ALL_TYPES = "*/*";
+    
     private JAXRSUtils() {        
     }
     
@@ -115,13 +117,13 @@ public final class JAXRSUtils {
     private static class OperationResourceInfoComparator implements Comparator<OperationResourceInfo> {
         public int compare(OperationResourceInfo e1, OperationResourceInfo e2) {
             ConsumeMime c1 = e1.getMethod().getAnnotation(ConsumeMime.class);
-            String[] mimeType1 = {"*/*"};
+            String[] mimeType1 = {ALL_TYPES};
             if (c1 != null) {
                 mimeType1 = c1.value();               
             }
             
             ConsumeMime c2 = e2.getMethod().getAnnotation(ConsumeMime.class);
-            String[] mimeType2 = {"*/*"};
+            String[] mimeType2 = {ALL_TYPES};
             if (c2 != null) {
                 mimeType2 = c2.value();               
             }
@@ -130,13 +132,13 @@ public final class JAXRSUtils {
             if (resultOfComparingConsumeMime == 0) {
                 //use the media type of output data as the secondary key.
                 ProduceMime p1 = e1.getMethod().getAnnotation(ProduceMime.class);
-                String[] mimeTypeP1 = {"*/*"};
+                String[] mimeTypeP1 = {ALL_TYPES};
                 if (p1 != null) {
                     mimeTypeP1 = p1.value();               
                 }
                 
                 ProduceMime p2 = e2.getMethod().getAnnotation(ProduceMime.class);
-                String[] mimeTypeP2 = {"*/*"};
+                String[] mimeTypeP2 = {ALL_TYPES};
                 if (p2 != null) {
                     mimeTypeP2 = p2.value();               
                 }    
@@ -258,29 +260,42 @@ public final class JAXRSUtils {
                 // ignore
             }
         }
+        List<String> acceptValues = new ArrayList<String>();
         if (acceptContentTypes != null) {
-            try {
-                MimeType mt = new MimeType(acceptContentTypes);
-                acceptContentTypes = mt.getBaseType();
-            } catch (MimeTypeParseException e) {
-                // ignore
+            while (acceptContentTypes.length() > 0) {
+                String tp = acceptContentTypes;
+                int index = acceptContentTypes.indexOf(',');
+                if (index != -1) {
+                    tp = acceptContentTypes.substring(0, index);
+                    acceptContentTypes = acceptContentTypes.substring(index + 1).trim();
+                } else {
+                    acceptContentTypes = "";
+                }
+                try {
+                    MimeType mt = new MimeType(tp);
+                    acceptValues.add(mt.getBaseType());
+                } catch (MimeTypeParseException e) {
+                    // ignore
+                }   
             }
-        }    
+        } else {
+            acceptValues.add(ALL_TYPES);
+        }
           
-        String[] consumeMimeTypes = {"*/*"};          
+        String[] consumeMimeTypes = {ALL_TYPES};          
         ConsumeMime c = m.getAnnotation(ConsumeMime.class);
         if (c != null) {
             consumeMimeTypes = c.value();               
         } 
         
-        String[] produceMimeTypes = {"*/*"};          
+        String[] produceMimeTypes = {ALL_TYPES};          
         ProduceMime p = m.getAnnotation(ProduceMime.class);
         if (p != null) {
             produceMimeTypes = p.value();               
         }     
         
         if (intersectMimeTypes(consumeMimeTypes, contentTypes).length != 0
-            && intersectMimeTypes(produceMimeTypes, acceptContentTypes).length != 0) {
+            && intersectMimeTypes(produceMimeTypes, acceptValues.toArray(new String[]{})).length != 0) {
             return true;
         }
         return false;
