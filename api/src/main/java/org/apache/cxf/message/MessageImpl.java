@@ -39,7 +39,9 @@ public class MessageImpl extends StringMapImpl implements Message {
     private InterceptorChain interceptorChain;
     private Map<Class<?>, Object> contents = new IdentityHashMap<Class<?>, Object>(6);
     
-    
+    public MessageImpl() {
+        //nothing
+    }
     
     public Collection<Attachment> getAttachments() {
         return attachments;

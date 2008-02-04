@@ -101,17 +101,17 @@
     </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="addNumbers3">
-      <wsdl:input name="addNumbers3" message="tns:addNumbers3" wsaw:Action="tns:http://cxf.apache.org/input3">
+      <wsdl:input name="addNumbers3" message="tns:addNumbers3" wsaw:Action="http://cxf.apache.org/input3">
     </wsdl:input>
-      <wsdl:output name="addNumbers3Response" message="tns:addNumbers3Response" wsaw:Action="tns:http://cxf.apache.org/output3">
+      <wsdl:output name="addNumbers3Response" message="tns:addNumbers3Response" wsaw:Action="http://cxf.apache.org/output3">
     </wsdl:output>
-      <wsdl:fault name="AddNumbersException" message="tns:AddNumbersException" wsaw:Action="tns:http://cxf.apache.org/fault3">
+      <wsdl:fault name="AddNumbersException" message="tns:AddNumbersException" wsaw:Action="http://cxf.apache.org/fault3">
     </wsdl:fault>
     </wsdl:operation>
     <wsdl:operation name="addNumbers">
-      <wsdl:input name="addNumbers" message="tns:addNumbers" wsaw:Action="tns:http://cxf.apache.org/input">
+      <wsdl:input name="addNumbers" message="tns:addNumbers" wsaw:Action="http://cxf.apache.org/input">
     </wsdl:input>
-      <wsdl:output name="addNumbersResponse" message="tns:addNumbersResponse" wsaw:Action="tns:http://cxf.apache.org/output">
+      <wsdl:output name="addNumbersResponse" message="tns:addNumbersResponse" wsaw:Action="http://cxf.apache.org/output">
     </wsdl:output>
       <wsdl:fault name="AddNumbersException" message="tns:AddNumbersException">
     </wsdl:fault>
@@ -119,7 +119,7 @@
   </wsdl:portType>
   <wsdl:binding name="AddNumbersImplServiceSoapBinding" type="tns:AddNumbersImpl">
     <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
-    <wsaw:UsingAddressing />
+    <wsaw:UsingAddressing wsdl:required="false" />
     <wsdl:operation name="addNumbers2">
       <soap:operation soapAction="" style="document"/>
       <wsdl:input name="addNumbers2">

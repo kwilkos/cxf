@@ -167,6 +167,11 @@ public class JaxWsEndpointImpl extends EndpointImpl {
         List<ExtensibilityElement> portExtensors 
             = endpoint.getExtensors(ExtensibilityElement.class);
         if (hasUsingAddressing(bindingExtensors) || hasUsingAddressing(portExtensors)) {
+            WSAddressingFeature feature = new WSAddressingFeature();
+            if (addressingRequired(bindingExtensors)
+                || addressingRequired(portExtensors)) {
+                feature.setAddressingRequired(true);
+            }
             addAddressingFeature(new WSAddressingFeature());
         }
     }
@@ -183,6 +188,21 @@ public class JaxWsEndpointImpl extends EndpointImpl {
         }
         return found;
     }    
+    private boolean addressingRequired(List<ExtensibilityElement> exts) {
+        boolean found = false;
+        if (exts != null) {
+            Iterator<ExtensibilityElement> extensionElements = exts.iterator();
+            while (extensionElements.hasNext() && !found) {
+                ExtensibilityElement ext = 
+                    (ExtensibilityElement)extensionElements.next();
+                if (JAXWSAConstants.WSAW_USINGADDRESSING_QNAME.equals(ext.getElementType())
+                    && ext.getRequired() != null) {
+                    return ext.getRequired();
+                }
+            }
+        }
+        return false;
+    }    
 
     private void buildWsdlExtensibilities(BindingInfo bindingInfo) {
         Addressing addressing = getAddressing();
@@ -190,9 +210,11 @@ public class JaxWsEndpointImpl extends EndpointImpl {
             ExtensionRegistry extensionRegistry = getBus().getExtension(WSDLManager.class)
             .getExtenstionRegistry();            
             try {
-                bindingInfo.addExtensor(extensionRegistry.createExtension(javax.wsdl.Binding.class, 
-                                                                          JAXWSAConstants.
-                                                                          WSAW_USINGADDRESSING_QNAME));
+                ExtensibilityElement el = extensionRegistry.createExtension(javax.wsdl.Binding.class, 
+                                                                            JAXWSAConstants.
+                                                                            WSAW_USINGADDRESSING_QNAME);
+                el.setRequired(addressing.required());
+                bindingInfo.addExtensor(el);
             } catch (WSDLException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -233,23 +255,27 @@ public class JaxWsEndpointImpl extends EndpointImpl {
             return;
         }
         if (addressing.isEnabled()) {
-            addAddressingFeature(new WSAddressingFeature());
+            WSAddressingFeature feature = getWSAddressingFeature();
+            if (feature == null) {
+                feature = new WSAddressingFeature();
+                addAddressingFeature(feature);
+            }
+            feature.setAddressingRequired(addressing.isRequired());
         } else {
             removeAddressingFeature();
         }
     }
 
-    private AbstractFeature getWSAddressingFeature() {
+    private WSAddressingFeature getWSAddressingFeature() {
         if (features == null) {
             return null;
         }
-        AbstractFeature addressing = null;
         for (AbstractFeature f : features) {
             if (f instanceof WSAddressingFeature) {
-                addressing = f;
+                return (WSAddressingFeature)f;
             }
         }
-        return addressing;
+        return null;
     }
 
     private void addAddressingFeature(AbstractFeature a) {

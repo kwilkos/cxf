@@ -37,6 +37,7 @@ import org.apache.cxf.service.Service;
 import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
 import org.apache.cxf.service.factory.ServiceConstructionException;
 import org.apache.cxf.service.model.BindingInfo;
+import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.service.model.ServiceModelUtil;
 import org.apache.cxf.transport.ConduitInitiator;
@@ -296,8 +297,13 @@ public abstract class AbstractWSDLBasedEndpointFactory extends AbstractEndpointF
 
             bindingFactory = mgr.getBindingFactory(binding);
             
-            return bindingFactory.createBindingInfo(serviceFactory.getService(),
+            BindingInfo inf = bindingFactory.createBindingInfo(serviceFactory.getService(),
                                                     binding, bindingConfig);
+            
+            for (BindingOperationInfo boi : inf.getOperations()) {
+                serviceFactory.updateBindingOperation(boi);
+            }
+            return inf;
         } catch (BusException ex) {
             throw new ServiceConstructionException(
                    new Message("COULD.NOT.RESOLVE.BINDING", LOG, bindingId), ex);

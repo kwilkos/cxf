@@ -360,6 +360,7 @@ public class ServiceWSDLBuilder {
             buildBindingInput(def, bindingOperation, bindingOperationInfo.getInput());
             buildBindingOutput(def, bindingOperation, bindingOperationInfo.getOutput());
             buildBindingFault(def, bindingOperation, bindingOperationInfo.getFaults());
+            addExtensibilityAttributes(bindingOperation, bindingOperationInfo.getExtensionAttributes());
             addExtensibilityElements(bindingOperation, getWSDL11Extensors(bindingOperationInfo));
             binding.addBindingOperation(bindingOperation);
         }
@@ -373,6 +374,7 @@ public class ServiceWSDLBuilder {
             bindingFault = def.createBindingFault();
             bindingFault.setName(bindingFaultInfo.getFaultInfo().getFaultName().getLocalPart());
             bindingOperation.addBindingFault(bindingFault);
+            addExtensibilityAttributes(bindingFault, bindingFaultInfo.getExtensionAttributes());
             addExtensibilityElements(bindingFault, getWSDL11Extensors(bindingFaultInfo));
         }
         
@@ -385,6 +387,7 @@ public class ServiceWSDLBuilder {
             bindingInput = def.createBindingInput();
             bindingInput.setName(bindingMessageInfo.getMessageInfo().getName().getLocalPart());
             bindingOperation.setBindingInput(bindingInput);
+            addExtensibilityAttributes(bindingInput, bindingMessageInfo.getExtensionAttributes());
             addExtensibilityElements(bindingInput, getWSDL11Extensors(bindingMessageInfo));
         }
     }
@@ -396,6 +399,7 @@ public class ServiceWSDLBuilder {
             bindingOutput = def.createBindingOutput();
             bindingOutput.setName(bindingMessageInfo.getMessageInfo().getName().getLocalPart());
             bindingOperation.setBindingOutput(bindingOutput);
+            addExtensibilityAttributes(bindingOutput, bindingMessageInfo.getExtensionAttributes());
             addExtensibilityElements(bindingOutput, getWSDL11Extensors(bindingMessageInfo));
         }
     }

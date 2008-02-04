@@ -58,4 +58,14 @@ public class WSAddressingFeature extends AbstractFeature {
     public boolean isUsingAddressingAdvisory() {
         return mapAggregator.isUsingAddressingAdvisory();
     }
+    
+
+    public boolean isAddressingRequired() {
+        return mapAggregator.isAddressingRequired();
+    }
+    public void setAddressingRequired(boolean required) {
+        mapAggregator.setAddressingRequired(required);
+    }
+    
+    
 }

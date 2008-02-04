@@ -29,9 +29,12 @@ import javax.wsdl.extensions.ExtensibilityElement;
 import javax.xml.namespace.QName;
 import javax.xml.ws.RequestWrapper;
 import javax.xml.ws.ResponseWrapper;
+//import javax.xml.ws.RequestWrapper;
+//import javax.xml.ws.ResponseWrapper;
 
 
 import org.apache.cxf.binding.Binding;
+import org.apache.cxf.binding.soap.SoapFault;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
@@ -40,6 +43,8 @@ import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.BindingMessageInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.EndpointInfo;
+import org.apache.cxf.service.model.InterfaceInfo;
+import org.apache.cxf.service.model.MessageInfo.Type;
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.transport.Conduit;
@@ -203,7 +208,7 @@ public class MAPAggregatorTest extends Assert {
 
     @Test
     public void testResponderInboundValidMAPs() throws Exception {
-        Message message = setUpMessage(false, false, false);
+        Message message = setUpMessage(false, false, false, false, false, false, true);
         aggregator.mediate(message, false);
         control.verify();
         verifyMessage(message, false, false, false);
@@ -212,7 +217,7 @@ public class MAPAggregatorTest extends Assert {
     @Test
     public void testResponderInboundDecoupled() throws Exception {
         Message message = 
-            setUpMessage(false, false, false, true, false, true);
+            setUpMessage(false, false, false, true, false, true, true);
         aggregator.mediate(message, false);
         control.verify();
         verifyMessage(message, false, false, true);
@@ -221,7 +226,7 @@ public class MAPAggregatorTest extends Assert {
     @Test
     public void testResponderInboundOneway() throws Exception {
         Message message = 
-            setUpMessage(false, false, true, true, false, true);
+            setUpMessage(false, false, true, true, false, true, true);
         aggregator.mediate(message, false);
         control.verify();
         verifyMessage(message, false, false, true);
@@ -229,26 +234,26 @@ public class MAPAggregatorTest extends Assert {
 
     @Test
     public void testResponderInboundValidMAPsFault() throws Exception {
-        Message message = setUpMessage(false, false, false);
+        Message message = setUpMessage(false, false, false, false, false, false, true);
         aggregator.mediate(message, true);
         control.verify();
         verifyMessage(message, false, false, true);
     }
 
-    @Test
+    @Test(expected = SoapFault.class)
     public void testResponderInboundInvalidMAPs() throws Exception {
         aggregator.messageIDs.put("urn:uuid:12345", "urn:uuid:12345");
-        Message message = setUpMessage(false, false, false);
+        Message message = setUpMessage(false, false, false, false, false, false, true);
         aggregator.setAllowDuplicates(false);
         aggregator.mediate(message, false);
         control.verify();
         verifyMessage(message, false, false, false /*check*/);
     }
 
-    @Test
+    @Test(expected = SoapFault.class)
     public void testResponderInboundInvalidMAPsFault() throws Exception {
         aggregator.messageIDs.put("urn:uuid:12345", "urn:uuid:12345");
-        Message message = setUpMessage(false, false, false);
+        Message message = setUpMessage(false, false, false, false, false, false, true);
         aggregator.setAllowDuplicates(false);
         aggregator.mediate(message, true);
         control.verify();
@@ -620,15 +625,21 @@ public class MAPAggregatorTest extends Assert {
             ContextUtils.WSA_OBJECT_FACTORY.createEndpointReferenceType();
         to.setAddress(ContextUtils.getAttributedURI(expectedTo));
         conduit.getTarget();
-        EasyMock.expectLastCall().andReturn(to);
+        EasyMock.expectLastCall().andReturn(to).anyTimes();
     }
     
     private void setUpMethod(Message message, Exchange exchange, Method method) {
-        setUpMessageExchange(message, exchange);        
-        OperationInfo opInfo = new OperationInfo(); 
+        setUpMessageExchange(message, exchange);
+        ServiceInfo si = new ServiceInfo();
+        InterfaceInfo iinf = new InterfaceInfo(si, new QName("http://foo/bar", "SEI"));
+        OperationInfo opInfo = iinf.addOperation(new QName("http://foo/bar", method.getName()));
         opInfo.setProperty(Method.class.getName(), method);
+        opInfo.setInput("opRequest",
+                        opInfo.createMessage(new QName("http://foo/bar", "opRequest"), Type.INPUT));
+        opInfo.setOutput("opResponse",
+                         opInfo.createMessage(new QName("http://foo/bar", "opResponse"), Type.INPUT));
         BindingOperationInfo bindingOpInfo = new TestBindingOperationInfo(opInfo);
-        setUpExchangeGet(exchange, BindingOperationInfo.class, bindingOpInfo, 2);
+        setUpExchangeGet(exchange, BindingOperationInfo.class, bindingOpInfo);
         // Usual fun with EasyMock not always working as expected
         //BindingOperationInfo bindingOpInfo =
         //    EasyMock.createMock(BindingOperationInfo.class); 
@@ -669,12 +680,8 @@ public class MAPAggregatorTest extends Assert {
     }
 
     private <T> void setUpExchangeGet(Exchange exchange, Class<T> clz, T value) {
-        setUpExchangeGet(exchange, clz, value, 1);
-    }
-
-    private <T> void setUpExchangeGet(Exchange exchange, Class<T> clz, T value, int n) {
         exchange.get(clz);
-        EasyMock.expectLastCall().andReturn(value).times(n);
+        EasyMock.expectLastCall().andReturn(value).anyTimes();
         //exchange.put(Endpoint.class, value);
     }
 
@@ -688,15 +695,15 @@ public class MAPAggregatorTest extends Assert {
                                        Message message,
                                        boolean outbound) {
         exchange.getOutMessage();
-        EasyMock.expectLastCall().andReturn(outbound ? message : null);
+        EasyMock.expectLastCall().andReturn(outbound ? message : null).anyTimes();
         //exchange.setOutMessage(outbound ? message : new MessageImpl());
     }
 
     private void setUpExchangeConduit(Message message,
                                       Exchange exchange,
                                       Conduit conduit) {
-        exchange.getConduit(message);
-        EasyMock.expectLastCall().andReturn(conduit);
+        //exchange.getConduit(message);
+        //EasyMock.expectLastCall().andReturn(conduit);
         //exchange.setConduit(conduit);
     }
 

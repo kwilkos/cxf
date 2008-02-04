@@ -35,7 +35,10 @@ public final class Names {
    
     public static final String WSA_NAMESPACE_NAME = 
         "http://www.w3.org/2005/08/addressing";
-    public static final String WSA_NAMESPACE_WSDL_NAME = 
+    
+    public static final String WSA_NAMESPACE_WSDL_NAME = "http://www.w3.org/2006/05/addressing/wsdl";
+
+    public static final String WSA_NAMESPACE_WSDL_NAME_OLD = 
         "http://www.w3.org/2005/02/addressing/wsdl";
     public static final String WSA_NAMESPACE_PATTERN = "/addressing";
 
@@ -142,7 +145,18 @@ public final class Names {
         "DuplicateMessageID";
     public static final QName DUPLICATE_MESSAGE_ID_QNAME =
         new QName(WSA_NAMESPACE_NAME, DUPLICATE_MESSAGE_ID_NAME);
-    
+
+    public static final String ACTION_MISMATCH_NAME =
+        "ActionMismatch";
+    public static final QName ACTION_MISMATCH_QNAME =
+        new QName(WSA_NAMESPACE_NAME, ACTION_MISMATCH_NAME);
+
+    public static final String HEADER_REQUIRED_NAME =
+        "MessageAddressingHeaderRequired";
+    public static final QName HEADER_REQUIRED_QNAME =
+        new QName(WSA_NAMESPACE_NAME, HEADER_REQUIRED_NAME);
+
+
     public static final String SOAP11HTTP_ADDRESSING_BINDING = 
         "http://schemas.xmlsoap.org/soap/envelope/?addressing=ms";
     public static final String SOAP12HTTP_ADDRESSING_BINDING = 

@@ -67,6 +67,9 @@ public class MAPVerifier extends AbstractPhaseInterceptor<Message> {
                                       : MAPTest.INBOUND_KEY);
         AddressingPropertiesImpl maps = 
             (AddressingPropertiesImpl)message.get(mapProperty);
+        if (maps == null) {
+            return;
+        }
         if (ContextUtils.isRequestor(message)) {
             if (isOutbound) {
                 String exposeAs = getExpectedExposeAs(false);

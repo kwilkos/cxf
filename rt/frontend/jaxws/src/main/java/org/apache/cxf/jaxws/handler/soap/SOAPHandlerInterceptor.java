@@ -20,14 +20,18 @@
 package org.apache.cxf.jaxws.handler.soap;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import javax.xml.namespace.QName;
+import javax.xml.soap.Node;
 import javax.xml.soap.SOAPBody;
 import javax.xml.soap.SOAPElement;
 import javax.xml.soap.SOAPException;
+import javax.xml.soap.SOAPHeader;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
@@ -59,6 +63,7 @@ import org.apache.cxf.phase.Phase;
 import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.apache.cxf.staxutils.StaxUtils;
 import org.apache.cxf.transport.MessageObserver;
+import org.apache.cxf.ws.addressing.Names;
 
 public class SOAPHandlerInterceptor extends
         AbstractProtocolHandlerInterceptor<SoapMessage> implements
@@ -214,6 +219,32 @@ public class SOAPHandlerInterceptor extends
         ContextPropertiesMapping.mapCxf2Jaxws(message.getExchange(), sm, requestor);
         Exchange exch = message.getExchange();
         setupBindingOperationInfo(exch, sm);
+        SOAPMessage msg = sm.getMessage();
+        try {
+            List<SOAPElement> params = new ArrayList<SOAPElement>();
+            message.put(MessageContext.REFERENCE_PARAMETERS, params);
+            SOAPHeader head = msg.getSOAPHeader();
+            if (head != null) {
+                Iterator<Node> it = CastUtils.cast(head.getChildElements());
+                while (it != null && it.hasNext()) {
+                    Node nd = it.next();
+                    if (nd instanceof SOAPElement) {
+                        SOAPElement el = (SOAPElement)nd;
+                        if (el.hasAttributeNS(Names.WSA_NAMESPACE_NAME, "IsReferenceParameter")
+                            && ("1".equals(el.getAttributeNS(Names.WSA_NAMESPACE_NAME,
+                                                             "IsReferenceParameter"))
+                                || Boolean.parseBoolean(el.getAttributeNS(Names.WSA_NAMESPACE_NAME,
+                                                                          "IsReferenceParameter")))) {
+                            params.add(el);
+                        }
+                    }
+                }
+            }
+        } catch (SOAPException e) {
+            throw new Fault(e);
+        }
+        
+        
         return sm;
     }
 

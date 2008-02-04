@@ -33,15 +33,18 @@ import javax.xml.namespace.QName;
 import javax.xml.ws.WebFault;
 
 import org.apache.cxf.binding.soap.SoapBindingConstants;
+import org.apache.cxf.binding.soap.SoapFault;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.endpoint.Endpoint;
+import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.FaultMode;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
+import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.service.model.FaultInfo;
 import org.apache.cxf.service.model.MessageInfo;
@@ -78,6 +81,7 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
 
     private final Map<Endpoint, Boolean> usingAddressing = new ConcurrentHashMap<Endpoint, Boolean>();
     private boolean usingAddressingAdvisory = true;
+    private boolean addressingRequired;
 
     private boolean allowDuplicates = true;
     
@@ -125,9 +129,25 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
      * element is to be advisory
      */
     public void setUsingAddressingAdvisory(boolean advisory) {
-        usingAddressingAdvisory = advisory;
     }
-
+    
+    /**
+     * Whether the use of addressing is completely required for this endpoint
+     *
+     * @return true if addressing is required
+     */
+    public boolean isAddressingRequired() {
+        return addressingRequired;
+    }
+    /**
+     * Sets whether the use of addressing is completely required for this endpoint
+     *
+     */
+    public void setAddressingRequired(boolean required) {
+        addressingRequired = required;
+    }
+    
+    
     /**
      * Invoked for normal processing of inbound and outbound messages.
      *
@@ -317,14 +337,12 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
         } else if (!ContextUtils.isRequestor(message)) {
             // responder validates incoming MAPs
             AddressingPropertiesImpl maps = getMAPs(message, false, false);
-            if (null == maps) {
+            boolean isOneway = message.getExchange().isOneWay();
+            if (null == maps && !addressingRequired) {
                 return false;
             }
-            boolean isOneway = message.getExchange().isOneWay();
             continueProcessing = validateIncomingMAPs(maps, message);
-            if (continueProcessing) {
-                // any faults thrown from here on can be correlated with this message
-                message.put(FaultMode.class, FaultMode.LOGICAL_RUNTIME_FAULT);
+            if (maps != null) {
                 if (isOneway
                     || !ContextUtils.isGenericAddress(maps.getReplyTo())) {
                     ContextUtils.rebaseResponse(maps.getReplyTo(),
@@ -337,10 +355,18 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
                     ContextUtils.propogateReceivedMAPs(maps,
                                                        message.getExchange());
                 }
+            }
+            if (continueProcessing) {
+                // any faults thrown from here on can be correlated with this message
+                message.put(FaultMode.class, FaultMode.LOGICAL_RUNTIME_FAULT);
             } else {
                 // validation failure => dispatch is aborted, response MAPs 
                 // must be aggregated
-                aggregate(message, isFault);
+                //isFault = true;
+                //aggregate(message, isFault);
+                throw new SoapFault(ContextUtils.retrieveMAPFaultReason(message),
+                                    new QName(Names.WSA_NAMESPACE_NAME,
+                                              ContextUtils.retrieveMAPFaultName(message)));
             }
         }
         if (null != ContextUtils.retrieveMAPs(message, false, ContextUtils.isOutbound(message))) {            
@@ -356,8 +382,9 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
      * @param isFault true if a fault is being mediated
      */
     private void aggregate(Message message, boolean isFault) {
-        AddressingPropertiesImpl maps = assembleGeneric(message);
         boolean isRequestor = ContextUtils.isRequestor(message);
+
+        AddressingPropertiesImpl maps = assembleGeneric(message);
         addRoleSpecific(maps, message, isRequestor, isFault);
         // outbound property always used to store MAPs, as this handler 
         // aggregates only when either:
@@ -394,14 +421,14 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
 
         return maps;
     }
-
+    
     private String getActionFromInputMessage(final OperationInfo operation) {
         MessageInfo inputMessage = operation.getInput();
 
         if (inputMessage.getExtensionAttributes() != null) {
-            QName inputAction = (QName)inputMessage.getExtensionAttribute(JAXWSAConstants.WSAW_ACTION_QNAME);
+            String inputAction = ContextUtils.getAction(inputMessage);
             if (inputAction != null) {
-                return inputAction.getLocalPart();
+                return inputAction;
             }
         }
         return null;
@@ -410,10 +437,9 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
     private String getActionFromOutputMessage(final OperationInfo operation) {
         MessageInfo outputMessage = operation.getOutput();
         if (outputMessage != null && outputMessage.getExtensionAttributes() != null) {
-            QName outputAction = 
-                (QName)outputMessage.getExtensionAttribute(JAXWSAConstants.WSAW_ACTION_QNAME);
+            String outputAction = ContextUtils.getAction(outputMessage);
             if (outputAction != null) {
-                return outputAction.getLocalPart();
+                return outputAction;
             }
         }
         return null;
@@ -438,9 +464,10 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
             for (FaultInfo faultInfo : operation.getFaults()) {
                 if (isSameFault(faultInfo, faultName)) {
                     if (faultInfo.getExtensionAttributes() != null) {
-                        QName faultAction = 
-                            (QName)faultInfo.getExtensionAttribute(JAXWSAConstants.WSAW_ACTION_QNAME);
-                        return faultAction.getLocalPart();
+                        String faultAction = ContextUtils.getAction(faultInfo);
+                        if (faultAction != null) {
+                            return faultAction;
+                        }
                     }
                     return addPath(addPath(getActionBaseUri(operation), "Fault"), 
                                    faultInfo.getName().getLocalPart());
@@ -466,8 +493,12 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
     }
 
     protected String getActionUri(Message message) {
-        OperationInfo op = message.getExchange().get(OperationInfo.class);
-
+        BindingOperationInfo bop = message.getExchange().get(BindingOperationInfo.class);
+        if (bop == null) {
+            return null;
+        }
+        OperationInfo op = bop.getOperationInfo();
+        
         String actionUri = (String) message.get(SoapBindingConstants.SOAP_ACTION);
         if (actionUri != null) {
             return actionUri;
@@ -655,23 +686,70 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
     private boolean validateIncomingMAPs(AddressingProperties maps,
                                          Message message) {
         boolean valid = true;
-        if (!allowDuplicates && maps != null) {
-            AttributedURIType messageID = maps.getMessageID();
-            if (messageID != null
-                && messageIDs.put(messageID.getValue(), 
-                                  messageID.getValue()) != null) {
-                LOG.log(Level.WARNING,
-                        "DUPLICATE_MESSAGE_ID_MSG",
-                        messageID.getValue());
-                String reason =
-                    BUNDLE.getString("DUPLICATE_MESSAGE_ID_MSG");
-                String l7dReason = 
-                    MessageFormat.format(reason, messageID.getValue());
-                ContextUtils.storeMAPFaultName(Names.DUPLICATE_MESSAGE_ID_NAME,
-                                               message);
-                ContextUtils.storeMAPFaultReason(l7dReason, message);
-                valid = false;
+        
+        if (maps != null) {
+            //WSAB spec, section 4.2 validation (SOAPAction must match action
+            Map<String, List<String>> headers 
+                = CastUtils.cast((Map<?, ?>)message.get(Message.PROTOCOL_HEADERS));
+            List<String> s = headers == null ? null : headers.get(Names.SOAP_ACTION_HEADER);
+            if (s == null && headers != null) {
+                s = headers.get(Names.SOAP_ACTION_HEADER.toLowerCase());
             }
+            if (s != null && s.size() > 0) {
+                String sa = s.get(0);
+                if (sa.startsWith("\"")) {
+                    sa = sa.substring(1, sa.lastIndexOf('"'));
+                }
+                if (!StringUtils.isEmpty(sa)
+                    && !sa.equals(maps.getAction().getValue())) {
+                    //don't match, must send fault back....
+                    String reason =
+                        BUNDLE.getString("INVALID_SOAPACTION_MESSAGE");
+    
+                    ContextUtils.storeMAPFaultName(Names.ACTION_MISMATCH_NAME,
+                                                   message);
+                    ContextUtils.storeMAPFaultReason(reason, message);
+                    return false;
+                }
+            }
+            
+            if (maps.getAction() == null || maps.getAction().getValue() == null) {
+                String reason =
+                    BUNDLE.getString("MISSING_ACTION_MESSAGE");
+
+                ContextUtils.storeMAPFaultName(Names.HEADER_REQUIRED_NAME,
+                                               message);
+                ContextUtils.storeMAPFaultReason(reason, message);
+                return false;
+                
+            }
+        
+            if (!allowDuplicates) {
+                AttributedURIType messageID = maps.getMessageID();
+                if (messageID != null
+                    && messageIDs.put(messageID.getValue(), 
+                                      messageID.getValue()) != null) {
+                    LOG.log(Level.WARNING,
+                            "DUPLICATE_MESSAGE_ID_MSG",
+                            messageID.getValue());
+                    String reason =
+                        BUNDLE.getString("DUPLICATE_MESSAGE_ID_MSG");
+                    String l7dReason = 
+                        MessageFormat.format(reason, messageID.getValue());
+                    ContextUtils.storeMAPFaultName(Names.DUPLICATE_MESSAGE_ID_NAME,
+                                                   message);
+                    ContextUtils.storeMAPFaultReason(l7dReason, message);
+                    valid = false;
+                }
+            }
+        } else if (usingAddressingAdvisory) {
+            String reason =
+                BUNDLE.getString("MISSING_ACTION_MESSAGE");
+
+            ContextUtils.storeMAPFaultName(Names.HEADER_REQUIRED_NAME,
+                                           message);
+            ContextUtils.storeMAPFaultReason(reason, message);
+            return false;
         }
         return valid;
     }

@@ -20,22 +20,16 @@
 package org.apache.cxf.ws.addressing;
 
 
-import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.Executor;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.jws.WebMethod;
-import javax.jws.WebService;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
-import javax.xml.ws.RequestWrapper;
-import javax.xml.ws.ResponseWrapper;
-import javax.xml.ws.WebFault;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.binding.soap.model.SoapOperationInfo;
@@ -50,9 +44,11 @@ import org.apache.cxf.interceptor.InterceptorChain;
 import org.apache.cxf.interceptor.OutgoingChainInterceptor;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.service.model.BindingFaultInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
+import org.apache.cxf.service.model.Extensible;
+import org.apache.cxf.service.model.FaultInfo;
 import org.apache.cxf.service.model.MessageInfo;
-import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.Destination;
 import org.apache.cxf.workqueue.OneShotAsyncExecutor;
@@ -79,10 +75,8 @@ public final class ContextUtils {
 
     private static final EndpointReferenceType NONE_ENDPOINT_REFERENCE = 
         EndpointReferenceUtils.getEndpointReference(Names.WSA_NONE_ADDRESS);
-    private static final String HTTP_URI_SCHEME = "http:";
-    private static final String URI_AUTHORITY_PREFIX = "//";
-    private static final Map<BindingOperationInfo, String> ACTION_MAP =
-        new TwoStageMap<BindingOperationInfo, String>();
+    private static final Map<MessageInfo, String> ACTION_MAP =
+        new TwoStageMap<MessageInfo, String>();
     
     private static final Logger LOG = LogUtils.getL7dLogger(ContextUtils.class);
     
@@ -651,14 +645,6 @@ public final class ContextUtils {
         // pick up the wsaw:Action attribute by walking the WSDL model
         // directly 
         action = getActionFromServiceModel(message, fault);
-
-        if (action == null) {
-            Method method = getMethod(message);
-            LOG.fine("method: " + method + ", fault: " + fault);
-            if (method != null) {
-                action = getActionFromAnnotations(message, method, fault); 
-            }
-        }
         LOG.fine("action: " + action);
         return action != null ? getAttributedURI(action) : null;
     }
@@ -672,10 +658,13 @@ public final class ContextUtils {
     private static String getActionFromServiceModel(Message message,
                                                     Exception fault) {
         String action = null;
-        if (fault == null) {
-            BindingOperationInfo bindingOpInfo =
-                message.getExchange().get(BindingOperationInfo.class);
-            if (bindingOpInfo != null) {
+        BindingOperationInfo bindingOpInfo =
+            message.getExchange().get(BindingOperationInfo.class);
+        if (bindingOpInfo != null) {
+            if (bindingOpInfo.isUnwrappedCapable()) {
+                bindingOpInfo = bindingOpInfo.getUnwrappedOperation();
+            }
+            if (fault == null) {
                 SoapOperationInfo soi = 
                     bindingOpInfo.getExtensor(SoapOperationInfo.class);
                 if (null != soi) {
@@ -683,22 +672,43 @@ public final class ContextUtils {
                 }
 
                 if (action == null || "".equals(action)) {
-                    String cachedAction = ACTION_MAP.get(bindingOpInfo);
+                    MessageInfo msgInfo = 
+                        ContextUtils.isRequestor(message)
+                        ? bindingOpInfo.getOperationInfo().getInput()
+                        : bindingOpInfo.getOperationInfo().getOutput();
+                    String cachedAction = ACTION_MAP.get(msgInfo);
                     if (cachedAction == null) {
-                        MessageInfo msgInfo = 
-                            ContextUtils.isRequestor(message)
-                            ? bindingOpInfo.getInput().getMessageInfo()
-                            : bindingOpInfo.getOutput().getMessageInfo();
-                        action = getActionFromMessageAttributes(bindingOpInfo,
-                                                                msgInfo);
+                        action = getActionFromMessageAttributes(msgInfo);
                     } else {
                         action = cachedAction;
                     }
                 }
+            } else {
+                Throwable t = fault.getCause();
+                
+                // FaultAction attribute is not defined in 
+                // http://www.w3.org/2005/02/addressing/wsdl schema
+                for (BindingFaultInfo bfi : bindingOpInfo.getFaults()) {
+                    FaultInfo fi = bfi.getFaultInfo();
+                    if (t.getClass().isAssignableFrom(fi.getMessagePart(0).getTypeClass())) {
+                        if (fi.getExtensionAttributes() == null) {
+                            continue;
+                        }
+                        String attr = (String)
+                            fi.getExtensionAttributes().get(Names.WSAW_ACTION_QNAME);
+                        if (attr == null) {
+                            attr = (String)        
+                                fi.getExtensionAttributes()
+                                    .get(new QName(Names.WSA_NAMESPACE_WSDL_NAME_OLD,
+                                                    Names.WSAW_ACTION_NAME));                            
+                        }
+                        if (attr != null) {
+                            action = attr;
+                            break;
+                        }
+                    }
+                }
             }
-        } else {
-            // FaultAction attribute is not defined in 
-            // http://www.w3.org/2005/02/addressing/wsdl schema
         }
         LOG.fine("action determined from service model: " + action);
         return action;
@@ -711,178 +721,30 @@ public final class ContextUtils {
      * @param msgInfo the current MessageInfo
      * @return the action if set
      */
-    private static String getActionFromMessageAttributes(
-                                           BindingOperationInfo bindingOpInfo,
-                                           MessageInfo msgInfo) {
+    private static String getActionFromMessageAttributes(MessageInfo msgInfo) {
         String action = null;
         if (msgInfo != null
             && msgInfo.getExtensionAttributes() != null) {
-            QName attr = (QName)
-                msgInfo.getExtensionAttributes().get(Names.WSAW_ACTION_QNAME);
+            String attr = getAction(msgInfo);
             if (attr != null) {
-                action = getURI(attr.getLocalPart());
-                ACTION_MAP.put(bindingOpInfo, action);
+                action = attr;
+                ACTION_MAP.put(msgInfo, action);
             }
         }
         return action;
     }
 
-    /**
-     * Get action from annotations.
-     *
-     * @param message the current message
-     * @param method the invoked on method
-     * @param fault the fault if one is set
-     */
-    private static String getActionFromAnnotations(Message message,
-                                                   Method method,
-                                                   Exception fault) {
-        String action = null;
-        if (fault != null) {
-            WebFault webFault = fault.getClass().getAnnotation(WebFault.class);
-            if (webFault != null) {
-                action = getAction(webFault.targetNamespace(),
-                                   method, 
-                                   webFault.name(),
-                                   true);
-            }
-        } else {
-            String namespace = getWrapperNamespace(message, method);
-            if (namespace != null) {
-                action = getAction(namespace,
-                                   method,
-                                   getWrapperLocalName(message, method),
-                                   false);
-            } else {
-                WebService wsAnnotation = 
-                    method.getDeclaringClass().getAnnotation(WebService.class);
-                WebMethod wmAnnotation = 
-                    method.getAnnotation(WebMethod.class);
-                action = wsAnnotation != null && wmAnnotation != null
-                         ? getAction(wsAnnotation.targetNamespace(),
-                                     method,
-                                     wmAnnotation.operationName(),
-                                     false)
-                         : null;
-            }
+    public static String getAction(Extensible ext) {
+        Object o = ext.getExtensionAttribute(JAXWSAConstants.WSAW_ACTION_QNAME);
+        if (o == null) {
+            o = ext.getExtensionAttributes().get(new QName(Names.WSA_NAMESPACE_WSDL_NAME_OLD,
+                                                   Names.WSAW_ACTION_NAME));
         }
-        LOG.fine("action determined from annotations: " + action);
-        return action;
-    }
- 
-     /**
-      * Get the target namespace from the {Request|Response}Wrapper annotation
-      *
-      * @param message the current message
-      * @param method the target method
-      * @return the annotated namespace 
-      */
-    private static String getWrapperNamespace(Message message, 
-                                               Method method) {
-        String namespace = null;
-        if (ContextUtils.isRequestor(message)) {
-            RequestWrapper requestWrapper =
-                method.getAnnotation(RequestWrapper.class);
-            if (requestWrapper != null) {
-                namespace = requestWrapper.targetNamespace();
-            }
-        } else {
-            ResponseWrapper responseWrapper =
-                method.getAnnotation(ResponseWrapper.class);
-            if (responseWrapper != null) {
-                namespace = responseWrapper.targetNamespace();
-            }
+        if (o instanceof QName) {
+            return ((QName)o).getLocalPart();
         }
-        return namespace;
+        return o.toString();
     }
-
-     /**
-      * Get the target local name from the {Request|Response}Wrapper annotation
-      *
-      * @param message the current message
-      * @param method the target method
-      * @return the annotated local name 
-      */
-    private static String getWrapperLocalName(Message message,
-                                              Method method) {
-        String localName = null;
-        if (ContextUtils.isRequestor(message)) {
-            RequestWrapper requestWrapper =
-                method.getAnnotation(RequestWrapper.class);
-            if (requestWrapper != null) {
-                localName = requestWrapper.localName();
-            }
-        } else {
-            ResponseWrapper responseWrapper =
-                method.getAnnotation(ResponseWrapper.class);
-            if (responseWrapper != null) {
-                localName = responseWrapper.localName();
-            }
-        }
-        return localName;
-    }
-
-    /**
-     * Construct the Action string.
-     *
-     * @param targetNamespace the target namespace
-     * @param method the method
-     * @param localName the local name
-     * @param isFault true if a fault
-     * @return action string
-     */
-    private static String getAction(String targetNamespace, 
-                                    Method method, 
-                                    String localName,
-                                    boolean isFault) {
-        String action = null;
-        action = targetNamespace;
-        action += Names.WSA_ACTION_DELIMITER;
-        action += method.getDeclaringClass().getSimpleName();
-        if (isFault) {
-            action += method.getName();
-            action += Names.WSA_FAULT_DELIMITER;
-        }
-        action += Names.WSA_ACTION_DELIMITER;
-        action += localName;
-        return action;
-    }
-    
-    /**
-     * Get the current Method.
-     * 
-     * @param message the current message
-     * @return the Method from the BindingOperationInfo
-     */
-    private static Method getMethod(Message message) {
-        Method method = null;
-        BindingOperationInfo bindingOpInfo =
-            message.getExchange().get(BindingOperationInfo.class);
-        if (bindingOpInfo != null) {
-            OperationInfo opInfo = bindingOpInfo.getOperationInfo();
-            if (opInfo != null) {
-                method = (Method)opInfo.getProperty(Method.class.getName());
-            }
-        }
-        return method;
-    }
-
-    /**
-     * @param s a string that may be a URI without a scheme identifier
-     * @return a properly formed URI
-     */
-    private static String getURI(String s) {
-        String uri = null;
-        if (s.startsWith(HTTP_URI_SCHEME)) {
-            uri = s;
-        } else if (s.startsWith(URI_AUTHORITY_PREFIX)) {
-            uri = HTTP_URI_SCHEME + s;
-        } else {
-            uri = HTTP_URI_SCHEME + URI_AUTHORITY_PREFIX + s;
-        }
-        return uri;
-    }
-
     public static EndpointReferenceType getNoneEndpointReference() {
         return NONE_ENDPOINT_REFERENCE;
     }

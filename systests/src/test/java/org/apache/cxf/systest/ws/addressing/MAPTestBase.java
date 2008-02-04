@@ -114,7 +114,7 @@ public abstract class MAPTestBase extends AbstractClientServerTestBase implement
     private void removeInterceptors(List<Interceptor> chain,
                                  Interceptor[] interceptors) {
         for (int i = 0; i < interceptors.length; i++) {
-            chain.add(interceptors[i]);
+            chain.remove(interceptors[i]);
         }
     }
     
@@ -190,14 +190,14 @@ public abstract class MAPTestBase extends AbstractClientServerTestBase implement
     }
 
     @Test
-    @Ignore
     public void testExplicitMAPs() throws Exception {
         try {
+            String msgId = "urn:uuid:12345-" + Math.random();
             Map<String, Object> requestContext = 
                 ((BindingProvider)greeter).getRequestContext();
             AddressingProperties maps = new AddressingPropertiesImpl();
             AttributedURIType id = 
-                ContextUtils.getAttributedURI("urn:uuid:12345");
+                ContextUtils.getAttributedURI(msgId);
             maps.setMessageID(id);
             requestContext.put(CLIENT_ADDRESSING_PROPERTIES, maps);
             String greeting = greeter.greetMe("explicit1");
@@ -213,14 +213,14 @@ public abstract class MAPTestBase extends AbstractClientServerTestBase implement
                 greeter.greetMe("explicit2");
                 fail("expected ProtocolException on duplicate message ID");
             } catch (ProtocolException pe) {
-                assertTrue("expected duplicate message ID failure",
-                           "Duplicate Message ID urn:uuid:12345".equals(pe.getMessage()));
+                assertEquals("expected duplicate message ID failure",
+                           "Duplicate Message ID " + msgId, pe.getMessage());
                 checkVerification();
             }
 
             // clearing the message ID ensure a duplicate is not sent
             maps.setMessageID(null);
-            maps.setRelatesTo(ContextUtils.getRelatesTo(id.getValue()));
+            //maps.setRelatesTo(ContextUtils.getRelatesTo(id.getValue()));
             greeting = greeter.greetMe("explicit3");
             assertEquals("unexpected response received from service", 
                          "Hello explicit3",
@@ -398,6 +398,7 @@ public abstract class MAPTestBase extends AbstractClientServerTestBase implement
               || wsaHeaders.contains(Names.WSA_RELATESTO_NAME))) {
             ret = "expected ReplyTo or RelatesTo header";
         }
+        /*
         if (partial) { 
             if (!wsaHeaders.contains(Names.WSA_FROM_NAME)) {
                 ret = "expected From header";
@@ -408,6 +409,7 @@ public abstract class MAPTestBase extends AbstractClientServerTestBase implement
             //    ret = "expected Action header";
             //}            
         }
+        */
         if (requestLeg && !(wsaHeaders.contains(CUSTOMER_NAME.getLocalPart()))) {
             ret = "expected CustomerKey header";
         }

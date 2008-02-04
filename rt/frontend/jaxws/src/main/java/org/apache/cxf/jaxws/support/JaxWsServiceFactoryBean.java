@@ -31,7 +31,6 @@ import javax.wsdl.Operation;
 import javax.xml.bind.annotation.XmlNsForm;
 import javax.xml.bind.annotation.XmlSchema;
 import javax.xml.bind.annotation.XmlSeeAlso;
-import javax.xml.namespace.QName;
 import javax.xml.ws.Action;
 import javax.xml.ws.AsyncHandler;
 import javax.xml.ws.BindingType;
@@ -192,7 +191,7 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
     @Override
     protected void initializeWSDLOperation(InterfaceInfo intf, OperationInfo o, Method method) {
         method = ((JaxWsServiceConfiguration)jaxWsConfiguration).getDeclaredMethod(method);
-
+        o.setProperty(Method.class.getName(), method);
         initializeWrapping(o, method);
 
         try {
@@ -393,35 +392,46 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
 
     private FaultInfo getFaultInfo(final OperationInfo operation, final Class expClass) {
         for (FaultInfo fault : operation.getFaults()) {
-            if (fault.getProperty(Class.class.getName()) == expClass) {
+            if (fault.getProperty(Class.class.getName()) == expClass
+                || fault.getProperty(Class.class.getName()) == expClass) {
                 return fault;
             }
         }
         return null;
     }
-    
     private void buildWSAActions(OperationInfo operation, Method method) {
+        //nothing
+        if (method == null) {
+            return;
+        }
+
         Action action = method.getAnnotation(Action.class);
         if (action == null) {
             return;
         }
-        String ns = operation.getName().getNamespaceURI();
         MessageInfo input = operation.getInput();
-        if (action.input() != null) {
-            input.addExtensionAttribute(JAXWSAConstants.WSAW_ACTION_QNAME, new QName(ns, action.input()));
+        if (!StringUtils.isEmpty(action.input())) {
+            input.addExtensionAttribute(JAXWSAConstants.WSAW_ACTION_QNAME, action.input());
         }
         
         MessageInfo output = operation.getOutput();
-        if (output != null && action.output() != null) {
-            output.addExtensionAttribute(JAXWSAConstants.WSAW_ACTION_QNAME, new QName(ns, action.output()));
+        if (output != null && !StringUtils.isEmpty(action.output())) {
+            output.addExtensionAttribute(JAXWSAConstants.WSAW_ACTION_QNAME, action.output());
         }
         
         FaultAction[] faultActions = action.fault();
-        if (faultActions != null && operation.getFaults() != null) {
+        if (faultActions != null 
+            && faultActions.length > 0 
+            && operation.getFaults() != null) {
             for (FaultAction faultAction : faultActions) {                
                 FaultInfo faultInfo = getFaultInfo(operation, faultAction.className());
                 faultInfo.addExtensionAttribute(JAXWSAConstants.WSAW_ACTION_QNAME, 
-                                                new QName(ns, faultAction.value()));
+                                                faultAction.value());
+                if (operation.isUnwrappedCapable()) {
+                    faultInfo = getFaultInfo(operation.getUnwrappedOperation(), faultAction.className());
+                    faultInfo.addExtensionAttribute(JAXWSAConstants.WSAW_ACTION_QNAME, 
+                                                    faultAction.value());
+                }
             }
         }        
     }

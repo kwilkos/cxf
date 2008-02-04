@@ -45,14 +45,14 @@ public class AddressingConstantsImplTest extends Assert {
     @Test
     public void testGetWSDLNamespaceURI() throws Exception {
         assertEquals("unexpected constant",
-                     "http://www.w3.org/2005/02/addressing/wsdl",
+                     "http://www.w3.org/2006/05/addressing/wsdl",
                      constants.getWSDLNamespaceURI());
     }
 
     @Test
     public void testGetWSDLExtensibility() throws Exception {
         assertEquals("unexpected constant",
-                     new QName("http://www.w3.org/2005/02/addressing/wsdl",
+                     new QName("http://www.w3.org/2006/05/addressing/wsdl",
                                "UsingAddressing"),
                      constants.getWSDLExtensibilityQName());
     }
@@ -60,7 +60,7 @@ public class AddressingConstantsImplTest extends Assert {
     @Test
     public void testGetWSDLActionQName() throws Exception {
         assertEquals("unexpected constant",
-                     new QName("http://www.w3.org/2005/02/addressing/wsdl",
+                     new QName("http://www.w3.org/2006/05/addressing/wsdl",
                                "Action"),
                      constants.getWSDLActionQName());
     }

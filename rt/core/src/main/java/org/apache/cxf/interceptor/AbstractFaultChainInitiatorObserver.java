@@ -95,8 +95,8 @@ public abstract class AbstractFaultChainInitiatorObserver implements MessageObse
             try {
                 chain.doIntercept(faultMessage);
             } catch (Exception exc) {
-                LogUtils.log(LOG, Level.SEVERE, "Error occurred during error handling, give up!", exc);
-                throw new RuntimeException(exc.getCause());
+                LOG.log(Level.SEVERE, "Error occurred during error handling, give up!", exc);
+                throw new RuntimeException(exc);
             }
         } finally {
             BusFactory.setThreadDefaultBus(origBus);

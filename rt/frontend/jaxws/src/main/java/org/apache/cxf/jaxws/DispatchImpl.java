@@ -191,7 +191,9 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
                         Fault fault = (Fault)exp;
                         soapFault.setFaultCode(fault.getFaultCode());
                         soapFault.setFaultString(fault.getMessage());
-                        throw new SOAPFaultException(soapFault);
+                        SOAPFaultException ex = new SOAPFaultException(soapFault);
+                        ex.initCause(exp);
+                        throw ex;
                     } catch (SOAPException e) {
                         throw new WebServiceException(e);
                     }
