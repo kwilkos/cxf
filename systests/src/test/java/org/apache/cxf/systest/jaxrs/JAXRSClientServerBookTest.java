@@ -287,14 +287,18 @@ public class JAXRSClientServerBookTest extends AbstractBusClientServerTestBase {
         String endpointAddress =
             "http://localhost:9080/bookstore/cds"; 
         URL url = new URL(endpointAddress);
-        InputStream in = url.openStream();
+        URLConnection connect = url.openConnection();
+        connect.addRequestProperty("Accept", "application/xml");
+        InputStream in = connect.getInputStream();
         assertNotNull(in);           
 
-/*        InputStream expected = getClass()
-            .getResourceAsStream("resources/expected_get_cds.txt");
-
-        System.out.println("---" + getStringFromInputStream(in));
-        assertEquals(getStringFromInputStream(expected), getStringFromInputStream(in)); */
+        InputStream expected123 = getClass().getResourceAsStream("resources/expected_get_cd.txt");
+        InputStream expected124 = getClass().getResourceAsStream("resources/expected_get_cds124.txt");
+        String result = getStringFromInputStream(in);
+        //System.out.println("---" + getStringFromInputStream(in));
+        
+        assertTrue(result.indexOf(getStringFromInputStream(expected123)) >= 0);
+        assertTrue(result.indexOf(getStringFromInputStream(expected124)) >= 0);
     }
     
     @Test
@@ -319,6 +323,32 @@ public class JAXRSClientServerBookTest extends AbstractBusClientServerTestBase {
             get.releaseConnection();
         }  
     }    
+    
+    @Test
+    public void testGetCDsJSON() throws Exception {
+        String endpointAddress =
+            "http://localhost:9080/bookstore/cds"; 
+
+        GetMethod get = new GetMethod(endpointAddress);
+        get.addRequestHeader("Accept" , "application/json");
+
+        HttpClient httpclient = new HttpClient();
+        
+        try {
+            int result = httpclient.executeMethod(get);
+            assertEquals(200, result);
+
+            InputStream expected123 = getClass().getResourceAsStream("resources/expected_get_cdsjson123.txt");
+            InputStream expected124 = getClass().getResourceAsStream("resources/expected_get_cdsjson124.txt");
+            
+            assertTrue(get.getResponseBodyAsString().indexOf(getStringFromInputStream(expected123)) >= 0);
+            assertTrue(get.getResponseBodyAsString().indexOf(getStringFromInputStream(expected124)) >= 0);
+
+        } finally {
+            // Release current connection to the connection pool once you are done
+            get.releaseConnection();
+        }  
+    }  
     
     @Test
     public void testGetCDXML() throws Exception {
