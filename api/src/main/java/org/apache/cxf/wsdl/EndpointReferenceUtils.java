@@ -40,6 +40,7 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.namespace.QName;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
@@ -73,6 +74,7 @@ import org.apache.cxf.helpers.XMLUtils;
 import org.apache.cxf.resource.ExtendedURIResolver;
 import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.service.model.ServiceInfo;
+import org.apache.cxf.staxutils.W3CDOMStreamWriter;
 import org.apache.cxf.transport.Destination;
 import org.apache.cxf.transport.MultiplexDestination;
 import org.apache.cxf.ws.addressing.AttributedURIType;
@@ -857,9 +859,6 @@ public final class EndpointReferenceUtils {
     }
     
     public static Source convertToXML(EndpointReferenceType epr) {
-        StreamResult result = new StreamResult();
-        java.io.StringWriter s = new java.io.StringWriter();
-        result.setWriter(s);
         try {
             JAXBContext jaxbContext = 
                 JAXBContext.newInstance(new Class[] {WSA_WSDL_OBJECT_FACTORY.getClass(), 
@@ -869,12 +868,17 @@ public final class EndpointReferenceUtils {
             QName qname = new QName("http://www.w3.org/2005/08/addressing", "EndpointReference");
             JAXBElement<EndpointReferenceType> 
             jaxEle = new JAXBElement<EndpointReferenceType>(qname, EndpointReferenceType.class, epr);
-            jm.marshal(jaxEle, result);           
+            
+            
+            W3CDOMStreamWriter writer = new W3CDOMStreamWriter();
+            jm.marshal(jaxEle, writer); 
+            return new DOMSource(writer.getDocument());
         } catch (JAXBException e) {
-            return null;
+            //ignore
+        } catch (ParserConfigurationException e) {
+            //ignore
         }
-        java.io.StringReader strReader = new java.io.StringReader(s.toString());
-        return new StreamSource(strReader);        
+        return null;
     }
     
     

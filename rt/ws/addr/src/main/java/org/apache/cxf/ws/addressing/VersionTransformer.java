@@ -20,23 +20,24 @@
 package org.apache.cxf.ws.addressing;
 
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
-import javax.xml.transform.Result;
-import javax.xml.transform.stream.StreamResult;
-import javax.xml.transform.stream.StreamSource;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.dom.DOMResult;
 import javax.xml.ws.EndpointReference;
 import javax.xml.ws.wsaddressing.W3CEndpointReference;
+
+import org.w3c.dom.Document;
 
 // importation convention: if the same class name is used for 
 // 2005/08 and 2004/08, then the former version is imported
 // and the latter is fully qualified when used
-import org.apache.cxf.io.CachedOutputStream;
+import org.apache.cxf.helpers.XMLUtils;
+import org.apache.cxf.staxutils.W3CDOMStreamReader;
 import org.apache.cxf.ws.addressing.v200408.AttributedQName;
 import org.apache.cxf.ws.addressing.v200408.AttributedURI;
 import org.apache.cxf.ws.addressing.v200408.ObjectFactory;
@@ -201,26 +202,27 @@ public class VersionTransformer {
      */
     public static EndpointReferenceType convertToInternal(EndpointReference external) {
         if (external instanceof W3CEndpointReference) {
-            CachedOutputStream cos = new CachedOutputStream();
-            Result r = new StreamResult(cos);
-            external.writeTo(r);
-
-            JAXBContext jaxbContext;
+            
+            
             try {
+                Document doc = XMLUtils.newDocument();
+                DOMResult result = new DOMResult(doc);
+                external.writeTo(result);
+                W3CDOMStreamReader reader = new W3CDOMStreamReader(doc.getDocumentElement());
+                
                 // CXF internal 2005/08 EndpointReferenceType should be
                 // compatible with W3CEndpointReference
                 //jaxContext = ContextUtils.getJAXBContext();
-                jaxbContext = JAXBContext
-                    .newInstance(new Class[] {org.apache.cxf.ws.addressing.ObjectFactory.class,
-                                              org.apache.cxf.ws.addressing.wsdl.ObjectFactory.class});
+                JAXBContext jaxbContext = JAXBContext
+                    .newInstance(new Class[] {org.apache.cxf.ws.addressing.ObjectFactory.class});
                 EndpointReferenceType internal = jaxbContext.createUnmarshaller()
-                    .unmarshal(new StreamSource(cos.getInputStream()), EndpointReferenceType.class)
+                    .unmarshal(reader, EndpointReferenceType.class)
                     .getValue();
                 return internal;
             } catch (JAXBException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
-            } catch (IOException e) {
+            } catch (ParserConfigurationException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }

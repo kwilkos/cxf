@@ -33,6 +33,7 @@ import org.w3c.dom.EntityReference;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.Text;
+import org.w3c.dom.TypeInfo;
 
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.staxutils.AbstractDOMStreamReader.ElementFrame;
@@ -245,15 +246,15 @@ public class W3CDOMStreamReader extends AbstractDOMStreamReader {
     }
 
     public String getAttributeType(int i) {
-        return toStaxType(getAttribute(i).getNodeType());
+        Attr attr = getAttribute(i);
+        if (attr.isId()) {
+            return "ID";
+        }
+        TypeInfo schemaType = attr.getSchemaTypeInfo();
+        return (schemaType == null) ? "CDATA" 
+            : schemaType.getTypeName() == null ? "CDATA" : schemaType.getTypeName();
     }
 
-    public static String toStaxType(short jdom) {
-        switch (jdom) {
-        default:
-            return null;
-        }
-    }
 
     public String getAttributeValue(int i) {
         return getAttribute(i).getValue();
