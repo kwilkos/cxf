@@ -24,18 +24,31 @@ import java.util.List;
 import java.util.Map;
 
 import javax.ws.rs.ProduceMime;
+import javax.ws.rs.QueryParam;
 
 import org.apache.cxf.jaxrs.model.ClassResourceInfo;
 import org.apache.cxf.jaxrs.model.OperationResourceInfo;
+import org.apache.cxf.message.Message;
+import org.apache.cxf.message.MessageImpl;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 public class JAXRSUtilsTest extends Assert {
-
     public class Customer {
         @ProduceMime("text/xml")   
         public void test() {
+            // complete
+        }
+        
+        @ProduceMime("text/xml")   
+        public void testQuery(@QueryParam("query") String queryString, @QueryParam("query") int queryInt) {
+            // complete
+        }
+        
+        @ProduceMime("text/xml")   
+        public void testMultipleQuery(@QueryParam("query") 
+                                      String queryString, @QueryParam("query2") String queryString2) {
             // complete
         }
     };
@@ -254,5 +267,32 @@ public class JAXRSUtilsTest extends Assert {
                    JAXRSUtils.matchMimeTypes(null, null, m));
         
         
+    }
+    
+    @Test
+    public void testQueryParameters() throws Exception {
+        Class[] argType = {String.class, Integer.TYPE};
+        Method m = Customer.class.getMethod("testQuery", argType);
+        MessageImpl messageImpl = new MessageImpl();
+        
+        messageImpl.put(Message.QUERY_STRING, "query=24");
+        List<Object> params = JAXRSUtils.processParameters(m, null, messageImpl);
+        assertEquals("Query Parameter was not matched correctly", "24", params.get(0));
+        assertEquals("Primitive Query Parameter was not matched correctly", 24, params.get(1));
+        
+        
+    }
+    
+    @Test
+    public void testMultipleQueryParameters() throws Exception {
+        Class[] argType = {String.class, String.class};
+        Method m = Customer.class.getMethod("testMultipleQuery", argType);
+        MessageImpl messageImpl = new MessageImpl();
+        
+        messageImpl.put(Message.QUERY_STRING, "query=first&query2=second");
+        List<Object> params = JAXRSUtils.processParameters(m, null, messageImpl);
+        assertEquals("First Query Parameter of multiple was not matched correctly", "first", params.get(0));
+        assertEquals("Second Query Parameter of multiple was not matched correctly", 
+                     "second", params.get(1));    
     }
 }

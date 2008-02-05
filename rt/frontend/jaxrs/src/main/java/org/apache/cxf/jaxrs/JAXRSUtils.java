@@ -21,13 +21,16 @@ package org.apache.cxf.jaxrs;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -44,6 +47,7 @@ import javax.ws.rs.ext.EntityProvider;
 import javax.ws.rs.ext.ProviderFactory;
 
 import org.apache.cxf.common.util.PrimitiveUtils;
+import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.jaxrs.interceptor.JAXRSInInterceptor;
 import org.apache.cxf.jaxrs.model.ClassResourceInfo;
 import org.apache.cxf.jaxrs.model.OperationResourceInfo;
@@ -52,14 +56,14 @@ import org.apache.cxf.jaxrs.provider.ProviderFactoryImpl;
 import org.apache.cxf.message.Message;
 
 public final class JAXRSUtils {
-    
+
     private static final String ALL_TYPES = "*/*";
-    
+
     private JAXRSUtils() {        
     }
-    
+
     public static ClassResourceInfo findSubResourceClass(ClassResourceInfo resource,
-                                                             Class subResourceClassType) {
+                                                         Class subResourceClassType) {
         for (ClassResourceInfo subCri : resource.getSubClassResourceInfo()) {
             if (subCri.getResourceClass() == subResourceClassType) {
                 return subCri;
@@ -67,7 +71,7 @@ public final class JAXRSUtils {
         }
         return null;
     }
-    
+
     public static OperationResourceInfo findTargetResourceClass(List<ClassResourceInfo> resources,
                                                                 String path, String httpMethod,
                                                                 Map<String, String> values,
@@ -88,20 +92,20 @@ public final class JAXRSUtils {
     }
 
     public static OperationResourceInfo findTargetMethod(ClassResourceInfo resource, String path,
-                                                     String httpMethod, Map<String, String> values, 
-                                                     String contentTypes, String acceptContentTypes) {
+                                                         String httpMethod, Map<String, String> values, 
+                                                         String contentTypes, String acceptContentTypes) {
         List<OperationResourceInfo> candidateList = new ArrayList<OperationResourceInfo>();
-        
+
         for (OperationResourceInfo ori : resource.getMethodDispatcher().getOperationResourceInfos()) {
             URITemplate uriTemplate = ori.getURITemplate();
             if ((uriTemplate != null && uriTemplate.match(path, values))
                 && (ori.isSubResourceLocator() || (ori.getHttpMethod() != null && ori.getHttpMethod()
                     .equalsIgnoreCase(httpMethod)))
-                && matchMimeTypes(contentTypes, acceptContentTypes, ori.getMethod())) {
+                    && matchMimeTypes(contentTypes, acceptContentTypes, ori.getMethod())) {
                 candidateList.add(ori);
             }
         }
-         
+
         if (!candidateList.isEmpty()) {
             /*
              * Sort M using the media type of input data as the primary key and
@@ -113,7 +117,7 @@ public final class JAXRSUtils {
             return null;
         }
     }    
-   
+
     private static class OperationResourceInfoComparator implements Comparator<OperationResourceInfo> {
         public int compare(OperationResourceInfo e1, OperationResourceInfo e2) {
             ConsumeMime c1 = e1.getMethod().getAnnotation(ConsumeMime.class);
@@ -121,7 +125,7 @@ public final class JAXRSUtils {
             if (c1 != null) {
                 mimeType1 = c1.value();               
             }
-            
+
             ConsumeMime c2 = e2.getMethod().getAnnotation(ConsumeMime.class);
             String[] mimeType2 = {ALL_TYPES};
             if (c2 != null) {
@@ -136,27 +140,27 @@ public final class JAXRSUtils {
                 if (p1 != null) {
                     mimeTypeP1 = p1.value();               
                 }
-                
+
                 ProduceMime p2 = e2.getMethod().getAnnotation(ProduceMime.class);
                 String[] mimeTypeP2 = {ALL_TYPES};
                 if (p2 != null) {
                     mimeTypeP2 = p2.value();               
                 }    
-                
+
                 return compareString(mimeTypeP1[0], mimeTypeP2[0]);
             } else {
                 return resultOfComparingConsumeMime;
             }
-            
+
         }
-        
+
         private int compareString(String str1, String str2) {
             if (!str1.startsWith("*/") && str2.startsWith("*/")) {
                 return -1;
             } else if (str1.startsWith("*/") && !str2.startsWith("*/")) {
                 return 1;
             } 
-            
+
             return str1.compareTo(str2);
         }
     }
@@ -177,7 +181,7 @@ public final class JAXRSUtils {
 
         return params;
     }
-    
+
     private static Object processParameter(Class<?> parameterClass, Type parameterType,
                                            Annotation[] parameterAnnotations, Map<String, String> values,
                                            Message message) {
@@ -193,9 +197,9 @@ public final class JAXRSUtils {
         }
         String path = (String)message.get(JAXRSInInterceptor.RELATIVE_PATH);
         String httpMethod = (String)message.get(Message.HTTP_REQUEST_METHOD);
-        
+
         Object result = null;
-        
+
         if ((parameterAnnotations == null || parameterAnnotations.length == 0)
             && ("PUT".equals(httpMethod) || "POST".equals(httpMethod))) {
             result = readFromEntityBody(parameterClass, is, contentTypes);
@@ -203,7 +207,7 @@ public final class JAXRSUtils {
             result = readFromUriParam((UriParam)parameterAnnotations[0], parameterClass, parameterType,
                                       parameterAnnotations, path, values);
         } else if (parameterAnnotations[0].annotationType() == QueryParam.class) {
-            //TODO
+            result = readQueryString((QueryParam)parameterAnnotations[0], parameterClass, message);
         } else if (parameterAnnotations[0].annotationType() == MatrixParam.class) {
             //TODO
         } else if (parameterAnnotations[0].annotationType() == HeaderParam.class) {
@@ -215,28 +219,66 @@ public final class JAXRSUtils {
         return result;
     }
 
+    private static Object readQueryString(QueryParam queryParam, Class<?> parameter, Message message) {
+        String queryName = queryParam.value();
+
+        Object result = getQueries(message).get(queryName);
+
+        if (parameter.isPrimitive()) {
+            result = PrimitiveUtils.read((String)result, parameter);
+        }
+        return result;  
+    }
+
+    /**
+     * Retrieve map of query parameters from the passed in message
+     * @param message
+     * @return a Map of query parameters.
+     */
+    protected  static Map<String, String> getQueries(Message message) {
+        Map<String, String> queries = new LinkedHashMap<String, String>();
+        String query = (String)message.get(Message.QUERY_STRING);
+        if (!StringUtils.isEmpty(query)) {            
+            List<String> parts = Arrays.asList(query.split("&"));
+            for (String part : parts) {
+                String[] keyValue = part.split("=");
+                queries.put(keyValue[0], uriDecode(keyValue[1]));
+            }
+        }
+        return queries;
+    }
+
+    private static String uriDecode(String query) {
+        try {
+            query = URLDecoder.decode(query, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            //Swallow unsupported decoding exception          
+        }
+        return query;
+    }
+
     @SuppressWarnings("unchecked")
     private static Object readFromEntityBody(Class targetTypeClass, InputStream is, String contentTypes) {
         Object result = null;
         //Refactor once we move to JSR-311 0.5 API
         EntityProvider provider = ((ProviderFactoryImpl)ProviderFactory.getInstance())
-            .createEntityProvider(targetTypeClass, new String[]{contentTypes}, true);
+        .createEntityProvider(targetTypeClass, new String[]{contentTypes}, true);
 
         try {
             result = provider.readFrom(targetTypeClass, null, null, is);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        
+
         return result;
     }
 
     private static Object readFromUriParam(UriParam uriParamAnnotation,
-                                    Class<?> parameter,
-                                    Type parameterType,
-                                    Annotation[] parameterAnnotations,
-                                    String path,
-                                    Map<String, String> values) {
+                                           Class<?> parameter,
+                                           Type parameterType,
+                                           Annotation[] parameterAnnotations,
+                                           String path,
+                                           Map<String, String> values) {
         String parameterName = uriParamAnnotation.value();
         if (parameterName == null || parameterName.length() == 0) {
             // Invalid URI parameter name
@@ -244,13 +286,13 @@ public final class JAXRSUtils {
         }
 
         Object result = values.get(parameterName);
-        
+
         if (parameter.isPrimitive()) {
             result = PrimitiveUtils.read((String)result, parameter);
         }
         return result;
     }
-    
+
     public static boolean matchMimeTypes(String contentTypes, String acceptContentTypes, Method m) {
         if (contentTypes != null) {
             try {
@@ -281,26 +323,26 @@ public final class JAXRSUtils {
         } else {
             acceptValues.add(ALL_TYPES);
         }
-          
+
         String[] consumeMimeTypes = {ALL_TYPES};          
         ConsumeMime c = m.getAnnotation(ConsumeMime.class);
         if (c != null) {
             consumeMimeTypes = c.value();               
         } 
-        
+
         String[] produceMimeTypes = {ALL_TYPES};          
         ProduceMime p = m.getAnnotation(ProduceMime.class);
         if (p != null) {
             produceMimeTypes = p.value();               
         }     
-        
+
         if (intersectMimeTypes(consumeMimeTypes, contentTypes).length != 0
             && intersectMimeTypes(produceMimeTypes, acceptValues.toArray(new String[]{})).length != 0) {
             return true;
         }
         return false;
     }
-    
+
     /**
      * intersect two mime types
      * 
@@ -310,17 +352,17 @@ public final class JAXRSUtils {
      */   
     public static String[] intersectMimeTypes(String[] mimeTypesA, String[] mimeTypesB) {
         List<String> supportedMimeTypeList = new ArrayList<String>();
-        
+
         for (String mimeTypeB : mimeTypesB) {
             String[] tmpList = intersectMimeTypes(mimeTypesA, mimeTypeB);
             supportedMimeTypeList.addAll(Arrays.asList(tmpList));
         }
-        
+
         String[] list = new String[supportedMimeTypeList.size()];
         list = supportedMimeTypeList.toArray(list);
         return list;
     }
-    
+
     /**
      * intersect two mime types
      * 
@@ -330,7 +372,7 @@ public final class JAXRSUtils {
      */   
     public static String[] intersectMimeTypes(String[] mimeTypesA, String mimeTypeB) {
         List<String> intersectedMimeTypes = new ArrayList<String>();
-        
+
         for (String mimeTypeA : mimeTypesA) {
             if (isSubSetOfMimeTypes(mimeTypeB, mimeTypeA)) {
                 intersectedMimeTypes.add(mimeTypeB);
@@ -338,12 +380,12 @@ public final class JAXRSUtils {
                 intersectedMimeTypes.add(mimeTypeA);               
             }
         }
-        
+
         String[] list = new String[intersectedMimeTypes.size()];
         list = intersectedMimeTypes.toArray(list);
         return list;
     }
-    
+
     /**
      * compare two mime types
      * 
@@ -358,12 +400,12 @@ public final class JAXRSUtils {
         } else if (mimeTypeB.startsWith("*/")) {
             return true;
         } else if (mimeTypeB.endsWith("/*")
-                   && !mimeTypeA.startsWith("*/")
-                   && mimeTypeB.substring(0, mimeTypeB.indexOf("/"))
-                       .equalsIgnoreCase(mimeTypeA.substring(0, mimeTypeB.indexOf("/")))) {
+            && !mimeTypeA.startsWith("*/")
+            && mimeTypeB.substring(0, mimeTypeB.indexOf("/"))
+                .equalsIgnoreCase(mimeTypeA.substring(0, mimeTypeB.indexOf("/")))) {
             return true;
         }
-        
+
         return false;
     }
 }
