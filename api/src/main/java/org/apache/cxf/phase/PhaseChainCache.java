@@ -28,7 +28,13 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.apache.cxf.common.util.ModCountCopyOnWriteArrayList;
 import org.apache.cxf.interceptor.Interceptor;
 
-
+/**
+ * The PhaseChainCache provides default interceptor chains for SOAP requests
+ * and responses, both from the client and web service side.  The list of
+ * phases supplied in the get() methods of this class are defined by default
+ * within org.apache.cxf.phase.PhaseManagerImpl.  For an example of this class 
+ * in use, check the sourcecode of org.apache.cxf.endpoint.ClientImpl.
+ */
 public final class PhaseChainCache {
     AtomicReference<ChainHolder> lastData = new AtomicReference<ChainHolder>();
     
