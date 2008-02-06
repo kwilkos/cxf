@@ -24,7 +24,7 @@ under the License.
 		  xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
     <wsdl:types>
 	<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://server.addr_fromjava.ws.systest.cxf.apache.org/" 
-		    attributeFormDefault="unqualified" elementFormDefault="qualified" 
+		    attributeFormDefault="unqualified" elementFormDefault="unqualified" 
 		    targetNamespace="http://server.addr_fromjava.ws.systest.cxf.apache.org/">
 	    <xsd:element name="AddNumbersException" type="tns:AddNumbersException"/>
 	    <xsd:complexType name="AddNumbersException">

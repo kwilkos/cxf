@@ -114,7 +114,7 @@ public class RestClientServerBookTest extends AbstractBusClientServerTestBase {
         InputStream expected = getClass()
             .getResourceAsStream("resources/expected_get_book123_xmlwrapped.txt");
 
-        String expectedString = getStringFromInputStream(expected);
+        String expectedString = getStringFromInputStream(expected).trim();
         //System.out.println("---" + getStringFromInputStream(in));
         assertEquals(expectedString, expectedString, getStringFromInputStream(in)); 
     }
