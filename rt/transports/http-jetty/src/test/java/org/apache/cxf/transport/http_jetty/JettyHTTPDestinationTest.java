@@ -159,6 +159,22 @@ public class JettyHTTPDestinationTest extends Assert {
     }
     
     @Test
+    public void testRandomPortAllocation() throws Exception {
+        transportFactory = new JettyHTTPTransportFactory();
+        transportFactory.setBus(new CXFBusImpl());
+        ServiceInfo serviceInfo = new ServiceInfo();
+        serviceInfo.setName(new QName("bla", "Service"));
+        EndpointInfo ei = new EndpointInfo(serviceInfo, "");
+        ei.setName(new QName("bla", "Port"));
+        
+        Destination d1 = transportFactory.getDestination(ei);
+        URL url = new URL(d1.getAddress().getAddress().getValue());
+        assertTrue("No random port has been allocated", 
+                   url.getPort() > 0);
+        
+    }
+    
+    @Test
     public void testGetMultiple() throws Exception {
         transportFactory = new JettyHTTPTransportFactory();
         transportFactory.setBus(new CXFBusImpl());

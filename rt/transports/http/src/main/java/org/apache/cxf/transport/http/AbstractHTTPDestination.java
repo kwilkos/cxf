@@ -22,6 +22,7 @@ package org.apache.cxf.transport.http;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
@@ -70,7 +71,7 @@ public abstract class AbstractHTTPDestination extends AbstractMultiplexDestinati
     public static final String HTTP_RESPONSE = "HTTP.RESPONSE";
     public static final String HTTP_CONTEXT = "HTTP.CONTEXT";
     public static final String PROTOCOL_HEADERS_CONTENT_TYPE = Message.CONTENT_TYPE.toLowerCase();
-    
+        
     private static final Logger LOG = LogUtils.getL7dLogger(AbstractHTTPDestination.class);
     
     private static final long serialVersionUID = 1L;
@@ -232,6 +233,20 @@ public abstract class AbstractHTTPDestination extends AbstractMultiplexDestinati
     
     protected static EndpointInfo getAddressValue(EndpointInfo ei, boolean dp) {       
         if (dp) {
+            
+            String eiAddress = ei.getAddress();
+            if (eiAddress == null) {
+                try {
+                    ServerSocket s = new ServerSocket(0);
+                    ei.setAddress("http://localhost:" + s.getLocalPort());
+                    s.close();
+                    return ei;
+                } catch (IOException ex) {
+                    // problem allocating a random port, go to the default one
+                    ei.setAddress("http://localhost");
+                }
+            }
+            
             String addr = StringUtils.addDefaultPortIfMissing(ei.getAddress());
             if (addr != null) {
                 ei.setAddress(addr);
