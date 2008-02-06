@@ -58,6 +58,7 @@
             xmlns:x1="http://apache.org/cxf/tests/inherit/types"
             xmlns:x2="http://apache.org/cxf/tests/inherit/objects"
              elementFormDefault="qualified">
+            <import namespace="http://apache.org/cxf/tests/inherit/objects"/>
             <complexType name="ObjectInfo">
                 <sequence>
                     <element name="baseObject" type="x2:BaseType"/>

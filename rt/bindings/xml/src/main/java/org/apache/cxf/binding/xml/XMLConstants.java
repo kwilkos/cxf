@@ -23,4 +23,7 @@ package org.apache.cxf.binding.xml;
 public final class XMLConstants {
     public static final String NS_XML_FORMAT = "http://cxf.apache.org/bindings/xformat";
 
+    private XMLConstants() {
+        //utility class
+    }
 }

@@ -26,6 +26,10 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.cxf.aegis.Context;
 import org.apache.cxf.aegis.util.NamespaceHelper;
 import org.apache.cxf.aegis.util.XmlConstants;
+import org.apache.cxf.helpers.CastUtils;
+import org.jdom.Attribute;
+import org.jdom.Element;
+import org.jdom.Namespace;
 
 /**
  * Static methods/constants for Aegis.
@@ -69,6 +73,28 @@ public final class TypeUtil {
             }
         }
         return type;
+    }
+
+    public static Attribute createTypeAttribute(String prefix, Type type, Element root) {
+        String ns = type.getSchemaType().getNamespaceURI();
+        if (!ns.equals(root.getAttributeValue("targetNamespace"))
+            && !ns.equals(XmlConstants.XSD)) {
+            //find import statement
+            List<Element> l = CastUtils.cast(root.getChildren("import", 
+                                                              Namespace.getNamespace(XmlConstants.XSD)));
+            boolean found = false;
+            for (Element e : l) {
+                if (ns.equals(e.getAttributeValue("namespace"))) {
+                    found = true;
+                }
+            }
+            if (!found) {
+                Element element = new Element("import", XmlConstants.XSD_PREFIX, XmlConstants.XSD);
+                root.addContent(0, element);
+                element.setAttribute("namespace", ns);
+            }
+        }
+        return new Attribute("type", prefix + ':' + type.getSchemaType().getLocalPart()); 
     }
 
 }

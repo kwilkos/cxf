@@ -304,14 +304,27 @@ public final class JAXBDataBinding extends AbstractDataBinding implements DataBi
         final List<DOMResult> results = new ArrayList<DOMResult>();
 
         context.generateSchema(new SchemaOutputResolver() {
+            private Map<String, String> builtIns = new HashMap<String, String>();
+            {
+                builtIns.put("http://www.w3.org/2005/02/addressing/wsdl",
+                             "classpath:/schemas/wsdl/ws-addr-wsdl.xsd");
+                builtIns.put("http://www.w3.org/2005/08/addressing",
+                             "classpath:/schemas/wsdl/ws-addr.xsd");
+                builtIns.put("http://schemas.xmlsoap.org/ws/2005/02/rm",
+                             "classpath:/schemas/wsdl/wsrm.xsd");
+                builtIns.put("http://www.w3.org/2005/05/xmlmime",
+                             "classpath:/schemas/wsdl/ws-addr.xsd");
+            }
+            
             @Override
             public Result createOutput(String ns, String file) throws IOException {
                 DOMResult result = new DOMResult();
-                result.setSystemId(file);
-                // Don't include WS-Addressing bits
-                if ("http://www.w3.org/2005/02/addressing/wsdl".equals(ns)) {
+                
+                if (builtIns.containsKey(ns)) {
+                    result.setSystemId(builtIns.get(ns));
                     return result;
                 }
+                result.setSystemId(file);
                 results.add(result);
                 return result;
             }

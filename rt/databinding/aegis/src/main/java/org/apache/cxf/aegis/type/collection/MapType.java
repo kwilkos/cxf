@@ -212,10 +212,9 @@ public class MapType extends Type {
 
         String prefix = NamespaceHelper.getUniquePrefix((Element)root, type.getSchemaType()
             .getNamespaceURI());
-        String typeName = prefix + ":" + type.getSchemaType().getLocalPart();
 
         element.setAttribute(new Attribute("name", name.getLocalPart()));
-        element.setAttribute(new Attribute("type", typeName));
+        element.setAttribute(TypeUtil.createTypeAttribute(prefix, type, root));
 
         element.setAttribute(new Attribute("minOccurs", "0"));
         element.setAttribute(new Attribute("maxOccurs", "1"));

@@ -224,4 +224,8 @@ public final class ToolConstants {
     public static final String IMPL_CLASS = "implClass";
     public static final String SERVICE_NAME = "serviceName";
     public static final String PORT_NAME = "portName";
+    
+    private ToolConstants() {
+        //utility class
+    }
 }
