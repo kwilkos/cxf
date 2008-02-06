@@ -52,7 +52,7 @@ public class JavaToWS {
         }
     }
 
-    private boolean isVerbose() {
+    public boolean isVerbose() {
         return isSet(new String[] {"-V", "-verbose"});
     }
 

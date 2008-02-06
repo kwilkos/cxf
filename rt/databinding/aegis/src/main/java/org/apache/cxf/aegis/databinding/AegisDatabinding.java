@@ -165,6 +165,7 @@ public class AegisDatabinding extends AbstractDataBinding implements DataBinding
                 if (!deps.contains(t)) {
                     deps.add(t);
                 }
+                addDependencies(deps, t);
             }
         }
 

@@ -31,4 +31,7 @@ public final class JBIConstants {
 
     public static final QName JBI_WRAPPER_PART = new QName(NS_JBI_WRAPPER, "part");
 
+    private JBIConstants() {
+        //utility class
+    }
 }
