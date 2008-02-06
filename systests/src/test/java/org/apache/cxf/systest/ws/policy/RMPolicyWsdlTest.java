@@ -19,19 +19,18 @@
 
 package org.apache.cxf.systest.ws.policy;
 
+import java.util.List;
 import java.util.logging.Logger;
-
-import javax.xml.ws.Endpoint;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.bus.spring.SpringBusFactory;
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.endpoint.ServerRegistry;
 import org.apache.cxf.greeter_control.Greeter;
 import org.apache.cxf.greeter_control.PingMeFault;
 import org.apache.cxf.greeter_control.ReliableGreeterService;
-import org.apache.cxf.interceptor.LoggingInInterceptor;
-import org.apache.cxf.interceptor.LoggingOutInterceptor;
+import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.systest.ws.util.ConnectionHelper;
 import org.apache.cxf.systest.ws.util.InMessageRecorder;
 import org.apache.cxf.systest.ws.util.MessageFlow;
@@ -40,8 +39,12 @@ import org.apache.cxf.systest.ws.util.OutMessageRecorder;
 import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
 import org.apache.cxf.testutil.common.AbstractBusTestServerBase;
 import org.apache.cxf.ws.policy.PolicyConstants;
+import org.apache.cxf.ws.policy.PolicyEngine;
 import org.apache.cxf.ws.rm.RMConstants;
-
+import org.apache.neethi.All;
+import org.apache.neethi.Assertion;
+import org.apache.neethi.ExactlyOne;
+import org.apache.neethi.Policy;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -70,20 +73,30 @@ public class RMPolicyWsdlTest extends AbstractBusClientServerTestBase {
     
         protected void run()  {            
             SpringBusFactory bf = new SpringBusFactory();
-            Bus bus = bf.createBus("org/apache/cxf/systest/ws/policy/rmwsdl.xml");
-            PolicyTestUtils.setPolicyConstants(bus, 
-                                               PolicyConstants.NAMESPACE_W3_200607);
+            Bus bus = bf.createBus("org/apache/cxf/systest/ws/policy/rmwsdl_server.xml");
             BusFactory.setDefaultBus(bus);
-            LoggingInInterceptor in = new LoggingInInterceptor();
-            bus.getInInterceptors().add(in);
-            LoggingOutInterceptor out = new LoggingOutInterceptor();
-            bus.getOutInterceptors().add(out);
-            bus.getOutFaultInterceptors().add(out);
             
-            ReliableGreeterImpl implementor = new ReliableGreeterImpl();
-            String address = "http://localhost:9020/SoapContext/GreeterPort";
-            Endpoint.publish(address, implementor);
-            LOG.info("Published greeter endpoint.");
+            ServerRegistry sr = bus.getExtension(ServerRegistry.class);
+            PolicyEngine pe = bus.getExtension(PolicyEngine.class);
+            
+            List<Assertion> assertions1 = getAssertions(pe, sr.getServers().get(0));
+            assertEquals("2 assertions should be available", 2, assertions1.size());
+            List<Assertion> assertions2 = getAssertions(pe, sr.getServers().get(1));
+            assertEquals("1 assertion should be available", 1, assertions2.size());
+            
+            LOG.info("Published greeter endpoints.");
+        }
+        
+        protected List<Assertion> getAssertions(PolicyEngine pe, org.apache.cxf.endpoint.Server s) {
+            Policy p1 = pe.getServerEndpointPolicy(
+                             s.getEndpoint().getEndpointInfo(), null).getPolicy();
+            List<ExactlyOne> pops = 
+                CastUtils.cast(p1.getPolicyComponents(), ExactlyOne.class);
+            assertEquals("New policy must have 1 top level policy operator", 1, pops.size());
+            List<All> alts = 
+                CastUtils.cast(pops.get(0).getPolicyComponents(), All.class);
+            assertEquals("1 alternatives should be available", 1, alts.size());
+            return CastUtils.cast(alts.get(0).getAssertions(), Assertion.class);
         }
         
         public static void main(String[] args) {
