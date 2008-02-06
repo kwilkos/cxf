@@ -47,7 +47,7 @@ public class RestClientServerBookTest extends AbstractBusClientServerTestBase {
 
     @BeforeClass
     public static void startServers() throws Exception {
-        assertTrue("server did not launch correctly", launchServer(BookServer.class, true));
+        assertTrue("server did not launch correctly", launchServer(BookServer.class));
     }
 
     @Test
@@ -114,9 +114,10 @@ public class RestClientServerBookTest extends AbstractBusClientServerTestBase {
         InputStream expected = getClass()
             .getResourceAsStream("resources/expected_get_book123_xmlwrapped.txt");
 
-        String expectedString = getStringFromInputStream(expected);
+        String expectedString = getStringFromInputStream(expected).trim();
+        String newString = getStringFromInputStream(in).trim();
         //System.out.println("---" + getStringFromInputStream(in));
-        assertEquals(expectedString, expectedString, getStringFromInputStream(in)); 
+        assertEquals(expectedString, expectedString, newString); 
     }
     
     @Test

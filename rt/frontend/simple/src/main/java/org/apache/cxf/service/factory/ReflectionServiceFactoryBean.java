@@ -48,6 +48,7 @@ import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.xmlschema.SchemaCollection;
 import org.apache.cxf.common.xmlschema.XmlSchemaTools;
+import org.apache.cxf.databinding.DataBinding;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.EndpointException;
 import org.apache.cxf.endpoint.EndpointImpl;
@@ -139,8 +140,6 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     public ReflectionServiceFactoryBean() {
         getServiceConfigurations().add(0, new DefaultServiceConfiguration());
 
-        setDataBinding(new JAXBDataBinding(getQualifyWrapperSchema()));
-
         ignoredClasses.add("java.lang.Object");
         ignoredClasses.add("java.lang.Throwable");
         ignoredClasses.add("org.omg.CORBA_2_3.portable.ObjectImpl");
@@ -148,7 +147,12 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         ignoredClasses.add("javax.ejb.EJBObject");
         ignoredClasses.add("javax.rmi.CORBA.Stub");
     }
-
+    
+     
+    protected DataBinding createDefaultDataBinding() {
+        return new JAXBDataBinding(getQualifyWrapperSchema());
+    }
+    
     @Override
     public Service create() {
         initializeServiceConfigurations();

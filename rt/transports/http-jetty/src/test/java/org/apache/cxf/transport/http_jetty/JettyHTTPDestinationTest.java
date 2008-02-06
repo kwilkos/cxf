@@ -609,6 +609,7 @@ public class JettyHTTPDestinationTest extends Assert {
                 EasyMock.expect(request.getPathInfo()).andReturn("/foo");
                 EasyMock.expect(request.getCharacterEncoding()).andReturn("UTF-8");
                 EasyMock.expect(request.getQueryString()).andReturn(query);            
+                EasyMock.expect(request.getHeader("Accept")).andReturn("*/*");  
                 EasyMock.expect(request.getContentType()).andReturn("text/xml charset=utf8");
                 
                 HttpFields httpFields = new HttpFields();
