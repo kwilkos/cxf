@@ -421,6 +421,7 @@ public class RMManagerTest extends Assert {
         Endpoint e = control.createMock(Endpoint.class);
         RMEndpoint rme = control.createMock(RMEndpoint.class);
         manager.getReliableEndpointsMap().put(e, rme);
+        manager.getTimer(); //start the timer
         rme.shutdown();
         EasyMock.expectLastCall();
         assertNotNull(manager);
