@@ -35,6 +35,7 @@ import org.apache.cxf.service.model.BindingFaultInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.neethi.Assertion;
+import org.apache.neethi.ExactlyOne;
 import org.apache.neethi.Policy;
 
 /**
@@ -51,8 +52,36 @@ public class EndpointPolicyImpl implements EndpointPolicy {
     private List<Interceptor> interceptors;
     private List<Interceptor> faultInterceptors;
     
+    private EndpointInfo ei;
+    private PolicyEngineImpl engine;
+    private boolean requestor;
+    private Assertor assertor;
+        
+    public EndpointPolicyImpl() {
+        
+    }
+    
+    public EndpointPolicyImpl(EndpointInfo ei,
+                              PolicyEngineImpl engine, 
+                              boolean requestor,
+                              Assertor assertor) {
+        this.ei = ei;
+        this.engine = engine;
+        this.requestor = requestor;
+        this.assertor = assertor;
+    }
+        
     public Policy getPolicy() {
         return policy;        
+    }
+    
+    public EndpointPolicy updatePolicy(Policy p) {
+        EndpointPolicyImpl epi = createEndpointPolicy();
+        Policy np = (Policy)p.normalize(true);
+        epi.setPolicy(getPolicy().merge(np));
+        epi.checkExactlyOnes();
+        epi.finalizeConfig();
+        return epi;
     }
     
     public Collection<Assertion> getChosenAlternative() {
@@ -75,21 +104,27 @@ public class EndpointPolicyImpl implements EndpointPolicy {
         return faultInterceptors;
     }
     
+    void initialize() {
+        initializePolicy();
+        checkExactlyOnes();
+        finalizeConfig();
+    }
     
-    void initialise(EndpointInfo ei, boolean isRequestor, PolicyEngineImpl engine, Assertor assertor) {
-        initialisePolicy(ei, engine);
-        chooseAlternative(engine, assertor);
-        initialiseVocabulary(ei, isRequestor, engine);
-        initialiseInterceptors(ei, isRequestor, engine); 
+    void finalizeConfig() {
+        chooseAlternative();
+        initializeVocabulary();
+        initializeInterceptors(); 
     }
    
-    void initialisePolicy(EndpointInfo ei, PolicyEngineImpl engine) {
+    void initializePolicy() {
         policy = engine.getAggregatedServicePolicy(ei.getService());
         policy = policy.merge(engine.getAggregatedEndpointPolicy(ei));
-        policy = (Policy)policy.normalize(true);
+        if (!policy.isEmpty()) {
+            policy = (Policy)policy.normalize(true);
+        }
     }
 
-    void chooseAlternative(PolicyEngineImpl engine, Assertor assertor) {
+    void chooseAlternative() {
         Collection<Assertion> alternative = engine.getAlternativeSelector()
             .selectAlternative(policy, engine, assertor);
         if (null == alternative) {
@@ -99,7 +134,7 @@ public class EndpointPolicyImpl implements EndpointPolicy {
         }
     }
     
-    void initialiseVocabulary(EndpointInfo ei, boolean requestor, PolicyEngineImpl engine) {
+    void initializeVocabulary() {
         vocabulary = new ArrayList<Assertion>();
         if (requestor) {
             faultVocabulary = new ArrayList<Assertion>();
@@ -143,7 +178,7 @@ public class EndpointPolicyImpl implements EndpointPolicy {
         }
     }
 
-    void initialiseInterceptors(EndpointInfo ei, boolean requestor, PolicyEngineImpl engine) {
+    void initializeInterceptors() {
         PolicyInterceptorProviderRegistry reg 
             = engine.getBus().getExtension(PolicyInterceptorProviderRegistry.class);
         interceptors = new ArrayList<Interceptor>();
@@ -206,5 +241,37 @@ public class EndpointPolicyImpl implements EndpointPolicy {
         faultInterceptors = inFault;
     }
     
+    protected EndpointPolicyImpl createEndpointPolicy() {
+        return new EndpointPolicyImpl(this.ei,
+                                      this.engine,
+                                      this.requestor,
+                                      this.assertor);
+    }
     
+    void checkExactlyOnes() {
+        // Policy has been normalized and merged by now but unfortunately
+        // ExactlyOnce have not been normalized properly by Neethi, for ex
+        // <Policy>
+        // <ExactlyOne><All><A></All></ExactlyOne>
+        // <ExactlyOne><All><B></All></ExactlyOne>
+        //  </Policy>
+        // this is what we can see after the normalization happens but in fact this
+        // is still unnormalized expression, should be
+        // <Policy>
+        // <ExactlyOne><All><A></All><All><B></All></ExactlyOne>
+        // </Policy>
+                
+        List<?> assertions = policy.getPolicyComponents();
+        if (assertions.size() <= 1) {
+            return;
+        }
+        
+        Policy p = new Policy();
+        ExactlyOne alternatives = new ExactlyOne();
+        p.addPolicyComponent(alternatives);
+        for (Object a : assertions) {
+            alternatives.addPolicyComponents(((ExactlyOne)a).getPolicyComponents());
+        }
+        setPolicy(p);        
+    }
 }

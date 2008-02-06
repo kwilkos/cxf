@@ -70,10 +70,10 @@ public interface PolicyEngine {
     // available throughout the inbound path
         
     EndpointPolicy getClientEndpointPolicy(EndpointInfo ei, Conduit conduit);
-    
     EndpointPolicy getServerEndpointPolicy(EndpointInfo ei, Destination destination);
     
-    void setEndpointPolicy(EndpointInfo ei, EndpointPolicy ep);  
+    void setServerEndpointPolicy(EndpointInfo ei, EndpointPolicy ep);
+    void setClientEndpointPolicy(EndpointInfo ei, EndpointPolicy ep);
     
     // only available after message type has been determined
     

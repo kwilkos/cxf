@@ -65,18 +65,13 @@ public class PolicyEngineImpl implements PolicyEngine, BusExtension, ServerLifeC
     private AlternativeSelector alternativeSelector;
     
     private Map<BindingOperation, EffectivePolicy> clientRequestInfo;
-    
     private Map<BindingOperation, EffectivePolicy> clientResponseInfo;
-    
     private Map<BindingFault, EffectivePolicy> clientFaultInfo;
-    
     private Map<BindingOperation, EffectivePolicy> serverRequestInfo;
-    
     private Map<BindingOperation, EffectivePolicy> serverResponseInfo;
-    
     private Map<BindingFault, EffectivePolicy> serverFaultInfo;
-    
-    private Map<EndpointInfo, EndpointPolicy> endpointInfo;
+    private Map<EndpointInfo, EndpointPolicy> serverEndpointInfo;
+    private Map<EndpointInfo, EndpointPolicy> clientEndpointInfo;
 
     public PolicyEngineImpl() { 
         init();
@@ -214,25 +209,30 @@ public class PolicyEngineImpl implements PolicyEngine, BusExtension, ServerLifeC
     }
     
     public EndpointPolicy getClientEndpointPolicy(EndpointInfo ei, Conduit conduit) {
-        EndpointPolicy endpointPolicy = endpointInfo.get(ei);
-        if (null != endpointPolicy) {
-            return endpointPolicy;
-        }
         Assertor assertor = conduit instanceof Assertor ? (Assertor)conduit : null;
-        return createEndpointPolicyInfo(ei, true, assertor);
+        return getEndpointPolicy(ei, clientEndpointInfo.get(ei), true, assertor);
     }
    
     public EndpointPolicy getServerEndpointPolicy(EndpointInfo ei, Destination destination) {
-        EndpointPolicy endpointPolicy = endpointInfo.get(ei);
-        if (null != endpointPolicy) {
-            return endpointPolicy;
-        }
+        
         Assertor assertor = destination instanceof Assertor ? (Assertor)destination : null;
-        return createEndpointPolicyInfo(ei, false, assertor);
+        return getEndpointPolicy(ei, serverEndpointInfo.get(ei), false, assertor);
     }
     
-    public void setEndpointPolicy(EndpointInfo ei, EndpointPolicy ep) {
-        endpointInfo.put(ei, ep);
+    private EndpointPolicy getEndpointPolicy(
+        EndpointInfo ei, EndpointPolicy ep, boolean isRequestor, Assertor assertor) {
+        if (null != ep) {
+            return ep; 
+        }
+        return createEndpointPolicyInfo(ei, isRequestor, assertor);
+    }
+    
+    public void setClientEndpointPolicy(EndpointInfo ei, EndpointPolicy ep) {
+        clientEndpointInfo.put(ei, ep);
+    }
+    
+    public void setServerEndpointPolicy(EndpointInfo ei, EndpointPolicy ep) {
+        serverEndpointInfo.put(ei, ep);
     }
     
     public EffectivePolicy getEffectiveServerRequestPolicy(EndpointInfo ei, BindingOperationInfo boi) {
@@ -303,7 +303,9 @@ public class PolicyEngineImpl implements PolicyEngine, BusExtension, ServerLifeC
         clientFaultInfo 
             = new ConcurrentHashMap<BindingFault, EffectivePolicy>();
     
-        endpointInfo 
+        serverEndpointInfo 
+            = new ConcurrentHashMap<EndpointInfo, EndpointPolicy>();
+        clientEndpointInfo 
             = new ConcurrentHashMap<EndpointInfo, EndpointPolicy>();
     
         serverRequestInfo 
@@ -496,13 +498,16 @@ public class PolicyEngineImpl implements PolicyEngine, BusExtension, ServerLifeC
     } 
     
     EndpointPolicyImpl createEndpointPolicyInfo(EndpointInfo ei, boolean isRequestor, Assertor assertor) {
-        EndpointPolicyImpl epi = createEndpointPolicyInfo();
-        epi.initialise(ei, isRequestor, this, assertor);
-        endpointInfo.put(ei, epi);
+        EndpointPolicyImpl epi = new EndpointPolicyImpl(ei, this, isRequestor, assertor);
+        epi.initialize();
+        
+        Map<EndpointInfo, EndpointPolicy> map = isRequestor ? clientEndpointInfo : serverEndpointInfo;
+        map.put(ei, epi);
 
         return epi;
-    }  
-
+    }
+    
+    
     /**
      * Check if a given list of assertions can potentially be supported by
      * interceptors or by an already installed assertor (a conduit or transport
@@ -530,7 +535,7 @@ public class PolicyEngineImpl implements PolicyEngine, BusExtension, ServerLifeC
 
     public void stopServer(Server server) {
         EndpointInfo ei = server.getEndpoint().getEndpointInfo();
-        endpointInfo.remove(ei);
+        serverEndpointInfo.remove(ei);
     }
     
     /**
@@ -615,7 +620,5 @@ public class PolicyEngineImpl implements PolicyEngine, BusExtension, ServerLifeC
         return new EffectivePolicyImpl();
     }
     
-    EndpointPolicyImpl createEndpointPolicyInfo() {
-        return new EndpointPolicyImpl();
-    }
+    
 }

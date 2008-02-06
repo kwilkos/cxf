@@ -28,20 +28,16 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.bus.spring.SpringBusFactory;
 import org.apache.cxf.common.logging.LogUtils;
-import org.apache.cxf.endpoint.Client;
-import org.apache.cxf.frontend.ClientProxy;
 import org.apache.cxf.greeter_control.BasicGreeterService;
 import org.apache.cxf.greeter_control.Greeter;
 import org.apache.cxf.greeter_control.PingMeFault;
 import org.apache.cxf.interceptor.Interceptor;
-import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.systest.ws.util.ConnectionHelper;
 import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
 import org.apache.cxf.testutil.common.AbstractBusTestServerBase;
 import org.apache.cxf.ws.policy.PolicyConstants;
 import org.apache.cxf.ws.policy.ServerPolicyInInterceptor;
 import org.apache.cxf.ws.policy.ServerPolicyOutInterceptor;
-import org.apache.neethi.Policy;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -83,7 +79,7 @@ public class AddressingInlinePolicyTest extends AbstractBusClientServerTestBase 
 
     @BeforeClass
     public static void startServers() throws Exception {
-        assertTrue("server did not launch correctly", launchServer(Server.class));
+        assertTrue("server did not launch correctly", launchServer(Server.class, false));
     }
     
     @Test
@@ -103,13 +99,6 @@ public class AddressingInlinePolicyTest extends AbstractBusClientServerTestBase 
 
         ConnectionHelper.setKeepAliveConnection(greeter, true);
 
-        Client client = ClientProxy.getClient(greeter);
-        List<ServiceInfo> sis = client.getEndpoint().getService().getServiceInfos();
-        
-        ServiceInfo si = sis.get(0);
-        Policy p = si.getExtensor(Policy.class);
-        assertNotNull(p);
-        
         testInterceptors(bus);
         
         // oneway

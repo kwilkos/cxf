@@ -35,6 +35,7 @@ import org.apache.neethi.Policy;
 public interface EndpointPolicy {
     
     Policy getPolicy();
+    EndpointPolicy updatePolicy(Policy p);
     
     Collection<Assertion> getChosenAlternative();
     

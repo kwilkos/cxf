@@ -285,7 +285,11 @@ public class RMEndpoint {
             .getEndpointInfo(), null) : engine.getClientEndpointPolicy(applicationEndpoint.getEndpointInfo(),
                                                                        conduit);
 
-        engine.setEndpointPolicy(ei, ep);
+        if (conduit != null) {
+            engine.setClientEndpointPolicy(ei, ep);
+        } else {
+            engine.setServerEndpointPolicy(ei, ep);
+        }
 
         EffectivePolicy effectiveOutbound = new EffectivePolicyImpl(ep, reg, true, false);
         EffectivePolicy effectiveInbound = new EffectivePolicyImpl(ep, reg, false, false);

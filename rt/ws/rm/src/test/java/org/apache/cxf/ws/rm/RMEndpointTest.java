@@ -287,7 +287,7 @@ public class RMEndpointTest extends Assert {
         EasyMock.expect(pe.getServerEndpointPolicy(aei, null)).andReturn(epi);
         EasyMock.expect(epi.getChosenAlternative()).andReturn(new ArrayList<Assertion>());
 
-        pe.setEndpointPolicy(ei, epi);
+        pe.setServerEndpointPolicy(ei, epi);
         EasyMock.expectLastCall();
         BindingInfo bi = control.createMock(BindingInfo.class);
         EasyMock.expect(ei.getBinding()).andReturn(bi);
