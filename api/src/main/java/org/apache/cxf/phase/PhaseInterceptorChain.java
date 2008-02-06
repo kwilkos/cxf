@@ -43,10 +43,11 @@ import org.apache.cxf.transport.MessageObserver;
  * Interceptor.
  * <p>
  * A List of phases is supplied to the PhaseInterceptorChain in the constructor.
- * Interceptors that are added to the chain are ordered by phase. Within a
- * phase, interceptors can order themselves. Each PhaseInterceptor has an ID.
- * PhaseInterceptors can supply a Collection of IDs which they should run before
- * or after, supplying fine grained ordering.
+ * This class is typically instantiated from the PhaseChainCache class in this
+ * package. Interceptors that are added to the chain are ordered by phase.
+ * Within a phase, interceptors can order themselves. Each PhaseInterceptor 
+ * has an ID. PhaseInterceptors can supply a Collection of IDs which they 
+ * should run before or after, supplying fine grained ordering.
  * <p>
  *  
  */
