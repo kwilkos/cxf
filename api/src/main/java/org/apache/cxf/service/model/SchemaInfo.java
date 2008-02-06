@@ -29,6 +29,7 @@ import org.apache.cxf.io.CachedOutputStream;
 import org.apache.cxf.wsdl.WSDLConstants;
 import org.apache.ws.commons.schema.XmlSchema;
 import org.apache.ws.commons.schema.XmlSchemaElement;
+import org.apache.ws.commons.schema.XmlSchemaForm;
 
 
 public final class SchemaInfo extends AbstractPropertiesHolder {
@@ -42,10 +43,14 @@ public final class SchemaInfo extends AbstractPropertiesHolder {
     String systemId;
     
     public SchemaInfo(ServiceInfo serviceInfo, String namespaceUri) {
+        this(serviceInfo, namespaceUri, false, false);
+    }
+    public SchemaInfo(ServiceInfo serviceInfo, String namespaceUri,
+                      boolean qElement, boolean qAttribute) {
         this.serviceInfo = serviceInfo;
         this.namespaceUri = namespaceUri;
-        this.isElementQualified = false;
-        this.isAttributeQualified = false;
+        this.isElementQualified = qElement;
+        this.isAttributeQualified = qAttribute;
     }
     
     public String toString() {
@@ -126,6 +131,8 @@ public final class SchemaInfo extends AbstractPropertiesHolder {
 
     public void setSchema(XmlSchema schema) {
         this.schema = schema;
+        isElementQualified = schema.getElementFormDefault().getValue().equals(XmlSchemaForm.QUALIFIED);
+        isAttributeQualified = schema.getAttributeFormDefault().getValue().equals(XmlSchemaForm.QUALIFIED);
     }
 
     public String getSystemId() {

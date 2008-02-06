@@ -99,6 +99,13 @@ class JAXBSchemaInitializer extends ServiceModelVisitor {
         }
         
         boolean isElement = beanInfo.isElement();
+        boolean hasType = !beanInfo.getTypeNames().isEmpty();
+        if (isElement && isFromWrapper && hasType) {
+            //if there is both a Global element and a global type, AND we are in a wrapper,
+            //make sure we use the type instead of a ref to the element to 
+            //match the rules for wrapped/unwrapped
+            isElement = false;
+        }
 
         part.setElement(isElement);
         
@@ -178,10 +185,15 @@ class JAXBSchemaInitializer extends ServiceModelVisitor {
             }
             return;
         }
-        schemaInfo = new SchemaInfo(serviceInfo, qn.getNamespaceURI());
+        
+        schemaInfo = new SchemaInfo(serviceInfo, qn.getNamespaceURI(), qualifiedSchemas, false);
+        
         el = createXsElement(part, typeName, schemaInfo);
 
         XmlSchema schema = schemas.newXmlSchemaInCollection(qn.getNamespaceURI());
+        if (qualifiedSchemas) {
+            schema.setElementFormDefault(new XmlSchemaForm(XmlSchemaForm.QUALIFIED));
+        }
         schemaInfo.setSchema(schema);
         schema.getElements().add(el.getQName(), el);
         schema.getItems().add(el);
