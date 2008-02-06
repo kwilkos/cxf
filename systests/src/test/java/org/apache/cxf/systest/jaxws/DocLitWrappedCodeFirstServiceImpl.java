@@ -120,7 +120,8 @@ public class DocLitWrappedCodeFirstServiceImpl implements DocLitWrappedCodeFirst
         return Arrays.asList(new Foo[] {a, b}, new Foo[] {c, d});
     }
    
-    public int throwException(int i) throws ServiceTestFault, CustomException {
+    public int throwException(int i) 
+        throws ServiceTestFault, CustomException, ComplexException {
         switch (i) {
         case -1:
             throw new ServiceTestFault("Hello!");
@@ -129,6 +130,14 @@ public class DocLitWrappedCodeFirstServiceImpl implements DocLitWrappedCodeFirst
             cex.setA("A Value");
             cex.setB("B Value");
             throw cex;
+        }
+        case -3: {
+            ComplexException ex = new ComplexException("Throw user fault -3");
+            ex.setReason("Test");
+            ComplexException.MyBean bean = new ComplexException.MyBean();
+            bean.setName("Marco");
+            ex.setBeans(new ComplexException.MyBean[] {bean});
+            throw ex;
         }
         default:
             throw new ServiceTestFault(new ServiceTestFault.ServiceTestDetails(i));

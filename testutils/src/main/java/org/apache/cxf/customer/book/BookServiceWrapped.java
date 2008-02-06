@@ -21,6 +21,7 @@ package org.apache.cxf.customer.book;
 
 
 import javax.jws.WebParam;
+import javax.jws.WebResult;
 import javax.jws.WebService;
 
 import org.codehaus.jra.Get;
@@ -32,6 +33,7 @@ public interface BookServiceWrapped {
     
     @Get
     @HttpResource(location = "/books/{id}")
+    @WebResult(name = "Book")
     Book getBook(@WebParam(name = "id")long bookid) throws BookNotFoundFault;
 
 

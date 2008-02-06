@@ -341,6 +341,10 @@ public class ClientServerMiscTest extends AbstractBusClientServerTestBase {
         assertEquals(3, ints.length);
         assertEquals(1, ints[0]);
         
+        testExceptionCases(port);
+    }
+    
+    private void testExceptionCases(DocLitWrappedCodeFirstService port) throws Exception {
         /*   CXF-926 test case */
         try {
             port.throwException(10);
@@ -363,7 +367,20 @@ public class ClientServerMiscTest extends AbstractBusClientServerTestBase {
             assertEquals("CE: -2", ex.getMessage());
             assertEquals("A Value", ex.getA());
             assertEquals("B Value", ex.getB());
-        }
+        }  
+        // CXF-1407
+        try {
+            port.throwException(-3);
+            fail("Expected exception not found");
+        } catch (ComplexException ex) {
+            assertEquals("Throw user fault -3", ex.getMessage());
+        }          
+        try {
+            port.throwException(-3);
+            fail("Expected exception not found");
+        } catch (ComplexException ex) {
+            assertEquals("Throw user fault -3", ex.getMessage());
+        }          
     }
     
     
