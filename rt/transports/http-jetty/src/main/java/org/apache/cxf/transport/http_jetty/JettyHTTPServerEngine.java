@@ -29,6 +29,7 @@ import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+import javax.servlet.ServletContext;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.common.logging.LogUtils;
@@ -323,6 +324,9 @@ public class JettyHTTPServerEngine
             context.addHandler(sessionHandler);           
         }
         contexts.addHandler(context);
+        
+        ServletContext sc = context.getServletContext();
+        handler.setServletContext(sc);
        
         final String smap = HttpUriMapper.getResourceBase(url.getPath());
         handler.setName(smap);

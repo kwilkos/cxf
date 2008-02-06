@@ -20,6 +20,7 @@ package org.apache.cxf.transport.http_jetty;
 
 import java.io.IOException;
 
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -29,12 +30,19 @@ public class JettyHTTPHandler extends AbstractHandler {
     private String urlName;
     private boolean contextMatchExact;
     private JettyHTTPDestination jettyHTTPDestination;
+    private ServletContext servletContext;
     
     public JettyHTTPHandler(JettyHTTPDestination jhd, boolean cmExact) {
         contextMatchExact = cmExact;
         jettyHTTPDestination = jhd;
     }
     
+    public void setServletContext(ServletContext sc) {
+        servletContext = sc;
+        if (jettyHTTPDestination != null) {
+            jettyHTTPDestination.setServletContext(sc);
+        }
+    }
     public void setName(String name) {
         urlName = name;
     }
@@ -47,11 +55,11 @@ public class JettyHTTPHandler extends AbstractHandler {
                        HttpServletResponse resp, int dispatch) throws IOException {        
         if (contextMatchExact) {
             if (target.equals(urlName)) {
-                jettyHTTPDestination.doService(req, resp);
+                jettyHTTPDestination.doService(servletContext, req, resp);
             }
         } else {
             if (target.startsWith(urlName)) {
-                jettyHTTPDestination.doService(req, resp);
+                jettyHTTPDestination.doService(servletContext, req, resp);
             }
         }
     }

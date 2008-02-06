@@ -27,6 +27,7 @@ import java.security.Principal;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -59,6 +60,7 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
     protected JettyHTTPServerEngine engine;
     protected JettyHTTPTransportFactory transportFactory;
     protected JettyHTTPServerEngineFactory serverEngineFactory;
+    protected ServletContext servletContext;
     protected URL nurl;
     
     /**
@@ -91,6 +93,10 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
 
     protected Logger getLogger() {
         return LOG;
+    }
+    
+    public void setServletContext(ServletContext sc) {
+        servletContext = sc;
     }
     
     /**
@@ -193,7 +199,16 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
         return address;
     }
    
-    protected void doService(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+    protected void doService(HttpServletRequest req,
+                             HttpServletResponse resp) throws IOException {
+        doService(servletContext, req, resp);
+    }
+    protected void doService(ServletContext context,
+                             HttpServletRequest req,
+                             HttpServletResponse resp) throws IOException {
+        if (context == null) {
+            context = servletContext;
+        }
         Request baseRequest = (req instanceof Request) 
             ? (Request)req : HttpConnection.getCurrentConnection().getRequest();
             
@@ -240,13 +255,15 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
         // REVISIT: service on executor if associated with endpoint
         try {
             BusFactory.setThreadDefaultBus(bus); 
-            serviceRequest(req, resp);
+            serviceRequest(context, req, resp);
         } finally {
             BusFactory.setThreadDefaultBus(null);  
         }    
     }
 
-    protected void serviceRequest(final HttpServletRequest req, final HttpServletResponse resp)
+    protected void serviceRequest(final ServletContext context, 
+                                  final HttpServletRequest req, 
+                                  final HttpServletResponse resp)
         throws IOException {
         Request baseRequest = (req instanceof Request) 
             ? (Request)req : HttpConnection.getCurrentConnection().getRequest();
@@ -259,6 +276,7 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
             inMessage.setContent(InputStream.class, req.getInputStream());
             inMessage.put(HTTP_REQUEST, req);
             inMessage.put(HTTP_RESPONSE, resp);
+            inMessage.put(HTTP_CONTEXT, context);
             inMessage.put(Message.HTTP_REQUEST_METHOD, req.getMethod());
             inMessage.put(Message.PATH_INFO, req.getContextPath() + req.getPathInfo());
             String normalizedEncoding = HttpHeaderHelper.mapCharset(req.getCharacterEncoding());
