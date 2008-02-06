@@ -195,7 +195,7 @@ public class ClientFaultConverter extends AbstractPhaseInterceptor<Message> {
         String ss = (String) xu.getValue("//" + Fault.STACKTRACE + "/text()", fault.getDetail(),
                 XPathConstants.STRING);
         List<StackTraceElement> stackTraceList = new ArrayList<StackTraceElement>();
-        if (StringUtils.isEmpty(ss)) {
+        if (!StringUtils.isEmpty(ss)) {
             StringTokenizer st = new StringTokenizer(ss, "\n");
             while (st.hasMoreTokens()) {
                 String oneLine = st.nextToken();
