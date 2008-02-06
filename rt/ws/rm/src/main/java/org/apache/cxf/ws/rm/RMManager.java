@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Timer;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -78,7 +79,7 @@ public class RMManager implements ServerLifeCycleListener, ClientLifeCycleListen
     private SequenceIdentifierGenerator idGenerator;
     private RetransmissionQueue retransmissionQueue;
     private Map<Endpoint, RMEndpoint> reliableEndpoints = new HashMap<Endpoint, RMEndpoint>();
-    private Timer timer = new Timer("RMManager-Timer-" + System.identityHashCode(this), true);
+    private AtomicReference<Timer> timer = new AtomicReference<Timer>();
     private RMAssertion rmAssertion;
     private DeliveryAssuranceType deliveryAssurance;
     private SourcePolicyType sourcePolicy;
@@ -157,8 +158,18 @@ public class RMManager implements ServerLifeCycleListener, ClientLifeCycleListen
         idGenerator = generator;
     }
 
+    private Timer getTimer(boolean create) {
+        Timer ret = timer.get();
+        if (ret == null && create) {
+            Timer newt = new Timer("RMManager-Timer-" + System.identityHashCode(this), true);
+            if (!timer.compareAndSet(null, newt)) {
+                newt.cancel();
+            }
+        }
+        return timer.get();
+    }
     public Timer getTimer() {
-        return timer;
+        return getTimer(true);
     }
 
     public BindingFaultFactory getBindingFaultFactory(Binding binding) {
@@ -349,8 +360,11 @@ public class RMManager implements ServerLifeCycleListener, ClientLifeCycleListen
 
         // remove references to timer tasks cancelled above to make them
         // eligible for garbage collection
-        timer.purge();
-        timer.cancel();
+        Timer t = getTimer(false);
+        if (t != null) {
+            t.purge();
+            t.cancel();
+        }
     }
     
     synchronized void shutdownReliableEndpoint(Endpoint e) {
@@ -364,7 +378,10 @@ public class RMManager implements ServerLifeCycleListener, ClientLifeCycleListen
         
         // remove references to timer tasks cancelled above to make them
         // eligible for garbage collection
-        timer.purge();
+        Timer t = getTimer(false);
+        if (t != null) {
+            t.purge();
+        }
         
         reliableEndpoints.remove(e);
     }
