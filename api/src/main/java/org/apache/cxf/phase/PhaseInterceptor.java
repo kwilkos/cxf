@@ -38,7 +38,7 @@ public interface PhaseInterceptor<T extends Message> extends Interceptor<T> {
     /**
      * Returns a set of IDs specifying the interceptors that this interceptor should 
      * be placed after in the interceptor chain
-     * @return the ids of the interceptorsr
+     * @return the ids of the interceptors
      */
     Set<String> getAfter();
 
