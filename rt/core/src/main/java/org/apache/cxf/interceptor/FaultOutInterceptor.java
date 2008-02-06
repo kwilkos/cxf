@@ -58,6 +58,9 @@ public class FaultOutInterceptor extends AbstractPhaseInterceptor<Message> {
         }
         
         BindingOperationInfo bop = message.getExchange().get(BindingOperationInfo.class);
+        if (bop == null) {
+            return;
+        }
         FaultInfo fi = getFaultForClass(bop, cause.getClass());
 
         if (cause instanceof Exception && fi != null) {
