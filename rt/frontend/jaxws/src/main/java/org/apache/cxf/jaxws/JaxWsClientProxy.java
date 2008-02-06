@@ -98,7 +98,7 @@ public class JaxWsClientProxy extends org.apache.cxf.frontend.ClientProxy implem
                 return method.invoke(this);
             }
 
-            Message msg = new Message("NO_OPERATION_INFO", LOG, method.getName());
+            Message msg = new Message("NO_BINDING_OPERATION_INFO", LOG, method.getName());
             throw new WebServiceException(msg.toString());
         }
 
