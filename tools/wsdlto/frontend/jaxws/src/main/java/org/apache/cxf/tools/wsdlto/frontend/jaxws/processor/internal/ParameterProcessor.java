@@ -584,30 +584,40 @@ public class ParameterProcessor extends AbstractProcessor {
             outputParts = outputMessage.getMessageParts();
         }
 
-        boolean partFound = false;
-
         while (params.hasNext()) {
             String param = params.next();
-            partFound = false;
+            MessagePartInfo inPart = null;
+            MessagePartInfo outPart = null;
             for (MessagePartInfo part : inputParts) {
                 if (param.equals(part.getName().getLocalPart())) {
-                    partFound = true;
+                    inPart = part;
                     break;
                 }
             }
-            // if not found, check output parts
-            if (!partFound) {
-                for (MessagePartInfo part : outputParts) {
-                    if (param.equals(part.getName().getLocalPart())) {
-                        partFound = true;
-                        break;
-                    }
+            //check output parts
+            for (MessagePartInfo part : outputParts) {
+                if (param.equals(part.getName().getLocalPart())) {
+                    outPart = part;
+                    break;
                 }
             }
-            if (!partFound) {
-                break;
+            if (inPart == null && outPart == null) {
+                return false;
+            } else if (inPart != null 
+                && outPart != null) {
+                if (inPart.isElement() != outPart.isElement()) {
+                    return false;
+                }
+                if (inPart.isElement()
+                    && !inPart.getElementQName().equals(outPart.getElementQName())) {
+                    return false;
+                } else if (!inPart.isElement()
+                    && !inPart.getTypeQName().equals(outPart.getTypeQName())) {
+                    return false;                    
+                }
             }
+            
         }
-        return partFound;
+        return true;
     }
 }
