@@ -50,7 +50,8 @@ public interface Message extends StringMap {
     String MTOM_ENABLED = "mtom-enabled";
     String SCHEMA_VALIDATION_ENABLED = "schema-validation-enabled";
     String FAULT_STACKTRACE_ENABLED = "faultStackTraceEnabled";
-    String CONTENT_TYPE = "Content-Type";
+    String CONTENT_TYPE = "Content-Type";    
+    String ACCEPT_CONTENT_TYPE = "Accept";
     String BASE_PATH = Message.class.getName() + ".BASE_PATH";
     String ENCODING = Message.class.getName() + ".ENCODING";
     String FIXED_PARAMETER_ORDER = Message.class.getName() + "FIXED_PARAMETER_ORDER";

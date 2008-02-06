@@ -20,9 +20,12 @@
 package org.apache.cxf.transport.http;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.ServerSocket;
+import java.net.URL;
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
@@ -33,6 +36,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.namespace.QName;
@@ -49,12 +53,14 @@ import org.apache.cxf.helpers.HttpHeaderHelper;
 import org.apache.cxf.io.AbstractWrappedOutputStream;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.security.SecurityContext;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.AbstractDestination;
 import org.apache.cxf.transport.AbstractMultiplexDestination;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.ConduitInitiator;
 import org.apache.cxf.transport.http.policy.PolicyUtils;
+import org.apache.cxf.transport.https.SSLUtils;
 import org.apache.cxf.transports.http.configuration.HTTPServerPolicy;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
 import org.apache.cxf.ws.policy.Assertor;
@@ -225,6 +231,68 @@ public abstract class AbstractHTTPDestination extends AbstractMultiplexDestinati
         } else {
             response.setContentType(ct);
         }
+    }
+    
+    protected void setupMessage(Message inMessage,
+                                  final ServletContext context, 
+                                  final HttpServletRequest req, 
+                                  final HttpServletResponse resp) throws IOException {
+
+        inMessage.setContent(InputStream.class, req.getInputStream());
+        inMessage.put(HTTP_REQUEST, req);
+        inMessage.put(HTTP_RESPONSE, resp);
+        inMessage.put(HTTP_CONTEXT, context);
+        inMessage.put(Message.HTTP_REQUEST_METHOD, req.getMethod());
+        String contextPath = req.getContextPath();
+        if (contextPath == null) {
+            contextPath = "";
+        }
+        inMessage.put(Message.PATH_INFO, contextPath + req.getPathInfo());
+        
+        // work around a bug with Jetty which results in the character
+        // encoding not being trimmed correctly.
+        String enc = req.getCharacterEncoding();
+        if (enc != null && enc.endsWith("\"")) {
+            enc = enc.substring(0, enc.length() - 1);
+        }
+        String normalizedEncoding = HttpHeaderHelper.mapCharset(enc);
+        if (normalizedEncoding == null) {
+            String m = new org.apache.cxf.common.i18n.Message("INVALID_ENCODING_MSG",
+                                                              LOG, enc).toString();
+            LOG.log(Level.WARNING, m);
+            throw new IOException(m);   
+        }
+        
+        inMessage.put(Message.ENCODING, normalizedEncoding);
+        
+        inMessage.put(Message.QUERY_STRING, req.getQueryString());
+        inMessage.put(Message.CONTENT_TYPE, req.getContentType());
+        inMessage.put(Message.ACCEPT_CONTENT_TYPE, req.getHeader("Accept"));
+        String basePath = getBasePath(contextPath);
+        if (!StringUtils.isEmpty(basePath)) {
+            inMessage.put(Message.BASE_PATH, basePath);
+        }
+        inMessage.put(Message.FIXED_PARAMETER_ORDER, isFixedParameterOrder());
+        inMessage.put(Message.ASYNC_POST_RESPONSE_DISPATCH, Boolean.TRUE);
+        inMessage.put(SecurityContext.class, new SecurityContext() {
+            public Principal getUserPrincipal() {
+                return req.getUserPrincipal();
+            }
+            public boolean isUserInRole(String role) {
+                return req.isUserInRole(role);
+            }
+        });
+        
+        setHeaders(inMessage);
+        
+        SSLUtils.propogateSecureSession(req, inMessage);
+    }
+    
+    protected String getBasePath(String contextPath) throws IOException {
+        if (StringUtils.isEmpty(endpointInfo.getAddress())) {
+            return "";
+        }
+        return new URL(endpointInfo.getAddress()).getPath();
     }
     
     protected static EndpointInfo getAddressValue(EndpointInfo ei) {       
