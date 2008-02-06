@@ -81,14 +81,14 @@ import static org.apache.cxf.message.Message.DECOUPLED_CHANNEL_MESSAGE;
  * dependent upon installed implementations of that URLConnection, 
  * HttpURLConnection, and HttpsURLConnection. Currently, this implemenation
  * has been known to work with the Sun JDK 1.5 default implementations. The
- * HttpsURLConnection is part of Sun's implemenation of the JSSE. 
- * Presently, the source code for the Sun JSSE implemenation is unavaiable
+ * HttpsURLConnection is part of Sun's implementation of the JSSE. 
+ * Presently, the source code for the Sun JSSE implemenation is unavailable
  * and therefore we may only lay a guess of whether its HttsURLConnection
  * implemenation correctly works as far as security is concerned.
  * <p>
  * The Trust Decision. If a MessageTrustDecider is configured/set for the 
  * Conduit, it is called upon the first flush of the headers in the 
- * WrappedOutputStream. This reason for this approach is two fold. 
+ * WrappedOutputStream. This reason for this approach is two-fold. 
  * Theoretically, in order to get connection information out of the 
  * URLConnection, it must be "connected". We assume that its implementation will
  * only follow through up to the point at which it will be ready to send
@@ -113,7 +113,7 @@ import static org.apache.cxf.message.Message.DECOUPLED_CHANNEL_MESSAGE;
  * this information before the "connect" call, because we can look at the
  * source code. However, we can only assume, not verify, that the JSSE 1.5 
  * HttpsURLConnection does the same, in that it is probable that the 
- * HttpsURLConnection shares the HttpURLConnection implemenation.
+ * HttpsURLConnection shares the HttpURLConnection implementation.
  * <p>
  * Due to these implementations following redirects without trust checks, we
  * force the URLConnection implementations not to follow redirects. If 
@@ -126,7 +126,7 @@ import static org.apache.cxf.message.Message.DECOUPLED_CHANNEL_MESSAGE;
 
 /**
  * This Conduit handles the "http" and "https" transport protocols. An
- * instance is governed by policies either explicity set or by 
+ * instance is governed by policies either explicitly set or by 
  * configuration.
  */
 public class HTTPConduit 
@@ -207,7 +207,7 @@ public class HTTPConduit
     private MessageObserver decoupledObserver;
     private int decoupledDestinationRefCount;
     
-    // Configuratble/settable values
+    // Configurable values
     
     /**
      * This field holds the QoS configuration settings for this conduit.
