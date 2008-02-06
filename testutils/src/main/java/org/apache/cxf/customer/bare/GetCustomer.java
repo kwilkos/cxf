@@ -19,8 +19,10 @@
 package org.apache.cxf.customer.bare;
 
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
 
 @XmlRootElement(name = "GetCustomer")
+@XmlType(name = "GetCustomer")
 public class GetCustomer {
     private long id;
 

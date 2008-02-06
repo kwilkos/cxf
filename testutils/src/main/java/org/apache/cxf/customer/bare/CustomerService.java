@@ -72,7 +72,7 @@ public class CustomerService {
     @HttpResource(location = "/customers/{id}")
     @WebMethod
     @WebResult(name = "customer")
-    public Customer getCustomer(@WebParam(name = "GetCustomer") GetCustomer getCustomer) 
+    public Customer getCustomer(@WebParam(name = "getCustomer") GetCustomer getCustomer) 
         throws CustomerNotFoundFault {
         Customer c = customers.get(getCustomer.getId());
         if (c == null) {
@@ -86,7 +86,7 @@ public class CustomerService {
     @Get
     @HttpResource(location = "/customers/details/{id}")
     @WebMethod
-    public String getSomeDetails(@WebParam(name = "GetCustomer") GetCustomer getCustomer) 
+    public String getSomeDetails(@WebParam(name = "getSomeDetails") GetCustomer getCustomer) 
         throws CustomerNotFoundFault {
         return "some details";
     }

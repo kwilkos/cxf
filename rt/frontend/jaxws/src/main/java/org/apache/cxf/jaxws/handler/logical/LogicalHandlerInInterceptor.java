@@ -19,7 +19,10 @@
 
 package org.apache.cxf.jaxws.handler.logical;
 
+import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamReader;
+import javax.xml.transform.Source;
+import javax.xml.transform.dom.DOMSource;
 import javax.xml.ws.Binding;
 
 import org.apache.cxf.binding.soap.interceptor.MustUnderstandInterceptor;
@@ -31,6 +34,7 @@ import org.apache.cxf.jaxws.handler.AbstractJAXWSHandlerInterceptor;
 import org.apache.cxf.jaxws.handler.HandlerChainInvoker;
 import org.apache.cxf.jaxws.handler.soap.SOAPHandlerInterceptor;
 import org.apache.cxf.jaxws.support.ContextPropertiesMapping;
+import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.staxutils.StaxUtils;
@@ -55,6 +59,9 @@ public class LogicalHandlerInInterceptor<T extends Message>
         LogicalMessageContextImpl lctx = new LogicalMessageContextImpl(message);
         invoker.setLogicalMessageContext(lctx);
         boolean requestor = isRequestor(message);
+        if (!requestor) {
+            setupBindingOperationInfo(message.getExchange(), lctx);
+        }
         
         ContextPropertiesMapping.mapCxf2Jaxws(message.getExchange(), lctx, requestor);
         if (!invoker.invokeLogicalHandlers(requestor, lctx)) {
@@ -99,4 +106,17 @@ public class LogicalHandlerInInterceptor<T extends Message>
     public void handleFault(T message) {
         // TODO
     }
+    
+    protected QName getOpQName(Exchange ex, Object data) {
+        LogicalMessageContextImpl sm = (LogicalMessageContextImpl)data;
+        Source src = sm.getMessage().getPayload();
+        if (src instanceof DOMSource) {
+            DOMSource dsrc = (DOMSource)src;
+            String ln = dsrc.getNode().getLocalName();
+            String ns = dsrc.getNode().getNamespaceURI();
+            return new QName(ns, ln);
+        }
+        return null;
+    }
+
 }

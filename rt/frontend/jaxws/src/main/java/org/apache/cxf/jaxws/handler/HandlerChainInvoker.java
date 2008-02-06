@@ -337,6 +337,8 @@ public class HandlerChainInvoker {
                     if (responseExpected) {
                         changeMessageDirection(ctx);
                         messageDirectionReversed = true;
+                    } else {
+                        invokeReversedClose();                        
                     }
 
                     break;
@@ -359,11 +361,17 @@ public class HandlerChainInvoker {
                 } else {
                     invokeReversedClose();
                 }
+                continueProcessing = false;
+                setFault(e);
+                throw e;
+            } else {
+                continueProcessing = false;
+                if (responseExpected || outbound) {
+                    setFault(e);
+                    throw e;
+                } 
+                invokeReversedClose();
             }
-
-            continueProcessing = false;
-            setFault(e);
-            throw e;
         } catch (RuntimeException e) {
             LOG.log(Level.WARNING, "HANDLER_RAISED_RUNTIME_EXCEPTION", e);
 
@@ -376,11 +384,17 @@ public class HandlerChainInvoker {
             //observer, we have to call close here.
             if (isRequestor()) {
                 invokeReversedClose();
+                continueProcessing = false;
+                setFault(e);
+                throw e;
+            } else if (!responseExpected && !outbound) {
+                invokeReversedClose();
+                continueProcessing = false;
+            } else {
+                continueProcessing = false;
+                setFault(e);
+                throw e;
             }
-
-            continueProcessing = false;
-            setFault(e);
-            throw e;
         }
         return continueProcessing;
     }
