@@ -118,20 +118,22 @@ public class LogicalHandlerOutInterceptor<T extends Message>
                 if (requestor) {
                     // client side - abort
                     message.getInterceptorChain().abort();
-                    Endpoint e = message.getExchange().get(Endpoint.class);
-                    Message responseMsg = e.getBinding().createMessage();            
-
-                    MessageObserver observer = (MessageObserver)message.getExchange()
-                                .get(MessageObserver.class);
-                    if (observer != null) {
-                        //client side outbound, the request message becomes the response message
-                        responseMsg.setContent(XMLStreamReader.class, message
-                            .getContent(XMLStreamReader.class));                        
-                        
-                        message.getExchange().setInMessage(responseMsg);
-                        responseMsg.put(PhaseInterceptorChain.STARTING_AT_INTERCEPTOR_ID,
-                                        LogicalHandlerInInterceptor.class.getName());
-                        observer.onMessage(responseMsg);
+                    if (!message.getExchange().isOneWay()) {
+                        Endpoint e = message.getExchange().get(Endpoint.class);
+                        Message responseMsg = e.getBinding().createMessage();            
+    
+                        MessageObserver observer = (MessageObserver)message.getExchange()
+                                    .get(MessageObserver.class);
+                        if (observer != null) {
+                            //client side outbound, the request message becomes the response message
+                            responseMsg.setContent(XMLStreamReader.class, message
+                                .getContent(XMLStreamReader.class));                        
+                            
+                            message.getExchange().setInMessage(responseMsg);
+                            responseMsg.put(PhaseInterceptorChain.STARTING_AT_INTERCEPTOR_ID,
+                                            LogicalHandlerInInterceptor.class.getName());
+                            observer.onMessage(responseMsg);
+                        }
                     }
                 } else {
                     // server side - abort

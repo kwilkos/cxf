@@ -19,11 +19,15 @@
 
 package org.apache.cxf.jaxws.handler;
 
+import javax.xml.namespace.QName;
 import javax.xml.ws.Binding;
 
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
+import org.apache.cxf.service.model.BindingOperationInfo;
+import org.apache.cxf.service.model.OperationInfo;
+import org.apache.cxf.service.model.ServiceModelUtil;
 
 public abstract class AbstractJAXWSHandlerInterceptor<T extends Message> extends AbstractPhaseInterceptor<T> {
     private Binding binding;
@@ -104,5 +108,32 @@ public abstract class AbstractJAXWSHandlerInterceptor<T extends Message> extends
         } 
         
         return false;
+    }
+    
+    protected void setupBindingOperationInfo(Exchange exch, Object data) {
+        if (exch.get(BindingOperationInfo.class) == null) {
+            //need to know the operation to determine if oneway
+            QName opName = getOpQName(exch, data);
+            if (opName == null) {
+                return;
+            }
+            BindingOperationInfo bop = ServiceModelUtil
+                .getOperationForWrapperElement(exch, opName, false);
+            if (bop == null) {
+                bop = ServiceModelUtil.getOperation(exch, opName);
+            }
+            if (bop != null) {
+                exch.put(BindingOperationInfo.class, bop);
+                exch.put(OperationInfo.class, bop.getOperationInfo());
+                if (bop.getOutput() == null) {
+                    exch.setOneWay(true);
+                }
+            }
+
+        }
+    }
+    
+    protected QName getOpQName(Exchange ex, Object data) {
+        return null;
     }
 }

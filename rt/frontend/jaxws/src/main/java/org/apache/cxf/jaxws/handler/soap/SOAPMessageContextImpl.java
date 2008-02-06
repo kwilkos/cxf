@@ -72,7 +72,7 @@ public class SOAPMessageContextImpl extends WrappedMessageContext implements SOA
         //Only happens to non-Dispatch/Provider case.
         if (null == message) {
             Boolean outboundProperty = (Boolean)get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
-            if (!outboundProperty) {
+            if (outboundProperty == null || !outboundProperty) {
                 //No SOAPMessage exists yet, so lets create one
                 SAAJ_IN.handleMessage(getWrappedSoapMessage());
                 message = getWrappedSoapMessage().getContent(SOAPMessage.class);           

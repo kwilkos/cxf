@@ -520,10 +520,9 @@ public class HandlerChainInvokerTest extends Assert {
         assertTrue(logicalHandlers[1].getInvokeOrderOfHandleMessage()
                    < logicalHandlers[2].getInvokeOrderOfHandleMessage());
         
-        //Close is invoked outside HandlerChainInvoker, eg, in SOAPHandlerInterceptor
-        assertEquals(0, logicalHandlers[0].getCloseCount());
-        assertEquals(0, logicalHandlers[1].getCloseCount());
-        assertEquals(0, logicalHandlers[2].getCloseCount());
+        assertEquals(1, logicalHandlers[0].getCloseCount());
+        assertEquals(1, logicalHandlers[1].getCloseCount());
+        assertEquals(1, logicalHandlers[2].getCloseCount());
         assertEquals(0, logicalHandlers[3].getCloseCount());
 
         assertEquals(0, logicalHandlers[0].getHandleFaultCount());
