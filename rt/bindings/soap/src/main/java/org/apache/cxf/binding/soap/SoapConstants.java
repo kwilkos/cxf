@@ -19,7 +19,7 @@
 
 package org.apache.cxf.binding.soap;
 
-public class SoapConstants {
+public final class SoapConstants {
     public static final String BINDING_STYLE_RPC = "rpc";
     public static final String BINDING_STYLE_DOC = "document";
     
@@ -32,4 +32,8 @@ public class SoapConstants {
     public static final String SOAP_ACTION = "SOAPAction";
     public static final String SOAP11_BINDING_ID = "http://schemas.xmlsoap.org/soap/";
     public static final String SOAP12_BINDING_ID = "http://schemas.xmlsoap.org/wsdl/soap12/";
+    
+    private SoapConstants() {
+        //utility class
+    }
 }

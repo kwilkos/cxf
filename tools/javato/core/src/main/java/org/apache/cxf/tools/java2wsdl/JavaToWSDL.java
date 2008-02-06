@@ -52,7 +52,7 @@ public class JavaToWSDL {
         }
     }
     
-    private boolean isVerbose() {
+    protected boolean isVerbose() {
         return isSet(new String[]{"-V", "-verbose"});
     }
     

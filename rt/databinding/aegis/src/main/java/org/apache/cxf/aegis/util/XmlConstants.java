@@ -24,7 +24,7 @@ package org.apache.cxf.aegis.util;
  * @author <a href="mailto:dan@envoisolutions.com">Dan Diephouse</a>
  * @since Feb 18, 2004
  */
-public class XmlConstants {
+public final class XmlConstants {
     /** Document styles. */
 
     public static final String WSDL11_NS = "http://schemas.xmlsoap.org/wsdl/";
@@ -80,4 +80,7 @@ public class XmlConstants {
      */
     public static final String MTOM_ENABLED = "mtom-enabled";
 
+    private XmlConstants() {
+        //utility class
+    }
 }
