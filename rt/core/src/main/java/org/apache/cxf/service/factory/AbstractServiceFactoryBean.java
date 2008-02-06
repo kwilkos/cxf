@@ -52,7 +52,13 @@ public abstract class AbstractServiceFactoryBean {
     }
 
     public DataBinding getDataBinding() {
+        if (dataBinding == null) {
+            dataBinding = createDefaultDataBinding();
+        }
         return dataBinding;
+    }
+    protected DataBinding createDefaultDataBinding() {
+        return null;
     }
 
     public void setDataBinding(DataBinding dataBinding) {
