@@ -20,17 +20,22 @@
 package org.apache.cxf.transport.servlet;
 
 import java.io.IOException;
-import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.message.ExchangeImpl;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.ConduitInitiator;
 import org.apache.cxf.transport.MessageObserver;
 import org.apache.cxf.transport.http.AbstractHTTPDestination;
+import org.apache.cxf.transport.http.HTTPSession;
 
 
 public class ServletDestination extends AbstractHTTPDestination {
@@ -69,20 +74,26 @@ public class ServletDestination extends AbstractHTTPDestination {
     }
 
     
-    protected void doMessage(MessageImpl inMessage) throws IOException {
-        try {
-            
-            setHeaders(inMessage);
-            
-            inMessage.setDestination(this);
-            
-            incomingObserver.onMessage(inMessage);
-            
-        } finally {
-            if (LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Finished servicing http request on thread: " + Thread.currentThread());
-            }
-        }        
+    public void invoke(final ServletContext context, 
+                         final HttpServletRequest req, 
+                         final HttpServletResponse resp) throws IOException {
+        
+        MessageImpl inMessage = new MessageImpl();
+        setupMessage(inMessage,
+                     context,
+                     req,
+                     resp);
+
+        ExchangeImpl exchange = new ExchangeImpl();
+        exchange.setInMessage(inMessage);
+        exchange.setSession(new HTTPSession(req));
+        inMessage.setDestination(this);
+
+        incomingObserver.onMessage(inMessage);
+ 
+    }
+    protected String getBasePath(String contextPath) throws IOException {
+        return contextPath + getAddress().getAddress().getValue();
     }
     
     @Override

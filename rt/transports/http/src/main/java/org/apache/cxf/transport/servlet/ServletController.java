@@ -19,9 +19,7 @@
 package org.apache.cxf.transport.servlet;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
-import java.security.Principal;
 import java.util.Collection;
 import java.util.Set;
 import java.util.logging.Level;
@@ -34,15 +32,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.cxf.Bus;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.StringUtils;
-import org.apache.cxf.helpers.HttpHeaderHelper;
-import org.apache.cxf.message.ExchangeImpl;
-import org.apache.cxf.message.Message;
-import org.apache.cxf.message.MessageImpl;
-import org.apache.cxf.security.SecurityContext;
 import org.apache.cxf.service.model.EndpointInfo;
-import org.apache.cxf.transport.http.AbstractHTTPDestination;
-import org.apache.cxf.transport.http.HTTPSession;
-import org.apache.cxf.transport.https.SSLUtils;
 import org.apache.cxf.transports.http.QueryHandler;
 import org.apache.cxf.transports.http.QueryHandlerRegistry;
 import org.xmlsoap.schemas.wsdl.http.AddressType;
@@ -220,50 +210,13 @@ public class ServletController {
         }
 
         try {
-            MessageImpl inMessage = new MessageImpl();
-            inMessage.setContent(InputStream.class, request.getInputStream());
-            inMessage.put(AbstractHTTPDestination.HTTP_REQUEST, request);
-            inMessage.put(AbstractHTTPDestination.HTTP_RESPONSE, response);
-            inMessage.put(AbstractHTTPDestination.HTTP_CONTEXT, cxfServlet.getServletContext());
-            inMessage.put(Message.HTTP_REQUEST_METHOD, request.getMethod());
-            inMessage.put(Message.PATH_INFO, request.getPathInfo());
-            inMessage.put(Message.QUERY_STRING, request.getQueryString());
-            inMessage.put(Message.CONTENT_TYPE, request.getContentType());
-            inMessage.put(Message.BASE_PATH, d.getAddress().getAddress().getValue());            
-            inMessage.put(SecurityContext.class, new SecurityContext() {
-                public Principal getUserPrincipal() {
-                    return request.getUserPrincipal();
-                }
-                public boolean isUserInRole(String role) {
-                    return request.isUserInRole(role);
-                }
-            });
-            
-            // work around a bug with Jetty which results in the character
-            // encoding not being trimmed correctly.
-            String enc = request.getCharacterEncoding();
-            if (enc != null && enc.endsWith("\"")) {
-                enc = enc.substring(0, enc.length() - 1);
-            }
-
-            String normalizedEncoding = HttpHeaderHelper.mapCharset(enc);
-            if (normalizedEncoding == null) {
-                String m = new org.apache.cxf.common.i18n.Message("INVALID_ENCODING_MSG",
-                                                                  LOG, enc).toString();
-                LOG.log(Level.WARNING, m);
-                throw new IOException(m);   
-            }
-            
-            inMessage.put(Message.ENCODING, normalizedEncoding);
-            SSLUtils.propogateSecureSession(request, inMessage);
-            
-            ExchangeImpl exchange = new ExchangeImpl();
-            exchange.setInMessage(inMessage);
-            exchange.setSession(new HTTPSession(request));
-            
-            d.doMessage(inMessage);
+            d.invoke(cxfServlet.getServletContext(), request, response);
         } catch (IOException e) {
             throw new ServletException(e);
+        } finally {
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.fine("Finished servicing http request on thread: " + Thread.currentThread());
+            }
         }
 
     }
