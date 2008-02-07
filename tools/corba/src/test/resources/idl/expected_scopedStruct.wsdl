@@ -17,29 +17,29 @@
  * specific language governing permissions and limitations
  * under the License.
 -->
-<wsdl:definitions targetNamespace="http://schemas.apache.org/yoko/idl/scopedStruct" xmlns:tns="http://schemas.apache.org/yoko/idl/scopedStruct" xmlns:corba="http://schemas.apache.org/yoko/bindings/corba" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
-  <corba:typeMapping targetNamespace="http://schemas.apache.org/yoko/idl/scopedStruct/typemap">
-    <corba:struct xmlns="http://schemas.apache.org/yoko/idl/Exception/types" repositoryID="IDL:globalStruct:1.0" type="globalStruct" name="globalStruct">
+<wsdl:definitions targetNamespace="http://cxf.apache.org/bindings/corba/idl/scopedStruct" xmlns:tns="http://cxf.apache.org/bindings/corba/idl/scopedStruct" xmlns:corba="http://cxf.apache.org/bindings/corba" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <corba:typeMapping targetNamespace="http://cxf.apache.org/bindings/corba/idl/scopedStruct/typemap">
+    <corba:struct xmlns="http://cxf.apache.org/bindings/corba/idl/Exception/types" repositoryID="IDL:globalStruct:1.0" type="globalStruct" name="globalStruct">
       <corba:member name="time" idltype="corba:long" />
     </corba:struct>
     <corba:alias basetype="corba:short" repositoryID="IDL:var:1.0" name="var" />
-    <corba:struct xmlns="http://schemas.apache.org/yoko/idl/Exception/types" repositoryID="IDL:firstModule/var:1.0" type="firstModule.var" name="firstModule.var">
+    <corba:struct xmlns="http://cxf.apache.org/bindings/corba/idl/Exception/types" repositoryID="IDL:firstModule/var:1.0" type="firstModule.var" name="firstModule.var">
       <corba:member name="number" idltype="corba:long" />
     </corba:struct>
-    <corba:struct xmlns="http://schemas.apache.org/yoko/idl/Exception/types" repositoryID="IDL:firstModule/firstInterface/firstStruct:1.0" type="firstModule.firstInterface.firstStruct" name="firstModule.firstInterface.firstStruct">
+    <corba:struct xmlns="http://cxf.apache.org/bindings/corba/idl/Exception/types" repositoryID="IDL:firstModule/firstInterface/firstStruct:1.0" type="firstModule.firstInterface.firstStruct" name="firstModule.firstInterface.firstStruct">
       <corba:member name="number" idltype="corba:long" />
       <corba:member name="word" idltype="corba:string" />
     </corba:struct>
-    <corba:struct xmlns="http://schemas.apache.org/yoko/idl/Exception/types" repositoryID="IDL:secondModule/secondInterface/secondStruct:1.0" type="secondModule.secondInterface.secondStruct" name="secondModule.secondInterface.secondStruct">
-      <corba:member xmlns:ns4="http://schemas.apache.org/yoko/idl/scopedStruct/typemap" name="hour" idltype="ns4:globalStruct" />
-      <corba:member xmlns:ns4="http://schemas.apache.org/yoko/idl/scopedStruct/typemap" name="minute" idltype="ns4:firstModule.firstInterface.firstStruct" />
-      <corba:member xmlns:ns4="http://schemas.apache.org/yoko/idl/scopedStruct/typemap" name="second" idltype="ns4:firstModule.firstInterface.firstStruct" />
+    <corba:struct xmlns="http://cxf.apache.org/bindings/corba/idl/Exception/types" repositoryID="IDL:secondModule/secondInterface/secondStruct:1.0" type="secondModule.secondInterface.secondStruct" name="secondModule.secondInterface.secondStruct">
+      <corba:member xmlns:ns4="http://cxf.apache.org/bindings/corba/idl/scopedStruct/typemap" name="hour" idltype="ns4:globalStruct" />
+      <corba:member xmlns:ns4="http://cxf.apache.org/bindings/corba/idl/scopedStruct/typemap" name="minute" idltype="ns4:firstModule.firstInterface.firstStruct" />
+      <corba:member xmlns:ns4="http://cxf.apache.org/bindings/corba/idl/scopedStruct/typemap" name="second" idltype="ns4:firstModule.firstInterface.firstStruct" />
       <corba:member name="currency" idltype="corba:string" />
       <corba:member name="praise" idltype="corba:string" />
     </corba:struct>
   </corba:typeMapping>
   <wsdl:types>
-    <xs:schema attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://schemas.apache.org/yoko/idl/scopedStruct" xmlns="http://schemas.apache.org/yoko/idl/scopedStruct" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:schema attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://cxf.apache.org/bindings/corba/idl/scopedStruct" xmlns="http://cxf.apache.org/bindings/corba/idl/scopedStruct" xmlns:xs="http://www.w3.org/2001/XMLSchema">
       <xs:complexType name="globalStruct">
         <xs:sequence>
           <xs:element name="time" type="xs:int">
@@ -172,8 +172,8 @@
     <corba:binding repositoryID="IDL:secondModule/secondInterface:1.0" />
     <wsdl:operation name="congratulate">
       <corba:operation name="congratulate">
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/scopedStruct/typemap" mode="in" name="str" idltype="globalStruct" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/scopedStruct/typemap" mode="out" name="reward" idltype="secondModule.secondInterface.secondStruct" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/scopedStruct/typemap" mode="in" name="str" idltype="globalStruct" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/scopedStruct/typemap" mode="out" name="reward" idltype="secondModule.secondInterface.secondStruct" />
       </corba:operation>
       <wsdl:input name="congratulateRequest">
       </wsdl:input>
@@ -182,8 +182,8 @@
     </wsdl:operation>
     <wsdl:operation name="secondOp">
       <corba:operation name="secondOp">
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/scopedStruct/typemap" mode="in" name="fst" idltype="firstModule.firstInterface.firstStruct" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/scopedStruct/typemap" mode="out" name="dest" idltype="firstModule.firstInterface.firstStruct" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/scopedStruct/typemap" mode="in" name="fst" idltype="firstModule.firstInterface.firstStruct" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/scopedStruct/typemap" mode="out" name="dest" idltype="firstModule.firstInterface.firstStruct" />
       </corba:operation>
       <wsdl:input name="secondOpRequest">
       </wsdl:input>
@@ -195,7 +195,7 @@
     <corba:binding repositoryID="IDL:firstModule/firstInterface:1.0" />
     <wsdl:operation name="testScopeVar">
       <corba:operation name="testScopeVar">
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/scopedStruct/typemap" mode="in" name="inVar" idltype="firstModule.var" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/scopedStruct/typemap" mode="in" name="inVar" idltype="firstModule.var" />
       </corba:operation>
       <wsdl:input name="testScopeVarRequest">
       </wsdl:input>

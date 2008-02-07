@@ -19,7 +19,7 @@
 -->
 <definitions name="typedef" targetNamespace="http://schemas.apache.org/idl/typedef.idl" 
     xmlns="http://schemas.xmlsoap.org/wsdl/" 
-    xmlns:corba="http://schemas.apache.org/yoko/bindings/corba" 
+    xmlns:corba="http://cxf.apache.org/bindings/corba" 
     xmlns:corbatm="http://schemas.apache.org/typemap/corba/typedef.idl" 
     xmlns:tns="http://schemas.apache.org/idl/typedef.idl" 
     xmlns:wsa="http://www.w3.org/2005/08/addressing" 

@@ -217,7 +217,7 @@ public class IDLToWSDLTest extends ToolTestBase {
         File expected = 
             new File(getClass().getResource("/idl/expected_HelloWorld_schema_namespace.wsdl").getFile());
         
-        String[] args = new String[] {"-x", "http://yoko.org/foobar/schema",
+        String[] args = new String[] {"-x", "http://cxf.apache.org/foobar/schema",
                                       "-o", output.toString(),
                                       input.toString()
         };
@@ -264,7 +264,7 @@ public class IDLToWSDLTest extends ToolTestBase {
         File expected = 
             new File(getClass().getResource("/idl/expected_sequence_octet_corba_typemap_tns.wsdl").getFile());
         
-        String[] args = new String[] {"-t", "http://yoko.org/foobar/typemap",
+        String[] args = new String[] {"-t", "http://cxf.apache.org/foobar/typemap",
                                       "-o", output.toString(),
                                       input.toString()
         };
@@ -308,7 +308,7 @@ public class IDLToWSDLTest extends ToolTestBase {
         File actual = new File(output, "Exception.wsdl");
         File expected = new File(getClass().getResource("/idl/expected_Exception_DiffNS.wsdl").getFile());
         
-        String[] args = new String[] {"-x", "http://schemas.apache.org/yoko/idl/Exception/types",
+        String[] args = new String[] {"-x", "http://cxf.apache.org/bindings/corba/idl/Exception/types",
                                       "-o", output.toString(),
                                       input.toString()
         };

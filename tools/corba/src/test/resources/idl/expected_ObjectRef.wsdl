@@ -17,20 +17,20 @@
  * specific language governing permissions and limitations
  * under the License.
 -->
-<wsdl:definitions targetNamespace="http://schemas.apache.org/yoko/idl/ObjectRef" xmlns:tns="http://schemas.apache.org/yoko/idl/ObjectRef" xmlns:wsa="http://www.w3.org/2005/08/addressing" xmlns:corba="http://schemas.apache.org/yoko/bindings/corba" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
-  <corba:typeMapping targetNamespace="http://schemas.apache.org/yoko/idl/ObjectRef/typemap">
-    <corba:object xmlns:ns4="http://www.w3.org/2005/08/addressing" xmlns="http://schemas.apache.org/yoko/idl/ObjectRef" binding="ObjectRefCORBABinding" repositoryID="IDL:ObjectRef:1.0" type="ns4:EndpointReferenceType" name="ObjectRef" />
-    <corba:struct xmlns="http://schemas.apache.org/yoko/idl/ObjectRef" repositoryID="IDL:TestStruct:1.0" type="TestStruct" name="TestStruct">
-      <corba:member xmlns:ns4="http://schemas.apache.org/yoko/idl/ObjectRef/typemap" name="ref" idltype="ns4:ObjectRef" />
+<wsdl:definitions targetNamespace="http://cxf.apache.org/bindings/corba/idl/ObjectRef" xmlns:tns="http://cxf.apache.org/bindings/corba/idl/ObjectRef" xmlns:wsa="http://www.w3.org/2005/08/addressing" xmlns:corba="http://cxf.apache.org/bindings/corba" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <corba:typeMapping targetNamespace="http://cxf.apache.org/bindings/corba/idl/ObjectRef/typemap">
+    <corba:object xmlns:ns4="http://www.w3.org/2005/08/addressing" xmlns="http://cxf.apache.org/bindings/corba/idl/ObjectRef" binding="ObjectRefCORBABinding" repositoryID="IDL:ObjectRef:1.0" type="ns4:EndpointReferenceType" name="ObjectRef" />
+    <corba:struct xmlns="http://cxf.apache.org/bindings/corba/idl/ObjectRef" repositoryID="IDL:TestStruct:1.0" type="TestStruct" name="TestStruct">
+      <corba:member xmlns:ns4="http://cxf.apache.org/bindings/corba/idl/ObjectRef/typemap" name="ref" idltype="ns4:ObjectRef" />
       <corba:member name="str" idltype="corba:string" />
     </corba:struct>
-    <corba:exception xmlns="http://schemas.apache.org/yoko/idl/ObjectRef" repositoryID="IDL:TestException:1.0" type="TestExceptionType" name="TestException">
-      <corba:member xmlns:ns4="http://schemas.apache.org/yoko/idl/ObjectRef/typemap" name="ref" idltype="ns4:ObjectRef" />
+    <corba:exception xmlns="http://cxf.apache.org/bindings/corba/idl/ObjectRef" repositoryID="IDL:TestException:1.0" type="TestExceptionType" name="TestException">
+      <corba:member xmlns:ns4="http://cxf.apache.org/bindings/corba/idl/ObjectRef/typemap" name="ref" idltype="ns4:ObjectRef" />
     </corba:exception>
-    <corba:array xmlns:ns5="http://schemas.apache.org/yoko/idl/ObjectRef" xmlns:ns4="http://schemas.apache.org/yoko/idl/ObjectRef/typemap" xmlns="" elemtype="ns4:ObjectRef" elemname="item" bound="5" repositoryID="IDL:TestArray:1.0" type="ns5:TestArray" name="TestArray" />
-    <corba:sequence xmlns:ns5="http://schemas.apache.org/yoko/idl/ObjectRef" xmlns:ns4="http://schemas.apache.org/yoko/idl/ObjectRef/typemap" xmlns="" elemtype="ns4:ObjectRef" elemname="item" bound="0" repositoryID="IDL:TestSequence:1.0" type="ns5:TestSequence" name="TestSequence" />
-    <corba:union xmlns="http://schemas.apache.org/yoko/idl/ObjectRef" discriminator="corba:short" repositoryID="IDL:TestUnion:1.0" type="TestUnion" name="TestUnion">
-      <corba:unionbranch xmlns:ns4="http://schemas.apache.org/yoko/idl/ObjectRef/typemap" name="ref" idltype="ns4:ObjectRef">
+    <corba:array xmlns:ns5="http://cxf.apache.org/bindings/corba/idl/ObjectRef" xmlns:ns4="http://cxf.apache.org/bindings/corba/idl/ObjectRef/typemap" xmlns="" elemtype="ns4:ObjectRef" elemname="item" bound="5" repositoryID="IDL:TestArray:1.0" type="ns5:TestArray" name="TestArray" />
+    <corba:sequence xmlns:ns5="http://cxf.apache.org/bindings/corba/idl/ObjectRef" xmlns:ns4="http://cxf.apache.org/bindings/corba/idl/ObjectRef/typemap" xmlns="" elemtype="ns4:ObjectRef" elemname="item" bound="0" repositoryID="IDL:TestSequence:1.0" type="ns5:TestSequence" name="TestSequence" />
+    <corba:union xmlns="http://cxf.apache.org/bindings/corba/idl/ObjectRef" discriminator="corba:short" repositoryID="IDL:TestUnion:1.0" type="TestUnion" name="TestUnion">
+      <corba:unionbranch xmlns:ns4="http://cxf.apache.org/bindings/corba/idl/ObjectRef/typemap" name="ref" idltype="ns4:ObjectRef">
         <corba:case label="0" />
       </corba:unionbranch>
       <corba:unionbranch name="str" idltype="corba:string">
@@ -41,7 +41,7 @@
     <corba:object xmlns="http://www.w3.org/2005/08/addressing" repositoryID="IDL:omg.org/CORBA/Object/1.0" type="EndpointReferenceType" name="CORBA.Object" />
   </corba:typeMapping>
   <wsdl:types>
-    <xs:schema attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://schemas.apache.org/yoko/idl/ObjectRef" xmlns="http://schemas.apache.org/yoko/idl/ObjectRef" xmlns:wsa="http://www.w3.org/2005/08/addressing" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:schema attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://cxf.apache.org/bindings/corba/idl/ObjectRef" xmlns="http://cxf.apache.org/bindings/corba/idl/ObjectRef" xmlns:wsa="http://www.w3.org/2005/08/addressing" xmlns:xs="http://www.w3.org/2001/XMLSchema">
       <xs:import namespace="http://www.w3.org/2005/08/addressing" schemaLocation="http://www.w3.org/2005/08/addressing/ws-addr.xsd">
       </xs:import>
       <xs:element name="testOp">
@@ -352,7 +352,7 @@
     <corba:binding repositoryID="IDL:TestInterface:1.0" />
     <wsdl:operation name="_get_ref">
       <corba:operation name="_get_ref">
-        <corba:return xmlns="http://schemas.apache.org/yoko/idl/ObjectRef/typemap" name="return" idltype="ObjectRef" />
+        <corba:return xmlns="http://cxf.apache.org/bindings/corba/idl/ObjectRef/typemap" name="return" idltype="ObjectRef" />
       </corba:operation>
       <wsdl:input name="_get_ref">
       </wsdl:input>
@@ -361,7 +361,7 @@
     </wsdl:operation>
     <wsdl:operation name="_set_ref">
       <corba:operation name="_set_ref">
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/ObjectRef/typemap" mode="in" name="_arg" idltype="ObjectRef" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/ObjectRef/typemap" mode="in" name="_arg" idltype="ObjectRef" />
       </corba:operation>
       <wsdl:input name="_set_ref">
       </wsdl:input>
@@ -370,7 +370,7 @@
     </wsdl:operation>
     <wsdl:operation name="_get_obj">
       <corba:operation name="_get_obj">
-        <corba:return xmlns="http://schemas.apache.org/yoko/idl/ObjectRef/typemap" name="return" idltype="CORBA.Object" />
+        <corba:return xmlns="http://cxf.apache.org/bindings/corba/idl/ObjectRef/typemap" name="return" idltype="CORBA.Object" />
       </corba:operation>
       <wsdl:input name="_get_obj">
       </wsdl:input>
@@ -379,7 +379,7 @@
     </wsdl:operation>
     <wsdl:operation name="_set_obj">
       <corba:operation name="_set_obj">
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/ObjectRef/typemap" mode="in" name="_arg" idltype="CORBA.Object" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/ObjectRef/typemap" mode="in" name="_arg" idltype="CORBA.Object" />
       </corba:operation>
       <wsdl:input name="_set_obj">
       </wsdl:input>
@@ -388,7 +388,7 @@
     </wsdl:operation>
     <wsdl:operation name="testObjectRefAsParam">
       <corba:operation name="testObjectRefAsParam">
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/ObjectRef/typemap" mode="in" name="o" idltype="ObjectRef" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/ObjectRef/typemap" mode="in" name="o" idltype="ObjectRef" />
       </corba:operation>
       <wsdl:input name="testObjectRefAsParamRequest">
       </wsdl:input>
@@ -397,7 +397,7 @@
     </wsdl:operation>
     <wsdl:operation name="testObjectRefAsReturn">
       <corba:operation name="testObjectRefAsReturn">
-        <corba:return xmlns="http://schemas.apache.org/yoko/idl/ObjectRef/typemap" name="return" idltype="ObjectRef" />
+        <corba:return xmlns="http://cxf.apache.org/bindings/corba/idl/ObjectRef/typemap" name="return" idltype="ObjectRef" />
       </corba:operation>
       <wsdl:input name="testObjectRefAsReturnRequest">
       </wsdl:input>
@@ -406,7 +406,7 @@
     </wsdl:operation>
     <wsdl:operation name="testObjectAsParam">
       <corba:operation name="testObjectAsParam">
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/ObjectRef/typemap" mode="in" name="o" idltype="CORBA.Object" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/ObjectRef/typemap" mode="in" name="o" idltype="CORBA.Object" />
       </corba:operation>
       <wsdl:input name="testObjectAsParamRequest">
       </wsdl:input>
@@ -415,7 +415,7 @@
     </wsdl:operation>
     <wsdl:operation name="testObjectAsReturn">
       <corba:operation name="testObjectAsReturn">
-        <corba:return xmlns="http://schemas.apache.org/yoko/idl/ObjectRef/typemap" name="return" idltype="CORBA.Object" />
+        <corba:return xmlns="http://cxf.apache.org/bindings/corba/idl/ObjectRef/typemap" name="return" idltype="CORBA.Object" />
       </corba:operation>
       <wsdl:input name="testObjectAsReturnRequest">
       </wsdl:input>

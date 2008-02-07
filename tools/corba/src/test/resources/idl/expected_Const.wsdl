@@ -17,9 +17,9 @@
  * specific language governing permissions and limitations
  * under the License.
 -->
-<wsdl:definitions targetNamespace="http://schemas.apache.org/yoko/idl/Const" xmlns:tns="http://schemas.apache.org/yoko/idl/Const" xmlns:wsa="http://www.w3.org/2005/08/addressing" xmlns:corba="http://schemas.apache.org/yoko/bindings/corba" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
-  <corba:typeMapping targetNamespace="http://schemas.apache.org/yoko/idl/Const/typemap">
-    <corba:struct xmlns="http://schemas.apache.org/yoko/idl/Const" repositoryID="IDL:scope/structScope:1.0" type="scope.structScope" name="scope.structScope">
+<wsdl:definitions targetNamespace="http://cxf.apache.org/bindings/corba/idl/Const" xmlns:tns="http://cxf.apache.org/bindings/corba/idl/Const" xmlns:wsa="http://www.w3.org/2005/08/addressing" xmlns:corba="http://cxf.apache.org/bindings/corba" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <corba:typeMapping targetNamespace="http://cxf.apache.org/bindings/corba/idl/Const/typemap">
+    <corba:struct xmlns="http://cxf.apache.org/bindings/corba/idl/Const" repositoryID="IDL:scope/structScope:1.0" type="scope.structScope" name="scope.structScope">
       <corba:member name="a" idltype="corba:long" />
     </corba:struct>
     <corba:const xmlns:xs="http://www.w3.org/2001/XMLSchema" value="-12" idltype="corba:short" type="xs:short" name="glob_short" />
@@ -38,9 +38,9 @@
     <corba:const xmlns:xs="http://www.w3.org/2001/XMLSchema" value="this is a global wide string" idltype="corba:wstring" type="xs:string" name="glob_wstring" />
     <corba:const xmlns:xs="http://www.w3.org/2001/XMLSchema" value="16.75D" idltype="corba:fixed" type="xs:decimal" name="glob_fixed" />
     <corba:const xmlns:xs="http://www.w3.org/2001/XMLSchema" value="0x1" idltype="corba:octet" type="xs:unsignedByte" name="glob_octet" />
-    <corba:object xmlns:ns4="http://www.w3.org/2005/08/addressing" xmlns="http://schemas.apache.org/yoko/idl/Const" binding="scopeCORBABinding" repositoryID="IDL:scope:1.0" type="ns4:EndpointReferenceType" name="scope" />
-    <corba:const xmlns:ns4="http://www.w3.org/2005/08/addressing" xmlns="http://schemas.apache.org/yoko/idl/Const/typemap" value="2" idltype="scope" type="ns4:EndpointReferenceType" name="glob_scope" />
-    <corba:const xmlns:ns4="http://schemas.apache.org/yoko/idl/Const" xmlns="http://schemas.apache.org/yoko/idl/Const/typemap" value="scopename" idltype="scope.structScope" type="ns4:scope.structScope" name="glob_structscope" />
+    <corba:object xmlns:ns4="http://www.w3.org/2005/08/addressing" xmlns="http://cxf.apache.org/bindings/corba/idl/Const" binding="scopeCORBABinding" repositoryID="IDL:scope:1.0" type="ns4:EndpointReferenceType" name="scope" />
+    <corba:const xmlns:ns4="http://www.w3.org/2005/08/addressing" xmlns="http://cxf.apache.org/bindings/corba/idl/Const/typemap" value="2" idltype="scope" type="ns4:EndpointReferenceType" name="glob_scope" />
+    <corba:const xmlns:ns4="http://cxf.apache.org/bindings/corba/idl/Const" xmlns="http://cxf.apache.org/bindings/corba/idl/Const/typemap" value="scopename" idltype="scope.structScope" type="ns4:scope.structScope" name="glob_structscope" />
     <corba:const xmlns:xs="http://www.w3.org/2001/XMLSchema" value="-12" idltype="corba:short" type="xs:short" name="constInterface.inter_short" />
     <corba:const xmlns:xs="http://www.w3.org/2001/XMLSchema" value="2334" idltype="corba:long" type="xs:int" name="constInterface.inter_long" />
     <corba:const xmlns:xs="http://www.w3.org/2001/XMLSchema" value="-123456789" idltype="corba:longlong" type="xs:long" name="constInterface.inter_longlong" />
@@ -59,7 +59,7 @@
     <corba:const xmlns:xs="http://www.w3.org/2001/XMLSchema" value="0x1" idltype="corba:octet" type="xs:unsignedByte" name="constInterface.inter_octet" />
   </corba:typeMapping>
   <wsdl:types>
-    <xs:schema attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://schemas.apache.org/yoko/idl/Const" xmlns="http://schemas.apache.org/yoko/idl/Const" xmlns:wsa="http://www.w3.org/2005/08/addressing" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:schema attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://cxf.apache.org/bindings/corba/idl/Const" xmlns="http://cxf.apache.org/bindings/corba/idl/Const" xmlns:wsa="http://www.w3.org/2005/08/addressing" xmlns:xs="http://www.w3.org/2001/XMLSchema">
       <xs:import namespace="http://www.w3.org/2005/08/addressing" schemaLocation="http://www.w3.org/2005/08/addressing/ws-addr.xsd">
       </xs:import>
       <xs:complexType name="scope.structScope">

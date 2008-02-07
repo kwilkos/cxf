@@ -17,33 +17,33 @@
  * specific language governing permissions and limitations
  * under the License.
 -->
-<wsdl:definitions targetNamespace="http://schemas.apache.org/yoko/idl/Struct" xmlns:tns="http://schemas.apache.org/yoko/idl/Struct" xmlns:corba="http://schemas.apache.org/yoko/bindings/corba" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
-  <corba:typeMapping targetNamespace="http://schemas.apache.org/yoko/idl/Struct/typemap">
-    <corba:struct xmlns="http://schemas.apache.org/yoko/idl/Exception/types" repositoryID="IDL:OutsideStruct:1.0" type="OutsideStruct" name="OutsideStruct">
+<wsdl:definitions targetNamespace="http://cxf.apache.org/bindings/corba/idl/Struct" xmlns:tns="http://cxf.apache.org/bindings/corba/idl/Struct" xmlns:corba="http://cxf.apache.org/bindings/corba" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <corba:typeMapping targetNamespace="http://cxf.apache.org/bindings/corba/idl/Struct/typemap">
+    <corba:struct xmlns="http://cxf.apache.org/bindings/corba/idl/Exception/types" repositoryID="IDL:OutsideStruct:1.0" type="OutsideStruct" name="OutsideStruct">
       <corba:member name="number" idltype="corba:long" />
       <corba:member name="word" idltype="corba:string" />
     </corba:struct>
-    <corba:struct xmlns="http://schemas.apache.org/yoko/idl/Exception/types" repositoryID="IDL:StructTest/Employee:1.0" type="StructTest.Employee" name="StructTest.Employee">
+    <corba:struct xmlns="http://cxf.apache.org/bindings/corba/idl/Exception/types" repositoryID="IDL:StructTest/Employee:1.0" type="StructTest.Employee" name="StructTest.Employee">
       <corba:member name="name" idltype="corba:string" />
       <corba:member name="dept" idltype="corba:string" />
     </corba:struct>
-    <corba:struct xmlns="http://schemas.apache.org/yoko/idl/Exception/types" repositoryID="IDL:StructTest/Compensation:1.0" type="StructTest.Compensation" name="StructTest.Compensation">
+    <corba:struct xmlns="http://cxf.apache.org/bindings/corba/idl/Exception/types" repositoryID="IDL:StructTest/Compensation:1.0" type="StructTest.Compensation" name="StructTest.Compensation">
       <corba:member name="amount" idltype="corba:long" />
       <corba:member name="currency" idltype="corba:string" />
       <corba:member name="praise" idltype="corba:string" />
     </corba:struct>
-    <corba:struct xmlns="http://schemas.apache.org/yoko/idl/Exception/types" repositoryID="IDL:StructTest/NestedOutsideStruct:1.0" type="StructTest.NestedOutsideStruct" name="StructTest.NestedOutsideStruct">
+    <corba:struct xmlns="http://cxf.apache.org/bindings/corba/idl/Exception/types" repositoryID="IDL:StructTest/NestedOutsideStruct:1.0" type="StructTest.NestedOutsideStruct" name="StructTest.NestedOutsideStruct">
       <corba:member name="aShort" idltype="corba:short" />
       <corba:member name="aLong" idltype="corba:long" />
-      <corba:member xmlns:ns4="http://schemas.apache.org/yoko/idl/Struct/typemap" name="outsider" idltype="ns4:OutsideStruct" />
+      <corba:member xmlns:ns4="http://cxf.apache.org/bindings/corba/idl/Struct/typemap" name="outsider" idltype="ns4:OutsideStruct" />
     </corba:struct>
-    <corba:struct xmlns="http://schemas.apache.org/yoko/idl/Exception/types" repositoryID="IDL:StructTest/NestedStructs:1.0" type="StructTest.NestedStructs" name="StructTest.NestedStructs">
-      <corba:member xmlns:ns4="http://schemas.apache.org/yoko/idl/Struct/typemap" name="employStruct" idltype="ns4:StructTest.Employee" />
-      <corba:member xmlns:ns4="http://schemas.apache.org/yoko/idl/Struct/typemap" name="compensationStruct" idltype="ns4:StructTest.Compensation" />
+    <corba:struct xmlns="http://cxf.apache.org/bindings/corba/idl/Exception/types" repositoryID="IDL:StructTest/NestedStructs:1.0" type="StructTest.NestedStructs" name="StructTest.NestedStructs">
+      <corba:member xmlns:ns4="http://cxf.apache.org/bindings/corba/idl/Struct/typemap" name="employStruct" idltype="ns4:StructTest.Employee" />
+      <corba:member xmlns:ns4="http://cxf.apache.org/bindings/corba/idl/Struct/typemap" name="compensationStruct" idltype="ns4:StructTest.Compensation" />
     </corba:struct>
   </corba:typeMapping>
   <wsdl:types>
-    <xs:schema attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://schemas.apache.org/yoko/idl/Struct" xmlns="http://schemas.apache.org/yoko/idl/Struct" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:schema attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://cxf.apache.org/bindings/corba/idl/Struct" xmlns="http://cxf.apache.org/bindings/corba/idl/Struct" xmlns:xs="http://www.w3.org/2001/XMLSchema">
       <xs:complexType name="OutsideStruct">
         <xs:sequence>
           <xs:element name="number" type="xs:int">
@@ -156,8 +156,8 @@
     <corba:binding repositoryID="IDL:StructTest:1.0" />
     <wsdl:operation name="congratulate">
       <corba:operation name="congratulate">
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Struct/typemap" mode="in" idltype="StructTest.Employee" name="emp" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Struct/typemap" mode="out" idltype="StructTest.Compensation" name="reward" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Struct/typemap" mode="in" idltype="StructTest.Employee" name="emp" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Struct/typemap" mode="out" idltype="StructTest.Compensation" name="reward" />
       </corba:operation>
       <wsdl:input name="congratulateRequest">
       </wsdl:input>
@@ -166,8 +166,8 @@
     </wsdl:operation>
     <wsdl:operation name="getCompensation">
       <corba:operation name="getCompensation">
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Struct/typemap" mode="in" idltype="StructTest.Employee" name="emp2" />
-        <corba:return xmlns="http://schemas.apache.org/yoko/idl/Struct/typemap" idltype="StructTest.Compensation" name="return" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Struct/typemap" mode="in" idltype="StructTest.Employee" name="emp2" />
+        <corba:return xmlns="http://cxf.apache.org/bindings/corba/idl/Struct/typemap" idltype="StructTest.Compensation" name="return" />
       </corba:operation>
       <wsdl:input name="getCompensationRequest">
       </wsdl:input>

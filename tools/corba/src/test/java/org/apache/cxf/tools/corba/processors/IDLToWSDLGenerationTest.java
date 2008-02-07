@@ -29,37 +29,32 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamReader;
 
+import org.apache.cxf.tools.common.ProcessorTestBase;
 import org.apache.cxf.tools.corba.common.ProcessorEnvironment;
 import org.apache.cxf.tools.corba.common.ToolCorbaConstants;
 import org.apache.cxf.tools.corba.processors.idl.IDLToWSDLProcessor;
-import org.apache.cxf.tools.corba.utils.WSDLGenerationTester;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class IDLToWSDLGenerationTest extends Assert {
+public class IDLToWSDLGenerationTest extends ProcessorTestBase {
+    public static final List<String> SCHEMA_IGNORE_ATTR = Arrays.asList(new String[]{"attributeFormDefault",
+                                                                                     "elementFormDefault", 
+                                                                                     "form",
+                                                                                     "schemaLocation"});
 
-    private XMLInputFactory factory;
-    private WSDLGenerationTester wsdlGenTester;
-
-    
     @Before
     public void setUp() {
-        factory = XMLInputFactory.newInstance();
-        wsdlGenTester = new WSDLGenerationTester();
     }
 
     @After
     public void tearDown() {
-        wsdlGenTester = null;
-        factory = null;
     }
 
     public void testWSDLGeneration(String sourceIdlFilename, 
@@ -79,11 +74,7 @@ public class IDLToWSDLGenerationTest extends Assert {
         InputStream origStream = getClass().getResourceAsStream(expectedWsdlFilename);  
         InputStream actualStream = new ByteArrayInputStream(out.toString().getBytes());
 
-        XMLStreamReader orig = factory.createXMLStreamReader(origStream);
-        XMLStreamReader actual = factory.createXMLStreamReader(actualStream);
-
-        wsdlGenTester.compare(orig, actual);
-
+        assertWsdlEquals(origStream, actualStream, DEFAULT_IGNORE_ATTR, DEFAULT_IGNORE_TAG);
     }
     
     @Test
@@ -370,9 +361,9 @@ public class IDLToWSDLGenerationTest extends Assert {
         if (schemaFilename != null) {                        
             InputStream origSchemaStream = getClass().getResourceAsStream("/idl/" + schemaFilename);
             InputStream actualSchemaStream = new ByteArrayInputStream(outS.toString().getBytes());
-            XMLStreamReader orig = factory.createXMLStreamReader(origSchemaStream);
-            XMLStreamReader actual = factory.createXMLStreamReader(actualSchemaStream);
-            wsdlGenTester.compare(orig, actual);
+            
+            assertWsdlEquals(origSchemaStream, actualSchemaStream, 
+                             SCHEMA_IGNORE_ATTR, DEFAULT_IGNORE_TAG);
         }
         
         if (defaultFilename != null) {                
@@ -383,17 +374,11 @@ public class IDLToWSDLGenerationTest extends Assert {
     
     public boolean testCompare(String filename, java.io.CharArrayWriter outWriter, String location)
         throws Exception {
-        try {
-            InputStream origExpectedStream = getClass().getResourceAsStream("/idl/" + filename);
-            ByteArrayInputStream expectedByteStream = get(origExpectedStream, location);
-            InputStream actualPhysicalStream = new ByteArrayInputStream(outWriter.toString().getBytes());
-            ByteArrayInputStream  actualByteStream = get(actualPhysicalStream, location);
-            XMLStreamReader orig = factory.createXMLStreamReader(expectedByteStream);
-            XMLStreamReader actual = factory.createXMLStreamReader(actualByteStream);
-            wsdlGenTester.compare(orig, actual);
-        } catch (Exception ex) {
-            throw ex;
-        }
+        InputStream origExpectedStream = getClass().getResourceAsStream("/idl/" + filename);
+        ByteArrayInputStream expectedByteStream = get(origExpectedStream, location);
+        InputStream actualPhysicalStream = new ByteArrayInputStream(outWriter.toString().getBytes());
+        ByteArrayInputStream actualByteStream = get(actualPhysicalStream, location);
+        assertWsdlEquals(expectedByteStream, actualByteStream, SCHEMA_IGNORE_ATTR, DEFAULT_IGNORE_TAG);
         return true;
     }
     

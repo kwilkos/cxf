@@ -17,12 +17,12 @@
  * specific language governing permissions and limitations
  * under the License.
 -->
-<wsdl:definitions targetNamespace="http://schemas.apache.org/yoko/idl/ForwardInterfaceParam" xmlns:tns="http://schemas.apache.org/yoko/idl/ForwardInterfaceParam" xmlns:wsa="http://www.w3.org/2005/08/addressing" xmlns:corba="http://schemas.apache.org/yoko/bindings/corba" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
-  <corba:typeMapping targetNamespace="http://schemas.apache.org/yoko/idl/ForwardInterfaceParam/typemap">
-    <corba:object xmlns:ns4="http://www.w3.org/2005/08/addressing" xmlns="http://schemas.apache.org/yoko/idl/ForwardInterfaceParam" binding="org.cc.IpCallCORBABinding" repositoryID="IDL:org/cc/IpCall:1.0" type="ns4:EndpointReferenceType" name="org.cc.IpCall" />
+<wsdl:definitions targetNamespace="http://cxf.apache.org/bindings/corba/idl/ForwardInterfaceParam" xmlns:tns="http://cxf.apache.org/bindings/corba/idl/ForwardInterfaceParam" xmlns:wsa="http://www.w3.org/2005/08/addressing" xmlns:corba="http://cxf.apache.org/bindings/corba" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <corba:typeMapping targetNamespace="http://cxf.apache.org/bindings/corba/idl/ForwardInterfaceParam/typemap">
+    <corba:object xmlns:ns4="http://www.w3.org/2005/08/addressing" xmlns="http://cxf.apache.org/bindings/corba/idl/ForwardInterfaceParam" binding="org.cc.IpCallCORBABinding" repositoryID="IDL:org/cc/IpCall:1.0" type="ns4:EndpointReferenceType" name="org.cc.IpCall" />
   </corba:typeMapping>
   <wsdl:types>
-    <xs:schema attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://schemas.apache.org/yoko/idl/ForwardInterfaceParam" xmlns="http://schemas.apache.org/yoko/idl/ForwardInterfaceParam" xmlns:wsa="http://www.w3.org/2005/08/addressing" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:schema attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://cxf.apache.org/bindings/corba/idl/ForwardInterfaceParam" xmlns="http://cxf.apache.org/bindings/corba/idl/ForwardInterfaceParam" xmlns:wsa="http://www.w3.org/2005/08/addressing" xmlns:xs="http://www.w3.org/2001/XMLSchema">
       <xs:import namespace="http://www.w3.org/2005/08/addressing" schemaLocation="http://www.w3.org/2005/08/addressing/ws-addr.xsd">
       </xs:import>
       <xs:element name="routeCAllParam">
@@ -125,10 +125,10 @@
     <corba:binding repositoryID="IDL:org/cc/IpAppCall:1.0" />
     <wsdl:operation name="routeCAllParam">
       <corba:operation name="routeCAllParam">
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/ForwardInterfaceParam/typemap" mode="in" name="inTp" idltype="org.cc.IpCall" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/ForwardInterfaceParam/typemap" mode="out" name="outTp" idltype="org.cc.IpCall" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/ForwardInterfaceParam/typemap" mode="inout" name="inoutTp" idltype="org.cc.IpCall" />
-        <corba:return xmlns="http://schemas.apache.org/yoko/idl/ForwardInterfaceParam/typemap" name="return" idltype="org.cc.IpCall" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/ForwardInterfaceParam/typemap" mode="in" name="inTp" idltype="org.cc.IpCall" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/ForwardInterfaceParam/typemap" mode="out" name="outTp" idltype="org.cc.IpCall" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/ForwardInterfaceParam/typemap" mode="inout" name="inoutTp" idltype="org.cc.IpCall" />
+        <corba:return xmlns="http://cxf.apache.org/bindings/corba/idl/ForwardInterfaceParam/typemap" name="return" idltype="org.cc.IpCall" />
       </corba:operation>
       <wsdl:input name="routeCAllParamRequest">
       </wsdl:input>

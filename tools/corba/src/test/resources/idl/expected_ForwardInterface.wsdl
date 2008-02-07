@@ -17,14 +17,14 @@
  * specific language governing permissions and limitations
  * under the License.
 -->
-<wsdl:definitions targetNamespace="http://schemas.apache.org/yoko/idl/ForwardInterface" xmlns:tns="http://schemas.apache.org/yoko/idl/ForwardInterface" xmlns:wsa="http://www.w3.org/2005/08/addressing" xmlns:corba="http://schemas.apache.org/yoko/bindings/corba" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
-  <corba:typeMapping targetNamespace="http://schemas.apache.org/yoko/idl/ForwardInterface/typemap">
-    <corba:object xmlns:ns4="http://www.w3.org/2005/08/addressing" xmlns="http://schemas.apache.org/yoko/idl/ForwardInterface" binding="mod.intCORBABinding" repositoryID="IDL:mod/int:1.0" type="ns4:EndpointReferenceType" name="mod.int" />
-    <corba:object xmlns:ns4="http://www.w3.org/2005/08/addressing" xmlns="http://schemas.apache.org/yoko/idl/ForwardInterface" binding="mod2.testCORBABinding" repositoryID="IDL:mod2/test:1.0" type="ns4:EndpointReferenceType" name="mod2.test" />
-    <corba:object xmlns:ns4="http://www.w3.org/2005/08/addressing" xmlns="http://schemas.apache.org/yoko/idl/ForwardInterface" binding="mod3.intfCORBABinding" repositoryID="IDL:mod3/intf:1.0" type="ns4:EndpointReferenceType" name="mod3.intf" />
+<wsdl:definitions targetNamespace="http://cxf.apache.org/bindings/corba/idl/ForwardInterface" xmlns:tns="http://cxf.apache.org/bindings/corba/idl/ForwardInterface" xmlns:wsa="http://www.w3.org/2005/08/addressing" xmlns:corba="http://cxf.apache.org/bindings/corba" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <corba:typeMapping targetNamespace="http://cxf.apache.org/bindings/corba/idl/ForwardInterface/typemap">
+    <corba:object xmlns:ns4="http://www.w3.org/2005/08/addressing" xmlns="http://cxf.apache.org/bindings/corba/idl/ForwardInterface" binding="mod.intCORBABinding" repositoryID="IDL:mod/int:1.0" type="ns4:EndpointReferenceType" name="mod.int" />
+    <corba:object xmlns:ns4="http://www.w3.org/2005/08/addressing" xmlns="http://cxf.apache.org/bindings/corba/idl/ForwardInterface" binding="mod2.testCORBABinding" repositoryID="IDL:mod2/test:1.0" type="ns4:EndpointReferenceType" name="mod2.test" />
+    <corba:object xmlns:ns4="http://www.w3.org/2005/08/addressing" xmlns="http://cxf.apache.org/bindings/corba/idl/ForwardInterface" binding="mod3.intfCORBABinding" repositoryID="IDL:mod3/intf:1.0" type="ns4:EndpointReferenceType" name="mod3.intf" />
   </corba:typeMapping>
   <wsdl:types>
-    <xs:schema attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://schemas.apache.org/yoko/idl/ForwardInterface" xmlns="http://schemas.apache.org/yoko/idl/ForwardInterface" xmlns:wsa="http://www.w3.org/2005/08/addressing" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:schema attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://cxf.apache.org/bindings/corba/idl/ForwardInterface" xmlns="http://cxf.apache.org/bindings/corba/idl/ForwardInterface" xmlns:wsa="http://www.w3.org/2005/08/addressing" xmlns:xs="http://www.w3.org/2001/XMLSchema">
       <xs:import namespace="http://www.w3.org/2005/08/addressing" schemaLocation="http://www.w3.org/2005/08/addressing/ws-addr.xsd">
       </xs:import>
       <xs:element name="method2">
@@ -212,7 +212,7 @@
     <corba:binding repositoryID="IDL:mod/int2:1.0" />
     <wsdl:operation name="method2">
       <corba:operation name="method2">
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/ForwardInterface/typemap" mode="in" name="inint" idltype="mod.int" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/ForwardInterface/typemap" mode="in" name="inint" idltype="mod.int" />
       </corba:operation>
       <wsdl:input name="method2Request">
       </wsdl:input>
@@ -224,7 +224,7 @@
     <corba:binding repositoryID="IDL:mod2/test2:1.0" />
     <wsdl:operation name="testMethod">
       <corba:operation name="testMethod">
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/ForwardInterface/typemap" mode="in" name="intest" idltype="mod2.test" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/ForwardInterface/typemap" mode="in" name="intest" idltype="mod2.test" />
       </corba:operation>
       <wsdl:input name="testMethodRequest">
       </wsdl:input>
@@ -236,7 +236,7 @@
     <corba:binding repositoryID="IDL:mod3/intf2:1.0" />
     <wsdl:operation name="mod3_intf2_testMethod">
       <corba:operation name="testMethod">
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/ForwardInterface/typemap" mode="in" name="inparam" idltype="mod3.intf" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/ForwardInterface/typemap" mode="in" name="inparam" idltype="mod3.intf" />
       </corba:operation>
       <wsdl:input name="mod3_intf2_testMethodRequest">
       </wsdl:input>

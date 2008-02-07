@@ -17,7 +17,7 @@
  * specific language governing permissions and limitations
  * under the License.
 -->
-<definitions name="m" targetNamespace="http://schemas.apache.org/idl/m.idl" xmlns:tns="http://schemas.apache.org/idl/m.idl" xmlns:corbatm="http://schemas.apache.org/typemap/corba/m.idl" xmlns:wsa="http://www.w3.org/2005/08/addressing" xmlns:corba="http://schemas.apache.org/yoko/bindings/corba" xmlns:ns1="http://schemas.apache.org/idl/m.idl/corba/typemap/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsd1="http://schemas.apache.org/idltypes/m.idl" xmlns="http://schemas.xmlsoap.org/wsdl/">
+<definitions name="m" targetNamespace="http://schemas.apache.org/idl/m.idl" xmlns:tns="http://schemas.apache.org/idl/m.idl" xmlns:corbatm="http://schemas.apache.org/typemap/corba/m.idl" xmlns:wsa="http://www.w3.org/2005/08/addressing" xmlns:corba="http://cxf.apache.org/bindings/corba" xmlns:ns1="http://schemas.apache.org/idl/m.idl/corba/typemap/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsd1="http://schemas.apache.org/idltypes/m.idl" xmlns="http://schemas.xmlsoap.org/wsdl/">
   <corba:typeMapping targetNamespace="http://schemas.apache.org/idl/m.idl/corba/typemap/">
     <corba:array xmlns:xsd1="http://schemas.apache.org/idltypes/m.idl" xmlns:ns1="http://schemas.apache.org/idl/m.idl/corba/typemap/" elemtype="ns1:X._5_A" bound="3" repositoryID="IDL:X/A:1.0" type="xsd1:X.A" name="X.A" />
     <corba:anonsequence xmlns:xsd1="http://schemas.apache.org/idltypes/m.idl" xmlns:ns1="http://schemas.apache.org/idl/m.idl/corba/typemap/" elemtype="ns1:X._3_A" bound="0" type="xsd1:X._2_A" name="X._2_A" />

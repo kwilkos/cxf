@@ -17,10 +17,10 @@
  * specific language governing permissions and limitations
  * under the License.
 -->
-<wsdl:definitions targetNamespace="http://schemas.apache.org/yoko/idl/RecursiveUnion" xmlns:tns="http://schemas.apache.org/yoko/idl/RecursiveUnion" xmlns:wsa="http://www.w3.org/2005/08/addressing" xmlns:corba="http://schemas.apache.org/yoko/bindings/corba" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
-  <corba:typeMapping targetNamespace="http://schemas.apache.org/yoko/idl/RecursiveUnion/typemap">
-    <corba:anonsequence xmlns="http://schemas.apache.org/yoko/idl/RecursiveUnion/typemap" xmlns:ns4="http://schemas.apache.org/yoko/idl/RecursiveUnion" elemtype="BasicTest" bound="0" name="_1_BasicTest" type="ns4:_1_BasicTest" />
-    <corba:union xmlns:ns4="http://schemas.apache.org/yoko/idl/RecursiveUnion" xmlns="http://schemas.apache.org/yoko/idl/RecursiveUnion/typemap" discriminator="corba:short" repositoryID="IDL:BasicTest:1.0" name="BasicTest" type="ns4:BasicTest">
+<wsdl:definitions targetNamespace="http://cxf.apache.org/bindings/corba/idl/RecursiveUnion" xmlns:tns="http://cxf.apache.org/bindings/corba/idl/RecursiveUnion" xmlns:wsa="http://www.w3.org/2005/08/addressing" xmlns:corba="http://cxf.apache.org/bindings/corba" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <corba:typeMapping targetNamespace="http://cxf.apache.org/bindings/corba/idl/RecursiveUnion/typemap">
+    <corba:anonsequence xmlns="http://cxf.apache.org/bindings/corba/idl/RecursiveUnion/typemap" xmlns:ns4="http://cxf.apache.org/bindings/corba/idl/RecursiveUnion" elemtype="BasicTest" bound="0" name="_1_BasicTest" type="ns4:_1_BasicTest" />
+    <corba:union xmlns:ns4="http://cxf.apache.org/bindings/corba/idl/RecursiveUnion" xmlns="http://cxf.apache.org/bindings/corba/idl/RecursiveUnion/typemap" discriminator="corba:short" repositoryID="IDL:BasicTest:1.0" name="BasicTest" type="ns4:BasicTest">
       <corba:unionbranch name="case1" idltype="corba:long">
         <corba:case label="1" />
       </corba:unionbranch>
@@ -29,8 +29,8 @@
       </corba:unionbranch>
       <corba:unionbranch name="caseDef" idltype="corba:string" default="true" />
     </corba:union>
-    <corba:anonsequence xmlns="http://schemas.apache.org/yoko/idl/RecursiveUnion/typemap" xmlns:ns4="http://schemas.apache.org/yoko/idl/RecursiveUnion" elemtype="ForwardTest" bound="0" name="_1_ForwardTest" type="ns4:_1_ForwardTest" />
-    <corba:union xmlns:ns4="http://schemas.apache.org/yoko/idl/RecursiveUnion" xmlns="http://schemas.apache.org/yoko/idl/RecursiveUnion/typemap" discriminator="corba:short" repositoryID="IDL:ForwardTest:1.0" name="ForwardTest" type="ns4:ForwardTest">
+    <corba:anonsequence xmlns="http://cxf.apache.org/bindings/corba/idl/RecursiveUnion/typemap" xmlns:ns4="http://cxf.apache.org/bindings/corba/idl/RecursiveUnion" elemtype="ForwardTest" bound="0" name="_1_ForwardTest" type="ns4:_1_ForwardTest" />
+    <corba:union xmlns:ns4="http://cxf.apache.org/bindings/corba/idl/RecursiveUnion" xmlns="http://cxf.apache.org/bindings/corba/idl/RecursiveUnion/typemap" discriminator="corba:short" repositoryID="IDL:ForwardTest:1.0" name="ForwardTest" type="ns4:ForwardTest">
       <corba:unionbranch name="case1" idltype="corba:long">
         <corba:case label="1" />
       </corba:unionbranch>
@@ -39,8 +39,8 @@
       </corba:unionbranch>
       <corba:unionbranch name="caseDef" idltype="corba:string" default="true" />
     </corba:union>
-    <corba:sequence xmlns:ns4="http://schemas.apache.org/yoko/idl/RecursiveUnion" xmlns="http://schemas.apache.org/yoko/idl/RecursiveUnion/typemap" elemtype="ForwardSeqTest" bound="0" repositoryID="IDL:ForwardSeqTestSeq:1.0" name="ForwardSeqTestSeq" type="ns4:ForwardSeqTestSeq" />
-    <corba:union xmlns:ns4="http://schemas.apache.org/yoko/idl/RecursiveUnion" xmlns="http://schemas.apache.org/yoko/idl/RecursiveUnion/typemap" discriminator="corba:short" repositoryID="IDL:ForwardSeqTest:1.0" name="ForwardSeqTest" type="ns4:ForwardSeqTest">
+    <corba:sequence xmlns:ns4="http://cxf.apache.org/bindings/corba/idl/RecursiveUnion" xmlns="http://cxf.apache.org/bindings/corba/idl/RecursiveUnion/typemap" elemtype="ForwardSeqTest" bound="0" repositoryID="IDL:ForwardSeqTestSeq:1.0" name="ForwardSeqTestSeq" type="ns4:ForwardSeqTestSeq" />
+    <corba:union xmlns:ns4="http://cxf.apache.org/bindings/corba/idl/RecursiveUnion" xmlns="http://cxf.apache.org/bindings/corba/idl/RecursiveUnion/typemap" discriminator="corba:short" repositoryID="IDL:ForwardSeqTest:1.0" name="ForwardSeqTest" type="ns4:ForwardSeqTest">
       <corba:unionbranch name="case1" idltype="corba:long">
         <corba:case label="1" />
       </corba:unionbranch>
@@ -51,7 +51,7 @@
     </corba:union>
   </corba:typeMapping>
   <wsdl:types>
-    <xs:schema attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://schemas.apache.org/yoko/idl/RecursiveUnion" xmlns="http://schemas.apache.org/yoko/idl/RecursiveUnion" xmlns:wsa="http://www.w3.org/2005/08/addressing" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:schema attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://cxf.apache.org/bindings/corba/idl/RecursiveUnion" xmlns="http://cxf.apache.org/bindings/corba/idl/RecursiveUnion" xmlns:wsa="http://www.w3.org/2005/08/addressing" xmlns:xs="http://www.w3.org/2001/XMLSchema">
       <xs:import namespace="http://www.w3.org/2005/08/addressing" schemaLocation="http://www.w3.org/2005/08/addressing/ws-addr.xsd">
       </xs:import>
       <xs:complexType name="_1_BasicTest">

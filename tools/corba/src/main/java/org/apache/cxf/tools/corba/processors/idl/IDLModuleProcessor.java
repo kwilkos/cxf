@@ -23,7 +23,6 @@ import java.util.Map;
 import antlr.collections.AST;
 
 import org.apache.cxf.tools.corba.common.ToolCorbaConstants;
-import org.apache.yoko.tools.processors.idl.IDLTokenTypes;
 
 
 public class IDLModuleProcessor extends IDLProcessor {

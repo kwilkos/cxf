@@ -25,7 +25,6 @@ import antlr.collections.AST;
 
 import org.apache.ws.commons.schema.XmlSchema;
 import org.apache.ws.commons.schema.XmlSchemaType;
-import org.apache.yoko.tools.processors.idl.IDLTokenTypes;
 
 public final class TypesUtils {
 

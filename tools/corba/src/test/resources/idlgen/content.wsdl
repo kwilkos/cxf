@@ -17,7 +17,7 @@
  * specific language governing permissions and limitations
  * under the License.
 -->
-<definitions targetNamespace="http://schemas.apache.org/" xmlns:typens="http://schemas.apache.org/xsd" xmlns:corba="http://schemas.apache.org/yoko/bindings/corba" xmlns:ns1="http://schemas.apache.org/corba/typemap/" xmlns:wsdlns="http://schemas.apache.org/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns="http://schemas.xmlsoap.org/wsdl/">
+<definitions targetNamespace="http://schemas.apache.org/" xmlns:typens="http://schemas.apache.org/xsd" xmlns:corba="http://cxf.apache.org/bindings/corba" xmlns:ns1="http://schemas.apache.org/corba/typemap/" xmlns:wsdlns="http://schemas.apache.org/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns="http://schemas.xmlsoap.org/wsdl/">
   <corba:typeMapping targetNamespace="http://schemas.apache.org/corba/typemap/">
     <corba:struct xmlns:typens="http://schemas.apache.org/xsd" repositoryID="IDL:sub1SequenceStruct:1.0" type="typens:sub1" name="sub1SequenceStruct">
       <corba:member name="e3" idltype="corba:float" />

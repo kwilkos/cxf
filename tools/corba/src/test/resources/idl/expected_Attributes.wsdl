@@ -17,17 +17,17 @@
  * specific language governing permissions and limitations
  * under the License.
 -->
-<wsdl:definitions targetNamespace="http://schemas.apache.org/yoko/idl/Attributes" xmlns:tns="http://schemas.apache.org/yoko/idl/Attributes" xmlns:corba="http://schemas.apache.org/yoko/bindings/corba" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
-  <corba:typeMapping targetNamespace="http://schemas.apache.org/yoko/idl/Attributes/typemap">
-    <corba:struct xmlns="http://schemas.apache.org/yoko/idl/Attributes" repositoryID="IDL:myStruct:1.0" type="myStruct" name="myStruct">
+<wsdl:definitions targetNamespace="http://cxf.apache.org/bindings/corba/idl/Attributes" xmlns:tns="http://cxf.apache.org/bindings/corba/idl/Attributes" xmlns:corba="http://cxf.apache.org/bindings/corba" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <corba:typeMapping targetNamespace="http://cxf.apache.org/bindings/corba/idl/Attributes/typemap">
+    <corba:struct xmlns="http://cxf.apache.org/bindings/corba/idl/Attributes" repositoryID="IDL:myStruct:1.0" type="myStruct" name="myStruct">
       <corba:member name="id" idltype="corba:long" />
       <corba:member name="name" idltype="corba:string" />
     </corba:struct>
-    <corba:anonstring xmlns="http://schemas.apache.org/yoko/idl/Attributes" bound="20" type="If.myString" name="If._Anon1_myString" />
-    <corba:alias xmlns:ns4="http://schemas.apache.org/yoko/idl/Attributes" xmlns="http://schemas.apache.org/yoko/idl/Attributes/typemap" basetype="If._Anon1_myString" repositoryID="IDL:If/myString:1.0" type="ns4:If.myString" name="If.myString" />
+    <corba:anonstring xmlns="http://cxf.apache.org/bindings/corba/idl/Attributes" bound="20" type="If.myString" name="If._Anon1_myString" />
+    <corba:alias xmlns:ns4="http://cxf.apache.org/bindings/corba/idl/Attributes" xmlns="http://cxf.apache.org/bindings/corba/idl/Attributes/typemap" basetype="If._Anon1_myString" repositoryID="IDL:If/myString:1.0" type="ns4:If.myString" name="If.myString" />
   </corba:typeMapping>
   <wsdl:types>
-    <xs:schema attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://schemas.apache.org/yoko/idl/Attributes" xmlns="http://schemas.apache.org/yoko/idl/Attributes" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:schema attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://cxf.apache.org/bindings/corba/idl/Attributes" xmlns="http://cxf.apache.org/bindings/corba/idl/Attributes" xmlns:xs="http://www.w3.org/2001/XMLSchema">
       <xs:complexType name="myStruct">
         <xs:sequence>
           <xs:element name="id" type="xs:int">
@@ -329,7 +329,7 @@
     </wsdl:operation>
     <wsdl:operation name="_get_readonlyMyStruct">
       <corba:operation name="_get_readonlyMyStruct">
-        <corba:return xmlns="http://schemas.apache.org/yoko/idl/Attributes/typemap" idltype="myStruct" name="return" />
+        <corba:return xmlns="http://cxf.apache.org/bindings/corba/idl/Attributes/typemap" idltype="myStruct" name="return" />
       </corba:operation>
       <wsdl:input name="_get_readonlyMyStruct">
       </wsdl:input>
@@ -338,7 +338,7 @@
     </wsdl:operation>
     <wsdl:operation name="_get_readwriteMyStruct">
       <corba:operation name="_get_readwriteMyStruct">
-        <corba:return xmlns="http://schemas.apache.org/yoko/idl/Attributes/typemap" idltype="myStruct" name="return" />
+        <corba:return xmlns="http://cxf.apache.org/bindings/corba/idl/Attributes/typemap" idltype="myStruct" name="return" />
       </corba:operation>
       <wsdl:input name="_get_readwriteMyStruct">
       </wsdl:input>
@@ -347,7 +347,7 @@
     </wsdl:operation>
     <wsdl:operation name="_set_readwriteMyStruct">
       <corba:operation name="_set_readwriteMyStruct">
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Attributes/typemap" mode="in" idltype="myStruct" name="_arg" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Attributes/typemap" mode="in" idltype="myStruct" name="_arg" />
       </corba:operation>
       <wsdl:input name="_set_readwriteMyStruct">
       </wsdl:input>
@@ -356,7 +356,7 @@
     </wsdl:operation>
     <wsdl:operation name="_get_readonlyMyString">
       <corba:operation name="_get_readonlyMyString">
-        <corba:return xmlns="http://schemas.apache.org/yoko/idl/Attributes/typemap" idltype="If.myString" name="return" />
+        <corba:return xmlns="http://cxf.apache.org/bindings/corba/idl/Attributes/typemap" idltype="If.myString" name="return" />
       </corba:operation>
       <wsdl:input name="_get_readonlyMyString">
       </wsdl:input>
@@ -365,7 +365,7 @@
     </wsdl:operation>
     <wsdl:operation name="_get_readwriteMyString">
       <corba:operation name="_get_readwriteMyString">
-        <corba:return xmlns="http://schemas.apache.org/yoko/idl/Attributes/typemap" idltype="If.myString" name="return" />
+        <corba:return xmlns="http://cxf.apache.org/bindings/corba/idl/Attributes/typemap" idltype="If.myString" name="return" />
       </corba:operation>
       <wsdl:input name="_get_readwriteMyString">
       </wsdl:input>
@@ -374,7 +374,7 @@
     </wsdl:operation>
     <wsdl:operation name="_set_readwriteMyString">
       <corba:operation name="_set_readwriteMyString">
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Attributes/typemap" mode="in" idltype="If.myString" name="_arg" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Attributes/typemap" mode="in" idltype="If.myString" name="_arg" />
       </corba:operation>
       <wsdl:input name="_set_readwriteMyString">
       </wsdl:input>

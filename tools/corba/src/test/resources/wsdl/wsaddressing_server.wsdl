@@ -25,7 +25,7 @@
  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
  xmlns:xs="http://www.w3.org/2001/XMLSchema"
  xmlns:xsd1="http://schemas.apache.org/idltypes/c/epr.idl"
- xmlns:corba="http://schemas.apache.org/yoko/bindings/corba"
+ xmlns:corba="http://cxf.apache.org/bindings/corba"
  xmlns:corbatm="http://schemas.apache.org/typemap/corba/c/epr.idl"
  xmlns:addressing="http://www.w3.org/2005/08/addressing">
   <types>

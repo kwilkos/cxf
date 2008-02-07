@@ -17,7 +17,7 @@
  * specific language governing permissions and limitations
  * under the License.
 -->
-<definitions name="fixed.idl" targetNamespace="http://schemas.apache.org/idl/fixed.idl" xmlns:tns="http://schemas.apache.org/idl/fixed.idl" xmlns:corbatm="http://schemas.apache.org/yoko/bindings/corba/typemap" xmlns:corba="http://schemas.apache.org/yoko/bindings/corba" xmlns:ns1="http://schemas.apache.org/idl/fixed.idl/corba/typemap/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsd1="http://schemas.apache.org/idltypes/fixed.idl" xmlns="http://schemas.xmlsoap.org/wsdl/">
+<definitions name="fixed.idl" targetNamespace="http://schemas.apache.org/idl/fixed.idl" xmlns:tns="http://schemas.apache.org/idl/fixed.idl" xmlns:corbatm="http://cxf.apache.org/bindings/corba/typemap" xmlns:corba="http://cxf.apache.org/bindings/corba" xmlns:ns1="http://schemas.apache.org/idl/fixed.idl/corba/typemap/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsd1="http://schemas.apache.org/idltypes/fixed.idl" xmlns="http://schemas.xmlsoap.org/wsdl/">
   <corba:typeMapping targetNamespace="http://schemas.apache.org/idl/fixed.idl/corba/typemap/">
     <corba:fixed xmlns:xs="http://www.w3.org/2001/XMLSchema" scale="6" digits="8" type="xs:decimal" name="Z.H" />
     <corba:fixed xmlns:xs="http://www.w3.org/2001/XMLSchema" scale="2" digits="10" type="xs:decimal" name="X.H" />

@@ -17,7 +17,7 @@
  * specific language governing permissions and limitations
  * under the License.
 -->
-<wsdl:definitions name="DatabaseService" targetNamespace="http://schemas.apache.org/dbservice" xmlns:corba="http://schemas.apache.org/yoko/bindings/corba" xmlns:wsdlsoap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:ns1="http://schemas.apache.org/dbservice" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:ns3="http:/schemas.apache.org/dbservice/typemap" xmlns:ns2="http://schemas.xmlsoap.org/wsdl/http" xmlns:soap="http://schemas.xmlsoap.org/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+<wsdl:definitions name="DatabaseService" targetNamespace="http://schemas.apache.org/dbservice" xmlns:corba="http://cxf.apache.org/bindings/corba" xmlns:wsdlsoap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:ns1="http://schemas.apache.org/dbservice" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:ns3="http:/schemas.apache.org/dbservice/typemap" xmlns:ns2="http://schemas.xmlsoap.org/wsdl/http" xmlns:soap="http://schemas.xmlsoap.org/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
   <corba:typeMapping targetNamespace="http:/schemas.apache.org/dbservice/typemap">
     <corba:struct xmlns:ns1="http://schemas.apache.org/dbservice" repositoryID="IDL:getNameResponseResultList1Type:1.0" type="ns1:getNameResponseResultList1Type" name="getNameResponseResultList1Type">
       <corba:member name="NAME" idltype="corba:string" />

@@ -17,7 +17,7 @@
  * specific language governing permissions and limitations
  * under the License.
 -->
-<definitions name="SoapInteropCompound" targetNamespace="http://soapinterop.org/" xmlns:typens="http://soapinterop.org/xsd" xmlns:corba="http://schemas.apache.org/yoko/bindings/corba" xmlns:ns1="http://soapinterop.org/corba/typemap/" xmlns:wsdlns="http://soapinterop.org/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns="http://schemas.xmlsoap.org/wsdl/">
+<definitions name="SoapInteropCompound" targetNamespace="http://soapinterop.org/" xmlns:typens="http://soapinterop.org/xsd" xmlns:corba="http://cxf.apache.org/bindings/corba" xmlns:ns1="http://soapinterop.org/corba/typemap/" xmlns:wsdlns="http://soapinterop.org/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns="http://schemas.xmlsoap.org/wsdl/">
   <corba:typeMapping xmlns:ns3="http://schemas.xmlsoap.org/wsdl/" targetNamespace="http://soapinterop.org/corba/typemap/">
     <corba:struct xmlns:typens="http://soapinterop.org/xsd" repositoryID="IDL:Type5SequenceStruct:1.0" type="typens:Type5" name="Type5SequenceStruct">
       <corba:member name="varInt" idltype="corba:long" />

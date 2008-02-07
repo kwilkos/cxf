@@ -23,8 +23,8 @@
  xmlns:tns="http://schemas.apache.org/idl/fixed.idl"
  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
  xmlns:xsd1="http://schemas.apache.org/idltypes/fixed.idl"
- xmlns:corba="http://schemas.apache.org/yoko/bindings/corba"
- xmlns:corbatm="http://schemas.apache.org/yoko/bindings/corba/typemap">
+ xmlns:corba="http://cxf.apache.org/bindings/corba"
+ xmlns:corbatm="http://cxf.apache.org/bindings/corba/typemap">
   <types>
     <schema targetNamespace="http://schemas.apache.org/idltypes/fixed.idl"
      xmlns="http://www.w3.org/2001/XMLSchema"

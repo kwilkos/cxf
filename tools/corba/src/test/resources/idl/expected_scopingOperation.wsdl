@@ -17,22 +17,22 @@
  * specific language governing permissions and limitations
  * under the License.
 -->
-<wsdl:definitions targetNamespace="http://schemas.apache.org/yoko/idl/scopingOperation" xmlns:tns="http://schemas.apache.org/yoko/idl/scopingOperation" xmlns:corba="http://schemas.apache.org/yoko/bindings/corba" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
-  <corba:typeMapping targetNamespace="http://schemas.apache.org/yoko/idl/scopingOperation/typemap">
-    <corba:alias xmlns="http://schemas.apache.org/yoko/idl/scopingOperation/typemap" basetype="corba:octet" repositoryID="IDL:myType:1.0" name="myType" />
-    <corba:alias xmlns="http://schemas.apache.org/yoko/idl/scopingOperation/typemap" basetype="corba:short" repositoryID="IDL:bar/myType:1.0" name="bar.myType" />
-    <corba:alias xmlns="http://schemas.apache.org/yoko/idl/scopingOperation/typemap" basetype="corba:long" repositoryID="IDL:foo/myType:1.0" name="foo.myType" />
-    <corba:alias xmlns="http://schemas.apache.org/yoko/idl/scopingOperation/typemap" basetype="corba:ulong" repositoryID="IDL:foo/bar/myType:1.0" name="foo.bar.myType" />
-    <corba:alias xmlns="http://schemas.apache.org/yoko/idl/scopingOperation/typemap" basetype="foo.bar.myType" repositoryID="IDL:foo/top/myType1:1.0" name="foo.top.myType1" />
-    <corba:alias xmlns="http://schemas.apache.org/yoko/idl/scopingOperation/typemap" basetype="foo.myType" repositoryID="IDL:foo/top/myType2:1.0" name="foo.top.myType2" />
-    <corba:alias xmlns="http://schemas.apache.org/yoko/idl/scopingOperation/typemap" basetype="foo.bar.myType" repositoryID="IDL:foo/top/myType3:1.0" name="foo.top.myType3" />
-    <corba:alias xmlns="http://schemas.apache.org/yoko/idl/scopingOperation/typemap" basetype="bar.myType" repositoryID="IDL:foo/top/myType4:1.0" name="foo.top.myType4" />
-    <corba:alias xmlns="http://schemas.apache.org/yoko/idl/scopingOperation/typemap" basetype="foo.myType" repositoryID="IDL:foo/top/myType5:1.0" name="foo.top.myType5" />
-    <corba:alias xmlns="http://schemas.apache.org/yoko/idl/scopingOperation/typemap" basetype="foo.myType" repositoryID="IDL:foo/top/myType6:1.0" name="foo.top.myType6" />
-    <corba:alias xmlns="http://schemas.apache.org/yoko/idl/scopingOperation/typemap" basetype="myType" repositoryID="IDL:foo/top/myType7:1.0" name="foo.top.myType7" />
+<wsdl:definitions targetNamespace="http://cxf.apache.org/bindings/corba/idl/scopingOperation" xmlns:tns="http://cxf.apache.org/bindings/corba/idl/scopingOperation" xmlns:corba="http://cxf.apache.org/bindings/corba" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <corba:typeMapping targetNamespace="http://cxf.apache.org/bindings/corba/idl/scopingOperation/typemap">
+    <corba:alias xmlns="http://cxf.apache.org/bindings/corba/idl/scopingOperation/typemap" basetype="corba:octet" repositoryID="IDL:myType:1.0" name="myType" />
+    <corba:alias xmlns="http://cxf.apache.org/bindings/corba/idl/scopingOperation/typemap" basetype="corba:short" repositoryID="IDL:bar/myType:1.0" name="bar.myType" />
+    <corba:alias xmlns="http://cxf.apache.org/bindings/corba/idl/scopingOperation/typemap" basetype="corba:long" repositoryID="IDL:foo/myType:1.0" name="foo.myType" />
+    <corba:alias xmlns="http://cxf.apache.org/bindings/corba/idl/scopingOperation/typemap" basetype="corba:ulong" repositoryID="IDL:foo/bar/myType:1.0" name="foo.bar.myType" />
+    <corba:alias xmlns="http://cxf.apache.org/bindings/corba/idl/scopingOperation/typemap" basetype="foo.bar.myType" repositoryID="IDL:foo/top/myType1:1.0" name="foo.top.myType1" />
+    <corba:alias xmlns="http://cxf.apache.org/bindings/corba/idl/scopingOperation/typemap" basetype="foo.myType" repositoryID="IDL:foo/top/myType2:1.0" name="foo.top.myType2" />
+    <corba:alias xmlns="http://cxf.apache.org/bindings/corba/idl/scopingOperation/typemap" basetype="foo.bar.myType" repositoryID="IDL:foo/top/myType3:1.0" name="foo.top.myType3" />
+    <corba:alias xmlns="http://cxf.apache.org/bindings/corba/idl/scopingOperation/typemap" basetype="bar.myType" repositoryID="IDL:foo/top/myType4:1.0" name="foo.top.myType4" />
+    <corba:alias xmlns="http://cxf.apache.org/bindings/corba/idl/scopingOperation/typemap" basetype="foo.myType" repositoryID="IDL:foo/top/myType5:1.0" name="foo.top.myType5" />
+    <corba:alias xmlns="http://cxf.apache.org/bindings/corba/idl/scopingOperation/typemap" basetype="foo.myType" repositoryID="IDL:foo/top/myType6:1.0" name="foo.top.myType6" />
+    <corba:alias xmlns="http://cxf.apache.org/bindings/corba/idl/scopingOperation/typemap" basetype="myType" repositoryID="IDL:foo/top/myType7:1.0" name="foo.top.myType7" />
   </corba:typeMapping>
   <wsdl:types>
-    <xs:schema attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://schemas.apache.org/yoko/idl/scopingOperation" xmlns="http://schemas.apache.org/yoko/idl/scopingOperation" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:schema attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://cxf.apache.org/bindings/corba/idl/scopingOperation" xmlns="http://cxf.apache.org/bindings/corba/idl/scopingOperation" xmlns:xs="http://www.w3.org/2001/XMLSchema">
       <xs:element name="op1">
         <xs:complexType>
           <xs:sequence>
@@ -477,8 +477,8 @@
     <corba:binding repositoryID="IDL:foo/top:1.0" />
     <wsdl:operation name="op1">
       <corba:operation name="op1">
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/scopingOperation/typemap" mode="in" name="type1" idltype="foo.bar.myType" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/scopingOperation/typemap" mode="out" name="type2" idltype="foo.bar.myType" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/scopingOperation/typemap" mode="in" name="type1" idltype="foo.bar.myType" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/scopingOperation/typemap" mode="out" name="type2" idltype="foo.bar.myType" />
       </corba:operation>
       <wsdl:input name="op1Request">
       </wsdl:input>
@@ -487,9 +487,9 @@
     </wsdl:operation>
     <wsdl:operation name="op2">
       <corba:operation name="op2">
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/scopingOperation/typemap" mode="in" name="type3" idltype="foo.top.myType1" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/scopingOperation/typemap" mode="out" name="type4" idltype="foo.bar.myType" />
-        <corba:return xmlns="http://schemas.apache.org/yoko/idl/scopingOperation/typemap" name="return" idltype="foo.bar.myType" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/scopingOperation/typemap" mode="in" name="type3" idltype="foo.top.myType1" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/scopingOperation/typemap" mode="out" name="type4" idltype="foo.bar.myType" />
+        <corba:return xmlns="http://cxf.apache.org/bindings/corba/idl/scopingOperation/typemap" name="return" idltype="foo.bar.myType" />
       </corba:operation>
       <wsdl:input name="op2Request">
       </wsdl:input>
@@ -498,8 +498,8 @@
     </wsdl:operation>
     <wsdl:operation name="op3">
       <corba:operation name="op3">
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/scopingOperation/typemap" mode="in" name="type5" idltype="foo.myType" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/scopingOperation/typemap" mode="out" name="type6" idltype="foo.myType" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/scopingOperation/typemap" mode="in" name="type5" idltype="foo.myType" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/scopingOperation/typemap" mode="out" name="type6" idltype="foo.myType" />
       </corba:operation>
       <wsdl:input name="op3Request">
       </wsdl:input>
@@ -508,9 +508,9 @@
     </wsdl:operation>
     <wsdl:operation name="op4">
       <corba:operation name="op4">
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/scopingOperation/typemap" mode="in" name="type7" idltype="foo.top.myType2" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/scopingOperation/typemap" mode="out" name="type8" idltype="foo.top.myType2" />
-        <corba:return xmlns="http://schemas.apache.org/yoko/idl/scopingOperation/typemap" name="return" idltype="foo.myType" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/scopingOperation/typemap" mode="in" name="type7" idltype="foo.top.myType2" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/scopingOperation/typemap" mode="out" name="type8" idltype="foo.top.myType2" />
+        <corba:return xmlns="http://cxf.apache.org/bindings/corba/idl/scopingOperation/typemap" name="return" idltype="foo.myType" />
       </corba:operation>
       <wsdl:input name="op4Request">
       </wsdl:input>
@@ -519,8 +519,8 @@
     </wsdl:operation>
     <wsdl:operation name="op5">
       <corba:operation name="op5">
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/scopingOperation/typemap" mode="in" name="type9" idltype="foo.bar.myType" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/scopingOperation/typemap" mode="out" name="type10" idltype="foo.bar.myType" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/scopingOperation/typemap" mode="in" name="type9" idltype="foo.bar.myType" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/scopingOperation/typemap" mode="out" name="type10" idltype="foo.bar.myType" />
       </corba:operation>
       <wsdl:input name="op5Request">
       </wsdl:input>
@@ -529,9 +529,9 @@
     </wsdl:operation>
     <wsdl:operation name="op6">
       <corba:operation name="op6">
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/scopingOperation/typemap" mode="in" name="type11" idltype="foo.top.myType3" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/scopingOperation/typemap" mode="out" name="type12" idltype="foo.top.myType3" />
-        <corba:return xmlns="http://schemas.apache.org/yoko/idl/scopingOperation/typemap" name="return" idltype="foo.bar.myType" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/scopingOperation/typemap" mode="in" name="type11" idltype="foo.top.myType3" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/scopingOperation/typemap" mode="out" name="type12" idltype="foo.top.myType3" />
+        <corba:return xmlns="http://cxf.apache.org/bindings/corba/idl/scopingOperation/typemap" name="return" idltype="foo.bar.myType" />
       </corba:operation>
       <wsdl:input name="op6Request">
       </wsdl:input>
@@ -540,8 +540,8 @@
     </wsdl:operation>
     <wsdl:operation name="op7">
       <corba:operation name="op7">
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/scopingOperation/typemap" mode="in" name="type13" idltype="bar.myType" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/scopingOperation/typemap" mode="out" name="type14" idltype="bar.myType" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/scopingOperation/typemap" mode="in" name="type13" idltype="bar.myType" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/scopingOperation/typemap" mode="out" name="type14" idltype="bar.myType" />
       </corba:operation>
       <wsdl:input name="op7Request">
       </wsdl:input>
@@ -550,9 +550,9 @@
     </wsdl:operation>
     <wsdl:operation name="op8">
       <corba:operation name="op8">
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/scopingOperation/typemap" mode="in" name="type15" idltype="foo.top.myType4" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/scopingOperation/typemap" mode="out" name="type16" idltype="foo.top.myType4" />
-        <corba:return xmlns="http://schemas.apache.org/yoko/idl/scopingOperation/typemap" name="return" idltype="bar.myType" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/scopingOperation/typemap" mode="in" name="type15" idltype="foo.top.myType4" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/scopingOperation/typemap" mode="out" name="type16" idltype="foo.top.myType4" />
+        <corba:return xmlns="http://cxf.apache.org/bindings/corba/idl/scopingOperation/typemap" name="return" idltype="bar.myType" />
       </corba:operation>
       <wsdl:input name="op8Request">
       </wsdl:input>
@@ -561,8 +561,8 @@
     </wsdl:operation>
     <wsdl:operation name="op9">
       <corba:operation name="op9">
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/scopingOperation/typemap" mode="in" name="type17" idltype="foo.myType" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/scopingOperation/typemap" mode="out" name="type18" idltype="foo.myType" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/scopingOperation/typemap" mode="in" name="type17" idltype="foo.myType" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/scopingOperation/typemap" mode="out" name="type18" idltype="foo.myType" />
       </corba:operation>
       <wsdl:input name="op9Request">
       </wsdl:input>
@@ -571,9 +571,9 @@
     </wsdl:operation>
     <wsdl:operation name="op10">
       <corba:operation name="op10">
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/scopingOperation/typemap" mode="in" name="type19" idltype="foo.top.myType5" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/scopingOperation/typemap" mode="out" name="type20" idltype="foo.top.myType5" />
-        <corba:return xmlns="http://schemas.apache.org/yoko/idl/scopingOperation/typemap" name="return" idltype="foo.myType" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/scopingOperation/typemap" mode="in" name="type19" idltype="foo.top.myType5" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/scopingOperation/typemap" mode="out" name="type20" idltype="foo.top.myType5" />
+        <corba:return xmlns="http://cxf.apache.org/bindings/corba/idl/scopingOperation/typemap" name="return" idltype="foo.myType" />
       </corba:operation>
       <wsdl:input name="op10Request">
       </wsdl:input>
@@ -582,8 +582,8 @@
     </wsdl:operation>
     <wsdl:operation name="op11">
       <corba:operation name="op11">
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/scopingOperation/typemap" mode="in" name="type21" idltype="foo.myType" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/scopingOperation/typemap" mode="out" name="type22" idltype="foo.myType" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/scopingOperation/typemap" mode="in" name="type21" idltype="foo.myType" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/scopingOperation/typemap" mode="out" name="type22" idltype="foo.myType" />
       </corba:operation>
       <wsdl:input name="op11Request">
       </wsdl:input>
@@ -592,9 +592,9 @@
     </wsdl:operation>
     <wsdl:operation name="op12">
       <corba:operation name="op12">
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/scopingOperation/typemap" mode="in" name="type23" idltype="foo.top.myType6" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/scopingOperation/typemap" mode="out" name="type24" idltype="foo.top.myType6" />
-        <corba:return xmlns="http://schemas.apache.org/yoko/idl/scopingOperation/typemap" name="return" idltype="foo.myType" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/scopingOperation/typemap" mode="in" name="type23" idltype="foo.top.myType6" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/scopingOperation/typemap" mode="out" name="type24" idltype="foo.top.myType6" />
+        <corba:return xmlns="http://cxf.apache.org/bindings/corba/idl/scopingOperation/typemap" name="return" idltype="foo.myType" />
       </corba:operation>
       <wsdl:input name="op12Request">
       </wsdl:input>
@@ -603,8 +603,8 @@
     </wsdl:operation>
     <wsdl:operation name="op13">
       <corba:operation name="op13">
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/scopingOperation/typemap" mode="in" name="type25" idltype="myType" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/scopingOperation/typemap" mode="out" name="type26" idltype="myType" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/scopingOperation/typemap" mode="in" name="type25" idltype="myType" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/scopingOperation/typemap" mode="out" name="type26" idltype="myType" />
       </corba:operation>
       <wsdl:input name="op13Request">
       </wsdl:input>
@@ -613,9 +613,9 @@
     </wsdl:operation>
     <wsdl:operation name="op14">
       <corba:operation name="op14">
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/scopingOperation/typemap" mode="in" name="type27" idltype="foo.top.myType7" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/scopingOperation/typemap" mode="out" name="type28" idltype="foo.top.myType7" />
-        <corba:return xmlns="http://schemas.apache.org/yoko/idl/scopingOperation/typemap" name="return" idltype="myType" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/scopingOperation/typemap" mode="in" name="type27" idltype="foo.top.myType7" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/scopingOperation/typemap" mode="out" name="type28" idltype="foo.top.myType7" />
+        <corba:return xmlns="http://cxf.apache.org/bindings/corba/idl/scopingOperation/typemap" name="return" idltype="myType" />
       </corba:operation>
       <wsdl:input name="op14Request">
       </wsdl:input>

@@ -17,7 +17,7 @@
  * specific language governing permissions and limitations
  * under the License.
 -->
-<definitions targetNamespace="http://schemas.apache.org/idl/datetime.idl" xmlns:tns="http://schemas.apache.org/idl/datetime.idl" xmlns:corbatm="http://schemas.apache.org/typemap/corba/datetime.idl" xmlns:corba="http://schemas.apache.org/yoko/bindings/corba" xmlns:ns1="http://schemas.apache.org/idl/datetime.idl/corba/typemap/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsd1="http://schemas.apache.org/idltypes/datetime.idl" xmlns:references="http://schemas.apache.org/references" xmlns="http://schemas.xmlsoap.org/wsdl/">
+<definitions targetNamespace="http://schemas.apache.org/idl/datetime.idl" xmlns:tns="http://schemas.apache.org/idl/datetime.idl" xmlns:corbatm="http://schemas.apache.org/typemap/corba/datetime.idl" xmlns:corba="http://cxf.apache.org/bindings/corba" xmlns:ns1="http://schemas.apache.org/idl/datetime.idl/corba/typemap/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsd1="http://schemas.apache.org/idltypes/datetime.idl" xmlns:references="http://schemas.apache.org/references" xmlns="http://schemas.xmlsoap.org/wsdl/">
   <corba:typeMapping targetNamespace="http://schemas.apache.org/idl/datetime.idl/corba/typemap/">
     <corba:union xmlns:xsd1="http://schemas.apache.org/idltypes/datetime.idl" discriminator="corba:long" repositoryID="IDL:BasePortType/_omg_SimpleUnion:1.0" type="xsd1:BasePortType._omg_SimpleUnion" name="BasePortType._omg_SimpleUnion">
       <corba:unionbranch name="varUTCTime" idltype="corba:dateTime" default="false">

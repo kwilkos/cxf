@@ -30,7 +30,6 @@ import org.apache.cxf.binding.corba.wsdl.CorbaTypeImpl;
 import org.apache.ws.commons.schema.XmlSchema;
 import org.apache.ws.commons.schema.XmlSchemaType;
 import org.apache.ws.commons.schema.constants.Constants;
-import org.apache.yoko.tools.processors.idl.IDLTokenTypes;
 
 public class TypedefVisitor extends VisitorBase {
     

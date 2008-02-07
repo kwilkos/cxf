@@ -48,7 +48,6 @@ import org.apache.ws.commons.schema.XmlSchemaImport;
 import org.apache.ws.commons.schema.XmlSchemaObjectCollection;
 import org.apache.ws.commons.schema.XmlSchemaType;
 import org.apache.ws.commons.schema.utils.NamespaceMap;
-import org.apache.yoko.tools.processors.idl.IDLTokenTypes;
 
 public class ObjectReferenceVisitor extends VisitorBase {
     

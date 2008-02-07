@@ -17,31 +17,31 @@
  * specific language governing permissions and limitations
  * under the License.
 -->
-<wsdl:definitions targetNamespace="http://schemas.apache.org/yoko/idl/Enum" xmlns:tns="http://schemas.apache.org/yoko/idl/Enum" xmlns:corba="http://schemas.apache.org/yoko/bindings/corba" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
-  <corba:typeMapping targetNamespace="http://schemas.apache.org/yoko/idl/Enum/typemap">
-    <corba:enum xmlns="http://schemas.apache.org/yoko/idl/Enum" repositoryID="IDL:e_type1:1.0" type="e_type1" name="e_type1">
+<wsdl:definitions targetNamespace="http://cxf.apache.org/bindings/corba/idl/Enum" xmlns:tns="http://cxf.apache.org/bindings/corba/idl/Enum" xmlns:corba="http://cxf.apache.org/bindings/corba" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <corba:typeMapping targetNamespace="http://cxf.apache.org/bindings/corba/idl/Enum/typemap">
+    <corba:enum xmlns="http://cxf.apache.org/bindings/corba/idl/Enum" repositoryID="IDL:e_type1:1.0" type="e_type1" name="e_type1">
       <corba:enumerator value="e1_1" />
       <corba:enumerator value="e1_2" />
       <corba:enumerator value="e1_3" />
     </corba:enum>
-    <corba:enum xmlns="http://schemas.apache.org/yoko/idl/Enum" repositoryID="IDL:if1/e_type2:1.0" type="if1.e_type2" name="if1.e_type2">
+    <corba:enum xmlns="http://cxf.apache.org/bindings/corba/idl/Enum" repositoryID="IDL:if1/e_type2:1.0" type="if1.e_type2" name="if1.e_type2">
       <corba:enumerator value="e2_1" />
       <corba:enumerator value="e2_2" />
       <corba:enumerator value="e2_3" />
     </corba:enum>
-    <corba:enum xmlns="http://schemas.apache.org/yoko/idl/Enum" repositoryID="IDL:m1/e_type3:1.0" type="m1.e_type3" name="m1.e_type3">
+    <corba:enum xmlns="http://cxf.apache.org/bindings/corba/idl/Enum" repositoryID="IDL:m1/e_type3:1.0" type="m1.e_type3" name="m1.e_type3">
       <corba:enumerator value="e3_1" />
       <corba:enumerator value="e3_2" />
       <corba:enumerator value="e3_3" />
     </corba:enum>
-    <corba:enum xmlns="http://schemas.apache.org/yoko/idl/Enum" repositoryID="IDL:m1/if3/e_type4:1.0" type="m1.if3.e_type4" name="m1.if3.e_type4">
+    <corba:enum xmlns="http://cxf.apache.org/bindings/corba/idl/Enum" repositoryID="IDL:m1/if3/e_type4:1.0" type="m1.if3.e_type4" name="m1.if3.e_type4">
       <corba:enumerator value="e4_1" />
       <corba:enumerator value="e4_2" />
       <corba:enumerator value="e4_3" />
     </corba:enum>
   </corba:typeMapping>
   <wsdl:types>
-    <xs:schema attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://schemas.apache.org/yoko/idl/Enum" xmlns="http://schemas.apache.org/yoko/idl/Enum" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:schema attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://cxf.apache.org/bindings/corba/idl/Enum" xmlns="http://cxf.apache.org/bindings/corba/idl/Enum" xmlns:xs="http://www.w3.org/2001/XMLSchema">
       <xs:simpleType name="e_type1">
         <xs:restriction base="xs:string">
           <xs:enumeration value="e1_1">
@@ -322,7 +322,7 @@
     <corba:binding repositoryID="IDL:m1/if3:1.0" />
     <wsdl:operation name="if3_op1">
       <corba:operation name="if3_op1">
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Enum/typemap" mode="in" idltype="m1.e_type3" name="in_e_type3" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Enum/typemap" mode="in" idltype="m1.e_type3" name="in_e_type3" />
       </corba:operation>
       <wsdl:input name="if3_op1Request">
       </wsdl:input>
@@ -331,7 +331,7 @@
     </wsdl:operation>
     <wsdl:operation name="if3_op2">
       <corba:operation name="if3_op2">
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Enum/typemap" mode="in" idltype="m1.if3.e_type4" name="in_e_type4" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Enum/typemap" mode="in" idltype="m1.if3.e_type4" name="in_e_type4" />
       </corba:operation>
       <wsdl:input name="if3_op2Request">
       </wsdl:input>
@@ -343,7 +343,7 @@
     <corba:binding repositoryID="IDL:if1:1.0" />
     <wsdl:operation name="if1_op1">
       <corba:operation name="if1_op1">
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Enum/typemap" mode="in" idltype="if1.e_type2" name="in_e_type2" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Enum/typemap" mode="in" idltype="if1.e_type2" name="in_e_type2" />
       </corba:operation>
       <wsdl:input name="if1_op1Request">
       </wsdl:input>
@@ -352,7 +352,7 @@
     </wsdl:operation>
     <wsdl:operation name="if1_op2">
       <corba:operation name="if1_op2">
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Enum/typemap" mode="out" idltype="if1.e_type2" name="out_e_type2" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Enum/typemap" mode="out" idltype="if1.e_type2" name="out_e_type2" />
       </corba:operation>
       <wsdl:input name="if1_op2Request">
       </wsdl:input>
@@ -361,7 +361,7 @@
     </wsdl:operation>
     <wsdl:operation name="if1_op3">
       <corba:operation name="if1_op3">
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Enum/typemap" mode="inout" idltype="if1.e_type2" name="inout_e_type2" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Enum/typemap" mode="inout" idltype="if1.e_type2" name="inout_e_type2" />
       </corba:operation>
       <wsdl:input name="if1_op3Request">
       </wsdl:input>
@@ -373,7 +373,7 @@
     <corba:binding repositoryID="IDL:if2:1.0" />
     <wsdl:operation name="if2_op1">
       <corba:operation name="if2_op1">
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Enum/typemap" mode="in" idltype="e_type1" name="in_e_type1" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Enum/typemap" mode="in" idltype="e_type1" name="in_e_type1" />
       </corba:operation>
       <wsdl:input name="if2_op1Request">
       </wsdl:input>
@@ -382,7 +382,7 @@
     </wsdl:operation>
     <wsdl:operation name="if2_op2">
       <corba:operation name="if2_op2">
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Enum/typemap" mode="out" idltype="e_type1" name="out_e_type1" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Enum/typemap" mode="out" idltype="e_type1" name="out_e_type1" />
       </corba:operation>
       <wsdl:input name="if2_op2Request">
       </wsdl:input>
@@ -391,7 +391,7 @@
     </wsdl:operation>
     <wsdl:operation name="if2_op3">
       <corba:operation name="if2_op3">
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Enum/typemap" mode="inout" idltype="e_type1" name="inout_e_type1" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Enum/typemap" mode="inout" idltype="e_type1" name="inout_e_type1" />
       </corba:operation>
       <wsdl:input name="if2_op3Request">
       </wsdl:input>

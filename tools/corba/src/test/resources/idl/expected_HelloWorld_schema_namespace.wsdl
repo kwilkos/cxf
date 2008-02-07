@@ -17,10 +17,10 @@
  * specific language governing permissions and limitations
  * under the License.
 -->
-<wsdl:definitions targetNamespace="http://schemas.apache.org/yoko/idl/HelloWorld" xmlns:tns="http://schemas.apache.org/yoko/idl/HelloWorld" xmlns:corba="http://schemas.apache.org/yoko/bindings/corba" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:xsd1="http://yoko.org/foobar/schema" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
-  <corba:typeMapping targetNamespace="http://schemas.apache.org/yoko/idl/HelloWorld/typemap" />
+<wsdl:definitions targetNamespace="http://cxf.apache.org/bindings/corba/idl/HelloWorld" xmlns:tns="http://cxf.apache.org/bindings/corba/idl/HelloWorld" xmlns:corba="http://cxf.apache.org/bindings/corba" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:xsd1="http://cxf.apache.org/foobar/schema" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <corba:typeMapping targetNamespace="http://cxf.apache.org/bindings/corba/idl/HelloWorld/typemap" />
   <wsdl:types>
-    <xs:schema attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://yoko.org/foobar/schema" xmlns="http://yoko.org/foobar/schema" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:schema attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://cxf.apache.org/foobar/schema" xmlns="http://cxf.apache.org/foobar/schema" xmlns:xs="http://www.w3.org/2001/XMLSchema">
       <xs:element name="greetMe">
         <xs:complexType>
           <xs:sequence>

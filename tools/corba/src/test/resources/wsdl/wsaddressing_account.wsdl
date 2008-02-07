@@ -22,7 +22,7 @@
              xmlns:tns="http://www.apache.org/bus/demos/bank"
              xmlns:xsd="http://www.w3.org/2001/XMLSchema"
              xmlns:xsd1="http://soapinterop.org/xsd"
-             xmlns:corba="http://schemas.apache.org/yoko/bindings/corba"
+             xmlns:corba="http://cxf.apache.org/bindings/corba"
              xmlns:ns1="http://www.apache.org/corba/typemap/BasePortType.idl"
              xmlns:wsa="http://www.w3.org/2005/08/addressing"
              xmlns:bank="http://www.apache.org/bus/demos/bank"

@@ -24,7 +24,6 @@ import javax.wsdl.Definition;
 import antlr.collections.AST;
 
 import org.apache.ws.commons.schema.XmlSchema;
-import org.apache.yoko.tools.processors.idl.IDLTokenTypes;
 
 public class TypeDclVisitor extends VisitorBase {
     

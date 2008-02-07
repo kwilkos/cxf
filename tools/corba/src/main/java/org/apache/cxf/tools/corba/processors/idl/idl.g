@@ -1,5 +1,5 @@
 header {
-  package org.apache.yoko.tools.processors.idl;
+  package org.apache.cxf.tools.corba.processors.idl;
 
   import java.io.*;
   import java.util.Vector;

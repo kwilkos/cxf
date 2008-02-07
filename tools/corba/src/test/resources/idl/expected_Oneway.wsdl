@@ -17,10 +17,10 @@
  * specific language governing permissions and limitations
  * under the License.
 -->
-<wsdl:definitions targetNamespace="http://schemas.apache.org/yoko/idl/Oneway" xmlns:tns="http://schemas.apache.org/yoko/idl/Oneway" xmlns:corba="http://schemas.apache.org/yoko/bindings/corba" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
-  <corba:typeMapping targetNamespace="http://schemas.apache.org/yoko/idl/Oneway/typemap" />
+<wsdl:definitions targetNamespace="http://cxf.apache.org/bindings/corba/idl/Oneway" xmlns:tns="http://cxf.apache.org/bindings/corba/idl/Oneway" xmlns:corba="http://cxf.apache.org/bindings/corba" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <corba:typeMapping targetNamespace="http://cxf.apache.org/bindings/corba/idl/Oneway/typemap" />
   <wsdl:types>
-    <xs:schema attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://schemas.apache.org/yoko/idl/Oneway" xmlns="http://schemas.apache.org/yoko/idl/Oneway" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:schema attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://cxf.apache.org/bindings/corba/idl/Oneway" xmlns="http://cxf.apache.org/bindings/corba/idl/Oneway" xmlns:xs="http://www.w3.org/2001/XMLSchema">
       <xs:element name="onewayOperation">
         <xs:complexType>
           <xs:sequence>

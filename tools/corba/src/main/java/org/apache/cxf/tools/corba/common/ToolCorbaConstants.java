@@ -21,7 +21,7 @@ package org.apache.cxf.tools.corba.common;
 
 public final class ToolCorbaConstants  {
 
-    public static final String TOOLSPECS_BASE = "/org/apache/yoko/tools/common/toolspec/toolspecs/";
+    public static final String TOOLSPECS_BASE = "/org/apache/cxf/tools/corba/common/toolspec/toolspecs/";
     public static final String CFG_CORBA = "corba";
     public static final String CFG_IDL = "idl";
     public static final String CFG_WSDLOUTPUTFILE = "wsdloutputfile";

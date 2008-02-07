@@ -17,22 +17,22 @@
  * specific language governing permissions and limitations
  * under the License.
 -->
-<wsdl:definitions targetNamespace="http://schemas.apache.org/yoko/idl/ForwardInterfaceSequence" xmlns:tns="http://schemas.apache.org/yoko/idl/ForwardInterfaceSequence" xmlns:wsa="http://www.w3.org/2005/08/addressing" xmlns:corba="http://schemas.apache.org/yoko/bindings/corba" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
-  <corba:typeMapping targetNamespace="http://schemas.apache.org/yoko/idl/ForwardInterfaceSequence/typemap">
-    <corba:sequence xmlns:ns5="http://www.w3.org/2005/08/addressing" xmlns:ns4="http://schemas.apache.org/yoko/idl/ForwardInterfaceSequence/typemap" xmlns="" elemtype="ns4:org.cc.IpCall" elemname="item" bound="0" repositoryID="IDL:org/cc/myIpCallSequence:1.0" type="ns5:EndpointReferenceType" name="org.cc.myIpCallSequence" />
-    <corba:anonsequence xmlns:ns5="http://www.w3.org/2005/08/addressing" xmlns:ns4="http://schemas.apache.org/yoko/idl/ForwardInterfaceSequence/typemap" xmlns="" elemtype="ns4:org.cc.IpCall" elemname="item" bound="0" type="ns5:EndpointReferenceType" name="org.cc.myCallSeqSeqSeqLong._Anon1_myCallSeqSeqSeqLong" />
-    <corba:anonsequence xmlns:ns5="http://schemas.apache.org/yoko/idl/ForwardInterfaceSequence" xmlns:ns4="http://schemas.apache.org/yoko/idl/ForwardInterfaceSequence/typemap" xmlns="" elemtype="ns4:org.cc.myCallSeqSeqSeqLong._Anon1_myCallSeqSeqSeqLong" elemname="item" bound="0" type="ns5:org.cc._Anon1_myCallSeqSeqSeqLong" name="org.cc._Anon1_myCallSeqSeqSeqLong" />
-    <corba:sequence xmlns:ns5="http://schemas.apache.org/yoko/idl/ForwardInterfaceSequence" xmlns:ns4="http://schemas.apache.org/yoko/idl/ForwardInterfaceSequence/typemap" xmlns="" elemtype="ns4:org.cc._Anon1_myCallSeqSeqSeqLong" elemname="item" bound="0" repositoryID="IDL:org/cc/myCallSeqSeqSeqLong:1.0" type="ns5:org.cc.myCallSeqSeqSeqLong" name="org.cc.myCallSeqSeqSeqLong" />
-    <corba:anonsequence xmlns:ns5="http://www.w3.org/2005/08/addressing" xmlns:ns4="http://schemas.apache.org/yoko/idl/ForwardInterfaceSequence/typemap" xmlns="" elemtype="ns4:org.cc.IpCall" elemname="item" bound="0" type="ns5:EndpointReferenceType" name="org.cc.anonStruct._Anon1_anonStruct" />
-    <corba:anonsequence xmlns:ns5="http://schemas.apache.org/yoko/idl/ForwardInterfaceSequence" xmlns:ns4="http://schemas.apache.org/yoko/idl/ForwardInterfaceSequence/typemap" xmlns="" elemtype="ns4:org.cc.anonStruct._Anon1_anonStruct" elemname="item" bound="0" type="ns5:org.cc.anonStruct._Anon2_anonStruct" name="org.cc.anonStruct._Anon2_anonStruct" />
-    <corba:anonsequence xmlns:ns5="http://schemas.apache.org/yoko/idl/ForwardInterfaceSequence" xmlns:ns4="http://schemas.apache.org/yoko/idl/ForwardInterfaceSequence/typemap" xmlns="" elemtype="ns4:org.cc.anonStruct._Anon2_anonStruct" elemname="item" bound="0" type="ns5:org.cc._Anon1_anonStruct" name="org.cc._Anon1_anonStruct" />
-    <corba:struct xmlns="http://schemas.apache.org/yoko/idl/ForwardInterfaceSequence" repositoryID="IDL:org/cc/anonStruct:1.0" type="org.cc.anonStruct" name="org.cc.anonStruct">
-      <corba:member xmlns:ns4="http://schemas.apache.org/yoko/idl/ForwardInterfaceSequence/typemap" name="structSeqSeqSeqLong" idltype="ns4:org.cc._Anon1_anonStruct" />
+<wsdl:definitions targetNamespace="http://cxf.apache.org/bindings/corba/idl/ForwardInterfaceSequence" xmlns:tns="http://cxf.apache.org/bindings/corba/idl/ForwardInterfaceSequence" xmlns:wsa="http://www.w3.org/2005/08/addressing" xmlns:corba="http://cxf.apache.org/bindings/corba" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <corba:typeMapping targetNamespace="http://cxf.apache.org/bindings/corba/idl/ForwardInterfaceSequence/typemap">
+    <corba:sequence xmlns:ns5="http://www.w3.org/2005/08/addressing" xmlns:ns4="http://cxf.apache.org/bindings/corba/idl/ForwardInterfaceSequence/typemap" xmlns="" elemtype="ns4:org.cc.IpCall" elemname="item" bound="0" repositoryID="IDL:org/cc/myIpCallSequence:1.0" type="ns5:EndpointReferenceType" name="org.cc.myIpCallSequence" />
+    <corba:anonsequence xmlns:ns5="http://www.w3.org/2005/08/addressing" xmlns:ns4="http://cxf.apache.org/bindings/corba/idl/ForwardInterfaceSequence/typemap" xmlns="" elemtype="ns4:org.cc.IpCall" elemname="item" bound="0" type="ns5:EndpointReferenceType" name="org.cc.myCallSeqSeqSeqLong._Anon1_myCallSeqSeqSeqLong" />
+    <corba:anonsequence xmlns:ns5="http://cxf.apache.org/bindings/corba/idl/ForwardInterfaceSequence" xmlns:ns4="http://cxf.apache.org/bindings/corba/idl/ForwardInterfaceSequence/typemap" xmlns="" elemtype="ns4:org.cc.myCallSeqSeqSeqLong._Anon1_myCallSeqSeqSeqLong" elemname="item" bound="0" type="ns5:org.cc._Anon1_myCallSeqSeqSeqLong" name="org.cc._Anon1_myCallSeqSeqSeqLong" />
+    <corba:sequence xmlns:ns5="http://cxf.apache.org/bindings/corba/idl/ForwardInterfaceSequence" xmlns:ns4="http://cxf.apache.org/bindings/corba/idl/ForwardInterfaceSequence/typemap" xmlns="" elemtype="ns4:org.cc._Anon1_myCallSeqSeqSeqLong" elemname="item" bound="0" repositoryID="IDL:org/cc/myCallSeqSeqSeqLong:1.0" type="ns5:org.cc.myCallSeqSeqSeqLong" name="org.cc.myCallSeqSeqSeqLong" />
+    <corba:anonsequence xmlns:ns5="http://www.w3.org/2005/08/addressing" xmlns:ns4="http://cxf.apache.org/bindings/corba/idl/ForwardInterfaceSequence/typemap" xmlns="" elemtype="ns4:org.cc.IpCall" elemname="item" bound="0" type="ns5:EndpointReferenceType" name="org.cc.anonStruct._Anon1_anonStruct" />
+    <corba:anonsequence xmlns:ns5="http://cxf.apache.org/bindings/corba/idl/ForwardInterfaceSequence" xmlns:ns4="http://cxf.apache.org/bindings/corba/idl/ForwardInterfaceSequence/typemap" xmlns="" elemtype="ns4:org.cc.anonStruct._Anon1_anonStruct" elemname="item" bound="0" type="ns5:org.cc.anonStruct._Anon2_anonStruct" name="org.cc.anonStruct._Anon2_anonStruct" />
+    <corba:anonsequence xmlns:ns5="http://cxf.apache.org/bindings/corba/idl/ForwardInterfaceSequence" xmlns:ns4="http://cxf.apache.org/bindings/corba/idl/ForwardInterfaceSequence/typemap" xmlns="" elemtype="ns4:org.cc.anonStruct._Anon2_anonStruct" elemname="item" bound="0" type="ns5:org.cc._Anon1_anonStruct" name="org.cc._Anon1_anonStruct" />
+    <corba:struct xmlns="http://cxf.apache.org/bindings/corba/idl/ForwardInterfaceSequence" repositoryID="IDL:org/cc/anonStruct:1.0" type="org.cc.anonStruct" name="org.cc.anonStruct">
+      <corba:member xmlns:ns4="http://cxf.apache.org/bindings/corba/idl/ForwardInterfaceSequence/typemap" name="structSeqSeqSeqLong" idltype="ns4:org.cc._Anon1_anonStruct" />
     </corba:struct>
-    <corba:object xmlns:ns4="http://www.w3.org/2005/08/addressing" xmlns="http://schemas.apache.org/yoko/idl/ForwardInterfaceSequence" binding="org.cc.IpCallCORBABinding" repositoryID="IDL:org/cc/IpCall:1.0" type="ns4:EndpointReferenceType" name="org.cc.IpCall" />
+    <corba:object xmlns:ns4="http://www.w3.org/2005/08/addressing" xmlns="http://cxf.apache.org/bindings/corba/idl/ForwardInterfaceSequence" binding="org.cc.IpCallCORBABinding" repositoryID="IDL:org/cc/IpCall:1.0" type="ns4:EndpointReferenceType" name="org.cc.IpCall" />
   </corba:typeMapping>
   <wsdl:types>
-    <xs:schema attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://schemas.apache.org/yoko/idl/ForwardInterfaceSequence" xmlns="http://schemas.apache.org/yoko/idl/ForwardInterfaceSequence" xmlns:wsa="http://www.w3.org/2005/08/addressing" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:schema attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://cxf.apache.org/bindings/corba/idl/ForwardInterfaceSequence" xmlns="http://cxf.apache.org/bindings/corba/idl/ForwardInterfaceSequence" xmlns:wsa="http://www.w3.org/2005/08/addressing" xmlns:xs="http://www.w3.org/2001/XMLSchema">
       <xs:import namespace="http://www.w3.org/2005/08/addressing" schemaLocation="http://www.w3.org/2005/08/addressing/ws-addr.xsd">
       </xs:import>
       <xs:complexType name="org.cc.myIpCallSequence">
@@ -201,9 +201,9 @@
     <corba:binding repositoryID="IDL:org/cc/IpAppCall:1.0" />
     <wsdl:operation name="routeCallSeq">
       <corba:operation name="routeCallSeq">
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/ForwardInterfaceSequence/typemap" mode="in" name="inTp" idltype="org.cc.myIpCallSequence" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/ForwardInterfaceSequence/typemap" mode="out" name="outTp" idltype="org.cc.myIpCallSequence" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/ForwardInterfaceSequence/typemap" mode="inout" name="inoutTp" idltype="org.cc.myIpCallSequence" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/ForwardInterfaceSequence/typemap" mode="in" name="inTp" idltype="org.cc.myIpCallSequence" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/ForwardInterfaceSequence/typemap" mode="out" name="outTp" idltype="org.cc.myIpCallSequence" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/ForwardInterfaceSequence/typemap" mode="inout" name="inoutTp" idltype="org.cc.myIpCallSequence" />
       </corba:operation>
       <wsdl:input name="routeCallSeqRequest">
       </wsdl:input>
@@ -212,9 +212,9 @@
     </wsdl:operation>
     <wsdl:operation name="routeCallAnonSeq">
       <corba:operation name="routeCallAnonSeq">
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/ForwardInterfaceSequence/typemap" mode="in" name="inTp" idltype="org.cc.anonStruct" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/ForwardInterfaceSequence/typemap" mode="out" name="outTp" idltype="org.cc.anonStruct" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/ForwardInterfaceSequence/typemap" mode="inout" name="inoutTp" idltype="org.cc.anonStruct" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/ForwardInterfaceSequence/typemap" mode="in" name="inTp" idltype="org.cc.anonStruct" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/ForwardInterfaceSequence/typemap" mode="out" name="outTp" idltype="org.cc.anonStruct" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/ForwardInterfaceSequence/typemap" mode="inout" name="inoutTp" idltype="org.cc.anonStruct" />
       </corba:operation>
       <wsdl:input name="routeCallAnonSeqRequest">
       </wsdl:input>

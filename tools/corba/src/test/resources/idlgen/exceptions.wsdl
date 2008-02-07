@@ -21,7 +21,7 @@
     targetNamespace="http://schemas.apache.org/idl/exceptions.idl" 
     xmlns:tns="http://schemas.apache.org/idl/exceptions.idl" 
     xmlns:corbatm="http://schemas.apache.org/bindings/corba/typemap" 
-    xmlns:corba="http://schemas.apache.org/yoko/bindings/corba" 
+    xmlns:corba="http://cxf.apache.org/bindings/corba" 
     xmlns:ns1="http://schemas.apache.org/idl/exceptions.idl/corba/typemap/" 
     xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
     xmlns:xsd2="urn:mytypes" 

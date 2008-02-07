@@ -17,7 +17,7 @@
  * specific language governing permissions and limitations
  * under the License.
 -->
-<definitions name="type_test" targetNamespace="http://www.iona.com/demos/type_test" xmlns:tns="http://www.iona.com/demos/type_test" xmlns:corba="http://schemas.apache.org/yoko/bindings/corba" xmlns:ns1="http://www.iona.com/demos/type_test/corba/typemap/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:s="http://www.iona.com/demos/type_test/types" xmlns="http://schemas.xmlsoap.org/wsdl/">
+<definitions name="type_test" targetNamespace="http://www.iona.com/demos/type_test" xmlns:tns="http://www.iona.com/demos/type_test" xmlns:corba="http://cxf.apache.org/bindings/corba" xmlns:ns1="http://www.iona.com/demos/type_test/corba/typemap/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:s="http://www.iona.com/demos/type_test/types" xmlns="http://schemas.xmlsoap.org/wsdl/">
   <corba:typeMapping xmlns:ns3="http://schemas.xmlsoap.org/wsdl/" targetNamespace="http://www.iona.com/demos/type_test/corba/typemap/">
     <corba:union xmlns="" xmlns:ns4="http://schemas.xmlsoap.org/wsdl/" discriminator="corba:boolean" repositoryID="IDL:string_nil:1.0" type="varAttrString" name="string_nil">
       <corba:unionbranch name="value" idltype="corba:string" default="false">

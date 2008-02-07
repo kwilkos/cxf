@@ -17,13 +17,13 @@
  * specific language governing permissions and limitations
  * under the License.
 -->
-<wsdl:definitions targetNamespace="http://schemas.apache.org/yoko/idl/inheritance" xmlns:tns="http://schemas.apache.org/yoko/idl/inheritance" xmlns:wsa="http://www.w3.org/2005/08/addressing" xmlns:corba="http://schemas.apache.org/yoko/bindings/corba" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
-  <corba:typeMapping targetNamespace="http://schemas.apache.org/yoko/idl/inheritance/typemap">
-    <corba:object xmlns:ns4="http://www.w3.org/2005/08/addressing" xmlns="http://schemas.apache.org/yoko/idl/inheritance" binding="org.apache.IpTestCORBABinding" repositoryID="IDL:org/apache/IpTest:1.0" type="ns4:EndpointReferenceType" name="org.apache.IpTest" />
-    <corba:object xmlns:ns4="http://www.w3.org/2005/08/addressing" xmlns="http://schemas.apache.org/yoko/idl/inheritance" binding="org.apache.yoko.IpInterfaceCORBABinding" repositoryID="IDL:org/apache/yoko/IpInterface:1.0" type="ns4:EndpointReferenceType" name="org.apache.yoko.IpInterface" />
+<wsdl:definitions targetNamespace="http://cxf.apache.org/bindings/corba/idl/inheritance" xmlns:tns="http://cxf.apache.org/bindings/corba/idl/inheritance" xmlns:wsa="http://www.w3.org/2005/08/addressing" xmlns:corba="http://cxf.apache.org/bindings/corba" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <corba:typeMapping targetNamespace="http://cxf.apache.org/bindings/corba/idl/inheritance/typemap">
+    <corba:object xmlns:ns4="http://www.w3.org/2005/08/addressing" xmlns="http://cxf.apache.org/bindings/corba/idl/inheritance" binding="org.apache.IpTestCORBABinding" repositoryID="IDL:org/apache/IpTest:1.0" type="ns4:EndpointReferenceType" name="org.apache.IpTest" />
+    <corba:object xmlns:ns4="http://www.w3.org/2005/08/addressing" xmlns="http://cxf.apache.org/bindings/corba/idl/inheritance" binding="org.apache.yoko.IpInterfaceCORBABinding" repositoryID="IDL:org/apache/yoko/IpInterface:1.0" type="ns4:EndpointReferenceType" name="org.apache.yoko.IpInterface" />
   </corba:typeMapping>
   <wsdl:types>
-    <xs:schema attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://schemas.apache.org/yoko/idl/inheritance" xmlns="http://schemas.apache.org/yoko/idl/inheritance" xmlns:wsa="http://www.w3.org/2005/08/addressing" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:schema attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://cxf.apache.org/bindings/corba/idl/inheritance" xmlns="http://cxf.apache.org/bindings/corba/idl/inheritance" xmlns:wsa="http://www.w3.org/2005/08/addressing" xmlns:xs="http://www.w3.org/2001/XMLSchema">
       <xs:import namespace="http://www.w3.org/2005/08/addressing" schemaLocation="http://www.w3.org/2005/08/addressing/ws-addr.xsd">
       </xs:import>
       <xs:element name="test">
@@ -285,7 +285,7 @@
     <corba:binding repositoryID="IDL:org/apache/yoko/IpInterface:1.0" />
     <wsdl:operation name="setTest">
       <corba:operation name="setTest">
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/inheritance/typemap" mode="in" name="test" idltype="org.apache.IpTest" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/inheritance/typemap" mode="in" name="test" idltype="org.apache.IpTest" />
       </corba:operation>
       <wsdl:input name="setTestRequest">
       </wsdl:input>
@@ -314,7 +314,7 @@
     <corba:binding repositoryID="IDL:org/apache/yoko/IpService:1.0" bases="IDL:org/apache/yoko/IpInterface:1.0 IDL:org/apache/IpTest:1.0 IDL:rootInterface:1.0" />
     <wsdl:operation name="setTest">
       <corba:operation name="setTest">
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/inheritance/typemap" mode="in" name="test" idltype="org.apache.IpTest" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/inheritance/typemap" mode="in" name="test" idltype="org.apache.IpTest" />
       </corba:operation>
       <wsdl:input name="setTestRequest">
       </wsdl:input>
@@ -330,7 +330,7 @@
     </wsdl:operation>
     <wsdl:operation name="setCallback">
       <corba:operation name="setCallback">
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/inheritance/typemap" mode="in" name="appInterface" idltype="org.apache.yoko.IpInterface" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/inheritance/typemap" mode="in" name="appInterface" idltype="org.apache.yoko.IpInterface" />
       </corba:operation>
       <wsdl:input name="setCallbackRequest">
       </wsdl:input>
@@ -339,7 +339,7 @@
     </wsdl:operation>
     <wsdl:operation name="setTestCallback">
       <corba:operation name="setTestCallback">
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/inheritance/typemap" mode="in" name="test" idltype="org.apache.IpTest" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/inheritance/typemap" mode="in" name="test" idltype="org.apache.IpTest" />
       </corba:operation>
       <wsdl:input name="setTestCallbackRequest">
       </wsdl:input>

@@ -139,10 +139,13 @@ public final class StAXUtil {
     }
 
     public static Tag getTagTree(final File source, final List<String> ignoreAttr) throws Exception {
+        InputStream is = new BufferedInputStream(new FileInputStream(source));
+        return getTagTree(is, ignoreAttr);
+    }
+    public static Tag getTagTree(final InputStream is, final List<String> ignoreAttr) throws Exception {
         Tag root = new Tag();
         root.setName(new QName("root", "root"));
 
-        InputStream is = new BufferedInputStream(new FileInputStream(source));
         XMLStreamReader reader = StaxUtils.createXMLStreamReader(is);
         Tag newTag = null;
 

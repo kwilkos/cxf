@@ -49,10 +49,10 @@ import org.junit.ComparisonFailure;
 
 public class ProcessorTestBase extends Assert {
 
-    private static final List<String> DEFAULT_IGNORE_ATTR = Arrays.asList(new String[]{"attributeFormDefault",
-                                                                                       "elementFormDefault", 
-                                                                                       "form"});
-    private static final List<String> DEFAULT_IGNORE_TAG = Arrays.asList(new String[]{"sequence"});
+    public static final List<String> DEFAULT_IGNORE_ATTR = Arrays.asList(new String[]{"attributeFormDefault",
+                                                                                      "elementFormDefault", 
+                                                                                      "form"});
+    public static final List<String> DEFAULT_IGNORE_TAG = Arrays.asList(new String[]{"sequence"});
 
     protected ToolContext env = new ToolContext();
     protected File output;
@@ -321,4 +321,17 @@ public class ProcessorTestBase extends Assert {
     public void assertWsdlEquals(final File expected, final File source) throws Exception {
         assertWsdlEquals(expected, source, DEFAULT_IGNORE_ATTR, DEFAULT_IGNORE_TAG);
     }
+
+    public void assertWsdlEquals(final InputStream expected, final InputStream source,
+                                 List<String> attr, List<String> tag) 
+        throws Exception {
+        Tag expectedTag = StAXUtil.getTagTree(expected, attr);
+        Tag sourceTag = StAXUtil.getTagTree(source, attr);
+        assertTagEquals(expectedTag, sourceTag, attr, tag);
+    }
+
+    public void assertWsdlEquals(final InputStream expected, final InputStream source) throws Exception {
+        assertWsdlEquals(expected, source, DEFAULT_IGNORE_ATTR, DEFAULT_IGNORE_TAG);
+    }
+
 }

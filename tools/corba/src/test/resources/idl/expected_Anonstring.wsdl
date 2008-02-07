@@ -17,69 +17,69 @@
  * specific language governing permissions and limitations
  * under the License.
 -->
-<wsdl:definitions targetNamespace="http://schemas.apache.org/yoko/idl/Anonstring" xmlns:tns="http://schemas.apache.org/yoko/idl/Anonstring" xmlns:corba="http://schemas.apache.org/yoko/bindings/corba" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
-  <corba:typeMapping targetNamespace="http://schemas.apache.org/yoko/idl/Anonstring/typemap">
-    <corba:anonstring xmlns="http://schemas.apache.org/yoko/idl/Anonstring" bound="5" type="AnonStrings._Anon1_String5Array" name="AnonStrings._Anon1_String5Array" />
-    <corba:array xmlns:ns5="http://schemas.apache.org/yoko/idl/Anonstring" xmlns:ns4="http://schemas.apache.org/yoko/idl/Anonstring/typemap" xmlns="" elemtype="ns4:AnonStrings._Anon1_String5Array" elemname="item" bound="10" repositoryID="IDL:AnonStrings/String5Array:1.0" type="ns5:AnonStrings.String5Array" name="AnonStrings.String5Array" />
-    <corba:anonstring xmlns="http://schemas.apache.org/yoko/idl/Anonstring" bound="10" type="AnonStrings._Anon1_SequenceBoundedString" name="AnonStrings._Anon1_SequenceBoundedString" />
-    <corba:sequence xmlns:ns5="http://schemas.apache.org/yoko/idl/Anonstring" xmlns:ns4="http://schemas.apache.org/yoko/idl/Anonstring/typemap" xmlns="" elemtype="ns4:AnonStrings._Anon1_SequenceBoundedString" elemname="item" bound="0" repositoryID="IDL:AnonStrings/SequenceBoundedString:1.0" type="ns5:AnonStrings.SequenceBoundedString" name="AnonStrings.SequenceBoundedString" />
-    <corba:anonstring xmlns="http://schemas.apache.org/yoko/idl/Anonstring" bound="10" type="AnonStrings.SequenceSequenceBoundedString._Anon1_SequenceSequenceBoundedString" name="AnonStrings.SequenceSequenceBoundedString._Anon1_SequenceSequenceBoundedString" />
-    <corba:anonsequence xmlns:ns5="http://schemas.apache.org/yoko/idl/Anonstring" xmlns:ns4="http://schemas.apache.org/yoko/idl/Anonstring/typemap" xmlns="" elemtype="ns4:AnonStrings.SequenceSequenceBoundedString._Anon1_SequenceSequenceBoundedString" elemname="item" bound="0" type="ns5:AnonStrings._Anon1_SequenceSequenceBoundedString" name="AnonStrings._Anon1_SequenceSequenceBoundedString" />
-    <corba:sequence xmlns:ns5="http://schemas.apache.org/yoko/idl/Anonstring" xmlns:ns4="http://schemas.apache.org/yoko/idl/Anonstring/typemap" xmlns="" elemtype="ns4:AnonStrings._Anon1_SequenceSequenceBoundedString" elemname="item" bound="0" repositoryID="IDL:AnonStrings/SequenceSequenceBoundedString:1.0" type="ns5:AnonStrings.SequenceSequenceBoundedString" name="AnonStrings.SequenceSequenceBoundedString" />
-    <corba:anonstring xmlns="http://schemas.apache.org/yoko/idl/Anonstring" bound="10" type="AnonStrings._Anon1_BoundedSequenceBoundedString" name="AnonStrings._Anon1_BoundedSequenceBoundedString" />
-    <corba:sequence xmlns:ns5="http://schemas.apache.org/yoko/idl/Anonstring" xmlns:ns4="http://schemas.apache.org/yoko/idl/Anonstring/typemap" xmlns="" elemtype="ns4:AnonStrings._Anon1_BoundedSequenceBoundedString" elemname="item" bound="20" repositoryID="IDL:AnonStrings/BoundedSequenceBoundedString:1.0" type="ns5:AnonStrings.BoundedSequenceBoundedString" name="AnonStrings.BoundedSequenceBoundedString" />
-    <corba:anonstring xmlns="http://schemas.apache.org/yoko/idl/Anonstring" bound="10" type="AnonStrings.SequenceBoundedSequenceBoundedString._Anon1_SequenceBoundedSequenceBoundedString" name="AnonStrings.SequenceBoundedSequenceBoundedString._Anon1_SequenceBoundedSequenceBoundedString" />
-    <corba:anonsequence xmlns:ns5="http://schemas.apache.org/yoko/idl/Anonstring" xmlns:ns4="http://schemas.apache.org/yoko/idl/Anonstring/typemap" xmlns="" elemtype="ns4:AnonStrings.SequenceBoundedSequenceBoundedString._Anon1_SequenceBoundedSequenceBoundedString" elemname="item" bound="20" type="ns5:AnonStrings._Anon1_SequenceBoundedSequenceBoundedString" name="AnonStrings._Anon1_SequenceBoundedSequenceBoundedString" />
-    <corba:sequence xmlns:ns5="http://schemas.apache.org/yoko/idl/Anonstring" xmlns:ns4="http://schemas.apache.org/yoko/idl/Anonstring/typemap" xmlns="" elemtype="ns4:AnonStrings._Anon1_SequenceBoundedSequenceBoundedString" elemname="item" bound="0" repositoryID="IDL:AnonStrings/SequenceBoundedSequenceBoundedString:1.0" type="ns5:AnonStrings.SequenceBoundedSequenceBoundedString" name="AnonStrings.SequenceBoundedSequenceBoundedString" />
-    <corba:anonstring xmlns="http://schemas.apache.org/yoko/idl/Anonstring" bound="10" type="AnonStrings._Anon1_anonStringIf" name="AnonStrings._Anon1_anonStringIf" />
-    <corba:anonstring xmlns="http://schemas.apache.org/yoko/idl/Anonstring" bound="20" type="AnonStrings._Anon2_anonStringIf" name="AnonStrings._Anon2_anonStringIf" />
-    <corba:anonstring xmlns="http://schemas.apache.org/yoko/idl/Anonstring" bound="30" type="AnonStrings._Anon3_anonStringIf" name="AnonStrings._Anon3_anonStringIf" />
-    <corba:anonstring xmlns="http://schemas.apache.org/yoko/idl/Anonstring" bound="40" type="AnonStrings._Anon4_anonStringIf" name="AnonStrings._Anon4_anonStringIf" />
-    <corba:anonstring xmlns="http://schemas.apache.org/yoko/idl/Anonstring" bound="10" type="AnonStrings._Anon1_anonStringStruct" name="AnonStrings._Anon1_anonStringStruct" />
-    <corba:anonstring xmlns="http://schemas.apache.org/yoko/idl/Anonstring" bound="20" type="AnonStrings._Anon2_anonStringStruct" name="AnonStrings._Anon2_anonStringStruct" />
-    <corba:struct xmlns="http://schemas.apache.org/yoko/idl/Anonstring" repositoryID="IDL:AnonStrings/anonStringStruct:1.0" type="AnonStrings.anonStringStruct" name="AnonStrings.anonStringStruct">
+<wsdl:definitions targetNamespace="http://cxf.apache.org/bindings/corba/idl/Anonstring" xmlns:tns="http://cxf.apache.org/bindings/corba/idl/Anonstring" xmlns:corba="http://cxf.apache.org/bindings/corba" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <corba:typeMapping targetNamespace="http://cxf.apache.org/bindings/corba/idl/Anonstring/typemap">
+    <corba:anonstring xmlns="http://cxf.apache.org/bindings/corba/idl/Anonstring" bound="5" type="AnonStrings._Anon1_String5Array" name="AnonStrings._Anon1_String5Array" />
+    <corba:array xmlns:ns5="http://cxf.apache.org/bindings/corba/idl/Anonstring" xmlns:ns4="http://cxf.apache.org/bindings/corba/idl/Anonstring/typemap" xmlns="" elemtype="ns4:AnonStrings._Anon1_String5Array" elemname="item" bound="10" repositoryID="IDL:AnonStrings/String5Array:1.0" type="ns5:AnonStrings.String5Array" name="AnonStrings.String5Array" />
+    <corba:anonstring xmlns="http://cxf.apache.org/bindings/corba/idl/Anonstring" bound="10" type="AnonStrings._Anon1_SequenceBoundedString" name="AnonStrings._Anon1_SequenceBoundedString" />
+    <corba:sequence xmlns:ns5="http://cxf.apache.org/bindings/corba/idl/Anonstring" xmlns:ns4="http://cxf.apache.org/bindings/corba/idl/Anonstring/typemap" xmlns="" elemtype="ns4:AnonStrings._Anon1_SequenceBoundedString" elemname="item" bound="0" repositoryID="IDL:AnonStrings/SequenceBoundedString:1.0" type="ns5:AnonStrings.SequenceBoundedString" name="AnonStrings.SequenceBoundedString" />
+    <corba:anonstring xmlns="http://cxf.apache.org/bindings/corba/idl/Anonstring" bound="10" type="AnonStrings.SequenceSequenceBoundedString._Anon1_SequenceSequenceBoundedString" name="AnonStrings.SequenceSequenceBoundedString._Anon1_SequenceSequenceBoundedString" />
+    <corba:anonsequence xmlns:ns5="http://cxf.apache.org/bindings/corba/idl/Anonstring" xmlns:ns4="http://cxf.apache.org/bindings/corba/idl/Anonstring/typemap" xmlns="" elemtype="ns4:AnonStrings.SequenceSequenceBoundedString._Anon1_SequenceSequenceBoundedString" elemname="item" bound="0" type="ns5:AnonStrings._Anon1_SequenceSequenceBoundedString" name="AnonStrings._Anon1_SequenceSequenceBoundedString" />
+    <corba:sequence xmlns:ns5="http://cxf.apache.org/bindings/corba/idl/Anonstring" xmlns:ns4="http://cxf.apache.org/bindings/corba/idl/Anonstring/typemap" xmlns="" elemtype="ns4:AnonStrings._Anon1_SequenceSequenceBoundedString" elemname="item" bound="0" repositoryID="IDL:AnonStrings/SequenceSequenceBoundedString:1.0" type="ns5:AnonStrings.SequenceSequenceBoundedString" name="AnonStrings.SequenceSequenceBoundedString" />
+    <corba:anonstring xmlns="http://cxf.apache.org/bindings/corba/idl/Anonstring" bound="10" type="AnonStrings._Anon1_BoundedSequenceBoundedString" name="AnonStrings._Anon1_BoundedSequenceBoundedString" />
+    <corba:sequence xmlns:ns5="http://cxf.apache.org/bindings/corba/idl/Anonstring" xmlns:ns4="http://cxf.apache.org/bindings/corba/idl/Anonstring/typemap" xmlns="" elemtype="ns4:AnonStrings._Anon1_BoundedSequenceBoundedString" elemname="item" bound="20" repositoryID="IDL:AnonStrings/BoundedSequenceBoundedString:1.0" type="ns5:AnonStrings.BoundedSequenceBoundedString" name="AnonStrings.BoundedSequenceBoundedString" />
+    <corba:anonstring xmlns="http://cxf.apache.org/bindings/corba/idl/Anonstring" bound="10" type="AnonStrings.SequenceBoundedSequenceBoundedString._Anon1_SequenceBoundedSequenceBoundedString" name="AnonStrings.SequenceBoundedSequenceBoundedString._Anon1_SequenceBoundedSequenceBoundedString" />
+    <corba:anonsequence xmlns:ns5="http://cxf.apache.org/bindings/corba/idl/Anonstring" xmlns:ns4="http://cxf.apache.org/bindings/corba/idl/Anonstring/typemap" xmlns="" elemtype="ns4:AnonStrings.SequenceBoundedSequenceBoundedString._Anon1_SequenceBoundedSequenceBoundedString" elemname="item" bound="20" type="ns5:AnonStrings._Anon1_SequenceBoundedSequenceBoundedString" name="AnonStrings._Anon1_SequenceBoundedSequenceBoundedString" />
+    <corba:sequence xmlns:ns5="http://cxf.apache.org/bindings/corba/idl/Anonstring" xmlns:ns4="http://cxf.apache.org/bindings/corba/idl/Anonstring/typemap" xmlns="" elemtype="ns4:AnonStrings._Anon1_SequenceBoundedSequenceBoundedString" elemname="item" bound="0" repositoryID="IDL:AnonStrings/SequenceBoundedSequenceBoundedString:1.0" type="ns5:AnonStrings.SequenceBoundedSequenceBoundedString" name="AnonStrings.SequenceBoundedSequenceBoundedString" />
+    <corba:anonstring xmlns="http://cxf.apache.org/bindings/corba/idl/Anonstring" bound="10" type="AnonStrings._Anon1_anonStringIf" name="AnonStrings._Anon1_anonStringIf" />
+    <corba:anonstring xmlns="http://cxf.apache.org/bindings/corba/idl/Anonstring" bound="20" type="AnonStrings._Anon2_anonStringIf" name="AnonStrings._Anon2_anonStringIf" />
+    <corba:anonstring xmlns="http://cxf.apache.org/bindings/corba/idl/Anonstring" bound="30" type="AnonStrings._Anon3_anonStringIf" name="AnonStrings._Anon3_anonStringIf" />
+    <corba:anonstring xmlns="http://cxf.apache.org/bindings/corba/idl/Anonstring" bound="40" type="AnonStrings._Anon4_anonStringIf" name="AnonStrings._Anon4_anonStringIf" />
+    <corba:anonstring xmlns="http://cxf.apache.org/bindings/corba/idl/Anonstring" bound="10" type="AnonStrings._Anon1_anonStringStruct" name="AnonStrings._Anon1_anonStringStruct" />
+    <corba:anonstring xmlns="http://cxf.apache.org/bindings/corba/idl/Anonstring" bound="20" type="AnonStrings._Anon2_anonStringStruct" name="AnonStrings._Anon2_anonStringStruct" />
+    <corba:struct xmlns="http://cxf.apache.org/bindings/corba/idl/Anonstring" repositoryID="IDL:AnonStrings/anonStringStruct:1.0" type="AnonStrings.anonStringStruct" name="AnonStrings.anonStringStruct">
       <corba:member name="unboundedString" idltype="corba:string" />
       <corba:member name="anotherUnboundedString" idltype="corba:string" />
-      <corba:member xmlns:ns4="http://schemas.apache.org/yoko/idl/Anonstring/typemap" name="anonBoundedString" idltype="ns4:AnonStrings._Anon1_anonStringStruct" />
-      <corba:member xmlns:ns4="http://schemas.apache.org/yoko/idl/Anonstring/typemap" name="anotherAnonBoundedString" idltype="ns4:AnonStrings._Anon2_anonStringStruct" />
+      <corba:member xmlns:ns4="http://cxf.apache.org/bindings/corba/idl/Anonstring/typemap" name="anonBoundedString" idltype="ns4:AnonStrings._Anon1_anonStringStruct" />
+      <corba:member xmlns:ns4="http://cxf.apache.org/bindings/corba/idl/Anonstring/typemap" name="anotherAnonBoundedString" idltype="ns4:AnonStrings._Anon2_anonStringStruct" />
     </corba:struct>
-    <corba:anonstring xmlns="http://schemas.apache.org/yoko/idl/Anonstring" bound="10" type="AnonStrings._Anon1_typedefAnonStringStruct" name="AnonStrings._Anon1_typedefAnonStringStruct" />
-    <corba:anonstring xmlns="http://schemas.apache.org/yoko/idl/Anonstring" bound="20" type="AnonStrings._Anon2_typedefAnonStringStruct" name="AnonStrings._Anon2_typedefAnonStringStruct" />
-    <corba:struct xmlns="http://schemas.apache.org/yoko/idl/Anonstring" repositoryID="IDL:AnonStrings/typedefAnonStringStruct:1.0" type="AnonStrings.typedefAnonStringStruct" name="AnonStrings.typedefAnonStringStruct">
+    <corba:anonstring xmlns="http://cxf.apache.org/bindings/corba/idl/Anonstring" bound="10" type="AnonStrings._Anon1_typedefAnonStringStruct" name="AnonStrings._Anon1_typedefAnonStringStruct" />
+    <corba:anonstring xmlns="http://cxf.apache.org/bindings/corba/idl/Anonstring" bound="20" type="AnonStrings._Anon2_typedefAnonStringStruct" name="AnonStrings._Anon2_typedefAnonStringStruct" />
+    <corba:struct xmlns="http://cxf.apache.org/bindings/corba/idl/Anonstring" repositoryID="IDL:AnonStrings/typedefAnonStringStruct:1.0" type="AnonStrings.typedefAnonStringStruct" name="AnonStrings.typedefAnonStringStruct">
       <corba:member name="unboundedString" idltype="corba:string" />
       <corba:member name="anotherUnboundedString" idltype="corba:string" />
-      <corba:member xmlns:ns4="http://schemas.apache.org/yoko/idl/Anonstring/typemap" name="anonBoundedString" idltype="ns4:AnonStrings._Anon1_typedefAnonStringStruct" />
-      <corba:member xmlns:ns4="http://schemas.apache.org/yoko/idl/Anonstring/typemap" name="anotherAnonBoundedString" idltype="ns4:AnonStrings._Anon2_typedefAnonStringStruct" />
+      <corba:member xmlns:ns4="http://cxf.apache.org/bindings/corba/idl/Anonstring/typemap" name="anonBoundedString" idltype="ns4:AnonStrings._Anon1_typedefAnonStringStruct" />
+      <corba:member xmlns:ns4="http://cxf.apache.org/bindings/corba/idl/Anonstring/typemap" name="anotherAnonBoundedString" idltype="ns4:AnonStrings._Anon2_typedefAnonStringStruct" />
     </corba:struct>
-    <corba:alias xmlns="http://schemas.apache.org/yoko/idl/Anonstring/typemap" basetype="AnonStrings.typedefAnonStringStruct" repositoryID="IDL:AnonStrings/myTypedefAnonStringStruct:1.0" name="AnonStrings.myTypedefAnonStringStruct" />
-    <corba:anonstring xmlns="http://schemas.apache.org/yoko/idl/Anonstring" bound="10" type="AnonStrings._Anon1_anonStringUnion" name="AnonStrings._Anon1_anonStringUnion" />
-    <corba:anonstring xmlns="http://schemas.apache.org/yoko/idl/Anonstring" bound="100" type="AnonStrings._Anon2_anonStringUnion" name="AnonStrings._Anon2_anonStringUnion" />
-    <corba:union xmlns="http://schemas.apache.org/yoko/idl/Anonstring" discriminator="corba:long" repositoryID="IDL:AnonStrings/anonStringUnion:1.0" type="AnonStrings.anonStringUnion" name="AnonStrings.anonStringUnion">
-      <corba:unionbranch xmlns:ns4="http://schemas.apache.org/yoko/idl/Anonstring/typemap" name="anonStringUnion1" idltype="ns4:AnonStrings._Anon1_anonStringUnion">
+    <corba:alias xmlns="http://cxf.apache.org/bindings/corba/idl/Anonstring/typemap" basetype="AnonStrings.typedefAnonStringStruct" repositoryID="IDL:AnonStrings/myTypedefAnonStringStruct:1.0" name="AnonStrings.myTypedefAnonStringStruct" />
+    <corba:anonstring xmlns="http://cxf.apache.org/bindings/corba/idl/Anonstring" bound="10" type="AnonStrings._Anon1_anonStringUnion" name="AnonStrings._Anon1_anonStringUnion" />
+    <corba:anonstring xmlns="http://cxf.apache.org/bindings/corba/idl/Anonstring" bound="100" type="AnonStrings._Anon2_anonStringUnion" name="AnonStrings._Anon2_anonStringUnion" />
+    <corba:union xmlns="http://cxf.apache.org/bindings/corba/idl/Anonstring" discriminator="corba:long" repositoryID="IDL:AnonStrings/anonStringUnion:1.0" type="AnonStrings.anonStringUnion" name="AnonStrings.anonStringUnion">
+      <corba:unionbranch xmlns:ns4="http://cxf.apache.org/bindings/corba/idl/Anonstring/typemap" name="anonStringUnion1" idltype="ns4:AnonStrings._Anon1_anonStringUnion">
         <corba:case label="1" />
       </corba:unionbranch>
-      <corba:unionbranch xmlns:ns4="http://schemas.apache.org/yoko/idl/Anonstring/typemap" name="anonStringUnionDefault" idltype="ns4:AnonStrings._Anon2_anonStringUnion" default="true" />
+      <corba:unionbranch xmlns:ns4="http://cxf.apache.org/bindings/corba/idl/Anonstring/typemap" name="anonStringUnionDefault" idltype="ns4:AnonStrings._Anon2_anonStringUnion" default="true" />
     </corba:union>
-    <corba:anonstring xmlns="http://schemas.apache.org/yoko/idl/Anonstring" bound="10" type="AnonStrings._Anon1_typedefAnonStringUnion" name="AnonStrings._Anon1_typedefAnonStringUnion" />
-    <corba:anonstring xmlns="http://schemas.apache.org/yoko/idl/Anonstring" bound="100" type="AnonStrings._Anon2_typedefAnonStringUnion" name="AnonStrings._Anon2_typedefAnonStringUnion" />
-    <corba:union xmlns="http://schemas.apache.org/yoko/idl/Anonstring" discriminator="corba:long" repositoryID="IDL:AnonStrings/typedefAnonStringUnion:1.0" type="AnonStrings.typedefAnonStringUnion" name="AnonStrings.typedefAnonStringUnion">
-      <corba:unionbranch xmlns:ns4="http://schemas.apache.org/yoko/idl/Anonstring/typemap" name="anonStringUnion1" idltype="ns4:AnonStrings._Anon1_typedefAnonStringUnion">
+    <corba:anonstring xmlns="http://cxf.apache.org/bindings/corba/idl/Anonstring" bound="10" type="AnonStrings._Anon1_typedefAnonStringUnion" name="AnonStrings._Anon1_typedefAnonStringUnion" />
+    <corba:anonstring xmlns="http://cxf.apache.org/bindings/corba/idl/Anonstring" bound="100" type="AnonStrings._Anon2_typedefAnonStringUnion" name="AnonStrings._Anon2_typedefAnonStringUnion" />
+    <corba:union xmlns="http://cxf.apache.org/bindings/corba/idl/Anonstring" discriminator="corba:long" repositoryID="IDL:AnonStrings/typedefAnonStringUnion:1.0" type="AnonStrings.typedefAnonStringUnion" name="AnonStrings.typedefAnonStringUnion">
+      <corba:unionbranch xmlns:ns4="http://cxf.apache.org/bindings/corba/idl/Anonstring/typemap" name="anonStringUnion1" idltype="ns4:AnonStrings._Anon1_typedefAnonStringUnion">
         <corba:case label="1" />
       </corba:unionbranch>
-      <corba:unionbranch xmlns:ns4="http://schemas.apache.org/yoko/idl/Anonstring/typemap" name="anonStringUnionDefault" idltype="ns4:AnonStrings._Anon2_typedefAnonStringUnion" default="true" />
+      <corba:unionbranch xmlns:ns4="http://cxf.apache.org/bindings/corba/idl/Anonstring/typemap" name="anonStringUnionDefault" idltype="ns4:AnonStrings._Anon2_typedefAnonStringUnion" default="true" />
     </corba:union>
-    <corba:alias xmlns="http://schemas.apache.org/yoko/idl/Anonstring/typemap" basetype="AnonStrings.typedefAnonStringUnion" repositoryID="IDL:AnonStrings/myTypedefAnonStringUnion:1.0" name="AnonStrings.myTypedefAnonStringUnion" />
-    <corba:anonstring xmlns="http://schemas.apache.org/yoko/idl/Anonstring" bound="10" type="AnonStrings._Anon1_anonException" name="AnonStrings._Anon1_anonException" />
-    <corba:anonstring xmlns="http://schemas.apache.org/yoko/idl/Anonstring" bound="20" type="AnonStrings._Anon2_anonException" name="AnonStrings._Anon2_anonException" />
-    <corba:exception xmlns="http://schemas.apache.org/yoko/idl/Anonstring" repositoryID="IDL:AnonStrings/anonException:1.0" type="AnonStrings.anonExceptionType" name="AnonStrings.anonException">
+    <corba:alias xmlns="http://cxf.apache.org/bindings/corba/idl/Anonstring/typemap" basetype="AnonStrings.typedefAnonStringUnion" repositoryID="IDL:AnonStrings/myTypedefAnonStringUnion:1.0" name="AnonStrings.myTypedefAnonStringUnion" />
+    <corba:anonstring xmlns="http://cxf.apache.org/bindings/corba/idl/Anonstring" bound="10" type="AnonStrings._Anon1_anonException" name="AnonStrings._Anon1_anonException" />
+    <corba:anonstring xmlns="http://cxf.apache.org/bindings/corba/idl/Anonstring" bound="20" type="AnonStrings._Anon2_anonException" name="AnonStrings._Anon2_anonException" />
+    <corba:exception xmlns="http://cxf.apache.org/bindings/corba/idl/Anonstring" repositoryID="IDL:AnonStrings/anonException:1.0" type="AnonStrings.anonExceptionType" name="AnonStrings.anonException">
       <corba:member name="unboundedString" idltype="corba:string" />
       <corba:member name="anotherUnboundedString" idltype="corba:string" />
-      <corba:member xmlns:ns4="http://schemas.apache.org/yoko/idl/Anonstring/typemap" name="anonBoundedAnonString" idltype="ns4:AnonStrings._Anon1_anonException" />
-      <corba:member xmlns:ns4="http://schemas.apache.org/yoko/idl/Anonstring/typemap" name="anotherBoundedAnonString" idltype="ns4:AnonStrings._Anon2_anonException" />
+      <corba:member xmlns:ns4="http://cxf.apache.org/bindings/corba/idl/Anonstring/typemap" name="anonBoundedAnonString" idltype="ns4:AnonStrings._Anon1_anonException" />
+      <corba:member xmlns:ns4="http://cxf.apache.org/bindings/corba/idl/Anonstring/typemap" name="anotherBoundedAnonString" idltype="ns4:AnonStrings._Anon2_anonException" />
     </corba:exception>
   </corba:typeMapping>
   <wsdl:types>
-    <xs:schema attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://schemas.apache.org/yoko/idl/Anonstring" xmlns="http://schemas.apache.org/yoko/idl/Anonstring" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:schema attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://cxf.apache.org/bindings/corba/idl/Anonstring" xmlns="http://cxf.apache.org/bindings/corba/idl/Anonstring" xmlns:xs="http://www.w3.org/2001/XMLSchema">
       <xs:simpleType name="AnonStrings._Anon1_String5Array">
         <xs:restriction base="xs:string">
           <xs:maxLength value="5">
@@ -362,8 +362,8 @@
     <corba:binding repositoryID="IDL:AnonStrings/anonStringIf:1.0" />
     <wsdl:operation name="anonStringOperation">
       <corba:operation name="anonStringOperation">
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Anonstring/typemap" mode="in" name="inString" idltype="AnonStrings._Anon2_anonStringIf" />
-        <corba:return xmlns="http://schemas.apache.org/yoko/idl/Anonstring/typemap" name="return" idltype="AnonStrings._Anon1_anonStringIf" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Anonstring/typemap" mode="in" name="inString" idltype="AnonStrings._Anon2_anonStringIf" />
+        <corba:return xmlns="http://cxf.apache.org/bindings/corba/idl/Anonstring/typemap" name="return" idltype="AnonStrings._Anon1_anonStringIf" />
       </corba:operation>
       <wsdl:input name="anonStringOperationRequest">
       </wsdl:input>
@@ -372,8 +372,8 @@
     </wsdl:operation>
     <wsdl:operation name="anotherAnonStringOperation">
       <corba:operation name="anotherAnonStringOperation">
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Anonstring/typemap" mode="in" name="inString" idltype="AnonStrings._Anon4_anonStringIf" />
-        <corba:return xmlns="http://schemas.apache.org/yoko/idl/Anonstring/typemap" name="return" idltype="AnonStrings._Anon3_anonStringIf" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Anonstring/typemap" mode="in" name="inString" idltype="AnonStrings._Anon4_anonStringIf" />
+        <corba:return xmlns="http://cxf.apache.org/bindings/corba/idl/Anonstring/typemap" name="return" idltype="AnonStrings._Anon3_anonStringIf" />
       </corba:operation>
       <wsdl:input name="anotherAnonStringOperationRequest">
       </wsdl:input>

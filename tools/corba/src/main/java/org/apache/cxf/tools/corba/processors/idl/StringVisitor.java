@@ -34,7 +34,6 @@ import org.apache.ws.commons.schema.XmlSchemaMaxLengthFacet;
 import org.apache.ws.commons.schema.XmlSchemaSimpleType;
 import org.apache.ws.commons.schema.XmlSchemaSimpleTypeRestriction;
 import org.apache.ws.commons.schema.constants.Constants;
-import org.apache.yoko.tools.processors.idl.IDLTokenTypes;
 
 public class StringVisitor extends VisitorBase {
 

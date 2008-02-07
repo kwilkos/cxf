@@ -20,7 +20,7 @@
 <definitions targetNamespace="http://efms.att.com/ms/BVOIP/v1" 
     xmlns="http://schemas.xmlsoap.org/wsdl/" 
     xmlns:ch="http://cio.att.com/CommonHeader/v2" 
-    xmlns:corba="http://schemas.apache.org/yoko/bindings/corba" 
+    xmlns:corba="http://cxf.apache.org/bindings/corba" 
     xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" 
     xmlns:msbvoip="http://efms.att.com/ms/BVOIP/v1" 
     xmlns:ns1="http://efms.att.com/ms/BVOIP/v1/corba/typemap/" 

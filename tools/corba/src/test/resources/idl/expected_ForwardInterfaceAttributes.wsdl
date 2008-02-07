@@ -17,12 +17,12 @@
  * specific language governing permissions and limitations
  * under the License.
 -->
-<wsdl:definitions targetNamespace="http://schemas.apache.org/yoko/idl/ForwardInterfaceAttributes" xmlns:tns="http://schemas.apache.org/yoko/idl/ForwardInterfaceAttributes" xmlns:wsa="http://www.w3.org/2005/08/addressing" xmlns:corba="http://schemas.apache.org/yoko/bindings/corba" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
-  <corba:typeMapping targetNamespace="http://schemas.apache.org/yoko/idl/ForwardInterfaceAttributes/typemap">
-    <corba:object xmlns:ns4="http://www.w3.org/2005/08/addressing" xmlns="http://schemas.apache.org/yoko/idl/ForwardInterfaceAttributes" binding="IpCallCORBABinding" repositoryID="IDL:IpCall:1.0" type="ns4:EndpointReferenceType" name="IpCall" />
+<wsdl:definitions targetNamespace="http://cxf.apache.org/bindings/corba/idl/ForwardInterfaceAttributes" xmlns:tns="http://cxf.apache.org/bindings/corba/idl/ForwardInterfaceAttributes" xmlns:wsa="http://www.w3.org/2005/08/addressing" xmlns:corba="http://cxf.apache.org/bindings/corba" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <corba:typeMapping targetNamespace="http://cxf.apache.org/bindings/corba/idl/ForwardInterfaceAttributes/typemap">
+    <corba:object xmlns:ns4="http://www.w3.org/2005/08/addressing" xmlns="http://cxf.apache.org/bindings/corba/idl/ForwardInterfaceAttributes" binding="IpCallCORBABinding" repositoryID="IDL:IpCall:1.0" type="ns4:EndpointReferenceType" name="IpCall" />
   </corba:typeMapping>
   <wsdl:types>
-    <xs:schema attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://schemas.apache.org/yoko/idl/ForwardInterfaceAttributes" xmlns="http://schemas.apache.org/yoko/idl/ForwardInterfaceAttributes" xmlns:wsa="http://www.w3.org/2005/08/addressing" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:schema attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://cxf.apache.org/bindings/corba/idl/ForwardInterfaceAttributes" xmlns="http://cxf.apache.org/bindings/corba/idl/ForwardInterfaceAttributes" xmlns:wsa="http://www.w3.org/2005/08/addressing" xmlns:xs="http://www.w3.org/2001/XMLSchema">
       <xs:import namespace="http://www.w3.org/2005/08/addressing" schemaLocation="http://www.w3.org/2005/08/addressing/ws-addr.xsd">
       </xs:import>
       <xs:element name="_get_ReadOnlyIpCall">
@@ -173,7 +173,7 @@
     <corba:binding repositoryID="IDL:temp:1.0" />
     <wsdl:operation name="_get_ReadOnlyIpCall">
       <corba:operation name="_get_ReadOnlyIpCall">
-        <corba:return xmlns="http://schemas.apache.org/yoko/idl/ForwardInterfaceAttributes/typemap" name="return" idltype="IpCall" />
+        <corba:return xmlns="http://cxf.apache.org/bindings/corba/idl/ForwardInterfaceAttributes/typemap" name="return" idltype="IpCall" />
       </corba:operation>
       <wsdl:input name="_get_ReadOnlyIpCall">
       </wsdl:input>
@@ -182,7 +182,7 @@
     </wsdl:operation>
     <wsdl:operation name="_get_ReadWriteIpCall">
       <corba:operation name="_get_ReadWriteIpCall">
-        <corba:return xmlns="http://schemas.apache.org/yoko/idl/ForwardInterfaceAttributes/typemap" name="return" idltype="IpCall" />
+        <corba:return xmlns="http://cxf.apache.org/bindings/corba/idl/ForwardInterfaceAttributes/typemap" name="return" idltype="IpCall" />
       </corba:operation>
       <wsdl:input name="_get_ReadWriteIpCall">
       </wsdl:input>
@@ -191,7 +191,7 @@
     </wsdl:operation>
     <wsdl:operation name="_set_ReadWriteIpCall">
       <corba:operation name="_set_ReadWriteIpCall">
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/ForwardInterfaceAttributes/typemap" mode="in" name="_arg" idltype="IpCall" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/ForwardInterfaceAttributes/typemap" mode="in" name="_arg" idltype="IpCall" />
       </corba:operation>
       <wsdl:input name="_set_ReadWriteIpCall">
       </wsdl:input>

@@ -36,7 +36,6 @@ import org.apache.ws.commons.schema.XmlSchemaComplexType;
 import org.apache.ws.commons.schema.XmlSchemaElement;
 import org.apache.ws.commons.schema.XmlSchemaSequence;
 import org.apache.ws.commons.schema.XmlSchemaType;
-import org.apache.yoko.tools.processors.idl.IDLTokenTypes;
 
 public class StructVisitor extends VisitorBase {
     

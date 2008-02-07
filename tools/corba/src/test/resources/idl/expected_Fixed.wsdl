@@ -17,19 +17,19 @@
  * specific language governing permissions and limitations
  * under the License.
 -->
-<wsdl:definitions targetNamespace="http://schemas.apache.org/yoko/idl/Fixed" xmlns:tns="http://schemas.apache.org/yoko/idl/Fixed" xmlns:corba="http://schemas.apache.org/yoko/bindings/corba" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
-  <corba:typeMapping targetNamespace="http://schemas.apache.org/yoko/idl/Fixed/typemap">
-    <corba:fixed xmlns="http://schemas.apache.org/yoko/idl/Fixed" scale="2" digits="31" repositoryID="IDL:f1_1:1.0" type="f1_1" name="f1_1" />
-    <corba:fixed xmlns="http://schemas.apache.org/yoko/idl/Fixed" scale="2" digits="8" repositoryID="IDL:f1_2:1.0" type="f1_2" name="f1_2" />
-    <corba:fixed xmlns="http://schemas.apache.org/yoko/idl/Fixed" scale="2" digits="31" repositoryID="IDL:if/f2_1:1.0" type="if.f2_1" name="if.f2_1" />
-    <corba:fixed xmlns="http://schemas.apache.org/yoko/idl/Fixed" scale="2" digits="8" repositoryID="IDL:if/f2_2:1.0" type="if.f2_2" name="if.f2_2" />
-    <corba:fixed xmlns="http://schemas.apache.org/yoko/idl/Fixed" scale="2" digits="31" repositoryID="IDL:m/f3_1:1.0" type="m.f3_1" name="m.f3_1" />
-    <corba:fixed xmlns="http://schemas.apache.org/yoko/idl/Fixed" scale="2" digits="8" repositoryID="IDL:m/f3_2:1.0" type="m.f3_2" name="m.f3_2" />
-    <corba:fixed xmlns="http://schemas.apache.org/yoko/idl/Fixed" scale="2" digits="31" repositoryID="IDL:m/m_if/f4_1:1.0" type="m.m_if.f4_1" name="m.m_if.f4_1" />
-    <corba:fixed xmlns="http://schemas.apache.org/yoko/idl/Fixed" scale="2" digits="8" repositoryID="IDL:m/m_if/f4_2:1.0" type="m.m_if.f4_2" name="m.m_if.f4_2" />
+<wsdl:definitions targetNamespace="http://cxf.apache.org/bindings/corba/idl/Fixed" xmlns:tns="http://cxf.apache.org/bindings/corba/idl/Fixed" xmlns:corba="http://cxf.apache.org/bindings/corba" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <corba:typeMapping targetNamespace="http://cxf.apache.org/bindings/corba/idl/Fixed/typemap">
+    <corba:fixed xmlns="http://cxf.apache.org/bindings/corba/idl/Fixed" scale="2" digits="31" repositoryID="IDL:f1_1:1.0" type="f1_1" name="f1_1" />
+    <corba:fixed xmlns="http://cxf.apache.org/bindings/corba/idl/Fixed" scale="2" digits="8" repositoryID="IDL:f1_2:1.0" type="f1_2" name="f1_2" />
+    <corba:fixed xmlns="http://cxf.apache.org/bindings/corba/idl/Fixed" scale="2" digits="31" repositoryID="IDL:if/f2_1:1.0" type="if.f2_1" name="if.f2_1" />
+    <corba:fixed xmlns="http://cxf.apache.org/bindings/corba/idl/Fixed" scale="2" digits="8" repositoryID="IDL:if/f2_2:1.0" type="if.f2_2" name="if.f2_2" />
+    <corba:fixed xmlns="http://cxf.apache.org/bindings/corba/idl/Fixed" scale="2" digits="31" repositoryID="IDL:m/f3_1:1.0" type="m.f3_1" name="m.f3_1" />
+    <corba:fixed xmlns="http://cxf.apache.org/bindings/corba/idl/Fixed" scale="2" digits="8" repositoryID="IDL:m/f3_2:1.0" type="m.f3_2" name="m.f3_2" />
+    <corba:fixed xmlns="http://cxf.apache.org/bindings/corba/idl/Fixed" scale="2" digits="31" repositoryID="IDL:m/m_if/f4_1:1.0" type="m.m_if.f4_1" name="m.m_if.f4_1" />
+    <corba:fixed xmlns="http://cxf.apache.org/bindings/corba/idl/Fixed" scale="2" digits="8" repositoryID="IDL:m/m_if/f4_2:1.0" type="m.m_if.f4_2" name="m.m_if.f4_2" />
   </corba:typeMapping>
   <wsdl:types>
-    <xs:schema attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://schemas.apache.org/yoko/idl/Fixed" xmlns="http://schemas.apache.org/yoko/idl/Fixed" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:schema attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://cxf.apache.org/bindings/corba/idl/Fixed" xmlns="http://cxf.apache.org/bindings/corba/idl/Fixed" xmlns:xs="http://www.w3.org/2001/XMLSchema">
       <xs:simpleType name="f1_1">
         <xs:restriction base="xs:decimal">
           <xs:totalDigits value="31">
@@ -246,7 +246,7 @@
     <corba:binding repositoryID="IDL:m/m_if:1.0" />
     <wsdl:operation name="op4_1">
       <corba:operation name="op4_1">
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Fixed/typemap" mode="in" idltype="f1_1" name="in_m_if_op4_1_f1_1" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Fixed/typemap" mode="in" idltype="f1_1" name="in_m_if_op4_1_f1_1" />
       </corba:operation>
       <wsdl:input name="op4_1Request">
       </wsdl:input>
@@ -255,7 +255,7 @@
     </wsdl:operation>
     <wsdl:operation name="op4_3">
       <corba:operation name="op4_3">
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Fixed/typemap" mode="inout" idltype="m.f3_1" name="inout_m_if_op4_3_f3_1" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Fixed/typemap" mode="inout" idltype="m.f3_1" name="inout_m_if_op4_3_f3_1" />
       </corba:operation>
       <wsdl:input name="op4_3Request">
       </wsdl:input>
@@ -264,7 +264,7 @@
     </wsdl:operation>
     <wsdl:operation name="op4_4">
       <corba:operation name="op4_4">
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Fixed/typemap" mode="in" idltype="m.m_if.f4_1" name="in_m_if_op4_4_f4_1" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Fixed/typemap" mode="in" idltype="m.m_if.f4_1" name="in_m_if_op4_4_f4_1" />
       </corba:operation>
       <wsdl:input name="op4_4Request">
       </wsdl:input>
@@ -276,7 +276,7 @@
     <corba:binding repositoryID="IDL:if:1.0" />
     <wsdl:operation name="op2_1">
       <corba:operation name="op2_1">
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Fixed/typemap" mode="in" idltype="f1_1" name="in_op2_1_f1_1" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Fixed/typemap" mode="in" idltype="f1_1" name="in_op2_1_f1_1" />
       </corba:operation>
       <wsdl:input name="op2_1Request">
       </wsdl:input>
@@ -285,7 +285,7 @@
     </wsdl:operation>
     <wsdl:operation name="op2_2">
       <corba:operation name="op2_2">
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Fixed/typemap" mode="out" idltype="if.f2_2" name="out_op2_2_f2_2" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Fixed/typemap" mode="out" idltype="if.f2_2" name="out_op2_2_f2_2" />
       </corba:operation>
       <wsdl:input name="op2_2Request">
       </wsdl:input>

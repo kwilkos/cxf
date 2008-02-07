@@ -17,19 +17,19 @@
  * specific language governing permissions and limitations
  * under the License.
 -->
-<wsdl:definitions targetNamespace="http://schemas.apache.org/yoko/idl/Exception" xmlns:tns="http://schemas.apache.org/yoko/idl/Exception" xmlns:corba="http://schemas.apache.org/yoko/bindings/corba" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
-  <corba:typeMapping targetNamespace="http://schemas.apache.org/yoko/idl/Exception/typemap">
-    <corba:exception xmlns="http://schemas.apache.org/yoko/idl/Exception" repositoryID="IDL:ExternalException:1.0" type="ExternalExceptionType" name="ExternalException">
+<wsdl:definitions targetNamespace="http://cxf.apache.org/bindings/corba/idl/Exception" xmlns:tns="http://cxf.apache.org/bindings/corba/idl/Exception" xmlns:corba="http://cxf.apache.org/bindings/corba" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <corba:typeMapping targetNamespace="http://cxf.apache.org/bindings/corba/idl/Exception/typemap">
+    <corba:exception xmlns="http://cxf.apache.org/bindings/corba/idl/Exception" repositoryID="IDL:ExternalException:1.0" type="ExternalExceptionType" name="ExternalException">
       <corba:member name="description" idltype="corba:string" />
     </corba:exception>
-    <corba:exception xmlns="http://schemas.apache.org/yoko/idl/Exception" repositoryID="IDL:InterfaceWithExceptions/EmptyException:1.0" type="InterfaceWithExceptions.EmptyExceptionType" name="InterfaceWithExceptions.EmptyException" />
-    <corba:exception xmlns="http://schemas.apache.org/yoko/idl/Exception" repositoryID="IDL:InterfaceWithExceptions/LongException:1.0" type="InterfaceWithExceptions.LongExceptionType" name="InterfaceWithExceptions.LongException">
+    <corba:exception xmlns="http://cxf.apache.org/bindings/corba/idl/Exception" repositoryID="IDL:InterfaceWithExceptions/EmptyException:1.0" type="InterfaceWithExceptions.EmptyExceptionType" name="InterfaceWithExceptions.EmptyException" />
+    <corba:exception xmlns="http://cxf.apache.org/bindings/corba/idl/Exception" repositoryID="IDL:InterfaceWithExceptions/LongException:1.0" type="InterfaceWithExceptions.LongExceptionType" name="InterfaceWithExceptions.LongException">
       <corba:member name="error" idltype="corba:string" />
       <corba:member name="code" idltype="corba:long" />
     </corba:exception>
   </corba:typeMapping>
   <wsdl:types>
-    <xs:schema attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://schemas.apache.org/yoko/idl/Exception" xmlns="http://schemas.apache.org/yoko/idl/Exception" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:schema attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://cxf.apache.org/bindings/corba/idl/Exception" xmlns="http://cxf.apache.org/bindings/corba/idl/Exception" xmlns:xs="http://www.w3.org/2001/XMLSchema">
       <xs:element name="ExternalException" type="ExternalExceptionType">
       </xs:element>
       <xs:complexType name="ExternalExceptionType">
@@ -148,8 +148,8 @@
         <corba:param mode="out" name="out_long" idltype="corba:long" />
         <corba:param mode="inout" name="inout_short" idltype="corba:short" />
         <corba:return name="return" idltype="corba:string" />
-        <corba:raises xmlns="http://schemas.apache.org/yoko/idl/Exception/typemap" exception="InterfaceWithExceptions.LongException" />
-        <corba:raises xmlns="http://schemas.apache.org/yoko/idl/Exception/typemap" exception="InterfaceWithExceptions.EmptyException" />
+        <corba:raises xmlns="http://cxf.apache.org/bindings/corba/idl/Exception/typemap" exception="InterfaceWithExceptions.LongException" />
+        <corba:raises xmlns="http://cxf.apache.org/bindings/corba/idl/Exception/typemap" exception="InterfaceWithExceptions.EmptyException" />
       </corba:operation>
       <wsdl:input name="methodRequest">
       </wsdl:input>
@@ -163,7 +163,7 @@
     <wsdl:operation name="raiseExternalException">
       <corba:operation name="raiseExternalException">
         <corba:param mode="in" name="aString" idltype="corba:string" />
-        <corba:raises xmlns="http://schemas.apache.org/yoko/idl/Exception/typemap" exception="ExternalException" />
+        <corba:raises xmlns="http://cxf.apache.org/bindings/corba/idl/Exception/typemap" exception="ExternalException" />
       </corba:operation>
       <wsdl:input name="raiseExternalExceptionRequest">
       </wsdl:input>

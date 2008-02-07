@@ -31,7 +31,6 @@ import org.apache.ws.commons.schema.XmlSchemaSimpleType;
 import org.apache.ws.commons.schema.XmlSchemaSimpleTypeRestriction;
 import org.apache.ws.commons.schema.XmlSchemaTotalDigitsFacet;
 import org.apache.ws.commons.schema.constants.Constants;
-import org.apache.yoko.tools.processors.idl.IDLTokenTypes;
 
 public class FixedVisitor extends VisitorBase {
 

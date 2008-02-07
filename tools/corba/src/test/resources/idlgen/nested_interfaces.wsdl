@@ -17,7 +17,7 @@
  * specific language governing permissions and limitations
  * under the License.
 -->
-<definitions name="nested_interfaces" targetNamespace="http://schemas.apache.org/idl/nested_interfaces.idl" xmlns:tns="http://schemas.apache.org/idl/nested_interfaces.idl" xmlns:corbatm="http://schemas.apache.org/typemap/corba/nested_interfaces.idl" xmlns:wsa="http://www.w3.org/2005/08/addressing" xmlns:corba="http://schemas.apache.org/yoko/bindings/corba" xmlns:ns1="http://schemas.apache.org/idl/nested_interfaces.idl/corba/typemap/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsd1="http://schemas.apache.org/idltypes/nested_interfaces.idl" xmlns="http://schemas.xmlsoap.org/wsdl/">
+<definitions name="nested_interfaces" targetNamespace="http://schemas.apache.org/idl/nested_interfaces.idl" xmlns:tns="http://schemas.apache.org/idl/nested_interfaces.idl" xmlns:corbatm="http://schemas.apache.org/typemap/corba/nested_interfaces.idl" xmlns:wsa="http://www.w3.org/2005/08/addressing" xmlns:corba="http://cxf.apache.org/bindings/corba" xmlns:ns1="http://schemas.apache.org/idl/nested_interfaces.idl/corba/typemap/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsd1="http://schemas.apache.org/idltypes/nested_interfaces.idl" xmlns="http://schemas.xmlsoap.org/wsdl/">
   <corba:typeMapping targetNamespace="http://schemas.apache.org/idl/nested_interfaces.idl/corba/typemap/">
     <corba:anonstring bound="14" type="corba:string" name="C.C1.aString" />
     <corba:struct xmlns:xsd1="http://schemas.apache.org/idltypes/nested_interfaces.idl" repositoryID="IDL:A/A1/AA1:1.0" type="xsd1:A.A1.AA1" name="A.A1.AA1">

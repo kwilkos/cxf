@@ -17,10 +17,10 @@
  * specific language governing permissions and limitations
  * under the License.
 -->
-<wsdl:definitions targetNamespace="http://schemas.apache.org/yoko/idl/OptionsPT" xmlns:tns="http://schemas.apache.org/yoko/idl/OptionsPT" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:xsd1="http://schemas.apache.org/yoko/idl/OptionsPT-types" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+<wsdl:definitions targetNamespace="http://cxf.apache.org/bindings/corba/idl/OptionsPT" xmlns:tns="http://cxf.apache.org/bindings/corba/idl/OptionsPT" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:xsd1="http://cxf.apache.org/bindings/corba/idl/OptionsPT-types" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
   <wsdl:types>
     <xsd:schema>
-      <xsd:import namespace="http://schemas.apache.org/yoko/idl/OptionsPT-types" />
+      <xsd:import namespace="http://cxf.apache.org/bindings/corba/idl/OptionsPT-types" />
     </xsd:schema>
   </wsdl:types>
   <wsdl:message name="getEmployee">

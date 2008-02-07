@@ -34,7 +34,6 @@ import org.apache.ws.commons.schema.XmlSchemaElement;
 import org.apache.ws.commons.schema.XmlSchemaSequence;
 import org.apache.ws.commons.schema.XmlSchemaType;
 import org.apache.ws.commons.schema.constants.Constants;
-import org.apache.yoko.tools.processors.idl.IDLTokenTypes;
 
 public class SequenceVisitor extends VisitorBase {
 

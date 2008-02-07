@@ -17,7 +17,7 @@
  * specific language governing permissions and limitations
  * under the License.
 -->
-<definitions name="nested_complex" targetNamespace="http://schemas.apache.org/idl/nested_complex.idl" xmlns:tns="http://schemas.apache.org/idl/nested_complex.idl" xmlns:corbatm="http://schemas.apache.org/typemap/corba/nested_complex.idl" xmlns:wsa="http://www.w3.org/2005/08/addressing" xmlns:corba="http://schemas.apache.org/yoko/bindings/corba" xmlns:ns1="http://schemas.apache.org/idl/nested_complex.idl/corba/typemap/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsd1="http://schemas.apache.org/idltypes/nested_complex.idl" xmlns="http://schemas.xmlsoap.org/wsdl/">
+<definitions name="nested_complex" targetNamespace="http://schemas.apache.org/idl/nested_complex.idl" xmlns:tns="http://schemas.apache.org/idl/nested_complex.idl" xmlns:corbatm="http://schemas.apache.org/typemap/corba/nested_complex.idl" xmlns:wsa="http://www.w3.org/2005/08/addressing" xmlns:corba="http://cxf.apache.org/bindings/corba" xmlns:ns1="http://schemas.apache.org/idl/nested_complex.idl/corba/typemap/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsd1="http://schemas.apache.org/idltypes/nested_complex.idl" xmlns="http://schemas.xmlsoap.org/wsdl/">
   <corba:typeMapping targetNamespace="http://schemas.apache.org/idl/nested_complex.idl/corba/typemap/">
     <corba:union xmlns:ns3="http://schemas.apache.org/idltypes/nested_complex.idl" discriminator="corba:long" repositoryID="IDL:nested_choice:1.0" type="ns3:nested_choice" name="nested_choice">
       <corba:unionbranch name="e" idltype="corba:string" default="false">

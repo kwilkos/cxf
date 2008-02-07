@@ -17,8 +17,8 @@
  * specific language governing permissions and limitations
  * under the License.
 -->
-<wsdl:definitions targetNamespace="http://schemas.apache.org/yoko/idl/Typedef" xmlns:tns="http://schemas.apache.org/yoko/idl/Typedef" xmlns:corba="http://schemas.apache.org/yoko/bindings/corba" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
-  <corba:typeMapping targetNamespace="http://schemas.apache.org/yoko/idl/Typedef/typemap">
+<wsdl:definitions targetNamespace="http://cxf.apache.org/bindings/corba/idl/Typedef" xmlns:tns="http://cxf.apache.org/bindings/corba/idl/Typedef" xmlns:corba="http://cxf.apache.org/bindings/corba" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <corba:typeMapping targetNamespace="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap">
     <corba:alias basetype="corba:float" repositoryID="IDL:TypedefIf/myFloat:1.0" name="TypedefIf.myFloat" />
     <corba:alias basetype="corba:double" repositoryID="IDL:TypedefIf/myDouble:1.0" name="TypedefIf.myDouble" />
     <corba:alias basetype="corba:longdouble" repositoryID="IDL:TypedefIf/myLongDouble:1.0" name="TypedefIf.myLongDouble" />
@@ -33,26 +33,26 @@
     <corba:alias basetype="corba:boolean" repositoryID="IDL:TypedefIf/myBoolean:1.0" name="TypedefIf.myBoolean" />
     <corba:alias basetype="corba:octet" repositoryID="IDL:TypedefIf/myOctet:1.0" name="TypedefIf.myOctet" />
     <corba:alias basetype="corba:any" repositoryID="IDL:TypedefIf/myAny:1.0" name="TypedefIf.myAny" />
-    <corba:sequence xmlns:ns4="http://schemas.apache.org/yoko/idl/Typedef" xmlns="" elemtype="corba:long" elemname="item" bound="0" repositoryID="IDL:TypedefIf/SeqLong:1.0" type="ns4:TypedefIf.SeqLong" name="TypedefIf.SeqLong" />
+    <corba:sequence xmlns:ns4="http://cxf.apache.org/bindings/corba/idl/Typedef" xmlns="" elemtype="corba:long" elemname="item" bound="0" repositoryID="IDL:TypedefIf/SeqLong:1.0" type="ns4:TypedefIf.SeqLong" name="TypedefIf.SeqLong" />
     <corba:alias xmlns:xs="http://www.w3.org/2001/XMLSchema" basetype="corba:string" repositoryID="IDL:TypedefIf/aString:1.0" type="xs:string" name="TypedefIf.aString" />
-    <corba:anonstring xmlns="http://schemas.apache.org/yoko/idl/Typedef" bound="10" type="TypedefIf.aBoundedString" name="TypedefIf._Anon1_aBoundedString" />
-    <corba:alias xmlns:ns4="http://schemas.apache.org/yoko/idl/Typedef" xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" basetype="TypedefIf._Anon1_aBoundedString" repositoryID="IDL:TypedefIf/aBoundedString:1.0" type="ns4:TypedefIf.aBoundedString" name="TypedefIf.aBoundedString" />
-    <corba:fixed xmlns="http://schemas.apache.org/yoko/idl/Typedef" scale="2" digits="5" repositoryID="IDL:TypedefIf/Fixed52:1.0" type="TypedefIf.Fixed52" name="TypedefIf.Fixed52" />
-    <corba:alias xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" basetype="TypedefIf.SeqLong" repositoryID="IDL:TypedefIf/mySeqLong:1.0" name="TypedefIf.mySeqLong" />
-    <corba:alias xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" basetype="TypedefIf.aString" repositoryID="IDL:TypedefIf/myString:1.0" name="TypedefIf.myString" />
-    <corba:alias xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" basetype="TypedefIf.aBoundedString" repositoryID="IDL:TypedefIf/myBoundedString:1.0" name="TypedefIf.myBoundedString" />
-    <corba:alias xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" basetype="TypedefIf.Fixed52" repositoryID="IDL:TypedefIf/myFixed52:1.0" name="TypedefIf.myFixed52" />
-    <corba:struct xmlns="http://schemas.apache.org/yoko/idl/Typedef" repositoryID="IDL:TypedefIf/aStruct:1.0" type="TypedefIf.aStruct" name="TypedefIf.aStruct">
-      <corba:member xmlns:ns4="http://schemas.apache.org/yoko/idl/Typedef/typemap" name="aStructMyLong" idltype="ns4:TypedefIf.myLong" />
+    <corba:anonstring xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef" bound="10" type="TypedefIf.aBoundedString" name="TypedefIf._Anon1_aBoundedString" />
+    <corba:alias xmlns:ns4="http://cxf.apache.org/bindings/corba/idl/Typedef" xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" basetype="TypedefIf._Anon1_aBoundedString" repositoryID="IDL:TypedefIf/aBoundedString:1.0" type="ns4:TypedefIf.aBoundedString" name="TypedefIf.aBoundedString" />
+    <corba:fixed xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef" scale="2" digits="5" repositoryID="IDL:TypedefIf/Fixed52:1.0" type="TypedefIf.Fixed52" name="TypedefIf.Fixed52" />
+    <corba:alias xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" basetype="TypedefIf.SeqLong" repositoryID="IDL:TypedefIf/mySeqLong:1.0" name="TypedefIf.mySeqLong" />
+    <corba:alias xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" basetype="TypedefIf.aString" repositoryID="IDL:TypedefIf/myString:1.0" name="TypedefIf.myString" />
+    <corba:alias xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" basetype="TypedefIf.aBoundedString" repositoryID="IDL:TypedefIf/myBoundedString:1.0" name="TypedefIf.myBoundedString" />
+    <corba:alias xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" basetype="TypedefIf.Fixed52" repositoryID="IDL:TypedefIf/myFixed52:1.0" name="TypedefIf.myFixed52" />
+    <corba:struct xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef" repositoryID="IDL:TypedefIf/aStruct:1.0" type="TypedefIf.aStruct" name="TypedefIf.aStruct">
+      <corba:member xmlns:ns4="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" name="aStructMyLong" idltype="ns4:TypedefIf.myLong" />
       <corba:member name="aLong" idltype="corba:long" />
     </corba:struct>
-    <corba:alias xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" basetype="TypedefIf.aStruct" repositoryID="IDL:TypedefIf/myStruct:1.0" name="TypedefIf.myStruct" />
-    <corba:enum xmlns="http://schemas.apache.org/yoko/idl/Typedef" repositoryID="IDL:TypedefIf/aEnum:1.0" type="TypedefIf.aEnum" name="TypedefIf.aEnum">
+    <corba:alias xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" basetype="TypedefIf.aStruct" repositoryID="IDL:TypedefIf/myStruct:1.0" name="TypedefIf.myStruct" />
+    <corba:enum xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef" repositoryID="IDL:TypedefIf/aEnum:1.0" type="TypedefIf.aEnum" name="TypedefIf.aEnum">
       <corba:enumerator value="aEnum1" />
       <corba:enumerator value="aEnum2" />
     </corba:enum>
-    <corba:alias xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" basetype="TypedefIf.aEnum" repositoryID="IDL:TypedefIf/myEnum:1.0" name="TypedefIf.myEnum" />
-    <corba:union xmlns:ns4="http://schemas.apache.org/yoko/idl/Typedef" xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" discriminator="TypedefIf.myEnum" repositoryID="IDL:TypedefIf/aUnion:1.0" type="ns4:TypedefIf.aUnion" name="TypedefIf.aUnion">
+    <corba:alias xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" basetype="TypedefIf.aEnum" repositoryID="IDL:TypedefIf/myEnum:1.0" name="TypedefIf.myEnum" />
+    <corba:union xmlns:ns4="http://cxf.apache.org/bindings/corba/idl/Typedef" xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" discriminator="TypedefIf.myEnum" repositoryID="IDL:TypedefIf/aUnion:1.0" type="ns4:TypedefIf.aUnion" name="TypedefIf.aUnion">
       <corba:unionbranch name="aUnionMyLong" idltype="TypedefIf.myLong">
         <corba:case label="aEnum1" />
       </corba:unionbranch>
@@ -61,18 +61,18 @@
       </corba:unionbranch>
       <corba:unionbranch name="aUnionMyBoolean" idltype="TypedefIf.myBoolean" default="true" />
     </corba:union>
-    <corba:alias xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" basetype="TypedefIf.aUnion" repositoryID="IDL:TypedefIf/myUnion:1.0" name="TypedefIf.myUnion" />
-    <corba:struct xmlns="http://schemas.apache.org/yoko/idl/Typedef" repositoryID="IDL:TypedefIf/anotherStruct:1.0" type="TypedefIf.anotherStruct" name="TypedefIf.anotherStruct">
-      <corba:member xmlns:ns4="http://schemas.apache.org/yoko/idl/Typedef/typemap" name="myOtherLong" idltype="ns4:TypedefIf.myLong" />
+    <corba:alias xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" basetype="TypedefIf.aUnion" repositoryID="IDL:TypedefIf/myUnion:1.0" name="TypedefIf.myUnion" />
+    <corba:struct xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef" repositoryID="IDL:TypedefIf/anotherStruct:1.0" type="TypedefIf.anotherStruct" name="TypedefIf.anotherStruct">
+      <corba:member xmlns:ns4="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" name="myOtherLong" idltype="ns4:TypedefIf.myLong" />
       <corba:member name="anotherLong" idltype="corba:long" />
     </corba:struct>
-    <corba:alias xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" basetype="TypedefIf.anotherStruct" repositoryID="IDL:TypedefIf/myOtherStruct:1.0" name="TypedefIf.myOtherStruct" />
-    <corba:enum xmlns="http://schemas.apache.org/yoko/idl/Typedef" repositoryID="IDL:TypedefIf/anotherEnum:1.0" type="TypedefIf.anotherEnum" name="TypedefIf.anotherEnum">
+    <corba:alias xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" basetype="TypedefIf.anotherStruct" repositoryID="IDL:TypedefIf/myOtherStruct:1.0" name="TypedefIf.myOtherStruct" />
+    <corba:enum xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef" repositoryID="IDL:TypedefIf/anotherEnum:1.0" type="TypedefIf.anotherEnum" name="TypedefIf.anotherEnum">
       <corba:enumerator value="anotherEnum1" />
       <corba:enumerator value="anotherEnum2" />
     </corba:enum>
-    <corba:alias xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" basetype="TypedefIf.anotherEnum" repositoryID="IDL:TypedefIf/myOtherEnum:1.0" name="TypedefIf.myOtherEnum" />
-    <corba:union xmlns:ns4="http://schemas.apache.org/yoko/idl/Typedef" xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" discriminator="TypedefIf.myOtherEnum" repositoryID="IDL:TypedefIf/anotherUnion:1.0" type="ns4:TypedefIf.anotherUnion" name="TypedefIf.anotherUnion">
+    <corba:alias xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" basetype="TypedefIf.anotherEnum" repositoryID="IDL:TypedefIf/myOtherEnum:1.0" name="TypedefIf.myOtherEnum" />
+    <corba:union xmlns:ns4="http://cxf.apache.org/bindings/corba/idl/Typedef" xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" discriminator="TypedefIf.myOtherEnum" repositoryID="IDL:TypedefIf/anotherUnion:1.0" type="ns4:TypedefIf.anotherUnion" name="TypedefIf.anotherUnion">
       <corba:unionbranch name="anotherUnionMyLong" idltype="TypedefIf.myLong">
         <corba:case label="anotherEnum1" />
       </corba:unionbranch>
@@ -81,10 +81,10 @@
       </corba:unionbranch>
       <corba:unionbranch name="anotherUnionMyBoolean" idltype="TypedefIf.myBoolean" default="true" />
     </corba:union>
-    <corba:alias xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" basetype="TypedefIf.anotherUnion" repositoryID="IDL:TypedefIf/myOtherUnion:1.0" name="TypedefIf.myOtherUnion" />
+    <corba:alias xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" basetype="TypedefIf.anotherUnion" repositoryID="IDL:TypedefIf/myOtherUnion:1.0" name="TypedefIf.myOtherUnion" />
   </corba:typeMapping>
   <wsdl:types>
-    <xs:schema attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://schemas.apache.org/yoko/idl/Typedef" xmlns="http://schemas.apache.org/yoko/idl/Typedef" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:schema attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://cxf.apache.org/bindings/corba/idl/Typedef" xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef" xmlns:xs="http://www.w3.org/2001/XMLSchema">
       <xs:complexType name="TypedefIf.SeqLong">
         <xs:sequence>
           <xs:element maxOccurs="unbounded" minOccurs="0" name="item" type="xs:int">
@@ -435,30 +435,30 @@
     <corba:binding repositoryID="IDL:TypedefIf:1.0" />
     <wsdl:operation name="opIn">
       <corba:operation name="opIn">
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" mode="in" name="inMyFloat" idltype="TypedefIf.myFloat" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" mode="in" name="inMyDouble" idltype="TypedefIf.myDouble" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" mode="in" name="inMyLongDouble" idltype="TypedefIf.myLongDouble" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" mode="in" name="inMyShort" idltype="TypedefIf.myShort" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" mode="in" name="inMyLong" idltype="TypedefIf.myLong" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" mode="in" name="inMyLongLong" idltype="TypedefIf.myLongLong" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" mode="in" name="inMyUnsignedShort" idltype="TypedefIf.myUnsignedShort" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" mode="in" name="inMyUnsignedLong" idltype="TypedefIf.myUnsignedLong" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" mode="in" name="inMyUnsignedLongLong" idltype="TypedefIf.myUnsignedLongLong" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" mode="in" name="inMyChar" idltype="TypedefIf.myChar" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" mode="in" name="inMyWChar" idltype="TypedefIf.myWChar" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" mode="in" name="inMyBoolean" idltype="TypedefIf.myBoolean" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" mode="in" name="inMyOctet" idltype="TypedefIf.myOctet" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" mode="in" name="inMyAny" idltype="TypedefIf.myAny" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" mode="in" name="inMySeqLong" idltype="TypedefIf.mySeqLong" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" mode="in" name="inMyString" idltype="TypedefIf.myString" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" mode="in" name="inMyBoundedString" idltype="TypedefIf.myBoundedString" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" mode="in" name="inMyFixed52" idltype="TypedefIf.myFixed52" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" mode="in" name="inMyStruct" idltype="TypedefIf.myStruct" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" mode="in" name="inMyEnum" idltype="TypedefIf.myEnum" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" mode="in" name="inMyUnion" idltype="TypedefIf.myUnion" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" mode="in" name="inMyOtherStruct" idltype="TypedefIf.myOtherStruct" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" mode="in" name="inMyOtherEnum" idltype="TypedefIf.myOtherEnum" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" mode="in" name="inMyOtherUnion" idltype="TypedefIf.myOtherUnion" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" mode="in" name="inMyFloat" idltype="TypedefIf.myFloat" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" mode="in" name="inMyDouble" idltype="TypedefIf.myDouble" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" mode="in" name="inMyLongDouble" idltype="TypedefIf.myLongDouble" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" mode="in" name="inMyShort" idltype="TypedefIf.myShort" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" mode="in" name="inMyLong" idltype="TypedefIf.myLong" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" mode="in" name="inMyLongLong" idltype="TypedefIf.myLongLong" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" mode="in" name="inMyUnsignedShort" idltype="TypedefIf.myUnsignedShort" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" mode="in" name="inMyUnsignedLong" idltype="TypedefIf.myUnsignedLong" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" mode="in" name="inMyUnsignedLongLong" idltype="TypedefIf.myUnsignedLongLong" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" mode="in" name="inMyChar" idltype="TypedefIf.myChar" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" mode="in" name="inMyWChar" idltype="TypedefIf.myWChar" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" mode="in" name="inMyBoolean" idltype="TypedefIf.myBoolean" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" mode="in" name="inMyOctet" idltype="TypedefIf.myOctet" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" mode="in" name="inMyAny" idltype="TypedefIf.myAny" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" mode="in" name="inMySeqLong" idltype="TypedefIf.mySeqLong" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" mode="in" name="inMyString" idltype="TypedefIf.myString" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" mode="in" name="inMyBoundedString" idltype="TypedefIf.myBoundedString" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" mode="in" name="inMyFixed52" idltype="TypedefIf.myFixed52" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" mode="in" name="inMyStruct" idltype="TypedefIf.myStruct" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" mode="in" name="inMyEnum" idltype="TypedefIf.myEnum" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" mode="in" name="inMyUnion" idltype="TypedefIf.myUnion" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" mode="in" name="inMyOtherStruct" idltype="TypedefIf.myOtherStruct" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" mode="in" name="inMyOtherEnum" idltype="TypedefIf.myOtherEnum" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" mode="in" name="inMyOtherUnion" idltype="TypedefIf.myOtherUnion" />
       </corba:operation>
       <wsdl:input name="opInRequest">
       </wsdl:input>
@@ -467,30 +467,30 @@
     </wsdl:operation>
     <wsdl:operation name="opOut">
       <corba:operation name="opOut">
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" mode="out" name="outMyFloat" idltype="TypedefIf.myFloat" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" mode="out" name="outMyDouble" idltype="TypedefIf.myDouble" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" mode="out" name="outMyLongDouble" idltype="TypedefIf.myLongDouble" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" mode="out" name="outMyShort" idltype="TypedefIf.myShort" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" mode="out" name="outMyLong" idltype="TypedefIf.myLong" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" mode="out" name="outMyLongLong" idltype="TypedefIf.myLongLong" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" mode="out" name="outMyUnsignedShort" idltype="TypedefIf.myUnsignedShort" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" mode="out" name="outMyUnsignedLong" idltype="TypedefIf.myUnsignedLong" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" mode="out" name="outMyUnsignedLongLong" idltype="TypedefIf.myUnsignedLongLong" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" mode="out" name="outMyChar" idltype="TypedefIf.myChar" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" mode="out" name="outMyWChar" idltype="TypedefIf.myWChar" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" mode="out" name="outMyBoolean" idltype="TypedefIf.myBoolean" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" mode="out" name="outMyOctet" idltype="TypedefIf.myOctet" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" mode="out" name="outMyAny" idltype="TypedefIf.myAny" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" mode="out" name="outMySeqLong" idltype="TypedefIf.mySeqLong" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" mode="out" name="outMyString" idltype="TypedefIf.myString" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" mode="out" name="outMyBoundedString" idltype="TypedefIf.myBoundedString" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" mode="out" name="outMyFixed52" idltype="TypedefIf.myFixed52" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" mode="out" name="outMyStruct" idltype="TypedefIf.myStruct" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" mode="out" name="outMyEnum" idltype="TypedefIf.myEnum" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" mode="out" name="outMyUnion" idltype="TypedefIf.myUnion" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" mode="out" name="outMyOtherStruct" idltype="TypedefIf.myOtherStruct" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" mode="out" name="outMyOtherEnum" idltype="TypedefIf.myOtherEnum" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" mode="out" name="outMyOtherUnion" idltype="TypedefIf.myOtherUnion" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" mode="out" name="outMyFloat" idltype="TypedefIf.myFloat" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" mode="out" name="outMyDouble" idltype="TypedefIf.myDouble" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" mode="out" name="outMyLongDouble" idltype="TypedefIf.myLongDouble" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" mode="out" name="outMyShort" idltype="TypedefIf.myShort" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" mode="out" name="outMyLong" idltype="TypedefIf.myLong" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" mode="out" name="outMyLongLong" idltype="TypedefIf.myLongLong" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" mode="out" name="outMyUnsignedShort" idltype="TypedefIf.myUnsignedShort" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" mode="out" name="outMyUnsignedLong" idltype="TypedefIf.myUnsignedLong" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" mode="out" name="outMyUnsignedLongLong" idltype="TypedefIf.myUnsignedLongLong" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" mode="out" name="outMyChar" idltype="TypedefIf.myChar" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" mode="out" name="outMyWChar" idltype="TypedefIf.myWChar" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" mode="out" name="outMyBoolean" idltype="TypedefIf.myBoolean" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" mode="out" name="outMyOctet" idltype="TypedefIf.myOctet" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" mode="out" name="outMyAny" idltype="TypedefIf.myAny" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" mode="out" name="outMySeqLong" idltype="TypedefIf.mySeqLong" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" mode="out" name="outMyString" idltype="TypedefIf.myString" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" mode="out" name="outMyBoundedString" idltype="TypedefIf.myBoundedString" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" mode="out" name="outMyFixed52" idltype="TypedefIf.myFixed52" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" mode="out" name="outMyStruct" idltype="TypedefIf.myStruct" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" mode="out" name="outMyEnum" idltype="TypedefIf.myEnum" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" mode="out" name="outMyUnion" idltype="TypedefIf.myUnion" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" mode="out" name="outMyOtherStruct" idltype="TypedefIf.myOtherStruct" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" mode="out" name="outMyOtherEnum" idltype="TypedefIf.myOtherEnum" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" mode="out" name="outMyOtherUnion" idltype="TypedefIf.myOtherUnion" />
       </corba:operation>
       <wsdl:input name="opOutRequest">
       </wsdl:input>
@@ -499,30 +499,30 @@
     </wsdl:operation>
     <wsdl:operation name="opInOut">
       <corba:operation name="opInOut">
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" mode="inout" name="inoutMyFloat" idltype="TypedefIf.myFloat" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" mode="inout" name="inoutMyDouble" idltype="TypedefIf.myDouble" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" mode="inout" name="inoutMyLongDouble" idltype="TypedefIf.myLongDouble" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" mode="inout" name="inoutMyShort" idltype="TypedefIf.myShort" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" mode="inout" name="inoutMyLong" idltype="TypedefIf.myLong" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" mode="inout" name="inoutMyLongLong" idltype="TypedefIf.myLongLong" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" mode="inout" name="inoutMyUnsignedShort" idltype="TypedefIf.myUnsignedShort" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" mode="inout" name="inoutMyUnsignedLong" idltype="TypedefIf.myUnsignedLong" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" mode="inout" name="inoutMyUnsignedLongLong" idltype="TypedefIf.myUnsignedLongLong" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" mode="inout" name="inoutMyChar" idltype="TypedefIf.myChar" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" mode="inout" name="inoutMyWChar" idltype="TypedefIf.myWChar" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" mode="inout" name="inoutMyBoolean" idltype="TypedefIf.myBoolean" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" mode="inout" name="inoutMyOctet" idltype="TypedefIf.myOctet" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" mode="inout" name="inoutMyAny" idltype="TypedefIf.myAny" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" mode="inout" name="inoutMySeqLong" idltype="TypedefIf.mySeqLong" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" mode="inout" name="inoutMyString" idltype="TypedefIf.myString" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" mode="inout" name="inoutMyBoundedString" idltype="TypedefIf.myBoundedString" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" mode="inout" name="inoutMyFixed52" idltype="TypedefIf.myFixed52" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" mode="inout" name="inoutMyStruct" idltype="TypedefIf.myStruct" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" mode="inout" name="inoutMyEnum" idltype="TypedefIf.myEnum" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" mode="inout" name="inoutMyUnion" idltype="TypedefIf.myUnion" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" mode="inout" name="inoutMyOtherStruct" idltype="TypedefIf.myOtherStruct" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" mode="inout" name="inoutMyOtherEnum" idltype="TypedefIf.myOtherEnum" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/Typedef/typemap" mode="inout" name="inoutMyOtherUnion" idltype="TypedefIf.myOtherUnion" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" mode="inout" name="inoutMyFloat" idltype="TypedefIf.myFloat" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" mode="inout" name="inoutMyDouble" idltype="TypedefIf.myDouble" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" mode="inout" name="inoutMyLongDouble" idltype="TypedefIf.myLongDouble" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" mode="inout" name="inoutMyShort" idltype="TypedefIf.myShort" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" mode="inout" name="inoutMyLong" idltype="TypedefIf.myLong" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" mode="inout" name="inoutMyLongLong" idltype="TypedefIf.myLongLong" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" mode="inout" name="inoutMyUnsignedShort" idltype="TypedefIf.myUnsignedShort" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" mode="inout" name="inoutMyUnsignedLong" idltype="TypedefIf.myUnsignedLong" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" mode="inout" name="inoutMyUnsignedLongLong" idltype="TypedefIf.myUnsignedLongLong" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" mode="inout" name="inoutMyChar" idltype="TypedefIf.myChar" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" mode="inout" name="inoutMyWChar" idltype="TypedefIf.myWChar" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" mode="inout" name="inoutMyBoolean" idltype="TypedefIf.myBoolean" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" mode="inout" name="inoutMyOctet" idltype="TypedefIf.myOctet" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" mode="inout" name="inoutMyAny" idltype="TypedefIf.myAny" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" mode="inout" name="inoutMySeqLong" idltype="TypedefIf.mySeqLong" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" mode="inout" name="inoutMyString" idltype="TypedefIf.myString" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" mode="inout" name="inoutMyBoundedString" idltype="TypedefIf.myBoundedString" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" mode="inout" name="inoutMyFixed52" idltype="TypedefIf.myFixed52" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" mode="inout" name="inoutMyStruct" idltype="TypedefIf.myStruct" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" mode="inout" name="inoutMyEnum" idltype="TypedefIf.myEnum" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" mode="inout" name="inoutMyUnion" idltype="TypedefIf.myUnion" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" mode="inout" name="inoutMyOtherStruct" idltype="TypedefIf.myOtherStruct" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" mode="inout" name="inoutMyOtherEnum" idltype="TypedefIf.myOtherEnum" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/Typedef/typemap" mode="inout" name="inoutMyOtherUnion" idltype="TypedefIf.myOtherUnion" />
       </corba:operation>
       <wsdl:input name="opInOutRequest">
       </wsdl:input>

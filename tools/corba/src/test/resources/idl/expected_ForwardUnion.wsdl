@@ -17,22 +17,22 @@
  * specific language governing permissions and limitations
  * under the License.
 -->
-<wsdl:definitions targetNamespace="http://schemas.apache.org/yoko/idl/ForwardUnion" xmlns:tns="http://schemas.apache.org/yoko/idl/ForwardUnion" xmlns:wsa="http://www.w3.org/2005/08/addressing" xmlns:corba="http://schemas.apache.org/yoko/bindings/corba" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
-  <corba:typeMapping targetNamespace="http://schemas.apache.org/yoko/idl/ForwardUnion/typemap">
-    <corba:sequence xmlns:ns5="http://schemas.apache.org/yoko/idl/ForwardUnion" xmlns:ns4="http://schemas.apache.org/yoko/idl/ForwardUnion/typemap" xmlns="" elemtype="ns4:UnionTest.Foo" elemname="item" bound="0" repositoryID="IDL:UnionTest/FooSeq:1.0" type="ns5:UnionTest.Foo" name="UnionTest.FooSeq" />
-    <corba:sequence xmlns:ns5="http://schemas.apache.org/yoko/idl/ForwardUnion" xmlns:ns4="http://schemas.apache.org/yoko/idl/ForwardUnion/typemap" xmlns="" elemtype="ns4:UnionTest.FooSeq" elemname="item" bound="0" repositoryID="IDL:UnionTest/FooTree:1.0" type="ns5:UnionTest.FooTree" name="UnionTest.FooTree" />
-    <corba:union xmlns="http://schemas.apache.org/yoko/idl/ForwardUnion" discriminator="corba:long" repositoryID="IDL:UnionTest/Foo:1.0" type="UnionTest.Foo" name="UnionTest.Foo">
-      <corba:unionbranch xmlns:ns4="http://schemas.apache.org/yoko/idl/ForwardUnion/typemap" name="u1_1" idltype="ns4:UnionTest.FooSeq">
+<wsdl:definitions targetNamespace="http://cxf.apache.org/bindings/corba/idl/ForwardUnion" xmlns:tns="http://cxf.apache.org/bindings/corba/idl/ForwardUnion" xmlns:wsa="http://www.w3.org/2005/08/addressing" xmlns:corba="http://cxf.apache.org/bindings/corba" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <corba:typeMapping targetNamespace="http://cxf.apache.org/bindings/corba/idl/ForwardUnion/typemap">
+    <corba:sequence xmlns:ns5="http://cxf.apache.org/bindings/corba/idl/ForwardUnion" xmlns:ns4="http://cxf.apache.org/bindings/corba/idl/ForwardUnion/typemap" xmlns="" elemtype="ns4:UnionTest.Foo" elemname="item" bound="0" repositoryID="IDL:UnionTest/FooSeq:1.0" type="ns5:UnionTest.Foo" name="UnionTest.FooSeq" />
+    <corba:sequence xmlns:ns5="http://cxf.apache.org/bindings/corba/idl/ForwardUnion" xmlns:ns4="http://cxf.apache.org/bindings/corba/idl/ForwardUnion/typemap" xmlns="" elemtype="ns4:UnionTest.FooSeq" elemname="item" bound="0" repositoryID="IDL:UnionTest/FooTree:1.0" type="ns5:UnionTest.FooTree" name="UnionTest.FooTree" />
+    <corba:union xmlns="http://cxf.apache.org/bindings/corba/idl/ForwardUnion" discriminator="corba:long" repositoryID="IDL:UnionTest/Foo:1.0" type="UnionTest.Foo" name="UnionTest.Foo">
+      <corba:unionbranch xmlns:ns4="http://cxf.apache.org/bindings/corba/idl/ForwardUnion/typemap" name="u1_1" idltype="ns4:UnionTest.FooSeq">
         <corba:case label="1" />
       </corba:unionbranch>
-      <corba:unionbranch xmlns:ns4="http://schemas.apache.org/yoko/idl/ForwardUnion/typemap" name="u1_2" idltype="ns4:UnionTest.FooTree">
+      <corba:unionbranch xmlns:ns4="http://cxf.apache.org/bindings/corba/idl/ForwardUnion/typemap" name="u1_2" idltype="ns4:UnionTest.FooTree">
         <corba:case label="2" />
       </corba:unionbranch>
       <corba:unionbranch name="u1_3" idltype="corba:long" default="true" />
     </corba:union>
   </corba:typeMapping>
   <wsdl:types>
-    <xs:schema attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://schemas.apache.org/yoko/idl/ForwardUnion" xmlns="http://schemas.apache.org/yoko/idl/ForwardUnion" xmlns:wsa="http://www.w3.org/2005/08/addressing" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:schema attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://cxf.apache.org/bindings/corba/idl/ForwardUnion" xmlns="http://cxf.apache.org/bindings/corba/idl/ForwardUnion" xmlns:wsa="http://www.w3.org/2005/08/addressing" xmlns:xs="http://www.w3.org/2001/XMLSchema">
       <xs:complexType name="UnionTest.FooSeq">
         <xs:sequence>
           <xs:element maxOccurs="unbounded" minOccurs="0" name="item" type="UnionTest.Foo">
@@ -135,10 +135,10 @@
     <corba:binding repositoryID="IDL:UnionTest:1.0" />
     <wsdl:operation name="getUnionTree">
       <corba:operation name="getUnionTree">
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/ForwardUnion/typemap" mode="in" name="inU" idltype="UnionTest.FooTree" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/ForwardUnion/typemap" mode="out" name="outU" idltype="UnionTest.FooTree" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/ForwardUnion/typemap" mode="inout" name="inoutU" idltype="UnionTest.FooTree" />
-        <corba:return xmlns="http://schemas.apache.org/yoko/idl/ForwardUnion/typemap" name="return" idltype="UnionTest.FooTree" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/ForwardUnion/typemap" mode="in" name="inU" idltype="UnionTest.FooTree" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/ForwardUnion/typemap" mode="out" name="outU" idltype="UnionTest.FooTree" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/ForwardUnion/typemap" mode="inout" name="inoutU" idltype="UnionTest.FooTree" />
+        <corba:return xmlns="http://cxf.apache.org/bindings/corba/idl/ForwardUnion/typemap" name="return" idltype="UnionTest.FooTree" />
       </corba:operation>
       <wsdl:input name="getUnionTreeRequest">
       </wsdl:input>
@@ -147,10 +147,10 @@
     </wsdl:operation>
     <wsdl:operation name="getUnion">
       <corba:operation name="getUnion">
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/ForwardUnion/typemap" mode="in" name="inU" idltype="UnionTest.Foo" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/ForwardUnion/typemap" mode="out" name="outU" idltype="UnionTest.Foo" />
-        <corba:param xmlns="http://schemas.apache.org/yoko/idl/ForwardUnion/typemap" mode="inout" name="inoutU" idltype="UnionTest.Foo" />
-        <corba:return xmlns="http://schemas.apache.org/yoko/idl/ForwardUnion/typemap" name="return" idltype="UnionTest.Foo" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/ForwardUnion/typemap" mode="in" name="inU" idltype="UnionTest.Foo" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/ForwardUnion/typemap" mode="out" name="outU" idltype="UnionTest.Foo" />
+        <corba:param xmlns="http://cxf.apache.org/bindings/corba/idl/ForwardUnion/typemap" mode="inout" name="inoutU" idltype="UnionTest.Foo" />
+        <corba:return xmlns="http://cxf.apache.org/bindings/corba/idl/ForwardUnion/typemap" name="return" idltype="UnionTest.Foo" />
       </corba:operation>
       <wsdl:input name="getUnionRequest">
       </wsdl:input>

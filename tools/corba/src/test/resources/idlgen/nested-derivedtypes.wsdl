@@ -17,7 +17,7 @@
  * specific language governing permissions and limitations
  * under the License.
 -->
-<definitions name="mf" targetNamespace="http://schemas.apache.org/idl/mf.idl" xmlns:tns="http://schemas.apache.org/idl/mf.idl" xmlns:corbatm="http://schemas.apache.org/typemap/corba/mf.idl" xmlns:wsa="http://www.w3.org/2005/08/addressing" xmlns:corba="http://schemas.apache.org/yoko/bindings/corba" xmlns:ns1="http://schemas.apache.org/idl/mf.idl/corba/typemap/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsd1="http://schemas.apache.org/idltypes/mf.idl" xmlns="http://schemas.xmlsoap.org/wsdl/">
+<definitions name="mf" targetNamespace="http://schemas.apache.org/idl/mf.idl" xmlns:tns="http://schemas.apache.org/idl/mf.idl" xmlns:corbatm="http://schemas.apache.org/typemap/corba/mf.idl" xmlns:wsa="http://www.w3.org/2005/08/addressing" xmlns:corba="http://cxf.apache.org/bindings/corba" xmlns:ns1="http://schemas.apache.org/idl/mf.idl/corba/typemap/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsd1="http://schemas.apache.org/idltypes/mf.idl" xmlns="http://schemas.xmlsoap.org/wsdl/">
   <corba:typeMapping targetNamespace="http://schemas.apache.org/idl/mf.idl/corba/typemap/">
     <corba:struct xmlns:xsd1="http://schemas.apache.org/idltypes/mf.idl" repositoryID="IDL:ExtendFromEmptySequenceSequenceStruct:1.0" type="xsd1:ExtendFromEmptySequenceSequenceStruct" name="ExtendFromEmptySequenceSequenceStruct">
       <corba:member name="varInt" idltype="corba:long" />

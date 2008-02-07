@@ -33,9 +33,6 @@ import org.apache.cxf.tools.corba.common.ToolCorbaConstants;
 import org.apache.cxf.tools.corba.idlpreprocessor.DefaultIncludeResolver;
 import org.apache.cxf.tools.corba.idlpreprocessor.DefineState;
 import org.apache.cxf.tools.corba.idlpreprocessor.IdlPreprocessorReader;
-import org.apache.yoko.tools.processors.idl.IDLLexer;
-import org.apache.yoko.tools.processors.idl.IDLParser;
-import org.apache.yoko.tools.processors.idl.IDLTokenTypes;
 
 public class IDLProcessor implements Processor {
 

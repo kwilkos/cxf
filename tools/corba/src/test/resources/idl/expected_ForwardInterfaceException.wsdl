@@ -17,20 +17,20 @@
  * specific language governing permissions and limitations
  * under the License.
 -->
-<wsdl:definitions targetNamespace="http://schemas.apache.org/yoko/idl/ForwardInterfaceException" xmlns:tns="http://schemas.apache.org/yoko/idl/ForwardInterfaceException" xmlns:wsa="http://www.w3.org/2005/08/addressing" xmlns:corba="http://schemas.apache.org/yoko/bindings/corba" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
-  <corba:typeMapping targetNamespace="http://schemas.apache.org/yoko/idl/ForwardInterfaceException/typemap">
-    <corba:exception xmlns="http://schemas.apache.org/yoko/idl/ForwardInterfaceException" repositoryID="IDL:ExternalException:1.0" type="ExternalExceptionType" name="ExternalException">
-      <corba:member xmlns:ns4="http://schemas.apache.org/yoko/idl/ForwardInterfaceException/typemap" name="description" idltype="ns4:IpCall" />
+<wsdl:definitions targetNamespace="http://cxf.apache.org/bindings/corba/idl/ForwardInterfaceException" xmlns:tns="http://cxf.apache.org/bindings/corba/idl/ForwardInterfaceException" xmlns:wsa="http://www.w3.org/2005/08/addressing" xmlns:corba="http://cxf.apache.org/bindings/corba" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <corba:typeMapping targetNamespace="http://cxf.apache.org/bindings/corba/idl/ForwardInterfaceException/typemap">
+    <corba:exception xmlns="http://cxf.apache.org/bindings/corba/idl/ForwardInterfaceException" repositoryID="IDL:ExternalException:1.0" type="ExternalExceptionType" name="ExternalException">
+      <corba:member xmlns:ns4="http://cxf.apache.org/bindings/corba/idl/ForwardInterfaceException/typemap" name="description" idltype="ns4:IpCall" />
     </corba:exception>
-    <corba:exception xmlns="http://schemas.apache.org/yoko/idl/ForwardInterfaceException" repositoryID="IDL:InterfaceWithExceptions/LongException:1.0" type="InterfaceWithExceptions.LongExceptionType" name="InterfaceWithExceptions.LongException">
-      <corba:member xmlns:ns4="http://schemas.apache.org/yoko/idl/ForwardInterfaceException/typemap" name="error" idltype="ns4:IpCall" />
+    <corba:exception xmlns="http://cxf.apache.org/bindings/corba/idl/ForwardInterfaceException" repositoryID="IDL:InterfaceWithExceptions/LongException:1.0" type="InterfaceWithExceptions.LongExceptionType" name="InterfaceWithExceptions.LongException">
+      <corba:member xmlns:ns4="http://cxf.apache.org/bindings/corba/idl/ForwardInterfaceException/typemap" name="error" idltype="ns4:IpCall" />
       <corba:member name="code" idltype="corba:long" />
     </corba:exception>
     <corba:alias basetype="corba:long" repositoryID="IDL:IpCall/myLong:1.0" name="IpCall.myLong" />
-    <corba:object xmlns:ns4="http://www.w3.org/2005/08/addressing" xmlns="http://schemas.apache.org/yoko/idl/ForwardInterfaceException" binding="IpCallCORBABinding" repositoryID="IDL:IpCall:1.0" type="ns4:EndpointReferenceType" name="IpCall" />
+    <corba:object xmlns:ns4="http://www.w3.org/2005/08/addressing" xmlns="http://cxf.apache.org/bindings/corba/idl/ForwardInterfaceException" binding="IpCallCORBABinding" repositoryID="IDL:IpCall:1.0" type="ns4:EndpointReferenceType" name="IpCall" />
   </corba:typeMapping>
   <wsdl:types>
-    <xs:schema attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://schemas.apache.org/yoko/idl/ForwardInterfaceException" xmlns="http://schemas.apache.org/yoko/idl/ForwardInterfaceException" xmlns:wsa="http://www.w3.org/2005/08/addressing" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:schema attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://cxf.apache.org/bindings/corba/idl/ForwardInterfaceException" xmlns="http://cxf.apache.org/bindings/corba/idl/ForwardInterfaceException" xmlns:wsa="http://www.w3.org/2005/08/addressing" xmlns:xs="http://www.w3.org/2001/XMLSchema">
       <xs:import namespace="http://www.w3.org/2005/08/addressing" schemaLocation="http://www.w3.org/2005/08/addressing/ws-addr.xsd">
       </xs:import>
       <xs:element name="ExternalException" type="ExternalExceptionType">
@@ -150,7 +150,7 @@
         <corba:param mode="out" name="out_long" idltype="corba:long" />
         <corba:param mode="inout" name="inout_short" idltype="corba:short" />
         <corba:return name="return" idltype="corba:string" />
-        <corba:raises xmlns="http://schemas.apache.org/yoko/idl/ForwardInterfaceException/typemap" exception="InterfaceWithExceptions.LongException" />
+        <corba:raises xmlns="http://cxf.apache.org/bindings/corba/idl/ForwardInterfaceException/typemap" exception="InterfaceWithExceptions.LongException" />
       </corba:operation>
       <wsdl:input name="methodRequest">
       </wsdl:input>
@@ -162,7 +162,7 @@
     <wsdl:operation name="raiseExternalException">
       <corba:operation name="raiseExternalException">
         <corba:param mode="in" name="aString" idltype="corba:string" />
-        <corba:raises xmlns="http://schemas.apache.org/yoko/idl/ForwardInterfaceException/typemap" exception="ExternalException" />
+        <corba:raises xmlns="http://cxf.apache.org/bindings/corba/idl/ForwardInterfaceException/typemap" exception="ExternalException" />
       </corba:operation>
       <wsdl:input name="raiseExternalExceptionRequest">
       </wsdl:input>
