@@ -57,34 +57,19 @@ public class TestUtils {
         return service.getEndpointInfo(new QName(ns, portName));
     }                  
 
-    public CorbaDestination getSimpleTypesTestDestination() throws Exception {
-        endpointInfo = setupServiceInfo("http://yoko.apache.org/simple",
-                                                     "/wsdl/simpleIdl.wsdl", "SimpleCORBAService",
-                                                      "SimpleCORBAPort");
-        CorbaBindingFactory corbaBF = (CorbaBindingFactory)factory;
-        return (CorbaDestination)corbaBF.getDestination(endpointInfo);        
-    }
-    
     public CorbaDestination getExceptionTypesTestDestination() throws Exception {
         endpointInfo = setupServiceInfo("http://schemas.apache.org/idl/except",
-                                                     "/wsdl/exceptions.wsdl", 
+                                                     "/wsdl_corbabinding/exceptions.wsdl", 
                                                      "ExceptionTestCORBAService",
                                                      "ExceptionTestCORBAPort");
         CorbaBindingFactory corbaBF = (CorbaBindingFactory)factory;
         return (CorbaDestination)corbaBF.getDestination(endpointInfo);        
     }
     
-    public CorbaDestination getStaxTypesTestDestination() throws Exception {
-        endpointInfo = setupServiceInfo("http://yoko.apache.org/StaxTest",
-                                                     "/wsdl/StaxTest.wsdl", "StaxTestCORBAService",
-                                                     "StaxTestCORBAPort");
-        CorbaBindingFactory corbaBF = (CorbaBindingFactory)factory;
-        return (CorbaDestination)corbaBF.getDestination(endpointInfo);        
-    }
-
     public CorbaDestination getComplexTypesTestDestination() throws Exception {
         endpointInfo = setupServiceInfo("http://yoko.apache.org/ComplexTypes",
-                                                     "/wsdl/ComplexTypes.wsdl", "ComplexTypesCORBAService",
+                                                     "/wsdl_corbabinding/ComplexTypes.wsdl",
+                                                     "ComplexTypesCORBAService",
                                                      "ComplexTypesCORBAPort");
         CorbaBindingFactory corbaBF = (CorbaBindingFactory)factory;        
         return (CorbaDestination)corbaBF.getDestination(endpointInfo);

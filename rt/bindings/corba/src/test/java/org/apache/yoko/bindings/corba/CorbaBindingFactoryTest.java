@@ -102,7 +102,7 @@ public class CorbaBindingFactoryTest extends Assert {
     @Test
     public void testGetCorbaConduit() throws Exception {
         setupServiceInfo("http://yoko.apache.org/simple", 
-                         "/wsdl/simpleIdl.wsdl", 
+                         "/wsdl_corbabinding/simpleIdl.wsdl", 
                          "SimpleCORBAService", 
                          "SimpleCORBAPort");
         
@@ -116,7 +116,7 @@ public class CorbaBindingFactoryTest extends Assert {
     @Test
     public void testGetDestination() throws Exception {                
         setupServiceInfo("http://yoko.apache.org/simple", 
-                         "/wsdl/simpleIdl.wsdl", 
+                         "/wsdl_corbabinding/simpleIdl.wsdl", 
                          "SimpleCORBAService", 
                          "SimpleCORBAPort");
         
@@ -129,7 +129,7 @@ public class CorbaBindingFactoryTest extends Assert {
     @Test
     public void testTransportIds() throws Exception {
         setupServiceInfo("http://yoko.apache.org/simple", 
-                         "/wsdl/simpleIdl.wsdl", 
+                         "/wsdl_corbabinding/simpleIdl.wsdl", 
                          "SimpleCORBAService", 
                          "SimpleCORBAPort");
         

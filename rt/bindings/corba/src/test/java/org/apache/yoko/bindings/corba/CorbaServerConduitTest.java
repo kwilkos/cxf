@@ -101,7 +101,7 @@ public class CorbaServerConduitTest extends Assert {
     @Test
     public void testPrepare() throws Exception {       
         setupServiceInfo("http://yoko.apache.org/simple",
-                         "/wsdl/simpleIdl.wsdl", "SimpleCORBAService",
+                         "/wsdl_corbabinding/simpleIdl.wsdl", "SimpleCORBAService",
                          "SimpleCORBAPort");
         CorbaDestination destination = new CorbaDestination(endpointInfo, orbConfig);
         CorbaServerConduit conduit = new CorbaServerConduit(endpointInfo,
@@ -127,7 +127,7 @@ public class CorbaServerConduitTest extends Assert {
     @Test
     public void testGetTargetReference() throws Exception {
         setupServiceInfo("http://yoko.apache.org/simple",
-                         "/wsdl/simpleIdl.wsdl", "SimpleCORBAService",
+                         "/wsdl_corbabinding/simpleIdl.wsdl", "SimpleCORBAService",
                          "SimpleCORBAPort");
 
         CorbaDestination destination = new CorbaDestination(endpointInfo, orbConfig);
@@ -145,7 +145,7 @@ public class CorbaServerConduitTest extends Assert {
     @Test
     public void testGetAddress() throws Exception  {
         setupServiceInfo("http://yoko.apache.org/simple",
-                         "/wsdl/simpleIdl.wsdl", "SimpleCORBAService",
+                         "/wsdl_corbabinding/simpleIdl.wsdl", "SimpleCORBAService",
                          "SimpleCORBAPort");
 
         CorbaDestination destination = new CorbaDestination(endpointInfo, orbConfig);

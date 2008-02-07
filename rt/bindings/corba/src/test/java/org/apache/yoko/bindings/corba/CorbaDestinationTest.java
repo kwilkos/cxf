@@ -48,7 +48,7 @@ public class CorbaDestinationTest extends Assert {
     @Test
     public void testDestination() throws Exception {       
         endpointInfo = testUtils.setupServiceInfo("http://yoko.apache.org/simple",
-                        "/wsdl/simpleIdl.wsdl", "SimpleCORBAService",
+                        "/wsdl_corbabinding/simpleIdl.wsdl", "SimpleCORBAService",
                         "SimpleCORBAPort");
         CorbaDestination destination = new CorbaDestination(endpointInfo, orbConfig);
    
