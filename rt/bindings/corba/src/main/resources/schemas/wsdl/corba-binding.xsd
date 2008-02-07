@@ -276,7 +276,7 @@
         <xs:element name="typeMapping" type="corba:typeMappingType"/>
         <xs:complexType name="typeMappingType">
                 <xs:annotation>
-                        <xs:documentation>YOKO CORBA WSDL binding type map.</xs:documentation>
+                        <xs:documentation>CXF CORBA WSDL binding type map.</xs:documentation>
                 </xs:annotation>
                 <xs:complexContent>
                         <xs:extension base="wsdl:tExtensibilityElement">
@@ -306,7 +306,7 @@
         <!-- Begin CORBA Binding Definitions -->
         <xs:complexType name="addressType">
                 <xs:annotation>
-                        <xs:documentation>YOKO CORBA Address Type</xs:documentation>
+                        <xs:documentation>CXF CORBA Address Type</xs:documentation>
                 </xs:annotation>
                 <xs:complexContent>
                         <xs:extension base="wsdl:tExtensibilityElement">
@@ -361,7 +361,7 @@
     </xs:simpleType>
     <xs:complexType name="bindingType">
                 <xs:annotation>
-                        <xs:documentation>YOKO CORBA Binding Type</xs:documentation>
+                        <xs:documentation>CXF CORBA Binding Type</xs:documentation>
                 </xs:annotation>
                 <xs:complexContent>
                         <xs:extension base="wsdl:tExtensibilityElement">
@@ -372,7 +372,7 @@
         </xs:complexType>
         <xs:element name="binding" type="corba:bindingType">
                 <xs:annotation>
-                        <xs:documentation>YOKO CORBA Binding Element</xs:documentation>
+                        <xs:documentation>CXF CORBA Binding Element</xs:documentation>
                 </xs:annotation>
         </xs:element>
         <xs:complexType name="operationType">

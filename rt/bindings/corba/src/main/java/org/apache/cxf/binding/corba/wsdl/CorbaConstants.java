@@ -28,11 +28,11 @@ public interface CorbaConstants {
 
     String NS_CORBA_TYPEMAP = "typemap";
     String NP_WSDL_CORBA = "corba";
-    String NU_WSDL_CORBA = "http://schemas.apache.org/yoko/bindings/corba";
+    String NU_WSDL_CORBA = "http://cxf.apache.org/bindings/corba";
     String NP_TM_CORBA = "corbatm";
-    String NU_TM_CORBA = "http://schemas.apache.org/yoko/typemap/corba/";
-    String SCHEMA_NS_URI = "http://schemas.apache.org/yoko/idltypes/";
-    String WSDL_NS_URI = "http://schemas.apache.org/yoko/idl/";
+    String NU_TM_CORBA = "http://cxf.apache.org/bindings/corba/typemap/corba/";
+    String SCHEMA_NS_URI = "http://cxf.apache.org/bindings/corba/idltypes/";
+    String WSDL_NS_URI = "http://cxf.apache.org/bindings/corba/idl/";
     
     // CORBA Binding Extensibility Elements
     QName NE_CORBA_ADDRESS = new QName(NU_WSDL_CORBA, "address", NP_WSDL_CORBA);

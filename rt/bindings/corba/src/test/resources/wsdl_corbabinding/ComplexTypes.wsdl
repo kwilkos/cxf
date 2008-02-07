@@ -20,15 +20,15 @@
 
 <!-- To be replace by a Yoko generated IDLtoWSDL once types supported -->
 <definitions
- targetNamespace="http://yoko.apache.org/ComplexTypes"
+ targetNamespace="http://cxf.apache.org/bindings/corba/ComplexTypes"
  xmlns="http://schemas.xmlsoap.org/wsdl/"
- xmlns:tns="http://yoko.apache.org/ComplexTypes"
+ xmlns:tns="http://cxf.apache.org/bindings/corba/ComplexTypes"
  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
- xmlns:xsd1="http://yoko.apache.org/ComplexTypes/types"
- xmlns:corba="http://schemas.apache.org/yoko/bindings/corba"
- xmlns:corbatm="http://yoko.apache.org/ComplexTypes/idl_types">
+ xmlns:xsd1="http://cxf.apache.org/bindings/corba/ComplexTypes/types"
+ xmlns:corba="http://cxf.apache.org/bindings/corba"
+ xmlns:corbatm="http://cxf.apache.org/bindings/corba/ComplexTypes/idl_types">
   <types>
-    <schema targetNamespace="http://yoko.apache.org/ComplexTypes/types"
+    <schema targetNamespace="http://cxf.apache.org/bindings/corba/ComplexTypes/types"
      xmlns="http://www.w3.org/2001/XMLSchema"
      xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
       <xsd:complexType name="TestArray">
@@ -116,7 +116,7 @@
       <corba:address location="corbaloc::localhost:50000/ComplexTypes"/>
     </port>
   </service>
-  <corba:typeMapping targetNamespace="http://yoko.apache.org/ComplexTypes/idl_types">
+  <corba:typeMapping targetNamespace="http://cxf.apache.org/bindings/corba/ComplexTypes/idl_types">
     <corba:array name="TestArray" repositoryID="IDL:TestArray:1.0" type="xsd1:TestArray" elemtype="corba:long" bound="5"/>
     <corba:sequence name="TestSequence" repositoryID="IDL:TestSequence:1.0" type="xsd1:TestSequence" elemtype="corba:short" bound="0"/>
     <corba:sequence name="TestBoundedSequence" repositoryID="IDL:TestBoundedSequence:1.0" type="xsd1:TestBoundedSequence" elemtype="corba:short" bound="5"/>
