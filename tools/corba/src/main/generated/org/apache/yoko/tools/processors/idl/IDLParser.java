@@ -25,8 +25,8 @@ import antlr.ASTFactory;
 import antlr.ASTPair;
 import antlr.collections.impl.ASTArray;
 
-@SuppressWarnings("all")
-public class IDLParser extends antlr.LLkParser       implements IDLTokenTypes
+@SuppressWarnings({"all", "PMD"})
+public final class IDLParser extends antlr.LLkParser       implements IDLTokenTypes
  {
 
 protected IDLParser(TokenBuffer tokenBuf, int k) {
@@ -58,7 +58,7 @@ public IDLParser(ParserSharedInputState state) {
   astFactory = new ASTFactory(getTokenTypeToASTClassMap());
 }
 
-	public final void specification() throws RecognitionException, TokenStreamException {
+	public void specification() throws RecognitionException, TokenStreamException {
 		
 		returnAST = null;
 		ASTPair currentAST = new ASTPair();
