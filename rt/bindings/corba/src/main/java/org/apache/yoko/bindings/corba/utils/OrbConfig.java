@@ -24,8 +24,8 @@ import java.util.List;
 
 public class OrbConfig {
 
-    String orbClass = "org.apache.yoko.orb.CORBA.ORB";
-    String orbSingletonClass = "org.apache.yoko.orb.CORBA.ORBSingleton";
+    String orbClass;
+    String orbSingletonClass;
     List<String> orbArgs = new ArrayList<String>();
 
     public void setOrbClass(String cls) {

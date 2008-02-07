@@ -74,7 +74,6 @@ public class CorbaConduitTest extends Assert {
     protected MessageObserver observer;
     Message inMessage;
     CorbaBindingFactory factory;
-    TestUtils testUtils;
     OrbConfig orbConfig;
 
     @Before
@@ -303,10 +302,11 @@ public class CorbaConduitTest extends Assert {
     }
     
     @Test
-    public void testBuildExceptionListWithExceptions() throws Exception {        
+    public void testBuildExceptionListWithExceptions() throws Exception {   
         CorbaConduit conduit = setupCorbaConduit(false);
         Message msg = new MessageImpl();
         CorbaMessage message = new CorbaMessage(msg);
+        TestUtils testUtils = new TestUtils();
         CorbaDestination destination = testUtils.getExceptionTypesTestDestination();
         EndpointInfo endpointInfo2 = destination.getEndPointInfo();
         QName name = new QName("http://schemas.apache.org/idl/except", "review_data", "");
@@ -353,7 +353,7 @@ public class CorbaConduitTest extends Assert {
         NamedValue ret = control.createMock(NamedValue.class);
         ExceptionList exList = control.createMock(ExceptionList.class);        
         
-        EasyMock.expect(obj._create_request(EasyMock.isA(Context.class), 
+        EasyMock.expect(obj._create_request((Context)EasyMock.anyObject(), 
                             EasyMock.eq("greetMe"),
                             EasyMock.isA(NVList.class),
                             EasyMock.isA(NamedValue.class),

@@ -18,24 +18,14 @@
  */
 package org.apache.yoko.bindings.corba.runtime;
 
+import java.io.IOException;
 import java.math.BigInteger;
 import java.net.URL;
 import java.util.List;
 
 import javax.xml.namespace.QName;
 
-
-
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.omg.CORBA.ORB;
-import org.omg.CORBA.StructMember;
-import org.omg.CORBA.TCKind;
-import org.omg.CORBA.TypeCode;
-import org.omg.CORBA.portable.InputStream;
-
+import org.apache.cxf.helpers.IOUtils;
 import org.apache.schemas.yoko.bindings.corba.Array;
 import org.apache.schemas.yoko.bindings.corba.Enum;
 import org.apache.schemas.yoko.bindings.corba.Enumerator;
@@ -53,10 +43,20 @@ import org.apache.yoko.bindings.corba.types.CorbaObjectReferenceHandler;
 import org.apache.yoko.bindings.corba.types.CorbaPrimitiveHandler;
 import org.apache.yoko.bindings.corba.types.CorbaSequenceHandler;
 import org.apache.yoko.bindings.corba.types.CorbaStructHandler;
-import org.apache.yoko.orb.CORBA.OutputStream;
-import org.apache.yoko.orb.OCI.Buffer;
 
 import org.apache.yoko.wsdl.CorbaConstants;
+
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
+import org.omg.CORBA.ORB;
+import org.omg.CORBA.StructMember;
+import org.omg.CORBA.TCKind;
+import org.omg.CORBA.TypeCode;
+import org.omg.CORBA.portable.InputStream;
+import org.omg.CORBA.portable.OutputStream;
 
 public class CorbaObjectReaderTest extends Assert {
 
@@ -84,8 +84,7 @@ public class CorbaObjectReaderTest extends Assert {
 
     @Test
     public void testReadBoolean() {
-        Buffer buf = new Buffer();
-        OutputStream oStream = new OutputStream(buf);
+        OutputStream oStream = orb.create_output_stream();
         oStream.write_boolean(true);
         
         InputStream iStream = oStream.create_input_stream();
@@ -97,8 +96,7 @@ public class CorbaObjectReaderTest extends Assert {
     
     @Test
     public void testReadChar() {
-        Buffer buf = new Buffer();
-        OutputStream oStream = new OutputStream(buf);
+        OutputStream oStream = orb.create_output_stream();
         oStream.write_char('c');
         
         InputStream iStream = oStream.create_input_stream();
@@ -110,8 +108,7 @@ public class CorbaObjectReaderTest extends Assert {
     
     @Test
     public void testReadWChar() {
-        Buffer buf = new Buffer();
-        OutputStream oStream = new OutputStream(buf);
+        OutputStream oStream = orb.create_output_stream();
         oStream.write_wchar('w');
         
         InputStream iStream = oStream.create_input_stream();
@@ -123,8 +120,7 @@ public class CorbaObjectReaderTest extends Assert {
     
     @Test
     public void testReadOctet() {
-        Buffer buf = new Buffer();
-        OutputStream oStream = new OutputStream(buf);
+        OutputStream oStream = orb.create_output_stream();
         oStream.write_octet((byte)27);
         
         InputStream iStream = oStream.create_input_stream();
@@ -136,8 +132,7 @@ public class CorbaObjectReaderTest extends Assert {
     
     @Test
     public void testReadShort() {
-        Buffer buf = new Buffer();
-        OutputStream oStream = new OutputStream(buf);
+        OutputStream oStream = orb.create_output_stream();
         oStream.write_short((short)-100);
         
         InputStream iStream = oStream.create_input_stream();
@@ -149,8 +144,7 @@ public class CorbaObjectReaderTest extends Assert {
     
     @Test
     public void testReadUShort() {
-        Buffer buf = new Buffer();
-        OutputStream oStream = new OutputStream(buf);
+        OutputStream oStream = orb.create_output_stream();
         oStream.write_ushort((short)100);
         
         InputStream iStream = oStream.create_input_stream();
@@ -162,8 +156,7 @@ public class CorbaObjectReaderTest extends Assert {
     
     @Test
     public void testReadLong() {
-        Buffer buf = new Buffer();
-        OutputStream oStream = new OutputStream(buf);
+        OutputStream oStream = orb.create_output_stream();
         oStream.write_long(-100000);
         
         InputStream iStream = oStream.create_input_stream();
@@ -175,8 +168,7 @@ public class CorbaObjectReaderTest extends Assert {
     
     @Test
     public void testReadULong() {
-        Buffer buf = new Buffer();
-        OutputStream oStream = new OutputStream(buf);
+        OutputStream oStream = orb.create_output_stream();
         oStream.write_ulong(100000);
         
         InputStream iStream = oStream.create_input_stream();
@@ -188,8 +180,7 @@ public class CorbaObjectReaderTest extends Assert {
     
     @Test
     public void testReadLongLong() {
-        Buffer buf = new Buffer();
-        OutputStream oStream = new OutputStream(buf);
+        OutputStream oStream = orb.create_output_stream();
         oStream.write_longlong(1000000000);
         
         InputStream iStream = oStream.create_input_stream();
@@ -201,8 +192,7 @@ public class CorbaObjectReaderTest extends Assert {
     
     @Test
     public void testReadULongLong() {
-        Buffer buf = new Buffer();
-        OutputStream oStream = new OutputStream(buf);
+        OutputStream oStream = orb.create_output_stream();
         oStream.write_ulonglong(-1000000000);
         
         InputStream iStream = oStream.create_input_stream();
@@ -214,8 +204,7 @@ public class CorbaObjectReaderTest extends Assert {
     
     @Test
     public void testReadFloat() {
-        Buffer buf = new Buffer();
-        OutputStream oStream = new OutputStream(buf);
+        OutputStream oStream = orb.create_output_stream();
         oStream.write_float((float)1234.56);
         
         InputStream iStream = oStream.create_input_stream();
@@ -227,8 +216,7 @@ public class CorbaObjectReaderTest extends Assert {
     
     @Test
     public void testReadDouble() {
-        Buffer buf = new Buffer();
-        OutputStream oStream = new OutputStream(buf);
+        OutputStream oStream = orb.create_output_stream();
         oStream.write_double(6543.21);
         
         InputStream iStream = oStream.create_input_stream();
@@ -240,28 +228,26 @@ public class CorbaObjectReaderTest extends Assert {
     
     @Test
     public void testReadString() {
-        Buffer buf = new Buffer();
-        OutputStream oStream = new OutputStream(buf);
+        OutputStream oStream = orb.create_output_stream();
         oStream.write_string("String");
         
         InputStream iStream = oStream.create_input_stream();
         CorbaObjectReader reader = new CorbaObjectReader(iStream);
         
         String stringValue = reader.readString();
-        assertTrue(stringValue.equals("String"));
+        assertTrue("String".equals(stringValue));
     }
     
     @Test
     public void testReadWString() {
-        Buffer buf = new Buffer();
-        OutputStream oStream = new OutputStream(buf);
+        OutputStream oStream = orb.create_output_stream();
         oStream.write_wstring("WString");
         
         InputStream iStream = oStream.create_input_stream();
         CorbaObjectReader reader = new CorbaObjectReader(iStream);
         
         String wstringValue = reader.readWString();
-        assertTrue(wstringValue.equals("WString"));
+        assertTrue("WString".equals(wstringValue));
     }
     
     // need to add tests for arrays, sequences, struct, exceptions
@@ -270,8 +256,7 @@ public class CorbaObjectReaderTest extends Assert {
         
         int data[] = {1, 1, 2, 3, 5, 8, 13, 21};
         
-        Buffer buf = new Buffer();
-        OutputStream oStream = new OutputStream(buf);
+        OutputStream oStream = orb.create_output_stream();
         oStream.write_long_array(data, 0, data.length);
 
         InputStream iStream = oStream.create_input_stream();
@@ -307,8 +292,7 @@ public class CorbaObjectReaderTest extends Assert {
     public void testReadSequence() {
         String data[] = {"one", "one", "two", "three", "five", "eight", "thirteen", "twenty-one"};
         
-        Buffer buf = new Buffer();
-        OutputStream oStream = new OutputStream(buf);
+        OutputStream oStream = orb.create_output_stream();
         oStream.write_long(data.length);
         for (int i = 0; i < data.length; ++i) {
             oStream.write_string(data[i]);
@@ -345,8 +329,7 @@ public class CorbaObjectReaderTest extends Assert {
     
     @Test
     public void testReadStruct() {        
-        Buffer buf = new Buffer();
-        OutputStream oStream = new OutputStream(buf);
+        OutputStream oStream = orb.create_output_stream();
 
         // create the following struct
         // struct TestStruct {
@@ -407,14 +390,14 @@ public class CorbaObjectReaderTest extends Assert {
         assertTrue(new Integer(((CorbaPrimitiveHandler)nestedObjs.get(0)).getDataFromValue()).intValue() 
                    == member1);
         assertTrue(((CorbaPrimitiveHandler)nestedObjs.get(1)).getDataFromValue().equals(member2));
-        assertTrue(new Boolean(((CorbaPrimitiveHandler)nestedObjs.get(2)).getDataFromValue()).booleanValue()
+        assertTrue(Boolean.valueOf(((CorbaPrimitiveHandler)nestedObjs.get(2))
+                                   .getDataFromValue()).booleanValue()
                    == member3);
     }
   
     @Test
     public void testReadException() {
-        Buffer buf = new Buffer();
-        OutputStream oStream = new OutputStream(buf);
+        OutputStream oStream = orb.create_output_stream();
 
         // create the following exception
         // exception TestExcept {
@@ -431,9 +414,12 @@ public class CorbaObjectReaderTest extends Assert {
         InputStream iStream = oStream.create_input_stream();
         CorbaObjectReader reader = new CorbaObjectReader(iStream);
         
-        QName exceptIdlType = new QName(CorbaConstants.NU_WSDL_CORBA, "exception", CorbaConstants.NP_WSDL_CORBA);
-        QName shortIdlType = new QName(CorbaConstants.NU_WSDL_CORBA, "short", CorbaConstants.NP_WSDL_CORBA);
-        QName stringIdlType = new QName(CorbaConstants.NU_WSDL_CORBA, "string", CorbaConstants.NP_WSDL_CORBA);
+        QName exceptIdlType = new QName(CorbaConstants.NU_WSDL_CORBA, "exception",
+                                        CorbaConstants.NP_WSDL_CORBA);
+        QName shortIdlType = new QName(CorbaConstants.NU_WSDL_CORBA, "short", 
+                                       CorbaConstants.NP_WSDL_CORBA);
+        QName stringIdlType = new QName(CorbaConstants.NU_WSDL_CORBA, "string", 
+                                        CorbaConstants.NP_WSDL_CORBA);
         
         Exception exceptType = new Exception();
         exceptType.setName("TestException");
@@ -462,14 +448,14 @@ public class CorbaObjectReaderTest extends Assert {
         reader.readException(obj);
         
         List<CorbaObjectHandler> nestedObjs = obj.getMembers();
-        assertTrue(new Short(((CorbaPrimitiveHandler)nestedObjs.get(0)).getDataFromValue()).shortValue() == code);
+        assertTrue(new Short(((CorbaPrimitiveHandler)nestedObjs.get(0))
+                                 .getDataFromValue()).shortValue() == code);
         assertTrue(((CorbaPrimitiveHandler)nestedObjs.get(1)).getDataFromValue().equals(message));
     } 
     
     @Test
     public void testReadEnum() {
-        Buffer buf = new Buffer();
-        OutputStream oStream = new OutputStream(buf);
+        OutputStream oStream = orb.create_output_stream();
         
         // create the following enum
         // enum { RED, GREEN, BLUE };
@@ -501,8 +487,7 @@ public class CorbaObjectReaderTest extends Assert {
     
     @Test
     public void testReadFixed() {
-        Buffer buf = new Buffer();
-        OutputStream oStream = new OutputStream(buf);
+        OutputStream oStream = orb.create_output_stream();
         
         // create the following fixed
         // fixed<5,2>
@@ -526,20 +511,19 @@ public class CorbaObjectReaderTest extends Assert {
     }
     
     @Test
-    public void testReadObjectReference() {
-        Buffer buf = new Buffer();
-        OutputStream oStream = new OutputStream(buf);
+    public void testReadObjectReference() throws IOException {
+        OutputStream oStream = orb.create_output_stream();
         
         URL refUrl = getClass().getResource("/references/account.ref");
-        org.omg.CORBA.Object objRef = orb.string_to_object("file://" + refUrl.getPath());
+        String oRef = IOUtils.toString(refUrl.openStream()).trim();
+        org.omg.CORBA.Object objRef = 
+            orb.string_to_object(oRef);
+        
         assertNotNull(objRef);
         oStream.write_Object(objRef);
         // we need an ORBinstance to handle reading objects so use the Yoko input stream and
         // ORB_impl
-        org.apache.yoko.orb.CORBA.InputStream iStream = 
-            (org.apache.yoko.orb.CORBA.InputStream)oStream.create_input_stream();
-        org.apache.yoko.orb.OBCORBA.ORB_impl o = (org.apache.yoko.orb.OBCORBA.ORB_impl)orb;
-        iStream._OB_ORBInstance(o._OB_ORBInstance());
+        InputStream iStream = oStream.create_input_stream();
         
         CorbaObjectReader reader = new CorbaObjectReader(iStream);
         

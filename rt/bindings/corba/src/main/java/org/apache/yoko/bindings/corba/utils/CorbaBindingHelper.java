@@ -45,8 +45,12 @@ public final class CorbaBindingHelper {
     public static ORB getDefaultORB(OrbConfig config) {        
         if (defaultORB == null) {
             Properties props = System.getProperties();
-            props.put("org.omg.CORBA.ORBClass", config.getOrbClass());
-            props.put("org.omg.CORBA.ORBSingletonClass", config.getOrbSingletonClass());
+            if (config.getOrbClass() != null) {
+                props.put("org.omg.CORBA.ORBClass", config.getOrbClass());
+            }
+            if (config.getOrbSingletonClass() != null) {
+                props.put("org.omg.CORBA.ORBSingletonClass", config.getOrbSingletonClass());
+            }
             props.put("yoko.orb.id", "Yoko-Binding");
             List<String> orbArgs = config.getOrbArgs();
             defaultORB = ORB.init(orbArgs.toArray(new String[orbArgs.size()]), props);
@@ -69,8 +73,12 @@ public final class CorbaBindingHelper {
         }
 
         Properties props = System.getProperties();
-        props.put("org.omg.CORBA.ORBClass", config.getOrbClass());
-        props.put("org.omg.CORBA.ORBSingletonClass", config.getOrbSingletonClass());
+        if (config.getOrbClass() != null) {
+            props.put("org.omg.CORBA.ORBClass", config.getOrbClass());
+        }
+        if (config.getOrbSingletonClass() != null) {
+            props.put("org.omg.CORBA.ORBSingletonClass", config.getOrbSingletonClass());
+        }
         props.put("yoko.orb.id", "Yoko-Binding-" + address);
         List<String> orbArgs = config.getOrbArgs();
         

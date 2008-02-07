@@ -127,7 +127,7 @@ public class CorbaDSIServantTest extends Assert {
         }            
         
         public void onMessage(Message msg) {            
-            System.out.println("Test OnMessage in TestObserver");            
+            //System.out.println("Test OnMessage in TestObserver");            
         }
     }
 }

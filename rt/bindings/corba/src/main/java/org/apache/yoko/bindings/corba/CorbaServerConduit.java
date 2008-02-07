@@ -46,7 +46,7 @@ import org.omg.CORBA.NVList;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.ServerRequest;
 
-public final class CorbaServerConduit implements Conduit {
+public class CorbaServerConduit implements Conduit {
     private static final Logger LOG = LogUtils.getL7dLogger(CorbaServerConduit.class);
 
     private EndpointInfo endpointInfo;
@@ -108,7 +108,7 @@ public final class CorbaServerConduit implements Conduit {
         //NOTHING
     }
 
-    public EndpointReferenceType getTargetReference(EndpointReferenceType t) {
+    public final EndpointReferenceType getTargetReference(EndpointReferenceType t) {
         EndpointReferenceType ref = null;
         if (null == t) {
             ref = new EndpointReferenceType();
@@ -121,7 +121,7 @@ public final class CorbaServerConduit implements Conduit {
         return ref;
     }
 
-    protected String getAddress() {
+    public final String getAddress() {
         return endpointInfo.getAddress();
     }
     

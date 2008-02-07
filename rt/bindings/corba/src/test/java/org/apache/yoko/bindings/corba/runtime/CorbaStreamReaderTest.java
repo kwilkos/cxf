@@ -20,13 +20,11 @@ package org.apache.yoko.bindings.corba.runtime;
 
 import javax.xml.namespace.QName;
 
-
 import org.apache.yoko.bindings.corba.types.CorbaTypeEventProducer;
 import org.easymock.classextension.EasyMock;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
 
 public class CorbaStreamReaderTest extends Assert {
     
@@ -73,6 +71,7 @@ public class CorbaStreamReaderTest extends Assert {
         EasyMock.expect(mock.getText()).andReturn("abcdef");
         EasyMock.replay(mock);
         assertEquals("checking getTextCharacters", 
-                    "abcdef".toCharArray(), reader.getTextCharacters());
+                    "abcdef",
+                    new String(reader.getTextCharacters()));
     }    
 }

@@ -66,7 +66,7 @@ import org.omg.CORBA.SystemException;
 import org.omg.CORBA.TypeCode;
 import org.omg.CORBA.UnknownUserException;
 
-public final class CorbaConduit implements Conduit {
+public class CorbaConduit implements Conduit {
     private static final Logger LOG = LogUtils.getL7dLogger(CorbaConduit.class);
 
 
@@ -151,7 +151,7 @@ public final class CorbaConduit implements Conduit {
         incomingObserver = observer;
     }
 
-    public EndpointReferenceType getTargetReference(EndpointReferenceType t) {
+    public final EndpointReferenceType getTargetReference(EndpointReferenceType t) {
         EndpointReferenceType ref = null;
         if (null == t) {
             ref = new EndpointReferenceType();
@@ -164,7 +164,7 @@ public final class CorbaConduit implements Conduit {
         return ref;
     }
 
-    protected String getAddress() {
+    public final String getAddress() {
         return endpointInfo.getAddress();
     }
         
@@ -274,7 +274,12 @@ public final class CorbaConduit implements Conduit {
         throws Exception {
         Request request = null;
         ContextList ctxList = orb.create_context_list();
-        Context ctx = orb.get_default_context();            
+        Context ctx = null;
+        try {
+            ctx = orb.get_default_context();            
+        } catch (Exception ex) {
+            //ignore?
+        }
 
         org.omg.CORBA.Object targetObj =
             (org.omg.CORBA.Object)message.get(CorbaConstants.CORBA_ENDPOINT_OBJECT);

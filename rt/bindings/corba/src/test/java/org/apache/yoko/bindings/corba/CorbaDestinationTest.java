@@ -43,8 +43,6 @@ public class CorbaDestinationTest extends Assert {
     public void setUp() throws Exception {
         testUtils = new TestUtils();
         orbConfig = new OrbConfig();
-        orbConfig.setOrbClass("org.apache.yoko.orb.CORBA.ORB");
-        orbConfig.setOrbSingletonClass("org.apache.yoko.orb.CORBA.ORBSingleton");
     }
     
     @Test

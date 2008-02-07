@@ -38,10 +38,6 @@ import org.omg.CORBA.portable.InputStream;
 import org.omg.CORBA.portable.OutputStream;
 
 
-
-
-
-
 public class CorbaStreamableTest extends Assert {
 
     private static ORB orb;
@@ -50,7 +46,6 @@ public class CorbaStreamableTest extends Assert {
     @Before
     public void setUp() throws Exception {
         java.util.Properties props = System.getProperties();
-        
         
         props.put("yoko.orb.id", "Yoko-Binding");
         orb = ORB.init(new String[0], props);
@@ -120,8 +115,7 @@ public class CorbaStreamableTest extends Assert {
         CorbaPrimitiveHandler obj = new CorbaPrimitiveHandler(objName, objIdlType, objTypeCode, null);
         CorbaStreamable streamable = new CorbaStreamableImpl(obj, objName); 
         
-        Buffer buf = new Buffer();
-        OutputStream oStream = new OutputStream(buf);
+        OutputStream oStream = orb.create_output_stream();
         oStream.write_char('c');
         
         InputStream iStream = oStream.create_input_stream();
@@ -143,7 +137,7 @@ public class CorbaStreamableTest extends Assert {
         obj.setValueFromData("TestWString");
         CorbaStreamable streamable = new CorbaStreamableImpl(obj, objName);
         
-        OutputStream oStream = new OutputStream();
+        OutputStream oStream = orb.create_output_stream();
         streamable._write(oStream);
         
         InputStream iStream = oStream.create_input_stream();

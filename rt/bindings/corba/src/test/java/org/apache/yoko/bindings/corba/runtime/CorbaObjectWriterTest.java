@@ -18,22 +18,13 @@
  */
 package org.apache.yoko.bindings.corba.runtime;
 
+import java.io.IOException;
 import java.math.BigInteger;
 import java.net.URL;
 
 import javax.xml.namespace.QName;
 
-
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.omg.CORBA.ORB;
-import org.omg.CORBA.StructMember;
-import org.omg.CORBA.TCKind;
-import org.omg.CORBA.TypeCode;
-import org.omg.CORBA.portable.InputStream;
-
+import org.apache.cxf.helpers.IOUtils;
 import org.apache.schemas.yoko.bindings.corba.Array;
 import org.apache.schemas.yoko.bindings.corba.Exception;
 import org.apache.schemas.yoko.bindings.corba.MemberType;
@@ -46,9 +37,19 @@ import org.apache.yoko.bindings.corba.types.CorbaObjectReferenceHandler;
 import org.apache.yoko.bindings.corba.types.CorbaPrimitiveHandler;
 import org.apache.yoko.bindings.corba.types.CorbaSequenceHandler;
 import org.apache.yoko.bindings.corba.types.CorbaStructHandler;
-import org.apache.yoko.orb.CORBA.OutputStream;
-import org.apache.yoko.orb.OCI.Buffer;
 import org.apache.yoko.wsdl.CorbaConstants;
+
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.omg.CORBA.ORB;
+import org.omg.CORBA.StructMember;
+import org.omg.CORBA.TCKind;
+import org.omg.CORBA.TypeCode;
+import org.omg.CORBA.portable.InputStream;
+import org.omg.CORBA.portable.OutputStream;
+
 
 public class CorbaObjectWriterTest extends Assert {
 
@@ -76,11 +77,10 @@ public class CorbaObjectWriterTest extends Assert {
 
     @Test
     public void testWriteBoolean() {
-        Buffer buf = new Buffer();
-        OutputStream oStream = new OutputStream(buf);
+        OutputStream oStream = orb.create_output_stream();
         
         CorbaObjectWriter writer = new CorbaObjectWriter(oStream);
-        Boolean boolValue = new Boolean(true);
+        Boolean boolValue = Boolean.TRUE;
         writer.writeBoolean(boolValue);
         
         InputStream iStream = oStream.create_input_stream();
@@ -90,8 +90,7 @@ public class CorbaObjectWriterTest extends Assert {
     
     @Test
     public void testWriteChar() {
-        Buffer buf = new Buffer();
-        OutputStream oStream = new OutputStream(buf);
+        OutputStream oStream = orb.create_output_stream();
         
         CorbaObjectWriter writer = new CorbaObjectWriter(oStream);
         Character charValue = new Character('c');
@@ -104,8 +103,7 @@ public class CorbaObjectWriterTest extends Assert {
 
     @Test
     public void testWriteWChar() {
-        Buffer buf = new Buffer();
-        OutputStream oStream = new OutputStream(buf);
+        OutputStream oStream = orb.create_output_stream();
         
         CorbaObjectWriter writer = new CorbaObjectWriter(oStream);
         Character wcharValue = new Character('w');
@@ -118,8 +116,7 @@ public class CorbaObjectWriterTest extends Assert {
     
     @Test
     public void testWriteShort() {
-        Buffer buf = new Buffer();
-        OutputStream oStream = new OutputStream(buf);
+        OutputStream oStream = orb.create_output_stream();
         
         CorbaObjectWriter writer = new CorbaObjectWriter(oStream);
         Short shortValue = new Short((short)-123);
@@ -132,8 +129,7 @@ public class CorbaObjectWriterTest extends Assert {
     
     @Test
     public void testWriteUShort() {
-        Buffer buf = new Buffer();
-        OutputStream oStream = new OutputStream(buf);
+        OutputStream oStream = orb.create_output_stream();
         
         CorbaObjectWriter writer = new CorbaObjectWriter(oStream);
         Integer ushortValue = new Integer(123);
@@ -146,8 +142,7 @@ public class CorbaObjectWriterTest extends Assert {
     
     @Test
     public void testWriteLong() {
-        Buffer buf = new Buffer();
-        OutputStream oStream = new OutputStream(buf);
+        OutputStream oStream = orb.create_output_stream();
         
         CorbaObjectWriter writer = new CorbaObjectWriter(oStream);
         Integer longValue = new Integer(-1234567);
@@ -160,8 +155,7 @@ public class CorbaObjectWriterTest extends Assert {
     
     @Test
     public void testWriteULong() {
-        Buffer buf = new Buffer();
-        OutputStream oStream = new OutputStream(buf);
+        OutputStream oStream = orb.create_output_stream();
         
         CorbaObjectWriter writer = new CorbaObjectWriter(oStream);
         BigInteger ulongValue = new BigInteger("1234567");
@@ -174,8 +168,7 @@ public class CorbaObjectWriterTest extends Assert {
     
     @Test
     public void testWriteLongLong() {
-        Buffer buf = new Buffer();
-        OutputStream oStream = new OutputStream(buf);
+        OutputStream oStream = orb.create_output_stream();
         
         CorbaObjectWriter writer = new CorbaObjectWriter(oStream);
         Long longlongValue = new Long("-12345678900");
@@ -188,8 +181,7 @@ public class CorbaObjectWriterTest extends Assert {
     
     @Test
     public void testWriteULongLong() {
-        Buffer buf = new Buffer();
-        OutputStream oStream = new OutputStream(buf);
+        OutputStream oStream = orb.create_output_stream();
         
         CorbaObjectWriter writer = new CorbaObjectWriter(oStream);
         BigInteger ulonglongValue = new BigInteger("12345678900");
@@ -202,8 +194,7 @@ public class CorbaObjectWriterTest extends Assert {
     
     @Test
     public void testWriteFloat() {
-        Buffer buf = new Buffer();
-        OutputStream oStream = new OutputStream(buf);
+        OutputStream oStream = orb.create_output_stream();
         
         CorbaObjectWriter writer = new CorbaObjectWriter(oStream);
         Float floatValue = new Float((float)123456.78);
@@ -216,8 +207,7 @@ public class CorbaObjectWriterTest extends Assert {
     
     @Test
     public void testWriteDouble() {
-        Buffer buf = new Buffer();
-        OutputStream oStream = new OutputStream(buf);
+        OutputStream oStream = orb.create_output_stream();
         
         CorbaObjectWriter writer = new CorbaObjectWriter(oStream);
         Double doubleValue = new Double(987654.321);
@@ -230,8 +220,7 @@ public class CorbaObjectWriterTest extends Assert {
     
     @Test
     public void testWriteString() {
-        Buffer buf = new Buffer();
-        OutputStream oStream = new OutputStream(buf);
+        OutputStream oStream = orb.create_output_stream();
         
         CorbaObjectWriter writer = new CorbaObjectWriter(oStream);
         String stringValue = new String("String");
@@ -244,8 +233,7 @@ public class CorbaObjectWriterTest extends Assert {
 
     @Test
     public void testWriteWString() {
-        Buffer buf = new Buffer();
-        OutputStream oStream = new OutputStream(buf);
+        OutputStream oStream = orb.create_output_stream();
         
         CorbaObjectWriter writer = new CorbaObjectWriter(oStream);
         String wstringValue = new String("String");
@@ -279,8 +267,7 @@ public class CorbaObjectWriterTest extends Assert {
             obj.addElement(nestedObj);
         }
 
-        Buffer buf = new Buffer();
-        OutputStream oStream = new OutputStream(buf);
+        OutputStream oStream = orb.create_output_stream();
         CorbaObjectWriter writer = new CorbaObjectWriter(oStream);
         writer.writeArray(obj);
         
@@ -315,8 +302,7 @@ public class CorbaObjectWriterTest extends Assert {
             obj.addElement(nestedObj);
         }
         
-        Buffer buf = new Buffer();
-        OutputStream oStream = new OutputStream(buf);
+        OutputStream oStream = orb.create_output_stream();
         CorbaObjectWriter writer =  new CorbaObjectWriter(oStream);
         writer.writeSequence(obj);
         
@@ -384,8 +370,7 @@ public class CorbaObjectWriterTest extends Assert {
         obj.addMember(memberObj2);
         obj.addMember(memberObj3);
         
-        Buffer buf = new Buffer();
-        OutputStream oStream = new OutputStream(buf);
+        OutputStream oStream = orb.create_output_stream();
         CorbaObjectWriter writer = new CorbaObjectWriter(oStream);
         writer.writeStruct(obj);
         
@@ -409,9 +394,12 @@ public class CorbaObjectWriterTest extends Assert {
         String message = "54321";
         String reposID = "IDL:org.apache.yoko.TestException/1.0";
         
-        QName exceptIdlType = new QName(CorbaConstants.NU_WSDL_CORBA, "exception", CorbaConstants.NP_WSDL_CORBA);
-        QName shortIdlType = new QName(CorbaConstants.NU_WSDL_CORBA, "short", CorbaConstants.NP_WSDL_CORBA);
-        QName stringIdlType = new QName(CorbaConstants.NU_WSDL_CORBA, "string", CorbaConstants.NP_WSDL_CORBA);
+        QName exceptIdlType = new QName(CorbaConstants.NU_WSDL_CORBA,
+                                        "exception", CorbaConstants.NP_WSDL_CORBA);
+        QName shortIdlType = new QName(CorbaConstants.NU_WSDL_CORBA,
+                                       "short", CorbaConstants.NP_WSDL_CORBA);
+        QName stringIdlType = new QName(CorbaConstants.NU_WSDL_CORBA,
+                                        "string", CorbaConstants.NP_WSDL_CORBA);
         
         Exception exceptType = new Exception();
         exceptType.setName("TestException");
@@ -442,8 +430,7 @@ public class CorbaObjectWriterTest extends Assert {
         obj.addMember(member1);
         obj.addMember(member2);
 
-        Buffer buf = new Buffer();
-        OutputStream oStream = new OutputStream(buf);
+        OutputStream oStream = orb.create_output_stream();
         CorbaObjectWriter writer = new CorbaObjectWriter(oStream);
         writer.writeException(obj);
 
@@ -458,10 +445,11 @@ public class CorbaObjectWriterTest extends Assert {
     }
     
     @Test
-    public void testWriteObject() {
+    public void testWriteObject() throws IOException {
         URL refUrl = getClass().getResource("/references/account.ref");
+        String oRef = IOUtils.toString(refUrl.openStream()).trim();
         org.omg.CORBA.Object objRef = 
-            orb.string_to_object("file://" + refUrl.getPath());
+            orb.string_to_object(oRef);
         assertNotNull(objRef);
         
         // create a test object
@@ -478,20 +466,12 @@ public class CorbaObjectWriterTest extends Assert {
                                                                           objectTC, objectType);
         obj.setReference(objRef);        
         
-        Buffer buf = new Buffer();
-        OutputStream oStream = new OutputStream(buf);
+        OutputStream oStream = orb.create_output_stream();
         CorbaObjectWriter writer = new CorbaObjectWriter(oStream);
         writer.writeObjectReference(obj);
 
-        // we need an ORBinstance to handle reading objects so use the Yoko input stream and
-        // ORB_impl
-        org.apache.yoko.orb.CORBA.InputStream iStream = 
-            (org.apache.yoko.orb.CORBA.InputStream)oStream.create_input_stream();
-        org.apache.yoko.orb.OBCORBA.ORB_impl o = (org.apache.yoko.orb.OBCORBA.ORB_impl)orb;
-        iStream._OB_ORBInstance(o._OB_ORBInstance());
+        InputStream iStream = oStream.create_input_stream();
 
-        //InputStream iStream = oStream.create_input_stream();
-        
         org.omg.CORBA.Object resultObj = iStream.read_Object();
         assertTrue(resultObj._is_equivalent(obj.getReference()));
     }

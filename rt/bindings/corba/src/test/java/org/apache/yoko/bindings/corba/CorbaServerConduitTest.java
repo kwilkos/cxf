@@ -52,13 +52,13 @@ import org.omg.CORBA.TCKind;
 import org.omg.CORBA.TypeCode;
 
 public class CorbaServerConduitTest extends Assert {
+    protected EndpointInfo endpointInfo;
+    protected EndpointReferenceType target;    
+    protected MessageObserver observer;
         
     IMocksControl control;
     ORB orb;
     Bus bus;
-    protected EndpointInfo endpointInfo;
-    protected EndpointReferenceType target;    
-    protected MessageObserver observer;
     Message inMessage;
     CorbaBindingFactory factory;
     TestUtils testUtils;
@@ -78,8 +78,6 @@ public class CorbaServerConduitTest extends Assert {
         props.put("yoko.orb.id", "Yoko-Server-Binding");
         orb = ORB.init(new String[0], props);
         orbConfig = new OrbConfig();
-        orbConfig.setOrbClass("org.apache.yoko.orb.CORBA.ORB");
-        orbConfig.setOrbSingletonClass("org.apache.yoko.orb.CORBA.ORBSingleton");
     }
     
     @After
@@ -118,8 +116,8 @@ public class CorbaServerConduitTest extends Assert {
         }
         OutputStream os = message.getContent(OutputStream.class);
         assertTrue("OutputStream should not be null", os != null);        
-        ORB orb = (ORB)message.get("orb");
-        assertTrue("Orb should not be null", orb != null);
+        ORB orb2 = (ORB)message.get("orb");
+        assertTrue("Orb should not be null", orb2 != null);
         Object obj = message.get("endpoint");
         assertTrue("EndpointReferenceType should not be null", obj != null);
         destination.shutdown();
@@ -288,7 +286,7 @@ public class CorbaServerConduitTest extends Assert {
     protected CorbaServerConduit setupCorbaServerConduit(boolean send) {
         target = EasyMock.createMock(EndpointReferenceType.class);                   
         endpointInfo = EasyMock.createMock(EndpointInfo.class);
-        CorbaServerConduit CorbaServerConduit = 
+        CorbaServerConduit corbaServerConduit = 
             new CorbaServerConduit(endpointInfo, target, orbConfig, corbaTypeMap);
         
         if (send) {
@@ -298,10 +296,10 @@ public class CorbaServerConduitTest extends Assert {
                     inMessage = m;
                 }
             };
-            CorbaServerConduit.setMessageObserver(observer);
+            corbaServerConduit.setMessageObserver(observer);
         }
         
-        return CorbaServerConduit;        
+        return corbaServerConduit;        
     }
     
     protected void setupServiceInfo(String ns, String wsdl, String serviceName, String portName) {        
