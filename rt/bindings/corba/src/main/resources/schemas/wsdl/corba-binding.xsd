@@ -19,9 +19,9 @@
  * under the License.
 -->
 
-<xs:schema targetNamespace="http://schemas.apache.org/yoko/bindings/corba" 
+<xs:schema targetNamespace="http://cxf.apache.org/bindings/corba" 
     xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" 
-    xmlns:corba="http://schemas.apache.org/yoko/bindings/corba" 
+    xmlns:corba="http://cxf.apache.org/bindings/corba" 
     xmlns:xs="http://www.w3.org/2001/XMLSchema" 
     xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
     jaxb:version="2.0"
@@ -36,7 +36,7 @@
             Used for intermediate types for multidimensional arrays and sequences of sequences.
             </xs:documentation>            
         <xs:appinfo>
-            <jaxb:class implClass="org.apache.yoko.wsdl.CorbaTypeImpl"/>                                
+            <jaxb:class implClass="org.apache.cxf.binding.corba.wsdl.CorbaTypeImpl"/>                                
         </xs:appinfo>      
                 </xs:annotation>
                 <xs:attribute name="name" type="xs:string" use="required"/>

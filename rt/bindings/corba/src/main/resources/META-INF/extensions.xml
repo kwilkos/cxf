@@ -19,9 +19,9 @@
 -->
 <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
 <properties>
-    <entry key="org.apache.yoko.bindings.corba-1">javax.wsdl.Binding=org.apache.schemas.yoko.bindings.corba.BindingType</entry>
-    <entry key="org.apache.yoko.bindings.corba-2">javax.wsdl.BindingOperation=org.apache.schemas.yoko.bindings.corba.OperationType</entry>
-    <entry key="org.apache.yoko.bindings.corba-3">javax.wsdl.Definition=org.apache.schemas.yoko.bindings.corba.TypeMappingType</entry>
-    <entry key="org.apache.yoko.bindings.corba-4">javax.wsdl.Port=org.apache.schemas.yoko.bindings.corba.AddressType</entry>
-    <entry key="org.apache.yoko.bindings.corba-5">javax.wsdl.Port=org.apache.schemas.yoko.bindings.corba.PolicyType</entry>
+    <entry key="org.apache.yoko.binding.corba-1">javax.wsdl.Binding=org.apache.cxf.binding.corba.wsdl.BindingType</entry>
+    <entry key="org.apache.yoko.binding.corba-2">javax.wsdl.BindingOperation=org.apache.cxf.binding.corba.wsdl.OperationType</entry>
+    <entry key="org.apache.yoko.binding.corba-3">javax.wsdl.Definition=org.apache.cxf.binding.corba.wsdl.TypeMappingType</entry>
+    <entry key="org.apache.yoko.binding.corba-4">javax.wsdl.Port=org.apache.cxf.binding.corba.wsdl.AddressType</entry>
+    <entry key="org.apache.yoko.binding.corba-5">javax.wsdl.Port=org.apache.cxf.binding.corba.wsdl.PolicyType</entry>
 </properties>

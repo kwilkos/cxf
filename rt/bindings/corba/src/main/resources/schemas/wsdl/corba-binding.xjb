@@ -31,5 +31,9 @@
     <jaxb:bindings schemaLocation="http://schemas.xmlsoap.org/wsdl/" node="/xs:schema/xs:complexType[@name='tExtensibilityElement']">
         <jaxb:class implClass="org.apache.cxf.wsdl.TExtensibilityElementImpl"/>
     </jaxb:bindings>
-
+    <jaxb:bindings schemaLocation="corba-binding.xsd" node="/xs:schema">
+        <jaxb:schemaBindings>
+            <jaxb:package name="org.apache.cxf.binding.corba.wsdl"/>
+        </jaxb:schemaBindings>
+    </jaxb:bindings>
 </jaxb:bindings>

@@ -19,8 +19,8 @@
 -->
 <extensions xmlns="http://cxf.apache.org/bus/extension">
 
-    <extension class="org.apache.yoko.bindings.corba.CorbaBindingFactory" deferred="true">
-        <namespace>http://schemas.apache.org/yoko/bindings/corba</namespace>
+    <extension class="org.apache.cxf.binding.corba.CorbaBindingFactory" deferred="true">
+        <namespace>http://cxf.apache.org/bindings/corba</namespace>
     </extension>
 
 </extensions>
