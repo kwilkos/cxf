@@ -116,7 +116,6 @@ public class RestClientServerBookTest extends AbstractBusClientServerTestBase {
 
         String expectedString = getStringFromInputStream(expected).trim();
         String newString = getStringFromInputStream(in).trim();
-        //System.out.println("---" + getStringFromInputStream(in));
         assertEquals(expectedString, expectedString, newString); 
     }
     
