@@ -209,6 +209,14 @@ public class JAXRSServiceFactoryBean extends AbstractServiceFactoryBean {
                 //Iterate through sub-resources
                 ClassResourceInfo subCri = createClassResourceInfo(subResourceClass);
                 cri.addSubClassResourceInfo(subCri);
+            } else if (m.getAnnotation(HttpMethod.class) != null) {
+                String httpMethod = m.getAnnotation(HttpMethod.class).value();
+                OperationResourceInfo ori = new OperationResourceInfo(m, cri);
+                String uriTemplate = "/";
+                ori.setURITemplate(new URITemplate(uriTemplate, URITemplate.UNLIMITED_REGEX_SUFFIX));
+                ori.setHttpMethod(httpMethod);
+                md.bind(ori, m);
+                
             }
         }
 

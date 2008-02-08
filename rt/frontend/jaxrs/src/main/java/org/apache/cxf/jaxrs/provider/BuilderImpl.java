@@ -21,31 +21,33 @@ package org.apache.cxf.jaxrs.provider;
 
 import java.net.URI;
 import java.util.Date;
+
 import javax.ws.rs.core.CacheControl;
 import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
+
+import org.apache.cxf.jaxrs.MetadataMap;
 
 
 public final class BuilderImpl extends Response.Builder {
     private int status = 200;
     private Object entity;
+    private MultivaluedMap<String, Object> metadata = new MetadataMap();
 
     public BuilderImpl() {
     }
 
-    public BuilderImpl(Response r) {
-        this.status = r.getStatus();
-        this.entity = r.getEntity();
-    }
-    
-    static Response.Builder create(Response response) {
-        return new BuilderImpl(response);
-    }
-
+       
     public Response build() {
-        return new ResponseImpl(status, entity);
+        Response r = new ResponseImpl(status, entity);
+        MetadataMap m = new MetadataMap();
+        m.putAll(metadata);
+        r.addMetadata(m);
+        reset();
+        return r;
     }
 
     public Response.Builder status(int s) {
@@ -71,7 +73,8 @@ public final class BuilderImpl extends Response.Builder {
     }
 
     public Response.Builder location(URI location) {
-        return null;
+        metadata.putSingle("Location", location.toString());
+        return this;
     }
 
     public Response.Builder contentLocation(URI location) {
@@ -99,7 +102,13 @@ public final class BuilderImpl extends Response.Builder {
     }
 
     public Response.Builder header(String name, Object value) {
+        // TODO: we need to use HeaderProviders to have headers serialized
         return null;
     }
 
+    private void reset() {
+        metadata.clear();
+        entity = null;
+        status = 200;
+    }
 }

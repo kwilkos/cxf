@@ -17,49 +17,34 @@
  * under the License.
  */
 
-package org.apache.cxf.jaxrs.resources;
-
-import java.util.HashMap;
-import java.util.Map;
+package org.apache.cxf.systest.jaxrs;
 
 import javax.ws.rs.HttpMethod;
-import javax.ws.rs.UriParam;
-import javax.ws.rs.UriTemplate;
-import javax.xml.bind.annotation.XmlRootElement;
+import javax.ws.rs.ProduceMime;
+
+import org.apache.abdera.model.Entry;
 
 
-@XmlRootElement(name = "Book")
-public class Book {
-    private String name;
-    private long id;
-    private Map<Long, Chapter> chapters = new HashMap<Long, Chapter>();
+public class AtomBook {
+    private Book book;
     
-    public Book() {
+    public AtomBook(Book book) {
+        this.book = book;
     }
     
-    public void setName(String n) {
-        name = n;
-    }
-
-    public String getName() {
-        return name;
-    }
     
-    public void setId(long i) {
-        id = i;
-    }
-    public long getId() {
-        return id;
-    }
     
-    @UriTemplate("chapters/{chapterid}/")
     @HttpMethod("GET")
-    public Chapter getChapter(@UriParam("id")int chapterid) {
-        return chapters.get(new Long(chapterid));
-    }   
-
-    @HttpMethod("GET")
-    public String getState() {
-        return "";
+    @ProduceMime("application/atom+xml")
+    public Entry getAsEntry() {
+        try {
+            return AtomUtils.createBookEntry(book);
+        } catch (Exception ex) {
+            // common, it's just a test
+        }
+        return null;
     }
+    
+    
+    
 }

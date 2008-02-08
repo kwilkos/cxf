@@ -127,11 +127,16 @@ public class JAXRSServiceFactoryBeanTest extends Assert {
         assertTrue(subCri.getURITemplate() == null);
         assertEquals(org.apache.cxf.jaxrs.resources.Book.class, subCri.getResourceClass());
         MethodDispatcher subMd = subCri.getMethodDispatcher();
-        assertEquals(1, subMd.getOperationResourceInfos().size());
+        assertEquals(2, subMd.getOperationResourceInfos().size());
         //getChapter method
         OperationResourceInfo subOri = subMd.getOperationResourceInfos().iterator().next();
         assertEquals("GET", subOri.getHttpMethod());
         assertNotNull(subOri.getURITemplate());
+        
+        //getState method
+        OperationResourceInfo subOri2 = subMd.getOperationResourceInfos().iterator().next();
+        assertEquals("GET", subOri2.getHttpMethod());
+        assertNotNull(subOri2.getURITemplate());
     }
 
 }

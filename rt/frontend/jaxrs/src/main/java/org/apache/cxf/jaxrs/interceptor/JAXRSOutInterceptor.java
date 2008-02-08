@@ -37,6 +37,7 @@ import org.apache.cxf.interceptor.AbstractOutDatabindingInterceptor;
 import org.apache.cxf.jaxrs.JAXRSUtils;
 import org.apache.cxf.jaxrs.model.OperationResourceInfo;
 import org.apache.cxf.jaxrs.provider.ProviderFactoryImpl;
+import org.apache.cxf.jaxrs.provider.ResponseImpl;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageContentsList;
@@ -70,10 +71,13 @@ public class JAXRSOutInterceptor extends AbstractOutDatabindingInterceptor {
             Object responseObj = objs.get(0);
             if (objs.get(0) instanceof Response) {
                 Response response = (Response)responseObj;
-                responseObj = response.getEntity();   
-
-                message.put(Message.RESPONSE_CODE, response.getStatus());
                 
+                message.put(Message.RESPONSE_CODE, response.getStatus());
+                if (response instanceof ResponseImpl) {
+                    ((ResponseImpl)response).serializeMetadata(message);
+                }
+                
+                responseObj = response.getEntity();
                 if (responseObj == null) {
                     return;
                 }

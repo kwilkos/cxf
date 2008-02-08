@@ -19,42 +19,27 @@
 
 package org.apache.cxf.jaxrs.provider;
 
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
-
+import org.apache.cxf.jaxrs.MetadataMap;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.message.MessageImpl;
+import org.junit.Assert;
+import org.junit.Test;
 
-public final class ResponseImpl implements Response {
-    private final int status;
-    private final Object entity;
-    private MultivaluedMap<String, Object> metadata;
-    
-    
-    ResponseImpl(int s, Object e) {
-        this.status = s;
-        this.entity = e;
-    }
 
-    public Object getEntity() {
-        return entity;
-    }
-
-    public int getStatus() {
-        return status;
-    }
-
-    public void addMetadata(MultivaluedMap<String, Object> meta) { 
-        this.metadata = meta;
-    }
+public class ResponseImplTest extends Assert {
     
-    public MultivaluedMap<String, Object> getMetadata() {
-        // don't worry about cloning for now
-        return metadata;
-    }
-    
-    public void serializeMetadata(Message m) {
+    @Test
+    public void testResourceImpl() {
+        String entity = "bar";
+        ResponseImpl ri = new ResponseImpl(200, entity);
+        assertEquals("Wrong status", ri.getStatus(), 200);
+        assertSame("Wrong entity", entity, ri.getEntity());
         
-        m.put(Message.PROTOCOL_HEADERS, metadata);
-        
+        MetadataMap meta = new MetadataMap();
+        Message m = new MessageImpl();
+        ri.addMetadata(meta);
+        ri.serializeMetadata(m);
+        assertSame("Wrong metadata", meta, m.get(Message.PROTOCOL_HEADERS));
     }
+
 }

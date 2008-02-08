@@ -67,6 +67,16 @@
              <artifactId>jsr311-api</artifactId>
              <version>0.4</version>
          </dependency>
+         <dependency>
+         <groupId>org.apache.abdera</groupId>
+            <artifactId>abdera-core</artifactId>
+            <version>0.3.0-incubating</version>
+         </dependency>
+         <dependency>
+           <groupId>org.apache.abdera</groupId>
+           <artifactId>abdera-parser</artifactId>
+           <version>0.3.0-incubating</version>
+         </dependency>  
         <dependency>
 	            <groupId>org.apache.geronimo.specs</groupId>
 	            <artifactId>geronimo-servlet_2.5_spec</artifactId>
@@ -88,6 +98,14 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <repositories>
+        <repository>
+            <id>apache.incubating</id>
+            <name>Apache Incubating Repository</name>
+            <url>http://people.apache.org/repo/m2-incubating-repository</url>
+        </repository>
+    </repositories>
 
     <scm>
         <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/trunk/rt/rs</connection>

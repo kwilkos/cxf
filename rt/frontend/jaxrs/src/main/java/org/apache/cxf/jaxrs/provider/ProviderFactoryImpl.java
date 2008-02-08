@@ -42,10 +42,13 @@ public class ProviderFactoryImpl extends ProviderFactory {
 
     public ProviderFactoryImpl() {
         //TODO: search for EntityProviders from classpath or config file.
+        //or dynamically instantiate them based on mime types being active 
         entityProviders.add(new JAXBElementProvider());
         entityProviders.add(new JSONProvider());
         entityProviders.add(new StringProvider());
         entityProviders.add(new DOMSourceProvider());
+        entityProviders.add(new AtomFeedProvider());
+        entityProviders.add(new AtomEntryProvider());
 
         sort();
     }

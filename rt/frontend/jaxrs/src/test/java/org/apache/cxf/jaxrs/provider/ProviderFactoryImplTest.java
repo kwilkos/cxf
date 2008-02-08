@@ -30,6 +30,8 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.EntityProvider;
 import javax.ws.rs.ext.ProviderFactory;
 
+import org.apache.abdera.model.Entry;
+import org.apache.abdera.model.Feed;
 import org.apache.cxf.helpers.IOUtils;
 import org.junit.Assert;
 import org.junit.Before;
@@ -68,6 +70,26 @@ public class ProviderFactoryImplTest extends Assert {
         EntityProvider provider = ((ProviderFactoryImpl)ProviderFactory.getInstance())
         .createEntityProvider(String.class, methodMimeTypes, false);
         assertTrue(provider instanceof StringProvider);
+    }
+    
+    @Test
+    public void testGetAtomProvider() throws Exception {
+        String[] methodMimeTypes = {"application/atom+xml"};
+        EntityProvider provider = ((ProviderFactoryImpl)ProviderFactory.getInstance())
+        .createEntityProvider(Feed.class, methodMimeTypes, false);
+        assertTrue(provider instanceof AtomFeedProvider);
+        
+        provider = ((ProviderFactoryImpl)ProviderFactory.getInstance())
+        .createEntityProvider(Feed.class, methodMimeTypes, true);
+        assertTrue(provider instanceof AtomFeedProvider);
+        
+        provider = ((ProviderFactoryImpl)ProviderFactory.getInstance())
+        .createEntityProvider(Entry.class, methodMimeTypes, false);
+        assertTrue(provider instanceof AtomEntryProvider);
+        
+        provider = ((ProviderFactoryImpl)ProviderFactory.getInstance())
+        .createEntityProvider(Entry.class, methodMimeTypes, true);
+        assertTrue(provider instanceof AtomEntryProvider);
     }
     
     @Test
