@@ -246,6 +246,13 @@ public class WSIBPValidator extends AbstractDefinitionValidator {
                     continue;
                 }
                 BindingOperation bop = wsdlHelper.getBindingOperation(def, operation.getName());
+                if (bop == null) {
+                    addErrorMessage(getErrorPrefix("WSI-BP-1.0 R2718")
+                                    + "A wsdl:binding in a DESCRIPTION MUST have the same set of "
+                                    + "wsdl:operations as the wsdl:portType to which it refers. "
+                                    + operation.getName() + " not found in wsdl:binding.");
+                    return false;
+                }
                 Binding binding = wsdlHelper.getBinding(bop, def);
                 String bindingStyle = binding != null ? SOAPBindingUtil.getBindingStyle(binding) : "";
                 String style = StringUtils.isEmpty(SOAPBindingUtil.getSOAPOperationStyle(bop))
@@ -258,7 +265,6 @@ public class WSIBPValidator extends AbstractDefinitionValidator {
                         return false;
                     }
                 } else {
-                    System.out.println("Style: " + style);
                     if (!checkR2717AndR2726(bop)) {
                         return false;
                     }

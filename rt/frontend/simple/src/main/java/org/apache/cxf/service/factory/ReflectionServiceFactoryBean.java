@@ -153,6 +153,12 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         return new JAXBDataBinding(getQualifyWrapperSchema());
     }
     
+    
+     
+    protected DataBinding createDefaultDataBinding() {
+        return new JAXBDataBinding(getQualifyWrapperSchema());
+    }
+    
     @Override
     public Service create() {
         initializeServiceConfigurations();
