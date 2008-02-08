@@ -34,7 +34,7 @@ public class JAXRSClientServerResourceCreatedSpringBookTest extends AbstractBusC
     @BeforeClass
     public static void startServers() throws Exception {
         assertTrue("server did not launch correctly",
-                   launchServer(BookServerResourceCreatedOutside.class));
+                   launchServer(BookServerResourceCreatedSpring.class));
     }
     
     @Test
@@ -52,6 +52,19 @@ public class JAXRSClientServerResourceCreatedSpringBookTest extends AbstractBusC
             .getResourceAsStream("resources/expected_get_book123.txt");
 
         assertEquals(getStringFromInputStream(expected), getStringFromInputStream(in)); 
+    }
+    
+    @Test
+    public void testPetStore() throws Exception {
+        
+        String endpointAddress =
+            "http://localhost:9080/petstore/pets/24"; 
+        URL url = new URL(endpointAddress);
+        URLConnection connect = url.openConnection();
+        connect.addRequestProperty("Accept", "text/xml");
+        InputStream in = connect.getInputStream();
+        assertNotNull(in);
+        assertEquals(PetStore.CLOSED, getStringFromInputStream(in)); 
     }
     
     private String getStringFromInputStream(InputStream in) throws Exception {        

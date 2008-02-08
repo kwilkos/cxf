@@ -66,7 +66,8 @@ public class JAXRSServerFactoryBeanDefinitionParser extends AbstractBeanDefiniti
             setFirstChildAsProperty(el, ctx, bean, "bindingConfig");
         } else if ("inInterceptors".equals(name) || "inFaultInterceptors".equals(name)
             || "outInterceptors".equals(name) || "outFaultInterceptors".equals(name)
-            || "features".equals(name) || "schemaLocations".equals(name)) {
+            || "features".equals(name) || "schemaLocations".equals(name) 
+            || "serviceBeans".equals(name)) {
             List list = ctx.getDelegate().parseListElement(el, bean.getBeanDefinition());
             bean.addPropertyValue(name, list);
         } else {

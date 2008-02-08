@@ -40,10 +40,13 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
   <jaxrs:server id="bookservice"
 		        address="/">
     <jaxrs:serviceBeans>
+      <ref bean="petstore"/>	
       <ref bean="bookstore"/>
     </jaxrs:serviceBeans>		   
   </jaxrs:server>
   <bean id="bookstore" scope="prototype" class="org.apache.cxf.systest.jaxrs.BookStore">
+  </bean>
+  <bean id="petstore" scope="prototype" class="org.apache.cxf.systest.jaxrs.PetStore">
   </bean>
 
 </beans>
