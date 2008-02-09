@@ -20,6 +20,7 @@
 package org.apache.cxf.databinding;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -32,6 +33,7 @@ import org.w3c.dom.NodeList;
 
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.common.xmlschema.SchemaCollection;
+import org.apache.cxf.helpers.XMLUtils;
 import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.ws.commons.schema.XmlSchema;
@@ -40,6 +42,13 @@ import org.apache.ws.commons.schema.XmlSchema;
  * Supply default implementations, as appropriate, for DataBinding. 
  */
 public abstract class AbstractDataBinding implements DataBinding {
+    private static final Map<String, String> BUILTIN_SCHEMA_LOCS = new HashMap<String, String>();
+    {
+        BUILTIN_SCHEMA_LOCS.put("http://www.w3.org/2005/08/addressing",
+                     "http://www.w3.org/2006/03/addressing/ws-addr.xsd");
+    }
+    
+    
     protected int mtomThreshold;
     
     private Collection<DOMSource> schemas;
@@ -68,9 +77,11 @@ public abstract class AbstractDataBinding implements DataBinding {
                 Element e = (Element)n;
                 if (e.getLocalName().equals("import")) {
                     e.removeAttribute("schemaLocation");
+                    updateSchemaLocation(e);
                 }
             }
         }
+        XMLUtils.printDOM(d);
         SchemaInfo schema = new SchemaInfo(serviceInfo, ns);
         schema.setSystemId(systemId);
         XmlSchema xmlSchema = col.read(d, null);
@@ -79,6 +90,14 @@ public abstract class AbstractDataBinding implements DataBinding {
         return xmlSchema;
     }
     
+    protected void updateSchemaLocation(Element e) {
+        String ns = e.getAttribute("namespace");
+        String newLoc = BUILTIN_SCHEMA_LOCS.get(ns);
+        if (newLoc != null) {
+            e.setAttribute("schemaLocation", newLoc);
+        }
+    }
+
     /**
       * @return Returns the namespaceMap.
      */
