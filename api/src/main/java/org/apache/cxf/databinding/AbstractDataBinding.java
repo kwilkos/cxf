@@ -33,7 +33,6 @@ import org.w3c.dom.NodeList;
 
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.common.xmlschema.SchemaCollection;
-import org.apache.cxf.helpers.XMLUtils;
 import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.ws.commons.schema.XmlSchema;
@@ -81,7 +80,6 @@ public abstract class AbstractDataBinding implements DataBinding {
                 }
             }
         }
-        XMLUtils.printDOM(d);
         SchemaInfo schema = new SchemaInfo(serviceInfo, ns);
         schema.setSystemId(systemId);
         XmlSchema xmlSchema = col.read(d, null);
