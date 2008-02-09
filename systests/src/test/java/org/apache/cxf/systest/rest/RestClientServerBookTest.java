@@ -22,7 +22,13 @@ package org.apache.cxf.systest.rest;
 import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Logger;
+
+import javax.xml.xpath.XPathConstants;
+
+import org.w3c.dom.Document;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.FileRequestEntity;
@@ -36,6 +42,8 @@ import org.apache.cxf.customer.book.BookServiceWrapped;
 import org.apache.cxf.customer.book.GetAnotherBook;
 import org.apache.cxf.customer.book.GetBook;
 import org.apache.cxf.helpers.IOUtils;
+import org.apache.cxf.helpers.XMLUtils;
+import org.apache.cxf.helpers.XPathUtils;
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
 import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
 import org.junit.BeforeClass;
@@ -111,12 +119,20 @@ public class RestClientServerBookTest extends AbstractBusClientServerTestBase {
         InputStream in = url.openStream();
         assertNotNull(in);           
 
-        InputStream expected = getClass()
-            .getResourceAsStream("resources/expected_get_book123_xmlwrapped.txt");
-
-        String expectedString = getStringFromInputStream(expected).trim();
-        //System.out.println("---" + getStringFromInputStream(in));
-        assertEquals(expectedString, expectedString, getStringFromInputStream(in)); 
+        Map<String, String> ns = new HashMap<String, String>();
+        ns.put("a1", "http://book.acme.com");
+        ns.put("a2", "http://book.customer.cxf.apache.org/");
+        Document doc = XMLUtils.parse(in);
+        XPathUtils xp = new XPathUtils(ns);
+        assertTrue(xp.isExist("/a2:getBookResponse", doc.getDocumentElement(), XPathConstants.NODE));
+        assertTrue(xp.isExist("/a2:getBookResponse/a2:Book", doc.getDocumentElement(), XPathConstants.NODE));
+        assertTrue(xp.isExist("/a2:getBookResponse/a2:Book/a1:id",
+                              doc.getDocumentElement(), XPathConstants.NODE));
+        assertEquals("123", xp.getValue("/a2:getBookResponse/a2:Book/a1:id",
+                                       doc.getDocumentElement(), XPathConstants.STRING));
+        assertEquals("CXF in Action", xp.getValue("/a2:getBookResponse/a2:Book/a1:name",
+                                        doc.getDocumentElement(), XPathConstants.STRING));
+        
     }
     
     @Test

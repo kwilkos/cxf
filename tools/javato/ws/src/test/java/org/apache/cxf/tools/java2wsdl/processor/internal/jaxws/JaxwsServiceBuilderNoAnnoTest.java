@@ -53,7 +53,7 @@ public class JaxwsServiceBuilderNoAnnoTest extends ProcessorTestBase {
         assertTrue(output.exists());
 
         String expectedFile = getClass().getResource("expected/stock_noanno_bare.wsdl").getFile();
-        assertFileEquals(expectedFile, output.getAbsolutePath());
+        assertWsdlEquals(new File(expectedFile), output);
     }
 
 
@@ -68,7 +68,7 @@ public class JaxwsServiceBuilderNoAnnoTest extends ProcessorTestBase {
         assertTrue(output.exists());
 
         String expectedFile = getClass().getResource("expected/stock_noanno_wrapped.wsdl").getFile();
-        assertFileEquals(expectedFile, output.getAbsolutePath());
+        assertWsdlEquals(new File(expectedFile), output);
     }
 
 
@@ -87,7 +87,7 @@ public class JaxwsServiceBuilderNoAnnoTest extends ProcessorTestBase {
         assertTrue(output.exists());
 
         String expectedFile = getClass().getResource("expected/stock_noanno_rpc.wsdl").getFile();
-        assertFileEquals(expectedFile, output.getAbsolutePath());
+        assertWsdlEquals(new File(expectedFile), output);
     }
 
     private File getOutputFile(String fileName) {

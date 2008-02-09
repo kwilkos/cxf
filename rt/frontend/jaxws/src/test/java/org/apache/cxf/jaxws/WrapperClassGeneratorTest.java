@@ -22,7 +22,6 @@ package org.apache.cxf.jaxws;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
@@ -34,6 +33,7 @@ import org.apache.cxf.jaxws.support.JaxWsImplementorInfo;
 import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.model.InterfaceInfo;
+import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.junit.After;
 import org.junit.Assert;
@@ -57,18 +57,9 @@ public class WrapperClassGeneratorTest extends Assert {
         ServiceInfo serviceInfo =  service.getServiceInfos().get(0);
         
         InterfaceInfo interfaceInfo = serviceInfo.getInterface();
-        WrapperClassGenerator wrapperClassGenerator = new WrapperClassGenerator(interfaceInfo);
-        Set<Class<?>> wrapperClassSet = wrapperClassGenerator.generate();
-        assertEquals(2, wrapperClassSet.size());
-
-        Class[] wrapperClasses = wrapperClassSet.toArray(new Class[]{});
-        Class requestClass = wrapperClasses[0];
-        Class responseClass = wrapperClasses[1];
-        if (!requestClass.getSimpleName().equals("AddNumbers")) {
-            Class tmp = requestClass;
-            requestClass = responseClass;
-            responseClass = tmp;
-        }
+        OperationInfo inf = interfaceInfo.getOperations().iterator().next();
+        Class requestClass = inf.getInput().getMessagePart(0).getTypeClass();
+        Class responseClass = inf.getOutput().getMessagePart(0).getTypeClass();
                         
         // Create request wrapper Object
         List<String> partNames = Arrays.asList(new String[] {"arg0"});
@@ -107,7 +98,7 @@ public class WrapperClassGeneratorTest extends Assert {
         resPara.add(intValueList);
         Object responseObj = wh.createWrapperObject(resPara);
               
-        JAXBContext jaxbContext = JAXBContext.newInstance(wrapperClasses);
+        JAXBContext jaxbContext = JAXBContext.newInstance(requestClass, responseClass);
         java.io.ByteArrayOutputStream bout = new java.io.ByteArrayOutputStream();
         Marshaller marshaller = jaxbContext.createMarshaller();
         

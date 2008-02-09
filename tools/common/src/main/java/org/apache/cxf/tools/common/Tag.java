@@ -20,14 +20,14 @@
 package org.apache.cxf.tools.common;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 import javax.xml.namespace.QName;
 
 public class Tag {
     QName name;
-    Set<QName> attributes;
+    Map<QName, String> attributes;
     String text;
 
     List<Tag> tags;
@@ -74,9 +74,9 @@ public class Tag {
         this.name = nName;
     }
 
-    public Set<QName> getAttributes() {
+    public Map<QName, String> getAttributes() {
         if (attributes == null) {
-            attributes = new HashSet<QName>();
+            attributes = new HashMap<QName, String>();
         }
         return attributes;
     }
@@ -94,10 +94,10 @@ public class Tag {
         StringBuffer sb = new StringBuffer();
         sb.append(tag.getName().getLocalPart());
         sb.append(" ");
-        for (QName attr : tag.getAttributes()) {
-            sb.append(attr.getNamespaceURI());
+        for (Map.Entry<QName, String> attr : tag.getAttributes().entrySet()) {
+            sb.append(attr.getKey());
             sb.append("=\"");
-            sb.append(attr.getLocalPart());
+            sb.append(attr.getValue());
             sb.append("\" ");
         }
         return sb.toString().trim();
@@ -152,11 +152,14 @@ public class Tag {
         if (!getName().equals(tag.getName())) {
             return false;
         }
-        for (QName attr : getAttributes()) {
-            if (getIgnoreAttr().contains(attr.getNamespaceURI())) {
+        for (QName attr : getAttributes().keySet()) {
+            if (getIgnoreAttr().contains(attr.getLocalPart())) {
                 continue;
             }
-            if (!tag.getAttributes().contains(attr)) {
+            if (!tag.getAttributes().containsKey(attr)) {
+                return false;
+            }
+            if (!tag.getAttributes().get(attr).equals(getAttributes().get(attr))) {
                 return false;
             }
         }

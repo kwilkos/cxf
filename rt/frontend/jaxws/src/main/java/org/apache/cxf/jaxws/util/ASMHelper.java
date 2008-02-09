@@ -23,12 +23,17 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.cxf.common.util.WeakIdentityHashMap;
 import org.objectweb.asm.ClassWriter;
 
 public class ASMHelper {
     protected static final Map<Class<?>, String> PRIMITIVE_MAP = new HashMap<Class<?>, String>();
     protected static final Map<Class<?>, String> NONPRIMITIVE_MAP = new HashMap<Class<?>, String>();
+    
+    protected static final Map<Class<?>, TypeHelperClassLoader> LOADER_MAP 
+        = new WeakIdentityHashMap<Class<?>, TypeHelperClassLoader>();
     
     protected static boolean oldASM;
     
@@ -127,16 +132,51 @@ public class ASMHelper {
     
     
     public Class<?> loadClass(String className, Class clz , byte[] bytes) { 
-        TypeHelperClassLoader loader = new TypeHelperClassLoader(clz.getClassLoader());
+        TypeHelperClassLoader loader = getTypeHelperClassLoader(clz);
         return loader.defineClass(className, bytes);
+    }
+    public Class<?> findClass(String className, Class clz) { 
+        TypeHelperClassLoader loader = getTypeHelperClassLoader(clz);
+        return loader.lookupDefinedClass(className);
+    }
+    
+    private static synchronized TypeHelperClassLoader getTypeHelperClassLoader(Class<?> l) {
+        TypeHelperClassLoader ret = LOADER_MAP.get(l);
+        if (ret == null) {
+            ret = new TypeHelperClassLoader(l.getClassLoader());
+            LOADER_MAP.put(l, ret);
+        }
+        return ret;
     }
     
     public static class TypeHelperClassLoader extends ClassLoader {
+        Map<String, Class<?>> defined = new ConcurrentHashMap<String, Class<?>>();
+        
         TypeHelperClassLoader(ClassLoader parent) {
             super(parent);
         }
+        public Class<?> lookupDefinedClass(String name) {
+            return defined.get(name);
+        }
+        
         public Class<?> defineClass(String name, byte bytes[]) {
-            return super.defineClass(name, bytes, 0, bytes.length);
+            if (name.endsWith("package-info")) {
+                Package p = super.getPackage(name.substring(0, name.length() - 13));
+                if (p == null) {
+                    definePackage(name.substring(0, name.length() - 13),
+                                    null,
+                                    null,
+                                    null, 
+                                    null,
+                                    null,
+                                    null,
+                                    null);
+                }
+            }
+            
+            Class<?> ret = super.defineClass(name, bytes, 0, bytes.length);
+            defined.put(name, ret);
+            return ret;
         }
     }
     

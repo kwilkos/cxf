@@ -35,7 +35,7 @@ import org.apache.cxf.transport.local.LocalTransportFactory;
 import org.junit.Test;
 
 public class HolderTest extends AbstractJaxWsTest {
-    private final String address = "http://localhost:9000/HolderService";
+    private final String address = "local://localhost:9000/HolderService";
 
     @Override
     protected Bus createBus() throws BusException {

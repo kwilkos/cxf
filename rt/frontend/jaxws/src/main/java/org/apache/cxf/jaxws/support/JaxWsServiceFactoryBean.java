@@ -24,6 +24,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -52,6 +53,7 @@ import org.apache.cxf.databinding.source.SourceDataBinding;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.EndpointException;
 import org.apache.cxf.helpers.CastUtils;
+import org.apache.cxf.jaxb.JAXBDataBinding;
 import org.apache.cxf.jaxws.JAXWSMethodDispatcher;
 import org.apache.cxf.jaxws.WrapperClassGenerator;
 import org.apache.cxf.jaxws.interceptors.DispatchInDatabindingInterceptor;
@@ -467,9 +469,13 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
     }
     
     private Set<Class<?>> generatedWrapperBeanClass() {
-        ServiceInfo serviceInfo = getService().getServiceInfos().get(0);
-        WrapperClassGenerator wrapperGen = new WrapperClassGenerator(serviceInfo.getInterface());
-        return wrapperGen.generate();
+        if (getDataBinding() instanceof JAXBDataBinding) {
+            ServiceInfo serviceInfo = getService().getServiceInfos().get(0);
+            WrapperClassGenerator wrapperGen = new WrapperClassGenerator(serviceInfo.getInterface(),
+                                                                         getQualifyWrapperSchema());
+            return wrapperGen.generate();            
+        }
+        return Collections.emptySet();
     }
 
     @Override

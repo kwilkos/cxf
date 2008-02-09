@@ -1,1 +1,0 @@
-<ns1:getBookResponse xmlns:ns1="http://book.customer.cxf.apache.org/"><Book xmlns:ns2="http://book.acme.com"><ns2:id>123</ns2:id><ns2:name>CXF in Action</ns2:name></Book></ns1:getBookResponse>

@@ -132,13 +132,13 @@
                     <dependencies>
                         <dependency>
                             <groupId>org.apache.cxf</groupId>
-                             <artifactId>cxf-xjc-dv</artifactId>
-                             <version>${project.version}</version>
+                            <artifactId>cxf-xjc-dv</artifactId>
+                            <version>${project.version}</version>
                         </dependency>
                         <dependency>
-                             <groupId>org.apache.cxf</groupId>
-                             <artifactId>cxf-xjc-ts</artifactId>
-                             <version>${project.version}</version>
+                            <groupId>org.apache.cxf</groupId>
+                            <artifactId>cxf-xjc-ts</artifactId>
+                            <version>${project.version}</version>
                         </dependency>
                     </dependencies>
                 </plugin>
@@ -429,7 +429,37 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-
+            <dependency>
+                <groupId>jaxen</groupId>
+                <artifactId>jaxen</artifactId>
+                <version>1.1</version>
+                <exclusions>
+                    <exclusion>
+                        <artifactId>dom4j</artifactId>
+                        <groupId>dom4j</groupId>
+                    </exclusion>
+                    <exclusion>
+                        <artifactId>xmlParserAPIs</artifactId>
+                        <groupId>xerces</groupId>
+                    </exclusion>
+                    <exclusion>
+                        <artifactId>xercesImpl</artifactId>
+                        <groupId>xerces</groupId>
+                    </exclusion>
+                    <exclusion>
+                        <artifactId>xom</artifactId>
+                        <groupId>xom</groupId>
+                    </exclusion>
+                    <exclusion>
+                        <artifactId>xalan</artifactId>
+                        <groupId>xalan</groupId>
+                    </exclusion>
+                    <exclusion>
+                        <artifactId>xml-apis</artifactId>
+                        <groupId>xml-apis</groupId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
             <dependency>
                 <groupId>org.codehaus.woodstox</groupId>
                 <artifactId>wstx-asl</artifactId>
@@ -869,8 +899,8 @@
         <profile>
             <id>set.eclipse.output</id>
             <properties>
-                 <eclipse.outputDirectory>${basedir}/eclipse-classes</eclipse.outputDirectory>
-            </properties> 
+                <eclipse.outputDirectory>${basedir}/eclipse-classes</eclipse.outputDirectory>
+            </properties>
         </profile>
 
         <profile>
@@ -1006,7 +1036,7 @@
                                      some timeout occurs.   That may cause some tests to timeout/hang. -->
                                     <name>org.apache.cxf.transports.http_jetty.DontClosePort</name>
                                     <value>false</value>
-                                </property>                                
+                                </property>
                             </systemProperties>
                         </configuration>
                     </plugin>
@@ -1016,8 +1046,8 @@
         <profile>
             <id>spring2.5</id>
             <properties>
-               <spring.version>2.5</spring.version>
-               <spring.mock>spring-test</spring.mock> 
+                <spring.version>2.5</spring.version>
+                <spring.mock>spring-test</spring.mock>
             </properties>
         </profile>
     </profiles>

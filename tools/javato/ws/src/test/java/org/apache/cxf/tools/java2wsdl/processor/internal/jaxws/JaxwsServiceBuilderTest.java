@@ -161,7 +161,7 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
         assertTrue(output.exists());
 
         String expectedFile = this.getClass().getResource("expected/expected_holder.wsdl").getFile();
-        assertFileEquals(expectedFile, output.getAbsolutePath());
+        assertWsdlEquals(new File(expectedFile), output);
     }
     
     @Test

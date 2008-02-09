@@ -22,7 +22,7 @@
 <xsd:element minOccurs="0" name="arg1" type="xsd:string"/>
 </xsd:sequence>
 </xsd:complexType>
-<xsd:element name="header" type="xsd:string"/>
+<xsd:element name="header" nillable="true" type="xsd:string"/>
 <xsd:element name="echo3Response" type="tns:echo3Response"/>
 <xsd:complexType name="echo3Response">
 <xsd:sequence>

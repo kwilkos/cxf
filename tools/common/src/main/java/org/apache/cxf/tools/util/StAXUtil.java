@@ -105,8 +105,8 @@ public final class StAXUtil {
                 }
 
                 for (int i = 0; i < reader.getAttributeCount(); i++) {
-                    newTag.getAttributes().add(new QName(reader.getAttributeLocalName(i), 
-                                                         reader.getAttributeValue(i)));
+                    newTag.getAttributes().put(reader.getAttributeName(i), 
+                                               reader.getAttributeValue(i));
                 }
                 stack.push(newTag);
             }
@@ -162,8 +162,25 @@ public final class StAXUtil {
                 }
 
                 for (int i = 0; i < reader.getAttributeCount(); i++) {
-                    newTag.getAttributes().add(new QName(reader.getAttributeLocalName(i), 
-                                                         reader.getAttributeValue(i)));
+                    if ("type".equals(reader.getAttributeLocalName(i))
+                        && "element".equals(reader.getLocalName())) {
+                        //probably a qname to a type, pull namespace in differently
+                        String tp = reader.getAttributeValue(i);
+                        if (tp.contains(":")) {
+                            String ns = tp.substring(0, tp.indexOf(":"));
+                            if ("tns".equals(ns)) {
+                                tp = tp.substring(tp.indexOf(":") + 1);
+                            } else {
+                                ns = reader.getNamespaceURI(ns);
+                                tp = "{" + ns + "}" + tp.substring(tp.indexOf(":") + 1);
+                            }
+                        }
+                        newTag.getAttributes().put(reader.getAttributeName(i), 
+                                                   tp);
+                    } else {
+                        newTag.getAttributes().put(reader.getAttributeName(i), 
+                                                   reader.getAttributeValue(i));
+                    }
                 }
 
                 newTag.setParent(currentTag);

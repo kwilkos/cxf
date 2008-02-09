@@ -33,6 +33,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
@@ -206,24 +207,19 @@ public class ProcessorTestBase extends Assert {
                                             expectedTag.getName().toString(), 
                                             sourceTag.getName().toString());
             }
-            for (QName attr : expectedTag.getAttributes()) {
-                if (ignoreAttr.contains(attr.getNamespaceURI())) {
+            for (Map.Entry<QName, String> attr : expectedTag.getAttributes().entrySet()) {
+                if (ignoreAttr.contains(attr.getKey().getLocalPart())) {
                     continue;
                 }
 
-                boolean found = false;
-                for (QName attr2 : sourceTag.getAttributes()) {
-                    if (attr2.getNamespaceURI().equals(attr.getNamespaceURI())) {
-                        if (attr2.getLocalPart().equals(attr.getLocalPart())) {
-                            found = true;
-                        } else {
-                            throw new ComparisonFailure("Attributes not equal: ", 
-                                                        attr.toString(), 
-                                                        attr2.toString());
-                        }
+                if (sourceTag.getAttributes().containsKey(attr.getKey())) {
+                    if (!sourceTag.getAttributes().get(attr.getKey()).equals(attr.getValue())) {
+                        throw new ComparisonFailure("Attributes not equal: ", 
+                                                attr.getKey() + ":" + attr.getValue(), 
+                                                attr.getKey() + ":" 
+                                                + sourceTag.getAttributes().get(attr.getKey()).toString());
                     }
-                }
-                if (!found) {
+                } else {
                     throw new AssertionError("Attribute: " + attr + " is missing in the source file.");
                 }
             }
@@ -242,27 +238,22 @@ public class ProcessorTestBase extends Assert {
         assertTagEquals(expected, source, DEFAULT_IGNORE_ATTR, DEFAULT_IGNORE_TAG);
     }
 
-    protected void assertAttributesEquals(Collection<QName> q1, Collection<QName> q2, 
+    protected void assertAttributesEquals(Map<QName, String> q1,
+                                          Map<QName, String> q2, 
                                           Collection<String> ignoreAttr) {
-        for (QName attr : q1) {
-            if (ignoreAttr.contains(attr.getNamespaceURI())) {
+        for (Map.Entry<QName, String>  attr : q1.entrySet()) {
+            if (ignoreAttr.contains(attr.getKey().getLocalPart())) {
                 continue;
             }
-            boolean found = false;
-
-            for (QName attr2 : q2) {
-                if (attr2.getNamespaceURI().equals(attr.getNamespaceURI())) {
-                    if (attr2.getLocalPart().equals(attr.getLocalPart())) {
-                        found = true;
-                    } else {
-                        throw new ComparisonFailure("Attribute not equal: ", 
-                                                    attr.toString(), 
-                                                    attr2.toString());
-                    }
-                }
+            
+            String found = q2.get(attr.getKey());
+            if (found == null) {
+                throw new AssertionError("Attribute: " + attr.getKey() + " is missing.");                
             }
-            if (!found) {
-                throw new AssertionError("Attribute: " + attr + " is missing.");
+            if (!found.equals(attr.getValue())) {
+                throw new ComparisonFailure("Attribute not equal: ", 
+                                            attr.getKey() + ":" + attr.getValue(), 
+                                            attr.getKey() + ":" + found); 
             }
         }
     }

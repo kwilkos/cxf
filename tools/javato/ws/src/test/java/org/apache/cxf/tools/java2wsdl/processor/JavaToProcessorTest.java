@@ -421,7 +421,7 @@ public class JavaToProcessorTest extends ProcessorTestBase {
     //  TODO: should suppor the XmlMimeType annotation in the SEI
     public void testMimeTypeInSEI() throws Exception {
         env.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/send_image.wsdl");
-        env.put(ToolConstants.CFG_CLASSNAME, "org.apache.cxf.tools.fortest.ImageSender");
+        env.put(ToolConstants.CFG_CLASSNAME, org.apache.cxf.tools.fortest.ImageSender.class.getName());
         env.put(ToolConstants.CFG_VERBOSE, ToolConstants.CFG_VERBOSE);
         try {
             processor.setEnvironment(env);
@@ -572,10 +572,8 @@ public class JavaToProcessorTest extends ProcessorTestBase {
 
         File wsdlFile = new File(output, "epr_schema1.xsd");
         assertTrue(wsdlFile.exists());
-        String expectedString = "schemaLocation=\"http://www.w3.org/2006/03/addressing/ws-addr.xsd\"";
         String xsd = getStringFromFile(wsdlFile);
-        assertTrue(xsd.indexOf(expectedString) != -1);
-        assertTrue(xsd.indexOf("ref=") == -1);
+        assertTrue(xsd, xsd.indexOf("ref=") == -1);
         
     }
 }

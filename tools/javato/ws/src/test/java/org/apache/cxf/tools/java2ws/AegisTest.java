@@ -72,7 +72,7 @@ public class AegisTest extends ToolTestBase {
     
     @Test
     public void testAegisBasic() throws Exception {
-        final String sei = "org.apache.cxf.tools.fortest.aegis2ws.TestAegisSEI";
+        final String sei = org.apache.cxf.tools.fortest.aegis2ws.TestAegisSEI.class.getName();
         String[] args = new String[] {"-wsdl", "-o", output.getPath() + "/aegis.wsdl", "-verbose", "-d",
                                       output.getPath(), "-s", output.getPath(),
                                       "-frontend", "jaxws", "-databinding", "aegis",

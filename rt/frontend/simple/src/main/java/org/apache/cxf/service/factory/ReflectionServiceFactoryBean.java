@@ -735,9 +735,12 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         op.setProperty(m.getClass().getName(), m);
         op.setProperty("action", getAction(op, m));
         op.setProperty(METHOD_ANNOTATIONS, m.getAnnotations());
+        op.setProperty(METHOD_PARAM_ANNOTATIONS, m.getParameterAnnotations());
 
         if (isWrapped(m)) {
             UnwrappedOperationInfo uOp = new UnwrappedOperationInfo(op);
+            uOp.setProperty(METHOD_ANNOTATIONS, m.getAnnotations());
+            uOp.setProperty(METHOD_PARAM_ANNOTATIONS, m.getParameterAnnotations());
             op.setUnwrappedOperation(uOp);
 
             createMessageParts(intf, uOp, m);
@@ -1283,6 +1286,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                     part.setProperty(ELEMENT_NAME, q2);
                 }
                 part.setProperty(METHOD_ANNOTATIONS, method.getAnnotations());
+                part.setProperty(PARAM_ANNOTATION, method.getAnnotations());
                 if (isHeader(method, -1)) {
                     part.setProperty(HEADER, Boolean.TRUE);
                     if (isRPC(method) || !isWrapped(method)) {
@@ -1316,6 +1320,8 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                     }
 
                     MessagePartInfo part = outMsg.addMessagePart(q);
+                    part.setProperty(METHOD_PARAM_ANNOTATIONS, method.getParameterAnnotations());
+                    part.setProperty(PARAM_ANNOTATION, method.getParameterAnnotations()[j]);
                     initializeParameter(part, paramClasses[j], method.getGenericParameterTypes()[j]);
                     part.setIndex(j + 1);
 
@@ -1344,7 +1350,6 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
 
     protected void createInputWrappedMessageParts(OperationInfo op, Method method, MessageInfo inMsg) {
         MessagePartInfo part = inMsg.addMessagePart("parameters");
-        part.setIndex(0);
         part.setElement(true);
         for (Iterator itr = serviceConfigurations.iterator(); itr.hasNext();) {
             AbstractServiceConfiguration c = (AbstractServiceConfiguration)itr.next();
@@ -1364,13 +1369,28 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
             part.setProperty("REQUEST.WRAPPER.CLASSNAME", getRequestWrapperClassName(method));
         }
 
+        int partIdx = 0;
+        int maxIdx = 0;
         for (MessagePartInfo mpart : op.getInput().getMessageParts()) {
             if (Boolean.TRUE.equals(mpart.getProperty(HEADER))) {
                 int idx = mpart.getIndex();
                 inMsg.addMessagePart(mpart);
                 mpart.setIndex(idx);
+                
+                //make sure the header part and the wrapper part don't share the 
+                //same index.   We can move the wrapper part around a bit 
+                //if need be
+                if (maxIdx < idx) {
+                    maxIdx = idx;
+                }
+                if (idx == partIdx) {
+                    maxIdx++;
+                    partIdx = maxIdx;
+                }
             }
         }
+        part.setIndex(partIdx);
+
     }
 
     protected void createOutputWrappedMessageParts(OperationInfo op, Method method, MessageInfo outMsg) {
