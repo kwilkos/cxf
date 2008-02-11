@@ -21,11 +21,13 @@ package org.apache.cxf.jaxws;
 
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Array;
+import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
@@ -56,7 +58,7 @@ import org.objectweb.asm.Opcodes;
 
 public final class WrapperClassGenerator extends ASMHelper {
     private static final Logger LOG = LogUtils.getL7dLogger(WrapperClassGenerator.class);
-    private Set<Class<?>> wrapperBeans = new HashSet<Class<?>>();
+    private Set<Class<?>> wrapperBeans = new LinkedHashSet<Class<?>>();
     private InterfaceInfo interfaceInfo;
     private boolean qualified;
     
@@ -129,6 +131,7 @@ public final class WrapperClassGenerator extends ASMHelper {
                     MessageInfo messageInfo = opInfo.getUnwrappedOperation().getInput();
                     createWrapperClass(inf,
                                        messageInfo, 
+                                       opInfo,
                                        method, 
                                        true);
                 }
@@ -137,7 +140,8 @@ public final class WrapperClassGenerator extends ASMHelper {
                     inf = opInfo.getOutput().getMessageParts().get(0);
                     if (inf.getTypeClass() == null) {
                         createWrapperClass(inf,
-                                           messageInfo, 
+                                           messageInfo,
+                                           opInfo,
                                            method, 
                                            false);
                     }
@@ -149,13 +153,15 @@ public final class WrapperClassGenerator extends ASMHelper {
 
     private void createWrapperClass(MessagePartInfo wrapperPart,
                                         MessageInfo messageInfo,
+                                        OperationInfo op,
                                         Method method, 
                                         boolean isRequest) {
 
         QName wrapperElement = messageInfo.getName();
 
         ClassWriter cw = createClassWriter();
-        String className = getPackageName(method) + ".jaxws." + StringUtils.capitalize(method.getName());
+        String className = getPackageName(method) + ".jaxws." 
+            + StringUtils.capitalize(op.getName().getLocalPart());
         if (!isRequest) {
             className = className + "Response";
         }
@@ -252,8 +258,13 @@ public final class WrapperClassGenerator extends ASMHelper {
 
             Type[] types = ptype.getActualTypeArguments();
             // TODO: more complex Parameterized type
-            if (types.length > 0 && types[0] instanceof Class) {
-                genericTypeClass = (Class)types[0];
+            if (types.length > 0) {
+                if (types[0] instanceof Class) {
+                    genericTypeClass = (Class)types[0];
+                } else if (types[0] instanceof GenericArrayType) {
+                    genericTypeClass = (Class)((GenericArrayType)types[0]).getGenericComponentType();
+                    genericTypeClass = Array.newInstance(genericTypeClass, 0).getClass();
+                }
             }
         }
         String classCode = getClassCode(clz);

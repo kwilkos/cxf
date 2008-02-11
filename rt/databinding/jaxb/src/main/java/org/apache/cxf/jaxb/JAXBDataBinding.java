@@ -31,6 +31,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -115,7 +116,7 @@ public final class JAXBDataBinding extends AbstractDataBinding {
     }
     
     public JAXBDataBinding(Class<?>...classes) throws JAXBException {
-        contextClasses = new HashSet<Class<?>>();
+        contextClasses = new LinkedHashSet<Class<?>>();
         contextClasses.addAll(Arrays.asList(classes));
         setContext(createJAXBContext(contextClasses));
     }
@@ -217,7 +218,7 @@ public final class JAXBDataBinding extends AbstractDataBinding {
             return;
         }
         
-        contextClasses = new HashSet<Class<?>>();
+        contextClasses = new LinkedHashSet<Class<?>>();
         for (ServiceInfo serviceInfo : service.getServiceInfos()) {
             JAXBContextInitializer initializer = 
                 new JAXBContextInitializer(serviceInfo, contextClasses);

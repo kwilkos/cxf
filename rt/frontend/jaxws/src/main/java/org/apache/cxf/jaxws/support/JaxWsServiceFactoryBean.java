@@ -194,6 +194,7 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
     protected void initializeWSDLOperation(InterfaceInfo intf, OperationInfo o, Method method) {
         method = ((JaxWsServiceConfiguration)jaxWsConfiguration).getDeclaredMethod(method);
         o.setProperty(Method.class.getName(), method);
+        o.setProperty(METHOD, method);
         initializeWrapping(o, method);
 
         try {

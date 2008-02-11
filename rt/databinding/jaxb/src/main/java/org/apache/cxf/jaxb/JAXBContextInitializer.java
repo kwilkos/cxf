@@ -36,8 +36,11 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlTransient;
 
 import org.apache.cxf.service.ServiceModelVisitor;
+import org.apache.cxf.service.model.MessageInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
+import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.service.model.ServiceInfo;
+import org.apache.cxf.service.model.UnwrappedOperationInfo;
 
 /**
  * Walks the service model and sets up the classes for the context.
@@ -64,12 +67,32 @@ class JAXBContextInitializer extends ServiceModelVisitor {
                              Boolean.TRUE);
         }
         boolean isFromWrapper = part.getMessageInfo().getOperation().isUnwrapped();
+        if (isFromWrapper 
+            && !Boolean.TRUE.equals(part.getProperty("messagepart.isheader"))) {
+            UnwrappedOperationInfo uop = (UnwrappedOperationInfo)part.getMessageInfo().getOperation();
+            OperationInfo op = uop.getWrappedOperation();
+            MessageInfo inf = null;
+            if (uop.getInput() == part.getMessageInfo()) {
+                inf = op.getInput();
+            } else if (uop.getOutput() == part.getMessageInfo()) {
+                inf = op.getOutput();
+            }
+            if (inf != null
+                && inf.getMessagePart(0).getTypeClass() != null) {
+                //if the wrapper has a type class, we don't need t do anything
+                //as everything would have been discovered when walking the
+                //wrapper type (unless it's a header which wouldn't be in the wrapper)
+                return;
+            }
+        }
         if (isFromWrapper
             && clazz.isArray()
             && !Byte.TYPE.equals(clazz.getComponentType())) {
             clazz = clazz.getComponentType();
         }
-
+        
+        
+            
         Type genericType = (Type) part.getProperty("generic.type");
         if (genericType != null) {
             boolean isList = Collection.class.isAssignableFrom(clazz);
@@ -100,7 +123,7 @@ class JAXBContextInitializer extends ServiceModelVisitor {
                     clazz = arrayCls;
                     part.setTypeClass(clazz);
                     if (isFromWrapper) {
-                        addType(clazz.getComponentType());
+                        addType(clazz.getComponentType(), true);
                     }
                 } else if (pt.getActualTypeArguments().length > 0
                     && pt.getActualTypeArguments()[0] instanceof GenericArrayType) {
@@ -111,7 +134,7 @@ class JAXBContextInitializer extends ServiceModelVisitor {
                     clazz = Array.newInstance(arrayCls, 0).getClass();
                     part.setTypeClass(clazz);
                     if (isFromWrapper) {
-                        addType(clazz.getComponentType());
+                        addType(clazz.getComponentType(), true);
                     }
                 }
             }
@@ -125,8 +148,15 @@ class JAXBContextInitializer extends ServiceModelVisitor {
     }
 
     private void addType(Type cls) {
+        addType(cls, false);
+    }
+    private void addType(Type cls, boolean allowArray) {
         if (cls instanceof Class) {
-            addClass((Class)cls);
+            if (((Class)cls).isArray() && !allowArray) {
+                addClass(((Class)cls).getComponentType());
+            } else {
+                addClass((Class)cls);
+            }
         } else if (cls instanceof ParameterizedType) {
             for (Type t2 : ((ParameterizedType)cls).getActualTypeArguments()) {
                 addType(t2);

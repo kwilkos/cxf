@@ -301,15 +301,13 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
 
         initializeWSDLOperations();
 
-        if (getDataBinding() != null) {
-            getDataBinding().initialize(getService());
-        }
-        
+        Set<Class<?>> cls = getExtraClass(); 
         for (ServiceInfo si : getService().getServiceInfos()) {
-            if (getExtraClass() != null && !getExtraClass().isEmpty()) {
-                si.setProperty(EXTRA_CLASS, getExtraClass());
+            if (cls != null && !cls.isEmpty()) {
+                si.setProperty(EXTRA_CLASS, cls);
             }
         }
+        getDataBinding().initialize(getService());
     }
 
     protected void buildServiceFromClass() {
@@ -333,8 +331,8 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         createInterface(serviceInfo);
 
 
+        Set<?> wrapperClasses = this.getExtraClass();
         for (ServiceInfo si : getService().getServiceInfos()) {
-            Set<?> wrapperClasses = this.getExtraClass();
             if (wrapperClasses != null && !wrapperClasses.isEmpty()) {
                 si.setProperty(EXTRA_CLASS, wrapperClasses);
             }
@@ -536,6 +534,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         if (initializeClassInfo(o, method, op == null ? null
             : CastUtils.cast(op.getParameterOrdering(), String.class))) {
             getMethodDispatcher().bind(o, method);
+            o.setProperty(ReflectionServiceFactoryBean.METHOD, method);
         } else {
             LOG.log(Level.WARNING, "NO_METHOD_FOR_OP", o.getName());
         }
