@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.xml.namespace.QName;
 
@@ -34,8 +35,8 @@ public class ServiceInfo extends AbstractDescriptionElement implements NamedItem
     QName name;
     String targetNamespace;
     InterfaceInfo intf;
-    Map<QName, BindingInfo> bindings = new ConcurrentHashMap<QName, BindingInfo>(2);
-    Map<QName, EndpointInfo> endpoints = new ConcurrentHashMap<QName, EndpointInfo>(2);
+    List<BindingInfo> bindings = new CopyOnWriteArrayList<BindingInfo>();
+    List<EndpointInfo> endpoints = new CopyOnWriteArrayList<EndpointInfo>();
     Map<QName, MessageInfo> messages;
     List<SchemaInfo> schemas = new ArrayList<SchemaInfo>(4);
     private SchemaCollection xmlSchemaCollection;
@@ -70,24 +71,42 @@ public class ServiceInfo extends AbstractDescriptionElement implements NamedItem
     }
 
     public BindingInfo getBinding(QName qn) {
-        return bindings.get(qn);
+        for (BindingInfo bi : bindings) {
+            if (qn.equals(bi.getName())) {
+                return bi;
+            }
+        }
+        return null;
     }
     public void addBinding(BindingInfo binding) {
-        bindings.put(binding.getName(), binding);
+        BindingInfo bi = getBinding(binding.getName());
+        if (bi != null) {
+            bindings.remove(bi);
+        }
+        bindings.add(binding);
     }
     public EndpointInfo getEndpoint(QName qn) {
-        return endpoints.get(qn);
+        for (EndpointInfo ei : endpoints) {
+            if (qn.equals(ei.getName())) {
+                return ei;
+            }
+        }
+        return null;
     }
     public void addEndpoint(EndpointInfo ep) {
-        endpoints.put(ep.getName(), ep);
+        EndpointInfo ei = getEndpoint(ep.getName());
+        if (ei != null) {
+            endpoints.remove(ei);
+        }
+        endpoints.add(ep);
     }
 
     public Collection<EndpointInfo> getEndpoints() {
-        return Collections.unmodifiableCollection(endpoints.values());
+        return Collections.unmodifiableCollection(endpoints);
     }
 
     public Collection<BindingInfo> getBindings() {
-        return Collections.unmodifiableCollection(bindings.values());
+        return Collections.unmodifiableCollection(bindings);
     }
 
     public Map<QName, MessageInfo> getMessages() {

@@ -76,7 +76,7 @@ public class CodeGenOptionTest extends ProcessorTestBase {
         processor.execute();
 
         Class greeterServer = classLoader
-            .loadClass("org.apache.hello_world_soap_http.Greeter_SoapPort_Server");
+            .loadClass("org.apache.cxf.w2j.hello_world_soap_http.Greeter_SoapPort_Server");
         assertNotNull("Server should be generated", greeterServer);
 
     }
@@ -91,7 +91,7 @@ public class CodeGenOptionTest extends ProcessorTestBase {
         processor.execute();
 
         Class greeterServer = classLoader
-            .loadClass("org.apache.hello_world_soap_http.Greeter_SoapPort_Server");
+            .loadClass("org.apache.cxf.w2j.hello_world_soap_http.Greeter_SoapPort_Server");
         assertNotNull("Server should be generated", greeterServer);
     }
 
@@ -110,7 +110,7 @@ public class CodeGenOptionTest extends ProcessorTestBase {
         File apache = new File(org, "apache");
         assertTrue(apache.exists());
 
-        Class clz = classLoader.loadClass("org.apache.hello_world_async_soap_http.GreeterAsync");
+        Class clz = classLoader.loadClass("org.apache.cxf.w2j.hello_world_async_soap_http.GreeterAsync");
         assertEquals(3, clz.getMethods().length);
 
     }
@@ -124,7 +124,7 @@ public class CodeGenOptionTest extends ProcessorTestBase {
         processor.setContext(env);
         processor.execute();
 
-        File file = new File(output, "org/apache/hello_world_soap_http");
+        File file = new File(output, "org/apache/cxf/w2j/hello_world_soap_http");
         assertEquals(2, file.list().length);
 
     }

@@ -130,8 +130,8 @@ public class WebFaultOutInterceptor extends FaultOutInterceptor {
     private Object createFaultInfoBean(WebFault fault, Throwable cause) {
         if (!StringUtils.isEmpty(fault.faultBean())) {
             try {
-                Class cls = ClassLoaderUtils.loadClass(fault.faultBean(),
-                                                       cause.getClass());
+                Class<?> cls = ClassLoaderUtils.loadClass(fault.faultBean(),
+                                                          cause.getClass());
                 if (cls != null) {
                     Object ret = cls.newInstance();
                     //copy props

@@ -18,12 +18,12 @@
   under the License.
 -->
 
-<wsdl:definitions name="Voidint" targetNamespace="http://apache.org/hello_world_rpclit/voidint" 
+<wsdl:definitions name="Voidint" targetNamespace="http://cxf.apache.org/w2j/hello_world_rpclit/voidint" 
     xmlns="http://schemas.xmlsoap.org/wsdl/" 
     xmlns:http-conf="http://schemas.iona.com/transports/http/configuration"
     xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" 
-    xmlns:tns="http://apache.org/hello_world_rpclit/voidint"
-    xmlns:x1="http://apache.org/hello_world_rpclit/voidint/types"
+    xmlns:tns="http://cxf.apache.org/w2j/hello_world_rpclit/voidint"
+    xmlns:x1="http://cxf.apache.org/w2j/hello_world_rpclit/voidint/types"
     xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" 
     xmlns:xsd="http://www.w3.org/2001/XMLSchema">
     
@@ -46,10 +46,10 @@
         <wsdl:operation name="sayHi">
             <soap:operation soapAction="" style="rpc"/>
 	    <wsdl:input>
-                <soap:body namespace="http://apache.org/hello_world_rpclit/voidint" use="literal"/>
+                <soap:body namespace="http://cxf.apache.org/w2j/hello_world_rpclit/voidint" use="literal"/>
             </wsdl:input>
             <wsdl:output>
-                <soap:body namespace="http://apache.org/hello_world_rpclit/voidint" use="literal"/>
+                <soap:body namespace="http://cxf.apache.org/w2j/hello_world_rpclit/voidint" use="literal"/>
             </wsdl:output>
         </wsdl:operation>
         

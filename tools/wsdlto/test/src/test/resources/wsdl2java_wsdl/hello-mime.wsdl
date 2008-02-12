@@ -19,16 +19,16 @@
 -->
 <wsdl:definitions xmlns="http://schemas.xmlsoap.org/wsdl/"
 	xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
-	xmlns:tns="http://apache.org/hello_world_mime"
-	xmlns:x1="http://apache.org/hello_world_mime/types"
+	xmlns:tns="http://cxf.apache.org/w2j/hello_world_mime"
+	xmlns:x1="http://cxf.apache.org/w2j/hello_world_mime/types"
 	xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
 	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
 	xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/"
-	targetNamespace="http://apache.org/hello_world_mime"
+	targetNamespace="http://cxf.apache.org/w2j/hello_world_mime"
 	name="HelloMime">
 	<wsdl:types>
 		<schema xmlns="http://www.w3.org/2001/XMLSchema"
-			targetNamespace="http://apache.org/hello_world_mime/types">
+			targetNamespace="http://cxf.apache.org/w2j/hello_world_mime/types">
 
 			<element name="address">
 				<complexType>

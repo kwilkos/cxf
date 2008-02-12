@@ -58,6 +58,7 @@ public class ProviderRPCClientServerTest extends AbstractBusClientServerTestBase
         AttachmentPart ap2 = msg.createAttachmentPart();
         ap2.setContent("Attachment content - Part 2", "text/plain");
         msg.addAttachmentPart(ap2);
+        msg.saveChanges();
         
         SOAPConnection con = conFac.createConnection();
         URL endpoint = new URL("http://localhost:9008/SOAPServiceProviderRPCLit/SoapPortProviderRPCLit1");

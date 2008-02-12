@@ -30,7 +30,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
-import java.security.Permission;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -93,21 +92,10 @@ public class IDLToWSDLTest extends ToolTestBase {
     }
 
     private int execute(String[] args) {
-        SecurityManager oldManager = System.getSecurityManager();
         try {
-            SecurityManager newManager = new SecurityManager() {
-                public void checkPermission(Permission perm) {
-                    if ("exitVM".equals(perm.getName())) {
-                        throw new SecurityException("Exit Not Allowed");
-                    }
-                }
-            };
-            System.setSecurityManager(newManager);
-            IDLToWSDL.main(args);
+            IDLToWSDL.run(args);
         } catch (Throwable t) {
             return error;
-        } finally {
-            System.setSecurityManager(oldManager);
         }
 
         return noError;

@@ -20,8 +20,8 @@
 package org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -496,7 +496,7 @@ public class ParameterProcessor extends AbstractProcessor {
                                               List<String> parameterList) throws ToolException {
         Map<QName, MessagePartInfo> inputPartsMap = inputMessage.getMessagePartsMap();
 
-        Map<QName, MessagePartInfo> outputPartsMap = new HashMap<QName, MessagePartInfo>();
+        Map<QName, MessagePartInfo> outputPartsMap = new LinkedHashMap<QName, MessagePartInfo>();
         
         if (outputMessage != null) {
             outputPartsMap = outputMessage.getMessagePartsMap();

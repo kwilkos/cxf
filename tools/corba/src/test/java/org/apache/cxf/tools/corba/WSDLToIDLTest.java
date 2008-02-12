@@ -29,7 +29,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
-import java.security.Permission;
 
 import javax.wsdl.Definition;
 import javax.xml.namespace.QName;
@@ -84,25 +83,13 @@ public class WSDLToIDLTest extends ToolTestBase {
         output = null;
     }
 
-    private int execute(String[] args) {
-        SecurityManager oldManager = System.getSecurityManager();
+    private int execute(String[] args) throws Exception {
         try {
-            SecurityManager newManager = new SecurityManager() {
-                public void checkPermission(Permission perm) {
-                    if ("exitVM".equals(perm.getName())) {
-                        throw new SecurityException("Exit Not Allowed");
-                    }
-                }
-            };
-            System.setSecurityManager(newManager);
-            WSDLToIDL.main(args);
-        } catch (Throwable t) {
-            return error;
-        } finally {
-            System.setSecurityManager(oldManager);
+            WSDLToIDL.run(args);
+        } catch (Exception ex) {
+            return -1;
         }
-
-        return noError;
+        return 0;
     }
 
     private void checkStrings(byte orig[], byte generated[]) throws Exception {

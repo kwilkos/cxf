@@ -21,12 +21,12 @@
 		  xmlns="http://schemas.xmlsoap.org/wsdl/" 
 		  xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" 
 		  xmlns:tns="http://apache.org/schema_import"
-		  xmlns:x1="http://apache.org/hello_world_soap_http/types"
+		  xmlns:x1="http://cxf.apache.org/w2j/hello_world_soap_http/types"
 		  xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" 
 		  xmlns:xsd="http://www.w3.org/2001/XMLSchema">
     <wsdl:types>
 	<xsd:schema>
-	    <xsd:import namespace="http://apache.org/hello_world_soap_http/types" schemaLocation="schema1.xsd"/>
+	    <xsd:import namespace="http://cxf.apache.org/w2j/hello_world_soap_http/types" schemaLocation="schema1.xsd"/>
 	</xsd:schema>
     </wsdl:types>
     <wsdl:message name="sayHiRequest">

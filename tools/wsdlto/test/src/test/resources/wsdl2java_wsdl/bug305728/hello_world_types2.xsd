@@ -20,7 +20,7 @@
 <xsd:schema
     xmlns="http://www.w3.org/2001/XMLSchema"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
-    targetNamespace="http://apache.org/hello_world/types" 
+    targetNamespace="http://cxf.apache.org/w2j/hello_world/types" 
     elementFormDefault="qualified">
 
     <element name="sayHi">

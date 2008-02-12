@@ -55,6 +55,7 @@ import org.apache.cxf.endpoint.EndpointException;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.jaxb.JAXBDataBinding;
 import org.apache.cxf.jaxws.JAXWSMethodDispatcher;
+import org.apache.cxf.jaxws.JAXWSProviderMethodDispatcher;
 import org.apache.cxf.jaxws.WrapperClassGenerator;
 import org.apache.cxf.jaxws.interceptors.DispatchInDatabindingInterceptor;
 import org.apache.cxf.jaxws.interceptors.DispatchOutDatabindingInterceptor;
@@ -367,6 +368,7 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
             getServiceConfigurations().add(0, jaxWsConfiguration);
             setWrapped(false);
             setDataBinding(new SourceDataBinding());
+            setMethodDispatcher(new JAXWSProviderMethodDispatcher(implInfo));
         } else {
             jaxWsConfiguration = new JaxWsServiceConfiguration();
             jaxWsConfiguration.setServiceFactory(this);
@@ -379,10 +381,9 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
                     setQualifyWrapperSchema(true);
                 }
             }
+            setMethodDispatcher(new JAXWSMethodDispatcher(implInfo));
         }
-        loadWSFeatureAnnotation(ii.getSEIClass(), ii.getImplementorClass());
-        setMethodDispatcher(new JAXWSMethodDispatcher(implInfo));
-        
+        loadWSFeatureAnnotation(ii.getSEIClass(), ii.getImplementorClass());        
     }
 
     public List<WebServiceFeature> getWsFeatures() {

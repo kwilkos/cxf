@@ -18,7 +18,7 @@
  */
 
 
-package org.apache.hello_world_mime;
+package org.apache.cxf.w2j.hello_world_mime;
 
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
@@ -31,24 +31,24 @@ import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.ws.RequestWrapper;
 import javax.xml.ws.ResponseWrapper;
 
-@WebService(targetNamespace = "http://apache.org/hello_world_mime", name = "Hello")
+@WebService(targetNamespace = "http://cxf.apache.org/w2j/hello_world_mime", name = "Hello")
 @XmlSeeAlso({org.apache.cxf.mime.ObjectFactory.class})
 @SOAPBinding(parameterStyle = SOAPBinding.ParameterStyle.BARE)
 
 public interface Hello {
 
     @SOAPBinding(parameterStyle = SOAPBinding.ParameterStyle.BARE)
-    @WebResult(name = "addressRes", targetNamespace = "http://apache.org/hello_world_mime/types", partName = "mime")
+    @WebResult(name = "addressRes", targetNamespace = "http://cxf.apache.org/w2j/hello_world_mime/types", partName = "mime")
     @WebMethod
     public javax.xml.transform.Source address(
-        @WebParam(partName = "mime", name = "address", targetNamespace = "http://apache.org/hello_world_mime/types")
+        @WebParam(partName = "mime", name = "address", targetNamespace = "http://cxf.apache.org/w2j/hello_world_mime/types")
         org.apache.cxf.mime.Address mime
     );
 
     @SOAPBinding(parameterStyle = SOAPBinding.ParameterStyle.BARE)
     @WebMethod
     public void helloMime(
-        @WebParam(partName = "body", name = "body", targetNamespace = "http://apache.org/hello_world_mime/types")
+        @WebParam(partName = "body", name = "body", targetNamespace = "http://cxf.apache.org/w2j/hello_world_mime/types")
         java.lang.String body,
         @WebParam(partName = "mime", mode = WebParam.Mode.INOUT, name = "mime", targetNamespace = "")
         javax.xml.ws.Holder<java.awt.Image> mime
@@ -57,7 +57,7 @@ public interface Hello {
     @SOAPBinding(parameterStyle = SOAPBinding.ParameterStyle.BARE)
     @WebMethod
     public void hello(
-        @WebParam(partName = "body", name = "body", targetNamespace = "http://apache.org/hello_world_mime/types")
+        @WebParam(partName = "body", name = "body", targetNamespace = "http://cxf.apache.org/w2j/hello_world_mime/types")
         java.lang.String body,
         @WebParam(partName = "mime", mode = WebParam.Mode.INOUT, name = "mime", targetNamespace = "")
         javax.xml.ws.Holder<byte[]> mime

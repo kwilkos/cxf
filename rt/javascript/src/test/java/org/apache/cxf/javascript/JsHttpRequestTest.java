@@ -133,7 +133,7 @@ public class JsHttpRequestTest extends AbstractCXFSpringTest {
         File staticFile = new File(this.getClass().getResource("test.html").toURI());
         staticFile = staticFile.getParentFile();
         staticFile = staticFile.getAbsoluteFile();
-        URL furl = staticFile.toURL();
+        URL furl = staticFile.toURI().toURL();
         return furl.toString();
     }
 }

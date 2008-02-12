@@ -161,7 +161,7 @@
                     </sequence>
                     <attribute name="id" type="int"/>
                 </complexType>
-            </element>      
+            </element>
         </schema>
     </wsdl:types>
     <wsdl:message name="sayHiRequest">
@@ -214,7 +214,7 @@
     </wsdl:message>
     <wsdl:message name="testDocLitBareResponse">
         <wsdl:part name="out" element="x1:BareDocumentResponse"/>
-    </wsdl:message> 
+    </wsdl:message>
     <wsdl:portType name="Greeter">
         <wsdl:operation name="sayHi">
             <wsdl:input message="tns:sayHiRequest"/>
@@ -232,7 +232,7 @@
             <wsdl:input  message="tns:greetMeLaterRequest"/>
             <wsdl:output  message="tns:greetMeLaterResponse"/>
         </wsdl:operation>
-       <wsdl:operation name="greetMeSometime">
+        <wsdl:operation name="greetMeSometime">
             <wsdl:input  message="tns:greetMeSometimeRequest"/>
             <wsdl:output  message="tns:greetMeSometimeResponse"/>
         </wsdl:operation>
@@ -252,7 +252,7 @@
         <wsdl:operation name="testDocLitBare">
             <wsdl:input name="testDocLitBareRequest" message="tns:testDocLitBareRequest"/>
             <wsdl:output name="testDocLitBareResponse" message="tns:testDocLitBareResponse"/>
-        </wsdl:operation>       
+        </wsdl:operation>
     </wsdl:portType>
     <wsdl:binding name="Greeter_SOAPBinding" type="tns:Greeter">
         <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
@@ -339,11 +339,11 @@
 
 
     <wsdl:service name="SOAPService">
-	<wsdl:port name="SoapPort" binding="tns:Greeter_SOAPBinding">
+        <wsdl:port name="SoapPort" binding="tns:Greeter_SOAPBinding">
             <soap:address location="http://localhost:9000/SoapContext/SoapPort"/>
         </wsdl:port>
 
-	<wsdl:port name="SoapPort1" binding="tns:Greeter_SOAPBinding">
+        <wsdl:port name="SoapPort1" binding="tns:Greeter_SOAPBinding">
             <soap:address location="http://localhost:7000/SoapContext/SoapPort"/>
         </wsdl:port>
     </wsdl:service>
@@ -354,7 +354,7 @@
         </wsdl:port>
     </wsdl:service>
 
-        <wsdl:service name="SOAPDispatchService">
+    <wsdl:service name="SOAPDispatchService">
         <wsdl:port name="SoapDispatchPort" binding="tns:Greeter_SOAPBinding">
             <soap:address location="http://localhost:9006/SOAPDispatchService/SoapDispatchPort"/>
         </wsdl:port>
@@ -396,12 +396,12 @@
         </wsdl:port>
     </wsdl:service>
     <wsdl:service name="SOAPServiceMultiPortTypeTest">
-		<wsdl:port name="GreeterPort" binding="tns:Greeter_SOAPBinding">
+        <wsdl:port name="GreeterPort" binding="tns:Greeter_SOAPBinding">
             <soap:address location="http://localhost:9020/MultiPort/GreeterPort"/>
         </wsdl:port>
         <wsdl:port name="DocLitBarePort" binding="tns:Doc_Lit_Bare_SOAPBinding">
             <soap:address location="http://localhost:9021/MultiPort/DocBarePort"/>
-        </wsdl:port>        
+        </wsdl:port>
     </wsdl:service>
 </wsdl:definitions>
 

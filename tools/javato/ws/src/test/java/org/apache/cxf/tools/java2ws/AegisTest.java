@@ -85,11 +85,10 @@ public class AegisTest extends ToolTestBase {
     
         WSDLReader reader = WSDLFactory.newInstance().newWSDLReader();
         reader.setFeature("javax.wsdl.verbose", false);
-        Definition def = reader.readWSDL(wsdlFile.toURL().toString());
+        Definition def = reader.readWSDL(wsdlFile.toURI().toURL().toString());
         Document wsdl = WSDLFactory.newInstance().newWSDLWriter().getDocument(def);
         addNamespace("ns0", "http://aegis2ws.fortest.tools.cxf.apache.org/");
         assertValid("//xsd:element[@type='ns0:Something']", wsdl);
-        assertXPathEquals("//namespace::ns0", "http://aegis2ws.fortest.tools.cxf.apache.org/", wsdl);
     }
     
     @Test 
@@ -111,7 +110,7 @@ public class AegisTest extends ToolTestBase {
     
         WSDLReader reader = WSDLFactory.newInstance().newWSDLReader();
         reader.setFeature("javax.wsdl.verbose", false);
-        Definition def = reader.readWSDL(wsdlFile.toURL().toString());
+        Definition def = reader.readWSDL(wsdlFile.toURI().toURL().toString());
         Document wsdl = WSDLFactory.newInstance().newWSDLWriter().getDocument(def);
         addNamespace("ns0", "http://aegis2ws.fortest.tools.cxf.apache.org/");
         assertValid("//xsd:element[@type='ns0:Something']", wsdl);
@@ -121,7 +120,6 @@ public class AegisTest extends ToolTestBase {
         assertInvalid("//xsd:complexType[@name='Something']/" 
                           + "xsd:sequence/xsd:element[@name='singular']/@minOccurs", 
                           wsdl);
-        assertXPathEquals("//namespace::ns0", "http://aegis2ws.fortest.tools.cxf.apache.org/", wsdl);
     }
 
 }

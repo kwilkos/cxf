@@ -156,7 +156,7 @@ public class WSDL2JavaMojo extends AbstractMojo {
         StringBuffer buf = new StringBuffer();
 
         try {
-            urlList.add(classesDir.toURL());
+            urlList.add(classesDir.toURI().toURL());
         } catch (MalformedURLException e) {
             //ignore
         }
@@ -170,7 +170,7 @@ public class WSDL2JavaMojo extends AbstractMojo {
             try {
                 if (a.getFile() != null
                     && a.getFile().exists()) {
-                    urlList.add(a.getFile().toURL());
+                    urlList.add(a.getFile().toURI().toURL());
                     buf.append(a.getFile().getAbsolutePath());
                     buf.append(File.pathSeparatorChar);
                     //System.out.println("     " + a.getFile().getAbsolutePath());

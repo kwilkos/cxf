@@ -55,9 +55,9 @@ public class JaxwsServiceBuilderRPCTest extends ProcessorTestBase {
         generator.generate(output);
         assertTrue(output.exists());
 
-        String expectedFile = this.getClass()
-            .getResource("expected/rpc_greeter.wsdl").getFile();
-        assertFileEquals(expectedFile, output.getAbsolutePath());
+        File expectedFile = new File(this.getClass()
+            .getResource("expected/rpc_greeter.wsdl").toURI());
+        assertWsdlEquals(expectedFile, output);
     }
 
     private File getOutputFile(String fileName) {

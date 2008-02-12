@@ -21,8 +21,10 @@ package org.apache.cxf.tools.corba.processors;
 
 import java.io.File;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.wsdl.Definition;
 import javax.wsdl.Port;
@@ -33,8 +35,6 @@ import javax.xml.namespace.QName;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-
-import junit.framework.TestCase;
 
 import org.apache.cxf.binding.corba.wsdl.AddressType;
 import org.apache.cxf.binding.corba.wsdl.Anonarray;
@@ -50,16 +50,16 @@ import org.apache.cxf.binding.corba.wsdl.Unionbranch;
 import org.apache.cxf.tools.corba.common.WSDLCorbaFactory;
 import org.apache.cxf.tools.corba.processors.wsdl.WSDLToCorbaBinding;
 import org.apache.cxf.tools.corba.processors.wsdl.WSDLToIDLAction;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-public class WSDLToCorbaBindingTypeTest extends TestCase {
+public class WSDLToCorbaBindingTypeTest extends Assert {
     WSDLToCorbaBinding generator;
     WSDLWriter writer;
 
-    public WSDLToCorbaBindingTypeTest(String name) {
-        super(name);
-    }
-
-    protected void setUp() {
+    @Before
+    public void setUp() {
         generator = new WSDLToCorbaBinding();
         try {
             WSDLCorbaFactory wsdlfactory = WSDLCorbaFactory
@@ -71,13 +71,6 @@ public class WSDLToCorbaBindingTypeTest extends TestCase {
         }
     }
 
-    protected void tearDown() {
-    }
-
-    public static void main(String args[]) {
-        junit.textui.TestRunner.run(WSDLToCorbaBindingTest.class);
-    }
-    
     private Element getElementNode(Document document, String elName) {
         Element root = document.getDocumentElement();
         for (Node nd = root.getFirstChild(); nd != null; nd = nd.getNextSibling()) {
@@ -88,6 +81,7 @@ public class WSDLToCorbaBindingTypeTest extends TestCase {
         return null;
     }
 
+    @Test
     public void testWsAddressingAccountType() throws Exception {
         
         try {
@@ -115,6 +109,7 @@ public class WSDLToCorbaBindingTypeTest extends TestCase {
         }
     }
     
+    @Test
     public void testWsAddressingBankType() throws Exception {
         
         try {
@@ -142,6 +137,7 @@ public class WSDLToCorbaBindingTypeTest extends TestCase {
     }
 
     
+    @Test
     public void testWsAddressingTypes() throws Exception {
         
         try {
@@ -168,6 +164,7 @@ public class WSDLToCorbaBindingTypeTest extends TestCase {
         }
     }
 
+    @Test
     public void testDateTimeTypes() throws Exception {
         
         try {
@@ -195,6 +192,7 @@ public class WSDLToCorbaBindingTypeTest extends TestCase {
         }
     }
 
+    @Test
     public void testNestedInterfaceTypes() throws Exception {
         
         try {
@@ -222,6 +220,7 @@ public class WSDLToCorbaBindingTypeTest extends TestCase {
         }
     }    
 
+    @Test
     public void testNestedComplexTypes() throws Exception {
         
         try {
@@ -254,6 +253,7 @@ public class WSDLToCorbaBindingTypeTest extends TestCase {
     }    
 
     
+    @Test
     public void testNestedDerivedTypes() throws Exception {
         
         try {
@@ -283,6 +283,7 @@ public class WSDLToCorbaBindingTypeTest extends TestCase {
         }
     }    
 
+    @Test
     public void testNestedType() throws Exception {
         
         try {
@@ -312,6 +313,7 @@ public class WSDLToCorbaBindingTypeTest extends TestCase {
     }    
 
     
+    @Test
     public void testNillableType() throws Exception {
         
         try {
@@ -355,6 +357,7 @@ public class WSDLToCorbaBindingTypeTest extends TestCase {
     
     
     // tests Type Inheritance and attributes.
+    @Test
     public void testTypeInheritance() throws Exception {
         try {
             String fileName = getClass().getResource("/wsdl/TypeInheritance.wsdl").toString();
@@ -402,6 +405,7 @@ public class WSDLToCorbaBindingTypeTest extends TestCase {
     }    
     
     // tests anonymous strings and fixed types.
+    @Test
     public void testAnonFixedType() throws Exception {
         
         try {
@@ -459,6 +463,7 @@ public class WSDLToCorbaBindingTypeTest extends TestCase {
     }
     
     // tests anonymous arrays and sequences
+    @Test
     public void testAnonType() throws Exception {
         
         try {
@@ -476,41 +481,46 @@ public class WSDLToCorbaBindingTypeTest extends TestCase {
             assertEquals(2, typemap.getElementsByTagName("corba:struct").getLength());            
 
             TypeMappingType mapType = (TypeMappingType)model.getExtensibilityElements().get(0);
+            Map<String, CorbaTypeImpl> tmap = new HashMap<String, CorbaTypeImpl>();
+            for (CorbaTypeImpl type : mapType.getStructOrExceptionOrUnion()) {
+                tmap.put(type.getName(), type);
+            }
+
 
             WSDLToIDLAction idlgen = new WSDLToIDLAction();
             idlgen.setBindingName("XCORBABinding");
             idlgen.setOutputFile("atype.idl");
             idlgen.generateIDL(model);
 
-            Array arr = (Array)mapType.getStructOrExceptionOrUnion().get(0);            
+            Array arr = (Array)tmap.get("X.A");
+            assertNotNull(arr);
             assertEquals("ElementType is incorrect for Array Type", "X._5_A", 
                          arr.getElemtype().getLocalPart());
             
-            Anonarray arr2 = (Anonarray)mapType.getStructOrExceptionOrUnion().get(3);
+            Anonarray arr2 = (Anonarray)tmap.get("X._5_A");
+            assertNotNull(arr2);
             assertEquals("ElementType is incorrect for Anon Array Type", "X._4_A", 
                          arr2.getElemtype().getLocalPart());
             
-            Anonarray arr3 = (Anonarray)mapType.getStructOrExceptionOrUnion().get(2);
+            Anonarray arr3 = (Anonarray)tmap.get("X._4_A");
+            assertNotNull(arr3);
             assertEquals("ElementType is incorrect for Anon Array Type", "X._1_A", 
                          arr3.getElemtype().getLocalPart());
             
             
-            Anonsequence seq = (Anonsequence)mapType.getStructOrExceptionOrUnion().get(5);
-            assertEquals("Name is incorrect for Anon Array Type", "X._1_A", 
-                         seq.getName());                        
+            Anonsequence seq = (Anonsequence)tmap.get("X._1_A");
+            assertNotNull(seq);
             assertEquals("ElementType is incorrect for Anon Sequence Type", "X._2_A", 
                          seq.getElemtype().getLocalPart());
             
             
-            Anonsequence seq2 = (Anonsequence)mapType.getStructOrExceptionOrUnion().get(1);
-            assertEquals("Name is incorrect for Anon Array Type", "X._2_A", 
-                         seq2.getName());                        
+            Anonsequence seq2 = (Anonsequence)tmap.get("X._2_A");
+            assertNotNull(seq2);
             assertEquals("ElementType is incorrect for Anon Sequence Type", "X._3_A", 
                          seq2.getElemtype().getLocalPart());
             
-            Anonsequence seq3 = (Anonsequence)mapType.getStructOrExceptionOrUnion().get(4);
-            assertEquals("Name is incorrect for Anon Array Type", "X._3_A", 
-                         seq3.getName());
+            Anonsequence seq3 = (Anonsequence)tmap.get("X._3_A");
+            assertNotNull(seq3);
             assertEquals("ElementType is incorrect for Anon Sequence Type", "long", 
                          seq3.getElemtype().getLocalPart());
             
@@ -521,6 +531,7 @@ public class WSDLToCorbaBindingTypeTest extends TestCase {
         }
     }
     
+    @Test
     public void testAnyType() throws Exception {
         
         try {
@@ -560,6 +571,7 @@ public class WSDLToCorbaBindingTypeTest extends TestCase {
         }
     }
     
+    @Test
     public void testMultipleBindings() throws Exception {
         String fileName = getClass().getResource("/wsdl/multiplePortTypes.wsdl").toString();
         generator.setWsdlFile(fileName);
@@ -568,6 +580,7 @@ public class WSDLToCorbaBindingTypeTest extends TestCase {
         assertEquals("All bindings should be generated.", 2, model.getAllBindings().size());
     }
 
+    @Test
     public void testAnonymousReturnParam() throws Exception {
         
         try {
@@ -585,6 +598,7 @@ public class WSDLToCorbaBindingTypeTest extends TestCase {
         }
     }
     
+    @Test
     public void testComplextypeDerivedSimpletype() throws Exception {
         
         try {
@@ -608,6 +622,7 @@ public class WSDLToCorbaBindingTypeTest extends TestCase {
         }
     }
     
+    @Test
     public void testCorbaExceptionComplextype() throws Exception {
         
         try {
@@ -627,6 +642,7 @@ public class WSDLToCorbaBindingTypeTest extends TestCase {
         }
     }    
     
+    @Test
     public void testSetCorbaAddress() throws Exception {
         
         try {
@@ -655,6 +671,7 @@ public class WSDLToCorbaBindingTypeTest extends TestCase {
         }
     }    
     
+    @Test
     public void testSetCorbaAddressFile() throws Exception {
         
         try {

@@ -19,6 +19,9 @@
 package org.apache.cxf.systest.servlet;
 
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.w3c.dom.Document;
 
 import com.meterware.httpunit.GetMethodWebRequest;
@@ -89,17 +92,28 @@ public class CXFServletTest extends AbstractServletTest {
         
         WebLink[] links = res.getLinks();
         assertEquals("There should get two links for the service", 2, links.length);
-        assertEquals(CONTEXT_URL + "/services/greeter?wsdl", links[0].getURLString());       
-        assertEquals(CONTEXT_URL + "/services/greeter2?wsdl", links[1].getURLString()); 
+        
+        Set<String> links2 = new HashSet<String>();
+        for (WebLink l : links) {
+            links2.add(l.getURLString());
+        }
+        
+        assertTrue(links2.contains(CONTEXT_URL + "/services/greeter?wsdl"));       
+        assertTrue(links2.contains(CONTEXT_URL + "/services/greeter2?wsdl")); 
         assertEquals("text/html", res.getContentType());
         
         res = client.getResponse(CONTEXT_URL + "/services/");
        
         
         links = res.getLinks();
+        links2.clear();
+        for (WebLink l : links) {
+            links2.add(l.getURLString());
+        }
+        
         assertEquals("There should get two links for the service", 2, links.length);
-        assertEquals(CONTEXT_URL + "/services/greeter?wsdl", links[0].getURLString());
-        assertEquals(CONTEXT_URL + "/services/greeter2?wsdl", links[1].getURLString()); 
+        assertTrue(links2.contains(CONTEXT_URL + "/services/greeter?wsdl"));       
+        assertTrue(links2.contains(CONTEXT_URL + "/services/greeter2?wsdl")); 
         
         assertEquals("text/html", res.getContentType());
         
@@ -118,11 +132,11 @@ public class CXFServletTest extends AbstractServletTest {
         WebResponse res = client.getResponse(req); 
         assertEquals(200, res.getResponseCode());
         assertEquals("text/xml", res.getContentType());
-        assertTrue("the wsdl should contain the opertion greetMe",
-                   res.getText().contains("<wsdl:operation name=\"greetMe\">"));
-        assertTrue("the soap address should changed",
-                   res.getText().contains("<soap:address location=\"" + CONTEXT_URL + "/services/greeter\""));
+        Document doc = DOMUtils.readXml(res.getInputStream());
+        assertNotNull(doc);
         
+        assertValid("//wsdl:operation[@name='greetMe']", doc);
+        assertValid("//wsdlsoap:address[@location='" + CONTEXT_URL + "/services/greeter']", doc);
     }
     
     @Test
@@ -135,11 +149,13 @@ public class CXFServletTest extends AbstractServletTest {
         WebResponse res = client.getResponse(req); 
         assertEquals(200, res.getResponseCode());
         assertEquals("text/xml", res.getContentType());
-        assertTrue("the wsdl should contain the opertion greetMe",
-                   res.getText().contains("<wsdl:operation name=\"greetMe\">"));
-        assertTrue("the http address should changed",
-                   res.getText().contains(CONTEXT_URL + "/services/greeter2\""));
         
+        Document doc = DOMUtils.readXml(res.getInputStream());
+        assertNotNull(doc);
+        
+        addNamespace("http", "http://schemas.xmlsoap.org/wsdl/http/");
+        assertValid("//wsdl:operation[@name='greetMe']", doc);
+        assertValid("//http:address[@location='" + CONTEXT_URL + "/services/greeter2']", doc);
     }
 
     @Test

@@ -109,20 +109,24 @@ public class SpringServletTest extends AbstractServletTest {
         WebResponse res = client.getResponse(req);        
         assertEquals(200, res.getResponseCode());
         assertEquals("text/xml", res.getContentType());
-        assertTrue("the wsdl should contain the opertion greetMe",
-                   res.getText().contains("<wsdl:operation name=\"greetMe\">"));
-        assertTrue("the soap address should changed",
-                   res.getText().contains("<soap:address location=\"" + CONTEXT_URL + "/services/Greeter"));
+        
+        Document doc = DOMUtils.readXml(res.getInputStream());
+        assertNotNull(doc);
+        
+        assertValid("//wsdl:operation[@name='greetMe']", doc);
+        assertValid("//wsdlsoap:address[@location='" + CONTEXT_URL + "/services/Greeter']", doc);
         
         req = 
             new GetMethodQueryWebRequest(CONTEXT_URL + "/services/Greeter2?wsdl");
         res = client.getResponse(req);    
         assertEquals(200, res.getResponseCode());
         assertEquals("text/xml", res.getContentType());
-        assertTrue("the wsdl should contain the opertion greetMe",
-                   res.getText().contains("<wsdl:operation name=\"greetMe\">"));
-        assertTrue("the soap address should be updated",
-                   res.getText().contains("<soap:address location=\"http://cxf.apache.org/Greeter"));
+        
+        doc = DOMUtils.readXml(res.getInputStream());
+        assertNotNull(doc);
+        
+        assertValid("//wsdl:operation[@name='greetMe']", doc);
+        assertValid("//wsdlsoap:address[@location='http://cxf.apache.org/Greeter']", doc);
         
     }
     

@@ -98,7 +98,7 @@ public class CodeGenBugTest extends ProcessorTestBase {
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/bug305773/hello_world.wsdl"));
         processor.setContext(env);
         processor.execute();
-        Class clz = classLoader.loadClass("org.apache.hello_world_soap_http.GreeterImpl");
+        Class clz = classLoader.loadClass("org.apache.cxf.w2j.hello_world_soap_http.GreeterImpl");
 
         WebService webServiceAnn = AnnotationUtil.getPrivClassAnnotation(clz, WebService.class);
         assertEquals("Greeter", webServiceAnn.name());
@@ -122,7 +122,8 @@ public class CodeGenBugTest extends ProcessorTestBase {
 
     @Test
     public void testNamespacePackageMapping1() throws Exception {
-        env.addNamespacePackageMap("http://apache.org/hello_world_soap_http/types", "org.apache.types");
+        env.addNamespacePackageMap("http://cxf.apache.org/w2j/hello_world_soap_http/types",
+                                   "org.apache.types");
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/hello_world.wsdl"));
         processor.setContext(env);
         processor.execute();
@@ -145,8 +146,9 @@ public class CodeGenBugTest extends ProcessorTestBase {
 
     @Test
     public void testNamespacePackageMapping2() throws Exception {
-        env.addNamespacePackageMap("http://apache.org/hello_world_soap_http", "org.apache");
-        env.addNamespacePackageMap("http://apache.org/hello_world_soap_http/types", "org.apache.types");
+        env.addNamespacePackageMap("http://cxf.apache.org/w2j/hello_world_soap_http", "org.apache");
+        env.addNamespacePackageMap("http://cxf.apache.org/w2j/hello_world_soap_http/types",
+                                   "org.apache.types");
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/hello_world.wsdl"));
         processor.setContext(env);
         processor.execute();
@@ -217,7 +219,7 @@ public class CodeGenBugTest extends ProcessorTestBase {
         File iona = new File(com, "iona");
         assertFalse("Generated file has been excluded", iona.exists());
 
-        File implFile = new File(output, "org/apache/hello_world_soap_http/Greeter.java");
+        File implFile = new File(output, "org/apache/cxf/w2j/hello_world_soap_http/Greeter.java");
         String str = FileUtils.getStringFromFile(implFile);
         assertTrue(str.indexOf("com.iona.BareDocumentResponse") > 0);
 
@@ -315,7 +317,7 @@ public class CodeGenBugTest extends ProcessorTestBase {
         }
         try {
             Class clz = classLoader
-                .loadClass("org.apache.hello_world_soap_http.types.CreateProcess$MyProcess");
+                .loadClass("org.apache.cxf.w2j.hello_world_soap_http.types.CreateProcess$MyProcess");
             assertNotNull("Customization binding code should be generated", clz);
         } catch (ClassNotFoundException e) {
             fail("Can not load the inner class MyProcess, the customization failed: \n" + e.getMessage());
@@ -336,7 +338,7 @@ public class CodeGenBugTest extends ProcessorTestBase {
         }
         try {
             Class clz = classLoader
-                .loadClass("org.apache.hello_world_soap_http.types.CreateProcess$MyProcess");
+                .loadClass("org.apache.cxf.w2j.hello_world_soap_http.types.CreateProcess$MyProcess");
             assertNotNull("Customization binding code should be generated", clz);
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
@@ -362,9 +364,9 @@ public class CodeGenBugTest extends ProcessorTestBase {
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/helloworld_noservice_import.wsdl"));
         processor.setContext(env);
         processor.execute();
-        Class cls = classLoader.loadClass("org.apache.hello_world1.Greeter");
+        Class cls = classLoader.loadClass("org.apache.cxf.w2j.hello_world1.Greeter");
         assertNotNull(cls);
-        cls = classLoader.loadClass("org.apache.hello_world2.Greeter2");
+        cls = classLoader.loadClass("org.apache.cxf.w2j.hello_world2.Greeter2");
     }
 
     @Test
@@ -375,11 +377,14 @@ public class CodeGenBugTest extends ProcessorTestBase {
         processor.setContext(env);
         processor.execute();
 
-        Class clz = classLoader.loadClass("org.apache.hello_world_soap_http.service.SOAPServiceTest1");
+        Class clz = classLoader
+            .loadClass("org.apache.cxf.w2j.hello_world_soap_http.service.SOAPServiceTest1");
         WebServiceClient webServiceClient = AnnotationUtil
             .getPrivClassAnnotation(clz, WebServiceClient.class);
-        assertEquals("http://apache.org/hello_world_soap_http/service", webServiceClient.targetNamespace());
-        File file = new File(output, "org/apache/hello_world_soap_http/Greeter_SoapPortTest1_Client.java");
+        assertEquals("http://cxf.apache.org/w2j/hello_world_soap_http/service",
+                     webServiceClient.targetNamespace());
+        File file = new File(output, 
+                             "org/apache/cxf/w2j/hello_world_soap_http/Greeter_SoapPortTest1_Client.java");
         FileInputStream fin = new FileInputStream(file);
         byte[] buffer = new byte[30000];
         int index = -1;
@@ -388,7 +393,7 @@ public class CodeGenBugTest extends ProcessorTestBase {
         while (size != -1) {
             bout.write(buffer, 0, size);
             index = bout.toString()
-                .indexOf("new QName(\"http://apache.org/hello_world_soap_http/service\","
+                .indexOf("new QName(\"http://cxf.apache.org/w2j/hello_world_soap_http/service\","
                         + " \"SOAPService_Test1\")");
             if (index > 0) {
                 break;
@@ -510,7 +515,8 @@ public class CodeGenBugTest extends ProcessorTestBase {
         WSDLToJava.main(args);
 
         assertFileEquals(getClass().getResource("expected/expected_hello_mime").getFile(),
-                         output.getCanonicalPath() + "/org/apache/hello_world_mime/Hello.java");
+                         output.getCanonicalPath() 
+                         + "/org/apache/cxf/w2j/hello_world_mime/Hello.java");
     }
 
     @Test
@@ -538,7 +544,7 @@ public class CodeGenBugTest extends ProcessorTestBase {
         processor.execute();
 
 
-        Class clz = classLoader.loadClass("org.apache.hello_world_soap_http.Greeter");
+        Class clz = classLoader.loadClass("org.apache.cxf.w2j.hello_world_soap_http.Greeter");
         assertEquals(3, clz.getDeclaredMethods().length);
 
     }
@@ -554,15 +560,17 @@ public class CodeGenBugTest extends ProcessorTestBase {
         processor.setContext(env);
         processor.execute();
 
-        File file = new File(output, "org/apache/hello_world_soap_http");
+        File file = new File(output, "org/apache/cxf/w2j/hello_world_soap_http");
         assertEquals(4, file.list().length);
-        file = new File(output, "org/apache/hello_world_soap_http/DocLitBare_DocLitBarePort_Client.java");
+        file = new File(output,
+                        "org/apache/cxf/w2j/hello_world_soap_http/DocLitBare_DocLitBarePort_Client.java");
         assertTrue("DocLitBare_DocLitBarePort_Client is not found", file.exists());
-        file = new File(output, "org/apache/hello_world_soap_http/DocLitBare_DocLitBarePort_Server.java");
+        file = new File(output,
+                        "org/apache/cxf/w2j/hello_world_soap_http/DocLitBare_DocLitBarePort_Server.java");
         assertTrue("DocLitBare_DocLitBarePort_Server is not found", file.exists());
-        file = new File(output, "org/apache/hello_world_soap_http/Greeter_GreeterPort_Client.java");
+        file = new File(output, "org/apache/cxf/w2j/hello_world_soap_http/Greeter_GreeterPort_Client.java");
         assertTrue("Greeter_GreeterPort_Client is not found", file.exists());
-        file = new File(output, "org/apache/hello_world_soap_http/Greeter_GreeterPort_Server.java");
+        file = new File(output, "org/apache/cxf/w2j/hello_world_soap_http/Greeter_GreeterPort_Server.java");
         assertTrue("Greeter_GreeterPort_Server is not found", file.exists());
     }
     
@@ -582,7 +590,7 @@ public class CodeGenBugTest extends ProcessorTestBase {
         processor.setContext(env);
         processor.execute();
         
-        File file = new File(output, "org/apache/hello_world_soap_http/MyService.java");
+        File file = new File(output, "org/apache/cxf/w2j/hello_world_soap_http/MyService.java");
         assertTrue("MyService is not found", file.exists());
         
     }
@@ -595,10 +603,10 @@ public class CodeGenBugTest extends ProcessorTestBase {
         processor.setContext(env);
         processor.execute();
         
-        File file = new File(output, "org/apache/hello_world_soap_http/SOAPService.java");
+        File file = new File(output, "org/apache/cxf/w2j/hello_world_soap_http/SOAPService.java");
         assertTrue("SOAPService is not found", file.exists());
         
-        file = new File(output, "org/apache/hello_world_soap_http/MyService.java");
+        file = new File(output, "org/apache/cxf/w2j/hello_world_soap_http/MyService.java");
         assertFalse("MyService should not be generated", file.exists());
         
     }
@@ -614,8 +622,9 @@ public class CodeGenBugTest extends ProcessorTestBase {
             fail("exception should be thrown");
         } catch (Exception e) {
             String expectedErrorMsg = "Part <in> in Message " 
-                + "<{http://apache.org/hello_world_soap_http}greetMeRequest> referenced Type " 
-                + "<{http://apache.org/hello_world_soap_http/types}greetMee> can not be found in the schemas";
+                + "<{http://cxf.apache.org/w2j/hello_world_soap_http}greetMeRequest> referenced Type " 
+                + "<{http://cxf.apache.org/w2j/hello_world_soap_http/types}greetMee> can not be "
+                + "found in the schemas";
             assertTrue("Fail to create java parameter exception should be thrown",
                        e.getMessage().indexOf(expectedErrorMsg) > -1);
         }
@@ -633,10 +642,10 @@ public class CodeGenBugTest extends ProcessorTestBase {
         processor.execute();
         File file = new File(output.getCanonicalPath() + "/build.xml");
         String str = FileUtils.getStringFromFile(file);
-        assertTrue(str.indexOf("org.apache.hello_world_soap_http.Greeter_SoapPortTest1_Client") > -1);
-        assertTrue(str.indexOf("org.apache.hello_world_soap_http.Greeter_SoapPortTest2_Client") > -1);
-        assertTrue(str.indexOf("org.apache.hello_world_soap_http.Greeter_SoapPortTest1_Server") > -1);
-        assertTrue(str.indexOf("org.apache.hello_world_soap_http.Greeter_SoapPortTest2_Server") > -1);        
+        assertTrue(str.indexOf("org.apache.cxf.w2j.hello_world_soap_http.Greeter_SoapPortTest1_Client") > -1);
+        assertTrue(str.indexOf("org.apache.cxf.w2j.hello_world_soap_http.Greeter_SoapPortTest2_Client") > -1);
+        assertTrue(str.indexOf("org.apache.cxf.w2j.hello_world_soap_http.Greeter_SoapPortTest1_Server") > -1);
+        assertTrue(str.indexOf("org.apache.cxf.w2j.hello_world_soap_http.Greeter_SoapPortTest2_Server") > -1);
     }
  
     @Test
@@ -751,10 +760,10 @@ public class CodeGenBugTest extends ProcessorTestBase {
         processor.setContext(env);
         processor.execute();
         Class clz = classLoader
-        .loadClass("org.apache.hello_world.messages.CustomizedFault");
+        .loadClass("org.apache.cxf.w2j.hello_world.messages.CustomizedFault");
         assertNotNull("Customization Fault Class is not generated", clz);
         Class serviceClz = classLoader
-        .loadClass("org.apache.hello_world.services.CustomizedService");
+        .loadClass("org.apache.cxf.w2j.hello_world.services.CustomizedService");
         assertNotNull("Customization Fault Class is not generated", serviceClz);
 
     }
@@ -767,7 +776,7 @@ public class CodeGenBugTest extends ProcessorTestBase {
         processor.setContext(env);
         processor.execute();
         
-        Class clz = classLoader.loadClass("org.apache.hello_world_soap_http.Greeter");
+        Class<?> clz = classLoader.loadClass("org.apache.cxf.w2j.hello_world_soap_http.Greeter");
         
         Method method1 = clz.getMethod("greetMeSometimeAsync", new Class[] {java.lang.String.class,
                                                                             javax.xml.ws.AsyncHandler.class});
@@ -796,7 +805,8 @@ public class CodeGenBugTest extends ProcessorTestBase {
         env.put(ToolConstants.CFG_BINDING, getLocation("/wsdl2java_wsdl/cxf1094/jaxbbinding.xml"));
         processor.setContext(env);
         processor.execute();
-        Class clz = classLoader.loadClass("org.apache.hello_world_soap_http.types.CreateProcess$MyProcess");
+        Class clz = classLoader
+            .loadClass("org.apache.cxf.w2j.hello_world_soap_http.types.CreateProcess$MyProcess");
         assertNotNull("Failed to generate customized class for hello_world.wsdl" , clz);
        
         env.put(ToolConstants.CFG_WSDLURL, 
@@ -817,7 +827,7 @@ public class CodeGenBugTest extends ProcessorTestBase {
         processor.setContext(env);
         processor.execute();
         Class clz = classLoader
-        .loadClass("org.apache.hello_world_soap_http.Greeter");
+        .loadClass("org.apache.cxf.w2j.hello_world_soap_http.Greeter");
         assertNotNull("Failed to generate SEI class", clz);
         Method[] methods = clz.getMethods();
         assertEquals("jaxws binding file parse error, number of generated method is not expected"
@@ -896,7 +906,7 @@ public class CodeGenBugTest extends ProcessorTestBase {
         processor.execute();
         File file = new File(output, "org/mypkg");
         assertEquals(23, file.listFiles().length);
-        Class clz = classLoader.loadClass("org.mypkg.MyService");
+        Class<?> clz = classLoader.loadClass("org.mypkg.MyService");
         assertNotNull("Customized service class is not found", clz);
         clz = classLoader.loadClass("org.mypkg.MyGreeter");
         assertNotNull("Customized SEI class is not found", clz);

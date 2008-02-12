@@ -18,20 +18,20 @@
   under the License.
 -->
 <wsdl:definitions name="HelloWorld"
-    targetNamespace="http://apache.org/hello_world" 
+    targetNamespace="http://cxf.apache.org/w2j/hello_world" 
     xmlns="http://schemas.xmlsoap.org/wsdl/" 
-    xmlns:tns="http://apache.org/hello_world"
-    xmlns:x1="http://apache.org/hello_world/types"
+    xmlns:tns="http://cxf.apache.org/w2j/hello_world"
+    xmlns:x1="http://cxf.apache.org/w2j/hello_world/types"
     xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" 
     xmlns:xsd="http://www.w3.org/2001/XMLSchema">
 
     <wsdl:types>
         <schema
-            targetNamespace="http://apache.org/hello_world/types" 
+            targetNamespace="http://cxf.apache.org/w2j/hello_world/types" 
             xmlns="http://www.w3.org/2001/XMLSchema"
             elementFormDefault="qualified">
 
-            <import namespace="http://apache.org/hello_world/types" 
+            <import namespace="http://cxf.apache.org/w2j/hello_world/types" 
                     schemaLocation="hello_world_types2.xsd"/>
         </schema>
     </wsdl:types>

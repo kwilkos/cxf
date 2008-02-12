@@ -20,8 +20,10 @@
 package org.apache.cxf.tools.corba.processors;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.wsdl.Binding;
 import javax.wsdl.BindingFault;
@@ -35,10 +37,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-import junit.framework.TestCase;
-
 import org.apache.cxf.binding.corba.wsdl.BindingType;
 import org.apache.cxf.binding.corba.wsdl.CorbaConstants;
+import org.apache.cxf.binding.corba.wsdl.CorbaTypeImpl;
 import org.apache.cxf.binding.corba.wsdl.Fixed;
 import org.apache.cxf.binding.corba.wsdl.OperationType;
 import org.apache.cxf.binding.corba.wsdl.ParamType;
@@ -47,16 +48,17 @@ import org.apache.cxf.binding.corba.wsdl.TypeMappingType;
 import org.apache.cxf.tools.corba.common.WSDLCorbaFactory;
 import org.apache.cxf.tools.corba.processors.wsdl.WSDLToCorbaBinding;
 import org.apache.cxf.tools.corba.processors.wsdl.WSDLToIDLAction;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-public class WSDLToCorbaBindingTest extends TestCase {
+public class WSDLToCorbaBindingTest extends Assert {
     WSDLToCorbaBinding generator;
     WSDLWriter writer;
 
-    public WSDLToCorbaBindingTest(String name) {
-        super(name);
-    }
-
-    protected void setUp() {
+    @Before
+    public void setUp() {
         System.setProperty("UseWSDLModelCaching", "false");
         generator = new WSDLToCorbaBinding();
         try {
@@ -69,13 +71,11 @@ public class WSDLToCorbaBindingTest extends TestCase {
         }
     }
 
-    protected void tearDown() {
+    @After
+    public void tearDown() {
         System.setProperty("UseWSDLModelCaching", "true");
     }
 
-    public static void main(String args[]) {
-        junit.textui.TestRunner.run(WSDLToCorbaBindingTest.class);
-    }
     
     private Element getElementNode(Document document, String elName) {
         Element root = document.getDocumentElement();
@@ -87,7 +87,7 @@ public class WSDLToCorbaBindingTest extends TestCase {
         return null;
     }    
     
-    
+    @Test
     public void testSequenceType() throws Exception {
         try {
             String fileName = getClass().getResource("/wsdl/sequencetype.wsdl").toString();
@@ -117,6 +117,7 @@ public class WSDLToCorbaBindingTest extends TestCase {
     }
 
     
+    @Test
     public void testFixedBindingGeneration() throws Exception {
         String fileName = getClass().getResource("/wsdl/fixed.wsdl").toString();
         generator.setWsdlFile(fileName);
@@ -124,7 +125,7 @@ public class WSDLToCorbaBindingTest extends TestCase {
 
         Definition model = generator.generateCORBABinding();
         Document document = writer.getDocument(model);
-
+        
         Element typemap = getElementNode(document, "corba:typeMapping");
         assertEquals(1, typemap.getElementsByTagName("corba:sequence").getLength());
         assertEquals(5, typemap.getElementsByTagName("corba:fixed").getLength());
@@ -134,26 +135,32 @@ public class WSDLToCorbaBindingTest extends TestCase {
         QName bName = new QName("http://schemas.apache.org/idl/fixed.idl", 
                                 "YCORBABinding", "tns");
         Binding binding = model.getBinding(bName);
+        TypeMappingType mapType = (TypeMappingType)model.getExtensibilityElements().get(0);
+        Map<String, CorbaTypeImpl> tmap = new HashMap<String, CorbaTypeImpl>();
+        for (CorbaTypeImpl type : mapType.getStructOrExceptionOrUnion()) {
+            tmap.put(type.getName(), type);
+        }
         
         Iterator j = binding.getBindingOperations().iterator();
         while (j.hasNext()) {            
             BindingOperation bindingOperation = (BindingOperation)j.next();
             assertEquals("YCORBABinding", binding.getQName().getLocalPart());
             assertEquals(1, bindingOperation.getExtensibilityElements().size());
-            TypeMappingType mapType = (TypeMappingType)model.getExtensibilityElements().get(0);
-            checkFixedTypeOne(bindingOperation, mapType);
+            
+            checkFixedTypeOne(bindingOperation, tmap);
             bindingOperation = (BindingOperation)j.next();
-            checkSequenceType(bindingOperation, mapType);
+            checkSequenceType(bindingOperation, tmap);
             bindingOperation = (BindingOperation)j.next();
-            checkFixedTypeTwo(bindingOperation, mapType);
+            checkFixedTypeTwo(bindingOperation, tmap);
             bindingOperation = (BindingOperation)j.next();
-            checkFixedTypeThree(bindingOperation, mapType);
+            checkFixedTypeThree(bindingOperation, tmap);
             bindingOperation = (BindingOperation)j.next();
-            checkFixedTypeFour(bindingOperation, mapType);
+            checkFixedTypeFour(bindingOperation, tmap);
         }
     }
      
-    private void checkSequenceType(BindingOperation bindingOperation, TypeMappingType mapType) {
+    private void checkSequenceType(BindingOperation bindingOperation,
+                                   Map<String, CorbaTypeImpl> mapType) {
         Iterator bOp = bindingOperation.getExtensibilityElements().iterator();
         while (bOp.hasNext()) {
             ExtensibilityElement extElement = (ExtensibilityElement)bOp.next();
@@ -163,7 +170,7 @@ public class WSDLToCorbaBindingTest extends TestCase {
                 assertEquals(3, corbaOpType.getParam().size());
                 assertEquals("Y.H", corbaOpType.getParam().get(0).getIdltype().getLocalPart());
                 assertEquals("Y.H", corbaOpType.getReturn().getIdltype().getLocalPart());
-                Sequence seq = (Sequence)mapType.getStructOrExceptionOrUnion().get(4);
+                Sequence seq = (Sequence)mapType.get(corbaOpType.getReturn().getIdltype().getLocalPart());
                 assertEquals("ElementType is incorrect for Sequence Type", "fixed_1", seq.getElemtype()
                     .getLocalPart());
             }
@@ -171,7 +178,8 @@ public class WSDLToCorbaBindingTest extends TestCase {
         }
     }
     
-    private void checkFixedTypeOne(BindingOperation bindingOperation, TypeMappingType mapType) {
+    private void checkFixedTypeOne(BindingOperation bindingOperation,
+                                   Map<String, CorbaTypeImpl>  mapType) {
 
         Iterator bOp = bindingOperation.getExtensibilityElements().iterator();
         while (bOp.hasNext()) {
@@ -184,7 +192,7 @@ public class WSDLToCorbaBindingTest extends TestCase {
                 assertEquals(3, corbaOpType.getParam().size());
                 assertEquals("fixed_1", corbaOpType.getParam().get(0).getIdltype().getLocalPart());
                 assertEquals("fixed_1", corbaOpType.getReturn().getIdltype().getLocalPart());
-                Fixed fixed = (Fixed)mapType.getStructOrExceptionOrUnion().get(0);
+                Fixed fixed = (Fixed)mapType.get(corbaOpType.getReturn().getIdltype().getLocalPart());
 
                 assertNotNull("Could not find the decimal type", fixed.getType());
                 assertEquals("Fixed digits is incorrect for the return corba parameter", 31, fixed
@@ -195,7 +203,8 @@ public class WSDLToCorbaBindingTest extends TestCase {
         }
     }
     
-    private void checkFixedTypeTwo(BindingOperation bindingOperation, TypeMappingType mapType) {
+    private void checkFixedTypeTwo(BindingOperation bindingOperation,
+                                   Map<String, CorbaTypeImpl>  mapType) {
         Iterator bOp = bindingOperation.getExtensibilityElements().iterator();
         while (bOp.hasNext()) {
             ExtensibilityElement extElement = (ExtensibilityElement)bOp.next();
@@ -205,7 +214,7 @@ public class WSDLToCorbaBindingTest extends TestCase {
                 assertEquals(3, corbaOpType.getParam().size());
                 assertEquals("X.PARAM.H", corbaOpType.getParam().get(0).getIdltype().getLocalPart());
                 assertEquals("X.H", corbaOpType.getReturn().getIdltype().getLocalPart());
-                Fixed fixed = (Fixed)mapType.getStructOrExceptionOrUnion().get(2);
+                Fixed fixed = (Fixed)mapType.get(corbaOpType.getReturn().getIdltype().getLocalPart());
                 assertNotNull("Could not find the decimal type", fixed.getType());
                 assertEquals("Fixed digits is incorrect for the return corba parameter", 10, fixed
                     .getDigits());
@@ -215,7 +224,8 @@ public class WSDLToCorbaBindingTest extends TestCase {
         }
     }
     
-    private void checkFixedTypeThree(BindingOperation bindingOperation, TypeMappingType mapType) {
+    private void checkFixedTypeThree(BindingOperation bindingOperation,
+                                     Map<String, CorbaTypeImpl>  mapType) {
         Iterator bOp = bindingOperation.getExtensibilityElements().iterator();
         while (bOp.hasNext()) {
             ExtensibilityElement extElement = (ExtensibilityElement)bOp.next();            
@@ -225,7 +235,7 @@ public class WSDLToCorbaBindingTest extends TestCase {
                 assertEquals(3, corbaOpType.getParam().size());
                 assertEquals("fixed_1", corbaOpType.getParam().get(0).getIdltype().getLocalPart());
                 assertEquals("Z.H", corbaOpType.getReturn().getIdltype().getLocalPart());
-                Fixed fixed = (Fixed)mapType.getStructOrExceptionOrUnion().get(1);
+                Fixed fixed = (Fixed)mapType.get(corbaOpType.getReturn().getIdltype().getLocalPart());
                 assertNotNull("Could not find the decimal type", fixed.getType());
                 assertEquals("Fixed digits is incorrect for the return corba parameter", 8, fixed
                     .getDigits());
@@ -235,7 +245,8 @@ public class WSDLToCorbaBindingTest extends TestCase {
         }
     }
     
-    private void checkFixedTypeFour(BindingOperation bindingOperation, TypeMappingType mapType) {
+    private void checkFixedTypeFour(BindingOperation bindingOperation,
+                                    Map<String, CorbaTypeImpl>  mapType) {
         Iterator bOp = bindingOperation.getExtensibilityElements().iterator();
         while (bOp.hasNext()) {
             ExtensibilityElement extElement = (ExtensibilityElement)bOp.next();
@@ -246,7 +257,7 @@ public class WSDLToCorbaBindingTest extends TestCase {
                 assertEquals(3, corbaOpType.getParam().size());
                 assertEquals("EXTENDED.X.PARAM.H", corbaOpType.getParam().get(0).getIdltype().getLocalPart());
                 assertEquals("EXTENDED.X.PARAM.H", corbaOpType.getReturn().getIdltype().getLocalPart());
-                Fixed fixed = (Fixed)mapType.getStructOrExceptionOrUnion().get(3);
+                Fixed fixed = (Fixed)mapType.get(corbaOpType.getReturn().getIdltype().getLocalPart());
                 assertNotNull("Could not find the decimal type", fixed.getType());
                 assertEquals("Fixed digits is incorrect for the return corba parameter", 8, fixed
                     .getDigits());
@@ -256,6 +267,7 @@ public class WSDLToCorbaBindingTest extends TestCase {
         }
     }       
                      
+    @Test
     public void testAllType() throws Exception {
         try {
             String fileName = getClass().getResource("/wsdl/alltype.wsdl").toString();
@@ -281,6 +293,7 @@ public class WSDLToCorbaBindingTest extends TestCase {
         }        
     }
     
+    @Test
     public void testComplexContentStructType() throws Exception {
         
         try {
@@ -310,6 +323,7 @@ public class WSDLToCorbaBindingTest extends TestCase {
     }
     
         
+    @Test
     public void testUnionType() throws Exception {
         try {
             String fileName = getClass().getResource("/wsdl/uniontype.wsdl").toString();
@@ -338,6 +352,7 @@ public class WSDLToCorbaBindingTest extends TestCase {
 
     
     // next story to add Fault support
+    @Test
     public void testExceptionCORBABindingGeneration() throws Exception {
         String fileName = getClass().getResource("/wsdl/exceptions.wsdl").toString();
         generator.setWsdlFile(fileName);
@@ -392,6 +407,7 @@ public class WSDLToCorbaBindingTest extends TestCase {
         }            
     }
     
+    @Test
     public void testCORBABindingGeneration() throws Exception {
         String fileName = getClass().getResource("/wsdl/simpleList.wsdl").toString();
         generator.setWsdlFile(fileName);
@@ -443,6 +459,7 @@ public class WSDLToCorbaBindingTest extends TestCase {
         }            
     }
     
+    @Test
     public void testCORBATypeMapGeneration() throws Exception {
         String fileName = getClass().getResource("/wsdl/simpleList.wsdl").toString();
         generator.setWsdlFile(fileName);
@@ -457,6 +474,7 @@ public class WSDLToCorbaBindingTest extends TestCase {
         assertEquals(1, typemap.getElementsByTagName("corba:enum").getLength());        
     }
     
+    @Test
     public void testSimpleListIdl() throws Exception {
         try {
             String fileName = getClass().getResource("/wsdl/simpleList.wsdl").toString();
@@ -478,6 +496,7 @@ public class WSDLToCorbaBindingTest extends TestCase {
         }
     }
         
+    @Test
     public void testMultipartTypeMapGeneration() throws Exception {
         String fileName = getClass().getResource("/wsdl/multipart.wsdl").toString();
         generator.setWsdlFile(fileName);
@@ -491,6 +510,7 @@ public class WSDLToCorbaBindingTest extends TestCase {
         assertEquals(1, typemap.getElementsByTagName("corba:enum").getLength());        
     }
     
+    @Test
     public void testMulitPartIdl() throws Exception {
         try {
             String fileName = getClass().getResource("/wsdl/multipart.wsdl").toString();
@@ -511,6 +531,7 @@ public class WSDLToCorbaBindingTest extends TestCase {
         }
     }
     
+    @Test
     public void testMultipartCORBABindingGeneration() throws Exception {
         String fileName = getClass().getResource("/wsdl/multipart.wsdl").toString();
         generator.setWsdlFile(fileName);
@@ -666,6 +687,7 @@ public class WSDLToCorbaBindingTest extends TestCase {
         }
     }
     
+    @Test
     public void testArrayMapping() throws Exception {
         try {
             String fileName = getClass().getResource("/wsdl/array.wsdl").toString();

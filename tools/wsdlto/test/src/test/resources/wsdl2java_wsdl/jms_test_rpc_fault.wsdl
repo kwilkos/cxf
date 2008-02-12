@@ -18,15 +18,15 @@
   under the License.
 -->
 <definitions name="HelloWorldService" 
-    targetNamespace="http://cxf.apache.org/hello_world_jms" 
+    targetNamespace="http://cxf.apache.org/w2j/hello_world_jms" 
     xmlns="http://schemas.xmlsoap.org/wsdl/" 
     xmlns:jms="http://cxf.apache.org/transports/jms" 
-    xmlns:x1="http://cxf.apache.org/hello_world_jms/types"
+    xmlns:x1="http://cxf.apache.org/w2j/hello_world_jms/types"
     xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" 
-    xmlns:tns="http://cxf.apache.org/hello_world_jms" 
+    xmlns:tns="http://cxf.apache.org/w2j/hello_world_jms" 
     xmlns:xsd="http://www.w3.org/2001/XMLSchema">
     <types>
-        <schema targetNamespace="http://cxf.apache.org/hello_world_jms/types"      xmlns="http://www.w3.org/2001/XMLSchema" xmlns:x1="http://cxf.apache.org/hello_world_jms/types" elementFormDefault="qualified">
+        <schema targetNamespace="http://cxf.apache.org/w2j/hello_world_jms/types"      xmlns="http://www.w3.org/2001/XMLSchema" xmlns:x1="http://cxf.apache.org/w2j/hello_world_jms/types" elementFormDefault="qualified">
             <complexType name="ErrorCode">
                  <sequence>
                     <element name="minor" type="short"/>
@@ -121,45 +121,45 @@
             <soap:operation soapAction="" style="rpc"/>
             <input name="greetMe">
                 <soap:body 
-                    namespace="http://cxf.apache.org/hello_world_jms" use="literal"/>
+                    namespace="http://cxf.apache.org/w2j/hello_world_jms" use="literal"/>
             </input>
             <output name="greetMeResponse">
                 <soap:body  
-                    namespace="http://cxf.apache.org/hello_world_jms" use="literal"/>
+                    namespace="http://cxf.apache.org/w2j/hello_world_jms" use="literal"/>
             </output>
         </operation>
         <operation name="sayHi">
             <soap:operation soapAction="" style="rpc"/>
             <input name="sayHi">
                 <soap:body 
-                    namespace="http://cxf.apache.org/hello_world_jms" use="literal"/>
+                    namespace="http://cxf.apache.org/w2j/hello_world_jms" use="literal"/>
             </input>
             <output name="sayHiResponse">
                 <soap:body 
-                    namespace="http://cxf.apache.org/hello_world_jms" use="literal"/>
+                    namespace="http://cxf.apache.org/w2j/hello_world_jms" use="literal"/>
             </output>
         </operation>
         <operation name="greetMeOneWay">
             <soap:operation style="rpc"/>
             <input name="greetMeOneWay">
                 <soap:body 
-                    namespace="http://cxf.apache.org/hello_world_jms" use="literal"/>
+                    namespace="http://cxf.apache.org/w2j/hello_world_jms" use="literal"/>
             </input>
         </operation>
 
          <operation name="testRpcLitFault">
             <soap:operation style="rpc"/>
             <input>
-                <soap:body namespace="http://cxf.apache.org/hello_world_jms"  use="literal"/>
+                <soap:body namespace="http://cxf.apache.org/w2j/hello_world_jms"  use="literal"/>
             </input>
             <output>
-                <soap:body namespace="http://cxf.apache.org/hello_world_jms"  use="literal"/>
+                <soap:body namespace="http://cxf.apache.org/w2j/hello_world_jms"  use="literal"/>
             </output>
             <fault name="NoSuchCodeLitFault">
-                <soap:fault name="NoSuchCodeLitFault" namespace="http://cxf.apache.org/hello_world_jms" use="literal"/>
+                <soap:fault name="NoSuchCodeLitFault" namespace="http://cxf.apache.org/w2j/hello_world_jms" use="literal"/>
             </fault>
             <fault name="BadRecordLitFault">
-                <soap:fault name="BadRecordLitFault" namespace="http://cxf.apache.org/hello_world_jms" use="literal"/>
+                <soap:fault name="BadRecordLitFault" namespace="http://cxf.apache.org/w2j/hello_world_jms" use="literal"/>
             </fault>
         </operation>
     </binding>
@@ -170,29 +170,29 @@
             <soap:operation soapAction="" style="rpc"/>
             <input name="greetMe">
                 <soap:body 
-                    namespace="http://cxf.apache.org/hello_world_jms" use="literal"/>
+                    namespace="http://cxf.apache.org/w2j/hello_world_jms" use="literal"/>
             </input>
             <output name="greetMeResponse">
                 <soap:body  
-                    namespace="http://cxf.apache.org/hello_world_jms" use="literal"/>
+                    namespace="http://cxf.apache.org/w2j/hello_world_jms" use="literal"/>
             </output>
         </operation>
         <operation name="sayHi">
             <soap:operation soapAction="" style="rpc"/>
             <input name="sayHi">
                 <soap:body 
-                    namespace="http://cxf.apache.org/hello_world_jms" use="literal"/>
+                    namespace="http://cxf.apache.org/w2j/hello_world_jms" use="literal"/>
             </input>
             <output name="sayHiResponse">
                 <soap:body 
-                    namespace="http://cxf.apache.org/hello_world_jms" use="literal"/>
+                    namespace="http://cxf.apache.org/w2j/hello_world_jms" use="literal"/>
             </output>
         </operation>
         <operation name="greetMeOneWay">
             <soap:operation style="rpc"/>
             <input name="greetMeOneWay">
                 <soap:body 
-                    namespace="http://cxf.apache.org/hello_world_jms" use="literal"/>
+                    namespace="http://cxf.apache.org/w2j/hello_world_jms" use="literal"/>
             </input>
         </operation>
     </binding>
@@ -203,29 +203,29 @@
             <soap:operation soapAction="" style="rpc"/>
             <input name="greetMe">
                 <soap:body 
-                    namespace="http://cxf.apache.org/hello_world_jms" use="literal"/>
+                    namespace="http://cxf.apache.org/w2j/hello_world_jms" use="literal"/>
             </input>
             <output name="greetMeResponse">
                 <soap:body  
-                    namespace="http://cxf.apache.org/hello_world_jms" use="literal"/>
+                    namespace="http://cxf.apache.org/w2j/hello_world_jms" use="literal"/>
             </output>
         </operation>
         <operation name="sayHi">
             <soap:operation soapAction="" style="rpc"/>
             <input name="sayHi">
                 <soap:body 
-                    namespace="http://cxf.apache.org/hello_world_jms" use="literal"/>
+                    namespace="http://cxf.apache.org/w2j/hello_world_jms" use="literal"/>
             </input>
             <output name="sayHiResponse">
                 <soap:body 
-                    namespace="http://cxf.apache.org/hello_world_jms" use="literal"/>
+                    namespace="http://cxf.apache.org/w2j/hello_world_jms" use="literal"/>
             </output>
         </operation>
         <operation name="greetMeOneWay">
             <soap:operation style="rpc"/>
             <input name="greetMeOneWay">
                 <soap:body 
-                    namespace="http://cxf.apache.org/hello_world_jms" use="literal"/>
+                    namespace="http://cxf.apache.org/w2j/hello_world_jms" use="literal"/>
             </input>
         </operation>
     </binding>
@@ -236,29 +236,29 @@
             <soap:operation soapAction="" style="rpc"/>
             <input name="greetMe">
                 <soap:body 
-                    namespace="http://cxf.apache.org/hello_world_jms" use="literal"/>
+                    namespace="http://cxf.apache.org/w2j/hello_world_jms" use="literal"/>
             </input>
             <output name="greetMeResponse">
                 <soap:body  
-                    namespace="http://cxf.apache.org/hello_world_jms" use="literal"/>
+                    namespace="http://cxf.apache.org/w2j/hello_world_jms" use="literal"/>
             </output>
         </operation>
         <operation name="sayHi">
             <soap:operation soapAction="" style="rpc"/>
             <input name="sayHi">
                 <soap:body 
-                    namespace="http://cxf.apache.org/hello_world_jms" use="literal"/>
+                    namespace="http://cxf.apache.org/w2j/hello_world_jms" use="literal"/>
             </input>
             <output name="sayHiResponse">
                 <soap:body 
-                    namespace="http://cxf.apache.org/hello_world_jms" use="literal"/>
+                    namespace="http://cxf.apache.org/w2j/hello_world_jms" use="literal"/>
             </output>
         </operation>
         <operation name="greetMeOneWay">
             <soap:operation style="rpc"/>
             <input name="greetMeOneWay">
                 <soap:body 
-                    namespace="http://cxf.apache.org/hello_world_jms" use="literal"/>
+                    namespace="http://cxf.apache.org/w2j/hello_world_jms" use="literal"/>
             </input>
         </operation>
     </binding>
@@ -269,29 +269,29 @@
             <soap:operation soapAction="" style="rpc"/>
             <input name="greetMe">
                 <soap:body 
-                    namespace="http://cxf.apache.org/hello_world_jms" use="literal"/>
+                    namespace="http://cxf.apache.org/w2j/hello_world_jms" use="literal"/>
             </input>
             <output name="greetMeResponse">
                 <soap:body  
-                    namespace="http://cxf.apache.org/hello_world_jms" use="literal"/>
+                    namespace="http://cxf.apache.org/w2j/hello_world_jms" use="literal"/>
             </output>
         </operation>
         <operation name="sayHi">
             <soap:operation soapAction="" style="rpc"/>
             <input name="sayHi">
                 <soap:body 
-                    namespace="http://cxf.apache.org/hello_world_jms" use="literal"/>
+                    namespace="http://cxf.apache.org/w2j/hello_world_jms" use="literal"/>
             </input>
             <output name="sayHiResponse">
                 <soap:body 
-                    namespace="http://cxf.apache.org/hello_world_jms" use="literal"/>
+                    namespace="http://cxf.apache.org/w2j/hello_world_jms" use="literal"/>
             </output>
         </operation>
         <operation name="greetMeOneWay">
             <soap:operation style="rpc"/>
             <input name="greetMeOneWay">
                 <soap:body 
-                    namespace="http://cxf.apache.org/hello_world_jms" use="literal"/>
+                    namespace="http://cxf.apache.org/w2j/hello_world_jms" use="literal"/>
             </input>
         </operation>
     </binding>
@@ -303,7 +303,7 @@
             <soap:operation style="rpc"/>
             <input name="greetMeOneWay">
                 <soap:body 
-                    namespace="http://cxf.apache.org/hello_world_jms" use="literal"/>
+                    namespace="http://cxf.apache.org/w2j/hello_world_jms" use="literal"/>
             </input>
         </operation>
     </binding>
@@ -314,7 +314,7 @@
                 <soap:operation style="rpc"/>
                 <input name="greetMeOneWay">
                     <soap:body 
-                        namespace="http://cxf.apache.org/hello_world_jms" use="literal"/>
+                        namespace="http://cxf.apache.org/w2j/hello_world_jms" use="literal"/>
                 </input>
             </operation>
     </binding>

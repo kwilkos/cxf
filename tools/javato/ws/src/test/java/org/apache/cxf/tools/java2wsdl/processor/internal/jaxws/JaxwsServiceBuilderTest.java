@@ -69,7 +69,7 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
     }
 
     @Test
-    public void testDocLitWrappedWithWrapperClass() {
+    public void testDocLitWrappedWithWrapperClass() throws Exception {
         builder.setServiceClass(org.apache.cxf.tools.fortest.withannotation.doc.StockWrapped.class);
         ServiceInfo service = builder.createService();
         generator.setServiceModel(service);
@@ -80,7 +80,7 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
 
         String expectedFile = this.getClass()
             .getResource("expected/expected_doc_lit_wrapped_with_wrapperclass.wsdl").getFile();
-        assertFileEquals(expectedFile, output.getAbsolutePath());
+        assertWsdlEquals(new File(expectedFile), output);
     }
 
     @Test
@@ -130,7 +130,7 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
 
         String expectedFile = this.getClass().getResource("expected/expected_doc_lit_wrapped_localName.wsdl")
             .getFile();
-        assertFileEquals(expectedFile, output.getAbsolutePath());
+        assertWsdlEquals(new File(expectedFile), output);
     }
 
     @Test
@@ -251,7 +251,7 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
         assertTrue(file.exists());
 
         String expectedFile = this.getClass().getResource("expected/soap_header.wsdl").getFile();
-        assertFileEquals(new File(expectedFile), file);
+        assertWsdlEquals(new File(expectedFile), file);
     }
 
     // TODO: assertFileEquals
@@ -291,7 +291,7 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
         assertTrue(s.indexOf("EchoPort") != -1);
         String expectedFile = this.getClass()
             .getResource("expected/expected_rpclist_no_sei.wsdl").getFile();
-        assertFileEquals(expectedFile, output.getAbsolutePath());
+        assertWsdlEquals(new File(expectedFile), output);
     }
 
     @Test

@@ -55,7 +55,7 @@ import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.databinding.DataReader;
 import org.apache.cxf.databinding.source.NodeDataReader;
 import org.apache.cxf.databinding.source.XMLStreamDataReader;
-import org.apache.cxf.endpoint.Endpoint;
+//import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.helpers.XMLUtils;
@@ -72,9 +72,9 @@ import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageContentsList;
 import org.apache.cxf.message.XMLMessage;
 import org.apache.cxf.phase.Phase;
-import org.apache.cxf.service.model.BindingOperationInfo;
-import org.apache.cxf.service.model.MessageInfo;
-import org.apache.cxf.service.model.MessagePartInfo;
+//import org.apache.cxf.service.model.BindingOperationInfo;
+//import org.apache.cxf.service.model.MessageInfo;
+//import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.staxutils.StaxUtils;
 
 public class DispatchInDatabindingInterceptor extends AbstractInDatabindingInterceptor {
@@ -92,16 +92,19 @@ public class DispatchInDatabindingInterceptor extends AbstractInDatabindingInter
 
     public void handleMessage(Message message) throws Fault {
         Exchange ex = message.getExchange();     
+        /*
         Endpoint ep = ex.get(Endpoint.class);
         MessageInfo info = message.get(MessageInfo.class);
         if (ep.getEndpointInfo().getBinding().getOperations().iterator().hasNext()) {
             BindingOperationInfo bop = ep.getEndpointInfo().getBinding().getOperations().iterator().next();
             ex.put(BindingOperationInfo.class, bop);
             info = getMessageInfo(message, bop);
-        }      
+        } 
+        */     
         
         if (isGET(message)) {
-            MessageContentsList params = new MessageContentsList();          
+            MessageContentsList params = new MessageContentsList();
+            /*
             if (info != null) {
                 for (MessagePartInfo i : info.getMessageParts()) {
                     params.put(i, null);
@@ -109,6 +112,8 @@ public class DispatchInDatabindingInterceptor extends AbstractInDatabindingInter
             } else {
                 params.add(null);
             }
+            */
+            params.add(null);
             message.setContent(List.class, params);
             LOG.info("DispatchInInterceptor skipped in HTTP GET method");
             return;

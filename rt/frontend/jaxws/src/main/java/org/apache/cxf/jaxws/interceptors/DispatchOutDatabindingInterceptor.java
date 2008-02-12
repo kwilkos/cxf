@@ -332,7 +332,6 @@ public class DispatchOutDatabindingInterceptor extends AbstractOutDatabindingInt
                         }
                         SOAPMessage msg = msgFactory.createMessage();
                         msg.getSOAPPart().setContent(source);
-                        msg.saveChanges();
                         if (message.getAttachments() != null) {
                             for (Attachment att : message.getAttachments()) {
                                 AttachmentPart part = msg.createAttachmentPart(att.getDataHandler());
@@ -346,6 +345,7 @@ public class DispatchOutDatabindingInterceptor extends AbstractOutDatabindingInt
                                 msg.addAttachmentPart(part);
                             }
                         }
+                        msg.saveChanges();
                         obj = msg;                    
                     } catch (Exception e) {
                         e.printStackTrace();

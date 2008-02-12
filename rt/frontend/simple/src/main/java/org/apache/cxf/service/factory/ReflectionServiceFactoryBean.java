@@ -144,7 +144,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     private Executor executor;
     private List<String> ignoredClasses = new ArrayList<String>();
     private List<Method> ignoredMethods = new ArrayList<Method>();
-    private SimpleMethodDispatcher methodDispatcher = new SimpleMethodDispatcher();
+    private MethodDispatcher methodDispatcher = new SimpleMethodDispatcher();
     private Boolean wrappedStyle;
     private Map<String, Object> properties;
     private QName endpointName;
@@ -1870,10 +1870,10 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         return null;
     }
 
-    protected SimpleMethodDispatcher getMethodDispatcher() {
+    protected MethodDispatcher getMethodDispatcher() {
         return methodDispatcher;
     }
-    protected void setMethodDispatcher(SimpleMethodDispatcher m) {
+    protected void setMethodDispatcher(MethodDispatcher m) {
         methodDispatcher = m;
     }
 

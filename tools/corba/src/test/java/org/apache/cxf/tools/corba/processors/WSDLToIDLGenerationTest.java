@@ -28,34 +28,31 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 
-import junit.framework.TestCase;
-
 import org.apache.cxf.tools.corba.processors.wsdl.WSDLToIDLAction;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-public class WSDLToIDLGenerationTest extends TestCase {
+public class WSDLToIDLGenerationTest extends Assert {
 
     protected static final String START_COMMENT = "/*";
     protected static final String END_COMMENT = "*/";
     WSDLToIDLAction idlgen;
     ByteArrayOutputStream idloutput;
 
-    public WSDLToIDLGenerationTest(String name) {
-        super(name);
-    }
-    
-    protected void setUp() {
+    @Before
+    public void setUp() {
         System.setProperty("WSDLTOIDLGeneration", "false");
         idlgen = new WSDLToIDLAction();
         idloutput = new ByteArrayOutputStream();
     }
 
-    protected void tearDown() {
+    @After
+    public void tearDown() {
         System.setProperty("WSDLTOIDLGeneration", "true");
     }
 
-    public static void main(String args[]) {
-        junit.textui.TestRunner.run(WSDLToCorbaBindingTest.class);
-    }
     
     private void checkIDLStrings(byte orig[], byte generated[]) throws Exception {
         BufferedReader origReader = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(orig)));
@@ -113,6 +110,7 @@ public class WSDLToIDLGenerationTest extends TestCase {
         return out.toByteArray();
     } 
 
+    @Test
     public void testOnewayGeneration() throws Exception {
         
         String fileName = getClass().getResource("/idlgen/oneway.wsdl").toString();
@@ -129,6 +127,7 @@ public class WSDLToIDLGenerationTest extends TestCase {
         checkIDLStrings(orig, idloutput.toByteArray());
     }
     
+    @Test
     public void testStringtypesIdlgen() throws Exception {
         try {
             String fileName = getClass().getResource("/idlgen/stringtypes.wsdl").toString();
@@ -148,6 +147,7 @@ public class WSDLToIDLGenerationTest extends TestCase {
         }
     }
 
+    @Test
     public void testIntegertypesIdlgen() throws Exception {
         try {
             String fileName = getClass().getResource("/idlgen/integertypes.wsdl").toString();
@@ -167,6 +167,7 @@ public class WSDLToIDLGenerationTest extends TestCase {
         }
     }
     
+    @Test
     public void testUniontypesIdlgen() throws Exception {
         try {
             String fileName = getClass().getResource("/idlgen/uniontypes.wsdl").toString();
@@ -186,6 +187,7 @@ public class WSDLToIDLGenerationTest extends TestCase {
         }
     }
     
+    @Test
     public void testDefaultUniontypesIdlgen() throws Exception {
         try {
             String fileName = getClass().getResource("/idlgen/defaultuniontypes.wsdl").toString();
@@ -206,6 +208,7 @@ public class WSDLToIDLGenerationTest extends TestCase {
     }
 
 
+    @Test
     public void testExceptionIdlgen() throws Exception {
 
         try {
@@ -226,6 +229,7 @@ public class WSDLToIDLGenerationTest extends TestCase {
         }
     }
     
+    @Test
     public void testStructIdlgen() throws Exception {
 
         try {
@@ -247,6 +251,7 @@ public class WSDLToIDLGenerationTest extends TestCase {
     }
 
 
+    @Test
     public void testSequenceIdlgen() throws Exception {
 
         try {
@@ -267,6 +272,7 @@ public class WSDLToIDLGenerationTest extends TestCase {
         }
     }
     
+    @Test
     public void testArrayIdlgen() throws Exception {
 
         try {
@@ -288,6 +294,7 @@ public class WSDLToIDLGenerationTest extends TestCase {
     }
 
 
+    @Test
     public void testEnumIdlgen() throws Exception {
         
         try {           
@@ -308,6 +315,7 @@ public class WSDLToIDLGenerationTest extends TestCase {
         }
     }
     
+    @Test
     public void testContentIdlgen() throws Exception {
         
         try {
@@ -328,6 +336,7 @@ public class WSDLToIDLGenerationTest extends TestCase {
         }
     }
     
+    @Test
     public void testAllTypeIdlgen() throws Exception {
         
         try {
@@ -348,6 +357,7 @@ public class WSDLToIDLGenerationTest extends TestCase {
         }
     }
     
+    @Test
     public void testFixedTypeIdlgen() throws Exception {
         
         try {
@@ -368,6 +378,7 @@ public class WSDLToIDLGenerationTest extends TestCase {
         }
     }
     
+    @Test
     public void testAnonFixedTypeIdlgen() throws Exception {
         
         try {
@@ -388,6 +399,7 @@ public class WSDLToIDLGenerationTest extends TestCase {
         }
     }
 
+    @Test
     public void testAnyTypeIdlgen() throws Exception {
         
         try {
@@ -409,6 +421,7 @@ public class WSDLToIDLGenerationTest extends TestCase {
     }
 
 
+    @Test
     public void testTypeInheritanceIdlgen() throws Exception {
         
         try {
@@ -429,6 +442,7 @@ public class WSDLToIDLGenerationTest extends TestCase {
         }
     }
     
+    @Test
     public void testNillableIdlgen() throws Exception {
         
         try {
@@ -449,6 +463,7 @@ public class WSDLToIDLGenerationTest extends TestCase {
         }
     }
     
+    @Test
     public void testTypedefIdlgen() throws Exception {
         
         try {
@@ -469,6 +484,7 @@ public class WSDLToIDLGenerationTest extends TestCase {
         }
     }
 
+    @Test
     public void testNestedIdlgen() throws Exception {
         
         try {
@@ -489,6 +505,7 @@ public class WSDLToIDLGenerationTest extends TestCase {
         }
     }
     
+    @Test
     public void testNestedDerivedTypesIdlgen() throws Exception {
         
         try {
@@ -510,6 +527,7 @@ public class WSDLToIDLGenerationTest extends TestCase {
         }
     }
 
+    @Test
     public void testNestedComplexTypesIdlgen() throws Exception {
         
         try {
@@ -531,6 +549,7 @@ public class WSDLToIDLGenerationTest extends TestCase {
         }
     }
 
+    @Test
     public void testNestedInterfaceTypesIdlgen() throws Exception {
         
         try {
@@ -552,6 +571,7 @@ public class WSDLToIDLGenerationTest extends TestCase {
         }
     }
     
+    @Test
     public void testDateTimeTypesIdlgen() throws Exception {
         
         try {
@@ -573,6 +593,7 @@ public class WSDLToIDLGenerationTest extends TestCase {
         }
     }
     
+    @Test
     public void testWsaddressingServerIdlgen() throws Exception {
         
         try {
@@ -594,6 +615,7 @@ public class WSDLToIDLGenerationTest extends TestCase {
         }
     }
     
+    @Test
     public void testWsaddressingAccountIdlgen() throws Exception {
         
         try {
@@ -615,6 +637,7 @@ public class WSDLToIDLGenerationTest extends TestCase {
         }
     }
     
+    @Test
     public void testWsaddressingBankIdlgen() throws Exception {
         
         try {
@@ -636,6 +659,7 @@ public class WSDLToIDLGenerationTest extends TestCase {
         }
     }
     
+    @Test
     public void testMultipleBindingIdlgen() throws Exception {
         
         try {
@@ -656,6 +680,7 @@ public class WSDLToIDLGenerationTest extends TestCase {
         }
     }
 
+    @Test
     public void testComplextypeDerivedSimpletype() throws Exception {
         
         try {
@@ -677,6 +702,7 @@ public class WSDLToIDLGenerationTest extends TestCase {
     }
 
     
+    @Test
     public void testCorbaExceptionComplexType() throws Exception {
         
         try {
@@ -697,6 +723,7 @@ public class WSDLToIDLGenerationTest extends TestCase {
         }
     }
 
+    @Test
     public void testCorbaRecursiveStructs() throws Exception {
         
         try {
@@ -718,6 +745,7 @@ public class WSDLToIDLGenerationTest extends TestCase {
         }
     }
 
+    @Test
     public void testCoraRecursiveUnion() throws Exception {
         
         try {
@@ -737,10 +765,6 @@ public class WSDLToIDLGenerationTest extends TestCase {
             new File("recursiveunion.idl").deleteOnExit();
         }
     }
-
-
-
-
 
 
 }

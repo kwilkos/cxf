@@ -257,7 +257,11 @@ public class CodeGenTest extends ProcessorTestBase {
         assertTrue(org.exists());
         File apache = new File(org, "apache");
         assertTrue(apache.exists());
-        File helloworldsoaphttp = new File(apache, "hello_world_rpclit");
+        File cxf = new File(apache, "cxf");
+        assertTrue(cxf.exists());
+        File w2j = new File(cxf, "w2j");
+        assertTrue(w2j.exists());
+        File helloworldsoaphttp = new File(w2j, "hello_world_rpclit");
         assertTrue(helloworldsoaphttp.exists());
         File types = new File(helloworldsoaphttp, "types");
         assertTrue(types.exists());
@@ -267,27 +271,28 @@ public class CodeGenTest extends ProcessorTestBase {
         files = types.listFiles();
         assertEquals(files.length, 3);
 
-        Class<?> clz = classLoader.loadClass("org.apache.hello_world_rpclit.GreeterRPCLit");
+        Class<?> clz = classLoader.loadClass("org.apache.cxf.w2j.hello_world_rpclit.GreeterRPCLit");
 
         javax.jws.WebService ws = AnnotationUtil.getPrivClassAnnotation(clz, javax.jws.WebService.class);
 
         SOAPBinding soapBindingAnno = AnnotationUtil.getPrivClassAnnotation(clz, SOAPBinding.class);
         assertEquals("LITERAL", soapBindingAnno.use().toString());
         assertEquals("RPC", soapBindingAnno.style().toString());
-
+        
         assertEquals("Generate operation error", 3, clz.getMethods().length);
 
-        Class<?> paraClass = classLoader.loadClass("org.apache.hello_world_rpclit.types.MyComplexStruct");
+        Class<?> paraClass = classLoader
+            .loadClass("org.apache.cxf.w2j.hello_world_rpclit.types.MyComplexStruct");
         Method method = clz.getMethod("sendReceiveData", new Class[] {paraClass});
         assertEquals("MyComplexStruct", method.getReturnType().getSimpleName());
 
-        clz = classLoader.loadClass("org.apache.hello_world_rpclit.GreeterRPCLitImpl");
+        clz = classLoader.loadClass("org.apache.cxf.w2j.hello_world_rpclit.GreeterRPCLitImpl");
         assertNotNull(clz);
         ws = AnnotationUtil.getPrivClassAnnotation(clz, javax.jws.WebService.class);
         assertNotNull(ws);
         assertTrue("Webservice annotation wsdlLocation should begin with file", ws.wsdlLocation()
             .startsWith("file"));
-        assertEquals("org.apache.hello_world_rpclit.GreeterRPCLit", ws.endpointInterface());
+        assertEquals("org.apache.cxf.w2j.hello_world_rpclit.GreeterRPCLit", ws.endpointInterface());
         assertEquals("GreeterRPCLit", ws.name());
 
     }
@@ -304,13 +309,17 @@ public class CodeGenTest extends ProcessorTestBase {
         assertTrue(org.exists());
         File apache = new File(org, "apache");
         assertTrue(apache.exists());
-        File async = new File(apache, "hello_world_async_soap_http");
+        File cxf = new File(apache, "cxf");
+        assertTrue(cxf.exists());
+        File w2j = new File(cxf, "w2j");
+        assertTrue(w2j.exists());
+        File async = new File(w2j, "hello_world_async_soap_http");
         assertTrue(async.exists());
 
         File[] files = async.listFiles();
         assertEquals(4, files.length);
 
-        Class<?> clz = classLoader.loadClass("org.apache.hello_world_async_soap_http.GreeterAsync");
+        Class<?> clz = classLoader.loadClass("org.apache.cxf.w2j.hello_world_async_soap_http.GreeterAsync");
 
         Method method1 = clz.getMethod("greetMeSometimeAsync", new Class[] {java.lang.String.class,
                                                                             javax.xml.ws.AsyncHandler.class});
@@ -339,7 +348,11 @@ public class CodeGenTest extends ProcessorTestBase {
         assertTrue(org.exists());
         File apache = new File(org, "apache");
         assertTrue(apache.exists());
-        File helloworldsoaphttp = new File(apache, "hello_world_soap12_http");
+        File cxf = new File(apache, "cxf");
+        assertTrue(cxf.exists());
+        File w2j = new File(cxf, "w2j");
+        assertTrue(w2j.exists());
+        File helloworldsoaphttp = new File(w2j, "hello_world_soap12_http");
         assertTrue(helloworldsoaphttp.exists());
         File types = new File(helloworldsoaphttp, "types");
         assertTrue(types.exists());
@@ -348,7 +361,7 @@ public class CodeGenTest extends ProcessorTestBase {
         files = types.listFiles();
         assertEquals(7, files.length);
 
-        Class<?> clz = classLoader.loadClass("org.apache.hello_world_soap12_http.Greeter");
+        Class<?> clz = classLoader.loadClass("org.apache.cxf.w2j.hello_world_soap12_http.Greeter");
         assertTrue("class " + clz.getName() + " modifier is not public", Modifier
             .isPublic(clz.getModifiers()));
         assertTrue("class " + clz.getName() + " modifier is interface", Modifier.isInterface(clz
@@ -368,7 +381,8 @@ public class CodeGenTest extends ProcessorTestBase {
         RequestWrapper requestWrapperAnn = AnnotationUtil.getPrivMethodAnnotation(method,
                                                                                   RequestWrapper.class);
 
-        assertEquals("org.apache.hello_world_soap12_http.types.SayHi", requestWrapperAnn.className());
+        assertEquals("org.apache.cxf.w2j.hello_world_soap12_http.types.SayHi",
+                     requestWrapperAnn.className());
 
         ResponseWrapper resposneWrapperAnn = AnnotationUtil.getPrivMethodAnnotation(method,
                                                                                     ResponseWrapper.class);
@@ -388,7 +402,8 @@ public class CodeGenTest extends ProcessorTestBase {
         }
         Class[] exceptionCls = method.getExceptionTypes();
         assertEquals(1, exceptionCls.length);
-        assertEquals("org.apache.hello_world_soap12_http.PingMeFault", exceptionCls[0].getName());
+        assertEquals("org.apache.cxf.w2j.hello_world_soap12_http.PingMeFault",
+                     exceptionCls[0].getName());
     }
 
     @Test
@@ -403,7 +418,11 @@ public class CodeGenTest extends ProcessorTestBase {
         assertTrue(org.exists());
         File apache = new File(org, "apache");
         assertTrue(apache.exists());
-        File helloworldsoaphttp = new File(apache, "hello_world_soap_http");
+        File cxf = new File(apache, "cxf");
+        assertTrue(cxf.exists());
+        File w2j = new File(cxf, "w2j");
+        assertTrue(w2j.exists());
+        File helloworldsoaphttp = new File(w2j, "hello_world_soap_http");
         assertTrue(helloworldsoaphttp.exists());
         File types = new File(helloworldsoaphttp, "types");
         assertTrue(types.exists());
@@ -412,7 +431,7 @@ public class CodeGenTest extends ProcessorTestBase {
         files = types.listFiles();
         assertEquals(17, files.length);
 
-        Class<?> clz = classLoader.loadClass("org.apache.hello_world_soap_http.Greeter");
+        Class<?> clz = classLoader.loadClass("org.apache.cxf.w2j.hello_world_soap_http.Greeter");
         assertTrue("class " + clz.getName() + " modifier is not public", Modifier
             .isPublic(clz.getModifiers()));
         assertTrue("class " + clz.getName() + " modifier is interface", Modifier.isInterface(clz
@@ -432,7 +451,7 @@ public class CodeGenTest extends ProcessorTestBase {
         RequestWrapper requestWrapperAnn = AnnotationUtil.getPrivMethodAnnotation(method,
                                                                                   RequestWrapper.class);
 
-        assertEquals("org.apache.hello_world_soap_http.types.SayHi", requestWrapperAnn.className());
+        assertEquals("org.apache.cxf.w2j.hello_world_soap_http.types.SayHi", requestWrapperAnn.className());
 
         ResponseWrapper resposneWrapperAnn = AnnotationUtil.getPrivMethodAnnotation(method,
                                                                                     ResponseWrapper.class);
@@ -447,7 +466,7 @@ public class CodeGenTest extends ProcessorTestBase {
         assertEquals("String", method.getReturnType().getSimpleName());
         WebParam webParamAnn = AnnotationUtil.getWebParam(method, "requestType");
         //if is wrapped, tns should be empty
-        assertEquals("http://apache.org/hello_world_soap_http/types", webParamAnn.targetNamespace());
+        assertEquals("http://cxf.apache.org/w2j/hello_world_soap_http/types", webParamAnn.targetNamespace());
         //assertEquals("", webParamAnn.targetNamespace());
         method = clz.getMethod("greetMeOneWay", new Class[] {String.class});
         Oneway oneWayAnn = AnnotationUtil.getPrivMethodAnnotation(method, Oneway.class);
@@ -489,7 +508,12 @@ public class CodeGenTest extends ProcessorTestBase {
         assertTrue(org.exists());
         File apache = new File(org, "apache");
         assertTrue(apache.exists());
-        File helloworldsoaphttp = new File(apache, "hello_world_soap_http");
+        File cxf = new File(apache, "cxf");
+        assertTrue(cxf.exists());
+        File w2j = new File(cxf, "w2j");
+        assertTrue(w2j.exists());
+        
+        File helloworldsoaphttp = new File(w2j, "hello_world_soap_http");
         assertTrue(helloworldsoaphttp.exists());
         File types = new File(helloworldsoaphttp, "types");
         assertTrue(types.exists());
@@ -498,7 +522,7 @@ public class CodeGenTest extends ProcessorTestBase {
         files = types.listFiles();
         assertEquals(17, files.length);
 
-        Class<?> clz = classLoader.loadClass("org.apache.hello_world_soap_http.types.SayHi");
+        Class<?> clz = classLoader.loadClass("org.apache.cxf.w2j.hello_world_soap_http.types.SayHi");
         Method method = clz.getMethod("dummy", new Class[] {});
         assertTrue("method declared on SayHi", method.getDeclaringClass().equals(clz));
     }
@@ -580,9 +604,12 @@ public class CodeGenTest extends ProcessorTestBase {
         assertTrue(org.exists());
         File apache = new File(org, "apache");
         assertTrue(apache.exists());
-        File[] files = apache.listFiles();
-        assertEquals(2, files.length);
-        File helloworldsoaphttp = new File(apache, "hello_world_soap_http");
+        File cxf = new File(apache, "cxf");
+        assertTrue(cxf.exists());
+        File w2j = new File(cxf, "w2j");
+        assertTrue(w2j.exists());
+        File[] files = w2j.listFiles();
+        File helloworldsoaphttp = new File(w2j, "hello_world_soap_http");
         assertTrue(helloworldsoaphttp.exists());
         File types = new File(helloworldsoaphttp, "types");
         assertTrue(types.exists());
@@ -741,7 +768,7 @@ public class CodeGenTest extends ProcessorTestBase {
         processor.setContext(env);
         processor.execute();
 
-        Class<?> clz = classLoader.loadClass("org.apache.hello_world_holder.Greeter");
+        Class<?> clz = classLoader.loadClass("org.apache.cxf.w2j.hello_world_holder.Greeter");
         assertEquals(1, clz.getMethods().length);
 
         SOAPBinding soapBindingAnno = AnnotationUtil.getPrivClassAnnotation(clz, SOAPBinding.class);
@@ -749,7 +776,7 @@ public class CodeGenTest extends ProcessorTestBase {
         assertEquals("LITERAL", soapBindingAnno.use().name());
         assertEquals("DOCUMENT", soapBindingAnno.style().name());
 
-        Class<?> para = classLoader.loadClass("org.apache.hello_world_holder.types.GreetMe");
+        Class<?> para = classLoader.loadClass("org.apache.cxf.w2j.hello_world_holder.types.GreetMe");
         Method method = clz.getMethod("sayHi", new Class[] {Holder.class, para});
         assertEquals("GreetMeResponse", method.getReturnType().getSimpleName());
 
@@ -763,7 +790,7 @@ public class CodeGenTest extends ProcessorTestBase {
 
     @Test
     public void testWSAddress() throws Exception {
-        env.addNamespacePackageMap("http://apache.org/hello_world_soap_http", "ws.address");
+        env.addNamespacePackageMap("http://cxf.apache.org/w2j/hello_world_soap_http", "ws.address");
         env.put(ToolConstants.CFG_BINDING, getLocation("/wsdl2java_wsdl/ws_address_binding.wsdl"));
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/hello_world_addr.wsdl"));
 
@@ -835,17 +862,22 @@ public class CodeGenTest extends ProcessorTestBase {
 
         File apache = new File(org, "apache");
         assertTrue(apache.exists());
+        File cxf = new File(apache, "cxf");
+        assertTrue(cxf.exists());
+        File w2j = new File(cxf, "w2j");
+        assertTrue(w2j.exists());
 
-        File helloWorld = new File(apache, "hello_world");
+        File helloWorld = new File(w2j, "hello_world");
         assertTrue(helloWorld.exists());
 
-        Class<?> clz = classLoader.loadClass("org.apache.hello_world.Greeter");
+        Class<?> clz = classLoader.loadClass("org.apache.cxf.w2j.hello_world.Greeter");
         assertEquals(3, clz.getMethods().length);
 
         Method method = clz.getMethod("pingMe", new Class[] {});
         assertEquals("void", method.getReturnType().getSimpleName());
         assertEquals("Exception class is not generated ", 1, method.getExceptionTypes().length);
-        assertEquals("org.apache.hello_world.messages.PingMeFault", method.getExceptionTypes()[0]
+        assertEquals("org.apache.cxf.w2j.hello_world.messages.PingMeFault",
+                     method.getExceptionTypes()[0]
             .getCanonicalName());
     }
 
@@ -939,7 +971,7 @@ public class CodeGenTest extends ProcessorTestBase {
         processor.setContext(env);
         processor.execute();
 
-        Class<?> clz = classLoader.loadClass("org.apache.hello_world_doc_lit.Greeter");
+        Class<?> clz = classLoader.loadClass("org.apache.cxf.w2j.hello_world_doc_lit.Greeter");
 
         Method method = clz.getMethod("greetMe", new Class[] {java.lang.String.class});
         assertNotNull("greetMe is not be generated", method);
@@ -961,8 +993,8 @@ public class CodeGenTest extends ProcessorTestBase {
         processor.setContext(env);
         processor.execute();
 
-        Class<?> clz = classLoader.loadClass("org.apache.hello_world_soap_http.Greeter");
-        Class<?> sayHi = classLoader.loadClass("org.apache.hello_world_soap_http.types.SayHi");
+        Class<?> clz = classLoader.loadClass("org.apache.cxf.w2j.hello_world_soap_http.Greeter");
+        Class<?> sayHi = classLoader.loadClass("org.apache.cxf.w2j.hello_world_soap_http.types.SayHi");
         Method method = clz.getMethod("_do", new Class[] {sayHi});
         assertNotNull("method which name contains java keywords is not be generated", method);
 
@@ -987,7 +1019,7 @@ public class CodeGenTest extends ProcessorTestBase {
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/hello_world_with_enum_type.wsdl"));
         processor.setContext(env);
         processor.execute();
-        Class clz = classLoader.loadClass("org.apache.hello_world_soap_http.types.ActionType");
+        Class clz = classLoader.loadClass("org.apache.cxf.w2j.hello_world_soap_http.types.ActionType");
         assertNotNull("Enum class could not be found", clz);
     }
 
@@ -1091,7 +1123,7 @@ public class CodeGenTest extends ProcessorTestBase {
         env.put(ToolConstants.CFG_SERVICENAME, "HelloWorldService");
         processor.setContext(env);
         processor.execute();
-        Class cls = classLoader.loadClass("org.apache.cxf.hello_world_jms.BadRecordLitFault");
+        Class cls = classLoader.loadClass("org.apache.cxf.w2j.hello_world_jms.BadRecordLitFault");
         WebFault webFault = AnnotationUtil.getPrivClassAnnotation(cls, WebFault.class);
         assertEquals("http://www.w3.org/2001/XMLSchema", webFault.targetNamespace());
 
@@ -1120,7 +1152,7 @@ public class CodeGenTest extends ProcessorTestBase {
         processor.setContext(env);
         processor.execute();
 
-        File greeter = new File(output, "org/apache/hello_world_soap_http/Greeter.java");
+        File greeter = new File(output, "org/apache/cxf/w2j/hello_world_soap_http/Greeter.java");
         assertTrue(output.exists());
         String contents = FileUtils.getStringFromFile(greeter);
         assertTrue(contents.indexOf("SOAPBinding.ParameterStyle.BARE") != -1);
@@ -1173,7 +1205,7 @@ public class CodeGenTest extends ProcessorTestBase {
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/w3c-epr.wsdl"));
         processor.setContext(env);
         processor.execute();
-        Class sei = this.classLoader.loadClass("org.apache.w3c.epr.AddNumbersPortType");
+        Class<?> sei = this.classLoader.loadClass("org.apache.w3c.epr.AddNumbersPortType");
         Method method = sei.getMethod("addNumbers", 
                                       new Class[]{javax.xml.ws.wsaddressing.W3CEndpointReference.class});
         assertNotNull("wsdl2java does not map w3c:EndpointReferenceType to javax.xml.ws.EndpointReference"

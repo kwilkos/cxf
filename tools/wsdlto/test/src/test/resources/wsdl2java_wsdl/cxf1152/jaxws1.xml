@@ -23,7 +23,7 @@
         <jaxws:package name="org.mypkg"/>
     </jaxws:bindings>
 
-    <jaxws:bindings node="wsdl:definitions/wsdl:types/xsd:schema[@targetNamespace='http://apache.org/hello_world_soap_http/types']" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <jaxws:bindings node="wsdl:definitions/wsdl:types/xsd:schema[@targetNamespace='http://cxf.apache.org/w2j/hello_world_soap_http/types']" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
         <jxb:schemaBindings xmlns:jxb="http://java.sun.com/xml/ns/jaxb">
             <jxb:package name="org.mypkg"/>
         </jxb:schemaBindings>

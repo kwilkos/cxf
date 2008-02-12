@@ -34,10 +34,10 @@ public interface SimpleDocLitBare {
     String basicTypeFunctionReturnString(@WebParam(name = "s") String s, 
                                          @WebParam(name = "i") int i, 
                                          @WebParam(name = "d") double d);
-    
+    /*
     @WebMethod
     TestBean1 functionReturnTestBean1();
-    
+    */
     @WebMethod
     int basicTypeFunctionReturnInt(@WebParam(name = "s") String s, 
                                    @WebParam(name = "d") double d);
@@ -52,7 +52,7 @@ public interface SimpleDocLitBare {
     @WebMethod(action = "lightsCamera") 
     String actionMethod(@WebParam(name = "stringParam") String param);
     
-    @WebMethod
+    @WebMethod(action = "compliantNoArgs")
     TestBean2 compliantNoArgs();
     
     @Oneway

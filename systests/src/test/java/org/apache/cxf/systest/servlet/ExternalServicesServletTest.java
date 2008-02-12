@@ -19,6 +19,9 @@
 package org.apache.cxf.systest.servlet;
 
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.w3c.dom.Document;
 
 
@@ -56,8 +59,14 @@ public class ExternalServicesServletTest extends AbstractServletTest {
         WebResponse  res = client.getResponse(CONTEXT_URL + "/");
         WebLink[] links = res.getLinks();
         assertEquals("There should get two links for the services", 2, links.length);
-        assertEquals(FORCED_BASE_ADDRESS + "/greeter?wsdl", links[0].getURLString()); 
-        assertEquals(FORCED_BASE_ADDRESS + "/greeter2?wsdl", links[1].getURLString()); 
+        
+        Set<String> links2 = new HashSet<String>();
+        for (WebLink l : links) {
+            links2.add(l.getURLString());
+        }
+        assertTrue(links2.contains(FORCED_BASE_ADDRESS + "/greeter?wsdl"));       
+        assertTrue(links2.contains(FORCED_BASE_ADDRESS + "/greeter2?wsdl")); 
+        
         assertEquals("text/html", res.getContentType());
         
         //HTTPUnit do not support require url with ""

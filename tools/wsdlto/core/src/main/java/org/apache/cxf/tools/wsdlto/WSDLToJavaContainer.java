@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -146,7 +147,7 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
                     // TODO: wsdl2.0 support
                 }
             }
-            Map<String, InterfaceInfo> interfaces = new HashMap<String, InterfaceInfo>();
+            Map<String, InterfaceInfo> interfaces = new LinkedHashMap<String, InterfaceInfo>();
 
             Map<String, Element> schemas = (Map<String, Element>)serviceList.get(0)
                 .getProperty(WSDLServiceBuilder.WSDL_SCHEMA_ELEMENT_LIST);

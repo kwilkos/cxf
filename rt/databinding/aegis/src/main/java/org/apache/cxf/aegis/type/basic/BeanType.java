@@ -191,7 +191,7 @@ public class BeanType extends Type {
     protected Object createFromFault(Context context)
         throws SecurityException, InstantiationException,
         IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-        Class clazz = getTypeClass();
+        Class<?> clazz = getTypeClass();
         Constructor ctr;
         Object o;
 

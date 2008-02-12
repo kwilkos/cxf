@@ -21,7 +21,7 @@ package org.apache.cxf.tools.wsdlto.frontend.jaxws.processor;
 
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import javax.xml.namespace.QName;
@@ -42,7 +42,7 @@ import org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal.annotator.W
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal.annotator.XmlSeeAlsoAnnotator;
 
 public class WSDLToJavaProcessor extends WSDLToProcessor implements ClassNameProcessor {
-    private static final String MODEL_MAP = WSDLToProcessor.class.getName() 
+    public static final String MODEL_MAP = WSDLToProcessor.class.getName() 
         + ".MODEL_MAP";
     
     
@@ -70,7 +70,7 @@ public class WSDLToJavaProcessor extends WSDLToProcessor implements ClassNamePro
         JavaModel javaModel = null;
         Map<QName, JavaModel> map = CastUtils.cast((Map)context.get(MODEL_MAP));
         if (map == null) {
-            map = new HashMap<QName, JavaModel>();
+            map = new LinkedHashMap<QName, JavaModel>();
             context.put(MODEL_MAP, map);
         }
         if (map.containsKey(serviceInfo.getName())) {

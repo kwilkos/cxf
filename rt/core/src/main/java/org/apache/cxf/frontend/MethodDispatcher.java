@@ -22,6 +22,7 @@ import java.lang.reflect.Method;
 
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.service.model.BindingOperationInfo;
+import org.apache.cxf.service.model.OperationInfo;
 
 /**
  * Provides functionality to map BindingOperations to Methods and
@@ -31,4 +32,7 @@ public interface MethodDispatcher {
     Method getMethod(BindingOperationInfo op);
     
     BindingOperationInfo getBindingOperation(Method m, Endpoint endpoint);
+    
+    void bind(OperationInfo o, Method... methods);
+
 }

@@ -25,6 +25,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.namespace.QName;
+
+import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.tools.common.FrontEndGenerator;
 import org.apache.cxf.tools.common.ProcessorTestBase;
 import org.apache.cxf.tools.common.ToolConstants;
@@ -39,6 +42,7 @@ import org.apache.cxf.tools.wsdlto.core.DataBindingProfile;
 import org.apache.cxf.tools.wsdlto.core.FrontEndProfile;
 import org.apache.cxf.tools.wsdlto.core.PluginLoader;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.JAXWSContainer;
+import org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.WSDLToJavaProcessor;
 import org.junit.Test;
 
 public class JAXWSContainerTest extends ProcessorTestBase {
@@ -91,12 +95,15 @@ public class JAXWSContainerTest extends ProcessorTestBase {
             assertNotNull(output.list());
             assertEquals(1, output.list().length);
 
-            assertTrue(new File(output, "org/apache/hello_world_soap_http/Greeter.java").exists());
-            assertTrue(new File(output, "org/apache/hello_world_soap_http/SOAPService.java").exists());
-            assertTrue(new File(output, "org/apache/hello_world_soap_http/NoSuchCodeLitFault.java").exists());
-            assertTrue(new File(output, "org/apache/hello_world_soap_http/types/SayHi.java").exists());
+            assertTrue(new File(output, "org/apache/cxf/w2j/hello_world_soap_http/Greeter.java").exists());
             assertTrue(new File(output,
-                                "org/apache/hello_world_soap_http/types/GreetMe.java").exists());
+                                "org/apache/cxf/w2j/hello_world_soap_http/SOAPService.java").exists());
+            assertTrue(new File(output,
+                                "org/apache/cxf/w2j/hello_world_soap_http/NoSuchCodeLitFault.java").exists());
+            assertTrue(new File(output,
+                                "org/apache/cxf/w2j/hello_world_soap_http/types/SayHi.java").exists());
+            assertTrue(new File(output,
+                                "org/apache/cxf/w2j/hello_world_soap_http/types/GreetMe.java").exists());
 
             // Now you can get the JavaModel from the context.
             JavaModel javaModel = context.get(JavaModel.class);
@@ -105,9 +112,9 @@ public class JAXWSContainerTest extends ProcessorTestBase {
             assertEquals(1, interfaces.size());
 
             JavaInterface intf = interfaces.values().iterator().next();
-            assertEquals("http://apache.org/hello_world_soap_http", intf.getNamespace());
+            assertEquals("http://cxf.apache.org/w2j/hello_world_soap_http", intf.getNamespace());
             assertEquals("Greeter", intf.getName());
-            assertEquals("org.apache.hello_world_soap_http", intf.getPackageName());
+            assertEquals("org.apache.cxf.w2j.hello_world_soap_http", intf.getPackageName());
 
             List<JavaMethod> methods = intf.getMethods();
             assertEquals(6, methods.size());
@@ -152,7 +159,10 @@ public class JAXWSContainerTest extends ProcessorTestBase {
             assertEquals(0, output.list().length);
 
             // Now you can get the JavaModel from the context.
-            JavaModel javaModel = context.get(JavaModel.class);
+            Map<QName, JavaModel> map = CastUtils.cast((Map)context.get(WSDLToJavaProcessor.MODEL_MAP));
+            JavaModel javaModel = map.get(new QName("http://cxf.apache.org/w2j/hello_world_soap_http",
+                                                    "SOAPService"));
+            assertNotNull(javaModel);
 
             Map<String, JavaInterface> interfaces = javaModel.getInterfaces();
             assertEquals(1, interfaces.size());
@@ -160,8 +170,8 @@ public class JAXWSContainerTest extends ProcessorTestBase {
             JavaInterface intf = interfaces.values().iterator().next();
             String interfaceName = intf.getName();
             assertEquals("Greeter", interfaceName);
-            assertEquals("http://apache.org/hello_world_soap_http", intf.getNamespace());
-            assertEquals("org.apache.hello_world_soap_http", intf.getPackageName());
+            assertEquals("http://cxf.apache.org/w2j/hello_world_soap_http", intf.getNamespace());
+            assertEquals("org.apache.cxf.w2j.hello_world_soap_http", intf.getPackageName());
 
             List<JavaMethod> methods = intf.getMethods();
             assertEquals(6, methods.size());
@@ -184,6 +194,9 @@ public class JAXWSContainerTest extends ProcessorTestBase {
             String address = null;
 
             for (JavaServiceClass service : javaModel.getServiceClasses().values()) {
+                if ("SOAPService_Test1".equals(service.getName())) {
+                    continue;
+                }
                 List<JavaPort> ports = (List<JavaPort>) service.getPorts();
                 for (JavaPort port : ports) {
                     if (interfaceName.equals(port.getPortType())) {

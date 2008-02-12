@@ -59,11 +59,8 @@ public final class PluginLoader {
     private Map<String, Plugin> plugins = new LinkedHashMap<String, Plugin>();
 
     private Map<String, FrontEnd> frontends = new LinkedHashMap<String, FrontEnd>();
-    private Map<String, FrontEndProfile> frontendProfiles = new LinkedHashMap<String, FrontEndProfile>();
 
     private Map<String, DataBinding> databindings = new LinkedHashMap<String, DataBinding>();
-    private Map<String, DataBindingProfile> databindingProfiles
-        = new LinkedHashMap<String, DataBindingProfile>();
 
     private Unmarshaller unmarshaller;
 
@@ -389,30 +386,24 @@ public final class PluginLoader {
     }
 
     public FrontEndProfile getFrontEndProfile(String name) {
-        FrontEndProfile profile = frontendProfiles.get(name);
-        if (profile == null) {
+        FrontEndProfile profile = null;
+        FrontEnd frontend = getFrontEnd(name);
 
-            FrontEnd frontend = getFrontEnd(name);
+        profile = loadFrontEndProfile(getFrontEndProfileClass(frontend));
 
-            profile = loadFrontEndProfile(getFrontEndProfileClass(frontend));
+        for (FrontEndGenerator generator : getFrontEndGenerators(frontend)) {
+            profile.registerGenerator(generator);
+        }
 
-            for (FrontEndGenerator generator : getFrontEndGenerators(frontend)) {
-                profile.registerGenerator(generator);
-            }
-
-            if (frontend.getProcessor() != null) {
-                profile.setProcessor(loadProcessor(getProcessorClass(frontend)));
-            }
-            if (frontend.getContainer() != null) {
-                profile.setContainerClass(loadContainerClass(getContainerClass(frontend)));
-                profile.setToolspec(getToolspec(frontend));
-            }
-            if (frontend.getBuilder() != null) {
-                profile.setWSDLBuilder(loadBuilder(getBuilderClass(frontend)));
-            }
-
-
-            frontendProfiles.put(name, profile);
+        if (frontend.getProcessor() != null) {
+            profile.setProcessor(loadProcessor(getProcessorClass(frontend)));
+        }
+        if (frontend.getContainer() != null) {
+            profile.setContainerClass(loadContainerClass(getContainerClass(frontend)));
+            profile.setToolspec(getToolspec(frontend));
+        }
+        if (frontend.getBuilder() != null) {
+            profile.setWSDLBuilder(loadBuilder(getBuilderClass(frontend)));
         }
         return profile;
     }
@@ -439,12 +430,9 @@ public final class PluginLoader {
     }
 
     public DataBindingProfile getDataBindingProfile(String name) {
-        DataBindingProfile profile = databindingProfiles.get(name);
-        if (profile == null) {
-            DataBinding databinding = getDataBinding(name);
-            profile = loadDataBindingProfile(databinding.getPackage() + "." + databinding.getProfile());
-            databindingProfiles.put(name, profile);
-        }
+        DataBindingProfile profile = null;
+        DataBinding databinding = getDataBinding(name);
+        profile = loadDataBindingProfile(databinding.getPackage() + "." + databinding.getProfile());
         return profile;
     }
 

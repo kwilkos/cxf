@@ -20,14 +20,14 @@ under the License.
 <wsdl:definitions name="HelloWorld"
 		  xmlns="http://schemas.xmlsoap.org/wsdl/"
 		  xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
-		  xmlns:x2="http://apache.org/hello_world"
+		  xmlns:x2="http://cxf.apache.org/w2j/hello_world"
 		  xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
 		  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-		  targetNamespace="http://apache.org/hello_world/bindings">
+		  targetNamespace="http://cxf.apache.org/w2j/hello_world/bindings">
 
 
     <wsdl:import
-	namespace="http://apache.org/hello_world"
+	namespace="http://cxf.apache.org/w2j/hello_world"
 	location="hello_world_wsdl_import.wsdl"/>
 
     <wsdl:binding name="SOAPBinding" type="x2:Greeter">

@@ -19,14 +19,14 @@ under the License.
 -->
 <wsdl:definitions xmlns="http://schemas.xmlsoap.org/wsdl/"
 		  xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
-		  xmlns:tns="http://apache.org/hello_world_soap_http/tns:soap"
-		  xmlns:x1="http://apache.org/hello_world_soap_http/tns:types"
+		  xmlns:tns="http://cxf.apache.org/w2j/hello_world_soap_http/tns:soap"
+		  xmlns:x1="http://cxf.apache.org/w2j/hello_world_soap_http/tns:types"
 		  xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
 		  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-		  targetNamespace="http://apache.org/hello_world_soap_http/tns:soap" name="HelloWorld">
+		  targetNamespace="http://cxf.apache.org/w2j/hello_world_soap_http/tns:soap" name="HelloWorld">
     <wsdl:types>
-	<schema targetNamespace="http://apache.org/hello_world_soap_http/tns:types" 
-		xmlns="http://www.w3.org/2001/XMLSchema" xmlns:x1="http://apache.org/hello_world_soap_http/tns:types" 
+	<schema targetNamespace="http://cxf.apache.org/w2j/hello_world_soap_http/tns:types" 
+		xmlns="http://www.w3.org/2001/XMLSchema" xmlns:x1="http://cxf.apache.org/w2j/hello_world_soap_http/tns:types" 
 		elementFormDefault="qualified">
 	    <element name="sayHi">
 		<complexType/>
@@ -246,7 +246,7 @@ under the License.
 	    </wsdl:fault>
 	</wsdl:operation>
 	<wsdl:operation name="testDocLitBare">
-	    <soap:operation style="document" soapAction="http://apache.org/hello_world_soap_http/testDocLitBare"/>
+	    <soap:operation style="document" soapAction="http://cxf.apache.org/w2j/hello_world_soap_http/testDocLitBare"/>
 	    <wsdl:input name="testDocLitBareRequest">
 		<soap:body use="literal"/>
 	    </wsdl:input>

@@ -273,8 +273,8 @@ public class CorbaDestination implements Destination {
         int keyIndex = location.indexOf('/');
         String key = location.substring(keyIndex + 1);
         try {
-            Class bootMgrHelperClass = Class.forName("org.apache.yoko.orb.OB.BootManagerHelper");
-            Class bootMgrClass = Class.forName("org.apache.yoko.orb.OB.BootManager");
+            Class<?> bootMgrHelperClass = Class.forName("org.apache.yoko.orb.OB.BootManagerHelper");
+            Class<?> bootMgrClass = Class.forName("org.apache.yoko.orb.OB.BootManager");
             Method narrowMethod =
                 bootMgrHelperClass.getMethod("narrow", org.omg.CORBA.Object.class);
             Object bootMgr = narrowMethod.invoke(null, orb.resolve_initial_references("BootManager"));
