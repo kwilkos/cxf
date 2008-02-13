@@ -64,6 +64,7 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.common.util.StringUtils;
 
 public final class XMLUtils {
 
@@ -154,10 +155,18 @@ public final class XMLUtils {
         writeTo(new DOMSource(node), os);
     }
     public static void writeTo(Node node, OutputStream os, int indent) {
-        writeTo(new DOMSource(node), os, indent, "utf-8", "no");
+        writeTo(new DOMSource(node), os, indent);
     }
     public static void writeTo(Source src, OutputStream os) {
-        writeTo(src, os, -1, "utf-8", "no");
+        writeTo(src, os, -1);
+    }
+    public static void writeTo(Source src, OutputStream os, int indent) {
+        String enc = null;
+        if (src instanceof DOMSource
+            && ((DOMSource)src).getNode() instanceof Document) {
+            enc = ((Document)((DOMSource)src).getNode()).getXmlEncoding();
+        }
+        writeTo(src, os, indent, enc, "no");
     }
     public static void writeTo(Source src,
                                OutputStream os,
@@ -166,6 +175,10 @@ public final class XMLUtils {
                                String omitXmlDecl) {
         Transformer it;
         try {
+            if (StringUtils.isEmpty(charset)) {
+                charset = "utf-8"; 
+            }
+
             it = newTransformer();
             it.setOutputProperty(OutputKeys.METHOD, "xml");
             if (indent > -1) {
