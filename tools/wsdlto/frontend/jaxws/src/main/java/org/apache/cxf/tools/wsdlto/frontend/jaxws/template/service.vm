@@ -79,7 +79,7 @@ public class ${service.Name} extends Service {
      */
     @WebEndpoint(name = "${port.PortName}")
     public ${port.InterfaceClass} get${port.Name}() {
-        return (${port.InterfaceClass})super.getPort($port.Name, ${port.InterfaceClass}.class);
+        return super.getPort($port.Name, ${port.InterfaceClass}.class);
     }
 #end
 
