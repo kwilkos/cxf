@@ -38,6 +38,7 @@ import javax.activation.DataSource;
 import javax.activation.URLDataSource;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageWriter;
+import javax.imageio.stream.ImageOutputStream;
 import javax.mail.util.ByteArrayDataSource;
 import javax.xml.bind.JAXBContext;
 import javax.xml.stream.XMLStreamException;
@@ -162,9 +163,12 @@ public class SwAOutInterceptor extends AbstractSoapInterceptor {
                     
                     try {
                         BufferedImage bimg = convertToBufferedImage((Image) o);
-                        writer.setOutput(ImageIO.createImageOutputStream(bos));
+                        ImageOutputStream out = ImageIO.createImageOutputStream(bos); 
+                        writer.setOutput(out);
                         writer.write(bimg);
                         writer.dispose();
+                        out.flush();
+                        out.close();
                         bos.close();
                     } catch (IOException e) {
                         throw new Fault(e);
