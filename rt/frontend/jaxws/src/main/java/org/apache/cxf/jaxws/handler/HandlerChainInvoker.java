@@ -255,8 +255,12 @@ public class HandlerChainInvoker {
         }
 
         boolean continueProcessing = true;
-        WebServiceContextImpl.setMessageContext(ctx);
-        continueProcessing = invokeHandleMessage(handlerChain, ctx);
+        try {
+            WebServiceContextImpl.setMessageContext(ctx);
+            continueProcessing = invokeHandleMessage(handlerChain, ctx);
+        } finally {
+            WebServiceContextImpl.clear();
+        }
 
         return continueProcessing;
     }
@@ -293,8 +297,12 @@ public class HandlerChainInvoker {
         }
 
         boolean continueProcessing = true;
-        WebServiceContextImpl.setMessageContext(ctx);
-        continueProcessing = invokeHandleFault(handlerChain, ctx);
+        try {
+            WebServiceContextImpl.setMessageContext(ctx);
+            continueProcessing = invokeHandleFault(handlerChain, ctx);
+        } finally {
+            WebServiceContextImpl.clear();
+        }
 
         return continueProcessing;
     }

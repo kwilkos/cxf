@@ -33,6 +33,7 @@ import javax.xml.namespace.QName;
 import org.apache.cxf.Bus;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.endpoint.ServerLifeCycleListener;
+import org.apache.cxf.endpoint.ServerLifeCycleManager;
 import org.apache.cxf.extension.BusExtension;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.service.model.BindingFaultInfo;
@@ -55,7 +56,7 @@ import org.apache.neethi.PolicyRegistry;
  * 
  */
 public class PolicyEngineImpl implements PolicyEngine, BusExtension, ServerLifeCycleListener {
-    
+
     private Bus bus;
     private PolicyRegistry registry;
     private Collection<PolicyProvider> policyProviders;
@@ -63,7 +64,7 @@ public class PolicyEngineImpl implements PolicyEngine, BusExtension, ServerLifeC
     private boolean ignoreUnknownAssertions;
     private boolean addedBusInterceptors;
     private AlternativeSelector alternativeSelector;
-    
+
     private Map<BindingOperation, EffectivePolicy> clientRequestInfo;
     private Map<BindingOperation, EffectivePolicy> clientResponseInfo;
     private Map<BindingFault, EffectivePolicy> clientFaultInfo;
@@ -76,21 +77,21 @@ public class PolicyEngineImpl implements PolicyEngine, BusExtension, ServerLifeC
     public PolicyEngineImpl() { 
         init();
     }
-    
+
     // configuration
-    
+
     public boolean isEnabled() {
         return enabled;
     }
-    
+
     public void setBus(Bus b) {
         bus = b;
     }
-    
+
     public Bus getBus() {
         return bus;
     }
-    
+
     public void setPolicyProviders(Collection<PolicyProvider> p) {
         policyProviders = p;
     }
@@ -98,48 +99,48 @@ public class PolicyEngineImpl implements PolicyEngine, BusExtension, ServerLifeC
     public Collection<PolicyProvider> getPolicyProviders() {
         return policyProviders;
     }
-    
+
     public void setRegistry(PolicyRegistry r) {
         registry = r;
     }
-    
+
     public PolicyRegistry getRegistry() {
         return registry;
     }
 
     public synchronized void setEnabled(boolean e) {
         enabled = e;
-        
+    
         if (!addedBusInterceptors) {
             addBusInterceptors();
         }
     }
-    
-    public AlternativeSelector getAlternativeSelector() {        
+
+    public AlternativeSelector getAlternativeSelector() {    
         return alternativeSelector;
     }
-    
+
     public void setAlternativeSelector(AlternativeSelector as) {
         alternativeSelector = as;
     }
-    
+
     public boolean isIgnoreUnknownAssertions() {
         return ignoreUnknownAssertions;
     }
-    
+
     public void setIgnoreUnknownAssertions(boolean ignore) {
         ignoreUnknownAssertions = ignore;
     }
-    
+
     // BusExtension interface
-    
+
 
     public Class<?> getRegistrationType() {
         return PolicyEngine.class;
     }
-    
+
     // PolicyEngine interface
-    
+
     public EffectivePolicy getEffectiveClientRequestPolicy(EndpointInfo ei, BindingOperationInfo boi, 
                                                            Conduit c) {
         BindingOperation bo = new BindingOperation(ei, boi);
@@ -156,13 +157,13 @@ public class PolicyEngineImpl implements PolicyEngine, BusExtension, ServerLifeC
         }
         return effectivePolicy;
     }
-    
+
     public void setEffectiveClientRequestPolicy(EndpointInfo ei, BindingOperationInfo boi, 
                                                 EffectivePolicy ep) {
         BindingOperation bo = new BindingOperation(ei, boi);
         clientRequestInfo.put(bo, ep);
     }
-    
+
     public EffectivePolicy getEffectiveServerResponsePolicy(EndpointInfo ei, BindingOperationInfo boi,
                                                             Destination d) {
         BindingOperation bo = new BindingOperation(ei, boi);
@@ -185,7 +186,7 @@ public class PolicyEngineImpl implements PolicyEngine, BusExtension, ServerLifeC
         BindingOperation bo = new BindingOperation(ei, boi);
         serverResponseInfo.put(bo, ep);
     }
-      
+  
     public EffectivePolicy getEffectiveServerFaultPolicy(EndpointInfo ei, BindingFaultInfo bfi, 
                                                          Destination d) {
         BindingFault bf = new BindingFault(ei, bfi);
@@ -207,18 +208,18 @@ public class PolicyEngineImpl implements PolicyEngine, BusExtension, ServerLifeC
         BindingFault bf = new BindingFault(ei, bfi);
         serverFaultInfo.put(bf, ep);
     }
-    
+
     public EndpointPolicy getClientEndpointPolicy(EndpointInfo ei, Conduit conduit) {
         Assertor assertor = conduit instanceof Assertor ? (Assertor)conduit : null;
         return getEndpointPolicy(ei, clientEndpointInfo.get(ei), true, assertor);
     }
    
     public EndpointPolicy getServerEndpointPolicy(EndpointInfo ei, Destination destination) {
-        
+    
         Assertor assertor = destination instanceof Assertor ? (Assertor)destination : null;
         return getEndpointPolicy(ei, serverEndpointInfo.get(ei), false, assertor);
     }
-    
+
     private EndpointPolicy getEndpointPolicy(
         EndpointInfo ei, EndpointPolicy ep, boolean isRequestor, Assertor assertor) {
         if (null != ep) {
@@ -226,15 +227,15 @@ public class PolicyEngineImpl implements PolicyEngine, BusExtension, ServerLifeC
         }
         return createEndpointPolicyInfo(ei, isRequestor, assertor);
     }
-    
+
     public void setClientEndpointPolicy(EndpointInfo ei, EndpointPolicy ep) {
         clientEndpointInfo.put(ei, ep);
     }
-    
+
     public void setServerEndpointPolicy(EndpointInfo ei, EndpointPolicy ep) {
         serverEndpointInfo.put(ei, ep);
     }
-    
+
     public EffectivePolicy getEffectiveServerRequestPolicy(EndpointInfo ei, BindingOperationInfo boi) {
         BindingOperation bo = new BindingOperation(ei, boi);
         EffectivePolicy effectivePolicy = serverRequestInfo.get(bo);
@@ -246,31 +247,31 @@ public class PolicyEngineImpl implements PolicyEngine, BusExtension, ServerLifeC
         }
         return effectivePolicy;
     }
-    
+
     public void setEffectiveServerRequestPolicy(EndpointInfo ei, BindingOperationInfo boi, 
                                                 EffectivePolicy ep) {
         BindingOperation bo = new BindingOperation(ei, boi);
         serverRequestInfo.put(bo, ep);
     }
-    
+
     public EffectivePolicy getEffectiveClientResponsePolicy(EndpointInfo ei, BindingOperationInfo boi) {
         BindingOperation bo = new BindingOperation(ei, boi);
         EffectivePolicy effectivePolicy = clientResponseInfo.get(bo);
         if (null == effectivePolicy) {
             EffectivePolicyImpl epi = createOutPolicyInfo();
-            epi.initialisePolicy(ei, bo.getBindingOperation(), this, true);            
+            epi.initialisePolicy(ei, bo.getBindingOperation(), this, true);        
             clientResponseInfo.put(bo, epi);
             effectivePolicy = epi;
         }
         return effectivePolicy;
     }
-    
+
     public void setEffectiveClientResponsePolicy(EndpointInfo ei, BindingOperationInfo boi, 
                                                  EffectivePolicy ep) {
         BindingOperation bo = new BindingOperation(ei, boi);
         clientResponseInfo.put(bo, ep);
     }
-    
+
     public EffectivePolicy getEffectiveClientFaultPolicy(EndpointInfo ei, BindingFaultInfo bfi) {
         BindingFault bf = new BindingFault(ei, bfi);
         EffectivePolicy effectivePolicy = clientFaultInfo.get(bf);
@@ -282,55 +283,55 @@ public class PolicyEngineImpl implements PolicyEngine, BusExtension, ServerLifeC
         }
         return effectivePolicy;
     }
-    
+
     public void setEffectiveClientFaultPolicy(EndpointInfo ei, BindingFaultInfo bfi, EffectivePolicy ep) {
         BindingFault bf = new BindingFault(ei, bfi);
         clientFaultInfo.put(bf, ep);
-    }    
-    
+    }
+
     // implementation
-    
+
     protected final void init() {
-        
+    
         registry = new PolicyRegistryImpl();
-        
+    
         clientRequestInfo 
             = new ConcurrentHashMap<BindingOperation, EffectivePolicy>();
-    
+
         clientResponseInfo 
             = new ConcurrentHashMap<BindingOperation, EffectivePolicy>();
-    
+
         clientFaultInfo 
             = new ConcurrentHashMap<BindingFault, EffectivePolicy>();
-    
+
         serverEndpointInfo 
-            = new ConcurrentHashMap<EndpointInfo, EndpointPolicy>();
+            = new EndpointPolicyMap();
         clientEndpointInfo 
-            = new ConcurrentHashMap<EndpointInfo, EndpointPolicy>();
-    
+            = new EndpointPolicyMap();
+
         serverRequestInfo 
             = new ConcurrentHashMap<BindingOperation, EffectivePolicy>();
-    
+
         serverResponseInfo 
             = new ConcurrentHashMap<BindingOperation, EffectivePolicy>();
-    
+
         serverFaultInfo 
-            = new ConcurrentHashMap<BindingFault, EffectivePolicy>();        
+            = new ConcurrentHashMap<BindingFault, EffectivePolicy>();    
     }
-    
-    
-    
+
+
+
     @PostConstruct
     public void addBusInterceptors() {
-        
+    
         if (null == alternativeSelector) {
             alternativeSelector = new MinimalAlternativeSelector();
         }
-        
+    
         if (null == bus || !enabled) {
             return;
         }
-        
+    
         AssertionBuilderRegistry abr = bus.getExtension(AssertionBuilderRegistry.class);
         if (null != abr) {
             abr.setIgnoreUnknownAssertions(ignoreUnknownAssertions);
@@ -345,7 +346,7 @@ public class PolicyEngineImpl implements PolicyEngine, BusExtension, ServerLifeC
         ClientPolicyInFaultInterceptor clientInFault = new ClientPolicyInFaultInterceptor();
         clientInFault.setBus(bus);
         bus.getInFaultInterceptors().add(clientInFault);
-        
+    
         ServerPolicyInInterceptor serverIn = new ServerPolicyInInterceptor();
         serverIn.setBus(bus);
         bus.getInInterceptors().add(serverIn);
@@ -355,7 +356,7 @@ public class PolicyEngineImpl implements PolicyEngine, BusExtension, ServerLifeC
         ServerPolicyOutFaultInterceptor serverOutFault = new ServerPolicyOutFaultInterceptor();
         serverOutFault.setBus(bus);
         bus.getOutFaultInterceptors().add(serverOutFault);
-        
+    
         PolicyVerificationOutInterceptor verifyOut = new PolicyVerificationOutInterceptor();
         verifyOut.setBus(bus);
         bus.getOutInterceptors().add(verifyOut);
@@ -365,10 +366,18 @@ public class PolicyEngineImpl implements PolicyEngine, BusExtension, ServerLifeC
         PolicyVerificationInFaultInterceptor verifyInFault = new PolicyVerificationInFaultInterceptor();
         verifyInFault.setBus(bus);
         bus.getInFaultInterceptors().add(verifyInFault);
-        
+    
         addedBusInterceptors = true;
     }  
-    
+
+    @PostConstruct
+    public void registerListener() {
+        ServerLifeCycleManager slm = bus.getExtension(ServerLifeCycleManager.class);
+        if (slm != null) {
+            slm.registerListener(this);
+        }
+    }
+
     Policy getAggregatedServicePolicy(ServiceInfo si) {
         Policy aggregated = null;
         for (PolicyProvider pp : getPolicyProviders()) {
@@ -394,7 +403,7 @@ public class PolicyEngineImpl implements PolicyEngine, BusExtension, ServerLifeC
         }
         return aggregated == null ? new Policy() : aggregated;
     }
-    
+
     Policy getAggregatedOperationPolicy(BindingOperationInfo boi) {
         Policy aggregated = null;
         for (PolicyProvider pp : getPolicyProviders()) {
@@ -407,7 +416,7 @@ public class PolicyEngineImpl implements PolicyEngine, BusExtension, ServerLifeC
         }
         return aggregated == null ? new Policy() : aggregated;
     }
-    
+
     Policy getAggregatedMessagePolicy(BindingMessageInfo bmi) {
         Policy aggregated = null;
         for (PolicyProvider pp : getPolicyProviders()) {
@@ -420,7 +429,7 @@ public class PolicyEngineImpl implements PolicyEngine, BusExtension, ServerLifeC
         }
         return aggregated == null ? new Policy() : aggregated;
     }
-    
+
     Policy getAggregatedFaultPolicy(BindingFaultInfo bfi) {
         Policy aggregated = null;
         for (PolicyProvider pp : getPolicyProviders()) {
@@ -433,7 +442,7 @@ public class PolicyEngineImpl implements PolicyEngine, BusExtension, ServerLifeC
         }
         return aggregated == null ? new Policy() : aggregated;
     }
-    
+
     /**
      * Return a collection of all assertions used in the given policy component,
      * optionally including optional assertions.
@@ -443,31 +452,31 @@ public class PolicyEngineImpl implements PolicyEngine, BusExtension, ServerLifeC
      * @return the assertions
      */
     Collection<Assertion> getAssertions(PolicyComponent pc, boolean includeOptional) {
-        
+    
         Collection<Assertion> assertions = new ArrayList<Assertion>();
-        
+    
         if (Constants.TYPE_ASSERTION == pc.getType()) {
             Assertion a = (Assertion)pc;
             if (includeOptional || !a.isOptional()) {
                 assertions.add(a);
             }
-        } else {       
+        } else {   
             addAssertions(pc, includeOptional, assertions);
         }
         return assertions;
     }
-    
+
     void addAssertions(PolicyComponent pc, boolean includeOptional, 
                                Collection<Assertion> assertions) {
-       
+   
         if (Constants.TYPE_ASSERTION == pc.getType()) {
             Assertion a = (Assertion)pc;
             if (includeOptional || !a.isOptional()) {
-                assertions.add((Assertion)pc);                
+                assertions.add((Assertion)pc);            
             }
             return;
         } 
-        
+    
         if (Constants.TYPE_POLICY_REF == pc.getType()) {
             PolicyReference pr = (PolicyReference)pc;
             pc = pr.normalize(registry, false);
@@ -480,7 +489,7 @@ public class PolicyEngineImpl implements PolicyEngine, BusExtension, ServerLifeC
             addAssertions(child, includeOptional, assertions);
         }
     }
-    
+
     /**
      * Return the vocabulary of a policy component, i.e. the set of QNames of
      * the assertions used in the componente, duplicates removed.
@@ -496,18 +505,18 @@ public class PolicyEngineImpl implements PolicyEngine, BusExtension, ServerLifeC
         }
         return vocabulary;
     } 
-    
+
     EndpointPolicyImpl createEndpointPolicyInfo(EndpointInfo ei, boolean isRequestor, Assertor assertor) {
         EndpointPolicyImpl epi = new EndpointPolicyImpl(ei, this, isRequestor, assertor);
         epi.initialize();
-        
+    
         Map<EndpointInfo, EndpointPolicy> map = isRequestor ? clientEndpointInfo : serverEndpointInfo;
         map.put(ei, epi);
 
         return epi;
     }
-    
-    
+
+
     /**
      * Check if a given list of assertions can potentially be supported by
      * interceptors or by an already installed assertor (a conduit or transport
@@ -530,30 +539,57 @@ public class PolicyEngineImpl implements PolicyEngine, BusExtension, ServerLifeC
     }
 
     public void startServer(Server server) {
-        // emptry
+        // empty
     }
 
     public void stopServer(Server server) {
         EndpointInfo ei = server.getEndpoint().getEndpointInfo();
         serverEndpointInfo.remove(ei);
+
+        cleanupBindingOperations(ei, clientRequestInfo);
+        cleanupBindingOperations(ei, clientResponseInfo);
+
+        cleanupBindingOperations(ei, serverRequestInfo);
+        cleanupBindingOperations(ei, serverResponseInfo);
+
+        cleanupBindingFaults(ei, clientFaultInfo);
+        cleanupBindingFaults(ei, serverFaultInfo);
     }
-    
+
+    private void cleanupBindingOperations(EndpointInfo ei,
+                                          Map<BindingOperation, EffectivePolicy> originalMap) {
+        
+        for (BindingOperation bindingOperation : originalMap.keySet()) {
+            if (ei.isSameAs(bindingOperation.getEndpoint())) {
+                originalMap.remove(bindingOperation);
+            }
+        }
+    }
+
+    private void cleanupBindingFaults(EndpointInfo ei,
+                                      Map<BindingFault, EffectivePolicy> originalMap) {
+        for (BindingFault bindingFault : originalMap.keySet()) {
+            if (ei.isSameAs(bindingFault.getEndpoint())) {
+                originalMap.remove(bindingFault);
+            }
+        }
+    }
     /**
      * Class used as key in the client request policy and server response policy maps.
      */
     class BindingOperation {
         private EndpointInfo ei;
         private BindingOperationInfo boi;
-        
+    
         BindingOperation(EndpointInfo e, BindingOperationInfo b) {
             ei = e;
             boi = b.isUnwrapped() ? b.getWrappedOperation() : b;
         }
-        
+    
         EndpointInfo getEndpoint() {
             return ei;
         }
-        
+    
         BindingOperationInfo getBindingOperation() {
             return boi;
         }
@@ -568,57 +604,70 @@ public class PolicyEngineImpl implements PolicyEngine, BusExtension, ServerLifeC
             BindingOperation other = (BindingOperation)obj;
             return boi.equals(other.boi) && ei.equals(other.ei);
         }
-        
+    
         @Override
         public String toString() {
             return ei.getName().toString() + "." + boi.getName().toString();
         }
-        
-        
-    }
     
+    
+    }
+
     /**
      * Class used as key in the server fault policy map.
      */
     class BindingFault {
         private EndpointInfo ei;
         private BindingFaultInfo bfi;
-        
+    
         BindingFault(EndpointInfo e, BindingFaultInfo b) {
             ei = e;
             bfi = b;
         }
-        
+    
         EndpointInfo getEndpoint() {
             return ei;
         }
-        
+    
         BindingFaultInfo getBindingFault() {
             return bfi;
         }
-        
+    
         @Override
         public int hashCode() {
             return bfi.hashCode();
         }
-        
+    
         @Override
         public boolean equals(Object obj) {
             BindingFault other = (BindingFault)obj;
             return bfi.equals(other.bfi) && ei.equals(other.ei);
         }
-        
+    
         @Override
         public String toString() {
             return ei.getName().toString() + "." + bfi.getFaultInfo().toString();
         }
     }
-    
+
     // for test
-    
+
     EffectivePolicyImpl createOutPolicyInfo() {
         return new EffectivePolicyImpl();
     }
     
-    
+    private class EndpointPolicyMap extends ConcurrentHashMap<EndpointInfo, EndpointPolicy> {
+        public EndpointPolicy remove(Object key) {
+            EndpointInfo toRemove = (EndpointInfo) key;
+            EndpointPolicy pol = null;
+            for (EndpointInfo info : keySet()) {
+                if (info.isSameAs(toRemove)) {
+                    pol = super.remove(info);
+                }
+            }
+            return pol;
+        }
+    }
+
+
 }
