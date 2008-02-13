@@ -24,7 +24,6 @@ import java.net.URL;
 import java.net.URLConnection;
 
 import org.apache.cxf.helpers.IOUtils;
-import org.apache.cxf.io.CachedOutputStream;
 import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
 import org.junit.BeforeClass;
 import org.junit.Test;
