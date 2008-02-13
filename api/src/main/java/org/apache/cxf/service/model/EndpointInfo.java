@@ -111,4 +111,22 @@ public class EndpointInfo extends AbstractDescriptionElement implements NamedIte
     public EndpointReferenceType getTarget() {
         return address;
     }
+
+    public boolean isSameAs(EndpointInfo epInfo) {
+        if (this == epInfo) {
+            return true;
+        }
+        if (epInfo == null) {
+            return false;
+        }
+        return binding.getName().equals(epInfo.binding.getName()) 
+            && service.getName().equals(epInfo.service.getName()) 
+            && name.equals(epInfo.name);
+    }
+
+    public String toString() {
+        return "BindingQName=" + binding.getName()
+                + ", ServiceQName=" + binding.getService().getName()
+                + ", QName=" + name;
+    }
 }
