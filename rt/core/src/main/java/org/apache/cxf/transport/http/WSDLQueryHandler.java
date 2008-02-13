@@ -47,6 +47,7 @@ import javax.wsdl.extensions.soap12.SOAP12Address;
 import javax.wsdl.xml.WSDLWriter;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.dom.DOMSource;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -215,8 +216,8 @@ public class WSDLQueryHandler implements StemMatchingQueryHandler {
                     el.setAttribute("location", base + "?wsdl=" + sl);
                 }
             }
-            
-            XMLUtils.writeTo(doc, os);
+            doc.setXmlStandalone(true);
+            XMLUtils.writeTo(new DOMSource(doc), os);
         } catch (WSDLException wex) {
             throw new WSDLQueryException(new Message("COULD_NOT_PROVIDE_WSDL",
                                                      LOG,
