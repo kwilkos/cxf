@@ -37,20 +37,19 @@ import org.apache.cxf.jaxrs.JAXRSUtils;
 
 //NOTE: ProviderFactory should provide a method that can pass in media types
 public class ProviderFactoryImpl extends ProviderFactory {
-    protected List<EntityProvider> entityProviders = new ArrayList<EntityProvider>();
+    protected List<EntityProvider> defaultEntityProviders = new ArrayList<EntityProvider>();
+    protected List<EntityProvider> userEntityProviders = new ArrayList<EntityProvider>();
     protected List<HeaderProvider> headerProviders = new ArrayList<HeaderProvider>();    
 
     public ProviderFactoryImpl() {
         //TODO: search for EntityProviders from classpath or config file.
-        //or dynamically instantiate them based on mime types being active 
-        entityProviders.add(new JAXBElementProvider());
-        entityProviders.add(new JSONProvider());
-        entityProviders.add(new StringProvider());
-        entityProviders.add(new DOMSourceProvider());
-        entityProviders.add(new AtomFeedProvider());
-        entityProviders.add(new AtomEntryProvider());
-
-        sort();
+        defaultEntityProviders.add(new JAXBElementProvider());
+        defaultEntityProviders.add(new JSONProvider());
+        defaultEntityProviders.add(new StringProvider());
+        defaultEntityProviders.add(new DOMSourceProvider());
+        defaultEntityProviders.add(new AtomFeedProvider());
+        defaultEntityProviders.add(new AtomEntryProvider());
+        sort(defaultEntityProviders);
     }
     
     public <T> T createInstance(Class<T> type) {
@@ -62,42 +61,32 @@ public class ProviderFactoryImpl extends ProviderFactory {
    
     @SuppressWarnings("unchecked")
     public <T> EntityProvider<T> createEntityProvider(Class<T> type) {
-        for (EntityProvider<T> ep : entityProviders) {
-            if (ep.supports(type)) {
-                return ep;
-            }
+        
+        //Try user provided providers
+        EntityProvider<T> ep = chooseEntityProvider(userEntityProviders, type);
+        
+        //If none found try the default ones
+        if (ep == null) {
+            ep = chooseEntityProvider(defaultEntityProviders, type);
         }     
         
-        return null;
+        return ep;
     }
 
     @SuppressWarnings("unchecked")
     public <T> EntityProvider<T> createEntityProvider(Class<T> type, String[] requestedMimeTypes,
                                                       boolean isConsumeMime) {
 
-        for (EntityProvider<T> ep : entityProviders) {
-            String[] supportedMimeTypes = {"*/*"};            
-            if (isConsumeMime) {
-                ConsumeMime c = ep.getClass().getAnnotation(ConsumeMime.class);
-                if (c != null) {
-                    supportedMimeTypes = c.value();               
-                }           
-            } else {
-                ProduceMime c = ep.getClass().getAnnotation(ProduceMime.class);
-                if (c != null) {
-                    supportedMimeTypes = c.value();               
-                }                  
-            }
-            
-            String[] availableMimeTypes = JAXRSUtils.intersectMimeTypes(requestedMimeTypes,
-                                                                        supportedMimeTypes);
-
-            if (availableMimeTypes.length != 0 && ep.supports(type)) {
-                return ep;
-            }
+      //Try user defined providers
+        EntityProvider<T> ep = chooseEntityProvider(userEntityProviders, 
+                                                    type, requestedMimeTypes, isConsumeMime);
+        
+        //If none found try the default ones
+        if (ep == null) {
+            ep = chooseEntityProvider(defaultEntityProviders, type, requestedMimeTypes, isConsumeMime);
         }     
         
-        return null;
+        return ep;
     }
     
     @SuppressWarnings("unchecked")
@@ -111,18 +100,14 @@ public class ProviderFactoryImpl extends ProviderFactory {
         return null;
     }
     
-    public boolean registerEntityProvider(EntityProvider e) {
-        entityProviders.add(e);
-        sort();
+    public boolean registerUserEntityProvider(EntityProvider e) {
+        userEntityProviders.add(e);
+        sort(userEntityProviders);
         return true;
     }
     
-    public boolean deregisterEntityProvider(EntityProvider e) {
-        return entityProviders.remove(e);
-    }
-    
-    public List<EntityProvider> getEntityProviders() {
-        return entityProviders;
+    public boolean deregisterUserEntityProvider(EntityProvider e) {
+        return userEntityProviders.remove(e);
     }
    
     /*
@@ -132,7 +117,7 @@ public class ProviderFactoryImpl extends ProviderFactory {
      * provider that lists *. Quality parameter values are also used such that
      * x/y;q=1.0 < x/y;q=0.7.
      */    
-    private void sort() {
+    private void sort(List<EntityProvider> entityProviders) {
         Collections.sort(entityProviders, new EntityProviderComparator());
     }
     
@@ -164,6 +149,83 @@ public class ProviderFactoryImpl extends ProviderFactory {
             
             return str1.compareTo(str2);
         }
+    }
+
+    /**
+     * Choose the first Entity provider that matches the requestedMimeTypes 
+     * for a sorted list of Entity providers
+     * Returns null if none is found.
+     * @param <T>
+     * @param entityProviders
+     * @param type
+     * @param requestedMimeTypes
+     * @param isConsumeMime
+     * @return
+     */
+    private EntityProvider chooseEntityProvider(List<EntityProvider> entityProviders, Class<?> type, 
+                                                 String[] requestedMimeTypes, boolean isConsumeMime) {
+        for (EntityProvider<?> ep : entityProviders) {
+            String[] supportedMimeTypes = {"*/*"};            
+            if (isConsumeMime) {
+                ConsumeMime c = ep.getClass().getAnnotation(ConsumeMime.class);
+                if (c != null) {
+                    supportedMimeTypes = c.value();               
+                }           
+            } else {
+                ProduceMime c = ep.getClass().getAnnotation(ProduceMime.class);
+                if (c != null) {
+                    supportedMimeTypes = c.value();               
+                }                  
+            }
+            
+            String[] availableMimeTypes = JAXRSUtils.intersectMimeTypes(requestedMimeTypes,
+                                                                        supportedMimeTypes);
+
+            if (availableMimeTypes.length != 0 && ep.supports(type)) {
+                return ep;
+            }
+        }     
+        
+        return null;
+        
+    }
+    
+    /**
+     * Choose the first Entity provider that matches the type for a sorted list of Entity providers
+     * Returns null if none is found.
+     * @param <T>
+     * @param entityProviders
+     * @param type
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+    private <T> EntityProvider<T> chooseEntityProvider(List<EntityProvider> entityProviders, Class<T> type) {
+        
+        for (EntityProvider<T> ep : entityProviders) {
+            if (ep.supports(type)) {
+                return ep;
+            }
+        }           
+        return null;
+    }
+    
+    
+    public List<EntityProvider> getDefaultEntityProviders() {
+        return defaultEntityProviders;
+    }
+
+
+    public List<EntityProvider> getUserEntityProviders() {
+        return userEntityProviders;
+    }
+
+    /**
+     * Use for injection of entityProviders
+     * @param entityProviders the entityProviders to set
+     */
+    public void setUserEntityProviders(List<EntityProvider> userEntityProviders) {
+        this.userEntityProviders = userEntityProviders;
+        sort(this.userEntityProviders);
     }
 
 }

@@ -29,6 +29,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.EntityProvider;
 import javax.ws.rs.ext.ProviderFactory;
+import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.abdera.model.Entry;
 import org.apache.abdera.model.Feed;
@@ -47,9 +48,10 @@ public class ProviderFactoryImplTest extends Assert {
     @Test
     public void testSortEntityProviders() throws Exception {
         ProviderFactoryImpl pf = new ProviderFactoryImpl();
-        pf.registerEntityProvider(new TestStringProvider());
+        pf.registerUserEntityProvider(new TestStringProvider());
+        pf.registerUserEntityProvider(new StringProvider());
         
-        List<EntityProvider> providers = pf.getEntityProviders();
+        List<EntityProvider> providers = pf.getUserEntityProviders();
 
         assertTrue(indexOf(providers, TestStringProvider.class) < indexOf(providers, StringProvider.class));
         //REVISIT the compare algorithm
@@ -96,7 +98,7 @@ public class ProviderFactoryImplTest extends Assert {
     public void testGetStringProviderUsingProviderDeclaration() throws Exception {
         String[] methodMimeTypes = {"text/html"};
         ProviderFactoryImpl pf = (ProviderFactoryImpl)ProviderFactory.getInstance();
-        pf.registerEntityProvider(new TestStringProvider());
+        pf.registerUserEntityProvider(new TestStringProvider());
         EntityProvider provider = ((ProviderFactoryImpl)ProviderFactory.getInstance())
         .createEntityProvider(String.class, methodMimeTypes, false);
         assertTrue(provider instanceof TestStringProvider);
@@ -108,6 +110,31 @@ public class ProviderFactoryImplTest extends Assert {
         EntityProvider provider = ((ProviderFactoryImpl)ProviderFactory.getInstance())
         .createEntityProvider(org.apache.cxf.jaxrs.resources.Book.class, methodMimeTypes, true);
         assertTrue(provider instanceof JSONProvider);
+    }
+    
+    @Test
+    public void testRegisterCustomJSONEntityProvider() throws Exception {
+        ProviderFactoryImpl pf = (ProviderFactoryImpl)ProviderFactory.getInstance();
+        pf.registerUserEntityProvider(new CustomJSONProvider());
+        
+        String[] methodMimeTypes = {"application/json"};
+        EntityProvider provider = pf.createEntityProvider(org.apache.cxf.jaxrs.resources.Book.class, 
+                                                          methodMimeTypes, 
+                                                          true);
+        assertTrue("User Registered provider was not returned first", provider instanceof CustomJSONProvider);
+    }
+    
+    @Test
+    public void testRegisterCustomEntityProvider() throws Exception {
+        ProviderFactoryImpl pf = (ProviderFactoryImpl)ProviderFactory.getInstance();
+        pf.registerUserEntityProvider(new CustomWidgetProvider());
+        
+        String[] methodMimeTypes = {"application/widget"};
+        EntityProvider provider = pf.createEntityProvider(org.apache.cxf.jaxrs.resources.Book.class, 
+                                                          methodMimeTypes, 
+                                                          true);
+        assertTrue("User Registered provider was not returned first", 
+                   provider instanceof CustomWidgetProvider);
     }
     
     private int indexOf(List<EntityProvider> providers, Class providerType) {
@@ -146,6 +173,48 @@ public class ProviderFactoryImplTest extends Assert {
             } catch (IOException e) {
                 // TODO: better exception handling
             }
+        }
+
+    }
+    
+    @ConsumeMime("application/json")
+    @ProduceMime("application/json")
+    private final class CustomJSONProvider implements EntityProvider<String>  {
+
+        public boolean supports(Class<?> type) {
+            return type.getAnnotation(XmlRootElement.class) != null;
+        }
+
+        public String readFrom(Class<String> type, MediaType m, MultivaluedMap<String, String> headers,
+                               InputStream is) {    
+            //Dummy
+            return null;
+        }
+
+        public void writeTo(String obj, MediaType m, MultivaluedMap<String, Object> headers, 
+                            OutputStream os) {
+            //Dummy
+        }
+
+    }
+    
+    @ConsumeMime("application/widget")
+    @ProduceMime("application/widget")
+    private final class CustomWidgetProvider implements EntityProvider<String>  {
+
+        public boolean supports(Class<?> type) {
+            return type.getAnnotation(XmlRootElement.class) != null;
+        }
+
+        public String readFrom(Class<String> type, MediaType m, MultivaluedMap<String, String> headers,
+                               InputStream is) {    
+            //Dummy
+            return null;
+        }
+
+        public void writeTo(String obj, MediaType m, MultivaluedMap<String, Object> headers, 
+                            OutputStream os) {
+            //Dummy
         }
 
     }

@@ -101,7 +101,7 @@ public class OperationResourceInfo {
          * class method override any on the resource class; declarations on an
          * EntityProvider for a method argument or return type override those on
          * a resource class or resource method. In the absence of either of
-         * these annotations, support for any media type (¡°*¡±) is assumed.
+         * these annotations, support for any media type (* / *) is assumed.
          */   
         
         String[] mimeTypes = {"*/*"};

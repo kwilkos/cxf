@@ -23,6 +23,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.ws.rs.ext.EntityProvider;
+import javax.ws.rs.ext.ProviderFactory;
+
 import org.apache.cxf.BusException;
 import org.apache.cxf.binding.BindingConfiguration;
 import org.apache.cxf.binding.BindingFactory;
@@ -35,6 +38,7 @@ import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.endpoint.ServerImpl;
 import org.apache.cxf.feature.AbstractFeature;
 import org.apache.cxf.jaxrs.lifecycle.ResourceProvider;
+import org.apache.cxf.jaxrs.provider.ProviderFactoryImpl;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.factory.ServiceConstructionException;
 import org.apache.cxf.service.invoker.Invoker;
@@ -62,6 +66,7 @@ public class JAXRSServerFactoryBean extends AbstractEndpointFactory {
     private boolean start = true;
     private JAXRSServiceFactoryBean serviceFactory;
     private List<Object> serviceBeans;
+    private List<EntityProvider> entityProviders;
 
     public JAXRSServerFactoryBean() {
         this(new JAXRSServiceFactoryBean());
@@ -73,6 +78,7 @@ public class JAXRSServerFactoryBean extends AbstractEndpointFactory {
         setBindingId(JAXRSBindingFactory.JAXRS_BINDING_ID);
     }
     
+    @SuppressWarnings("unchecked")
     public Server create() {
         try {
             Endpoint ep = createEndpoint();
@@ -80,11 +86,15 @@ public class JAXRSServerFactoryBean extends AbstractEndpointFactory {
                                     ep, 
                                     getDestinationFactory(), 
                                     getBindingFactory());
-            
+
             if (invoker == null) {
                 ep.getService().setInvoker(createInvoker());
             } else {
                 ep.getService().setInvoker(invoker);
+            }
+            if (entityProviders != null) {
+                ProviderFactoryImpl providerFactoryImpl = (ProviderFactoryImpl)ProviderFactory.getInstance();
+                providerFactoryImpl.setUserEntityProviders(entityProviders); 
             }
             
             if (start) {
@@ -97,7 +107,7 @@ public class JAXRSServerFactoryBean extends AbstractEndpointFactory {
         } catch (IOException e) {
             throw new ServiceConstructionException(e);
         }
-        
+
         applyFeatures();
         return server;
     }
@@ -257,5 +267,19 @@ public class JAXRSServerFactoryBean extends AbstractEndpointFactory {
     
     public void setResourceProvider(Class c, ResourceProvider rp) {
         serviceFactory.setResourceProvider(c, rp);
+    }
+
+    /**
+     * @return the entityProviders
+     */
+    public List<EntityProvider> getEntityProviders() {
+        return entityProviders;
+    }
+
+    /**
+     * @param entityProviders the entityProviders to set
+     */
+    public void setEntityProviders(List<EntityProvider> entityProviders) {
+        this.entityProviders = entityProviders;
     }
 }
