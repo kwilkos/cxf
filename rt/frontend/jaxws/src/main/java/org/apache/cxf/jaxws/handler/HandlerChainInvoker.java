@@ -371,11 +371,17 @@ public class HandlerChainInvoker {
                 }
                 continueProcessing = false;
                 setFault(e);
+                if (e instanceof SOAPFaultException) {
+                    throw mapSoapFault((SOAPFaultException)e);
+                }
                 throw e;
             } else {
                 continueProcessing = false;
                 if (responseExpected || outbound) {
                     setFault(e);
+                    if (e instanceof SOAPFaultException) {
+                        throw mapSoapFault((SOAPFaultException)e);
+                    }
                     throw e;
                 } 
                 invokeReversedClose();
@@ -405,6 +411,16 @@ public class HandlerChainInvoker {
             }
         }
         return continueProcessing;
+    }
+
+    private SoapFault mapSoapFault(SOAPFaultException sfe) {
+        SoapFault sf = new SoapFault(sfe.getFault().getFaultString(),
+                                      sfe,
+                                      sfe.getFault().getFaultCodeAsQName());
+        sf.setRole(sfe.getFault().getFaultActor());
+        sf.setDetail(sfe.getFault().getDetail());
+        
+        return sf;        
     }
 
     /*

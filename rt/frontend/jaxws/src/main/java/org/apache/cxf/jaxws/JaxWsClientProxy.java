@@ -160,8 +160,9 @@ public class JaxWsClientProxy extends org.apache.cxf.frontend.ClientProxy implem
                     nd = nd.getFirstChild();
                     soapFault.addDetail();
                     while (nd != null) {
+                        Node next = nd.getNextSibling();
                         soapFault.getDetail().appendChild(nd);
-                        nd = nd.getNextSibling();
+                        nd = next;
                     }
  
                 } else {
