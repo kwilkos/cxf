@@ -32,6 +32,7 @@ import java.util.logging.Logger;
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.binding.corba.CorbaBindingException;
+import org.apache.cxf.binding.corba.CorbaStreamable;
 import org.apache.cxf.binding.corba.CorbaTypeMap;
 import org.apache.cxf.binding.corba.wsdl.Alias;
 import org.apache.cxf.binding.corba.wsdl.Anonarray;
@@ -63,6 +64,8 @@ import org.apache.ws.commons.schema.XmlSchemaElement;
 import org.apache.ws.commons.schema.XmlSchemaExternal;
 import org.apache.ws.commons.schema.XmlSchemaForm;
 import org.apache.ws.commons.schema.XmlSchemaType;
+import org.omg.CORBA.Any;
+import org.omg.CORBA.NVList;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.StructMember;
 import org.omg.CORBA.TCKind;
@@ -75,11 +78,27 @@ public final class CorbaUtils {
     static final Map<QName, TCKind> PRIMITIVE_TYPECODES = new HashMap<QName, TCKind>();
 
     private static final Logger LOG = LogUtils.getL7dLogger(CorbaUtils.class);
-    
+    private static final class LastExport {
+        private final String ior;
+        private final org.omg.CORBA.Object ref;
+        LastExport(String iors, org.omg.CORBA.Object oref) {
+            ior = iors;
+            ref = oref;
+        }
+        String getIor() {
+            return ior;
+        }
+        org.omg.CORBA.Object getRef() {
+            return ref;
+        }
+    }
+    private static final ThreadLocal<LastExport> LAST_EXPORT_CACHE = 
+        new ThreadLocal<LastExport>();
+
     private CorbaUtils() {
         //utility class
     }
-
+    
     
     public static QName getEmptyQName() {
         return EMPTY_QNAME;
@@ -447,6 +466,13 @@ public final class CorbaUtils {
         file.close();
     }
 
+
+    public static String exportObjectReference(org.omg.CORBA.Object obj, ORB orb) {
+        String ior = orb.object_to_string(obj);
+        LAST_EXPORT_CACHE.set(new LastExport(ior, obj));
+        return ior;
+    }
+
     public static org.omg.CORBA.Object importObjectReference(ORB orb,
                                                              String url) {
         org.omg.CORBA.Object result;
@@ -456,9 +482,15 @@ public final class CorbaUtils {
         } else if ("IOR:".equalsIgnoreCase(url)) {
             throw new RuntimeException("Proxy not initialized. URL contains a invalid ior");
         }
-        
+    
+        String trimmedUrl = url.trim();
+        LastExport last = LAST_EXPORT_CACHE.get();
+        if (last != null
+            && trimmedUrl.equals(last.getIor())) {
+            return last.getRef();
+        }
         try {
-            result = orb.string_to_object(url.trim());
+            result = orb.string_to_object(trimmedUrl);
         } catch (java.lang.Exception ex) {
             throw new RuntimeException(ex);
         }
@@ -572,6 +604,22 @@ public final class CorbaUtils {
         }
         return result;
     }
+
+    public static NVList nvListFromStreamables(ORB orb, CorbaStreamable[] streamables) {
+        NVList list = null;
+        if (streamables != null && streamables.length > 0) {
+            list = orb.create_list(streamables.length);
+            for (int i = 0; i < streamables.length; ++i) {
+                Any value = orb.create_any();
+                value.insert_Streamable(streamables[i]);
+                list.add_value(streamables[i].getName(), value, streamables[i].getMode());
+            }
+        } else {
+            list = orb.create_list(0);
+        }
+        return list; 
+    }
+             
 
     static {
         PRIMITIVE_TYPECODES.put(CorbaConstants.NT_CORBA_BOOLEAN, TCKind.from_int(TCKind._tk_boolean));

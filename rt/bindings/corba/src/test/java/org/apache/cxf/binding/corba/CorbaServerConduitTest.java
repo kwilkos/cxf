@@ -64,6 +64,7 @@ public class CorbaServerConduitTest extends Assert {
     TestUtils testUtils;
     OrbConfig orbConfig;
     CorbaTypeMap corbaTypeMap;
+    private org.omg.CORBA.Object targetObject;
 
 
     @Before
@@ -78,6 +79,7 @@ public class CorbaServerConduitTest extends Assert {
         props.put("yoko.orb.id", "CXF-CORBA-Server-Binding");
         orb = ORB.init(new String[0], props);
         orbConfig = new OrbConfig();
+        targetObject = EasyMock.createMock(org.omg.CORBA.Object.class);
     }
     
     @After
@@ -106,6 +108,7 @@ public class CorbaServerConduitTest extends Assert {
         CorbaDestination destination = new CorbaDestination(endpointInfo, orbConfig);
         CorbaServerConduit conduit = new CorbaServerConduit(endpointInfo,
                                                             destination.getAddress(),
+                                                            targetObject,
                                                             orbConfig,
                                                             corbaTypeMap);
         CorbaMessage message = new CorbaMessage(new MessageImpl());
@@ -120,6 +123,10 @@ public class CorbaServerConduitTest extends Assert {
         assertTrue("Orb should not be null", orb2 != null);
         Object obj = message.get("endpoint");
         assertTrue("EndpointReferenceType should not be null", obj != null);
+        
+        assertTrue("passed in targetObject is used",  
+                targetObject.equals(message.get(CorbaConstants.CORBA_ENDPOINT_OBJECT)));
+        
         destination.shutdown();
     }
        
@@ -133,6 +140,7 @@ public class CorbaServerConduitTest extends Assert {
         CorbaDestination destination = new CorbaDestination(endpointInfo, orbConfig);
         CorbaServerConduit conduit = new CorbaServerConduit(endpointInfo,
                                                             destination.getAddress(),
+                                                            targetObject,
                                                             orbConfig,
                                                             corbaTypeMap);
         
@@ -152,6 +160,7 @@ public class CorbaServerConduitTest extends Assert {
         endpointInfo.setAddress("corbaloc::localhost:40000/Simple");
         CorbaServerConduit conduit = new CorbaServerConduit(endpointInfo,
                                                             destination.getAddress(),
+                                                            targetObject,
                                                             orbConfig,
                                                             corbaTypeMap);
         String address = conduit.getAddress();
@@ -287,7 +296,7 @@ public class CorbaServerConduitTest extends Assert {
         target = EasyMock.createMock(EndpointReferenceType.class);                   
         endpointInfo = EasyMock.createMock(EndpointInfo.class);
         CorbaServerConduit corbaServerConduit = 
-            new CorbaServerConduit(endpointInfo, target, orbConfig, corbaTypeMap);
+            new CorbaServerConduit(endpointInfo, target, targetObject, orbConfig, corbaTypeMap);
         
         if (send) {
             // setMessageObserver

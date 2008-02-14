@@ -399,7 +399,6 @@ public class CorbaObjectReader {
             CorbaSequenceHandler sequenceObj = (CorbaSequenceHandler)obj;
             List<CorbaObjectHandler> seqElements = sequenceObj.getElements();
             int length = stream.read_ulong();
-
             List<CorbaObjectHandler> elements = new ArrayList<CorbaObjectHandler>(length);
             
             // Simply checking the bound won't handle our recursive types.  We need to check for the

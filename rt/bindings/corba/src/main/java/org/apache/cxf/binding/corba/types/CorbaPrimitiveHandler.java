@@ -25,6 +25,7 @@ import org.omg.CORBA.TypeCode;
 
 public class CorbaPrimitiveHandler extends CorbaObjectHandler {
 
+    private static final int UNSIGNED_MAX = 256; 
     private Object value;
     
     public CorbaPrimitiveHandler(QName primName, QName primIdlType, TypeCode primTC, Object primType) {
@@ -50,8 +51,10 @@ public class CorbaPrimitiveHandler extends CorbaObjectHandler {
             break;
         case TCKind._tk_char:
             char charValue = ((Character)value).charValue();
-            // value + (-128)
-            data = Byte.toString((byte)(charValue + Byte.MIN_VALUE));
+            // outside the normal range it will -256
+            data = Byte.toString((byte)(charValue > Byte.MAX_VALUE 
+                                                    ? charValue - UNSIGNED_MAX 
+                                                    : charValue));
             break;
         case TCKind._tk_wchar:
             data = ((Character)value).toString();
@@ -101,8 +104,12 @@ public class CorbaPrimitiveHandler extends CorbaObjectHandler {
         case TCKind._tk_char:
             // A char is mapped to a byte, we need it as a character
             Byte byteValue = new Byte(data);
-            // value - (-128)
-            value = new Character((char)(byteValue.byteValue() - Byte.MIN_VALUE));
+            // for values < 0 + 256 
+            // This means that we can directly write out the chars in the normal
+            // range 0-127 even when using UTF-8
+            value = new Character((char)(byteValue.byteValue() < 0 
+                                         ? byteValue.byteValue() + UNSIGNED_MAX
+                                         : byteValue.byteValue()));
             break;
         case TCKind._tk_wchar:
             // A wide char is mapped to a string, we need it as a character

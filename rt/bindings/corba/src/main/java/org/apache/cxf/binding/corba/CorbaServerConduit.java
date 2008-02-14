@@ -21,15 +21,10 @@ package org.apache.cxf.binding.corba;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.apache.cxf.binding.corba.utils.CorbaBindingHelper;
-import org.apache.cxf.binding.corba.utils.CorbaUtils;
 import org.apache.cxf.binding.corba.utils.OrbConfig;
-import org.apache.cxf.binding.corba.wsdl.AddressType;
 import org.apache.cxf.binding.corba.wsdl.CorbaConstants;
-import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.io.CachedOutputStream;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
@@ -45,45 +40,30 @@ import org.omg.CORBA.ORB;
 import org.omg.CORBA.ServerRequest;
 
 public class CorbaServerConduit implements Conduit {
-    private static final Logger LOG = LogUtils.getL7dLogger(CorbaServerConduit.class);
 
     private EndpointInfo endpointInfo;
     private EndpointReferenceType target;
     private ORB orb;
     private CorbaTypeMap typeMap;
+    private org.omg.CORBA.Object targetObject;
 
     public CorbaServerConduit(EndpointInfo ei,
                               EndpointReferenceType ref,
+                              org.omg.CORBA.Object targetObj, 
                               OrbConfig config,
                               CorbaTypeMap map) {
         endpointInfo = ei;
         target = getTargetReference(ref);
         orb = CorbaBindingHelper.getDefaultORB(config);
         typeMap = map;
+        targetObject = targetObj;
     }
 
     public void prepare(Message message) throws IOException {
-        try {
-            String location = endpointInfo.getAddress();
-            if (location == null) {
-                AddressType address = endpointInfo.getExtensor(AddressType.class);
-
-                if (address == null) {
-                    LOG.log(Level.SEVERE, "Unable to locate a valid CORBA address");
-                    throw new CorbaBindingException("Unable to locate a valid CORBA address");
-                }
-                location = address.getLocation();
-            }
-            org.omg.CORBA.Object targetObject = CorbaUtils.importObjectReference(orb, location);
-            message.put(CorbaConstants.ORB, orb);
-            message.put(CorbaConstants.CORBA_ENDPOINT_OBJECT, targetObject);
-            message.setContent(OutputStream.class,
-                               new CorbaOutputStream(message));
-            ((CorbaMessage) message).setCorbaTypeMap(typeMap);
-        } catch (java.lang.Exception ex) {
-            LOG.log(Level.SEVERE, "Could not resolve target object");
-            throw new CorbaBindingException(ex);
-        }
+        message.put(CorbaConstants.ORB, orb);
+        message.put(CorbaConstants.CORBA_ENDPOINT_OBJECT, targetObject);
+        message.setContent(OutputStream.class, new CorbaOutputStream(message));
+        ((CorbaMessage) message).setCorbaTypeMap(typeMap);
     }
 
     public void close(Message message) throws IOException {        
@@ -103,7 +83,6 @@ public class CorbaServerConduit implements Conduit {
     }
 
     public void setMessageObserver(MessageObserver observer) {
-        //NOTHING
     }
 
     public final EndpointReferenceType getTargetReference(EndpointReferenceType t) {

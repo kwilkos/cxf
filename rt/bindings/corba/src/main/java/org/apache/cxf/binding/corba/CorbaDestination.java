@@ -21,6 +21,8 @@ package org.apache.cxf.binding.corba;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -29,9 +31,11 @@ import org.apache.cxf.binding.corba.utils.CorbaBindingHelper;
 import org.apache.cxf.binding.corba.utils.CorbaUtils;
 import org.apache.cxf.binding.corba.utils.OrbConfig;
 import org.apache.cxf.binding.corba.wsdl.AddressType;
+import org.apache.cxf.binding.corba.wsdl.OperationType;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.service.model.BindingInfo;
+import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.Destination;
@@ -46,6 +50,26 @@ import org.omg.PortableServer.POAManager;
 
 public class CorbaDestination implements Destination {
     
+    public static final class OpInfoEntry {
+
+        private BindingOperationInfo boInfo;
+        private OperationType opType;
+
+        public OpInfoEntry(BindingOperationInfo bopInfo, OperationType extensor) {
+            this.boInfo = bopInfo;
+            this.opType = extensor;
+        }
+
+        public BindingOperationInfo getBoInfo() {
+            return boInfo;
+        }
+
+        public OperationType getOpType() {
+            return opType;
+        }
+
+    }
+
     private static final Logger LOG = LogUtils.getL7dLogger(CorbaDestination.class);
     private AddressType address;
     private EndpointReferenceType reference;
@@ -57,6 +81,8 @@ public class CorbaDestination implements Destination {
     private CorbaTypeMap typeMap;
     private byte[] objectId;
     private POA bindingPOA;
+    private org.omg.CORBA.Object obj;
+    private Map<String, OpInfoEntry> opInfoCache = new ConcurrentHashMap<String, OpInfoEntry>();
 
     public CorbaDestination(EndpointInfo ei, OrbConfig config) {
         this(ei, config, null);    
@@ -86,7 +112,7 @@ public class CorbaDestination implements Destination {
                                   Message partialResponse,
                                   EndpointReferenceType ref)
         throws IOException {
-        return  new CorbaServerConduit(endpointInfo, reference, orbConfig, typeMap);
+        return  new CorbaServerConduit(endpointInfo, reference, obj, orbConfig, typeMap);
     }
 
     public BindingInfo getBindingInfo() {
@@ -150,7 +176,6 @@ public class CorbaDestination implements Destination {
         // Need to indicate that this ORB can't be destroyed while we are using it
         CorbaBindingHelper.keepORBAlive(location);
         
-        org.omg.CORBA.Object obj = null;
         try {
             POA rootPOA = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
             POAManager poaManager = rootPOA.the_POAManager();
@@ -269,7 +294,7 @@ public class CorbaDestination implements Destination {
         }
     }
 
-    private void addKeyToBootManager(String location, org.omg.CORBA.Object obj) {
+    private void addKeyToBootManager(String location, org.omg.CORBA.Object value) {
         int keyIndex = location.indexOf('/');
         String key = location.substring(keyIndex + 1);
         try {
@@ -280,7 +305,7 @@ public class CorbaDestination implements Destination {
             Object bootMgr = narrowMethod.invoke(null, orb.resolve_initial_references("BootManager"));
             Method addBindingMethod = 
                 bootMgrClass.getMethod("add_binding", byte[].class, org.omg.CORBA.Object.class);
-            addBindingMethod.invoke(bootMgr, key.getBytes(), obj);
+            addBindingMethod.invoke(bootMgr, key.getBytes(), value);
             LOG.info("Added key " + key + " to bootmanager");
         } catch (ClassNotFoundException ex) {
             //Not supported by the orb. skip it.
@@ -289,5 +314,18 @@ public class CorbaDestination implements Destination {
         } catch (Exception ex) {
             throw new CorbaBindingException(ex);
         }
+    }
+
+    public OpInfoEntry getBindingOpInfo(String opName) {
+        if (!opInfoCache .containsKey(opName)) {
+            for (BindingOperationInfo bopInfo : binding.getOperations()) {
+                if (bopInfo.getName().getLocalPart().equals(opName)) {
+                    opInfoCache.put(opName, new OpInfoEntry(bopInfo,
+                            bopInfo.getExtensor(OperationType.class)));
+                    break;
+                }
+            }
+        }
+        return opInfoCache.get(opName);
     }
 }
