@@ -27,7 +27,10 @@ import java.util.List;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.namespace.QName;
+import javax.xml.soap.Detail;
 import javax.xml.soap.MessageFactory;
+import javax.xml.soap.SOAPConstants;
+import javax.xml.soap.SOAPFault;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.transform.Source;
 import javax.xml.ws.BindingProvider;
@@ -44,11 +47,13 @@ import javax.xml.ws.handler.PortInfo;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 import javax.xml.ws.soap.SOAPFaultException;
 
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import org.apache.cxf.BusException;
 import org.apache.cxf.common.util.PackageUtils;
+import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
 import org.apache.handler_test.HandlerTest;
 import org.apache.handler_test.HandlerTestService;
@@ -714,25 +719,13 @@ public class HandlerInvocationTest extends AbstractBusClientServerTestBase {
                    < handler1.getInvokeOrderOfClose());   
     }
     
-    //REVISIT: following tests only works when start the server alone(i.e, not within HandlerInvocationTest)
-    //otherwise, there is no response received from the server. But I have run similar test scenarios with
-    //standalone CXF client and Tomcat deployed CXF server, they all works. Can not figure out the problem,  
-    //so just comment out these tests for the time being.
-    
     @Test
     public void testSOAPHandlerHandleMessageThrowsRuntimeExceptionServerInbound() throws PingException {
         try {
             handlerTest.pingWithArgs("soapHandler3 inbound throw RuntimeException");
             fail("did not get expected exception");
-        } catch (RuntimeException e) {
-/*            e.printStackTrace();
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            PrintStream ps = new PrintStream(baos, true);
-            e.printStackTrace(ps);
-            assertTrue("Did not get expected exception message",  baos.toString()
-                .indexOf("HandleMessage throws exception") > -1);
-            assertTrue("Did not get expected javax.xml.ws.soap.SOAPFaultException", baos.toString()
-                .indexOf("javax.xml.ws.soap.SOAPFaultException") > -1);*/
+        } catch (SOAPFaultException e) {
+            assertEquals("HandleMessage throws exception", e.getMessage());
         }        
     }
     
@@ -741,15 +734,8 @@ public class HandlerInvocationTest extends AbstractBusClientServerTestBase {
         try {
             handlerTest.pingWithArgs("soapHandler3 outbound throw RuntimeException");
             fail("did not get expected exception");
-        } catch (RuntimeException e) {
-            //e.printStackTrace();
-/*            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            PrintStream ps = new PrintStream(baos, true);
-            e.printStackTrace(ps);
-            assertTrue("Did not get expected exception message",  baos.toString()
-                .indexOf("HandleMessage throws exception") > -1);
-            assertTrue("Did not get expected javax.xml.ws.soap.SOAPFaultException", baos.toString()
-                .indexOf("javax.xml.ws.soap.SOAPFaultException") > -1);*/
+        } catch (SOAPFaultException e) {
+            assertEquals("HandleMessage throws exception", e.getMessage());
         }        
     }
     
@@ -759,14 +745,34 @@ public class HandlerInvocationTest extends AbstractBusClientServerTestBase {
             handlerTest.pingWithArgs("soapHandler3 inbound throw ProtocolException");
             fail("did not get expected WebServiceException");
         } catch (WebServiceException e) {
-/*            e.printStackTrace();
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            PrintStream ps = new PrintStream(baos, true);
-            e.printStackTrace(ps);
-            assertTrue("Did not get expected exception message",  baos.toString()
-                .indexOf("HandleMessage throws exception") > -1);
-            assertTrue("Did not get expected javax.xml.ws.soap.SOAPFaultException", baos.toString()
-                .indexOf("javax.xml.ws.soap.SOAPFaultException") > -1);*/
+            assertEquals("HandleMessage throws exception", e.getMessage());
+        }        
+    }
+    @Test
+    public void testSOAPHandlerHandleMessageThrowsSOAPFaultExceptionServerInbound() throws PingException {
+        try {
+            handlerTest.pingWithArgs("soapHandler3 inbound throw SOAPFaultExceptionWDetail");
+            fail("did not get expected SOAPFaultException");
+        } catch (SOAPFaultException e) {
+            assertEquals("HandleMessage throws exception", e.getMessage());
+            SOAPFault fault = e.getFault();
+            assertNotNull(fault);
+            assertEquals(new QName(SOAPConstants.URI_NS_SOAP_ENVELOPE, "Server"),
+                         fault.getFaultCodeAsQName());
+            assertEquals("http://gizmos.com/orders", fault.getFaultActor());
+            
+            Detail detail = fault.getDetail();
+            assertNotNull(detail);
+            
+            QName nn = new QName("http://gizmos.com/orders/", "order");
+            Iterator<Element> it = CastUtils.cast(detail.getChildElements(nn));
+            assertTrue(it.hasNext());
+            Element el = it.next();
+            el.normalize();
+            assertEquals("Quantity element does not have a value", el.getFirstChild().getNodeValue());
+            el = it.next();
+            el.normalize();
+            assertEquals("Incomplete address: no zip code", el.getFirstChild().getNodeValue());
         }        
     }
     
@@ -788,14 +794,8 @@ public class HandlerInvocationTest extends AbstractBusClientServerTestBase {
                                      + "soapHandler4HandleFaultThrowsRunException");
             fail("did not get expected WebServiceException");
         } catch (WebServiceException e) {
-            //e.printStackTrace();
-/*            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            PrintStream ps = new PrintStream(baos, true);
-            e.printStackTrace(ps);
-            assertTrue("Did not get expected exception message",  baos.toString()
-                .indexOf("soapHandler4 HandleFault throws RuntimeException") > -1);
-            assertTrue("Did not get expected javax.xml.ws.soap.SOAPFaultException", baos.toString()
-                .indexOf("javax.xml.ws.soap.SOAPFaultException") > -1);*/
+            assertEquals("soapHandler4 HandleFault throws RuntimeException",
+                         e.getMessage());
         }        
     }
     
@@ -806,14 +806,8 @@ public class HandlerInvocationTest extends AbstractBusClientServerTestBase {
                                      + "soapHandler4HandleFaultThrowsSOAPFaultException");
             fail("did not get expected SOAPFaultException");
         } catch (SOAPFaultException e) {
-/*            e.printStackTrace();
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            PrintStream ps = new PrintStream(baos, true);
-            e.printStackTrace(ps);
-            assertTrue("Did not get expected exception message",  baos.toString()
-                .indexOf("soapHandler4 HandleFault throws SOAPFaultException") > -1);
-            assertTrue("Did not get expected javax.xml.ws.soap.SOAPFaultException", baos.toString()
-                .indexOf("javax.xml.ws.soap.SOAPFaultException") > -1);*/
+            assertEquals("soapHandler4 HandleFault throws SOAPFaultException",
+                         e.getMessage());
         }        
     }
     
@@ -823,14 +817,7 @@ public class HandlerInvocationTest extends AbstractBusClientServerTestBase {
             handlerTest.pingWithArgs("soapHandler3 outbound throw ProtocolException");
             fail("did not get expected WebServiceException");
         } catch (WebServiceException e) {
-/*            e.printStackTrace();
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            PrintStream ps = new PrintStream(baos, true);
-            e.printStackTrace(ps);
-            assertTrue("Did not get expected exception message",  baos.toString()
-                .indexOf("HandleMessage throws exception") > -1);
-            assertTrue("Did not get expected javax.xml.ws.soap.SOAPFaultException", baos.toString()
-                .indexOf("javax.xml.ws.soap.SOAPFaultException") > -1);*/
+            assertEquals("HandleMessage throws exception", e.getMessage());
         }        
     }
     

@@ -26,7 +26,10 @@ import java.util.StringTokenizer;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.xml.namespace.QName;
+import javax.xml.soap.Detail;
+import javax.xml.soap.DetailEntry;
 import javax.xml.soap.SOAPBody;
+import javax.xml.soap.SOAPConstants;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPFactory;
 import javax.xml.soap.SOAPFault;
@@ -258,6 +261,8 @@ public class  TestSOAPHandler<T extends SOAPMessageContext> extends TestHandlerB
                         throw new ProtocolException(exceptionText);
                     } else if ("SOAPFaultException".equals(exceptionType)) {
                         throw createSOAPFaultException(exceptionText);
+                    } else if ("SOAPFaultExceptionWDetail".equals(exceptionType)) {
+                        throw createSOAPFaultExceptionWithDetail(exceptionText);
                     }
                 } else if (exceptionType != null && outbound && "outbound".equals(direction)) {
                     if ("RuntimeException".equals(exceptionType)) {
@@ -266,6 +271,8 @@ public class  TestSOAPHandler<T extends SOAPMessageContext> extends TestHandlerB
                         throw new ProtocolException(exceptionText);
                     } else if ("SOAPFaultException".equals(exceptionType)) {
                         throw createSOAPFaultException(exceptionText);
+                    } else if ("SOAPFaultExceptionWDetail".equals(exceptionType)) {
+                        throw createSOAPFaultExceptionWithDetail(exceptionText);
                     }
                 }
              
@@ -282,6 +289,31 @@ public class  TestSOAPHandler<T extends SOAPMessageContext> extends TestHandlerB
         SOAPFault fault = SOAPFactory.newInstance().createFault();
         fault.setFaultString(faultString);
         fault.setFaultCode(new QName("http://cxf.apache.org/faultcode", "Server"));
+        return new SOAPFaultException(fault);
+    }
+    private SOAPFaultException createSOAPFaultExceptionWithDetail(String faultString) 
+        throws SOAPException {
+
+        SOAPFault fault = SOAPFactory.newInstance().createFault();
+
+        QName faultName = new QName(SOAPConstants.URI_NS_SOAP_ENVELOPE, 
+                        "Server"); 
+        fault.setFaultCode(faultName); 
+        fault.setFaultActor("http://gizmos.com/orders"); 
+        fault.setFaultString(faultString); 
+
+        Detail detail = fault.addDetail(); 
+
+        QName entryName = new QName("http://gizmos.com/orders/", 
+                        "order", "PO"); 
+        DetailEntry entry = detail.addDetailEntry(entryName); 
+        entry.addTextNode("Quantity element does not have a value"); 
+
+        QName entryName2 = new QName("http://gizmos.com/orders/", 
+                        "order", "PO"); 
+        DetailEntry entry2 = detail.addDetailEntry(entryName2); 
+        entry2.addTextNode("Incomplete address: no zip code"); 
+
         return new SOAPFaultException(fault);
     }
 
