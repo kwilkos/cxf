@@ -17,18 +17,69 @@
   specific language governing permissions and limitations
   under the License.
 -->
-<beans xmlns="http://www.springframework.org/schema/beans"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<beans 
+    xmlns="http://www.springframework.org/schema/beans"
+    xmlns:cxf="http://cxf.apache.org/core"
     xmlns:jaxws="http://cxf.apache.org/jaxws"
+    xmlns:test="http://apache.org/hello_world_soap_http"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="
+        http://cxf.apache.org/core                                      http://cxf.apache.org/schemas/core.xsd
         http://www.springframework.org/schema/beans                     http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
         http://cxf.apache.org/jaxws                                     http://cxf.apache.org/schemas/jaxws.xsd
     ">
-
-    <jaxws:endpoint name="{http://apache.org/hello_world_soap_http}TimestampSignEncrypt" createdFromAPI="true">
-        <jaxws:features>
+    
+    <!-- -->
+    <!-- Enable logging at all endpoints -->
+    <!-- -->
+    <cxf:bus>
+        <cxf:features>
             <bean class="org.apache.cxf.feature.LoggingFeature"/>
-        </jaxws:features>
+        </cxf:features>
+    </cxf:bus>
+
+    <!-- -->
+    <!-- UsernameToken endpoint definition -->
+    <!-- This endpoint is configired to -->
+    <!-- -->
+    <jaxws:endpoint
+        id="UsernameTokenEndpoint"
+        implementor="org.apache.cxf.systest.ws.security.GreeterImpl"
+        address="http://localhost:9000/GreeterService/UsernameTokenPort"
+        serviceName="test:GreeterService"
+        endpointName="test:UsernameTokenPort"
+        >
+        <jaxws:inInterceptors>
+            <ref bean="UsernameToken_Request"/>
+            <bean class="org.apache.cxf.binding.soap.saaj.SAAJInInterceptor"/>
+        </jaxws:inInterceptors>
+    </jaxws:endpoint>
+    <!-- -->
+    <!-- -->
+    <!-- -->
+    <bean 
+        id="UsernameToken_Request"
+        class="org.apache.cxf.ws.security.wss4j.WSS4JInInterceptor"
+        >
+        <constructor-arg>
+            <map>
+                <entry key="action" value="UsernameToken"/> 
+                <!-- <entry key="passwordType" value="PasswordDigest"/> -->
+                <entry key="passwordCallbackClass" value="org.apache.cxf.systest.ws.security.KeystorePasswordCallback"/> 
+            </map>
+        </constructor-arg>
+    </bean>
+
+    <!-- -->
+    <!-- -->
+    <!-- -->
+    <jaxws:endpoint 
+        id="TimestampSignEncryptEndpoint"
+        implementor="org.apache.cxf.systest.ws.security.GreeterImpl"
+        address="http://localhost:9000/GreeterService/TimestampSignEncryptPort"
+        serviceName="test:GreeterService"
+        endpointName="test:TimestampSignEncryptPort"
+        >
         <jaxws:outInterceptors>
             <bean class="org.apache.cxf.binding.soap.saaj.SAAJOutInterceptor"/>
             <ref bean="TimestampSignEncrypt_Response"/>
@@ -38,10 +89,33 @@
             <bean class="org.apache.cxf.binding.soap.saaj.SAAJInInterceptor"/>
         </jaxws:inInterceptors>
     </jaxws:endpoint>
-
+    <!-- -->
+    <!-- -->
+    <!-- -->
     <bean 
+        id="TimestampSignEncrypt_Request"
+        class="org.apache.cxf.ws.security.wss4j.WSS4JInInterceptor"
+        >
+        <constructor-arg>
+            <map>
+                <!-- Use this action order for local clients -->
+                <entry key="action" value="Timestamp Signature Encrypt"/>
+                <!-- Use this action spec for WCF clients 
+                <entry key="action" value="Signature Encrypt Timestamp"/>
+                -->
+                <entry key="signaturePropFile" value="org/apache/cxf/systest/ws/security/alice.properties"/>
+                <entry key="decryptionPropFile" value="org/apache/cxf/systest/ws/security/bob.properties"/>
+                <entry key="passwordCallbackClass" value="org.apache.cxf.systest.ws.security.KeystorePasswordCallback"/>
+            </map>
+        </constructor-arg>
+    </bean>
+    <!-- -->
+    <!-- -->
+    <!-- -->
+    <bean 
+        id="TimestampSignEncrypt_Response"
         class="org.apache.cxf.ws.security.wss4j.WSS4JOutInterceptor"
-        id="TimestampSignEncrypt_Response">
+        >
         <constructor-arg>
             <map>
                 <entry key="action" value="Timestamp Signature Encrypt"/>
@@ -58,22 +132,6 @@
                 <entry key="encryptionParts" value="{Element}{http://www.w3.org/2000/09/xmldsig#}Signature;{Content}{http://schemas.xmlsoap.org/soap/envelope/}Body"/>
                 <!-- <entry key="encryptionKeyTransportAlgorithm" value="RSA15"/> -->
                 <entry key="encryptionSymAlgorithm" value="http://www.w3.org/2001/04/xmlenc#tripledes-cbc"/>
-            </map>
-        </constructor-arg>
-    </bean>
-    <bean 
-        class="org.apache.cxf.ws.security.wss4j.WSS4JInInterceptor"
-        id="TimestampSignEncrypt_Request">
-        <constructor-arg>
-            <map>
-                <!-- Use this action order for local clients -->
-                <entry key="action" value="Timestamp Signature Encrypt"/>
-                <!-- Use this action spec for WCF clients 
-                <entry key="action" value="Signature Encrypt Timestamp"/>
-                -->
-                <entry key="signaturePropFile" value="org/apache/cxf/systest/ws/security/alice.properties"/>
-                <entry key="decryptionPropFile" value="org/apache/cxf/systest/ws/security/bob.properties"/>
-                <entry key="passwordCallbackClass" value="org.apache.cxf.systest.ws.security.KeystorePasswordCallback"/>
             </map>
         </constructor-arg>
     </bean>

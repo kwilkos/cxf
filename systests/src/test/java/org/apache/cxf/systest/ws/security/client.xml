@@ -25,7 +25,7 @@
           http://cxf.apache.org/jaxws                           http://cxf.apache.org/schemas/jaxws.xsd
           ">
 
-    <jaxws:client name="{http://apache.org/hello_world_soap_http}TimestampSignEncrypt" createdFromAPI="true">
+    <jaxws:client name="{http://apache.org/hello_world_soap_http}TimestampSignEncryptPort" createdFromAPI="true">
         <jaxws:features>
             <bean class="org.apache.cxf.feature.LoggingFeature"/>
         </jaxws:features>
