@@ -38,7 +38,6 @@ import org.apache.cxf.helpers.DOMUtils.NullResolver;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.ExchangeImpl;
 import org.apache.cxf.message.MessageImpl;
-import org.apache.cxf.phase.PhaseInterceptor;
 import org.apache.cxf.staxutils.StaxUtils;
 import org.apache.ws.security.WSSecurityEngineResult;
 import org.apache.ws.security.handler.WSHandlerConstants;
@@ -70,8 +69,7 @@ public class SignatureConfirmationTest extends AbstractSecurityTest {
     public void testSignatureConfirmationRequest() throws Exception {
         Document doc = readDocument("wsse-request-clean.xml");
 
-        WSS4JOutInterceptor ohandler = new WSS4JOutInterceptor();
-        PhaseInterceptor<SoapMessage> handler = ohandler.createEndingInterceptor();
+        WSS4JOutInterceptor handler = new WSS4JOutInterceptor();
 
         SoapMessage msg = new SoapMessage(new MessageImpl());
         Exchange ex = new ExchangeImpl();
@@ -155,8 +153,7 @@ public class SignatureConfirmationTest extends AbstractSecurityTest {
     ) throws Exception {
         Document doc = readDocument("wsse-request-clean.xml");
 
-        WSS4JOutInterceptor ohandler = new WSS4JOutInterceptor();
-        PhaseInterceptor<SoapMessage> handler = ohandler.createEndingInterceptor();
+        WSS4JOutInterceptor handler = new WSS4JOutInterceptor();
 
         SoapMessage msg = new SoapMessage(new MessageImpl());
         Exchange ex = new ExchangeImpl();
