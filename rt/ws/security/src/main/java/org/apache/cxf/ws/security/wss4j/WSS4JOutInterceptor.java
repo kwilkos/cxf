@@ -166,7 +166,7 @@ public class WSS4JOutInterceptor extends AbstractWSS4JInterceptor {
                 t1 = System.currentTimeMillis();
             }
 
-                doSenderAction(doAction, doc, reqData, actions, Boolean.TRUE
+            doSenderAction(doAction, doc, reqData, actions, Boolean.TRUE
                     .equals(getProperty(mc, org.apache.cxf.message.Message.REQUESTOR_ROLE)));
 
             if (doTimeDebug) {
