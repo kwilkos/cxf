@@ -393,23 +393,23 @@ public final class DefaultTypeMappingRegistry extends AbstractTypeMappingRegistr
 
         if (isJDK5andAbove()) {
             registerIfAvailable(tm, "javax.xml.datatype.Duration", XSD_DURATION,
-                                "org.codehaus.xfire.aegis.type.java5.DurationType");
+                                "org.apache.cxf.aegis.type.java5.DurationType");
             registerIfAvailable(tm, "javax.xml.datatype.XMLGregorianCalendar", XSD_DATE,
-                                "org.codehaus.xfire.aegis.type.java5.XMLGregorianCalendarType");
+                                "org.apache.cxf.aegis.type.java5.XMLGregorianCalendarType");
             registerIfAvailable(tm, "javax.xml.datatype.XMLGregorianCalendar", XSD_TIME,
-                                "org.codehaus.xfire.aegis.type.java5.XMLGregorianCalendarType");
+                                "org.apache.cxf.aegis.type.java5.XMLGregorianCalendarType");
             registerIfAvailable(tm, "javax.xml.datatype.XMLGregorianCalendar", XSD_G_DAY,
-                                "org.codehaus.xfire.aegis.type.java5.XMLGregorianCalendarType");
+                                "org.apache.cxf.aegis.type.java5.XMLGregorianCalendarType");
             registerIfAvailable(tm, "javax.xml.datatype.XMLGregorianCalendar", XSD_G_MONTH,
-                                "org.codehaus.xfire.aegis.type.java5.XMLGregorianCalendarType");
+                                "org.apache.cxf.aegis.type.java5.XMLGregorianCalendarType");
             registerIfAvailable(tm, "javax.xml.datatype.XMLGregorianCalendar", XSD_G_MONTH_DAY,
-                                "org.codehaus.xfire.aegis.type.java5.XMLGregorianCalendarType");
+                                "org.apache.cxf.aegis.type.java5.XMLGregorianCalendarType");
             registerIfAvailable(tm, "javax.xml.datatype.XMLGregorianCalendar", XSD_G_YEAR,
-                                "org.codehaus.xfire.aegis.type.java5.XMLGregorianCalendarType");
+                                "org.apache.cxf.aegis.type.java5.XMLGregorianCalendarType");
             registerIfAvailable(tm, "javax.xml.datatype.XMLGregorianCalendar", XSD_G_YEAR_MONTH,
-                                "org.codehaus.xfire.aegis.type.java5.XMLGregorianCalendarType");
+                                "org.apache.cxf.aegis.type.java5.XMLGregorianCalendarType");
             registerIfAvailable(tm, "javax.xml.datatype.XMLGregorianCalendar", XSD_DATETIME,
-                                "org.codehaus.xfire.aegis.type.java5.XMLGregorianCalendarType");
+                                "org.apache.cxf.aegis.type.java5.XMLGregorianCalendarType");
         }
     }
 
