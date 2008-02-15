@@ -19,8 +19,6 @@
 
 package org.apache.cxf.systest.ws.security;
 
-import javax.xml.ws.Endpoint;
-
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.bus.spring.SpringBusFactory;
@@ -35,12 +33,6 @@ public class Server extends AbstractBusTestServerBase {
         );
         BusFactory.setDefaultBus(bus);
         setBus(bus);
-        GreeterImpl implementor = new GreeterImpl();
-
-        Endpoint.publish(
-            "http://localhost:9000/SOAPServiceWSSecurity/TimestampSignEncrypt", 
-            implementor
-        );
     }
         
     public static void main(String[] args) {

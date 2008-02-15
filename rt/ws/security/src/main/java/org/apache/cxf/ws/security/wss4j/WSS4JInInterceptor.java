@@ -205,8 +205,11 @@ public class WSS4JInInterceptor extends AbstractWSS4JInterceptor {
 
             /*
              * now check the security actions: do they match, in right order?
+             *
+             * Added size comparison to work around
+             * https://issues.apache.org/jira/browse/WSS-70
              */
-            if (!checkReceiverResults(wsResult, actions)) {
+            if (wsResult.size() != actions.size() || !checkReceiverResults(wsResult, actions)) {
                 LOG.warning("Security processing failed (actions mismatch)");
                 throw new SoapFault(new Message("ACTION_MISMATCH", LOG), version.getSender());
 

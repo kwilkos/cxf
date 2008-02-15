@@ -19,19 +19,30 @@
 
 package org.apache.cxf.systest.ws.security;
 
+import javax.xml.namespace.QName;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Source;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.ws.Dispatch;
+import javax.xml.ws.Service;
+import javax.xml.ws.handler.MessageContext;
+import javax.xml.ws.http.HTTPBinding;
+
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.bus.spring.SpringBusFactory;
-
 import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
 import org.apache.hello_world_soap_http.Greeter;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
- * 
+ *
  */
 public class WSSecurityClientTest extends AbstractBusClientServerTestBase {
-    
+
     private static final java.net.URL WSDL_LOC;
     static {
         java.net.URL tmp = null;
@@ -44,7 +55,25 @@ public class WSSecurityClientTest extends AbstractBusClientServerTestBase {
         }
         WSDL_LOC = tmp;
     }
-    
+
+    private static final QName GREETER_SERVICE_QNAME =
+        new QName(
+            "http://apache.org/hello_world_soap_http",
+            "GreeterService"
+        );
+
+    private static final QName TIMESTAMP_SIGN_ENCRYPT_PORT_QNAME =
+        new QName(
+            "http://apache.org/hello_world_soap_http",
+            "TimestampSignEncryptPort"
+        );
+
+    private static final QName USERNAME_TOKEN_PORT_QNAME =
+        new QName(
+            "http://apache.org/hello_world_soap_http",
+            "UsernameTokenPort"
+        );
+
     @BeforeClass
     public static void startServers() throws Exception {
         assertTrue(
@@ -54,8 +83,16 @@ public class WSSecurityClientTest extends AbstractBusClientServerTestBase {
             launchServer(Server.class, true)
         );
     }
-    
+
+    //
+    // TODO
+    // Wss4j depends on xalan.jar ,this will broke the W3CEndpointReference test.
+    // so comment this test .After this issue is fixed or find other solution ,
+    // enalbe this test.
+    //
+
     @Test
+    @org.junit.Ignore
     public void testTimestampSignEncrypt() {
         BusFactory.setDefaultBus(
             new SpringBusFactory().createBus(
@@ -64,18 +101,97 @@ public class WSSecurityClientTest extends AbstractBusClientServerTestBase {
         );
         final javax.xml.ws.Service svc = javax.xml.ws.Service.create(
             WSDL_LOC,
-            new javax.xml.namespace.QName(
-                "http://apache.org/hello_world_soap_http",
-                "SOAPServiceWSSecurity"
-            )
+            GREETER_SERVICE_QNAME
         );
         final Greeter greeter = svc.getPort(
-            new javax.xml.namespace.QName(
-                "http://apache.org/hello_world_soap_http",
-                "TimestampSignEncrypt"
-            ),
+            TIMESTAMP_SIGN_ENCRYPT_PORT_QNAME,
             Greeter.class
         );
         greeter.sayHi();
+    }
+
+    @org.junit.Test
+    public void testMalformedSecurityHeaders() throws java.lang.Exception {
+        Dispatch<Source> dispatcher = null;
+        java.io.InputStream is = null;
+        String result = null;
+        //
+        // Check to ensure that a well-formed request will pass
+        //
+        dispatcher = createUsernameTokenDispatcher();
+        is = getClass().getResourceAsStream(
+            "test-data/UsernameTokenRequest.xml"
+        );
+        result = source2String(dispatcher.invoke(new StreamSource(is)));
+        assertTrue(result.indexOf("Bonjour") != -1);
+        //
+        // Sending no security headers should result in a Fault
+        //
+        dispatcher = createUsernameTokenDispatcher();
+        is = getClass().getResourceAsStream(
+            "test-data/NoHeadersRequest.xml"
+        );
+        result = source2String(dispatcher.invoke(new StreamSource(is)));
+        assertTrue(result.indexOf("Fault") != -1);
+        //
+        // Sending and empty header should result in a Fault
+        //
+        dispatcher = createUsernameTokenDispatcher();
+        is = getClass().getResourceAsStream(
+            "test-data/EmptyHeaderRequest.xml"
+        );
+        result = source2String(dispatcher.invoke(new StreamSource(is)));
+        assertTrue(result.indexOf("Fault") != -1);
+        //
+        // Sending and empty security header should result in a Fault
+        //
+        dispatcher = createUsernameTokenDispatcher();
+        is = getClass().getResourceAsStream(
+            "test-data/EmptySecurityHeaderRequest.xml"
+        );
+        result = source2String(dispatcher.invoke(new StreamSource(is)));
+        assertTrue(result.indexOf("Fault") != -1);
+    }
+
+    private static Dispatch<Source>
+    createUsernameTokenDispatcher() {
+        //
+        // Set up the client (stolen from JAX-RS system test)
+        //
+        // TODO This could really be done more simply with an HTTPURLConnection
+        //
+        final Service service = Service.create(
+            GREETER_SERVICE_QNAME
+        );
+        service.addPort(
+            USERNAME_TOKEN_PORT_QNAME,
+            HTTPBinding.HTTP_BINDING,
+            "http://localhost:9000/GreeterService/UsernameTokenPort"
+        );
+        final Dispatch<Source> dispatcher = service.createDispatch(
+            USERNAME_TOKEN_PORT_QNAME,
+            Source.class,
+            Service.Mode.MESSAGE
+        );
+        final java.util.Map<String, Object> requestContext =
+            dispatcher.getRequestContext();
+        requestContext.put(
+            MessageContext.HTTP_REQUEST_METHOD,
+            "POST"
+        );
+        return dispatcher;
+    }
+
+    private static String
+    source2String(Source source) throws Exception {
+        final java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
+        final StreamResult sr = new StreamResult(bos);
+        final Transformer trans =
+            TransformerFactory.newInstance().newTransformer();
+        final java.util.Properties oprops = new java.util.Properties();
+        oprops.put(OutputKeys.OMIT_XML_DECLARATION, "yes");
+        trans.setOutputProperties(oprops);
+        trans.transform(source, sr);
+        return bos.toString();
     }
 }
