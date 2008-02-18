@@ -36,6 +36,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -257,7 +258,7 @@ public class HTTPConduit
     /**
      * Variables for holding session state if sessions are supposed to be maintained
      */
-    private List<Cookie> sessionCookies;
+    private Map<String, Cookie> sessionCookies = new ConcurrentHashMap<String, Cookie>();
     private boolean maintainSession;
 
     /**
@@ -424,6 +425,14 @@ public class HTTPConduit
     }
     
     /**
+     * Allow access to the cookies that the conduit is maintaining
+     * @return the sessionCookies map
+     */
+    public Map<String, Cookie> getCookies() {
+        return sessionCookies;
+    }
+    
+    /**
      * This method sets the connectionFactory field for this object. It is called
      * after an SSL Client Policy is set or an HttpsHostnameVerifier
      * because we need to reinitialize the connection factory.
@@ -530,12 +539,14 @@ public class HTTPConduit
         maintainSession = Boolean.TRUE.equals((Boolean)message.get(Message.MAINTAIN_SESSION));
         
         //If we have any cookies and we are maintaining sessions, then use them
-        if (maintainSession && sessionCookies != null && sessionCookies.size() > 0) {
-            connection.setRequestProperty(HttpHeaderHelper.COOKIE, 
-                                          Cookie.requestCookieHeader(sessionCookies));
+        if (maintainSession && sessionCookies.size() > 0) {
+            for (Cookie c : sessionCookies.values()) {
+                connection.addRequestProperty(HttpHeaderHelper.COOKIE, 
+                                              c.requestCookieHeader());
+            }
         }
 
-        // The trust decision is relagated to after the "flushing" of the
+        // The trust decision is relegated to after the "flushing" of the
         // request headers.
         
         // We place the connection on the message to pick it up
@@ -1937,8 +1948,8 @@ public class HTTPConduit
             inMessage.put(Message.ENCODING, normalizedEncoding);
                         
             if (maintainSession) {
-                String cookieStr = connection.getHeaderField("Set-Cookie");
-                sessionCookies = Cookie.handleSetCookie(sessionCookies, cookieStr);
+                List<String> cookies = connection.getHeaderFields().get("Set-Cookie");
+                Cookie.handleSetCookie(sessionCookies, cookies);
             }
 
             in = in == null
