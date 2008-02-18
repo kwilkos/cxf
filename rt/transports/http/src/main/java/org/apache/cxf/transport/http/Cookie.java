@@ -18,9 +18,8 @@
  */
 package org.apache.cxf.transport.http;
 
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Container for HTTP cookies used to track
@@ -147,22 +146,15 @@ class Cookie {
     /**
      * Convert a list of cookies into a string suitable for sending
      * as a "Cookie:" header
-     * @param cookies
      * @return Cookie header text
      */
-    public static String requestCookieHeader(List<Cookie> cookies) {
-        if (cookies == null || cookies.size() == 0) {
-            return null;
-        }
-
+    public String requestCookieHeader() {
         StringBuilder b = new StringBuilder();
         b.append("$Version=\"1\"");
-        for (Cookie cookie : cookies) {
-            b.append("; ").append(cookie.getName())
-                .append("=").append(cookie.getValue());
-            if (cookie.getPath() != null && cookie.getPath().length() > 0) {
-                b.append("; $Path=").append(cookie.getPath());
-            }
+        b.append("; ").append(getName())
+            .append("=").append(getValue());
+        if (getPath() != null && getPath().length() > 0) {
+            b.append("; $Path=").append(getPath());
         }
         return b.toString();
     }
@@ -174,57 +166,47 @@ class Cookie {
      * @param header Text of a Set-Cookie: header
      * @return New set of cookies
      */
-    public static List<Cookie> handleSetCookie(List<Cookie> current, String header) {
-        if (header == null || header.length() == 0) {
-            return current;
+    public static void handleSetCookie(Map<String, Cookie> current, List<String> headers) {
+        if (headers == null || headers.size() == 0) {
+            return;
         }
-        List<Cookie> result;
-        result = new ArrayList<Cookie>();
-        if (current != null) {
-            result.addAll(current);
-        }
+        
 
-        String[] cookies = header.split(",");
-        for (String cookie : cookies) {
-            String[] parts = cookie.split(";");
-
-            String[] kv = parts[0].split("=", 2);
-            if (kv.length != 2) {
-                continue;
-            }
-            String name = kv[0].trim();
-            String value = kv[1].trim();
-            Cookie newCookie = new Cookie(name, value);
-
-            for (int i = 1; i < parts.length; i++) {
-                kv = parts[i].split("=", 2);
-                name = kv[0].trim();
-                value = (kv.length > 1) ? kv[1].trim() : null;
-                if (name.equalsIgnoreCase(DISCARD_ATTRIBUTE)) {
-                    newCookie.setMaxAge(0);
-                } else if (name.equalsIgnoreCase(MAX_AGE_ATTRIBUTE) && value != null) {
-                    try {
-                        newCookie.setMaxAge(Integer.parseInt(value));
-                    } catch (NumberFormatException e) {
-                        // do nothing here
+        for (String header : headers) {
+            String[] cookies = header.split(",");
+            for (String cookie : cookies) {
+                String[] parts = cookie.split(";");
+    
+                String[] kv = parts[0].split("=", 2);
+                if (kv.length != 2) {
+                    continue;
+                }
+                String name = kv[0].trim();
+                String value = kv[1].trim();
+                Cookie newCookie = new Cookie(name, value);
+    
+                for (int i = 1; i < parts.length; i++) {
+                    kv = parts[i].split("=", 2);
+                    name = kv[0].trim();
+                    value = (kv.length > 1) ? kv[1].trim() : null;
+                    if (name.equalsIgnoreCase(DISCARD_ATTRIBUTE)) {
+                        newCookie.setMaxAge(0);
+                    } else if (name.equalsIgnoreCase(MAX_AGE_ATTRIBUTE) && value != null) {
+                        try {
+                            newCookie.setMaxAge(Integer.parseInt(value));
+                        } catch (NumberFormatException e) {
+                            // do nothing here
+                        }
+                    } else if (name.equalsIgnoreCase(PATH_ATTRIBUTE) && value != null) {
+                        newCookie.setPath(value);
                     }
-                } else if (name.equalsIgnoreCase(PATH_ATTRIBUTE) && value != null) {
-                    newCookie.setPath(value);
                 }
-            }
-
-            Iterator<Cookie> iter = result.iterator();
-            while (iter.hasNext()) {
-                Cookie oldCookie = iter.next();
-                if (newCookie.equals(oldCookie)) {
-                    iter.remove();
-                    break;
+                if (newCookie.getMaxAge() != 0) {
+                    current.put(newCookie.getName(), newCookie);                    
+                } else {
+                    current.remove(newCookie.getName());
                 }
-            }
-            if (newCookie.getMaxAge() != 0) {
-                result.add(newCookie);
             }
         }
-        return result;
     }
 }
