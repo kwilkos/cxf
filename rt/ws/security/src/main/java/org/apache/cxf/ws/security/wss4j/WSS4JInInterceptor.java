@@ -157,6 +157,13 @@ public class WSS4JInInterceptor extends AbstractWSS4JInterceptor {
             if (reqData.getWssConfig().isEnableSignatureConfirmation()) {
                 checkSignatureConfirmation(reqData, wsResult);
             }
+            
+            //
+            // Now remove the Signature Confirmation results. This is needed to work around the
+            // wsResult.size() != actions.size() comparison below. The real issue is to fix the
+            // broken checkReceiverResults method in WSS4J.
+            //
+            removeSignatureConfirmationResults(wsResult);
 
             /*
              * Now we can check the certificate used to sign the message. In the
@@ -293,5 +300,18 @@ public class WSS4JInInterceptor extends AbstractWSS4JInterceptor {
             cbHandler = getPasswordCB(reqData);
         }
         return cbHandler;
+    }
+    
+    private void removeSignatureConfirmationResults(List<Object> wsResult) {
+        //
+        // Now remove the Signature Confirmation results. This is needed to work around the
+        // wsResult.size() != actions.size() comparison below. The real issue is to fix the
+        // broken checkReceiverResults method in WSS4J.
+        //
+        for (int i = 0; i < wsResult.size(); i++) {
+            if (((WSSecurityEngineResult) wsResult.get(i)).getAction() == WSConstants.SC) {
+                wsResult.remove(i);
+            }
+        }
     }
 }
