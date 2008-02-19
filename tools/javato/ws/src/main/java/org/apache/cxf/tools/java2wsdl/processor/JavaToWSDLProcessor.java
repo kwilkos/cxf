@@ -114,11 +114,11 @@ public class JavaToWSDLProcessor implements Processor {
     
     public void process() throws ToolException {
         String oldClassPath = System.getProperty(JAVA_CLASS_PATH);
-        LOG.log(Level.INFO, "OLD_CP", oldClassPath);
+        LOG.log(Level.FINE, "OLD_CP", oldClassPath);
         if (context.get(ToolConstants.CFG_CLASSPATH) != null) {
             String newCp = (String)context.get(ToolConstants.CFG_CLASSPATH);
             System.setProperty(JAVA_CLASS_PATH, newCp + File.pathSeparator + oldClassPath);
-            LOG.log(Level.INFO, "NEW_CP", newCp);
+            LOG.log(Level.FINE, "NEW_CP", newCp);
         }
 
         // check for command line specification of data binding.
@@ -147,7 +147,7 @@ public class JavaToWSDLProcessor implements Processor {
         serviceList.add(service);
         context.put(ToolConstants.SERVICE_LIST, serviceList);
         System.setProperty(JAVA_CLASS_PATH, oldClassPath);
-        LOG.log(Level.INFO, "RESUME_CP", oldClassPath);
+        LOG.log(Level.FINE, "RESUME_CP", oldClassPath);
     }
 
     private AbstractGenerator getWrapperBeanGenerator() {
