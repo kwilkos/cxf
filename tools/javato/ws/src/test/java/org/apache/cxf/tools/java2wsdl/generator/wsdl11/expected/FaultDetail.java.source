@@ -15,7 +15,7 @@ import javax.xml.bind.annotation.XmlType;
 
 @XmlRootElement(namespace = "http://rpc.jaxws.fortest.tools.cxf.apache.org/", name = "PingMeFault")
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(namespace = "http://rpc.jaxws.fortest.tools.cxf.apache.org/", name = "PingMeFault")
+@XmlType(namespace = "http://rpc.jaxws.fortest.tools.cxf.apache.org/", name = "PingMeFault", propOrder = {"code", "message"})
 
 public class FaultDetail {
 

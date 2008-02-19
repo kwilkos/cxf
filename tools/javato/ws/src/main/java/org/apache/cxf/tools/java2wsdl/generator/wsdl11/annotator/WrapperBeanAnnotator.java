@@ -19,6 +19,9 @@
 
 package org.apache.cxf.tools.java2wsdl.generator.wsdl11.annotator;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -28,6 +31,7 @@ import org.apache.cxf.tools.common.model.Annotator;
 import org.apache.cxf.tools.common.model.JAnnotation;
 import org.apache.cxf.tools.common.model.JAnnotationElement;
 import org.apache.cxf.tools.common.model.JavaAnnotatable;
+import org.apache.cxf.tools.common.model.JavaField;
 import org.apache.cxf.tools.java2wsdl.generator.wsdl11.model.WrapperBeanClass;
 public class WrapperBeanAnnotator implements Annotator {
 
@@ -53,6 +57,15 @@ public class WrapperBeanAnnotator implements Annotator {
                                                   beanClass.getElementName().getLocalPart()));
         xmlType.addElement(new JAnnotationElement("namespace", 
                                                   beanClass.getElementName().getNamespaceURI()));
+        
+        List<String> props = new ArrayList<String>();
+        for (JavaField f : beanClass.getFields()) {
+            props.add(f.getRawName());
+        }
+        if (props.size() > 1) {
+            xmlType.addElement(new JAnnotationElement("propOrder",
+                                                      props));
+        }
         
         // Revisit: why annotation is string?
         beanClass.addAnnotation(xmlRootElement);
