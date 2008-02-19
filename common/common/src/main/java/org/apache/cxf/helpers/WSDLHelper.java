@@ -20,15 +20,12 @@
 package org.apache.cxf.helpers;
 
 import java.io.File;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import javax.jws.WebParam;
 import javax.wsdl.Binding;
 import javax.wsdl.BindingOperation;
 import javax.wsdl.Definition;
@@ -40,7 +37,6 @@ import javax.wsdl.Part;
 import javax.wsdl.PortType;
 import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLReader;
-import javax.xml.ws.RequestWrapper;
 
 public class WSDLHelper {
 
@@ -86,48 +82,6 @@ public class WSDLHelper {
             message = input.getMessage();
         }
         return message.getParts() == null ? new HashMap() : message.getParts();
-    }
-
-    public javax.jws.soap.SOAPBinding getBindingAnnotationFromClass(List<Class<?>> classList) {
-        javax.jws.soap.SOAPBinding sb = null;
-        for (Class<?> c : classList) {
-            sb = c.getAnnotation(javax.jws.soap.SOAPBinding.class);
-            if (null != sb) {
-                break;
-            }
-        }
-        return sb;
-    }
-
-    public javax.jws.soap.SOAPBinding getBindingAnnotationFromMethod(Method m) {
-        javax.jws.soap.SOAPBinding sb = null;
-        if (null != m) {
-            sb = m.getAnnotation(javax.jws.soap.SOAPBinding.class);
-        }
-        return sb;
-    }
-
-    public WebParam getWebParamAnnotation(Annotation[] pa) {
-        WebParam wp = null;
-
-        if (null != pa) {
-            for (Annotation annotation : pa) {
-                if (WebParam.class.equals(annotation.annotationType())) {
-                    wp = (WebParam)annotation;
-                    break;
-                }
-            }
-        }
-        return wp;
-    }
-
-    public RequestWrapper getRequestWrapperAnnotation(Method m) {
-        RequestWrapper rw = null;
-
-        if (null != m) {
-            rw = m.getAnnotation(RequestWrapper.class);
-        }
-        return rw;
     }
 
     public List<PortType> getPortTypes(Definition def) {
