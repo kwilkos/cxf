@@ -53,27 +53,40 @@ public class BusApplicationContext extends ClassPathXmlApplicationContext {
     
     private DefaultNamespaceHandlerResolver nsHandlerResolver;
     private boolean includeDefaults;
-    private String cfgFile;
-    private URL cfgFileURL;
+    private String[] cfgFiles;
+    private URL[] cfgFileURLs;
     
     public BusApplicationContext(String cf, boolean include) {
         this(cf, include, null);
+    }
+    public BusApplicationContext(String[] cfs, boolean include) {
+        this(cfs, include, null);
     }
     
     public BusApplicationContext(URL url, boolean include) {
         this(url, include, null);
     }
+    public BusApplicationContext(URL[] urls, boolean include) {
+        this(urls, include, null);
+    }
 
     public BusApplicationContext(String cf, boolean include, ApplicationContext parent) {
-        super((String[])null, false, parent);
-        cfgFile = cf;
+        this(new String[] {cf}, include, parent);
+    }
+    
+    public BusApplicationContext(URL url, boolean include, ApplicationContext parent) {
+        this(new URL[] {url}, include, parent);
+    } 
+    public BusApplicationContext(String[] cf, boolean include, ApplicationContext parent) {
+        super(new String[0], false, parent);
+        cfgFiles = cf;
         includeDefaults = include;
         refresh();
     }
     
-    public BusApplicationContext(URL url, boolean include, ApplicationContext parent) {
-        super((String[])null, false, parent);
-        cfgFileURL = url;
+    public BusApplicationContext(URL[] url, boolean include, ApplicationContext parent) {
+        super(new String[0], false, parent);
+        cfgFileURLs = url;
         includeDefaults = include;
         refresh();
     } 
@@ -110,31 +123,38 @@ public class BusApplicationContext extends ClassPathXmlApplicationContext {
         }
         
         boolean usingDefault = false;
-        if (null == cfgFile) {
-            cfgFile = System.getProperty(Configurer.USER_CFG_FILE_PROPERTY_NAME);
+        if (null == cfgFiles) {
+            String cfgFile = System.getProperty(Configurer.USER_CFG_FILE_PROPERTY_NAME);
+            if (cfgFile != null) {
+                cfgFiles = new String[] {cfgFile};
+            }
         }        
-        if (null == cfgFile) {
-            cfgFile = Configurer.DEFAULT_USER_CFG_FILE;
+        if (null == cfgFiles) {
+            cfgFiles = new String[] {Configurer.DEFAULT_USER_CFG_FILE};
             usingDefault = true;
         }
-        ClassPathResource cpr = new ClassPathResource(cfgFile);
-        if (cpr.exists()) {
-            resources.add(cpr);
-        } else {
-            if (!usingDefault) {
-                LogUtils.log(LOG, Level.INFO, "USER_CFG_FILE_NOT_FOUND_MSG", cfgFile);
+        for (String cfgFile : cfgFiles) {
+            ClassPathResource cpr = new ClassPathResource(cfgFile);
+            if (cpr.exists()) {
+                resources.add(cpr);
             } else {
-                LogUtils.log(LOG, Level.FINE, "USER_CFG_FILE_NOT_FOUND_MSG", cfgFile);
+                if (!usingDefault) {
+                    LogUtils.log(LOG, Level.WARNING, "USER_CFG_FILE_NOT_FOUND_MSG", cfgFile);
+                } else {
+                    LogUtils.log(LOG, Level.INFO, "USER_CFG_FILE_NOT_SPECIFIED_MSG", cfgFile);
+                }
             }
         }
-        
-        if (null != cfgFileURL) {
-            UrlResource ur = new UrlResource(cfgFileURL);
-            if (ur.exists()) {
-                resources.add(ur);
-            } else {
-                LogUtils.log(LOG, Level.INFO, "USER_CFG_FILE_URL_NOT_FOUND_MSG", cfgFileURL);
-            }    
+            
+        if (null != cfgFileURLs) {
+            for (URL cfgFileURL : cfgFileURLs) {
+                UrlResource ur = new UrlResource(cfgFileURL);
+                if (ur.exists()) {
+                    resources.add(ur);
+                } else {
+                    LogUtils.log(LOG, Level.WARNING, "USER_CFG_FILE_URL_NOT_FOUND_MSG", cfgFileURL);
+                }
+            }
         } 
         
         String sysCfgFileUrl = System.getProperty(Configurer.USER_CFG_FILE_PROPERTY_URL);
@@ -144,10 +164,10 @@ public class BusApplicationContext extends ClassPathXmlApplicationContext {
                 if (ur.exists()) {
                     resources.add(ur);
                 } else {
-                    LogUtils.log(LOG, Level.INFO, "USER_CFG_FILE_URL_NOT_FOUND_MSG", sysCfgFileUrl);
+                    LogUtils.log(LOG, Level.WARNING, "USER_CFG_FILE_URL_NOT_FOUND_MSG", sysCfgFileUrl);
                 }            
             } catch (MalformedURLException e) {            
-                LogUtils.log(LOG, Level.INFO, "USER_CFG_FILE_URL_ERROR_MSG", sysCfgFileUrl);
+                LogUtils.log(LOG, Level.WARNING, "USER_CFG_FILE_URL_ERROR_MSG", sysCfgFileUrl);
             }
         }
         
