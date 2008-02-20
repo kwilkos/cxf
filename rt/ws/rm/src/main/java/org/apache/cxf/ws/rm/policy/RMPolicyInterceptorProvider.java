@@ -24,14 +24,12 @@ import java.util.Collection;
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.Bus;
-import org.apache.cxf.interceptor.AbstractAttributedInterceptorProvider;
-import org.apache.cxf.ws.policy.PolicyInterceptorProvider;
+import org.apache.cxf.ws.policy.AbstractPolicyInterceptorProvider;
 import org.apache.cxf.ws.rm.RMInInterceptor;
 import org.apache.cxf.ws.rm.RMOutInterceptor;
 import org.apache.cxf.ws.rm.soap.RMSoapInterceptor;
 
-public class RMPolicyInterceptorProvider extends AbstractAttributedInterceptorProvider implements
-    PolicyInterceptorProvider {
+public class RMPolicyInterceptorProvider extends AbstractPolicyInterceptorProvider {
 
     private static final Collection<QName> ASSERTION_TYPES;
     private RMInInterceptor rmIn = new RMInInterceptor();
@@ -45,7 +43,7 @@ public class RMPolicyInterceptorProvider extends AbstractAttributedInterceptorPr
     }
 
     public RMPolicyInterceptorProvider(Bus bus) {
-        super();
+        super(ASSERTION_TYPES);
         rmIn.setBus(bus);
         rmOut.setBus(bus);
         
@@ -60,9 +58,5 @@ public class RMPolicyInterceptorProvider extends AbstractAttributedInterceptorPr
 
         getOutFaultInterceptors().add(rmOut);
         getOutFaultInterceptors().add(rmSoap);
-    }
-
-    public Collection<QName> getAssertionTypes() {
-        return ASSERTION_TYPES;
     }
 }

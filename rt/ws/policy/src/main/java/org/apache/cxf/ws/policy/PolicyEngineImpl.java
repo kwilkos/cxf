@@ -44,7 +44,6 @@ import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.Destination;
 import org.apache.cxf.ws.policy.selector.MinimalAlternativeSelector;
-import org.apache.neethi.Assertion;
 import org.apache.neethi.Constants;
 import org.apache.neethi.Policy;
 import org.apache.neethi.PolicyComponent;
@@ -451,12 +450,12 @@ public class PolicyEngineImpl implements PolicyEngine, BusExtension, ServerLifeC
      * @param includeOptional flag indicating if optional assertions should be included
      * @return the assertions
      */
-    Collection<Assertion> getAssertions(PolicyComponent pc, boolean includeOptional) {
+    Collection<PolicyAssertion> getAssertions(PolicyComponent pc, boolean includeOptional) {
     
-        Collection<Assertion> assertions = new ArrayList<Assertion>();
+        Collection<PolicyAssertion> assertions = new ArrayList<PolicyAssertion>();
     
         if (Constants.TYPE_ASSERTION == pc.getType()) {
-            Assertion a = (Assertion)pc;
+            PolicyAssertion a = (PolicyAssertion)pc;
             if (includeOptional || !a.isOptional()) {
                 assertions.add(a);
             }
@@ -467,12 +466,12 @@ public class PolicyEngineImpl implements PolicyEngine, BusExtension, ServerLifeC
     }
 
     void addAssertions(PolicyComponent pc, boolean includeOptional, 
-                               Collection<Assertion> assertions) {
+                               Collection<PolicyAssertion> assertions) {
    
         if (Constants.TYPE_ASSERTION == pc.getType()) {
-            Assertion a = (Assertion)pc;
+            PolicyAssertion a = (PolicyAssertion)pc;
             if (includeOptional || !a.isOptional()) {
-                assertions.add((Assertion)pc);            
+                assertions.add((PolicyAssertion)pc);            
             }
             return;
         } 
@@ -498,9 +497,9 @@ public class PolicyEngineImpl implements PolicyEngine, BusExtension, ServerLifeC
      * @return the vocabulary
      */
     Set<QName> getVocabulary(PolicyComponent pc, boolean includeOptional) {
-        Collection<Assertion> assertions = getAssertions(pc, includeOptional);
+        Collection<PolicyAssertion> assertions = getAssertions(pc, includeOptional);
         Set<QName> vocabulary = new HashSet<QName>();
-        for (Assertion a : assertions) {
+        for (PolicyAssertion a : assertions) {
             vocabulary.add(a.getName());
         }
         return vocabulary;
@@ -526,9 +525,11 @@ public class PolicyEngineImpl implements PolicyEngine, BusExtension, ServerLifeC
      * @param Assertor the assertor
      * @return true iff the alternative can be supported
      */
-    public boolean supportsAlternative(Collection<Assertion> alternative, Assertor assertor) {
-        PolicyInterceptorProviderRegistry pipr = bus.getExtension(PolicyInterceptorProviderRegistry.class);
-        for (Assertion a : alternative) {
+    public boolean supportsAlternative(Collection<PolicyAssertion> alternative, 
+                                       Assertor assertor) {
+        PolicyInterceptorProviderRegistry pipr = 
+            bus.getExtension(PolicyInterceptorProviderRegistry.class);
+        for (PolicyAssertion a : alternative) {
             if (!(a.isOptional() 
                 || (null != pipr.get(a.getName())) 
                 || (null != assertor && assertor.canAssert(a.getName())))) {

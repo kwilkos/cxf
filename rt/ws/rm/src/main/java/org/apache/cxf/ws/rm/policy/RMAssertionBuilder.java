@@ -21,10 +21,10 @@ package org.apache.cxf.ws.rm.policy;
 
 import javax.xml.bind.JAXBException;
 
+import org.apache.cxf.ws.policy.PolicyAssertion;
 import org.apache.cxf.ws.policy.builder.jaxb.JaxbAssertion;
 import org.apache.cxf.ws.policy.builder.jaxb.JaxbAssertionBuilder;
 import org.apache.cxf.ws.rm.RMConstants;
-import org.apache.neethi.Assertion;
 import org.apache.neethi.Constants;
 import org.apache.neethi.PolicyComponent;
 
@@ -38,7 +38,7 @@ public class RMAssertionBuilder extends JaxbAssertionBuilder<RMAssertion> {
     }
 
     @Override
-    public Assertion buildCompatible(Assertion a, Assertion b) {
+    public PolicyAssertion buildCompatible(PolicyAssertion a, PolicyAssertion b) {
         if (RMConstants.getRMAssertionQName().equals(a.getName())
             && RMConstants.getRMAssertionQName().equals(b.getName())) {
             
@@ -70,15 +70,16 @@ public class RMAssertionBuilder extends JaxbAssertionBuilder<RMAssertion> {
         @Override
         public boolean equal(PolicyComponent policyComponent) {
             if (policyComponent.getType() != Constants.TYPE_ASSERTION
-                || !getName().equals(((Assertion)policyComponent).getName())) {
+                || !getName().equals(((PolicyAssertion)policyComponent).getName())) {
                 return false;
             }
-            JaxbAssertion<RMAssertion> other = JaxbAssertion.cast((Assertion)policyComponent);            
+            JaxbAssertion<RMAssertion> other = 
+                    JaxbAssertion.cast((PolicyAssertion)policyComponent);            
             return PolicyUtils.equals(this.getData(), other.getData());  
         }
         
         @Override
-        protected Assertion cloneMandatory() {
+        protected PolicyAssertion cloneMandatory() {
             RMPolicyAssertion a = new RMPolicyAssertion();
             a.setData(getData());
             return a;        

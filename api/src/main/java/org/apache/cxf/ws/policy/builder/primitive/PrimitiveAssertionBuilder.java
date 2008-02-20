@@ -24,13 +24,12 @@ import java.util.Collection;
 
 import javax.xml.namespace.QName;
 
-
 import org.w3c.dom.Element;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.ws.policy.AssertionBuilder;
+import org.apache.cxf.ws.policy.PolicyAssertion;
 import org.apache.cxf.ws.policy.PolicyConstants;
-import org.apache.neethi.Assertion;
 
 public class PrimitiveAssertionBuilder implements AssertionBuilder {
 
@@ -41,7 +40,7 @@ public class PrimitiveAssertionBuilder implements AssertionBuilder {
         bus = b;
     }
     
-    public Assertion build(Element element) {  
+    public PolicyAssertion build(Element element) {  
         return new PrimitiveAssertion(element, getPolicyConstants());
     }
 
@@ -57,7 +56,7 @@ public class PrimitiveAssertionBuilder implements AssertionBuilder {
      * If the two assertions are equal, they are also compatible. 
      * The compatible policy is optional iff both assertions are optional.
      */
-    public Assertion buildCompatible(Assertion a, Assertion b) {
+    public PolicyAssertion buildCompatible(PolicyAssertion a, PolicyAssertion b) {
         if (knownElements.contains(a.getName()) && a.getName().equals(b.getName())) {
             return new PrimitiveAssertion(a.getName(), a.isOptional() && b.isOptional());
         }

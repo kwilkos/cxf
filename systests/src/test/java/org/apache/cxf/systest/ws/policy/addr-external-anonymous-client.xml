@@ -26,11 +26,21 @@
         </wsp:AppliesTo>
         <wsp:Policy>
           <wsp:ExactlyOne>
+            <!-- TODO 
+                if you put a NonAnonymous on top here
+                then it will fail by defaul unless a client is using 
+                a different type of selector.
+                This should not be the case, the client should
+                be able to pick up the right alternative dynamically -->
+                
+          
             <wsp:All>
               <wsam:Addressing xmlns:wsam="http://www.w3.org/2007/02/addressing/metadata">
-                <wsp:Policy/>
+                <wsp:Policy>
+                   <wsam:AnonymousResponses/>
+                </wsp:Policy>
               </wsam:Addressing>
-            </wsp:All>
+            </wsp:All> 
           </wsp:ExactlyOne>  
         </wsp:Policy>
     </wsp:PolicyAttachment>    

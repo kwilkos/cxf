@@ -37,7 +37,7 @@ import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.PackageUtils;
 import org.apache.cxf.jaxb.JAXBUtils;
 import org.apache.cxf.ws.policy.AssertionBuilder;
-import org.apache.neethi.Assertion;
+import org.apache.cxf.ws.policy.PolicyAssertion;
 import org.apache.neethi.Constants;
 
 public class JaxbAssertionBuilder<T> implements AssertionBuilder {
@@ -104,7 +104,7 @@ public class JaxbAssertionBuilder<T> implements AssertionBuilder {
         unmarshaller = context.createUnmarshaller();
     }
     
-    public Assertion build(Element element) {
+    public PolicyAssertion build(Element element) {
         QName name = new QName(element.getNamespaceURI(), element.getLocalName());
         JaxbAssertion<T> assertion = buildAssertion();
         assertion.setName(name);
@@ -118,7 +118,7 @@ public class JaxbAssertionBuilder<T> implements AssertionBuilder {
     }
 
     @SuppressWarnings("unchecked")
-    public Assertion buildCompatible(Assertion a, Assertion b) {
+    public PolicyAssertion buildCompatible(PolicyAssertion a, PolicyAssertion b) {
         if (a.equal(b)) {
             JaxbAssertion<T> ja = (JaxbAssertion<T>)a;
             JaxbAssertion<T> compatible = buildAssertion();

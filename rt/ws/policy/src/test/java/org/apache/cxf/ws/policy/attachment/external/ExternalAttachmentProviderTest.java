@@ -35,11 +35,11 @@ import org.apache.cxf.service.model.BindingMessageInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.service.model.ServiceInfo;
+import org.apache.cxf.ws.policy.PolicyAssertion;
 import org.apache.cxf.ws.policy.PolicyBuilder;
 import org.apache.cxf.ws.policy.PolicyConstants;
 import org.apache.cxf.ws.policy.PolicyException;
 import org.apache.cxf.ws.policy.builder.primitive.PrimitiveAssertion;
-import org.apache.neethi.Assertion;
 import org.apache.neethi.Policy;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
@@ -61,7 +61,7 @@ public class ExternalAttachmentProviderTest extends Assert {
     
     private IMocksControl control;
     private Policy policy;
-    private Assertion assertion;
+    private PolicyAssertion assertion;
     private PolicyAttachment attachment;
     private Collection<PolicyAttachment> attachments = new ArrayList<PolicyAttachment>();
     

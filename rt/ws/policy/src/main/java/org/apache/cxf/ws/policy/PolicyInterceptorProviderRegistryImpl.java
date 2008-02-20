@@ -30,7 +30,6 @@ import org.apache.cxf.configuration.spring.MapProvider;
 import org.apache.cxf.extension.BusExtension;
 import org.apache.cxf.extension.RegistryImpl;
 import org.apache.cxf.interceptor.Interceptor;
-import org.apache.neethi.Assertion;
 
 /**
  * 
@@ -54,9 +53,10 @@ public class PolicyInterceptorProviderRegistryImpl
         return PolicyInterceptorProviderRegistry.class;
     }
     
-    public List<Interceptor> getInterceptors(Collection<Assertion> alternative, boolean out, boolean fault) {
+    public List<Interceptor> getInterceptors(Collection<PolicyAssertion> alternative, 
+                                             boolean out, boolean fault) {
         List<Interceptor> interceptors = new ArrayList<Interceptor>();
-        for (Assertion a : alternative) {
+        for (PolicyAssertion a : alternative) {
             if (a.isOptional()) {
                 continue;
             }

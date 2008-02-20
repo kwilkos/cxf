@@ -24,18 +24,16 @@ import java.util.Collection;
 
 import javax.xml.namespace.QName;
 
-import org.apache.cxf.interceptor.AbstractAttributedInterceptorProvider;
 import org.apache.cxf.ws.addressing.MAPAggregator;
 import org.apache.cxf.ws.addressing.soap.MAPCodec;
-import org.apache.cxf.ws.policy.PolicyInterceptorProvider;
+import org.apache.cxf.ws.policy.AbstractPolicyInterceptorProvider;
 
 /**
  * Instead of parametrising an instance of org.apache.cxf.policy.PolicyInterceptorProviderImpl
  * we use this class to reduce the impact of changes to the addressing metadata namespace
  * (only need to update Metadataconstants, otherwise cfg file fragement also).
  */
-public class AddressingPolicyInterceptorProvider  extends AbstractAttributedInterceptorProvider 
-    implements PolicyInterceptorProvider {
+public class AddressingPolicyInterceptorProvider extends AbstractPolicyInterceptorProvider {
 
     private static final Collection<QName> ASSERTION_TYPES;
     private static final MAPAggregator MAP_AGGREGATOR = new MAPAggregator();
@@ -53,7 +51,7 @@ public class AddressingPolicyInterceptorProvider  extends AbstractAttributedInte
     }
     
     public AddressingPolicyInterceptorProvider() {
-        super();
+        super(ASSERTION_TYPES);
         getInInterceptors().add(MAP_AGGREGATOR);
         getInInterceptors().add(MAP_CODEC);
         
@@ -66,8 +64,5 @@ public class AddressingPolicyInterceptorProvider  extends AbstractAttributedInte
         getOutFaultInterceptors().add(MAP_AGGREGATOR);
         getOutFaultInterceptors().add(MAP_CODEC);
     }
-
-    public Collection<QName> getAssertionTypes() {
-        return ASSERTION_TYPES;
-    }
+    
 }

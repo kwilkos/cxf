@@ -112,7 +112,7 @@ public final class PolicyUtils {
             buf.append(")");
             nl(buf);
             if (pc instanceof NestedPrimitiveAssertion) {
-                PolicyComponent nested = ((NestedPrimitiveAssertion)pc).getNested();
+                PolicyComponent nested = ((NestedPrimitiveAssertion)pc).getPolicy();
                 level++;
                 printPolicyComponent(nested, buf, level);
                 level--;                

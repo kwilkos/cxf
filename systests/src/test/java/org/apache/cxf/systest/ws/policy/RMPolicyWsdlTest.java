@@ -38,11 +38,11 @@ import org.apache.cxf.systest.ws.util.MessageRecorder;
 import org.apache.cxf.systest.ws.util.OutMessageRecorder;
 import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
 import org.apache.cxf.testutil.common.AbstractBusTestServerBase;
+import org.apache.cxf.ws.policy.PolicyAssertion;
 import org.apache.cxf.ws.policy.PolicyConstants;
 import org.apache.cxf.ws.policy.PolicyEngine;
 import org.apache.cxf.ws.rm.RMConstants;
 import org.apache.neethi.All;
-import org.apache.neethi.Assertion;
 import org.apache.neethi.ExactlyOne;
 import org.apache.neethi.Policy;
 import org.junit.BeforeClass;
@@ -79,15 +79,17 @@ public class RMPolicyWsdlTest extends AbstractBusClientServerTestBase {
             ServerRegistry sr = bus.getExtension(ServerRegistry.class);
             PolicyEngine pe = bus.getExtension(PolicyEngine.class);
             
-            List<Assertion> assertions1 = getAssertions(pe, sr.getServers().get(0));
+            List<PolicyAssertion> assertions1 
+                = getAssertions(pe, sr.getServers().get(0));
             assertEquals("2 assertions should be available", 2, assertions1.size());
-            List<Assertion> assertions2 = getAssertions(pe, sr.getServers().get(1));
+            List<PolicyAssertion> assertions2 = 
+                getAssertions(pe, sr.getServers().get(1));
             assertEquals("1 assertion should be available", 1, assertions2.size());
             
             LOG.info("Published greeter endpoints.");
         }
         
-        protected List<Assertion> getAssertions(PolicyEngine pe, org.apache.cxf.endpoint.Server s) {
+        protected List<PolicyAssertion> getAssertions(PolicyEngine pe, org.apache.cxf.endpoint.Server s) {
             Policy p1 = pe.getServerEndpointPolicy(
                              s.getEndpoint().getEndpointInfo(), null).getPolicy();
             List<ExactlyOne> pops = 
@@ -96,7 +98,7 @@ public class RMPolicyWsdlTest extends AbstractBusClientServerTestBase {
             List<All> alts = 
                 CastUtils.cast(pops.get(0).getPolicyComponents(), All.class);
             assertEquals("1 alternatives should be available", 1, alts.size());
-            return CastUtils.cast(alts.get(0).getAssertions(), Assertion.class);
+            return CastUtils.cast(alts.get(0).getAssertions(), PolicyAssertion.class);
         }
         
         public static void main(String[] args) {

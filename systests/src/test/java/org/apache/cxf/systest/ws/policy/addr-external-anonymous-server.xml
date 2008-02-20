@@ -28,9 +28,18 @@
           <wsp:ExactlyOne>
             <wsp:All>
               <wsam:Addressing xmlns:wsam="http://www.w3.org/2007/02/addressing/metadata">
-                <wsp:Policy/>
+                <wsp:Policy>
+                   <wsam:NonAnonymousResponses/>
+                </wsp:Policy>
               </wsam:Addressing>
-            </wsp:All>
+            </wsp:All>   
+            <wsp:All>
+              <wsam:Addressing xmlns:wsam="http://www.w3.org/2007/02/addressing/metadata">
+                <wsp:Policy>
+                   <wsam:AnonymousResponses/>
+                </wsp:Policy>
+              </wsam:Addressing>
+            </wsp:All> 
           </wsp:ExactlyOne>  
         </wsp:Policy>
     </wsp:PolicyAttachment>    

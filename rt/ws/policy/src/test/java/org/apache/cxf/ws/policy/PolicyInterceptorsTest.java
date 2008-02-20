@@ -36,7 +36,6 @@ import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.service.model.FaultInfo;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.Destination;
-import org.apache.neethi.Assertion;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
 import org.junit.Assert;
@@ -92,7 +91,8 @@ public class PolicyInterceptorsTest extends Assert {
         EasyMock.expect(message.getInterceptorChain()).andReturn(ic);
         ic.add(i);
         EasyMock.expectLastCall();
-        Collection<Assertion> assertions = CastUtils.cast(Collections.EMPTY_LIST, Assertion.class);
+        Collection<PolicyAssertion> assertions = 
+            CastUtils.cast(Collections.EMPTY_LIST, PolicyAssertion.class);
         EasyMock.expect(effectivePolicy.getChosenAlternative()).andReturn(assertions);
         message.put(EasyMock.eq(AssertionInfoMap.class), EasyMock.isA(AssertionInfoMap.class));
         EasyMock.expectLastCall();
@@ -119,7 +119,8 @@ public class PolicyInterceptorsTest extends Assert {
         EasyMock.expect(message.getInterceptorChain()).andReturn(ic);
         ic.add(i);
         EasyMock.expectLastCall();
-        Collection<Assertion> assertions = CastUtils.cast(Collections.EMPTY_LIST, Assertion.class);
+        Collection<PolicyAssertion> assertions = 
+            CastUtils.cast(Collections.EMPTY_LIST, PolicyAssertion.class);
         EasyMock.expect(endpointPolicy.getVocabulary()).andReturn(assertions);
         message.put(EasyMock.eq(AssertionInfoMap.class), EasyMock.isA(AssertionInfoMap.class));
         EasyMock.expectLastCall();
@@ -146,7 +147,8 @@ public class PolicyInterceptorsTest extends Assert {
         EasyMock.expect(message.getInterceptorChain()).andReturn(ic);
         ic.add(i);
         EasyMock.expectLastCall();
-        Collection<Assertion> assertions = CastUtils.cast(Collections.EMPTY_LIST, Assertion.class);
+        Collection<PolicyAssertion> assertions = 
+            CastUtils.cast(Collections.EMPTY_LIST, PolicyAssertion.class);
         EasyMock.expect(endpointPolicy.getFaultVocabulary()).andReturn(assertions);
         message.put(EasyMock.eq(AssertionInfoMap.class), EasyMock.isA(AssertionInfoMap.class));
         EasyMock.expectLastCall();
@@ -173,7 +175,8 @@ public class PolicyInterceptorsTest extends Assert {
         EasyMock.expect(message.getInterceptorChain()).andReturn(ic);
         ic.add(i);
         EasyMock.expectLastCall();
-        Collection<Assertion> assertions = CastUtils.cast(Collections.EMPTY_LIST, Assertion.class);
+        Collection<PolicyAssertion> assertions = 
+            CastUtils.cast(Collections.EMPTY_LIST, PolicyAssertion.class);
         EasyMock.expect(endpointPolicy.getVocabulary()).andReturn(assertions);
         message.put(EasyMock.eq(AssertionInfoMap.class), EasyMock.isA(AssertionInfoMap.class));
         EasyMock.expectLastCall();
@@ -201,7 +204,8 @@ public class PolicyInterceptorsTest extends Assert {
         EasyMock.expect(message.getInterceptorChain()).andReturn(ic);
         ic.add(i);
         EasyMock.expectLastCall();
-        Collection<Assertion> assertions = CastUtils.cast(Collections.EMPTY_LIST, Assertion.class);
+        Collection<PolicyAssertion> assertions = 
+            CastUtils.cast(Collections.EMPTY_LIST, PolicyAssertion.class);
         EasyMock.expect(effectivePolicy.getChosenAlternative()).andReturn(assertions);
         message.put(EasyMock.eq(AssertionInfoMap.class), EasyMock.isA(AssertionInfoMap.class));
         EasyMock.expectLastCall();
@@ -246,7 +250,8 @@ public class PolicyInterceptorsTest extends Assert {
         EasyMock.expect(message.getInterceptorChain()).andReturn(ic);
         ic.add(i);
         EasyMock.expectLastCall();
-        Collection<Assertion> assertions = CastUtils.cast(Collections.EMPTY_LIST, Assertion.class);
+        Collection<PolicyAssertion> assertions = 
+            CastUtils.cast(Collections.EMPTY_LIST, PolicyAssertion.class);
         EasyMock.expect(effectivePolicy.getChosenAlternative()).andReturn(assertions);
         message.put(EasyMock.eq(AssertionInfoMap.class), EasyMock.isA(AssertionInfoMap.class));
         EasyMock.expectLastCall();

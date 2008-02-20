@@ -22,6 +22,7 @@ package org.apache.cxf.ws.policy.util;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.cxf.ws.policy.PolicyAssertion;
 import org.apache.neethi.All;
 import org.apache.neethi.Assertion;
 import org.apache.neethi.ExactlyOne;
@@ -72,8 +73,8 @@ public final class PolicyComparator {
         } else if (arg1 instanceof ExactlyOne) {
             return compare((ExactlyOne) arg1, (ExactlyOne) arg2);
 
-        } else if (arg1 instanceof Assertion) {
-            return compare((Assertion) arg1, (Assertion) arg2);
+        } else if (arg1 instanceof PolicyAssertion) {
+            return compare((PolicyAssertion)arg1, (PolicyAssertion)arg2);
 
         } else {
             // TODO should I throw an exception ..

@@ -30,8 +30,8 @@ import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 import org.apache.cxf.transports.http.configuration.HTTPServerPolicy;
 import org.apache.cxf.ws.policy.AssertionInfo;
 import org.apache.cxf.ws.policy.AssertionInfoMap;
+import org.apache.cxf.ws.policy.PolicyAssertion;
 import org.apache.cxf.ws.policy.builder.jaxb.JaxbAssertion;
-import org.apache.neethi.Assertion;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
 import org.junit.Assert;
@@ -171,7 +171,7 @@ public class PolicyUtilsTest extends Assert {
         control.verify();
 
         control.reset();
-        Collection<Assertion> as = new ArrayList<Assertion>();
+        Collection<PolicyAssertion> as = new ArrayList<PolicyAssertion>();
         AssertionInfoMap aim = new AssertionInfoMap(as);
         EasyMock.expect(message.get(AssertionInfoMap.class)).andReturn(aim);
         control.replay();
@@ -216,7 +216,8 @@ public class PolicyUtilsTest extends Assert {
         AssertionInfo cmai = new AssertionInfo(cma);
         AssertionInfo icmai = new AssertionInfo(icma);
 
-        AssertionInfoMap aim = new AssertionInfoMap(CastUtils.cast(Collections.EMPTY_LIST, Assertion.class));
+        AssertionInfoMap aim = new AssertionInfoMap(CastUtils.cast(Collections.EMPTY_LIST,
+                                                                   PolicyAssertion.class));
         Collection<AssertionInfo> ais = new ArrayList<AssertionInfo>();
         ais.add(eai);
         ais.add(cmai);
@@ -275,7 +276,8 @@ public class PolicyUtilsTest extends Assert {
         AssertionInfo cmai = new AssertionInfo(cma);
         AssertionInfo icmai = new AssertionInfo(icma);
 
-        AssertionInfoMap aim = new AssertionInfoMap(CastUtils.cast(Collections.EMPTY_LIST, Assertion.class));
+        AssertionInfoMap aim = new AssertionInfoMap(CastUtils.cast(Collections.EMPTY_LIST, 
+                                                                   PolicyAssertion.class));
         Collection<AssertionInfo> ais = new ArrayList<AssertionInfo>();
         ais.add(eai);
         ais.add(mai);

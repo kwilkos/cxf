@@ -42,7 +42,6 @@ import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.Destination;
 import org.apache.cxf.ws.policy.builder.primitive.PrimitiveAssertion;
-import org.apache.neethi.Assertion;
 import org.apache.neethi.Constants;
 import org.apache.neethi.Policy;
 import org.apache.neethi.PolicyComponent;
@@ -593,7 +592,7 @@ public class PolicyEngineTest extends Assert {
         Method m = PolicyEngineImpl.class.getDeclaredMethod("addAssertions",
             new Class[] {PolicyComponent.class, boolean.class, Collection.class});
         engine = control.createMock(PolicyEngineImpl.class, new Method[] {m});
-        Assertion a = control.createMock(Assertion.class);
+        PolicyAssertion a = control.createMock(PolicyAssertion.class);
         EasyMock.expect(a.getType()).andReturn(Constants.TYPE_ASSERTION);
         EasyMock.expect(a.isOptional()).andReturn(true);
         
@@ -606,7 +605,7 @@ public class PolicyEngineTest extends Assert {
         // EasyMock.expect(a.isOptional()).andReturn(false);
         
         control.replay();
-        Collection<Assertion> ca = engine.getAssertions(a, true);
+        Collection<PolicyAssertion> ca = engine.getAssertions(a, true);
         assertEquals(1, ca.size());
         assertSame(a, ca.iterator().next());
         control.verify();
@@ -615,7 +614,7 @@ public class PolicyEngineTest extends Assert {
         Policy p = control.createMock(Policy.class);
         EasyMock.expect(p.getType()).andReturn(Constants.TYPE_POLICY);
         engine.addAssertions(EasyMock.eq(p), EasyMock.eq(false), 
-                             CastUtils.cast(EasyMock.isA(Collection.class), Assertion.class));
+                             CastUtils.cast(EasyMock.isA(Collection.class), PolicyAssertion.class));
         EasyMock.expectLastCall();
         
         control.replay();
@@ -626,9 +625,9 @@ public class PolicyEngineTest extends Assert {
     @Test
     public void testAddAssertions() {
         engine = new PolicyEngineImpl();
-        Collection<Assertion> assertions = new ArrayList<Assertion>();
+        Collection<PolicyAssertion> assertions = new ArrayList<PolicyAssertion>();
         
-        Assertion a = control.createMock(Assertion.class);
+        PolicyAssertion a = control.createMock(PolicyAssertion.class);
         EasyMock.expect(a.getType()).andReturn(Constants.TYPE_ASSERTION);
         EasyMock.expect(a.isOptional()).andReturn(true);
         

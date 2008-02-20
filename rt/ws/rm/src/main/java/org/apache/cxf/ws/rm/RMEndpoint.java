@@ -50,11 +50,11 @@ import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.ws.addressing.Names;
 import org.apache.cxf.ws.policy.EffectivePolicy;
 import org.apache.cxf.ws.policy.EndpointPolicy;
+import org.apache.cxf.ws.policy.PolicyAssertion;
 import org.apache.cxf.ws.policy.PolicyEngine;
 import org.apache.cxf.ws.policy.PolicyInterceptorProviderRegistry;
 import org.apache.cxf.ws.rm.manager.SequenceTerminationPolicyType;
 import org.apache.cxf.ws.rm.manager.SourcePolicyType;
-import org.apache.neethi.Assertion;
 import org.apache.neethi.Policy;
 
 public class RMEndpoint {
@@ -585,7 +585,7 @@ public class RMEndpoint {
             interceptors = reg.getInterceptors(endpointPolicy.getChosenAlternative(), outbound, fault);
         }
 
-        public Collection<Assertion> getChosenAlternative() {
+        public Collection<PolicyAssertion> getChosenAlternative() {
             return endpointPolicy.getChosenAlternative();
         }
 

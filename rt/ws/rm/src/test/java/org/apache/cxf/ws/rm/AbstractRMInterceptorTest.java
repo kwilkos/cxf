@@ -31,7 +31,7 @@ import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.ws.policy.AssertionInfo;
 import org.apache.cxf.ws.policy.AssertionInfoMap;
-import org.apache.neethi.Assertion;
+import org.apache.cxf.ws.policy.PolicyAssertion;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
 import org.junit.After;
@@ -146,7 +146,7 @@ public class AbstractRMInterceptorTest extends Assert {
         AssertionInfoMap aim = control.createMock(AssertionInfoMap.class);
         Collection<AssertionInfo> ais = new ArrayList<AssertionInfo>();
         EasyMock.expect(message.get(AssertionInfoMap.class)).andReturn(aim).times(2);
-        Assertion a = control.createMock(Assertion.class);        
+        PolicyAssertion a = control.createMock(PolicyAssertion.class);        
         AssertionInfo ai = new AssertionInfo(a);
         EasyMock.expectLastCall();
         control.replay();

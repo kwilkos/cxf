@@ -21,12 +21,12 @@ package org.apache.cxf.ws.policy.builder.xml;
 
 import org.w3c.dom.Element;
 
+import org.apache.cxf.ws.policy.PolicyAssertion;
 import org.apache.cxf.ws.policy.builder.primitive.PrimitiveAssertionBuilder;
-import org.apache.neethi.Assertion;
 
 public class XMLPrimitiveAssertionBuilder extends PrimitiveAssertionBuilder {
  
-    public Assertion build(Element element) {
+    public PolicyAssertion build(Element element) {
         return new XmlPrimitiveAssertion(element, getPolicyConstants());
     }
 }

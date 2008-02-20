@@ -22,6 +22,7 @@ package org.apache.cxf.ws.policy;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Set;
@@ -30,11 +31,11 @@ import javax.xml.namespace.QName;
 
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.common.i18n.Message;
+import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.service.model.BindingFaultInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.EndpointInfo;
-import org.apache.neethi.Assertion;
 import org.apache.neethi.ExactlyOne;
 import org.apache.neethi.Policy;
 
@@ -46,9 +47,9 @@ public class EndpointPolicyImpl implements EndpointPolicy {
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(EndpointPolicyImpl.class);
     
     private Policy policy;
-    private Collection<Assertion> chosenAlternative;
-    private Collection<Assertion> vocabulary;
-    private Collection<Assertion> faultVocabulary;
+    private Collection<PolicyAssertion> chosenAlternative;
+    private Collection<PolicyAssertion> vocabulary;
+    private Collection<PolicyAssertion> faultVocabulary;
     private List<Interceptor> interceptors;
     private List<Interceptor> faultInterceptors;
     
@@ -84,15 +85,15 @@ public class EndpointPolicyImpl implements EndpointPolicy {
         return epi;
     }
     
-    public Collection<Assertion> getChosenAlternative() {
+    public Collection<PolicyAssertion> getChosenAlternative() {
         return chosenAlternative;
     }
     
-    public Collection<Assertion> getVocabulary() {
+    public Collection<PolicyAssertion> getVocabulary() {
         return vocabulary;
     }
     
-    public Collection<Assertion> getFaultVocabulary() {
+    public Collection<PolicyAssertion> getFaultVocabulary() {
         return faultVocabulary;
     }    
     
@@ -125,8 +126,12 @@ public class EndpointPolicyImpl implements EndpointPolicy {
     }
 
     void chooseAlternative() {
-        Collection<Assertion> alternative = engine.getAlternativeSelector()
-            .selectAlternative(policy, engine, assertor);
+        Collection<PolicyAssertion> alternative = null;
+        if (requestor) {
+            alternative = engine.getAlternativeSelector().selectAlternative(policy, engine, assertor);
+        } else {
+            alternative = getSupportedAlternatives();
+        }
         if (null == alternative) {
             throw new PolicyException(new Message("NO_ALTERNATIVE_EXC", BUNDLE));
         } else {
@@ -134,15 +139,26 @@ public class EndpointPolicyImpl implements EndpointPolicy {
         }
     }
     
+    protected Collection<PolicyAssertion> getSupportedAlternatives() {
+        Collection<PolicyAssertion> alternatives = new ArrayList<PolicyAssertion>();
+        for (Iterator it = policy.getAlternatives(); it.hasNext();) {
+            List<PolicyAssertion> alternative = CastUtils.cast((List)it.next(), PolicyAssertion.class);
+            if (engine.supportsAlternative(alternative, assertor)) {
+                alternatives.addAll(alternative);
+            }
+        }
+        return alternatives;
+    }
+    
     void initializeVocabulary() {
-        vocabulary = new ArrayList<Assertion>();
+        vocabulary = new ArrayList<PolicyAssertion>();
         if (requestor) {
-            faultVocabulary = new ArrayList<Assertion>();
+            faultVocabulary = new ArrayList<PolicyAssertion>();
         }
        
         // vocabulary of alternative chosen for endpoint
         
-        for (Assertion a : getChosenAlternative()) {
+        for (PolicyAssertion a : getChosenAlternative()) {
             if (a.isOptional()) {
                 continue;
             }
@@ -157,7 +173,7 @@ public class EndpointPolicyImpl implements EndpointPolicy {
         
         for (BindingOperationInfo boi : ei.getBinding().getOperations()) {
             Policy p = engine.getAggregatedOperationPolicy(boi);
-            Collection<Assertion> c = engine.getAssertions(p, false);
+            Collection<PolicyAssertion> c = engine.getAssertions(p, false);
             vocabulary.addAll(c);
             if (null != faultVocabulary) {
                 faultVocabulary.addAll(c);
@@ -187,7 +203,7 @@ public class EndpointPolicyImpl implements EndpointPolicy {
         }
         
         Set<QName> v = new HashSet<QName>();
-        for (Assertion a : vocabulary) {
+        for (PolicyAssertion a : vocabulary) {
             v.add(a.getName());
         }
         
@@ -203,7 +219,7 @@ public class EndpointPolicyImpl implements EndpointPolicy {
         }
         
         Set<QName> faultV = new HashSet<QName>();
-        for (Assertion a : faultVocabulary) {
+        for (PolicyAssertion a : faultVocabulary) {
             faultV.add(a.getName());
         }
         
@@ -221,15 +237,15 @@ public class EndpointPolicyImpl implements EndpointPolicy {
         policy = ep;
     }
     
-    void setChosenAlternative(Collection<Assertion> c) {
+    void setChosenAlternative(Collection<PolicyAssertion> c) {
         chosenAlternative = c;
     }
     
-    void setVocabulary(Collection<Assertion> v) {
+    void setVocabulary(Collection<PolicyAssertion> v) {
         vocabulary = v;
     }
     
-    void setFaultVocabulary(Collection<Assertion> v) {
+    void setFaultVocabulary(Collection<PolicyAssertion> v) {
         faultVocabulary = v;
     }
     

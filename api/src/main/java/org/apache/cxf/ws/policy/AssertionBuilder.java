@@ -25,8 +25,6 @@ import javax.xml.namespace.QName;
 
 import org.w3c.dom.Element;
 
-import org.apache.neethi.Assertion;
-
 
 /**
  * AssertionBuilder is an interface used to build an Assertion object from a
@@ -46,7 +44,7 @@ public interface AssertionBuilder {
      * @param element the element from which to build an assertion
      * @return an Assertion built from the given element
      */
-    Assertion build(Element element);
+    PolicyAssertion build(Element element);
 
 
     /**
@@ -62,5 +60,5 @@ public interface AssertionBuilder {
      * Returns a new assertion that is compatible with the two specified
      * assertions or null if no compatible assertion can be built.
      */ 
-    Assertion buildCompatible(Assertion a, Assertion b);
+    PolicyAssertion buildCompatible(PolicyAssertion a, PolicyAssertion b);
 }

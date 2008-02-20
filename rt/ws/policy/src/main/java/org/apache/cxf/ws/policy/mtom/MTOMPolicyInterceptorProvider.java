@@ -24,11 +24,9 @@ import java.util.Collection;
 
 import javax.xml.namespace.QName;
 
-import org.apache.cxf.interceptor.AbstractAttributedInterceptorProvider;
-import org.apache.cxf.ws.policy.PolicyInterceptorProvider;
+import org.apache.cxf.ws.policy.AbstractPolicyInterceptorProvider;
 
-public class MTOMPolicyInterceptorProvider  extends AbstractAttributedInterceptorProvider 
-    implements PolicyInterceptorProvider {
+public class MTOMPolicyInterceptorProvider extends AbstractPolicyInterceptorProvider {
 
     private static final Collection<QName> ASSERTION_TYPES;
     private static final MTOMPolicyInterceptor INTERCEPTOR = new MTOMPolicyInterceptor();
@@ -40,7 +38,7 @@ public class MTOMPolicyInterceptorProvider  extends AbstractAttributedIntercepto
     }
     
     public MTOMPolicyInterceptorProvider() {
-        super();
+        super(ASSERTION_TYPES);
         getInInterceptors().add(INTERCEPTOR);
         
         getOutInterceptors().add(INTERCEPTOR);
@@ -49,8 +47,5 @@ public class MTOMPolicyInterceptorProvider  extends AbstractAttributedIntercepto
         
         getOutFaultInterceptors().add(INTERCEPTOR);
     }
-
-    public Collection<QName> getAssertionTypes() {
-        return ASSERTION_TYPES;
-    }
+    
 }

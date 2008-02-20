@@ -30,10 +30,10 @@ import org.w3c.dom.Element;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.ws.policy.AssertionBuilder;
+import org.apache.cxf.ws.policy.PolicyAssertion;
 import org.apache.cxf.ws.policy.PolicyConstants;
 import org.apache.cxf.ws.policy.builder.primitive.PrimitiveAssertion;
 import org.apache.cxf.ws.policy.builder.primitive.PrimitiveAssertionBuilder;
-import org.apache.neethi.Assertion;
 
 public class MTOMAssertionBuilder implements AssertionBuilder {
     private static final Collection<QName> KNOWN = new ArrayList<QName>();
@@ -46,7 +46,7 @@ public class MTOMAssertionBuilder implements AssertionBuilder {
         bus = b;
     }
 
-    public Assertion build(Element elem) {
+    public PolicyAssertion build(Element elem) {
         String localName = elem.getLocalName();
         QName qn = new QName(elem.getNamespaceURI(), localName);
 
@@ -75,7 +75,7 @@ public class MTOMAssertionBuilder implements AssertionBuilder {
         return KNOWN;
     }
 
-    public Assertion buildCompatible(Assertion a, Assertion b) {
+    public PolicyAssertion buildCompatible(PolicyAssertion a, PolicyAssertion b) {
         QName qn = a.getName();
         if (MetadataConstants.MTOM_ASSERTION_QNAME.equals(qn)) {
             PrimitiveAssertionBuilder pab = new PrimitiveAssertionBuilder();

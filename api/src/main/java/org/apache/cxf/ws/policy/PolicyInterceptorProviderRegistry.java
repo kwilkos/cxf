@@ -26,7 +26,6 @@ import javax.xml.namespace.QName;
 
 import org.apache.cxf.extension.Registry;
 import org.apache.cxf.interceptor.Interceptor;
-import org.apache.neethi.Assertion;
 
 
 /**
@@ -36,6 +35,6 @@ import org.apache.neethi.Assertion;
 public interface PolicyInterceptorProviderRegistry 
     extends Registry<QName, PolicyInterceptorProvider> {
     
-    List<Interceptor> getInterceptors(Collection<Assertion> alterative, boolean out, boolean fault);
+    List<Interceptor> getInterceptors(Collection<PolicyAssertion> alterative, boolean out, boolean fault);
 
 }

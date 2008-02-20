@@ -22,9 +22,9 @@ package org.apache.cxf.transport.http.policy;
 import javax.xml.bind.JAXBException;
 
 import org.apache.cxf.transports.http.configuration.HTTPServerPolicy;
+import org.apache.cxf.ws.policy.PolicyAssertion;
 import org.apache.cxf.ws.policy.builder.jaxb.JaxbAssertion;
 import org.apache.cxf.ws.policy.builder.jaxb.JaxbAssertionBuilder;
-import org.apache.neethi.Assertion;
 import org.apache.neethi.Constants;
 import org.apache.neethi.PolicyComponent;
 
@@ -38,7 +38,7 @@ public class HTTPServerAssertionBuilder extends JaxbAssertionBuilder<HTTPServerP
     }
 
     @Override
-    public Assertion buildCompatible(Assertion a, Assertion b) {
+    public PolicyAssertion buildCompatible(PolicyAssertion a, PolicyAssertion b) {
         if (PolicyUtils.HTTPSERVERPOLICY_ASSERTION_QNAME.equals(a.getName())
             && PolicyUtils.HTTPSERVERPOLICY_ASSERTION_QNAME.equals(b.getName())) {
             
@@ -70,15 +70,15 @@ public class HTTPServerAssertionBuilder extends JaxbAssertionBuilder<HTTPServerP
         @Override
         public boolean equal(PolicyComponent policyComponent) {
             if (policyComponent.getType() != Constants.TYPE_ASSERTION
-                || !getName().equals(((Assertion)policyComponent).getName())) {
+                || !getName().equals(((PolicyAssertion)policyComponent).getName())) {
                 return false;
             }
-            JaxbAssertion<HTTPServerPolicy> other = JaxbAssertion.cast((Assertion)policyComponent);
+            JaxbAssertion<HTTPServerPolicy> other = JaxbAssertion.cast((PolicyAssertion)policyComponent);
             return PolicyUtils.equals(this.getData(), other.getData());  
         }
         
         @Override
-        protected Assertion cloneMandatory() {
+        protected PolicyAssertion cloneMandatory() {
             HTTPServerPolicyAssertion a = new HTTPServerPolicyAssertion();
             a.setData(getData());
             return a;        

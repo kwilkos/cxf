@@ -33,7 +33,6 @@ import org.apache.cxf.message.MessageUtils;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.Destination;
-import org.apache.neethi.Assertion;
 
 /**
  * 
@@ -82,7 +81,7 @@ public class ServerPolicyInInterceptor extends AbstractPolicyInterceptor {
         
         // insert assertions of endpoint's vocabulary into message
         
-        Collection<Assertion> assertions = ep.getVocabulary();
+        Collection<PolicyAssertion> assertions = ep.getVocabulary();
         if (null != assertions) {
             msg.put(AssertionInfoMap.class, new AssertionInfoMap(assertions));
         }

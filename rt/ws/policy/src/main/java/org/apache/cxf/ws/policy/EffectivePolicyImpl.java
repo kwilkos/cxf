@@ -38,7 +38,6 @@ import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.Destination;
-import org.apache.neethi.Assertion;
 import org.apache.neethi.Policy;
 
 /**
@@ -50,7 +49,7 @@ public class EffectivePolicyImpl implements EffectivePolicy {
     private static final Logger LOG = LogUtils.getL7dLogger(EffectivePolicyImpl.class);
     
     protected Policy policy;     
-    protected Collection<Assertion> chosenAlternative;
+    protected Collection<PolicyAssertion> chosenAlternative;
     protected List<Interceptor> interceptors;
     
     public Policy getPolicy() {
@@ -61,7 +60,7 @@ public class EffectivePolicyImpl implements EffectivePolicy {
         return interceptors;
     }
     
-    public Collection<Assertion> getChosenAlternative() {
+    public Collection<PolicyAssertion> getChosenAlternative() {
         return chosenAlternative;
     }
     
@@ -118,7 +117,7 @@ public class EffectivePolicyImpl implements EffectivePolicy {
     }
 
     void chooseAlternative(PolicyEngineImpl engine, Assertor assertor) {
-        Collection<Assertion> alternative = engine.getAlternativeSelector()
+        Collection<PolicyAssertion> alternative = engine.getAlternativeSelector()
             .selectAlternative(policy, engine, assertor);
         if (null == alternative) {
             PolicyUtils.logPolicy(LOG, Level.FINE, "No alternative supported.", getPolicy());
@@ -132,7 +131,7 @@ public class EffectivePolicyImpl implements EffectivePolicy {
         PolicyInterceptorProviderRegistry reg 
             = engine.getBus().getExtension(PolicyInterceptorProviderRegistry.class);
         List<Interceptor> out = new ArrayList<Interceptor>();
-        for (Assertion a : getChosenAlternative()) {
+        for (PolicyAssertion a : getChosenAlternative()) {
             if (a.isOptional()) {
                 continue;
             }
@@ -151,7 +150,7 @@ public class EffectivePolicyImpl implements EffectivePolicy {
         policy = ep;
     }
     
-    void setChosenAlternative(Collection<Assertion> c) {
+    void setChosenAlternative(Collection<PolicyAssertion> c) {
         chosenAlternative = c;
     }
     

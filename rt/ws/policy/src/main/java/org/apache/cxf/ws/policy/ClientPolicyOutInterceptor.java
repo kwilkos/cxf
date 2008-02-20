@@ -34,7 +34,6 @@ import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.Conduit;
-import org.apache.neethi.Assertion;
 
 /**
  * 
@@ -90,14 +89,14 @@ public class ClientPolicyOutInterceptor extends AbstractPolicyInterceptor {
         
         // insert assertions of the chosen alternative into the message
         
-        Collection<Assertion> assertions = effectivePolicy.getChosenAlternative();
+        Collection<PolicyAssertion> assertions = effectivePolicy.getChosenAlternative();
         if (null != assertions) {
             if (LOG.isLoggable(Level.FINEST)) {
                 StringBuffer buf = new StringBuffer();
                 buf.append("Chosen alternative: ");
                 String nl = System.getProperty("line.separator");
                 buf.append(nl);
-                for (Assertion a : assertions) {
+                for (PolicyAssertion a : assertions) {
                     PolicyUtils.printPolicyComponent(a, buf, 1);
                 }
                 LOG.finest(buf.toString());

@@ -36,10 +36,10 @@ import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 import org.apache.cxf.transports.http.configuration.HTTPServerPolicy;
 import org.apache.cxf.ws.policy.AssertionInfo;
 import org.apache.cxf.ws.policy.AssertionInfoMap;
+import org.apache.cxf.ws.policy.PolicyAssertion;
 import org.apache.cxf.ws.policy.PolicyEngine;
 import org.apache.cxf.ws.policy.PolicyException;
 import org.apache.cxf.ws.policy.builder.jaxb.JaxbAssertion;
-import org.apache.neethi.Assertion;
 
 /**
  * 
@@ -81,7 +81,7 @@ public final class PolicyUtils {
         if (null == ais) {
             return confPolicy;
         }
-        Collection<Assertion> alternative = new ArrayList<Assertion>();
+        Collection<PolicyAssertion> alternative = new ArrayList<PolicyAssertion>();
         for (AssertionInfo ai : ais) {
             alternative.add(ai.getAssertion());
         }
@@ -116,7 +116,7 @@ public final class PolicyUtils {
         if (null == ais) {
             return confPolicy;
         }
-        Collection<Assertion> alternative = new ArrayList<Assertion>();
+        Collection<PolicyAssertion> alternative = new ArrayList<PolicyAssertion>();
         for (AssertionInfo ai : ais) {
             alternative.add(ai.getAssertion());
         }
@@ -143,9 +143,9 @@ public final class PolicyUtils {
      * @throws PolicyException if no compatible HTTPClientPolicy can be determined
      */
     public static HTTPClientPolicy getClient(PolicyEngine pe, EndpointInfo ei, Conduit c) {
-        Collection<Assertion> alternative = pe.getClientEndpointPolicy(ei, c).getChosenAlternative();
+        Collection<PolicyAssertion> alternative = pe.getClientEndpointPolicy(ei, c).getChosenAlternative();
         HTTPClientPolicy compatible = null;
-        for (Assertion a : alternative) {
+        for (PolicyAssertion a : alternative) {
             if (HTTPCLIENTPOLICY_ASSERTION_QNAME.equals(a.getName())) {
                 HTTPClientPolicy p = JaxbAssertion.cast(a, HTTPClientPolicy.class).getData();
                 if (null == compatible) {
@@ -173,9 +173,9 @@ public final class PolicyUtils {
      * @throws PolicyException if no compatible HTTPServerPolicy can be determined
      */
     public static HTTPServerPolicy getServer(PolicyEngine pe, EndpointInfo ei, Destination d) {
-        Collection<Assertion> alternative = pe.getServerEndpointPolicy(ei, d).getChosenAlternative();
+        Collection<PolicyAssertion> alternative = pe.getServerEndpointPolicy(ei, d).getChosenAlternative();
         HTTPServerPolicy compatible = null;
-        for (Assertion a : alternative) {
+        for (PolicyAssertion a : alternative) {
             if (HTTPSERVERPOLICY_ASSERTION_QNAME.equals(a.getName())) {
                 HTTPServerPolicy p = JaxbAssertion.cast(a, HTTPServerPolicy.class).getData();
                 if (null == compatible) {
@@ -615,9 +615,9 @@ public final class PolicyUtils {
         return s1 == null || s2 == null || s1.equals(s2);
     }
     
-    private static HTTPClientPolicy getClient(Collection<Assertion> alternative) {      
+    private static HTTPClientPolicy getClient(Collection<PolicyAssertion> alternative) {      
         HTTPClientPolicy compatible = null;
-        for (Assertion a : alternative) {
+        for (PolicyAssertion a : alternative) {
             if (HTTPCLIENTPOLICY_ASSERTION_QNAME.equals(a.getName())) {
                 HTTPClientPolicy p = JaxbAssertion.cast(a, HTTPClientPolicy.class).getData();
                 if (null == compatible) {
@@ -637,9 +637,9 @@ public final class PolicyUtils {
         return compatible;
     }
     
-    private static HTTPServerPolicy getServer(Collection<Assertion> alternative) {      
+    private static HTTPServerPolicy getServer(Collection<PolicyAssertion> alternative) {      
         HTTPServerPolicy compatible = null;
-        for (Assertion a : alternative) {
+        for (PolicyAssertion a : alternative) {
             if (HTTPSERVERPOLICY_ASSERTION_QNAME.equals(a.getName())) {
                 HTTPServerPolicy p = JaxbAssertion.cast(a, HTTPServerPolicy.class).getData();
                 if (null == compatible) {

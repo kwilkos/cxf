@@ -29,10 +29,10 @@ import javax.xml.namespace.QName;
 import org.apache.cxf.Bus;
 import org.apache.cxf.ws.policy.AssertionBuilderRegistry;
 import org.apache.cxf.ws.policy.AssertionBuilderRegistryImpl;
+import org.apache.cxf.ws.policy.PolicyAssertion;
 import org.apache.cxf.ws.policy.PolicyBuilderImpl;
 import org.apache.cxf.ws.policy.PolicyConstants;
 import org.apache.cxf.ws.policy.util.PolicyComparator;
-import org.apache.neethi.Assertion;
 import org.apache.neethi.Policy;
 import org.apache.neethi.PolicyComponent;
 import org.easymock.classextension.EasyMock;
@@ -106,7 +106,7 @@ public class NestedPrimitiveAssertionTest extends Assert {
         assertTrue(pc instanceof NestedPrimitiveAssertion);
         NestedPrimitiveAssertion npc = (NestedPrimitiveAssertion)pc;
         assertEquals(TEST_NAME1, npc.getName());
-        Policy nested = npc.getNested();
+        Policy nested = npc.getPolicy();
         assertTrue(nested.isEmpty());
     }
     
@@ -120,12 +120,14 @@ public class NestedPrimitiveAssertionTest extends Assert {
         assertTrue(pc instanceof NestedPrimitiveAssertion);
         NestedPrimitiveAssertion npc = (NestedPrimitiveAssertion)pc;
         assertEquals(TEST_NAME1, npc.getName());
-        Policy nested = npc.getNested();
+        Policy nested = npc.getPolicy();
         assertEquals(2, nested.getPolicyComponents().size());
-        Assertion a1 = (Assertion)(nested.getPolicyComponents().get(0));
+        PolicyAssertion a1 = 
+            (PolicyAssertion)(nested.getPolicyComponents().get(0));
         assertTrue(a1 instanceof PrimitiveAssertion);
         assertTrue(TEST_NAME2.equals(a1.getName()) || TEST_NAME3.equals(a1.getName()));
-        Assertion a2 = (Assertion)(nested.getPolicyComponents().get(0));
+        PolicyAssertion a2 = 
+            (PolicyAssertion)(nested.getPolicyComponents().get(0));
         assertTrue(a2 instanceof PrimitiveAssertion);
         assertTrue(TEST_NAME2.equals(a2.getName()) || TEST_NAME3.equals(a2.getName()));       
     }

@@ -28,6 +28,7 @@ import java.util.ResourceBundle;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import javax.wsdl.extensions.ExtensibilityElement;
 import javax.xml.namespace.QName;
 import javax.xml.ws.WebFault;
@@ -236,8 +237,7 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
         if (null == aim) {
             return false;            
         }
-        Collection<AssertionInfo> ais = aim.get(MetadataConstants.ADDRESSING_ASSERTION_QNAME);
-        if (null == ais || ais.size() == 0) {
+        if (null == aim.get(MetadataConstants.ADDRESSING_ASSERTION_QNAME)) {
             return false;
         }
         // no need to analyse the content of the Addressing assertion here
@@ -259,16 +259,13 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
             return false;
             
         }
-        Collection<AssertionInfo> ais = aim.get(MetadataConstants.USING_ADDRESSING_2004_QNAME);
-        if (null != ais || ais.size() > 0) {
+        if (null != aim.get(MetadataConstants.USING_ADDRESSING_2004_QNAME)) {
             return true;
         }
-        ais = aim.get(MetadataConstants.USING_ADDRESSING_2005_QNAME);
-        if (null != ais || ais.size() > 0) {
+        if (null != aim.get(MetadataConstants.USING_ADDRESSING_2005_QNAME)) {
             return true;
         }
-        ais = aim.get(MetadataConstants.USING_ADDRESSING_2006_QNAME);
-        if (null != ais || ais.size() > 0) {
+        if (null != aim.get(MetadataConstants.USING_ADDRESSING_2006_QNAME)) {
             return true;
         } 
         return false;
@@ -279,7 +276,7 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
      * Policies.
      * @param message the current message
      */
-    private void assertAddressing(Message message) {
+    private void assertAddressing(Message message, boolean anonymous) {
         AssertionInfoMap aim = message.get(AssertionInfoMap.class);
         if (null == aim) {
             return;
@@ -293,15 +290,25 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
         };
         
         for (QName type : types) {
-            Collection<AssertionInfo> ais = aim.get(type);
-            if (null != ais) {
-                for (AssertionInfo ai : ais) {
-                    ai.setAsserted(true);
-                }
+            assertAssertion(aim, type);
+            if (type.equals(MetadataConstants.ADDRESSING_ASSERTION_QNAME)) {
+                if (anonymous) {
+                    assertAssertion(aim, MetadataConstants.ANON_RESPONSES_ASSERTION_QNAME);
+                } else {
+                    assertAssertion(aim, MetadataConstants.NON_ANON_RESPONSES_ASSERTION_QNAME);
+                }        
             }
         }
+        
+        
     }
 
+    private void assertAssertion(AssertionInfoMap aim, QName type) {
+        Collection<AssertionInfo> aic = aim.getAssertionInfo(type);
+        for (AssertionInfo ai : aic) {
+            ai.setAsserted(true);
+        }
+    }
 
     /**
      * @param exts list of extension elements
@@ -369,8 +376,10 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
                                               ContextUtils.retrieveMAPFaultName(message)));
             }
         }
-        if (null != ContextUtils.retrieveMAPs(message, false, ContextUtils.isOutbound(message))) {            
-            assertAddressing(message);
+        AddressingPropertiesImpl theMaps = 
+            ContextUtils.retrieveMAPs(message, false, ContextUtils.isOutbound(message));
+        if (null != theMaps) {            
+            assertAddressing(message, ContextUtils.isGenericAddress(theMaps.getReplyTo()));
         }
         return continueProcessing;
     }

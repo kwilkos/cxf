@@ -21,9 +21,9 @@ package org.apache.cxf.ws.policy.builder.xml;
 
 import org.w3c.dom.Element;
 
+import org.apache.cxf.ws.policy.PolicyAssertion;
 import org.apache.cxf.ws.policy.PolicyConstants;
 import org.apache.cxf.ws.policy.builder.primitive.PrimitiveAssertion;
-import org.apache.neethi.Assertion;
 import org.apache.neethi.PolicyComponent;
 
 /**
@@ -65,7 +65,7 @@ public class XmlPrimitiveAssertion extends PrimitiveAssertion {
         throw new UnsupportedOperationException();
     }
     
-    protected Assertion cloneMandatory() {
+    protected PolicyAssertion cloneMandatory() {
         Element e = (Element)element.cloneNode(true);
         if (isOptional()) {
             e.removeAttributeNode(e.getAttributeNodeNS(constants.getNamespace(), 

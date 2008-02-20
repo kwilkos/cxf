@@ -26,7 +26,6 @@ import java.util.List;
 
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.neethi.All;
-import org.apache.neethi.Assertion;
 import org.apache.neethi.ExactlyOne;
 import org.apache.neethi.Policy;
 
@@ -54,7 +53,7 @@ public class Intersector {
         strict = s;
     }
 
-    boolean compatibleAssertions(Assertion a1, Assertion a2) {
+    boolean compatibleAssertions(PolicyAssertion a1, PolicyAssertion a2) {
         AssertionBuilder ab = assertionBuilderRegistry.get(a1.getName());
         if (null == ab) {
             return false;
@@ -62,17 +61,18 @@ public class Intersector {
         return null != ab.buildCompatible(a1, a2);
     }
         
-    boolean compatibleAlternatives(Collection<Assertion> alt1, Collection<Assertion> alt2) {
+    boolean compatibleAlternatives(Collection<PolicyAssertion> alt1, 
+                                   Collection<PolicyAssertion> alt2) {
         if (alt1.isEmpty() || alt2.isEmpty()) {
             return true;
         }
         if (strict) {
-            for (Assertion a1 : alt1) {
+            for (PolicyAssertion a1 : alt1) {
                 if (null == findCompatibleAssertion(a1, alt2)) {
                     return false;
                 }
             }
-            for (Assertion a2 : alt2) {
+            for (PolicyAssertion a2 : alt2) {
                 if (null == findCompatibleAssertion(a2, alt1)) {
                     return false;
                 }
@@ -87,10 +87,12 @@ public class Intersector {
     boolean compatiblePolicies(Policy p1, Policy p2) {
         Iterator i1 = p1.getAlternatives();
         while (i1.hasNext()) {
-            Collection<Assertion> alt1 = CastUtils.cast((Collection)i1.next(), Assertion.class);
+            Collection<PolicyAssertion> alt1 = 
+                CastUtils.cast((Collection)i1.next(), PolicyAssertion.class);
             Iterator i2 = p2.getAlternatives();
             while (i2.hasNext()) {                
-                Collection<Assertion> alt2 = CastUtils.cast((Collection)i2.next(), Assertion.class);
+                Collection<PolicyAssertion> alt2 = 
+                    CastUtils.cast((Collection)i2.next(), PolicyAssertion.class);
                 if (compatibleAlternatives(alt1, alt2)) {
                     return true;                    
                 }
@@ -100,7 +102,7 @@ public class Intersector {
         return true;
     }
     
-    public Assertion intersect(Assertion a1, Assertion a2) {
+    public PolicyAssertion intersect(PolicyAssertion a1, PolicyAssertion a2) {
         AssertionBuilder ab = assertionBuilderRegistry.get(a1.getName());
         if (null == ab) {
             return null;
@@ -108,12 +110,13 @@ public class Intersector {
         return ab.buildCompatible(a1, a2);
     }
     
-    public Collection<Assertion> intersect(Collection<Assertion> alt1, 
-                                                       Collection<Assertion> alt2) {
+    public Collection<PolicyAssertion> intersect(Collection<PolicyAssertion> alt1, 
+                                                 Collection<PolicyAssertion> alt2) {
         if (!compatibleAlternatives(alt1, alt2)) {
             return null;
         }
-        Collection<Assertion> intersection = new ArrayList<Assertion>();
+        Collection<PolicyAssertion> intersection = 
+            new ArrayList<PolicyAssertion>();
         intersection.addAll(alt1);
         intersection.addAll(alt2);
         return intersection;
@@ -129,10 +132,12 @@ public class Intersector {
                 
         Iterator i1 = p1.getAlternatives();
         while (i1.hasNext()) {
-            List<Assertion> alt1 = CastUtils.cast((List)i1.next(), Assertion.class);
+            List<PolicyAssertion> alt1 = 
+                CastUtils.cast((List)i1.next(), PolicyAssertion.class);
             Iterator i2 = p2.getAlternatives();
             while (i2.hasNext()) {                
-                List<Assertion> alt2 = CastUtils.cast((List)i2.next(), Assertion.class);
+                List<PolicyAssertion> alt2 = 
+                    CastUtils.cast((List)i2.next(), PolicyAssertion.class);
                 if (compatibleAlternatives(alt1, alt2)) {
                     All all = new All();
                     all.addPolicyComponents(alt1);
@@ -149,9 +154,10 @@ public class Intersector {
         return compatible;
     }
     
-    private Assertion findCompatibleAssertion(Assertion assertion, Collection<Assertion> alt) {
-        for (Assertion a : alt) {
-            Assertion compatible = intersect(assertion, a);
+    private PolicyAssertion findCompatibleAssertion(
+        PolicyAssertion assertion, Collection<PolicyAssertion> alt) {
+        for (PolicyAssertion a : alt) {
+            PolicyAssertion compatible = intersect(assertion, a);
             if (null != compatible) {
                 return compatible;
             }

@@ -20,10 +20,13 @@
 package org.apache.cxf.ws.policy;
 
 import java.util.Collection;
+import java.util.List;
 
 import javax.xml.namespace.QName;
 
+import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.interceptor.InterceptorProvider;
+import org.apache.cxf.message.Message;
 
 /**
  * 
@@ -36,4 +39,13 @@ public interface PolicyInterceptorProvider extends InterceptorProvider {
      * @return collection of QNames of known assertion types
      */
     Collection<QName> getAssertionTypes();
+    
+    List<Interceptor> provideInInterceptors(Message m);
+    
+    List<Interceptor> provideOutInterceptors(Message m);
+    
+    List<Interceptor> provideOutFaultInterceptors(Message m);
+    
+    List<Interceptor> provideInFaultInterceptors(Message m);
+    
 }

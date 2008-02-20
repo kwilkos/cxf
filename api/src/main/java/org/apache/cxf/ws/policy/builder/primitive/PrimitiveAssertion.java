@@ -19,6 +19,8 @@
 
 package org.apache.cxf.ws.policy.builder.primitive;
 
+import java.util.Collection;
+
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
@@ -26,9 +28,11 @@ import javax.xml.stream.XMLStreamWriter;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Element;
 
+import org.apache.cxf.ws.policy.AssertionInfo;
+import org.apache.cxf.ws.policy.AssertionInfoMap;
+import org.apache.cxf.ws.policy.PolicyAssertion;
 import org.apache.cxf.ws.policy.PolicyConstants;
 import org.apache.neethi.All;
-import org.apache.neethi.Assertion;
 import org.apache.neethi.Constants;
 import org.apache.neethi.ExactlyOne;
 import org.apache.neethi.Policy;
@@ -37,7 +41,7 @@ import org.apache.neethi.PolicyComponent;
 /**
  * 
  */
-public class PrimitiveAssertion implements Assertion {
+public class PrimitiveAssertion implements PolicyAssertion {
     
     protected QName name;
     protected boolean optional;
@@ -68,7 +72,7 @@ public class PrimitiveAssertion implements Assertion {
         if (policyComponent.getType() != Constants.TYPE_ASSERTION) {
             return false;
         }
-        return getName().equals(((Assertion)policyComponent).getName());
+        return getName().equals(((PolicyAssertion)policyComponent).getName());
     }
 
     public short getType() {
@@ -111,7 +115,21 @@ public class PrimitiveAssertion implements Assertion {
     public void serialize(XMLStreamWriter writer) throws XMLStreamException {
     }
     
-    protected Assertion cloneMandatory() {
+    protected PolicyAssertion cloneMandatory() {
         return new PrimitiveAssertion(name, false);
+    }
+
+    public Policy getPolicy() {
+        return null;
+    }
+
+    public boolean isAsserted(AssertionInfoMap aim) {
+        Collection<AssertionInfo> ail = aim.getAssertionInfo(name);
+        for (AssertionInfo ai : ail) {
+            if (ai.isAsserted() && ai.getAssertion().equal(this)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

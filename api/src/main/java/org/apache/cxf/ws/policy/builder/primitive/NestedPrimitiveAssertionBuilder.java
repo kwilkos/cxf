@@ -23,8 +23,8 @@ import org.w3c.dom.Element;
 
 import org.apache.cxf.ws.policy.AssertionBuilderRegistry;
 import org.apache.cxf.ws.policy.Intersector;
+import org.apache.cxf.ws.policy.PolicyAssertion;
 import org.apache.cxf.ws.policy.PolicyBuilder;
-import org.apache.neethi.Assertion;
 import org.apache.neethi.Policy;
 
 public class NestedPrimitiveAssertionBuilder extends PrimitiveAssertionBuilder {
@@ -41,7 +41,7 @@ public class NestedPrimitiveAssertionBuilder extends PrimitiveAssertionBuilder {
     }
     
     @Override
-    public Assertion build(Element elem) {
+    public PolicyAssertion build(Element elem) {
         return new NestedPrimitiveAssertion(elem, builder, getPolicyConstants()); 
     }
 
@@ -51,7 +51,7 @@ public class NestedPrimitiveAssertionBuilder extends PrimitiveAssertionBuilder {
      * . 
      * The compatible policy is optional iff both assertions are optional.
      */
-    public Assertion buildCompatible(Assertion a, Assertion b) {
+    public PolicyAssertion buildCompatible(PolicyAssertion a, PolicyAssertion b) {
         if (!getKnownElements().contains(a.getName()) || !a.getName().equals(b.getName())) {
             return null;
         }
@@ -66,14 +66,14 @@ public class NestedPrimitiveAssertionBuilder extends PrimitiveAssertionBuilder {
         
         Intersector intersector = new Intersector(assertionBuilderRegistry);
         
-        Policy nested = intersector.intersect(na.getNested(), nb.getNested());        
+        Policy nested = intersector.intersect(na.getPolicy(), nb.getPolicy());        
         if (null == nested) {
             return  null;
         }
         
         NestedPrimitiveAssertion compatible = 
             new NestedPrimitiveAssertion(a.getName(), a.isOptional() && b.isOptional());
-        compatible.setNested(nested);
+        compatible.setPolicy(nested);
         
         return compatible;
     }

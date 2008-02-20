@@ -30,10 +30,10 @@ import org.w3c.dom.Element;
 import org.apache.cxf.Bus;
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.ws.policy.AssertionBuilderRegistry;
+import org.apache.cxf.ws.policy.PolicyAssertion;
 import org.apache.cxf.ws.policy.PolicyBuilder;
 import org.apache.cxf.ws.policy.PolicyConstants;
 import org.apache.cxf.ws.policy.PolicyException;
-import org.apache.neethi.Assertion;
 import org.apache.neethi.Policy;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
@@ -96,7 +96,7 @@ public class NestedPrimitiveAssertionBuilderTest extends Assert {
         control.replay();
         NestedPrimitiveAssertion npc = (NestedPrimitiveAssertion)npab.build(getElement(data));
         assertEquals(TEST_NAME1, npc.getName());
-        assertSame(nested, npc.getNested());
+        assertSame(nested, npc.getPolicy());
         assertTrue(npc.isOptional());
         control.verify();
     }
@@ -121,7 +121,7 @@ public class NestedPrimitiveAssertionBuilderTest extends Assert {
         npab.setBus(bus);
         NestedPrimitiveAssertion npc = (NestedPrimitiveAssertion)npab.build(getElement(data));
         assertEquals(TEST_NAME1, npc.getName());
-        assertSame(nested, npc.getNested());
+        assertSame(nested, npc.getPolicy());
         assertTrue(npc.isOptional());
         control.verify();
     }
@@ -130,7 +130,8 @@ public class NestedPrimitiveAssertionBuilderTest extends Assert {
     public void testBuildCompatibleNoRegistry() {
         npab.setAssertionBuilderRegistry(null);
         Policy[] policies = NestedPrimitiveAssertionTest.buildTestPolicies(); 
-        Assertion a = (Assertion)policies[4].getFirstPolicyComponent();   
+        PolicyAssertion a = 
+            (PolicyAssertion)policies[4].getFirstPolicyComponent();   
         assertNull("Should not have been able to build compatible policy.", npab.buildCompatible(a, a));
     }
     
@@ -146,8 +147,9 @@ public class NestedPrimitiveAssertionBuilderTest extends Assert {
         EasyMock.expect(reg.get(TEST_NAME3)).andReturn(ab2).anyTimes();
         
         control.replay();
-        Assertion a = (Assertion)policies[2].getFirstPolicyComponent();          
-        Assertion compatible = npab.buildCompatible(a, a);
+        PolicyAssertion a = 
+            (PolicyAssertion)policies[2].getFirstPolicyComponent();          
+        PolicyAssertion compatible = npab.buildCompatible(a, a);
         assertNotNull("assertion in policy 2 should be compatible with itself.", compatible);
         control.verify();
     }
@@ -165,23 +167,27 @@ public class NestedPrimitiveAssertionBuilderTest extends Assert {
         
         control.replay();
         for (int i = 0; i < policies.length; i++) {
-            Assertion a = (Assertion)policies[i].getFirstPolicyComponent();          
-            Assertion compatible = npab.buildCompatible(a, a);
+            PolicyAssertion a = 
+                (PolicyAssertion)policies[i].getFirstPolicyComponent();          
+            PolicyAssertion compatible = npab.buildCompatible(a, a);
             assertNotNull("assertion in policy " + i + " should be compatible with itself.", compatible);
         }
         
         for (int i = 1; i < 5; i++) {
-            Assertion a = (Assertion)policies[0].getFirstPolicyComponent();
-            Assertion b = (Assertion)policies[i].getFirstPolicyComponent();
-            Assertion compatible = npab.buildCompatible(a, b);
+            PolicyAssertion a = 
+                (PolicyAssertion)policies[0].getFirstPolicyComponent();
+            PolicyAssertion b = (PolicyAssertion)policies[i].getFirstPolicyComponent();
+            PolicyAssertion compatible = npab.buildCompatible(a, b);
             assertNotNull("assertion in policy 0 should be compatible with assertion in policy " + i + ".",
                           compatible);
         }
         
         for (int i = 2; i < 5; i++) {
-            Assertion a = (Assertion)policies[1].getFirstPolicyComponent();
-            Assertion b = (Assertion)policies[i].getFirstPolicyComponent();
-            Assertion compatible = npab.buildCompatible(a, b);
+            PolicyAssertion a = 
+                (PolicyAssertion)policies[1].getFirstPolicyComponent();
+            PolicyAssertion b = 
+                (PolicyAssertion)policies[i].getFirstPolicyComponent();
+            PolicyAssertion compatible = npab.buildCompatible(a, b);
             assertNotNull("assertion in policy " + 1 + " should be compatible with assertion in policy i.",
                           compatible);
         }

@@ -36,9 +36,9 @@ import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.http.policy.PolicyUtils;
 import org.apache.cxf.transports.http.configuration.HTTPServerPolicy;
 import org.apache.cxf.ws.policy.EffectivePolicy;
+import org.apache.cxf.ws.policy.PolicyAssertion;
 import org.apache.cxf.ws.policy.PolicyEngine;
 import org.apache.cxf.ws.policy.builder.jaxb.JaxbAssertion;
-import org.apache.neethi.Assertion;
 
 public class PolicyLoggingInterceptor extends AbstractPhaseInterceptor {
 
@@ -62,9 +62,10 @@ public class PolicyLoggingInterceptor extends AbstractPhaseInterceptor {
         EffectivePolicy ep = 
             bus.getExtension(PolicyEngine.class).getEffectiveServerRequestPolicy(ei, boi);                
         for (Iterator it = ep.getPolicy().getAlternatives(); it.hasNext();) {
-            Collection<Assertion> as = CastUtils.cast((Collection)it.next(), Assertion.class);
+            Collection<PolicyAssertion> as = 
+                CastUtils.cast((Collection)it.next(), PolicyAssertion.class);
             LOG.fine("Checking alternative with " + as.size() + " assertions.");
-            for (Assertion a : as) {
+            for (PolicyAssertion a : as) {
                 LOG.fine("Assertion: " + a.getClass().getName());
                 HTTPServerPolicy p = (JaxbAssertion.cast(a, HTTPServerPolicy.class)).getData(); 
                 LOG.fine("server policy: " + PolicyUtils.toString(p));

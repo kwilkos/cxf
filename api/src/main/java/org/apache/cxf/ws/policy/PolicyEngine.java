@@ -26,7 +26,6 @@ import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.Destination;
-import org.apache.neethi.Assertion;
 import org.apache.neethi.PolicyRegistry;
 
 /**
@@ -50,7 +49,7 @@ public interface PolicyEngine {
     
     //
     
-    boolean supportsAlternative(Collection<Assertion> alterative, Assertor assertor);
+    boolean supportsAlternative(Collection<PolicyAssertion> alterative, Assertor assertor);
     
     // available throughout the outbound path
     

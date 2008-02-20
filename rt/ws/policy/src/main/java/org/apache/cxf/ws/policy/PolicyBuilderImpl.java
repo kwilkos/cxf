@@ -38,14 +38,11 @@ import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.extension.BusExtension;
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.neethi.All;
-import org.apache.neethi.Assertion;
 import org.apache.neethi.Constants;
 import org.apache.neethi.ExactlyOne;
 import org.apache.neethi.Policy;
 import org.apache.neethi.PolicyOperator;
 import org.apache.neethi.PolicyReference;
-
-
 
 
 /**
@@ -198,7 +195,7 @@ public class PolicyBuilderImpl implements PolicyBuilder, BusExtension {
                 }
 
             } else if (null != assertionBuilderRegistry) {
-                Assertion a = assertionBuilderRegistry.build(childElement);
+                PolicyAssertion a = assertionBuilderRegistry.build(childElement);
                 if (null != a) {
                     operator.addPolicyComponent(a);
                 }

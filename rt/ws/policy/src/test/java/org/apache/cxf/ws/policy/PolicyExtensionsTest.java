@@ -29,13 +29,11 @@ import org.w3c.dom.Element;
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.bus.spring.SpringBusFactory;
-import org.apache.cxf.interceptor.AbstractAttributedInterceptorProvider;
 import org.apache.cxf.ws.policy.attachment.ServiceModelPolicyProvider;
 import org.apache.cxf.ws.policy.attachment.external.DomainExpressionBuilder;
 import org.apache.cxf.ws.policy.attachment.external.DomainExpressionBuilderRegistry;
 import org.apache.cxf.ws.policy.attachment.external.ExternalAttachmentProvider;
 import org.apache.cxf.ws.policy.attachment.wsdl11.Wsdl11AttachmentPolicyProvider;
-import org.apache.neethi.Assertion;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -121,28 +119,22 @@ public class PolicyExtensionsTest extends Assert {
         public TestAssertionBuilder() {
             knownElements.add(KNOWN);
         }
-        public Assertion build(Element arg0) {
+        public PolicyAssertion build(Element arg0) {
             return null;
         }
 
         public Collection<QName> getKnownElements() {
             return knownElements;
         }
-        public Assertion buildCompatible(Assertion a, Assertion b) {
+        public PolicyAssertion buildCompatible(PolicyAssertion a, PolicyAssertion b) {
             return null;
         }       
     }
     
-    public static class TestPolicyInterceptorProvider extends AbstractAttributedInterceptorProvider 
-        implements PolicyInterceptorProvider {
-        Collection<QName> assertionTypes = new ArrayList<QName>();
-
+    public static class TestPolicyInterceptorProvider extends AbstractPolicyInterceptorProvider {
+        
         public TestPolicyInterceptorProvider() {
-            assertionTypes.add(KNOWN);
+            super(KNOWN);
         }
-
-        public Collection<QName> getAssertionTypes() {
-            return assertionTypes;
-        } 
     }
 }

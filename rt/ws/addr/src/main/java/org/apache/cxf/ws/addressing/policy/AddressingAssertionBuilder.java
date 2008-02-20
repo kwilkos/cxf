@@ -31,13 +31,13 @@ import org.w3c.dom.Element;
 import org.apache.cxf.Bus;
 import org.apache.cxf.ws.policy.AssertionBuilder;
 import org.apache.cxf.ws.policy.AssertionBuilderRegistry;
+import org.apache.cxf.ws.policy.PolicyAssertion;
 import org.apache.cxf.ws.policy.PolicyBuilder;
 import org.apache.cxf.ws.policy.PolicyConstants;
 import org.apache.cxf.ws.policy.builder.primitive.NestedPrimitiveAssertion;
 import org.apache.cxf.ws.policy.builder.primitive.NestedPrimitiveAssertionBuilder;
 import org.apache.cxf.ws.policy.builder.primitive.PrimitiveAssertion;
 import org.apache.cxf.ws.policy.builder.primitive.PrimitiveAssertionBuilder;
-import org.apache.neethi.Assertion;
 
 /**
  * 
@@ -57,7 +57,7 @@ public class AddressingAssertionBuilder implements AssertionBuilder {
         KNOWN.add(MetadataConstants.NON_ANON_RESPONSES_ASSERTION_QNAME);
     }
     
-    public Assertion build(Element elem) {
+    public PolicyAssertion build(Element elem) {
         
         String localName = elem.getLocalName();
         QName qn = new QName(elem.getNamespaceURI(), localName);
@@ -87,7 +87,7 @@ public class AddressingAssertionBuilder implements AssertionBuilder {
         return KNOWN;
     }
 
-    public Assertion buildCompatible(Assertion a, Assertion b) {
+    public PolicyAssertion buildCompatible(PolicyAssertion a, PolicyAssertion b) {
         QName qn = a.getName();
         if (MetadataConstants.ADDRESSING_ASSERTION_QNAME.equals(qn)) {
             NestedPrimitiveAssertionBuilder npab = new NestedPrimitiveAssertionBuilder();

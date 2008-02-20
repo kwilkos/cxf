@@ -22,10 +22,7 @@ package org.apache.cxf.ws.policy;
 import javax.xml.namespace.QName;
 
 import org.w3c.dom.Element;
-
 import org.apache.cxf.extension.Registry;
-import org.apache.neethi.Assertion;
-
 
 /**
  * AssertionBuilderRegistry is used to manage AssertionBuilders and
@@ -39,7 +36,7 @@ public interface AssertionBuilderRegistry extends Registry<QName, AssertionBuild
      * @param element the element from which to build an Assertion.
      * @return an Assertion that is built using the specified element.
      */
-    Assertion build(Element element);
+    PolicyAssertion build(Element element);
     
     /**
      * Indicates if unknown assertions should simply be ignored.

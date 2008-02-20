@@ -24,10 +24,10 @@ import java.util.Collection;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.ws.policy.AlternativeSelector;
 import org.apache.cxf.ws.policy.Assertor;
+import org.apache.cxf.ws.policy.PolicyAssertion;
 import org.apache.cxf.ws.policy.PolicyEngine;
 import org.apache.cxf.ws.policy.TestAssertion;
 import org.apache.neethi.All;
-import org.apache.neethi.Assertion;
 import org.apache.neethi.ExactlyOne;
 import org.apache.neethi.Policy;
 import org.easymock.classextension.EasyMock;
@@ -59,19 +59,22 @@ public class MinimalMaximalAlternativeSelectorTest extends Assert {
         Policy policy = new Policy();
         ExactlyOne ea = new ExactlyOne();
         All all = new All();
-        Assertion a1 = new TestAssertion(); 
+        PolicyAssertion a1 = new TestAssertion(); 
         all.addAssertion(a1);
         ea.addPolicyComponent(all);
-        Collection<Assertion> maxAlternative = CastUtils.cast(all.getPolicyComponents(), Assertion.class);
+        Collection<PolicyAssertion> maxAlternative = 
+            CastUtils.cast(all.getPolicyComponents(), PolicyAssertion.class);
         all = new All();
         ea.addPolicyComponent(all);
-        Collection<Assertion> minAlternative = CastUtils.cast(all.getPolicyComponents(), Assertion.class);
+        Collection<PolicyAssertion> minAlternative = 
+            CastUtils.cast(all.getPolicyComponents(), PolicyAssertion.class);
         policy.addPolicyComponent(ea);  
         EasyMock.expect(engine.supportsAlternative(maxAlternative, assertor)).andReturn(true);
         EasyMock.expect(engine.supportsAlternative(minAlternative, assertor)).andReturn(true);
         
         control.replay();        
-        Collection<Assertion> choice = selector.selectAlternative(policy, engine, assertor); 
+        Collection<PolicyAssertion> choice = 
+            selector.selectAlternative(policy, engine, assertor); 
         assertEquals(0, choice.size());
         control.verify();
     }
@@ -86,19 +89,21 @@ public class MinimalMaximalAlternativeSelectorTest extends Assert {
         Policy policy = new Policy();
         ExactlyOne ea = new ExactlyOne();
         All all = new All();
-        Assertion a1 = new TestAssertion(); 
+        PolicyAssertion a1 = new TestAssertion(); 
         all.addAssertion(a1);
         ea.addPolicyComponent(all);
-        Collection<Assertion> maxAlternative = CastUtils.cast(all.getPolicyComponents(), Assertion.class);
+        Collection<PolicyAssertion> maxAlternative = 
+            CastUtils.cast(all.getPolicyComponents(), PolicyAssertion.class);
         all = new All();
         ea.addPolicyComponent(all);
-        Collection<Assertion> minAlternative = CastUtils.cast(all.getPolicyComponents(), Assertion.class);
+        Collection<PolicyAssertion> minAlternative = 
+            CastUtils.cast(all.getPolicyComponents(), PolicyAssertion.class);
         policy.addPolicyComponent(ea);  
         EasyMock.expect(engine.supportsAlternative(maxAlternative, assertor)).andReturn(true);
         EasyMock.expect(engine.supportsAlternative(minAlternative, assertor)).andReturn(true);
         
         control.replay();        
-        Collection<Assertion> choice = selector.selectAlternative(policy, engine, assertor); 
+        Collection<PolicyAssertion> choice = selector.selectAlternative(policy, engine, assertor); 
         assertEquals(1, choice.size());
         assertSame(a1, choice.iterator().next());
         control.verify();

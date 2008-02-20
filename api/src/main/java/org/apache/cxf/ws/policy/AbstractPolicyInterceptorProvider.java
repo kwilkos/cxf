@@ -20,24 +20,49 @@
 package org.apache.cxf.ws.policy;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.interceptor.AbstractAttributedInterceptorProvider;
+import org.apache.cxf.interceptor.Interceptor;
+import org.apache.cxf.message.Message;
 
 /**
  * 
  */
-public class PolicyInterceptorProviderImpl extends AbstractAttributedInterceptorProvider 
+public abstract class AbstractPolicyInterceptorProvider extends AbstractAttributedInterceptorProvider 
     implements PolicyInterceptorProvider {
     
     private Collection<QName> assertionTypes;
     
-    PolicyInterceptorProviderImpl(Collection<QName> at) {
+    public AbstractPolicyInterceptorProvider(QName type) {
+        this(Collections.singletonList(type));
+    }
+    
+    public AbstractPolicyInterceptorProvider(Collection<QName> at) {
         assertionTypes = at;
     }
 
     public Collection<QName> getAssertionTypes() {
         return assertionTypes;
+    }
+
+    public List<Interceptor> provideInFaultInterceptors(Message m) {
+        return getInFaultInterceptors();
+    }
+
+    public List<Interceptor> provideInInterceptors(Message m) {
+        return getInInterceptors();
+    }
+
+    public List<Interceptor> provideOutFaultInterceptors(Message m) {
+        return getOutFaultInterceptors();
+    }
+
+    public List<Interceptor> provideOutInterceptors(Message m) {
+        return getOutInterceptors();
     } 
+    
 }
