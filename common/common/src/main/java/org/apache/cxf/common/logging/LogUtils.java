@@ -252,12 +252,7 @@ public final class LogUtils {
     public static void log(Logger logger, 
                            Level level, 
                            String message) {
-        if (logger.isLoggable(level)) {
-            final String formattedMessage = 
-                MessageFormat.format(localize(logger, message), NO_PARAMETERS);
-            doLog(logger, level, formattedMessage, null);
-        }
-        
+        log(logger, level, message, NO_PARAMETERS);        
     }  
     
     /**
@@ -303,11 +298,14 @@ public final class LogUtils {
                            String message, 
                            Object[] parameters) {
         if (logger.isLoggable(level)) {
-            final String formattedMessage = 
-                MessageFormat.format(localize(logger, message), parameters);
-            doLog(logger, level, formattedMessage, null);
-        }
-        
+            String msg = localize(logger, message);
+            try {
+                msg = MessageFormat.format(msg, parameters);
+            } catch (IllegalArgumentException ex) {
+                //ignore, log as is
+            }
+            doLog(logger, level, msg, null);
+        }        
     }
 
     private static void doLog(Logger log, Level level, String msg, Throwable t) {
@@ -345,7 +343,12 @@ public final class LogUtils {
      */
     private static String localize(Logger logger, String message) {
         ResourceBundle bundle = logger.getResourceBundle();
-        return bundle != null ? bundle.getString(message) : message;
+        try {
+            return bundle != null ? bundle.getString(message) : message;
+        } catch (MissingResourceException ex) {
+            //string not in the bundle
+            return message;
+        }
     }
 
 }

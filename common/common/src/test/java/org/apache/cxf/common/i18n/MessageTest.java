@@ -19,6 +19,10 @@
 
 package org.apache.cxf.common.i18n;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ResourceBundle;
 import java.util.logging.Logger;
 
@@ -49,5 +53,24 @@ public class MessageTest extends Assert {
         assertEquals("unexpected message string", 
                      "subbed in 4 & 3",
                      msg.toString()); 
+    }
+    
+    @Test
+    public void testExceptionIO() throws java.lang.Exception {
+        ResourceBundle bundle = BundleUtils.getBundle(getClass());
+        UncheckedException ex = new UncheckedException(new Message("SUB2_EXC",
+                                                                   bundle,
+                                                                   new Object[] {3, 4}));
+        ByteArrayOutputStream bout = new ByteArrayOutputStream();
+        ObjectOutputStream out = new ObjectOutputStream(bout);
+        out.writeObject(ex);
+        
+        ByteArrayInputStream bin = new ByteArrayInputStream(bout.toByteArray());
+        ObjectInputStream in = new ObjectInputStream(bin);
+        Object o = in.readObject();
+        assertTrue(o instanceof UncheckedException);
+        UncheckedException ex2 = (UncheckedException)o;
+        assertEquals("subbed in 4 & 3", ex2.getMessage());
+        
     }
 }

@@ -19,16 +19,20 @@
 
 package org.apache.cxf.common.i18n;
 
+import java.io.IOException;
+import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.logging.Logger;
 
-public class Message {
-    String code;
-    Object[] parameters;
-    ResourceBundle bundle;
+public class Message implements Serializable {
+    private static final long serialVersionUID = 42L;
     
+    transient String code;
+    transient Object[] parameters;
+    transient ResourceBundle bundle;
+
     /**
      * Constructor.
      *
@@ -72,5 +76,16 @@ public class Message {
     
     public Object[] getParameters() {
         return parameters;
+    }
+
+    private void writeObject(java.io.ObjectOutputStream out)
+        throws IOException {
+        out.writeUTF(toString());
+    }
+    private void readObject(java.io.ObjectInputStream in)
+        throws IOException, ClassNotFoundException {
+        code = in.readUTF();
+        bundle = null;
+        parameters = null;
     }
 }
