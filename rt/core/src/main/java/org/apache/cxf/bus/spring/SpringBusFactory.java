@@ -64,6 +64,9 @@ public class SpringBusFactory extends BusFactory {
     public Bus createBus(String cfgFile) {
         return createBus(cfgFile, defaultBusNotExists());
     }
+    public Bus createBus(String cfgFiles[]) {
+        return createBus(cfgFiles, defaultBusNotExists());
+    }
         
     private Bus finishCreatingBus(BusApplicationContext bac) {
         final Bus bus = (Bus)bac.getBean(Bus.DEFAULT_BUS_ID);
@@ -80,8 +83,14 @@ public class SpringBusFactory extends BusFactory {
     }
     
     public Bus createBus(String cfgFile, boolean includeDefaults) {
+        if (cfgFile == null) {
+            return createBus((String[])null, includeDefaults);
+        }
+        return createBus(new String[] {cfgFile}, includeDefaults);
+    }    
+    public Bus createBus(String cfgFiles[], boolean includeDefaults) {
         try {      
-            return finishCreatingBus(new BusApplicationContext(cfgFile, includeDefaults, context));
+            return finishCreatingBus(new BusApplicationContext(cfgFiles, includeDefaults, context));
         } catch (BeansException ex) {
             LogUtils.log(LOG, Level.WARNING, "APP_CONTEXT_CREATION_FAILED_MSG", ex, (Object[])null);
             throw new RuntimeException(ex);
@@ -91,10 +100,19 @@ public class SpringBusFactory extends BusFactory {
     public Bus createBus(URL url) {
         return createBus(url, defaultBusNotExists());
     }
+    public Bus createBus(URL[] urls) {
+        return createBus(urls, defaultBusNotExists());
+    }
     
     public Bus createBus(URL url, boolean includeDefaults) {
+        if (url == null) {
+            return createBus((URL[])null, includeDefaults);
+        }
+        return createBus(new URL[] {url}, includeDefaults);
+    }
+    public Bus createBus(URL[] urls, boolean includeDefaults) {
         try {      
-            return finishCreatingBus(new BusApplicationContext(url, includeDefaults, context));
+            return finishCreatingBus(new BusApplicationContext(urls, includeDefaults, context));
         } catch (BeansException ex) {
             LogUtils.log(LOG, Level.WARNING, "APP_CONTEXT_CREATION_FAILED_MSG", ex, (Object[])null);
             throw new RuntimeException(ex);

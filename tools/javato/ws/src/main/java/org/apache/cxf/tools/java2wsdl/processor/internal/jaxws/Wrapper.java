@@ -151,7 +151,7 @@ public class Wrapper {
     public boolean isWrapperBeanClassNotExist() {
         try {
             Message msg = new Message("LOADING_WRAPPER_CLASS", LOG, getJavaClass().getFullClassName());
-            LOG.log(Level.INFO, msg.toString());
+            LOG.log(Level.FINE, msg.toString());
             getWrapperClass();
             return false;
         } catch (ToolException e) {
@@ -169,7 +169,7 @@ public class Wrapper {
                                             getClass().getClassLoader());
         } catch (Exception e) {
             Message msg = new Message("LOAD_WRAPPER_CLASS_FAILED", LOG, getJavaClass().getFullClassName());
-            LOG.log(Level.WARNING, msg.toString());
+            LOG.log(Level.FINE, msg.toString());
             throw new ToolException(msg);
         }
     }
