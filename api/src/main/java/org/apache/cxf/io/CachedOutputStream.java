@@ -77,6 +77,8 @@ public class CachedOutputStream extends OutputStream {
     private File outputDir = DEFAULT_TEMP_DIR;
 
     private List<CachedOutputStreamCallback> callbacks;
+    
+    private List<Object> streamList = new ArrayList<Object>();
 
     public CachedOutputStream(PipedInputStream stream) throws IOException {
         currentStream = new PipedOutputStream(stream);
@@ -153,9 +155,8 @@ public class CachedOutputStream extends OutputStream {
         
         doClose();
         currentStream.close();
-        dispose();
+        maybeDeleteTempFile(currentStream);
         postClose();
-        
     }
 
     public boolean equals(Object obj) {
@@ -367,6 +368,7 @@ public class CachedOutputStream extends OutputStream {
         currentStream = new BufferedOutputStream(new FileOutputStream(tempFile));
         bout.writeTo(currentStream);
         inmem = false;
+        streamList.add(currentStream);
     }
 
     public File getTempFile() {
@@ -387,34 +389,33 @@ public class CachedOutputStream extends OutputStream {
             }
         } else {
             try {
-                return new FileInputStream(tempFile) {
+                FileInputStream fileInputStream = new FileInputStream(tempFile) {
                     public void close() throws IOException {
                         super.close();
-                        if (tempFile != null) {
-                            tempFile.delete();
-                            //tempFile = null;
-                        }
-                        currentStream = new ByteArrayOutputStream();
-                        inmem = true;
+                        maybeDeleteTempFile(this);
                     }
                 };
+                streamList.add(fileInputStream);
+                return fileInputStream;
             } catch (FileNotFoundException e) {
                 throw new IOException("Cached file was deleted, " + e.toString());
             }
         }
     }
-
-    public void dispose() {
-        if (!inmem && tempFile != null) {
+    
+    private void maybeDeleteTempFile(Object stream) {
+        streamList.remove(stream);
+        if (!inmem && tempFile != null && streamList.isEmpty()) {
             tempFile.delete();
-            //tempFile = null;
+            tempFile = null;
+            currentStream = new LoadingByteArrayOutputStream(1024);
+            inmem = true;
         }
     }
 
     public void setOutputDir(File outputDir) throws IOException {
         this.outputDir = outputDir;
     }
-
     public void setThreshold(long threshold) {
         this.threshold = threshold;
     }

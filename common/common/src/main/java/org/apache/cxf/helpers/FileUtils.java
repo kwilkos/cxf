@@ -42,7 +42,8 @@ public final class FileUtils {
     }
     
     private static synchronized File getDefaultTempDir() {
-        if (defaultTempDir != null) {
+        if (defaultTempDir != null
+            && defaultTempDir.exists()) {
             return defaultTempDir;
         }
         
