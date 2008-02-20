@@ -225,6 +225,7 @@ public class ParameterProcessor extends AbstractProcessor {
 
     private void processOutput(JavaMethod method, MessageInfo inputMessage, MessageInfo outputMessage)
         throws ToolException {
+                        
         Map<QName, MessagePartInfo> inputPartsMap = inputMessage.getMessagePartsMap();
         List<MessagePartInfo> outputParts =
             outputMessage == null ? new ArrayList<MessagePartInfo>() : outputMessage.getMessageParts();
@@ -233,6 +234,10 @@ public class ParameterProcessor extends AbstractProcessor {
         if (isRequestResponse(method)) {
 
             for (MessagePartInfo outpart : outputParts) {
+                if (isOutOfBandHeader(outpart) && !requireOutOfBandHeader()) {
+                    continue;
+                }
+                
                 MessagePartInfo inpart = inputPartsMap.get(outpart.getName());
                 if (inpart == null) {
                     outParts.add(outpart);
@@ -255,6 +260,9 @@ public class ParameterProcessor extends AbstractProcessor {
         }
         if (isRequestResponse(method)) {
             for (MessagePartInfo part : outParts) {
+                if (isOutOfBandHeader(part) && !requireOutOfBandHeader()) {
+                    continue;
+                }
                 addParameter(method, getParameterFromPart(method, part, JavaType.Style.OUT));
             }
         }
