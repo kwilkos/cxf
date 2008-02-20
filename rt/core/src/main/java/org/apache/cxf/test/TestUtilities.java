@@ -335,6 +335,16 @@ public class TestUtilities {
         }
         return null;
     }
+    
+    public Server getServerForAddress(String address) throws WSDLException {
+        ServerRegistry svrMan = bus.getExtension(ServerRegistry.class);
+        for (Server s : svrMan.getServers()) {
+            if (address.equals(s.getEndpoint().getEndpointInfo().getAddress())) {
+                return s;
+            }
+        }
+        return null;
+    }
 
     public static class TestMessageObserver implements MessageObserver {
         ByteArrayOutputStream response = new ByteArrayOutputStream();

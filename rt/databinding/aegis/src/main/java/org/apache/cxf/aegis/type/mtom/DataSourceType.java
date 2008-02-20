@@ -31,8 +31,8 @@ import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.message.Attachment;
 
 public class DataSourceType extends AbstractXOPType {
-    public DataSourceType(String expectedContentTypes) {
-        super(expectedContentTypes);
+    public DataSourceType(boolean useXmimeBinaryType, String expectedContentTypes) {
+        super(useXmimeBinaryType, expectedContentTypes);
     }
 
     @Override

@@ -33,6 +33,7 @@ import org.w3c.dom.NodeList;
 import org.apache.cxf.Bus;
 import org.apache.cxf.aegis.databinding.AegisDatabinding;
 import org.apache.cxf.aegis.type.mtom.AbstractXOPType;
+import org.apache.cxf.common.util.SOAPConstants;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.frontend.ClientProxyFactoryBean;
 import org.apache.cxf.frontend.ServerFactoryBean;
@@ -126,7 +127,6 @@ public class MtomTest extends AbstractDependencyInjectionSpringContextTests {
         assertEquals("This is the cereal shot from guns.", data);
     }
 
-    // we aren't ready for this one ...
     @Test
     public void testMtomSchema() throws Exception {
         testUtilities.setBus((Bus)applicationContext.getBean("cxf"));
@@ -149,9 +149,26 @@ public class MtomTest extends AbstractDependencyInjectionSpringContextTests {
         assertEquals("base64Binary", pieces[1]);
         Node elementNode = typeAttr.getOwnerElement();
         String url = testUtilities.resolveNamespacePrefix(pieces[0], elementNode);
+        assertEquals(SOAPConstants.XSD, url);
+        
+        s = testUtilities.getServerForAddress("http://localhost:9002/mtomXmime");
+        wsdl = testUtilities.getWSDLDocument(s); 
+        assertNotNull(wsdl);
+        typeAttrList = 
+            testUtilities.assertValid("//xsd:complexType[@name='inputDhBean']/xsd:sequence/"
+                                      + "xsd:element[@name='dataHandler']/"
+                                      + "@type", 
+                                      wsdl);
+        typeAttr = (Attr)typeAttrList.item(0);
+        typeAttrValue = typeAttr.getValue();
+        // now, this thing is a qname with a :, and we have to work out if it's correct.
+        pieces = typeAttrValue.split(":");
+        assertEquals("base64Binary", pieces[1]);
+        elementNode = typeAttr.getOwnerElement();
+        url = testUtilities.resolveNamespacePrefix(pieces[0], elementNode);
         assertEquals(AbstractXOPType.XML_MIME_NS, url);
         
-        /*
+        /* when I add a test for a custom mapping.
         testUtilities.assertValid("//xsd:complexType[@name='inputDhBean']/xsd:sequence/"
                                   + "xsd:element[@name='dataHandler']/"
                                   + "@xmime:expectedContentType/text()", 

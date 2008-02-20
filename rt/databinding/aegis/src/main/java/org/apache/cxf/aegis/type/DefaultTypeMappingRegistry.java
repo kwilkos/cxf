@@ -136,20 +136,25 @@ public final class DefaultTypeMappingRegistry extends AbstractTypeMappingRegistr
     private TypeCreator typeCreator;
 
     public DefaultTypeMappingRegistry() {
-        this(false);
+        this(null, false, false);
+    }
+    
+    public DefaultTypeMappingRegistry(TypeCreator typeCreator, boolean createDefault) {
+        this(typeCreator, createDefault, false);
     }
 
     public DefaultTypeMappingRegistry(boolean createDefault) {
-        this(null, createDefault);
+        this(null, createDefault, false);
     }
 
-    public DefaultTypeMappingRegistry(TypeCreator typeCreator, boolean createDefault) {
+    public DefaultTypeMappingRegistry(TypeCreator typeCreator, boolean createDefault, 
+                                      boolean enableMtomXmime) {
         registry = Collections.synchronizedMap(new HashMap<String, TypeMapping>());
 
         this.typeCreator = typeCreator;
 
         if (createDefault) {
-            createDefaultMappings();
+            createDefaultMappings(enableMtomXmime);
         }
     }
 
@@ -286,9 +291,13 @@ public final class DefaultTypeMappingRegistry extends AbstractTypeMappingRegistr
     }
 
     public TypeMapping createDefaultMappings() {
+        return createDefaultMappings(false);
+    }
+
+    public TypeMapping createDefaultMappings(boolean enableMtomXmime) {
         TypeMapping tm = createTypeMapping(false);
 
-        createDefaultMappings(tm);
+        createDefaultMappings(enableMtomXmime, tm);
 
         // Create a Type Mapping for SOAP 1.1 Encoding
         TypeMapping soapTM = createTypeMapping(tm, false);
@@ -343,9 +352,8 @@ public final class DefaultTypeMappingRegistry extends AbstractTypeMappingRegistr
         register(soapTM, org.jdom.Document.class, XSD_ANY, new JDOMDocumentType());
         register(soapTM, Object.class, XSD_ANY, new ObjectType());
         // unless there is customization, we use no expectedContentTypes.
-        // however, if we want to implement xmime:contentType, we'll need to make this more complex.
-        register(soapTM, DataSource.class, XSD_BASE64, new DataSourceType(null));
-        register(soapTM, DataHandler.class, XSD_BASE64, new DataHandlerType(null));
+        register(soapTM, DataSource.class, XSD_BASE64, new DataSourceType(enableMtomXmime, null));
+        register(soapTM, DataHandler.class, XSD_BASE64, new DataHandlerType(enableMtomXmime, null));
         register(soapTM, BigInteger.class, XSD_INTEGER, new BigIntegerType());
 
         register(ENCODED_NS, soapTM);
@@ -357,6 +365,10 @@ public final class DefaultTypeMappingRegistry extends AbstractTypeMappingRegistr
     }
 
     protected void createDefaultMappings(TypeMapping tm) {
+        createDefaultMappings(false, tm);
+    }
+    
+    protected void createDefaultMappings(boolean enableMtomXmime, TypeMapping tm) {
         register(tm, boolean.class, XSD_BOOLEAN, new BooleanType());
         register(tm, int.class, XSD_INT, new IntType());
         register(tm, short.class, XSD_SHORT, new ShortType());
@@ -388,8 +400,16 @@ public final class DefaultTypeMappingRegistry extends AbstractTypeMappingRegistr
         register(tm, org.jdom.Document.class, XSD_ANY, new JDOMDocumentType());
         register(tm, Object.class, XSD_ANY, new ObjectType());
 
-        register(tm, DataSource.class, AbstractXOPType.XML_MIME_BASE64, new DataSourceType(null));
-        register(tm, DataHandler.class, AbstractXOPType.XML_MIME_BASE64, new DataHandlerType(null));
+        QName mtomBase64 = XSD_BASE64;
+        if (enableMtomXmime) {
+            mtomBase64 = AbstractXOPType.XML_MIME_BASE64;
+        }
+        
+        
+        register(tm, DataSource.class, mtomBase64, 
+                 new DataSourceType(enableMtomXmime, null));
+        register(tm, DataHandler.class, mtomBase64,
+                 new DataHandlerType(enableMtomXmime, null));
 
         if (isJDK5andAbove()) {
             registerIfAvailable(tm, "javax.xml.datatype.Duration", XSD_DURATION,

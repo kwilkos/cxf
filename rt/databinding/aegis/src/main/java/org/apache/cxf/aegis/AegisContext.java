@@ -83,6 +83,7 @@ public class AegisContext {
     private Map<Class<?>, String> beanImplementationMap;
     private Configuration configuration;
     private boolean mtomEnabled;
+    private boolean mtomUseXmime;
     
     /**
      * Construct a context.
@@ -100,7 +101,7 @@ public class AegisContext {
      */
     public void initialize() {
         if (typeMappingRegistry == null) {
-            typeMappingRegistry = new DefaultTypeMappingRegistry(true);
+            typeMappingRegistry = new DefaultTypeMappingRegistry(null, true, mtomUseXmime);
         } 
         if (configuration != null) {
             typeMappingRegistry.setConfiguration(configuration);
@@ -343,6 +344,18 @@ public class AegisContext {
 
     public void setMtomEnabled(boolean mtomEnabled) {
         this.mtomEnabled = mtomEnabled;
+    }
+
+    /**
+     * Is the schema for MTOM types xmime:base64Binary instead of xsd:base64Binary?
+     * @return
+     */
+    public boolean isMtomUseXmime() {
+        return mtomUseXmime;
+    }
+
+    public void setMtomUseXmime(boolean mtomUseXmime) {
+        this.mtomUseXmime = mtomUseXmime;
     }
 
 }

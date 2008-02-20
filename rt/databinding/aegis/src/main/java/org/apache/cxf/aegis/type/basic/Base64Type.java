@@ -45,7 +45,8 @@ public class Base64Type extends Type {
 
     public Base64Type() {
         super();
-        optimizedType = new ByteArrayType(null);
+        // no MTOM for this type.
+        optimizedType = new ByteArrayType(false, null);
     }
     
     public Base64Type(AbstractXOPType xopType) {

@@ -68,12 +68,23 @@ public abstract class AbstractXOPType extends Type {
     // the base64 type knows how to deal with just plain base64 here, which is essentially always 
     // what we get in the absence of the optimization. So we need something of a coroutine.
     private Base64Type fallbackDelegate;
+    private boolean useXmimeBinaryType;
     
-    public AbstractXOPType(String expectedContentTypes) {
+    /**
+     * Create an XOP type. This type will use xmime to publish and receive the content type
+     * via xmime:base64Binary if useXmimeBinaryType is true. If expectedContentTypes != null, then
+     * it will use xmime to advertise expected content types.
+     * @param useXmimeBinaryType whether to use xmime:base64Binary.
+     * @param expectedContentTypes whether to public xmime:expectedContentTypes.
+     */
+    public AbstractXOPType(boolean useXmimeBinaryType, String expectedContentTypes) {
         this.expectedContentTypes = expectedContentTypes;
+        this.useXmimeBinaryType = useXmimeBinaryType;
         fallbackDelegate = new Base64Type(this);
-        // we use the XMIME type instead of the XSD type to allow for our content type attribute.
-        setSchemaType(XML_MIME_BASE64);
+        if (useXmimeBinaryType) {
+        //      we use the XMIME type instead of the XSD type to allow for our content type attribute.
+            setSchemaType(XML_MIME_BASE64);
+        }
     }
     
     public static JDOMXPath getXmimeXpathImport() {
@@ -148,7 +159,7 @@ public abstract class AbstractXOPType extends Type {
                             Context context) throws DatabindingException {
         // add the content type attribute even if we are going to fall back.
         String contentType = getContentType(object, context);
-        if (contentType != null) {
+        if (contentType != null && useXmimeBinaryType) {
             MessageWriter ctWriter = writer.getAttributeWriter(XML_MIME_CONTENT_TYPE);
             ctWriter.writeValue(contentType);
         }
@@ -209,6 +220,6 @@ public abstract class AbstractXOPType extends Type {
     
     @Override
     public boolean usesXmime() {
-        return true;
+        return useXmimeBinaryType || expectedContentTypes != null;
     }
 }

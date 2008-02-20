@@ -34,8 +34,8 @@ import org.apache.cxf.message.Attachment;
  * @author Dan Diephouse
  */
 public class ByteArrayType extends AbstractXOPType {
-    public ByteArrayType(String expectedContentTypes) {
-        super(expectedContentTypes);
+    public ByteArrayType(boolean useXmimeBinaryType, String expectedContentTypes) {
+        super(useXmimeBinaryType, expectedContentTypes);
         setTypeClass(byte[].class);
     }
 

@@ -70,5 +70,31 @@ http://cxf.apache.org/core http://cxf.apache.org/schemas/core.xsd">
 			</bean>
 		</simple:serviceFactory>
 	</simple:server>
+	
+	<simple:server id="mtom-xmime-server" address="http://localhost:9002/mtomXmime"
+		serviceClass="org.apache.cxf.systest.aegis.mtom.fortest.MtomTest">
+		<simple:dataBinding>
+			<bean
+				class="org.apache.cxf.aegis.databinding.AegisDatabinding">
+				<property name="mtomEnabled" value="true" />
+				<property name="mtomUseXmime" value="true"/>
+			</bean>
+		</simple:dataBinding>
+		<simple:serviceBean>
+			<ref bean="mtomImpl" />
+		</simple:serviceBean>
+		<simple:serviceFactory>
+			<bean
+				class='org.apache.cxf.service.factory.ReflectionServiceFactoryBean'>
+				<property name="properties">
+					<map>
+						<entry key="mtom-enabled">
+							<value>true</value>
+						</entry>
+					</map>
+				</property>
+			</bean>
+		</simple:serviceFactory>
+	</simple:server>
 
 </beans>

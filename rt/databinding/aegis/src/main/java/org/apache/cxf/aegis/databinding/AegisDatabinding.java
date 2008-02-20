@@ -110,6 +110,7 @@ public class AegisDatabinding extends AbstractDataBinding {
     private Set<String> overrideTypes;
     private Configuration configuration;
     private boolean mtomEnabled;
+    private boolean mtomUseXmime;
     private JDOMXPath importXmimeXpath;
 
     public AegisDatabinding() {
@@ -158,6 +159,9 @@ public class AegisDatabinding extends AbstractDataBinding {
                 }
                 if (mtomEnabled) {
                     aegisContext.setMtomEnabled(true);
+                }
+                if (mtomUseXmime) {
+                    aegisContext.setMtomUseXmime(true);
                 }
                 aegisContext.initialize();
             }
@@ -214,9 +218,7 @@ public class AegisDatabinding extends AbstractDataBinding {
      */
     public void initialize(Service s) {
         
-        // We want to support some compatibility configuration properties
-        // definitionally, anyone doing the compatibility thing has not made their
-        // own AegisContext object.
+        // We want to support some compatibility configuration properties.
         if (aegisContext == null) {
             aegisContext = new AegisContext();
 
@@ -243,6 +245,10 @@ public class AegisDatabinding extends AbstractDataBinding {
             val = s.get("mtom-enabled");
             if ("true".equals(val) || Boolean.TRUE.equals(val) || mtomEnabled) {
                 aegisContext.setMtomEnabled(true);
+            }
+            
+            if (mtomUseXmime) {
+                aegisContext.setMtomUseXmime(true);
             }
             
             Map<Class<?>, String> implMap = new HashMap<Class<?>, String>();
@@ -620,5 +626,13 @@ public class AegisDatabinding extends AbstractDataBinding {
 
     public void setMtomEnabled(boolean mtomEnabled) {
         this.mtomEnabled = mtomEnabled;
+    }
+
+    public boolean isMtomUseXmime() {
+        return mtomUseXmime;
+    }
+
+    public void setMtomUseXmime(boolean mtomUseXmime) {
+        this.mtomUseXmime = mtomUseXmime;
     }
 }

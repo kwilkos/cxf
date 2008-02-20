@@ -33,8 +33,8 @@ import org.apache.cxf.message.Attachment;
 
 public class DataHandlerType extends AbstractXOPType {
     
-    public DataHandlerType(String expectedContentTypes) {
-        super(expectedContentTypes);
+    public DataHandlerType(boolean useXmimeContentType, String expectedContentTypes) {
+        super(useXmimeContentType, expectedContentTypes);
     }
 
     @Override
