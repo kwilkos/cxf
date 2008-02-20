@@ -125,7 +125,10 @@ public class LogUtilsTest extends Assert {
         EasyMock.verify(handler);
         LOG.removeHandler(handler);
     }
-    
+    @Test
+    public void testCXF1420() throws Exception {
+        LogUtils.log(LOG, Level.SEVERE, "SQLException for SQL [{call FOO.ping(?, ?)}]");
+    }    
     @Test
     public void testClassMethodNames() throws Exception {
         TestLogHandler handler = new TestLogHandler();
