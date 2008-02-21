@@ -19,12 +19,15 @@
 
 package org.apache.cxf.jaxb.attachment;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Collection;
 import java.util.UUID;
 
 import javax.activation.DataHandler;
+import javax.activation.DataSource;
+import javax.activation.FileDataSource;
 import javax.xml.bind.attachment.AttachmentMarshaller;
 
 import org.apache.cxf.attachment.AttachmentImpl;
@@ -86,12 +89,21 @@ public class JAXBAttachmentMarshaller extends AttachmentMarshaller {
         // The following is just wrong. Even if the DataHandler has a stream, we should still
         // apply the threshold.
         try {
-            Object o = handler.getContent();
-            if (o instanceof String 
-                && ((String)o).length() < threshold) {
-                return null;
-            } else if (o instanceof byte[] && ((byte[])o).length < threshold) {
-                return null;
+            DataSource ds = handler.getDataSource();
+            if (ds instanceof FileDataSource) {
+                FileDataSource fds = (FileDataSource)ds;
+                File file = fds.getFile();
+                if (file.length() < threshold) {
+                    return null;
+                }
+            } else if (ds.getClass().getName().endsWith("ObjectDataSource")) {
+                Object o = handler.getContent();
+                if (o instanceof String 
+                    && ((String)o).length() < threshold) {
+                    return null;
+                } else if (o instanceof byte[] && ((byte[])o).length < threshold) {
+                    return null;
+                }
             }
         } catch (IOException e1) {
         //      ignore, just do the normal attachment thing
