@@ -21,8 +21,11 @@ package org.apache.cxf.systest.ws.rm;
 
 import java.math.BigInteger;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Logger;
 
+import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Endpoint;
 
 import org.apache.cxf.Bus;
@@ -88,7 +91,11 @@ public class ClientPersistenceTest extends AbstractBusClientServerTestBase {
             
             GreeterImpl implementor = new GreeterImpl();
             String address = "http://localhost:9020/SoapContext/GreeterPort";
-            Endpoint.publish(address, implementor);
+            Endpoint ep = Endpoint.create(implementor);
+            Map<String, Object> properties = new HashMap<String, Object>();
+            properties.put("schema-validation-enabled", Boolean.TRUE);
+            ep.setProperties(properties);
+            ep.publish(address);
             LOG.info("Published greeter endpoint.");
         }
 
@@ -108,6 +115,7 @@ public class ClientPersistenceTest extends AbstractBusClientServerTestBase {
 
     @BeforeClass
     public static void startServers() throws Exception {        
+        RMTxStore.deleteDatabaseFiles(RMTxStore.DEFAULT_DATABASE_NAME, false);
         String derbyHome = System.getProperty("derby.system.home");
         try {
             if (derbyHome == null) {
@@ -150,6 +158,7 @@ public class ClientPersistenceTest extends AbstractBusClientServerTestBase {
 
         GreeterService gs = new GreeterService();
         greeter = gs.getGreeterPort();
+        ((BindingProvider)greeter).getRequestContext().put("schema-validation-enabled", Boolean.TRUE);
 
         out = new OutMessageRecorder();
         in = new InMessageRecorder();

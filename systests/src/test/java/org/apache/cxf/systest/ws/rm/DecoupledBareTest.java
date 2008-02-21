@@ -19,8 +19,11 @@
 
 package org.apache.cxf.systest.ws.rm;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Logger;
 
+import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Endpoint;
 
 
@@ -56,7 +59,11 @@ public class DecoupledBareTest extends AbstractBusClientServerTestBase {
             
             Object implementor = new DocLitBareGreeterImpl();
             String address = "http://localhost:7600/SoapContext/SoapPort";
-            Endpoint.publish(address, implementor);
+            Endpoint ep = Endpoint.create(implementor);
+            Map<String, Object> properties = new HashMap<String, Object>();
+            properties.put("schema-validation-enabled", Boolean.TRUE);
+            ep.setProperties(properties);
+            ep.publish(address);
             LOG.info("Published server endpoint.");
         }
         
@@ -89,6 +96,7 @@ public class DecoupledBareTest extends AbstractBusClientServerTestBase {
         assertNotNull(service);
 
         DocLitBare greeter = service.getSoapPort();
+        ((BindingProvider)greeter).getRequestContext().put("schema-validation-enabled", Boolean.TRUE);
 
         ConnectionHelper.setKeepAliveConnection(greeter, true);
        

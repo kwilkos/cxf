@@ -19,8 +19,11 @@
 
 package org.apache.cxf.systest.ws.rm;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Logger;
 
+import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Endpoint;
 
 import org.apache.cxf.Bus;
@@ -64,7 +67,13 @@ public class DecoupledClientServerTest extends AbstractBusClientServerTestBase {
             implementor.useLastOnewayArg(true);
             implementor.setDelay(5000);
             String address = "http://localhost:9020/SoapContext/GreeterPort";
-            Endpoint.publish(address, implementor);
+            
+            Endpoint ep = Endpoint.create(implementor);
+            Map<String, Object> properties = new HashMap<String, Object>();
+            properties.put("schema-validation-enabled", Boolean.TRUE);
+            ep.setProperties(properties);
+            ep.publish(address);
+
             LOG.info("Published greeter endpoint.");
         }
         
@@ -101,6 +110,7 @@ public class DecoupledClientServerTest extends AbstractBusClientServerTestBase {
         
         GreeterService gs = new GreeterService();
         final Greeter greeter = gs.getGreeterPort();
+        ((BindingProvider)greeter).getRequestContext().put("schema-validation-enabled", Boolean.TRUE);
         LOG.fine("Created greeter client.");
        
         ConnectionHelper.setKeepAliveConnection(greeter, true);
