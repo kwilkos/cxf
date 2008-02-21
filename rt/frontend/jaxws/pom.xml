@@ -62,7 +62,6 @@
         <dependency>
             <groupId>asm</groupId>
             <artifactId>asm</artifactId>
-            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.apache.cxf</groupId>
