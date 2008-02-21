@@ -148,6 +148,9 @@ public class ContextPropertiesMappingTest extends Assert {
 
         ctx.containsKey(MessageContext.HTTP_RESPONSE_HEADERS);
         EasyMock.expectLastCall().andReturn(false);
+        
+        ctx.get(MessageContext.OUTBOUND_MESSAGE_ATTACHMENTS);
+        EasyMock.expectLastCall().andReturn(null);
 
         EasyMock.replay(ctx);
         

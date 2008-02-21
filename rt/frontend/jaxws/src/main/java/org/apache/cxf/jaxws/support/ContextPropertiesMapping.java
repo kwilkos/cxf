@@ -18,8 +18,8 @@
  */
 package org.apache.cxf.jaxws.support;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -31,6 +31,8 @@ import javax.xml.ws.BindingProvider;
 import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.MessageContext.Scope;
 
+import org.apache.cxf.attachment.AttachmentImpl;
+import org.apache.cxf.attachment.LazyAttachmentCollection;
 import org.apache.cxf.binding.soap.SoapBindingConstants;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.configuration.security.AuthorizationPolicy;
@@ -235,17 +237,20 @@ public final class ContextPropertiesMapping {
 
         Collection<Attachment> attachments = message.getAttachments();
         if (attachments != null) {
-            
-            //preserve the order of iteration
-            dataHandlers = new LinkedHashMap<String, DataHandler>();
-            for (Attachment attachment : attachments) {
-                dataHandlers.put(attachment.getId(), attachment.getDataHandler());
+            if (attachments instanceof LazyAttachmentCollection) {
+                dataHandlers = ((LazyAttachmentCollection)attachments).createDataHandlerMap();
+            } else {
+                //preserve the order of iteration
+                dataHandlers = new LinkedHashMap<String, DataHandler>();
+                for (Attachment attachment : attachments) {
+                    dataHandlers.put(attachment.getId(), attachment.getDataHandler());
+                }
             }
         }
 
         ctx.put(propertyName, 
-                dataHandlers == null ? Collections.EMPTY_MAP
-                                     : Collections.unmodifiableMap(dataHandlers),
+                dataHandlers == null ? new LinkedHashMap<String, DataHandler>()
+                                     : dataHandlers,
                 Scope.APPLICATION);
     }
     
@@ -276,9 +281,27 @@ public final class ContextPropertiesMapping {
             } else if (!other.isEmpty()) {
                 exchange.getOutMessage().put(Message.PROTOCOL_HEADERS, 
                                              ctx.get(MessageContext.HTTP_RESPONSE_HEADERS));
+                heads = other;
+            }
+            if (heads.containsKey("Content-Type")) {
+                List<String> ct = heads.get("Content-Type");
+                exchange.getOutMessage().put(Message.CONTENT_TYPE, ct.get(0));
+                heads.remove("Content-Type");
+            }
+        }
+        Map<String, DataHandler> dataHandlers  
+            = CastUtils.cast((Map<?, ?>)ctx.get(MessageContext.OUTBOUND_MESSAGE_ATTACHMENTS));
+        if (dataHandlers != null && !dataHandlers.isEmpty()) {
+            Collection<Attachment> attachments = exchange.getOutMessage().getAttachments();
+            if (attachments == null) {
+                attachments = new ArrayList<Attachment>();
+                exchange.getOutMessage().setAttachments(attachments);
+            }
+            for (Map.Entry<String, DataHandler> entry : dataHandlers.entrySet()) {
+                Attachment att = new AttachmentImpl(entry.getKey(), entry.getValue());
+                attachments.add(att);
             }
         }
     }
-   
 
 }

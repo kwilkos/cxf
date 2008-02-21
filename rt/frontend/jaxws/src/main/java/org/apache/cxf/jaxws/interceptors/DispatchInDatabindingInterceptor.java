@@ -60,6 +60,7 @@ import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.helpers.XMLUtils;
 import org.apache.cxf.interceptor.AbstractInDatabindingInterceptor;
+import org.apache.cxf.interceptor.AttachmentInInterceptor;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.interceptor.StaxInInterceptor;
 import org.apache.cxf.io.CachedOutputStream;
@@ -151,6 +152,7 @@ public class DispatchInDatabindingInterceptor extends AbstractInDatabindingInter
                     //LogicalHandler for DataSource payload
                     message.setContent(DataSource.class, obj);  
                 } else {                 
+                    new AttachmentInInterceptor().handleMessage(message);
                     new StaxInInterceptor().handleMessage(message);
                     
                     DataReader<XMLStreamReader> dataReader = new XMLStreamDataReader();

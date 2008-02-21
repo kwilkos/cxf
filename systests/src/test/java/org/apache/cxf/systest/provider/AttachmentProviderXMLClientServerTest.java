@@ -23,18 +23,15 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import org.apache.cxf.common.util.Base64Utility;
 import org.apache.cxf.helpers.IOUtils;
+import org.apache.cxf.helpers.XMLUtils;
 import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class AttachmentProviderXMLClientServerTest extends AbstractBusClientServerTestBase {
@@ -46,7 +43,6 @@ public class AttachmentProviderXMLClientServerTest extends AbstractBusClientServ
     }
 
     @Test
-    @Ignore("REVISIT: I do not think it is valid to use Provider to receive a StreamSource with attachement")
     public void testRequestWithAttachment() throws Exception {
         
         HttpURLConnection connection =  
@@ -63,20 +59,28 @@ public class AttachmentProviderXMLClientServerTest extends AbstractBusClientServ
         IOUtils.copy(is, connection.getOutputStream());
         connection.getOutputStream().close();
         is.close();
+
+        assertTrue("wrong content type", connection.getContentType().contains("multipart/related"));
+        String input = IOUtils.toString(connection.getInputStream());
         
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder builder = factory.newDocumentBuilder();
-        assertEquals("wrong content type", "application/xml+custom", connection.getContentType());
-        Document result = builder.parse(connection.getInputStream());
-        assertNotNull("result must not be null", result);
+        int idx = input.indexOf("-----");
+        int idx2 = input.indexOf("-----", idx + 5);
+        String root = input.substring(idx, idx2);
+        idx = root.indexOf("\r\n\r\n");
+        root = root.substring(idx).trim();
         
-        connection.getInputStream().close();
+
+        Document result = XMLUtils.parse(root);
         
         NodeList resList = result.getDocumentElement().getElementsByTagName("att");
         assertEquals("Two attachments must've been encoded", 2, resList.getLength());
         
         verifyAttachment(resList, "foo", "foobar");
         verifyAttachment(resList, "bar", "barbaz");
+        
+        input = input.substring(idx2);
+        assertTrue(input.contains("<foo>"));
+        assertTrue(input.contains("ABCDEFGHIJKLMNOP"));
     }
 
     private void verifyAttachment(NodeList atts, String contentId, String value) {

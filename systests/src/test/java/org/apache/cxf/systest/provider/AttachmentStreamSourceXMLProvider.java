@@ -31,6 +31,7 @@ import java.util.Map;
 
 import javax.activation.DataHandler;
 import javax.annotation.Resource;
+import javax.mail.util.ByteArrayDataSource;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.stream.StreamSource;
@@ -111,6 +112,15 @@ public class AttachmentStreamSourceXMLProvider implements Provider<StreamSource>
             List<String> contentTypeValues = new ArrayList<String>();
             contentTypeValues.add("application/xml+custom");
             respHeaders.put(Message.CONTENT_TYPE, contentTypeValues);
+
+            Map<String, DataHandler> outDataHandlers 
+                = CastUtils.cast((Map)mc.get(MessageContext.OUTBOUND_MESSAGE_ATTACHMENTS));
+            byte[] data = new byte[50];
+            for (int x = 0; x < data.length; x++) {
+                data[x] = (byte)(x + (int)'0');
+            }
+            DataHandler foo = new DataHandler(new ByteArrayDataSource(data, "application/octet-stream"));
+            outDataHandlers.put("foo", foo);
             
             return new StreamSource(new StringReader(buf.toString()));
         }
