@@ -62,6 +62,14 @@ public class JavaToProcessorTest extends ProcessorTestBase {
         processor.setEnvironment(new ToolContext());
         assertEquals(WSDLConstants.WSDLVersion.WSDL11, processor.getWSDLVersion());
     }
+    @Test
+    public void testGetOutputDir() throws Exception {
+        processor.setEnvironment(env);
+        File wsdlLocation = new File("http:\\\\example.com?wsdl");
+        File f = processor.getOutputDir(wsdlLocation);
+        assertNotNull(f);
+        assertTrue(f.exists());
+    }
 
     @Test
     public void testSimpleClass() throws Exception {

@@ -259,11 +259,13 @@ public class JavaToWSDLProcessor implements Processor {
     protected File getOutputDir(File wsdlLocation) {
         String dir = (String)context.get(ToolConstants.CFG_OUTPUTDIR);
         if (dir == null) {
-            if (wsdlLocation == null) {
+            if (wsdlLocation == null 
+                || wsdlLocation.getParentFile() == null
+                || !wsdlLocation.getParentFile().exists()) {
                 dir = "./";
             } else {
                 dir = wsdlLocation.getParent();
-            }
+            } 
         }
         return new File(dir);
     }
