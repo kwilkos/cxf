@@ -19,31 +19,43 @@
 
 package org.apache.cxf.service.invoker;
 
-import org.apache.cxf.common.util.factory.CachingPool;
-import org.apache.cxf.common.util.factory.Factory;
-import org.apache.cxf.common.util.factory.Pool;
-import org.apache.cxf.common.util.factory.PooledFactory;
 import org.apache.cxf.message.Exchange;
 
 /**
- * This scope policy implements one servant instance per service.
- * <p>
+ * Always returns a single instance of the bean.
  * 
- * @author Ben Yu Feb 6, 2006 11:38:08 AM
+ * This is generally the default.
  */
-public class ApplicationScopePolicy implements ScopePolicy {
-
-    private final Pool pool = new CachingPool();
-
-    public Factory applyScope(Factory f, Exchange ex) {
-        return new PooledFactory(f, pool);
+public class SingletonFactory implements Factory {
+    Object bean;
+    Factory factory;
+    public SingletonFactory(final Object bean) {
+        this.bean = bean;
+    }
+    public SingletonFactory(final Class<?> beanClass) {
+        this.factory = new PerRequestFactory(beanClass);
+    }
+    public SingletonFactory(final Factory f) {
+        this.factory = f;
     }
 
-    public String toString() {
-        return "application scope";
+    /** {@inheritDoc}*/
+    public Object create(Exchange ex) throws Throwable {
+        if (bean == null && factory != null) {
+            createBean(ex);
+        }
+        return bean;
     }
 
-    public static ScopePolicy instance() {
-        return new ApplicationScopePolicy();
+    private synchronized void createBean(Exchange e) throws Throwable {
+        if (bean == null) {
+            bean = factory.create(e);
+        }
     }
+    
+    /** {@inheritDoc}*/
+    public void release(Exchange ex, Object o) {
+        //nothing to do
+    }
+
 }

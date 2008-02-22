@@ -22,28 +22,28 @@ package org.apache.cxf.service.invoker;
 import java.lang.reflect.Modifier;
 import java.util.ResourceBundle;
 
+import org.apache.cxf.Bus;
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.common.i18n.Message;
-import org.apache.cxf.common.util.factory.Factory;
+import org.apache.cxf.common.injection.ResourceInjector;
 import org.apache.cxf.interceptor.Fault;
+import org.apache.cxf.message.Exchange;
+import org.apache.cxf.resource.ResourceManager;
 
 /**
- * The XFire implementation of {@link Factory} interface.
- * <p>
- * 
- * @author Ben Yu Feb 10, 2006 11:31:27 PM
+ * Creates a new instance of the service object for each call to create().
  */
-public class LocalFactory implements Factory {
-    private static final ResourceBundle BUNDLE = BundleUtils.getBundle(LocalFactory.class);
+public class PerRequestFactory implements Factory {
+    private static final ResourceBundle BUNDLE = BundleUtils.getBundle(PerRequestFactory.class);
 
     private final Class svcClass;
 
-    public LocalFactory(final Class svcClass) {
+    public PerRequestFactory(final Class svcClass) {
         super();
         this.svcClass = svcClass;
     }
 
-    public Object create() throws Fault {
+    public Object create(Exchange ex) throws Throwable {
         try {
             if (svcClass.isInterface()) {
                 throw new Fault(new Message("SVC_CLASS_IS_INTERFACE", BUNDLE, svcClass.getName()));
@@ -52,11 +52,23 @@ public class LocalFactory implements Factory {
             if (Modifier.isAbstract(svcClass.getModifiers())) {
                 throw new Fault(new Message("SVC_CLASS_IS_ABSTRACT", BUNDLE, svcClass.getName()));
             }
-            return svcClass.newInstance();
+            Object o = svcClass.newInstance();
+            Bus b = ex.get(Bus.class);
+            ResourceManager resourceManager = b.getExtension(ResourceManager.class);
+            if (resourceManager != null) {
+                ResourceInjector injector = new ResourceInjector(resourceManager);
+                injector.inject(o);
+                injector.construct(o);
+            }
+            return o;
         } catch (InstantiationException e) {
             throw new Fault(new Message("COULD_NOT_INSTANTIATE", BUNDLE));
         } catch (IllegalAccessException e) {
             throw new Fault(new Message("ILLEGAL_ACCESS", BUNDLE));
         }
+    }
+
+    public void release(Exchange ex, Object o) {
+        //nothing to do
     }
 }

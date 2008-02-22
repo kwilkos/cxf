@@ -29,38 +29,26 @@ import javax.xml.ws.handler.MessageContext.Scope;
 import javax.xml.ws.soap.SOAPFaultException;
 
 import org.apache.cxf.binding.soap.SoapFault;
-import org.apache.cxf.common.util.factory.Factory;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.jaxws.context.WebServiceContextImpl;
 import org.apache.cxf.jaxws.context.WrappedMessageContext;
 import org.apache.cxf.jaxws.support.ContextPropertiesMapping;
 import org.apache.cxf.message.Exchange;
-import org.apache.cxf.service.invoker.ApplicationScopePolicy;
+import org.apache.cxf.service.invoker.Factory;
 import org.apache.cxf.service.invoker.FactoryInvoker;
-import org.apache.cxf.service.invoker.ScopePolicy;
+import org.apache.cxf.service.invoker.SingletonFactory;
 
 public class JAXWSMethodInvoker extends FactoryInvoker {
 
     public JAXWSMethodInvoker(final Object bean) {
-        super(
-            new Factory() {
-                public Object create() {
-                    return bean;
-                }
-            },
-            ApplicationScopePolicy.instance());
-        
+        super(new SingletonFactory(bean));
     }
     
     public JAXWSMethodInvoker(Factory factory) {
-        super(factory, ApplicationScopePolicy.instance());
+        super(factory);
     }
     
-    public JAXWSMethodInvoker(Factory factory, ScopePolicy scope) {
-        super(factory, scope);
-    }
-
     protected Fault createFault(Throwable ex, Method m, List<Object> params, boolean checked) {
         //map the JAX-WS faults
         if (ex instanceof SOAPFaultException) {

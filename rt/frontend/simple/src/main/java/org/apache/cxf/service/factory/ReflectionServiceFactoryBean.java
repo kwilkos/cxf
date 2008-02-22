@@ -74,10 +74,9 @@ import org.apache.cxf.message.Exchange;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.ServiceImpl;
 import org.apache.cxf.service.ServiceModelSchemaValidator;
-import org.apache.cxf.service.invoker.ApplicationScopePolicy;
 import org.apache.cxf.service.invoker.FactoryInvoker;
 import org.apache.cxf.service.invoker.Invoker;
-import org.apache.cxf.service.invoker.LocalFactory;
+import org.apache.cxf.service.invoker.SingletonFactory;
 import org.apache.cxf.service.model.AbstractMessageContainer;
 import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
@@ -696,7 +695,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         }
     }
     protected Invoker createInvoker() {
-        return new FactoryInvoker(new LocalFactory(getServiceClass()), new ApplicationScopePolicy());
+        return new FactoryInvoker(new SingletonFactory(getServiceClass()));
     }
 
     protected ServiceInfo createServiceInfo(InterfaceInfo intf) {

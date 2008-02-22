@@ -16,14 +16,30 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.cxf.common.util.factory;
+package org.apache.cxf.service.invoker;
+
+import org.apache.cxf.message.Exchange;
 
 /**
  * Represents an object factory.
- * <p>
  * 
- * @author Ben Yu Jan 6, 2006 12:38:18 AM
+ * Used at invoke time to find the object that the invokation will use
  */
 public interface Factory {
-    Object create() throws Throwable;
+    
+    /**
+     * Creates the object that will be used for the invoke 
+     * @param e 
+     * @return
+     * @throws Throwable
+     */
+    Object create(Exchange e) throws Throwable;
+    
+    /**
+     * Post invoke, this is called to allow the factory to release
+     * the object, store it, etc...
+     * @param e
+     * @param o object created from the create method
+     */
+    void release(Exchange e, Object o);
 }
