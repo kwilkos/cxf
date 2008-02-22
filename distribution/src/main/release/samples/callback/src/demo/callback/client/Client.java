@@ -21,15 +21,19 @@
 package demo.callback.client;
 
 import java.io.File;
+import java.io.InputStream;
 import java.net.URL;
 
 import javax.xml.namespace.QName;
 import javax.xml.ws.Endpoint;
+import javax.xml.ws.wsaddressing.W3CEndpointReference;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 import org.apache.callback.SOAPService;
 import org.apache.callback.ServerPortType;
-import org.apache.cxf.ws.addressing.EndpointReferenceType;
-import org.apache.cxf.wsdl.EndpointReferenceUtils;
+import org.apache.cxf.helpers.XMLUtils;
 
 
 
@@ -75,11 +79,12 @@ public final class Client {
         SOAPService ss = new SOAPService(wsdlURL, SERVICE_NAME);
         ServerPortType port = ss.getSOAPPort();
         
-        EndpointReferenceType ref =
-            EndpointReferenceUtils.getEndpointReference(wsdlURL,
-                                                        SERVICE_NAME_CALLBACK, 
-                                                        PORT_NAME_CALLBACK.getLocalPart());
-        EndpointReferenceUtils.setInterfaceName(ref, PORT_TYPE_CALLBACK);
+        InputStream is = demo.callback.client.Client.class.getResourceAsStream("callback_infoset.xml");
+        Document doc = XMLUtils.parse(is);
+        Element referenceParameters = XMLUtils.fetchElementByNameAttribute(doc.getDocumentElement(),
+                                                                           "wsa:ReferenceParameters",
+                                                                           "");
+        W3CEndpointReference ref = (W3CEndpointReference)endpoint.getEndpointReference(referenceParameters);
         
 
         String resp = port.registerCallback(ref);

@@ -19,18 +19,12 @@
 
 package demo.callback.server;
 
-import java.net.URL;
 
-import javax.xml.namespace.QName;
-import javax.xml.ws.Service;
+import javax.xml.ws.WebServiceFeature;
+import javax.xml.ws.wsaddressing.W3CEndpointReference;
 
 import org.apache.callback.CallbackPortType;
 import org.apache.callback.ServerPortType;
-import org.apache.cxf.jaxb.JAXBUtils;
-import org.apache.cxf.ws.addressing.EndpointReferenceType;
-import org.apache.cxf.wsdl.EndpointReferenceUtils;
-import org.apache.cxf.wsdl.WSDLManager;
-import org.apache.cxf.wsdl11.WSDLManagerImpl;
 
 
 @javax.jws.WebService(serviceName = "SOAPService", 
@@ -40,38 +34,12 @@ import org.apache.cxf.wsdl11.WSDLManagerImpl;
                   
 public class ServerImpl implements ServerPortType  {
     
-    public String registerCallback(EndpointReferenceType callback) {
+    public String registerCallback(W3CEndpointReference callback) {
         
         try {
 
-            WSDLManager manager = new WSDLManagerImpl();
-        
-            QName interfaceName = EndpointReferenceUtils.getInterfaceName(callback);
-            String wsdlLocation = EndpointReferenceUtils.getWSDLLocation(callback);
-            QName serviceName = EndpointReferenceUtils.getServiceName(callback);
-            String portString = EndpointReferenceUtils.getPortName(callback);
-            
-            QName portName = new QName(serviceName.getNamespaceURI(), portString);
-            
-            StringBuffer seiName = new StringBuffer();
-            seiName.append(JAXBUtils.namespaceURIToPackage(interfaceName.getNamespaceURI()));
-            seiName.append(".");
-            seiName.append(JAXBUtils.nameToIdentifier(interfaceName.getLocalPart(),
-                                                      JAXBUtils.IdentifierType.INTERFACE));
-
-            System.out.println("the seiname is " + seiName.toString()); 
-            Class<?> sei = null;    
-            try {
-                sei = Class.forName(seiName.toString(), 
-                                    true, manager.getClass().getClassLoader());
-            } catch (ClassNotFoundException ex) {
-                ex.printStackTrace();
-            }
-            
-            URL wsdlURL = new URL(wsdlLocation);            
-            
-            Service service = Service.create(wsdlURL, serviceName);
-            CallbackPortType port =  (CallbackPortType)service.getPort(portName, sei);
+            WebServiceFeature[] wfs = new WebServiceFeature[] {};
+            CallbackPortType port = (CallbackPortType)callback.getPort(CallbackPortType.class, wfs);
 
             System.out.println("Invoking on callback object");
             String resp = port.serverSayHi(System.getProperty("user.name"));
