@@ -22,9 +22,9 @@ package org.apache.cxf.jaxrs.resources;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.ws.rs.HttpMethod;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
 import javax.ws.rs.UriParam;
-import javax.ws.rs.UriTemplate;
 import javax.xml.bind.annotation.XmlRootElement;
 
 
@@ -52,8 +52,8 @@ public class BookNoSubResource {
         return id;
     }
     
-    @UriTemplate("chapters/{chapterid}/")
-    @HttpMethod("GET")
+    @Path("chapters/{chapterid}/")
+    @GET
     public Chapter getChapter(@UriParam("id")int chapterid) {
         return chapters.get(new Long(chapterid));
     }   

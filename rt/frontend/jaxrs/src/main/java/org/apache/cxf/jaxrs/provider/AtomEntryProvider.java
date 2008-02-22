@@ -27,7 +27,9 @@ import javax.ws.rs.ConsumeMime;
 import javax.ws.rs.ProduceMime;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.ext.EntityProvider;
+import javax.ws.rs.ext.MessageBodyReader;
+import javax.ws.rs.ext.MessageBodyWriter;
+import javax.ws.rs.ext.Provider;
 
 import org.apache.abdera.Abdera;
 import org.apache.abdera.model.Document;
@@ -35,7 +37,9 @@ import org.apache.abdera.model.Entry;
 
 @ProduceMime("application/atom+xml")
 @ConsumeMime("application/atom+xml")
-public class AtomEntryProvider implements EntityProvider<Entry> {
+@Provider
+public class AtomEntryProvider 
+    implements MessageBodyReader<Entry>, MessageBodyWriter<Entry> {
 
     private static final Abdera ATOM_ENGINE = new Abdera();
     
@@ -46,7 +50,11 @@ public class AtomEntryProvider implements EntityProvider<Entry> {
         return doc.getRoot();
     }
 
-    public boolean supports(Class<?> type) {
+    public boolean isReadable(Class<?> type) {
+        return Entry.class.isAssignableFrom(type);
+    }
+    
+    public boolean isWriteable(Class<?> type) {
         return Entry.class.isAssignableFrom(type);
     }
 
@@ -55,5 +63,8 @@ public class AtomEntryProvider implements EntityProvider<Entry> {
         throws IOException {
         entry.writeTo(os);
     }
-
+ 
+    public long getSize(Entry entry) {
+        return -1;
+    }
 }

@@ -22,9 +22,7 @@ package org.apache.cxf.jaxrs.provider;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
-import org.apache.cxf.message.Message;
-
-public final class ResponseImpl implements Response {
+public final class ResponseImpl extends Response {
     private final int status;
     private final Object entity;
     private MultivaluedMap<String, Object> metadata;
@@ -43,7 +41,7 @@ public final class ResponseImpl implements Response {
         return status;
     }
 
-    public void addMetadata(MultivaluedMap<String, Object> meta) { 
+    void addMetadata(MultivaluedMap<String, Object> meta) { 
         this.metadata = meta;
     }
     
@@ -52,9 +50,4 @@ public final class ResponseImpl implements Response {
         return metadata;
     }
     
-    public void serializeMetadata(Message m) {
-        
-        m.put(Message.PROTOCOL_HEADERS, metadata);
-        
-    }
 }

@@ -28,33 +28,32 @@ import java.util.Set;
 
 import javax.ws.rs.core.MultivaluedMap;
 
-public class MetadataMap implements MultivaluedMap<String, Object> {
+public class MetadataMap<K, V> implements MultivaluedMap<K, V> {
 
-    private Map<String, List<Object>> m = new HashMap<String, List<Object>>();
+    private Map<K, List<V>> m = new HashMap<K, List<V>>();
     
-    public void add(String key, Object value) {
-        List<Object> data = m.get(key);
+    public void add(K key, V value) {
+        List<V> data = m.get(key);
         if (data == null) {
-            data = new ArrayList<Object>();    
+            data = new ArrayList<V>();    
             m.put(key, data);
         }
         data.add(value);
     }
 
-    public Object getFirst(String key) {
-        List<Object> data = m.get(key);
+    public V getFirst(K key) {
+        List<V> data = m.get(key);
         return data == null ? null : data.get(0);
     }
 
-    public void putSingle(String key, Object value) {
-        List<Object> data = new ArrayList<Object>();
+    public void putSingle(K key, V value) {
+        List<V> data = new ArrayList<V>();
         data.add(value);
         m.put(key, data);
     }
 
     public void clear() {
         m.clear();
-
     }
 
     public boolean containsKey(Object key) {
@@ -65,11 +64,11 @@ public class MetadataMap implements MultivaluedMap<String, Object> {
         return m.containsValue(value);
     }
 
-    public Set<Entry<String, List<Object>>> entrySet() {
+    public Set<Entry<K, List<V>>> entrySet() {
         return m.entrySet();
     }
 
-    public List<Object> get(Object key) {
+    public List<V> get(Object key) {
         return m.get(key);
     }
 
@@ -77,19 +76,19 @@ public class MetadataMap implements MultivaluedMap<String, Object> {
         return m.isEmpty();
     }
 
-    public Set<String> keySet() {
+    public Set<K> keySet() {
         return m.keySet();
     }
 
-    public List<Object> put(String key, List<Object> value) {
+    public List<V> put(K key, List<V> value) {
         return m.put(key, value);
     }
 
-    public void putAll(Map<? extends String, ? extends List<Object>> map) {
+    public void putAll(Map<? extends K, ? extends List<V>> map) {
         m.putAll(map);
     }
 
-    public List<Object> remove(Object key) {
+    public List<V> remove(Object key) {
         return m.remove(key);
     }
 
@@ -97,7 +96,7 @@ public class MetadataMap implements MultivaluedMap<String, Object> {
         return m.size();
     }
 
-    public Collection<List<Object>> values() {
+    public Collection<List<V>> values() {
         return m.values();
     }
 

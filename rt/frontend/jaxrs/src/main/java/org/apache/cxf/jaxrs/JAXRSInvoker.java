@@ -97,7 +97,7 @@ public class JAXRSInvoker extends AbstractInvoker {
             // presume Inputstream has not been consumed yet by the root resource class.
             //I.e., only one place either in the root resource or sub-resouce class can
             //have a parameter that read from entitybody.
-            List<Object> newParams = JAXRSUtils.processParameters(subOri.getMethod(), values, msg);
+            List<Object> newParams = JAXRSUtils.processParameters(subOri, values, msg);
             msg.setContent(List.class, newParams);
             
             return this.invoke(exchange, newParams);

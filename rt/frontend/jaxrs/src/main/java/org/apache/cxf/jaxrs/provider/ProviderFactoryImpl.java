@@ -26,31 +26,39 @@ import java.util.List;
 
 import javax.ws.rs.ConsumeMime;
 import javax.ws.rs.ProduceMime;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response.Builder;
-import javax.ws.rs.ext.EntityProvider;
 import javax.ws.rs.ext.HeaderProvider;
+import javax.ws.rs.ext.MessageBodyReader;
+import javax.ws.rs.ext.MessageBodyWriter;
 import javax.ws.rs.ext.ProviderFactory;
 
 import org.apache.cxf.jaxrs.JAXRSUtils;
 
 
-
-//NOTE: ProviderFactory should provide a method that can pass in media types
 public class ProviderFactoryImpl extends ProviderFactory {
-    protected List<EntityProvider> defaultEntityProviders = new ArrayList<EntityProvider>();
-    protected List<EntityProvider> userEntityProviders = new ArrayList<EntityProvider>();
+    protected List<MessageBodyReader> defaultMessageReaders = new ArrayList<MessageBodyReader>();
+    protected List<MessageBodyWriter> defaultMessageWriters = new ArrayList<MessageBodyWriter>();
+    protected List<MessageBodyReader> userMessageReaders = new ArrayList<MessageBodyReader>();
+    protected List<MessageBodyWriter> userMessageWriters = new ArrayList<MessageBodyWriter>();
+    
     protected List<HeaderProvider> headerProviders = new ArrayList<HeaderProvider>();    
 
     public ProviderFactoryImpl() {
-        //TODO: search for EntityProviders from classpath or config file.
-        defaultEntityProviders.add(new JAXBElementProvider());
-        defaultEntityProviders.add(new JSONProvider());
-        defaultEntityProviders.add(new StringProvider());
-        defaultEntityProviders.add(new DOMSourceProvider());
-        defaultEntityProviders.add(new AtomFeedProvider());
-        defaultEntityProviders.add(new AtomEntryProvider());
-        sort(defaultEntityProviders);
+        // TODO : this needs to be done differently,
+        // we need to use cxf-jaxrs-extensions
+        setProviders(defaultMessageReaders,
+                     defaultMessageWriters,
+                     new JSONProvider(),
+                     new JAXBElementProvider(),
+                     new StringProvider(),
+                     new DOMSourceProvider(),
+                     new AtomFeedProvider(),
+                     new AtomEntryProvider());
+        headerProviders.add(new MediaTypeHeaderProvider());
     }
+    
+    
     
     public <T> T createInstance(Class<T> type) {
         if (type.isAssignableFrom(Builder.class)) {
@@ -59,35 +67,40 @@ public class ProviderFactoryImpl extends ProviderFactory {
         return null;
     }
    
-    @SuppressWarnings("unchecked")
-    public <T> EntityProvider<T> createEntityProvider(Class<T> type) {
-        
-        //Try user provided providers
-        EntityProvider<T> ep = chooseEntityProvider(userEntityProviders, type);
-        
-        //If none found try the default ones
-        if (ep == null) {
-            ep = chooseEntityProvider(defaultEntityProviders, type);
-        }     
-        
-        return ep;
-    }
-
-    @SuppressWarnings("unchecked")
-    public <T> EntityProvider<T> createEntityProvider(Class<T> type, String[] requestedMimeTypes,
-                                                      boolean isConsumeMime) {
-
-      //Try user defined providers
-        EntityProvider<T> ep = chooseEntityProvider(userEntityProviders, 
-                                                    type, requestedMimeTypes, isConsumeMime);
+    @Override
+    public <T> MessageBodyReader<T> createMessageBodyReader(Class<T> bodyType, MediaType mediaType) {
+        // Try user provided providers
+        MessageBodyReader<T> mr = chooseMessageReader(userMessageReaders, 
+                                                      bodyType,
+                                                      mediaType);
         
         //If none found try the default ones
-        if (ep == null) {
-            ep = chooseEntityProvider(defaultEntityProviders, type, requestedMimeTypes, isConsumeMime);
+        if (mr == null) {
+            mr = chooseMessageReader(defaultMessageReaders,
+                                     bodyType,
+                                     mediaType);
         }     
         
-        return ep;
+        return mr;
     }
+
+    @Override
+    public <T> MessageBodyWriter<T> createMessageBodyWriter(Class<T> bodyType, MediaType mediaType) {
+        // Try user provided providers
+        MessageBodyWriter<T> mw = chooseMessageWriter(userMessageWriters,
+                                                      bodyType,
+                                                      mediaType);
+        
+        //If none found try the default ones
+        if (mw == null) {
+            mw = chooseMessageWriter(defaultMessageWriters,
+                                     bodyType,
+                                     mediaType);
+        }     
+        
+        return mw;
+    }
+    
     
     @SuppressWarnings("unchecked")
     public <T> HeaderProvider<T> createHeaderProvider(Class<T> type) {
@@ -100,16 +113,25 @@ public class ProviderFactoryImpl extends ProviderFactory {
         return null;
     }
     
-    public boolean registerUserEntityProvider(EntityProvider e) {
-        userEntityProviders.add(e);
-        sort(userEntityProviders);
-        return true;
+       
+    private void setProviders(List<MessageBodyReader> readers, 
+                              List<MessageBodyWriter> writers, 
+                              Object... providers) {
+        
+        for (Object o : providers) {
+            if (MessageBodyReader.class.isAssignableFrom(o.getClass())) {
+                readers.add((MessageBodyReader)o); 
+            }
+            
+            if (MessageBodyWriter.class.isAssignableFrom(o.getClass())) {
+                writers.add((MessageBodyWriter)o); 
+            }
+        }
+        
+        sortReaders(readers);
+        sortWriters(writers);
     }
     
-    public boolean deregisterUserEntityProvider(EntityProvider e) {
-        return userEntityProviders.remove(e);
-    }
-   
     /*
      * sorts the available providers according to the media types they declare
      * support for. Sorting of media types follows the general rule: x/y < * x < *,
@@ -117,13 +139,129 @@ public class ProviderFactoryImpl extends ProviderFactory {
      * provider that lists *. Quality parameter values are also used such that
      * x/y;q=1.0 < x/y;q=0.7.
      */    
-    private void sort(List<EntityProvider> entityProviders) {
-        Collections.sort(entityProviders, new EntityProviderComparator());
+    private void sortReaders(List<MessageBodyReader> entityProviders) {
+        Collections.sort(entityProviders, new MessageBodyReaderComparator());
     }
     
+    private void sortWriters(List<MessageBodyWriter> entityProviders) {
+        Collections.sort(entityProviders, new MessageBodyWriterComparator());
+    }
     
-    private static class EntityProviderComparator implements Comparator<EntityProvider> {
-        public int compare(EntityProvider e1, EntityProvider e2) {
+        
+    
+    /**
+     * Choose the first body reader provider that matches the requestedMimeType 
+     * for a sorted list of Entity providers
+     * Returns null if none is found.
+     * @param <T>
+     * @param messageBodyReaders
+     * @param type
+     * @param requestedMimeType
+     * @return
+     */
+    private <T> MessageBodyReader<T> chooseMessageReader(
+        List<MessageBodyReader> readers, Class<T> type, MediaType mediaType) {
+        for (MessageBodyReader<T> ep : readers) {
+            
+            if (!ep.isReadable(type)) {
+                continue;
+            }
+            
+            List<MediaType> supportedMediaTypes =
+                JAXRSUtils.getConsumeTypes(ep.getClass().getAnnotation(ConsumeMime.class));
+            
+            List<MediaType> availableMimeTypes = 
+                JAXRSUtils.intersectMimeTypes(Collections.singletonList(mediaType),
+                                              supportedMediaTypes);
+
+            if (availableMimeTypes.size() != 0) {
+                return ep;
+            }
+        }     
+        
+        return null;
+        
+    }
+    
+        
+    /**
+     * Choose the first body writer provider that matches the requestedMimeType 
+     * for a sorted list of Entity providers
+     * Returns null if none is found.
+     * @param <T>
+     * @param messageBodyWriters
+     * @param type
+     * @param requestedMimeType
+     * @return
+     */
+    private <T> MessageBodyWriter<T> chooseMessageWriter(
+        List<MessageBodyWriter> writers, Class<T> type, MediaType mediaType) {
+        for (MessageBodyWriter<T> ep : writers) {
+            if (!ep.isWriteable(type)) {
+                continue;
+            }
+            List<MediaType> supportedMediaTypes =
+                JAXRSUtils.getProduceTypes(ep.getClass().getAnnotation(ProduceMime.class));
+            
+            List<MediaType> availableMimeTypes = 
+                JAXRSUtils.intersectMimeTypes(Collections.singletonList(mediaType),
+                                              supportedMediaTypes);
+
+            if (availableMimeTypes.size() != 0) {
+                return ep;
+            }
+        }     
+        
+        return null;
+        
+    }
+    
+        
+    public boolean registerUserEntityProvider(Object o) {
+        setProviders(userMessageReaders, userMessageWriters, o);
+        return true;
+    }
+    
+    public boolean deregisterUserEntityProvider(Object o) {
+        boolean result = false;
+        if (o instanceof MessageBodyReader) {
+            result = userMessageReaders.remove(o);
+        }
+        return o instanceof MessageBodyReader 
+               ? result && userMessageWriters.remove(o) : result;
+                                               
+    }
+    
+    public List<MessageBodyReader> getDefaultMessageReaders() {
+        return defaultMessageReaders;
+    }
+
+    public List<MessageBodyWriter> getDefaultMessageWriters() {
+        return defaultMessageWriters;
+    }
+    
+    public List<MessageBodyReader> getUserMessageReaders() {
+        return userMessageReaders;
+    }
+    
+    public List<MessageBodyWriter> getUserMessageWriters() {
+        return userMessageWriters;
+    }
+
+    /**
+     * Use for injection of entityProviders
+     * @param entityProviders the entityProviders to set
+     */
+    public void setUserEntityProviders(List<?> userProviders) {
+        setProviders(userMessageReaders,
+                     userMessageWriters,
+                     userProviders.toArray());
+    }
+
+    private static class MessageBodyReaderComparator 
+        implements Comparator<MessageBodyReader> {
+        
+        public int compare(MessageBodyReader e1, MessageBodyReader e2) {
             ConsumeMime c = e1.getClass().getAnnotation(ConsumeMime.class);
             String[] mimeType1 = {"*/*"};
             if (c != null) {
@@ -135,7 +273,38 @@ public class ProviderFactoryImpl extends ProviderFactory {
             if (c2 != null) {
                 mimeType2 = c2.value();               
             }
+    
+            return compareString(mimeType1[0], mimeType2[0]);
+            
+        }
 
+        private int compareString(String str1, String str2) {
+            if (!str1.startsWith("*/") && str2.startsWith("*/")) {
+                return -1;
+            } else if (str1.startsWith("*/") && !str2.startsWith("*/")) {
+                return 1;
+            } 
+            
+            return str1.compareTo(str2);
+        }
+    }
+    
+    private static class MessageBodyWriterComparator 
+        implements Comparator<MessageBodyWriter> {
+        
+        public int compare(MessageBodyWriter e1, MessageBodyWriter e2) {
+            ProduceMime c = e1.getClass().getAnnotation(ProduceMime.class);
+            String[] mimeType1 = {"*/*"};
+            if (c != null) {
+                mimeType1 = c.value();               
+            }
+            
+            ProduceMime c2 = e2.getClass().getAnnotation(ProduceMime.class);
+            String[] mimeType2 = {"*/*"};
+            if (c2 != null) {
+                mimeType2 = c2.value();               
+            }
+    
             return compareString(mimeType1[0], mimeType2[0]);
             
         }
@@ -150,82 +319,6 @@ public class ProviderFactoryImpl extends ProviderFactory {
             return str1.compareTo(str2);
         }
     }
-
-    /**
-     * Choose the first Entity provider that matches the requestedMimeTypes 
-     * for a sorted list of Entity providers
-     * Returns null if none is found.
-     * @param <T>
-     * @param entityProviders
-     * @param type
-     * @param requestedMimeTypes
-     * @param isConsumeMime
-     * @return
-     */
-    private EntityProvider chooseEntityProvider(List<EntityProvider> entityProviders, Class<?> type, 
-                                                 String[] requestedMimeTypes, boolean isConsumeMime) {
-        for (EntityProvider<?> ep : entityProviders) {
-            String[] supportedMimeTypes = {"*/*"};            
-            if (isConsumeMime) {
-                ConsumeMime c = ep.getClass().getAnnotation(ConsumeMime.class);
-                if (c != null) {
-                    supportedMimeTypes = c.value();               
-                }           
-            } else {
-                ProduceMime c = ep.getClass().getAnnotation(ProduceMime.class);
-                if (c != null) {
-                    supportedMimeTypes = c.value();               
-                }                  
-            }
-            
-            String[] availableMimeTypes = JAXRSUtils.intersectMimeTypes(requestedMimeTypes,
-                                                                        supportedMimeTypes);
-
-            if (availableMimeTypes.length != 0 && ep.supports(type)) {
-                return ep;
-            }
-        }     
-        
-        return null;
-        
-    }
     
-    /**
-     * Choose the first Entity provider that matches the type for a sorted list of Entity providers
-     * Returns null if none is found.
-     * @param <T>
-     * @param entityProviders
-     * @param type
-     * @return
-     */
-    @SuppressWarnings("unchecked")
-    private <T> EntityProvider<T> chooseEntityProvider(List<EntityProvider> entityProviders, Class<T> type) {
-        
-        for (EntityProvider<T> ep : entityProviders) {
-            if (ep.supports(type)) {
-                return ep;
-            }
-        }           
-        return null;
-    }
-    
-    
-    public List<EntityProvider> getDefaultEntityProviders() {
-        return defaultEntityProviders;
-    }
-
-
-    public List<EntityProvider> getUserEntityProviders() {
-        return userEntityProviders;
-    }
-
-    /**
-     * Use for injection of entityProviders
-     * @param entityProviders the entityProviders to set
-     */
-    public void setUserEntityProviders(List<EntityProvider> userEntityProviders) {
-        this.userEntityProviders = userEntityProviders;
-        sort(this.userEntityProviders);
-    }
 
 }

@@ -24,10 +24,13 @@ package org.apache.cxf.systest.jaxrs;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.ws.rs.HttpMethod;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
 import javax.ws.rs.ProduceMime;
 import javax.ws.rs.UriParam;
-import javax.ws.rs.UriTemplate;
 import javax.ws.rs.core.Response;
 import javax.xml.transform.dom.DOMSource;
 
@@ -35,7 +38,7 @@ import org.apache.cxf.customer.book.BookNotFoundDetails;
 import org.apache.cxf.customer.book.BookNotFoundFault;
 import org.apache.cxf.helpers.XMLUtils;
 
-@UriTemplate("/bookstore/")
+@Path("/bookstore/")
 public class BookStore {
 
     private Map<Long, Book> books = new HashMap<Long, Book>();
@@ -48,9 +51,20 @@ public class BookStore {
         System.out.println("----books: " + books.size());
     }
 
-    @HttpMethod("GET")
-    @UriTemplate("/books/{bookId}/")
+    @GET
+    @Path("/books/{bookId}/")
     public Book getBook(@UriParam("bookId") String id) throws BookNotFoundFault {
+        return doGetBook(id);
+    }
+    
+    @GET
+    @Path("/books/{bookId}/")
+    @ProduceMime("application/json")
+    public Book getBookAsJSON(@UriParam("bookId") String id) throws BookNotFoundFault {
+        return doGetBook(id);
+    }
+    
+    private Book doGetBook(String id) throws BookNotFoundFault {
         System.out.println("----invoking getBook with id: " + id);
         Book book = books.get(Long.parseLong(id));
         if (book != null) {
@@ -62,7 +76,7 @@ public class BookStore {
         }
     }
     
-    @UriTemplate("/booksubresource/{bookId}/")
+    @Path("/booksubresource/{bookId}/")
     public Book getBookSubResource(@UriParam("bookId") String id) throws BookNotFoundFault {
         System.out.println("----invoking getBookSubResource with id: " + id);
         Book book = books.get(Long.parseLong(id));
@@ -75,8 +89,8 @@ public class BookStore {
         }
     }
     
-    @HttpMethod("GET")
-    @UriTemplate("/booknames/{bookId}/")
+    @GET
+    @Path("/booknames/{bookId}/")
     @ProduceMime("text/*")
     public String getBookName(@UriParam("bookId") int id) throws BookNotFoundFault {
         System.out.println("----invoking getBookName with id: " + id);
@@ -90,19 +104,19 @@ public class BookStore {
         }
     }
 
-    @HttpMethod("POST")
-    @UriTemplate("/books")
+    @POST
+    @Path("/books")
     @ProduceMime("text/xml")
     public Response addBook(Book book) {
         System.out.println("----invoking addBook, book name is: " + book.getName());
         book.setId(++bookId);
         books.put(book.getId(), book);
 
-        return Response.Builder.ok(book).build();
+        return Response.ok(book).build();
     }
 
-    @HttpMethod("PUT")
-    @UriTemplate("/books/")
+    @PUT
+    @Path("/books/")
     public Response updateBook(Book book) {
         System.out.println("----invoking updateBook, book name is: " + book.getName());
         Book b = books.get(book.getId());
@@ -110,24 +124,24 @@ public class BookStore {
         Response r;
         if (b != null) {
             books.put(book.getId(), book);
-            r = Response.Builder.ok().build();
+            r = Response.ok().build();
         } else {
-            r = Response.Builder.notModified().build();
+            r = Response.notModified().build();
         }
 
         return r;
     }
     
-    @HttpMethod("PUT")
-    @UriTemplate("/bookswithdom/")
+    @PUT
+    @Path("/bookswithdom/")
     public DOMSource updateBook(DOMSource ds) {
         System.out.println("----invoking updateBook with DOMSource");
         XMLUtils.printDOM(ds.getNode());
         return ds;
     }
     
-    @HttpMethod("PUT")
-    @UriTemplate("/bookswithjson/")
+    @PUT
+    @Path("/bookswithjson/")
     public Response updateBookJSON(Book book) {
         System.out.println("----invoking updateBook, book name is: " + book.getName());
         Book b = books.get(book.getId());
@@ -135,32 +149,32 @@ public class BookStore {
         Response r;
         if (b != null) {
             books.put(book.getId(), book);
-            r = Response.Builder.ok().build();
+            r = Response.ok().build();
         } else {
-            r = Response.Builder.notModified().build();
+            r = Response.notModified().build();
         }
 
         return r;
     }
 
-    @HttpMethod("DELETE")
-    @UriTemplate("/books/{bookId}/")
+    @DELETE
+    @Path("/books/{bookId}/")
     public Response deleteBook(@UriParam("bookId") String id) {
         System.out.println("----invoking deleteBook with bookId: " + id);
         Book b = books.get(Long.parseLong(id));
 
         Response r;
         if (b != null) {
-            r = Response.Builder.ok().build();
+            r = Response.ok().build();
         } else {
-            r = Response.Builder.notModified().build();
+            r = Response.notModified().build();
         }
 
         return r;
     }
 
-    @HttpMethod("GET")
-    @UriTemplate("/cd/{CDId}/")
+    @GET
+    @Path("/cd/{CDId}/")
     public CD getCD(@UriParam("CDId") String id) {
         System.out.println("----invoking getCD with cdId: " + id);
         CD cd = cds.get(Long.parseLong(id));
@@ -168,8 +182,8 @@ public class BookStore {
         return cd;
     }
 
-    @HttpMethod("GET")
-    @UriTemplate("/cdwithmultitypes/{CDId}/")
+    @GET
+    @Path("/cdwithmultitypes/{CDId}/")
     @ProduceMime({"application/xml", "application/json" }) 
     public CD getCDWithMultiContentTypes(@UriParam("CDId") String id) {
         System.out.println("----invoking getCDWithMultiContentTypes with cdId: " + id);
@@ -178,8 +192,8 @@ public class BookStore {
         return cd;
     }
     
-    @HttpMethod("GET")
-    @UriTemplate("/cds/")
+    @GET
+    @Path("/cds/")
     public CDs getCDs() {
         System.out.println("----invoking getCDs");
         CDs c = new CDs();

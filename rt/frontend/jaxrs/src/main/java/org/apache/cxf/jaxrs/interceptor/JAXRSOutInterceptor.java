@@ -21,23 +21,19 @@ package org.apache.cxf.jaxrs.interceptor;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
-import javax.activation.MimeType;
-import javax.activation.MimeTypeParseException;
 import javax.ws.rs.ProduceMime;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.ext.EntityProvider;
+import javax.ws.rs.ext.MessageBodyWriter;
 import javax.ws.rs.ext.ProviderFactory;
 
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.interceptor.AbstractOutDatabindingInterceptor;
 import org.apache.cxf.jaxrs.JAXRSUtils;
 import org.apache.cxf.jaxrs.model.OperationResourceInfo;
-import org.apache.cxf.jaxrs.provider.ProviderFactoryImpl;
-import org.apache.cxf.jaxrs.provider.ResponseImpl;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageContentsList;
@@ -73,10 +69,8 @@ public class JAXRSOutInterceptor extends AbstractOutDatabindingInterceptor {
                 Response response = (Response)responseObj;
                 
                 message.put(Message.RESPONSE_CODE, response.getStatus());
-                if (response instanceof ResponseImpl) {
-                    ((ResponseImpl)response).serializeMetadata(message);
-                }
-                
+                message.put(Message.PROTOCOL_HEADERS, response.getMetadata());
+                                
                 responseObj = response.getEntity();
                 if (responseObj == null) {
                     return;
@@ -84,25 +78,25 @@ public class JAXRSOutInterceptor extends AbstractOutDatabindingInterceptor {
             } 
             
             Class targetType = responseObj.getClass();
-            String[] availableContentTypes = computeAvailableContentTypes(message);  
+            List<MediaType> availableContentTypes = 
+                computeAvailableContentTypes(message);  
             
-            StringBuffer typesTmp = new StringBuffer();
-            for (String type : availableContentTypes) {
-                typesTmp.append(type + ",");
+            MessageBodyWriter writer = null;
+            for (MediaType type : availableContentTypes) { 
+                writer = ProviderFactory.getInstance()
+                    .createMessageBodyWriter(targetType, type);
+                 
+                if (writer != null) {
+                    break;
+                }
             }
-            LOG.info("Available content types for response is: " + typesTmp);
-
-            EntityProvider provider = ((ProviderFactoryImpl)ProviderFactory.getInstance())
-                .createEntityProvider(targetType, availableContentTypes, false);
-            LOG.info("Response EntityProvider is: " + provider.getClass().getName());
-
+            
             try {
-                String outputContentType = computeFinalContentTypes(availableContentTypes, provider);
-                LOG.info("Response content type is: " + outputContentType);
-               
-                message.put(Message.CONTENT_TYPE, computeFinalContentTypes(availableContentTypes, provider));
-                
-                provider.writeTo(responseObj, null, null, out);
+                LOG.fine("Response EntityProvider is: " + writer.getClass().getName());
+                MediaType mt = computeFinalContentTypes(availableContentTypes, writer);
+                LOG.fine("Response content type is: " + mt.toString());
+                message.put(Message.CONTENT_TYPE, mt.toString());
+                writer.writeTo(responseObj, mt, null, out);
             } catch (IOException e) {
                 e.printStackTrace();
             }        
@@ -111,48 +105,25 @@ public class JAXRSOutInterceptor extends AbstractOutDatabindingInterceptor {
 
     }
     
-    private String[] computeAvailableContentTypes(Message message) {
+    private List<MediaType> computeAvailableContentTypes(Message message) {
         Exchange exchange = message.getExchange();
         
-        String[] methodMimeTypes = exchange.get(OperationResourceInfo.class).getProduceMimeTypes();
-        String acceptContentType = (String)exchange.get(Message.ACCEPT_CONTENT_TYPE);
-
-        List<String> types = new ArrayList<String>();
-        if (acceptContentType != null) {
-            while (acceptContentType.length() > 0) {
-                String tp = acceptContentType;
-                if (acceptContentType.contains(",")) {
-                    tp = acceptContentType.substring(0, acceptContentType.indexOf(','));
-                    acceptContentType = acceptContentType
-                        .substring(acceptContentType.indexOf(',') + 1).trim();
-                } else {
-                    acceptContentType = "";
-                }
-                try {
-                    MimeType mt = new MimeType(tp);
-                    types.add(mt.getBaseType());
-                } catch (MimeTypeParseException e) {
-                    // ignore
-                }
-            }
-        }
-        if (types.isEmpty()) {
-            types.add("*/*");
-        }
+        List<MediaType> methodMimeTypes = exchange.get(OperationResourceInfo.class).getProduceTypes();
+        String acceptContentTypes = (String)exchange.get(Message.ACCEPT_CONTENT_TYPE);
         
-        return JAXRSUtils.intersectMimeTypes(methodMimeTypes,
-                                             types.toArray(new String[types.size()]));        
+        List<MediaType> acceptValues = JAXRSUtils.parseMediaTypes(acceptContentTypes);
+        
+        return JAXRSUtils.intersectMimeTypes(methodMimeTypes, acceptValues);        
     }
     
-    private String computeFinalContentTypes(String[] requestContentTypes, EntityProvider provider) {
-        String[] providerMimeTypes = {"*/*"};            
-
-        ProduceMime c = provider.getClass().getAnnotation(ProduceMime.class);
-        if (c != null) {
-            providerMimeTypes = c.value();               
-        } 
-        
-        String[] list = JAXRSUtils.intersectMimeTypes(requestContentTypes, providerMimeTypes);
-        return list[0];      
+    private MediaType computeFinalContentTypes(List<MediaType> produceContentTypes, 
+                                               MessageBodyWriter provider) {
+        List<MediaType> providerMimeTypes = 
+            JAXRSUtils.getProduceTypes(provider.getClass().getAnnotation(ProduceMime.class));
+                
+        List<MediaType> list = 
+            JAXRSUtils.intersectMimeTypes(produceContentTypes, providerMimeTypes);
+      
+        return list.get(0);      
     }
 }

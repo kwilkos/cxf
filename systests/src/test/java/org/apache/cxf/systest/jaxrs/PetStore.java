@@ -21,14 +21,14 @@
 package org.apache.cxf.systest.jaxrs;
 
 
-import javax.ws.rs.HttpMethod;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
 import javax.ws.rs.ProduceMime;
 import javax.ws.rs.UriParam;
-import javax.ws.rs.UriTemplate;
 import javax.ws.rs.core.Response;
 
 
-@UriTemplate("/petstore/")
+@Path("/petstore/")
 public class PetStore {
 
     public static final  String CLOSED = "The Pet Store is closed"; 
@@ -37,13 +37,13 @@ public class PetStore {
         System.out.println("Petstore constructed");
     }
 
-    @HttpMethod("GET")
-    @UriTemplate("/pets/{petId}/")
+    @GET
+    @Path("/pets/{petId}/")
     @ProduceMime("text/xml")
     public Response getStatus(@UriParam("petId") String petId) throws Exception {
         System.out.println("----invoking getStatus on the petStore for id: " + petId);
         
-        return Response.Builder.ok(CLOSED).build();
+        return Response.ok(CLOSED).build();
     }
 }
 

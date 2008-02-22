@@ -58,44 +58,44 @@
             <artifactId>spring-core</artifactId>
         </dependency>
         <dependency>
-	            <groupId>org.apache.cxf</groupId>
-	            <artifactId>cxf-rt-frontend-jaxws</artifactId>
-	            <version>${project.version}</version>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-frontend-jaxws</artifactId>
+            <version>${project.version}</version>
         </dependency>
-         <dependency>
-             <groupId>javax.ws.rs</groupId>
-             <artifactId>jsr311-api</artifactId>
-             <version>0.4</version>
-         </dependency>
-         <dependency>
-             <groupId>jaxen</groupId>
-             <artifactId>jaxen</artifactId>
-         </dependency>
-         <dependency>
-           <groupId>org.apache.abdera</groupId>
+        <dependency>
+            <groupId>javax.ws.rs</groupId>
+            <artifactId>jsr311-api</artifactId>
+            <version>0.5</version>
+        </dependency>
+        <dependency>
+            <groupId>jaxen</groupId>
+            <artifactId>jaxen</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.abdera</groupId>
             <artifactId>abdera-core</artifactId>
             <version>0.3.0-incubating</version>
-         </dependency>
-         <dependency>
-           <groupId>org.apache.abdera</groupId>
-           <artifactId>abdera-parser</artifactId>
-           <version>0.3.0-incubating</version>
-         </dependency>  
-        <dependency>
-	            <groupId>org.apache.geronimo.specs</groupId>
-	            <artifactId>geronimo-servlet_2.5_spec</artifactId>
-	            <scope>provided</scope>
         </dependency>
-       <dependency>
-	            <groupId>org.codehaus.jettison</groupId>
-	            <artifactId>jettison</artifactId>
+        <dependency>
+            <groupId>org.apache.abdera</groupId>
+            <artifactId>abdera-parser</artifactId>
+            <version>0.3.0-incubating</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-servlet_2.5_spec</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.jettison</groupId>
+            <artifactId>jettison</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-testutils</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
-        </dependency>        
+        </dependency>
         <dependency>
             <groupId>org.easymock</groupId>
             <artifactId>easymockclassextension</artifactId>
@@ -110,11 +110,5 @@
             <url>http://people.apache.org/repo/m2-incubating-repository</url>
         </repository>
     </repositories>
-
-    <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/trunk/rt/rs</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/trunk/rt/rs</developerConnection>
-      <url>http://svn.apache.org/viewvc/incubator/cxf/trunk/cxf-parent/cxf-rt-rs</url>
-  </scm>
 
 </project>

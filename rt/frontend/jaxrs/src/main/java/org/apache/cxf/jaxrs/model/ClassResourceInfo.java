@@ -25,17 +25,17 @@ import java.util.List;
 import org.apache.cxf.jaxrs.lifecycle.ResourceProvider;
 
 public class ClassResourceInfo {
-    private Class resourceClass;
+    private Class<?> resourceClass;
     private URITemplate uriTemplate;
     private MethodDispatcher methodDispatcher;
     private ResourceProvider resourceProvider;
     private List<ClassResourceInfo> subClassResourceInfo = new ArrayList<ClassResourceInfo>();
 
-    public ClassResourceInfo(Class theResourceClass) {
+    public ClassResourceInfo(Class<?> theResourceClass) {
         resourceClass = theResourceClass;
     }
 
-    public Class getResourceClass() {
+    public Class<?> getResourceClass() {
         return resourceClass;
     }
 

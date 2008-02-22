@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.ws.rs.ext.EntityProvider;
 import javax.ws.rs.ext.ProviderFactory;
 
 import org.apache.cxf.BusException;
@@ -66,7 +65,7 @@ public class JAXRSServerFactoryBean extends AbstractEndpointFactory {
     private boolean start = true;
     private JAXRSServiceFactoryBean serviceFactory;
     private List<Object> serviceBeans;
-    private List<EntityProvider> entityProviders;
+    private List<?> entityProviders;
 
     public JAXRSServerFactoryBean() {
         this(new JAXRSServiceFactoryBean());
@@ -272,14 +271,14 @@ public class JAXRSServerFactoryBean extends AbstractEndpointFactory {
     /**
      * @return the entityProviders
      */
-    public List<EntityProvider> getEntityProviders() {
+    public List<?> getEntityProviders() {
         return entityProviders;
     }
 
     /**
      * @param entityProviders the entityProviders to set
      */
-    public void setEntityProviders(List<EntityProvider> entityProviders) {
+    public void setEntityProviders(List<? extends Object> entityProviders) {
         this.entityProviders = entityProviders;
     }
 }

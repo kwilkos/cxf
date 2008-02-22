@@ -23,16 +23,29 @@ package org.apache.cxf.jaxrs.provider;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.ext.EntityProvider;
+import javax.ws.rs.ext.MessageBodyReader;
+import javax.ws.rs.ext.MessageBodyWriter;
+import javax.ws.rs.ext.Provider;
 
 import org.apache.cxf.helpers.IOUtils;
 
-public final class StringProvider implements EntityProvider<String>  {
+@Provider
+public final class StringProvider 
+    implements MessageBodyWriter<String>, MessageBodyReader<String>  {
 
-    public boolean supports(Class<?> type) {
+    public boolean isWriteable(Class<?> type) {
         return type == String.class;
+    }
+    
+    public boolean isReadable(Class<?> type) {
+        return type == String.class;
+    }
+    
+    public long getSize(String s) {
+        return s.length();
     }
 
     public String readFrom(Class<String> type, MediaType m, MultivaluedMap<String, String> headers,

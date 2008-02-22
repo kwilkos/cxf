@@ -50,15 +50,15 @@ public class JAXRSInInterceptor extends AbstractPhaseInterceptor<Message> {
         String path = (String)message.get(Message.PATH_INFO);
         String address = (String)message.get(Message.BASE_PATH);
         String httpMethod = (String)message.get(Message.HTTP_REQUEST_METHOD);
-        String contentType = (String)message.get(Message.CONTENT_TYPE);
-        if (contentType == null) {
-            contentType = "*/*";
+        String requestContentType = (String)message.get(Message.CONTENT_TYPE);
+        if (requestContentType == null) {
+            requestContentType = "*/*";
         }
-        String acceptContentType = (String)message.get(Message.ACCEPT_CONTENT_TYPE);
-        if (acceptContentType == null) {
-            acceptContentType = "*/*";
+        String acceptContentTypes = (String)message.get(Message.ACCEPT_CONTENT_TYPE);
+        if (acceptContentTypes == null) {
+            acceptContentTypes = "*/*";
         }
-        message.getExchange().put(Message.ACCEPT_CONTENT_TYPE, acceptContentType);
+        message.getExchange().put(Message.ACCEPT_CONTENT_TYPE, acceptContentTypes);
         
         if (address.startsWith("http")) {
             int idx = address.indexOf('/', 7);
@@ -75,15 +75,14 @@ public class JAXRSInInterceptor extends AbstractPhaseInterceptor<Message> {
         }
 
         if (!path.endsWith("/")) {
-            //path = path.substring(0, path.length() - 1);
             path = path + "/";
         }
         message.put(RELATIVE_PATH, path);
         
-        LOG.info("Request path is: " + path);
-        LOG.info("Request HTTP method is: " + httpMethod);
-        LOG.info("Request contentType is: " + contentType);
-        LOG.info("Accept contentType is: " + acceptContentType);
+        LOG.fine("Request path is: " + path);
+        LOG.fine("Request HTTP method is: " + httpMethod);
+        LOG.fine("Request contentType is: " + requestContentType);
+        LOG.fine("Accept contentType is: " + acceptContentTypes);
 
 
         //1. Matching target resource classes and method
@@ -91,12 +90,16 @@ public class JAXRSInInterceptor extends AbstractPhaseInterceptor<Message> {
         List<ClassResourceInfo> resources = ((JAXRSServiceImpl)service).getClassResourceInfos();
 
         Map<String, String> values = new HashMap<String, String>();
-        OperationResourceInfo ori = JAXRSUtils.findTargetResourceClass(resources, path, httpMethod, values,
-                                                                       contentType, acceptContentType);
+        OperationResourceInfo ori = JAXRSUtils.findTargetResourceClass(resources, 
+                                                                       path, 
+                                                                       httpMethod, 
+                                                                       values,
+                                                                       requestContentType, 
+                                                                       acceptContentTypes);
 
         if (ori == null) {
-            LOG.severe("No operation found for path: " + path + ", contentType: " + contentType
-                       + ", Accept contentType: " + acceptContentType);
+            LOG.severe("No operation found for path: " + path + ", contentType: " 
+                       + requestContentType + ", Accept contentType: " + acceptContentTypes);
             //throw new Fault(new org.apache.cxf.common.i18n.Message("NO_OP", BUNDLE, method, path));
         }
         LOG.info("Found operation: " + ori.getMethod().getName());
@@ -106,7 +109,7 @@ public class JAXRSInInterceptor extends AbstractPhaseInterceptor<Message> {
       
         //2. Process parameters
         List<Object> params = JAXRSUtils
-            .processParameters(ori.getMethod(), values, message);
+            .processParameters(ori, values, message);
 
         message.setContent(List.class, params);
     }

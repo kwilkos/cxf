@@ -29,7 +29,8 @@ import javax.ws.rs.ConsumeMime;
 import javax.ws.rs.ProduceMime;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.ext.EntityProvider;
+import javax.ws.rs.ext.MessageBodyReader;
+import javax.ws.rs.ext.MessageBodyWriter;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
@@ -45,14 +46,23 @@ import org.codehaus.jettison.badgerfish.BadgerFishXMLOutputFactory;
 
 @ProduceMime("application/json")
 @ConsumeMime("application/json")
-public final class BadgerFishProvider implements EntityProvider<Object>  {
+public final class BadgerFishProvider 
+    implements MessageBodyReader<Object>, MessageBodyWriter<Object>  {
 
     static Map<Class, JAXBContext> jaxbContexts = new WeakHashMap<Class, JAXBContext>();
 
-    public boolean supports(Class<?> type) {
+    public boolean isReadable(Class<?> type) {
+        return type.getAnnotation(XmlRootElement.class) != null;
+    }
+    
+    public boolean isWriteable(Class<?> type) {
         return type.getAnnotation(XmlRootElement.class) != null;
     }
 
+    public long getSize(Object o) {
+        return -1;
+    }
+    
     public Object readFrom(Class<Object> type, MediaType m, MultivaluedMap<String, String> headers,
                            InputStream is) {
         try {

@@ -20,8 +20,6 @@
 package org.apache.cxf.jaxrs.provider;
 
 import org.apache.cxf.jaxrs.MetadataMap;
-import org.apache.cxf.message.Message;
-import org.apache.cxf.message.MessageImpl;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -35,11 +33,10 @@ public class ResponseImplTest extends Assert {
         assertEquals("Wrong status", ri.getStatus(), 200);
         assertSame("Wrong entity", entity, ri.getEntity());
         
-        MetadataMap meta = new MetadataMap();
-        Message m = new MessageImpl();
+        MetadataMap<String, Object> meta = new MetadataMap<String, Object>();
         ri.addMetadata(meta);
-        ri.serializeMetadata(m);
-        assertSame("Wrong metadata", meta, m.get(Message.PROTOCOL_HEADERS));
+        ri.getMetadata();
+        assertSame("Wrong metadata", meta, ri.getMetadata());
     }
 
 }

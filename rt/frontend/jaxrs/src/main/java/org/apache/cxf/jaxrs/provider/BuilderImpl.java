@@ -21,6 +21,7 @@ package org.apache.cxf.jaxrs.provider;
 
 import java.net.URI;
 import java.util.Date;
+import java.util.List;
 
 import javax.ws.rs.core.CacheControl;
 import javax.ws.rs.core.EntityTag;
@@ -28,22 +29,25 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Builder;
+import javax.ws.rs.core.Variant;
+import javax.ws.rs.ext.HeaderProvider;
+import javax.ws.rs.ext.ProviderFactory;
 
 import org.apache.cxf.jaxrs.MetadataMap;
 
-
-public final class BuilderImpl extends Response.Builder {
+public final class BuilderImpl extends Builder {
     private int status = 200;
     private Object entity;
-    private MultivaluedMap<String, Object> metadata = new MetadataMap();
+    private MultivaluedMap<String, Object> metadata = new MetadataMap<String, Object>();
 
     public BuilderImpl() {
     }
 
        
     public Response build() {
-        Response r = new ResponseImpl(status, entity);
-        MetadataMap m = new MetadataMap();
+        ResponseImpl r = new ResponseImpl(status, entity);
+        MetadataMap<String, Object> m = new MetadataMap<String, Object>();
         m.putAll(metadata);
         r.addMetadata(m);
         reset();
@@ -61,11 +65,12 @@ public final class BuilderImpl extends Response.Builder {
     }
 
     public Response.Builder type(MediaType type) {
-        return null;
+        return type(type.toString());
     }
 
     public Response.Builder type(String type) {
-        return null;
+        metadata.putSingle("Content-Type", type);
+        return this;
     }
 
     public Response.Builder language(String language) {
@@ -78,34 +83,56 @@ public final class BuilderImpl extends Response.Builder {
     }
 
     public Response.Builder contentLocation(URI location) {
-        return null;
+        metadata.putSingle("Content-Location", location.toString());
+        return this;
     }
 
     public Response.Builder tag(EntityTag tag) {
-        return null;
+        return tag(tag.toString());
     }
 
     public Response.Builder tag(String tag) {
-        return null;
+        metadata.putSingle("ETag", tag.toString());
+        return this;
     }
 
     public Response.Builder lastModified(Date lastModified) {
-        return null;
+        metadata.putSingle("Last-Modified", lastModified.toString());
+        return this;
     }
 
     public Response.Builder cacheControl(CacheControl cacheControl) {
-        return null;
+        metadata.putSingle("Cache-Control", cacheControl.toString());
+        return this;
     }
 
     public Response.Builder cookie(NewCookie cookie) {
-        return null;
+        metadata.putSingle("Cookie", cookie.toString());
+        return this;
     }
 
+    @SuppressWarnings("unchecked")
     public Response.Builder header(String name, Object value) {
-        // TODO: we need to use HeaderProviders to have headers serialized
+        HeaderProvider hp = 
+            ProviderFactory.getInstance().createHeaderProvider(value.getClass());
+        metadata.putSingle(name, hp.toString(value));
+        return this;
+    }
+
+    
+    @Override
+    public Response.Builder variant(Variant variant) {
+        // TODO Auto-generated method stub
         return null;
     }
 
+
+    @Override
+    public Builder variants(List<Variant> variants) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+    
     private void reset() {
         metadata.clear();
         entity = null;

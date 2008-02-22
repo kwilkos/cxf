@@ -27,8 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
 
-import javax.ws.rs.HttpMethod;
-import javax.ws.rs.UriTemplate;
+import javax.ws.rs.Path;
 
 import org.apache.cxf.jaxrs.lifecycle.PerRequestResourceProvider;
 import org.apache.cxf.jaxrs.lifecycle.ResourceProvider;
@@ -132,7 +131,7 @@ public class JAXRSServiceFactoryBean extends AbstractServiceFactoryBean {
     }
 
     protected ClassResourceInfo createRootClassResourceInfo(final Class<?> c) {
-        UriTemplate uriTemplateAnnotation = c.getAnnotation(UriTemplate.class);
+        Path uriTemplateAnnotation = c.getAnnotation(Path.class);
         if (uriTemplateAnnotation == null) {
             return null;
         }
@@ -174,28 +173,29 @@ public class JAXRSServiceFactoryBean extends AbstractServiceFactoryBean {
     protected MethodDispatcher createOperation(Class c, ClassResourceInfo cri) {
         MethodDispatcher md = new MethodDispatcher();
         for (Method m : c.getMethods()) {
-            if (m.getAnnotation(UriTemplate.class) != null && m.getAnnotation(HttpMethod.class) != null) {
+            String httpMethod = JAXRSUtils.getHttpMethodValue(m);
+            
+            if (m.getAnnotation(Path.class) != null && httpMethod != null) {
                 /*
                  * Sub-resource method, URI template created by concatenating
                  * the URI template of the resource class with the URI template
                  * of the method
                  */
                 OperationResourceInfo ori = new OperationResourceInfo(m, cri);
-                String uriTemplate = m.getAnnotation(UriTemplate.class).value();
+                String uriTemplate = m.getAnnotation(Path.class).value();
                 if (!uriTemplate.startsWith("/")) {
                     uriTemplate = "/" + uriTemplate;
                 }
 
                 ori.setURITemplate(new URITemplate(uriTemplate, URITemplate.UNLIMITED_REGEX_SUFFIX));
 
-                String httpMethod = m.getAnnotation(HttpMethod.class).value();
                 ori.setHttpMethod(httpMethod);
 
                 md.bind(ori, m);
-            } else if (m.getAnnotation(UriTemplate.class) != null) {
+            } else if (m.getAnnotation(Path.class) != null) {
                 // sub-resource locator
                 OperationResourceInfo ori = new OperationResourceInfo(m, cri);
-                String uriTemplate = m.getAnnotation(UriTemplate.class).value();
+                String uriTemplate = m.getAnnotation(Path.class).value();
                 if (!uriTemplate.startsWith("/")) {
                     uriTemplate = "/" + uriTemplate;
                 }                
@@ -209,8 +209,7 @@ public class JAXRSServiceFactoryBean extends AbstractServiceFactoryBean {
                 //Iterate through sub-resources
                 ClassResourceInfo subCri = createClassResourceInfo(subResourceClass);
                 cri.addSubClassResourceInfo(subCri);
-            } else if (m.getAnnotation(HttpMethod.class) != null) {
-                String httpMethod = m.getAnnotation(HttpMethod.class).value();
+            } else if (httpMethod != null) {
                 OperationResourceInfo ori = new OperationResourceInfo(m, cri);
                 String uriTemplate = "/";
                 ori.setURITemplate(new URITemplate(uriTemplate, URITemplate.UNLIMITED_REGEX_SUFFIX));
@@ -222,7 +221,9 @@ public class JAXRSServiceFactoryBean extends AbstractServiceFactoryBean {
 
         return md;
     }
-
+    
+    
+    
     protected Invoker createInvoker() {
         return new JAXRSInvoker();
     }

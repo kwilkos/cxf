@@ -56,7 +56,17 @@ public class JAXRSClientServerBookTest extends AbstractBusClientServerTestBase {
         InputStream expected = getClass()
             .getResourceAsStream("resources/expected_get_book123.txt");
 
-        assertEquals(getStringFromInputStream(expected), getStringFromInputStream(in)); 
+        assertEquals(getStringFromInputStream(expected), getStringFromInputStream(in));
+        
+        connect = url.openConnection();
+        connect.addRequestProperty("Accept", "application/xml,application/json");
+        in = connect.getInputStream();
+        assertNotNull(in);           
+
+        expected = getClass()
+            .getResourceAsStream("resources/expected_get_book123json.txt");
+
+        assertEquals(getStringFromInputStream(expected), getStringFromInputStream(in));
     }
     
     @Test

@@ -66,10 +66,17 @@ public class AtomEntryProviderTest extends Assert {
     }
     
     @Test
-    public void testSupports() {
-        assertTrue(afd.supports(Entry.class));
-        assertTrue(afd.supports(FOMEntry.class));
-        assertFalse(afd.supports(Feed.class));
+    public void testWriteable() {
+        assertTrue(afd.isWriteable(Entry.class));
+        assertTrue(afd.isWriteable(FOMEntry.class));
+        assertFalse(afd.isWriteable(Feed.class));
+    }
+    
+    @Test
+    public void testReadable() {
+        assertTrue(afd.isReadable(Entry.class));
+        assertTrue(afd.isReadable(FOMEntry.class));
+        assertFalse(afd.isReadable(Feed.class));
     }
     
     @Test

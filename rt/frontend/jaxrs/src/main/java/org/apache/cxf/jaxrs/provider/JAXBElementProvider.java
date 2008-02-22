@@ -27,21 +27,33 @@ import java.util.WeakHashMap;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.ext.EntityProvider;
+import javax.ws.rs.ext.MessageBodyReader;
+import javax.ws.rs.ext.MessageBodyWriter;
+import javax.ws.rs.ext.Provider;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlRootElement;
 
-public final class JAXBElementProvider implements EntityProvider<Object>  {
+@Provider
+public final class JAXBElementProvider 
+    implements MessageBodyReader<Object>, MessageBodyWriter<Object>  {
 
     static Map<Class, JAXBContext> jaxbContexts = new WeakHashMap<Class, JAXBContext>();
 
-    public boolean supports(Class<?> type) {
+    public boolean isWriteable(Class<?> type) {
+        return type.getAnnotation(XmlRootElement.class) != null;
+    }
+    
+    public boolean isReadable(Class<?> type) {
         return type.getAnnotation(XmlRootElement.class) != null;
     }
 
+    public long getSize(Object o) {
+        return -1;
+    }
+    
     public Object readFrom(Class<Object> type, MediaType m, MultivaluedMap<String, String> headers,
                            InputStream is) {
         try {
@@ -57,29 +69,6 @@ public final class JAXBElementProvider implements EntityProvider<Object>  {
 
     public void writeTo(Object obj, MediaType m, MultivaluedMap<String, Object> headers, OutputStream os) {
         try {
-            //Looks like we do not need to deal with Array and List as multiple root elements 
-            //is not allowed in a plain-old-xml binding anyway.
-/*            if (obj.getClass().isArray() || obj instanceof List) {
-                Class<?> cls = null;
-                Object objArray;
-                if (obj instanceof List) {
-                    List l = (List)obj;
-                    objArray = l.toArray(new Object[l.size()]);
-                    cls = null;
-                } else {
-                    objArray = obj;
-                    cls = objArray.getClass().getComponentType();
-                }
-                int len = Array.getLength(objArray);
-                for (int x = 0; x < len; x++) {
-                    Object o = Array.get(objArray, x);
-                    JAXBContext context = getJAXBContext(o.getClass());
-                    Marshaller marshaller = context.createMarshaller();
-                    marshaller.setProperty(Marshaller.JAXB_FRAGMENT, true);
-                    marshaller.marshal(new JAXBElement(new QName(null, o.getClass().getSimpleName()),
-                                                       cls == null ? o.getClass() : cls, o), os);
-                }
-            } else {*/
             JAXBContext context = getJAXBContext(obj.getClass());
             Marshaller marshaller = context.createMarshaller();
             marshaller.setProperty(Marshaller.JAXB_FRAGMENT, true);

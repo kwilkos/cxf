@@ -20,36 +20,38 @@
 
 package org.apache.cxf.jaxrs.resources;
 
-import javax.ws.rs.HttpMethod;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
 import javax.ws.rs.UriParam;
-import javax.ws.rs.UriTemplate;
 import javax.ws.rs.core.Response;
 
-@UriTemplate("/bookstore/")
+@Path("/bookstore/")
 public class BookStore {
 
     public BookStore() {
     }
 
-    @UriTemplate("/books/{bookId}/")
+    @Path("/books/{bookId}/")
     public Book getBook(@UriParam("bookId") String id) {
         return null;
     }
 
-    @HttpMethod("POST")
-    @UriTemplate("/books")
+    @POST
+    @Path("/books")
     public Response addBook(Book book) {
         return null;
     }
 
-    @HttpMethod("PUT")
-    @UriTemplate("/books/")
+    @PUT
+    @Path("/books/")
     public Response updateBook(Book book) {
         return null;
     }
 
-    @HttpMethod("DELETE")
-    @UriTemplate("/books/{bookId}/")
+    @DELETE
+    @Path("/books/{bookId}/")
     public Response deleteBook(@UriParam("bookId") String id) {
         return null;
     }

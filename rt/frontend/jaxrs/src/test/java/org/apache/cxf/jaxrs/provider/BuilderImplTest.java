@@ -34,25 +34,25 @@ public class BuilderImplTest extends Assert {
     @Test
     public void testOkBuild() {
       
-        checkBuild(Response.Builder.ok().build(),
-                          200, null, new MetadataMap());
+        checkBuild(Response.ok().build(),
+                          200, null, new MetadataMap<String, Object>());
         
     }
     
     @Test
     public void testCreatedNoEntity() throws Exception {
         
-        MetadataMap m = new MetadataMap();
+        MetadataMap<String, Object> m = new MetadataMap<String, Object>();
         m.putSingle("Location", "http://foo");
         
-        checkBuild(Response.Builder.created(new URI("http://foo")).build(),
+        checkBuild(Response.created(new URI("http://foo")).build(),
                    201, null, m);
         
         
     }
     
     private void checkBuild(Response r, int status, Object entity, 
-                            MetadataMap meta) {
+                            MetadataMap<String, Object> meta) {
         ResponseImpl ri = (ResponseImpl)r;
         assertEquals("Wrong status", ri.getStatus(), status);
         assertSame("Wrong entity", ri.getEntity(), entity);

@@ -27,10 +27,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.ws.rs.ConsumeMime;
-import javax.ws.rs.HttpMethod;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
 import javax.ws.rs.ProduceMime;
 import javax.ws.rs.UriParam;
-import javax.ws.rs.UriTemplate;
 import javax.ws.rs.core.Response;
 import javax.xml.bind.JAXBContext;
 
@@ -41,7 +42,7 @@ import org.apache.abdera.model.Feed;
 import org.apache.cxf.customer.book.BookNotFoundDetails;
 import org.apache.cxf.customer.book.BookNotFoundFault;
 
-@UriTemplate("/bookstore/")
+@Path("/bookstore/")
 public class AtomBookStore {
 
     private Map<Long, Book> books = new HashMap<Long, Book>();
@@ -54,8 +55,8 @@ public class AtomBookStore {
         System.out.println("----books: " + books.size());
     }
     
-    @HttpMethod("GET")
-    @UriTemplate("/books/feed")
+    @GET
+    @Path("/books/feed")
     @ProduceMime("application/atom+xml")
     public Feed getBooksAsFeed() {
         Factory factory = Abdera.getNewFactory();
@@ -76,8 +77,8 @@ public class AtomBookStore {
         return f;
     }
     
-    @HttpMethod("POST")
-    @UriTemplate("/books/feed")
+    @POST
+    @Path("/books/feed")
     @ConsumeMime("application/atom+xml")
     public Response addBookAsEntry(Entry e) {
         try {
@@ -89,14 +90,14 @@ public class AtomBookStore {
             
             // this code is broken as Response does not
             URI uri = new URI("http://localhost:9080/bookstore/books/entries/" + b.getId());
-            return Response.Builder.created(uri).build();
+            return Response.created(uri).build();
         } catch (Exception ex) {
-            return Response.Builder.serverError().build();
+            return Response.serverError().build();
         }
     }
     
-    @HttpMethod("GET")
-    @UriTemplate("/books/entries/{bookId}/")
+    @GET
+    @Path("/books/entries/{bookId}/")
     @ProduceMime("application/atom+xml")
     public Entry getBookAsEntry(@UriParam("bookId") String id) throws BookNotFoundFault {
         System.out.println("----invoking getBook with id: " + id);
@@ -115,7 +116,7 @@ public class AtomBookStore {
         return null;
     }
     
-    @UriTemplate("/books/subresources/{bookId}/")
+    @Path("/books/subresources/{bookId}/")
     public AtomBook getBook(@UriParam("bookId") String id) throws BookNotFoundFault {
         System.out.println("----invoking getBook with id: " + id);
         Book book = books.get(Long.parseLong(id));

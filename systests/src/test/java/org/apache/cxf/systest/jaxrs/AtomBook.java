@@ -19,7 +19,7 @@
 
 package org.apache.cxf.systest.jaxrs;
 
-import javax.ws.rs.HttpMethod;
+import javax.ws.rs.GET;
 import javax.ws.rs.ProduceMime;
 
 import org.apache.abdera.model.Entry;
@@ -34,7 +34,7 @@ public class AtomBook {
     
     
     
-    @HttpMethod("GET")
+    @GET
     @ProduceMime("application/atom+xml")
     public Entry getAsEntry() {
         try {

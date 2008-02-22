@@ -27,7 +27,9 @@ import javax.ws.rs.ConsumeMime;
 import javax.ws.rs.ProduceMime;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.ext.EntityProvider;
+import javax.ws.rs.ext.MessageBodyReader;
+import javax.ws.rs.ext.MessageBodyWriter;
+import javax.ws.rs.ext.Provider;
 
 import org.apache.abdera.Abdera;
 import org.apache.abdera.model.Document;
@@ -35,19 +37,13 @@ import org.apache.abdera.model.Feed;
 
 @ProduceMime("application/atom+xml")
 @ConsumeMime("application/atom+xml")
-public class AtomFeedProvider implements EntityProvider<Feed> {
+@Provider
+public class AtomFeedProvider 
+    implements MessageBodyWriter<Feed>, MessageBodyReader<Feed> {
 
     private static final Abdera ATOM_ENGINE = new Abdera();
-    
-    public Feed readFrom(Class<Feed> clazz, MediaType mt, 
-                         MultivaluedMap<String, String> headers, InputStream is)
-        throws IOException {
-        Document<Feed> doc = ATOM_ENGINE.getParser().parse(is);
-        return doc.getRoot();
-    }
-
-    public boolean supports(Class<?> type) {
         
+    public boolean isWriteable(Class<?> type) {
         return Feed.class.isAssignableFrom(type);
     }
 
@@ -55,6 +51,20 @@ public class AtomFeedProvider implements EntityProvider<Feed> {
                         MultivaluedMap<String, Object> headers, OutputStream os)
         throws IOException {
         feed.writeTo(os);
+    }
+    
+    public long getSize(Feed feed) {
+        return -1;
+    }
+
+    public boolean isReadable(Class<?> type) {
+        return Feed.class.isAssignableFrom(type);
+    }
+
+    public Feed readFrom(Class<Feed> type, MediaType mediaType, 
+                         MultivaluedMap<String, String> headers, InputStream is) throws IOException {
+        Document<Feed> doc = ATOM_ENGINE.getParser().parse(is);
+        return doc.getRoot();
     }
 
 }

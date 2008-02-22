@@ -64,10 +64,17 @@ public class AtomFeedProviderTest extends Assert {
     }
     
     @Test
-    public void testSupports() {
-        assertTrue(afd.supports(Feed.class));
-        assertTrue(afd.supports(FOMFeed.class));
-        assertFalse(afd.supports(Entry.class));
+    public void testWriteable() {
+        assertTrue(afd.isWriteable(Feed.class));
+        assertTrue(afd.isWriteable(FOMFeed.class));
+        assertFalse(afd.isWriteable(Entry.class));
+    }
+    
+    @Test
+    public void testReadable() {
+        assertTrue(afd.isReadable(Feed.class));
+        assertTrue(afd.isReadable(FOMFeed.class));
+        assertFalse(afd.isReadable(Entry.class));
     }
     
     @Test

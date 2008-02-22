@@ -22,9 +22,9 @@ package org.apache.cxf.systest.jaxrs;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.ws.rs.HttpMethod;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
 import javax.ws.rs.UriParam;
-import javax.ws.rs.UriTemplate;
 import javax.xml.bind.annotation.XmlRootElement;
 
 
@@ -54,8 +54,8 @@ public class Book {
         return id;
     }
     
-    @HttpMethod("GET")
-    @UriTemplate("chapters/{chapterid}/")    
+    @GET
+    @Path("chapters/{chapterid}/")    
     public Chapter getChapter(@UriParam("chapterid")int chapterid) {
         System.out.println("----invoking getChapter with chapterid: " + chapterid);
 

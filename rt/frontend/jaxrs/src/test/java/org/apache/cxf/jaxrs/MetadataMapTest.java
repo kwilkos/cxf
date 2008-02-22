@@ -31,7 +31,7 @@ public class MetadataMapTest extends Assert {
     
     @Test
     public void testPutSingle() {
-        MetadataMap m = new MetadataMap();
+        MetadataMap<String, Object> m = new MetadataMap<String, Object>();
         List<Object> value1 = new ArrayList<Object>();
         value1.add("bar");
         value1.add("foo");
@@ -45,7 +45,7 @@ public class MetadataMapTest extends Assert {
     
     @Test
     public void testAddAndGetFirst() {
-        MetadataMap m = new MetadataMap();
+        MetadataMap<String, Object> m = new MetadataMap<String, Object>();
         m.add("baz", "bar");
         
         List<Object> value = m.get("baz");

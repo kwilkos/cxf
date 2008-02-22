@@ -25,7 +25,9 @@ import java.io.OutputStream;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.ext.EntityProvider;
+import javax.ws.rs.ext.MessageBodyReader;
+import javax.ws.rs.ext.MessageBodyWriter;
+import javax.ws.rs.ext.Provider;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -37,12 +39,17 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.w3c.dom.Document;
 
-
 import org.xml.sax.SAXException;
 
-public class DOMSourceProvider implements  EntityProvider<DOMSource> {
+@Provider
+public class DOMSourceProvider implements 
+    MessageBodyReader<DOMSource>, MessageBodyWriter<DOMSource> {
 
-    public boolean supports(Class<?> type) {
+    public boolean isWriteable(Class<?> type) {
+        return DOMSource.class.isAssignableFrom(type);
+    }
+    
+    public boolean isReadable(Class<?> type) {
         return DOMSource.class.isAssignableFrom(type);
     }
     
@@ -74,5 +81,9 @@ public class DOMSourceProvider implements  EntityProvider<DOMSource> {
         } catch (TransformerException te) {
             te.printStackTrace();
         }
+    }
+    
+    public long getSize(DOMSource source) {
+        return -1;
     }
 }

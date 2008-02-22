@@ -256,19 +256,6 @@ public final class CustomizationParser {
             if (targetNode != wsdlNode) {
                 nodeSelector.addNamespaces(targetNode);
             }
-            /*
-            String pfx = nodeSelector.getNamespaceContext().getPrefix(targetNode.getNamespaceURI());
-            int count = 0;
-            while (StringUtils.isEmpty(pfx)) {
-                pfx = "wsdl" + (count == 0 ? "" : count);
-                if (nodeSelector.getNamespaceContext().getNamespaceURI(pfx) != null) {
-                    count++;
-                }
-            }
-            pfx += ":";
-            Node node = nodeSelector.queryNode(targetNode, "//" + pfx + "definitions");
-            */
-
             
             copyBindingsToWsdl(targetNode, bindings, nodeSelector.getNamespaceContext());
         }
