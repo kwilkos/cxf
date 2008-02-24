@@ -69,7 +69,7 @@ public class XMLStreamDataWriter implements DataWriter<XMLStreamWriter> {
         Type type = databinding.getType(part);
 
         if (type == null) {
-            throw new Fault(new Message("NO_MESSAGE_FOR_PART", LOG));
+            throw new Fault(new Message("NO_MESSAGE_FOR_PART", LOG, part));
         }
 
 
