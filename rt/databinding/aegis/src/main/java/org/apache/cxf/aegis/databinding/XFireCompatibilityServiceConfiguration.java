@@ -20,11 +20,12 @@ package org.apache.cxf.aegis.databinding;
 
 import org.apache.cxf.aegis.util.NamespaceHelper;
 import org.apache.cxf.service.factory.AbstractServiceConfiguration;
+
 /**
- * Obsolete copy of {@link XFireCompatibilityServiceConfiguration}.
- * @deprecated 2.1
+ * This service configuration uses XFire-compatible conventions for assigning namespace URI's to Java packages
+ * when naming services.
  */
-public class AegisServiceConfiguration extends AbstractServiceConfiguration {
+public class XFireCompatibilityServiceConfiguration extends AbstractServiceConfiguration {
 
     @Override
     public String getServiceNamespace() {
