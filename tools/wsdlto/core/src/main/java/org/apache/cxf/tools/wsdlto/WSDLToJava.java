@@ -172,7 +172,7 @@ public class WSDLToJava {
 
         } catch (ToolException ex) {
             System.err.println();
-            System.err.println("WSDLToJava Error : " + ex.getMessage());
+            System.err.println("WSDLToJava Error: " + ex.getMessage());
             System.err.println();
             if (w2j.isVerbose()) {
                 ex.printStackTrace();
@@ -181,7 +181,7 @@ public class WSDLToJava {
                 System.exit(1);
             }
         } catch (Exception ex) {
-            System.err.println("WSDLToJava Error : " + ex.getMessage());
+            System.err.println("WSDLToJava Error: " + ex.getMessage());
             System.err.println();
             if (w2j.isVerbose()) {
                 ex.printStackTrace();
