@@ -19,6 +19,11 @@
 
 package org.apache.cxf.systest.jaxws;
 
+import javax.jws.WebMethod;
+import javax.jws.WebParam;
+import javax.jws.WebResult;
+import javax.jws.WebService;
+import javax.jws.soap.SOAPBinding;
 import javax.xml.ws.Endpoint;
 
 import org.apache.cxf.testutil.common.AbstractBusTestServerBase;
@@ -31,6 +36,8 @@ public class ServerMixedStyle extends AbstractBusTestServerBase {
         Object implementor = new GreeterImplMixedStyle();
         String address = "http://localhost:9027/SoapContext/SoapPort";
         Endpoint.publish(address, implementor);
+        
+        Endpoint.publish("http://localhost:9027/cxf885", new MixedTestImpl());
     }
 
     public static void main(String[] args) {
@@ -42,6 +49,51 @@ public class ServerMixedStyle extends AbstractBusTestServerBase {
             System.exit(-1);
         } finally {
             System.out.println("done!");
+        }
+    }
+    
+    @WebService(targetNamespace = "http://example.com") 
+    public static interface MixedTest { 
+        @WebMethod(operationName = "Simple") 
+        @WebResult(name = "SimpleResponse", targetNamespace = "http://example.com") 
+        @SOAPBinding(parameterStyle = SOAPBinding.ParameterStyle.BARE) 
+        String simple(@WebParam(name = "Simple") String req);
+        
+        @WebMethod(operationName = "Hello") 
+        @WebResult(name = "Result") 
+        @SOAPBinding(parameterStyle = SOAPBinding.ParameterStyle.WRAPPED) 
+        String hello(@WebParam(name = "A") String a,
+                     @WebParam(name = "B") String b);
+        
+        @WebMethod(operationName = "Simple2") 
+        @WebResult(name = "Simple2Response", targetNamespace = "http://example.com") 
+        @SOAPBinding(parameterStyle = SOAPBinding.ParameterStyle.BARE) 
+        String simple2(@WebParam(name = "Simple2") int a);
+        
+        @WebMethod(operationName = "Tripple") 
+        @WebResult(name = "Result") 
+        @SOAPBinding(parameterStyle = SOAPBinding.ParameterStyle.WRAPPED) 
+        String tripple(@WebParam(name = "A") String a,
+                     @WebParam(name = "B") String b,
+                     @WebParam(name = "C") String c);
+    } 
+    @WebService(targetNamespace = "http://example.com")
+    public class MixedTestImpl implements MixedTest {
+
+        public String hello(String a, String b) {
+            return "Hello " + a + " and " + b; 
+        }
+
+        public String simple(String req) {
+            return "Hello " + req;
+        }
+
+        public String simple2(int a) {
+            return "Int: " + a;
+        }
+
+        public String tripple(String a, String b, String c) {
+            return "Tripple: " + a + " " + b + " " + c;
         }
     }
 }
