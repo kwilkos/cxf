@@ -35,7 +35,6 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.aegis.databinding.AegisDatabinding;
-import org.apache.cxf.aegis.databinding.AegisServiceConfiguration;
 import org.apache.cxf.binding.BindingFactoryManager;
 import org.apache.cxf.binding.soap.SoapBindingConstants;
 import org.apache.cxf.binding.soap.SoapBindingFactory;
@@ -175,11 +174,13 @@ public abstract class AbstractAegisTest extends AbstractCXFTest {
     protected void setupAegis(AbstractWSDLBasedEndpointFactory sf) { 
         setupAegis(sf, null);
     }
+    @SuppressWarnings("deprecation")
     protected void setupAegis(AbstractWSDLBasedEndpointFactory sf, AegisDatabinding binding) {
         if (binding == null) {
             binding = new AegisDatabinding();
         }
-        sf.getServiceFactory().getServiceConfigurations().add(0, new AegisServiceConfiguration());
+        sf.getServiceFactory().getServiceConfigurations().add(0, 
+            new org.apache.cxf.aegis.databinding.AegisServiceConfiguration());
         sf.getServiceFactory().setDataBinding(binding);
     }
 
