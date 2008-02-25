@@ -252,7 +252,7 @@ public abstract class AbstractBeanDefinitionParser
         Object obj = null;
         try {
             String pkg = getJaxbPackage();
-            if (null != c) {
+            if (null != c && c.getPackage() != null) {
                 pkg = c.getPackage().getName();
             }
             context = JAXBContext.newInstance(pkg, getClass().getClassLoader());

@@ -27,6 +27,7 @@ import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
 import org.apache.cxf.service.model.InterfaceInfo;
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.service.model.ServiceInfo;
+import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.model.JavaException;
 import org.apache.cxf.tools.common.model.JavaInterface;
 import org.apache.cxf.tools.common.model.JavaMethod;
@@ -67,7 +68,11 @@ public final class JavaFirstUtil {
             jreturn.setStyle(Style.OUT);
             jm.setReturn(jreturn);
 
-            javaInf.setPackageName(m.getDeclaringClass().getPackage().getName());
+            if (m.getDeclaringClass().getPackage() != null) {
+                javaInf.setPackageName(m.getDeclaringClass().getPackage().getName());
+            } else {
+                javaInf.setPackageName(ToolConstants.DEFAULT_PACKAGE_NAME);
+            }
             javaInf.addMethod(jm);
             javaInf.setName(inf.getName().getLocalPart());
 
