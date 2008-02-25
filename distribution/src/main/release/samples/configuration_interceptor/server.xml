@@ -19,35 +19,29 @@
 -->
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:cxf="http://cxf.apache.org/core"
        xsi:schemaLocation="
+http://cxf.apache.org/core http://cxf.apache.org/schemas/core.xsd
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
   
     <bean id="GZIPStream" class="demo.stream.interceptor.StreamInterceptor"/>
 
     <!-- We are adding the interceptors to the bus as we will have only one endpoint/service/bus. -->
 
-    <bean id="cxf" class="org.apache.cxf.bus.CXFBusImpl">
-        <!--property name="inInterceptors">
-            <list>
-                <ref bean="GZIPStream"/>
-            </list>
-        </property>
-        <property name="inFaultInterceptors">
-            <list>
-                <ref bean="GZIPStream"/>
-            </list>
-        </property-->
-        <property name="outInterceptors">
-            <list>
-                <ref bean="GZIPStream"/>
-            </list>
-        </property>
-        <!--property name="outFaultInterceptors">
-            <list>
-                <ref bean="GZIPStream"/>
-            </list>
-        </property-->
-    </bean>
+    <cxf:bus>
+        <!--cxf:inInterceptors>
+            <ref bean="GZIPStream"/>
+        </cxf:inInterceptors>
+        <cxf:inFaultInterceptors>
+            <ref bean="GZIPStream"/>            
+        </cxf:inFaultInterceptors-->
+        <cxf:outInterceptors>            
+            <ref bean="GZIPStream"/>        
+        </cxf:outInterceptors>
+        <!--cxf:outFaultInterceptors>           
+             <ref bean="GZIPStream"/>
+        </cxf:outFaultInterceptors-->
+    </cxf:bus>
 
     <bean id="org.apache.cxf.management.InstrumentationManager"
           class="org.apache.cxf.management.jmx.InstrumentationManagerImpl">
