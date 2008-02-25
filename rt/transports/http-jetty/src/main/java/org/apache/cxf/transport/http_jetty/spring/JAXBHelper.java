@@ -49,7 +49,7 @@ public final class JAXBHelper {
            
         JAXBContext context = null;
         String pkg = "";
-        if (null != c) {
+        if (null != c && c.getPackage() != null) {
             pkg = c.getPackage().getName();
             context = JAXBContext.newInstance(pkg, c.getClassLoader());
         } else {
@@ -80,7 +80,7 @@ public final class JAXBHelper {
         }
         JAXBContext context = null;
         String pkg = "";
-        if (null != c) {
+        if (null != c && c.getPackage() != null) {
             pkg = c.getPackage().getName();
             context = JAXBContext.newInstance(pkg, c.getClassLoader());
         } else {

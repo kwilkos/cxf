@@ -496,7 +496,7 @@ public class ServiceImpl extends ServiceDelegate {
         }
 
         String tns = webService.targetNamespace();
-        if (tns.length() == 0) {
+        if (tns.length() == 0 && seiClass.getPackage() != null) {
             tns = URIParserUtil.getNamespace(seiClass.getPackage().getName());
         }
 
