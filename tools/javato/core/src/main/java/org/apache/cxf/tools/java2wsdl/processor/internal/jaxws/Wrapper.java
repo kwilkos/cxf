@@ -178,6 +178,9 @@ public class Wrapper {
         if (clz == null || clz.isPrimitive()) {
             return true;
         }
+        if (clz.getPackage() == null) { 
+            return false;
+        }
         return "java.lang".equals(clz.getPackage().getName());
     }
     
