@@ -16,26 +16,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.apache.cxf.systest.aegis.bean;
 
-/**
- * 
- */
-public class AddItemWrapper {
-    private Integer key;
-    private String data;
-
-    public Integer getKey() {
-        return key;
-    }
-    public void setKey(Integer key) {
-        this.key = key;
-    }
-    public String getData() {
-        return data;
-    }
-    public void setData(String data) {
-        this.data = data;
-    }
+public interface AnInterface {
+    Integer getKey();
+    String getData();
 }

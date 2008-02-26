@@ -17,35 +17,27 @@
  * under the License.
  */
 
-package org.apache.cxf.systest.aegis;
+package org.apache.cxf.systest.aegis.bean;
 
-import java.util.Map;
-
-import javax.jws.Oneway;
-import javax.jws.WebMethod;
-import javax.jws.WebParam;
-import javax.jws.WebService;
-
-import org.apache.cxf.systest.aegis.bean.Item;
+import java.io.Serializable;
 
 /**
  * 
  */
-@WebService(name = "AegisJaxWs")
-public interface AegisJaxWs {
-    @WebMethod
-    @Oneway
-    void addItem(@WebParam(name = "item")
-                 Item item);
+public class Item implements Serializable, AnInterface {
+    private Integer key;
+    private String data;
 
-    @WebMethod(operationName = "getItemsAsMap")
-    Map getItemsMap();
-
-    @WebMethod(operationName = "getItemsAsMapSpecified")
-    Map<Integer, Item> getItemsMapSpecified();
-
-    @WebMethod
-    Item getItemByKey(@WebParam(name = "key1")
-                      String key1, @WebParam(name = "key2")
-                      String key2);
+    public Integer getKey() {
+        return key;
+    }
+    public void setKey(Integer key) {
+        this.key = key;
+    }
+    public String getData() {
+        return data;
+    }
+    public void setData(String data) {
+        this.data = data;
+    }
 }

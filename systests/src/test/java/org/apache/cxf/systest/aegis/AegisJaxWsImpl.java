@@ -24,15 +24,15 @@ import java.util.Map;
 import javax.jws.WebService;
 
 import org.apache.cxf.feature.Features;
-import org.apache.cxf.systest.aegis.bean.AddItemWrapper;
+import org.apache.cxf.systest.aegis.bean.Item;
 
 @Features(features = "org.apache.cxf.feature.LoggingFeature")
 @WebService (endpointInterface = "org.apache.cxf.systest.aegis.AegisJaxWs")
 public class AegisJaxWsImpl implements AegisJaxWs {
     
-    Map<Integer, AddItemWrapper> items = new HashMap<Integer, AddItemWrapper>();
+    Map<Integer, Item> items = new HashMap<Integer, Item>();
 
-    public void addItem(AddItemWrapper item) {
+    public void addItem(Item item) {
         items.put(item.getKey(), item);
     }
 
@@ -40,12 +40,12 @@ public class AegisJaxWsImpl implements AegisJaxWs {
         return items;
     }
 
-    public Map<Integer, AddItemWrapper> getItemsMapSpecified() {
+    public Map<Integer, Item> getItemsMapSpecified() {
         return items;
     }
 
-    public AddItemWrapper getItemByKey(String key1, String key2) {
-        AddItemWrapper fake = new AddItemWrapper();
+    public Item getItemByKey(String key1, String key2) {
+        Item fake = new Item();
         fake.setKey(new Integer(33));
         fake.setData("and a third");
         return fake;

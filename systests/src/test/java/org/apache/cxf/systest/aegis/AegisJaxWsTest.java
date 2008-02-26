@@ -24,7 +24,7 @@ import java.util.Map.Entry;
 
 import org.apache.cxf.aegis.databinding.AegisDatabinding;
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
-import org.apache.cxf.systest.aegis.bean.AddItemWrapper;
+import org.apache.cxf.systest.aegis.bean.Item;
 import org.junit.Test;
 import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 
@@ -56,23 +56,24 @@ public class AegisJaxWsTest extends AbstractDependencyInjectionSpringContextTest
     @Test
     public void testGetItem() throws Exception {
         setupForTest();
-        client.getItemByKey("a", "b");
+        Item item = client.getItemByKey("a", "b");
+        assertEquals(33, item.getKey().intValue());
     }
     
     @Test 
     public void testMapSpecified() throws Exception {
         setupForTest();
-        AddItemWrapper item = new AddItemWrapper();
+        Item item = new Item();
         item.setKey(new Integer(42));
         item.setData("Godzilla");
         client.addItem(item);
         
-        Map<Integer, AddItemWrapper> items = client.getItemsMapSpecified();
+        Map<Integer, Item> items = client.getItemsMapSpecified();
         assertNotNull(items);
         assertEquals(1, items.size());
-        Map.Entry<Integer, AddItemWrapper> entry = items.entrySet().iterator().next();
+        Map.Entry<Integer, Item> entry = items.entrySet().iterator().next();
         assertNotNull(entry);
-        AddItemWrapper item2 = entry.getValue();
+        Item item2 = entry.getValue();
         Integer key2 = entry.getKey();
         assertEquals(42, key2.intValue());
         assertEquals("Godzilla", item2.getData());
