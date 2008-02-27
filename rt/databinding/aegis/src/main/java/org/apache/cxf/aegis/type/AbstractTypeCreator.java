@@ -34,6 +34,7 @@ import org.apache.cxf.aegis.type.collection.CollectionType;
 import org.apache.cxf.aegis.type.collection.MapType;
 import org.apache.cxf.aegis.util.NamespaceHelper;
 import org.apache.cxf.aegis.util.ServiceUtils;
+import org.apache.cxf.common.util.XMLSchemaQNames;
 import org.apache.cxf.wsdl.WSDLConstants;
 
 /**
@@ -243,7 +244,7 @@ public abstract class AbstractTypeCreator implements TypeCreator {
 
     protected Type createObjectType() {
         ObjectType type = new ObjectType();
-        type.setSchemaType(DefaultTypeMappingRegistry.XSD_ANY);
+        type.setSchemaType(XMLSchemaQNames.XSD_ANY);
         type.setTypeClass(Object.class);
         type.setTypeMapping(getTypeMapping());
         return type;

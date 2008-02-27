@@ -22,11 +22,26 @@ package org.apache.cxf.binding.soap;
 import javax.xml.namespace.QName;
 
 /**
- * Represents the SOAP 1.1 version
+ * Singleton object that represents the SOAP 1.1 version.
  * 
  */
 public final class Soap11 implements SoapVersion {
+    
+    // some constants that don't fit into the SoapVersion paradigm.
     public static final String SOAP_NAMESPACE = "http://schemas.xmlsoap.org/soap/envelope/";
+    public static final String SOAP_ENCODING_URI = "http://schemas.xmlsoap.org/soap/encoding/";
+    public static final QName ENCODED_STRING = new QName(SOAP_ENCODING_URI, "string");
+    public static final QName ENCODED_LONG = new QName(SOAP_ENCODING_URI, "long");
+    public static final QName ENCODED_FLOAT = new QName(SOAP_ENCODING_URI, "float");
+    public static final QName ENCODED_CHAR = new QName(SOAP_ENCODING_URI, "char");
+    public static final QName ENCODED_DOUBLE = new QName(SOAP_ENCODING_URI, "double");
+    public static final QName ENCODED_INT = new QName(SOAP_ENCODING_URI, "int");
+    public static final QName ENCODED_SHORT = new QName(SOAP_ENCODING_URI, "short");
+    public static final QName ENCODED_BOOLEAN = new QName(SOAP_ENCODING_URI, "boolean");
+    public static final QName ENCODED_DATETIME = new QName(SOAP_ENCODING_URI, "dateTime");
+    public static final QName ENCODED_BASE64 = new QName(SOAP_ENCODING_URI, "base64Binary");
+    public static final QName ENCODED_DECIMAL = new QName(SOAP_ENCODING_URI, "decimal");
+    public static final QName ENCODED_INTEGER = new QName(SOAP_ENCODING_URI, "integer");
 
     private static final Soap11 INSTANCE = new Soap11();
 
@@ -42,7 +57,7 @@ public final class Soap11 implements SoapVersion {
     
     private final String nextRole = "http://schemas.xmlsoap.org/soap/actor/next";
 
-    private final String soapEncodingStyle = "http://schemas.xmlsoap.org/soap/encoding/";
+    private final String soapEncodingStyle = SOAP_ENCODING_URI;
 
     private final QName envelope = new QName(namespace, "Envelope", prefix);
 
@@ -55,6 +70,8 @@ public final class Soap11 implements SoapVersion {
     private Soap11() {
         // Singleton 
     }
+    
+
 
     public static Soap11 getInstance() {
         return INSTANCE;
