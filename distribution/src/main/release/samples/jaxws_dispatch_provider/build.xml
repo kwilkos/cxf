@@ -37,4 +37,14 @@
         <wsdl2java file="hello_world.wsdl" servicename.arg="-sn SOAPService3"/>
     </target>
     
+    <property name="cxf.war.file.name" value="helloworld_provider"/>
+    <target name="war" depends="build">
+        <cxfwar filename="${cxf.war.file.name}.war"/>
+    </target>
+
+    <target name="client-servlet" description="run demo client hitting servlet" depends="build">
+        <property name="param" value=""/>
+        <cxfrun classname="demo.hwDispatch.client.Client" param1="${base.url}/helloworld_provider/services/SOAPPort1?wsdl"/>
+    </target> 
+    
 </project>
