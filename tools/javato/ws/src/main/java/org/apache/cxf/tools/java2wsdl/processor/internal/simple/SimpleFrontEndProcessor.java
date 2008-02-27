@@ -29,15 +29,16 @@ import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.common.model.JavaInterface;
 import org.apache.cxf.tools.common.model.JavaModel;
 import org.apache.cxf.tools.java2ws.util.JavaFirstUtil;
-import org.apache.cxf.tools.java2wsdl.processor.internal.simple.generator.AbstractSimpleGenerator;
+import org.apache.cxf.tools.java2wsdl.processor.internal.AntGenerator;
 import org.apache.cxf.tools.java2wsdl.processor.internal.simple.generator.SimpleClientGenerator;
 import org.apache.cxf.tools.java2wsdl.processor.internal.simple.generator.SimpleImplGenerator;
 import org.apache.cxf.tools.java2wsdl.processor.internal.simple.generator.SimpleSEIGenerator;
 import org.apache.cxf.tools.java2wsdl.processor.internal.simple.generator.SimpleServerGenerator;
+import org.apache.cxf.tools.wsdlto.core.AbstractGenerator;
 
 public class SimpleFrontEndProcessor implements Processor {
     private ToolContext context;
-    private List<AbstractSimpleGenerator> generators = new ArrayList<AbstractSimpleGenerator>();
+    private List<AbstractGenerator> generators = new ArrayList<AbstractGenerator>();
     @SuppressWarnings("unchecked")
     public void process() throws ToolException {       
         List<ServiceInfo> services = (List<ServiceInfo>)context.get(ToolConstants.SERVICE_LIST);
@@ -52,8 +53,9 @@ public class SimpleFrontEndProcessor implements Processor {
         generators.add(new SimpleImplGenerator());
         generators.add(new SimpleServerGenerator());
         generators.add(new SimpleClientGenerator());
+        generators.add(new AntGenerator());
         
-        for (AbstractSimpleGenerator generator : generators) {
+        for (AbstractGenerator generator : generators) {
             generator.generate(context);
         }
 

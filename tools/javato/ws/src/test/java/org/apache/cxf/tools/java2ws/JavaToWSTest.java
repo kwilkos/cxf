@@ -205,8 +205,13 @@ public class JavaToWSTest extends ToolTestBase {
         assertTrue("Greeter_GreeterPort_Server.java was not generated", server.exists());
         assertTrue("Impl was not generated", impl.exists());
         String implContent = FileUtils.getStringFromFile(impl);
-        assertTrue("serviceName annotation was not generated",
-                   implContent.indexOf("serviceName=\"GreeterService\"") > -1);
+        
+        int idx = implContent.indexOf("serviceName");
+        assertFalse("serviceName annotation was not generated", idx == -1);
+        implContent = implContent.substring(idx + 11).trim();
+        implContent = implContent.substring(1).trim();
+        assertTrue("serviceName annotation was not generated\n" + implContent, 
+                    implContent.startsWith("\"GreeterService\""));
     }
 
     @Test

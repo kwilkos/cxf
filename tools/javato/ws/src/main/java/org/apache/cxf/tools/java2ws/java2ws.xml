@@ -72,16 +72,23 @@
 			
 			<option id="client" maxOccurs="1">
 				<annotation>
-					Specify to genearte client side code
+					Specify to generate client side code
 				</annotation>
 				<switch>client</switch>
 			</option>
 				
 			<option id="server" maxOccurs="1">
 				<annotation>
-					Specify to genearte server side code
+					Specify to generate server side code
 				</annotation>
 				<switch>server</switch>
+			</option>
+			
+			<option id="ant" maxOccurs="1">
+				<annotation>
+					Specify to generate an Ant build.xml file
+				</annotation>
+				<switch>ant</switch>
 			</option>
 								
 			<option id="outputfile" maxOccurs="1">

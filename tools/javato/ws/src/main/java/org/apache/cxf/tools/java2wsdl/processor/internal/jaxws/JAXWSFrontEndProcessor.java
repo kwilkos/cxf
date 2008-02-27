@@ -49,17 +49,18 @@ import org.apache.cxf.tools.common.model.JavaParameter;
 import org.apache.cxf.tools.common.model.JavaReturn;
 import org.apache.cxf.tools.common.model.JavaType.Style;
 import org.apache.cxf.tools.java2ws.util.JavaFirstUtil;
-import org.apache.cxf.tools.java2wsdl.processor.internal.jaxws.generator.AbstractJaxwsGenerator;
+import org.apache.cxf.tools.java2wsdl.processor.internal.AntGenerator;
 import org.apache.cxf.tools.java2wsdl.processor.internal.jaxws.generator.JaxwsClientGenerator;
 import org.apache.cxf.tools.java2wsdl.processor.internal.jaxws.generator.JaxwsImplGenerator;
 import org.apache.cxf.tools.java2wsdl.processor.internal.jaxws.generator.JaxwsSEIGenerator;
 import org.apache.cxf.tools.java2wsdl.processor.internal.jaxws.generator.JaxwsServerGenerator;
+import org.apache.cxf.tools.wsdlto.core.AbstractGenerator;
 
 public class JAXWSFrontEndProcessor implements Processor {
     private static final String SEI_SUFFIX = "_PortType";
     private static final Logger LOG = LogUtils.getL7dLogger(JAXWSFrontEndProcessor.class);
     private ToolContext context;
-    private List<AbstractJaxwsGenerator> generators = new ArrayList<AbstractJaxwsGenerator>();
+    private List<AbstractGenerator> generators = new ArrayList<AbstractGenerator>();
     private List<String> infList = new ArrayList<String>();
     
     @SuppressWarnings("unchecked")
@@ -83,8 +84,9 @@ public class JAXWSFrontEndProcessor implements Processor {
         generators.add(new JaxwsImplGenerator());
         generators.add(new JaxwsServerGenerator());
         generators.add(new JaxwsClientGenerator());
+        generators.add(new AntGenerator());
 
-        for (AbstractJaxwsGenerator generator : generators) {
+        for (AbstractGenerator generator : generators) {
             generator.generate(context);
         }
 
