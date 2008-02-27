@@ -28,10 +28,14 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import javax.wsdl.Operation;
 import javax.xml.bind.annotation.XmlNsForm;
 import javax.xml.bind.annotation.XmlSchema;
 import javax.xml.bind.annotation.XmlSeeAlso;
+import javax.xml.namespace.QName;
 import javax.xml.ws.Action;
 import javax.xml.ws.AsyncHandler;
 import javax.xml.ws.BindingType;
@@ -48,6 +52,7 @@ import javax.xml.ws.soap.SOAPBinding;
 
 import org.apache.cxf.binding.AbstractBindingFactory;
 import org.apache.cxf.common.classloader.ClassLoaderUtils;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.databinding.source.SourceDataBinding;
 import org.apache.cxf.endpoint.Endpoint;
@@ -82,6 +87,8 @@ import org.apache.cxf.wsdl11.WSDLServiceBuilder;
 public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
     // used to tag property on service.
     public static final  String WS_FEATURES = "JAXWS-WS-FEATURES";
+    private static final Logger LOG = LogUtils.getLogger(JaxWsServiceFactoryBean.class);
+    
     private AbstractServiceConfiguration jaxWsConfiguration;
 
     private JaxWsImplementorInfo implInfo;
@@ -242,23 +249,43 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
         ParameterizedType pt = (ParameterizedType)genericInterfaces[0];
         Class c = (Class)pt.getActualTypeArguments()[0];
 
+        if (getEndpointInfo() == null
+            && isFromWsdl()) {
+            //most likely, they specified a WSDL, but for some reason
+            //did not give a valid ServiceName/PortName.  For provider,
+            //we'll allow this since everything is bound directly to 
+            //the invoke method, however, this CAN cause other problems
+            //such as addresses in the wsdl not getting updated and such
+            //so we'll WARN about it.....
+            List<QName> enames = new ArrayList<QName>();
+            for (ServiceInfo si : getService().getServiceInfos()) {
+                for (EndpointInfo ep : si.getEndpoints()) {
+                    enames.add(ep.getName());
+                }
+            }
+            LOG.log(Level.WARNING, "COULD_NOT_FIND_ENDPOINT", 
+                    new Object[] {getEndpointName(), enames});
+        }
+        
         try {
             Method invoke = getServiceClass().getMethod("invoke", c);
 
-            // Bind each operation to the invoke method.
-            for (OperationInfo o : getEndpointInfo().getService().getInterface().getOperations()) {
-                getMethodDispatcher().bind(o, invoke);
+            // Bind every operation to the invoke method.
+            for (ServiceInfo si : getService().getServiceInfos()) {
+                for (OperationInfo o : si.getInterface().getOperations()) {
+                    getMethodDispatcher().bind(o, invoke);
+                }
+                for (BindingInfo bi : si.getBindings()) {
+                    bi.setProperty(AbstractBindingFactory.DATABINDING_DISABLED, Boolean.TRUE);
+                }
             }
-
         } catch (SecurityException e) {
             throw new ServiceConstructionException(e);
         } catch (NoSuchMethodException e) {
             throw new ServiceConstructionException(e);
         }
 
-        for (BindingInfo bi : getEndpointInfo().getService().getBindings()) {
-            bi.setProperty(AbstractBindingFactory.DATABINDING_DISABLED, Boolean.TRUE);
-        }
+        
     }
 
     void initializeWrapping(OperationInfo o, Method selected) {
