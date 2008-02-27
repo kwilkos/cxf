@@ -21,9 +21,9 @@ package org.apache.cxf.aegis.type.java5;
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.aegis.AbstractAegisTest;
+import org.apache.cxf.aegis.AegisContext;
 import org.apache.cxf.aegis.type.Configuration;
-import org.apache.cxf.aegis.type.CustomTypeMapping;
-import org.apache.cxf.aegis.type.DefaultTypeMappingRegistry;
+import org.apache.cxf.aegis.type.DefaultTypeMapping;
 import org.apache.cxf.aegis.type.Type;
 import org.apache.cxf.aegis.type.XMLTypeCreator;
 import org.apache.cxf.aegis.type.basic.BeanType;
@@ -31,12 +31,9 @@ import org.apache.cxf.aegis.type.basic.BeanTypeInfo;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * @author adam
- */
 public class ConfigurationTest extends AbstractAegisTest {
 
-    CustomTypeMapping tm;
+    DefaultTypeMapping tm;
 
     Configuration config;
 
@@ -44,15 +41,17 @@ public class ConfigurationTest extends AbstractAegisTest {
     public void setUp() throws Exception {
         super.setUp();
 
-        DefaultTypeMappingRegistry reg = new DefaultTypeMappingRegistry();
-        config = reg.getConfiguration();
+        AegisContext context = new AegisContext();
+        config = new Configuration();
+        context.setConfiguration(config);
+        context.initialize();
         XMLTypeCreator creator = new XMLTypeCreator();
-        creator.setConfiguration(reg.getConfiguration());
+        creator.setConfiguration(config);
         Java5TypeCreator next = new Java5TypeCreator();
-        next.setConfiguration(reg.getConfiguration());
+        next.setConfiguration(config);
         creator.setNextCreator(next);
-        reg.createDefaultMappings();
-        tm = (CustomTypeMapping)reg.getDefaultTypeMapping();
+
+        tm = (DefaultTypeMapping)context.getTypeMapping();
         tm.setTypeCreator(creator);
     }
 

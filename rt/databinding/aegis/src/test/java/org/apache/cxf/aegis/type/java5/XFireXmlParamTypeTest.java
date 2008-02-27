@@ -24,22 +24,22 @@ import org.w3c.dom.Document;
 
 import org.apache.cxf.aegis.AbstractAegisTest;
 import org.apache.cxf.aegis.type.Configuration;
-import org.apache.cxf.aegis.type.CustomTypeMapping;
 import org.apache.cxf.aegis.type.DefaultTypeCreator;
+import org.apache.cxf.aegis.type.DefaultTypeMapping;
 import org.apache.cxf.aegis.type.Type;
 import org.junit.Before;
 import org.junit.Test;
 
 @SuppressWarnings("deprecation")
 public class XFireXmlParamTypeTest extends AbstractAegisTest {
-    private CustomTypeMapping tm;
+    private DefaultTypeMapping tm;
     private Java5TypeCreator creator;
 
     @Before
     public void setUp() throws Exception {
         super.setUp();
 
-        tm = new CustomTypeMapping();
+        tm = new DefaultTypeMapping();
         creator = new Java5TypeCreator();
         creator.setNextCreator(new DefaultTypeCreator());
         creator.setConfiguration(new Configuration());

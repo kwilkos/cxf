@@ -27,13 +27,17 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 
+import org.apache.cxf.aegis.type.AbstractTypeCreator;
 import org.apache.cxf.aegis.type.Configuration;
-import org.apache.cxf.aegis.type.DefaultTypeMappingRegistry;
+import org.apache.cxf.aegis.type.DefaultTypeCreator;
+import org.apache.cxf.aegis.type.DefaultTypeMapping;
 import org.apache.cxf.aegis.type.Type;
+import org.apache.cxf.aegis.type.TypeCreator;
 import org.apache.cxf.aegis.type.TypeMapping;
-import org.apache.cxf.aegis.type.TypeMappingRegistry;
 import org.apache.cxf.aegis.type.TypeUtil;
+import org.apache.cxf.aegis.type.XMLTypeCreator;
 import org.apache.cxf.aegis.type.basic.BeanType;
+import org.apache.cxf.aegis.type.java5.Java5TypeCreator;
 import org.apache.cxf.common.classloader.ClassLoaderUtils;
 import org.apache.cxf.common.util.SOAPConstants;
 
@@ -67,13 +71,9 @@ import org.apache.cxf.common.util.SOAPConstants;
  * 
  */
 public class AegisContext {
-    // perhaps this should be SoapConstants.XSD? Or perhaps the code that looks for that should look for this?
-    private static final String DEFAULT_ENCODING_STYLE_URI = "urn:aegis.cxf.apache.org:defaultEncoding";
     private boolean writeXsiTypes;
     private boolean readXsiTypes = true;
-    private String mappingNamespaceURI = DEFAULT_ENCODING_STYLE_URI;
 
-    private TypeMappingRegistry typeMappingRegistry;
     private Set<String> rootClassNames;
     private Set<Class<?>> rootClasses;
     private Set<QName> rootTypeQNames;
@@ -84,6 +84,8 @@ public class AegisContext {
     private Configuration configuration;
     private boolean mtomEnabled;
     private boolean mtomUseXmime;
+    // this URI goes into the type map.
+    private String mappingNamespaceURI; 
     
     /**
      * Construct a context.
@@ -93,6 +95,30 @@ public class AegisContext {
         rootClasses = new HashSet<Class<?>>();
         rootTypeQNames = new HashSet<QName>();
     }
+    
+    public TypeCreator createTypeCreator() {
+        AbstractTypeCreator xmlCreator = createRootTypeCreator();
+
+        Java5TypeCreator j5Creator = new Java5TypeCreator();
+        j5Creator.setNextCreator(createDefaultTypeCreator());
+        j5Creator.setConfiguration(getConfiguration());
+        xmlCreator.setNextCreator(j5Creator);
+
+        return xmlCreator;
+    }
+
+    protected AbstractTypeCreator createRootTypeCreator() {
+        AbstractTypeCreator creator = new XMLTypeCreator();
+        creator.setConfiguration(getConfiguration());
+        return creator;
+    }
+
+    protected AbstractTypeCreator createDefaultTypeCreator() {
+        AbstractTypeCreator creator = new DefaultTypeCreator();
+        creator.setConfiguration(getConfiguration());
+        return creator;
+    }
+
 
     /**
      * Initialize the context. The encodingStyleURI allows .aegis.xml files to have multiple mappings 
@@ -100,15 +126,22 @@ public class AegisContext {
      * @param mappingNamespaceURI URI to select mappings based on the encoding.
      */
     public void initialize() {
-        if (typeMappingRegistry == null) {
-            typeMappingRegistry = new DefaultTypeMappingRegistry(null, true, mtomUseXmime);
-        } 
-        if (configuration != null) {
-            typeMappingRegistry.setConfiguration(configuration);
+        // The use of the XSD URI in the mapping is, MAGIC. 
+        // allow spring config of an alternative mapping.
+        if (configuration == null) {
+            configuration = new Configuration();
         }
-        // The use of the XSD URI in the mapping is, MAGIC.
-        typeMapping  = typeMappingRegistry.createTypeMapping(SOAPConstants.XSD, true);
-        typeMappingRegistry.register(mappingNamespaceURI, typeMapping);
+        if (typeMapping == null) {
+            boolean defaultNillable = configuration.isDefaultNillable();
+            TypeMapping baseTM = DefaultTypeMapping.createDefaultTypeMapping(defaultNillable, mtomUseXmime);
+            if (mappingNamespaceURI == null) {
+                mappingNamespaceURI = SOAPConstants.XSD;
+            }
+            DefaultTypeMapping defaultTypeMapping = new DefaultTypeMapping(mappingNamespaceURI, baseTM);
+            defaultTypeMapping.setTypeCreator(createTypeCreator());
+            typeMapping = defaultTypeMapping;
+        }
+        
         processRootTypes();
     }
     
@@ -131,22 +164,6 @@ public class AegisContext {
     public AegisWriter<XMLStreamWriter>
     createXMLStreamWriter() {
         return new AegisXMLStreamDataWriter(this);
-    }
-    
-    /**
-     * Retrieve the type mapping registry object.
-     * @return the registry.
-     */
-    public TypeMappingRegistry getTypeMappingRegistry() {
-        return typeMappingRegistry;
-    }
-
-    /**
-     * Set the type mapping registry. Call this after construction and before 'initialize'.
-     * @param typeMappingRegistry
-     */
-    public void setTypeMappingRegistry(TypeMappingRegistry typeMappingRegistry) {
-        this.typeMappingRegistry = typeMappingRegistry;
     }
     
     /**
@@ -243,12 +260,7 @@ public class AegisContext {
      * @return Returns the configuration.
      */
     public Configuration getConfiguration() {
-        if (typeMappingRegistry != null) {
-            return typeMappingRegistry.getConfiguration();
-        } else {
-            return configuration;
-        }
-            
+        return configuration;
     }
 
     /**
@@ -258,9 +270,6 @@ public class AegisContext {
      */
     public void setConfiguration(Configuration newConfiguration) {
         this.configuration = newConfiguration;
-        if (typeMappingRegistry != null) {
-            typeMappingRegistry.setConfiguration(configuration);
-        }
     }
 
     public boolean isWriteXsiTypes() {
@@ -322,10 +331,6 @@ public class AegisContext {
         this.beanImplementationMap = beanImplementationMap;
     }
 
-    public void setMappingNamespaceURI(String uri) {
-        this.mappingNamespaceURI = uri;
-    }
-
     public Set<Class<?>> getRootClasses() {
         return rootClasses;
     }
@@ -356,6 +361,21 @@ public class AegisContext {
 
     public void setMtomUseXmime(boolean mtomUseXmime) {
         this.mtomUseXmime = mtomUseXmime;
+    }
+
+    /**
+     * What URI identifies the type mapping for this context? 
+     * When the XMLTypeCreator reads .aegis.xml file, it will only read mappings for
+     * this URI (or no URI). When the abstract type creator is otherwise at a loss
+     * for a namespace URI, it will use this URI.
+     * @return
+     */
+    public String getMappingNamespaceURI() {
+        return mappingNamespaceURI;
+    }
+
+    public void setMappingNamespaceURI(String mappingNamespaceURI) {
+        this.mappingNamespaceURI = mappingNamespaceURI;
     }
 
 }

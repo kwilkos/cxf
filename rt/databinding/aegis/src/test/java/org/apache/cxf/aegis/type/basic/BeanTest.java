@@ -26,10 +26,10 @@ import java.util.Date;
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.aegis.AbstractAegisTest;
+import org.apache.cxf.aegis.AegisContext;
 import org.apache.cxf.aegis.Context;
 import org.apache.cxf.aegis.services.SimpleBean;
 import org.apache.cxf.aegis.type.Configuration;
-import org.apache.cxf.aegis.type.DefaultTypeMappingRegistry;
 import org.apache.cxf.aegis.type.Type;
 import org.apache.cxf.aegis.type.TypeMapping;
 import org.apache.cxf.aegis.util.jdom.StaxBuilder;
@@ -45,7 +45,7 @@ import org.junit.Test;
 
 public class BeanTest extends AbstractAegisTest {
     TypeMapping mapping;
-    private DefaultTypeMappingRegistry reg;
+    private AegisContext context;
 
     public void setUp() throws Exception {
         super.setUp();
@@ -54,8 +54,9 @@ public class BeanTest extends AbstractAegisTest {
         addNamespace("a", "urn:anotherns");
         addNamespace("xsi", SOAPConstants.XSI_NS);
 
-        reg = new DefaultTypeMappingRegistry(true);
-        mapping = reg.createTypeMapping(true);
+        context = new AegisContext();
+        context.initialize();
+        mapping = context.getTypeMapping();
     }
 
     public void testBean() throws Exception {
@@ -312,14 +313,14 @@ public class BeanTest extends AbstractAegisTest {
     }
     @Test
     public void testNillableIntMinOccurs1() throws Exception {
-        reg = new DefaultTypeMappingRegistry();
+        context = new AegisContext();
 
-        Configuration config = reg.getConfiguration();
+        Configuration config = new Configuration();
         config.setDefaultMinOccurs(1);
         config.setDefaultNillable(false);
-
-        reg.createDefaultMappings();
-        mapping = reg.createTypeMapping(true);
+        context.setConfiguration(config);
+        context.initialize();
+        mapping = context.getTypeMapping();
 
         BeanType type = (BeanType)mapping.getTypeCreator().createType(IntBean.class);
         type.setTypeClass(IntBean.class);

@@ -19,20 +19,21 @@
 package org.apache.cxf.aegis.type.basic;
 
 import junit.framework.TestCase;
+
+import org.apache.cxf.aegis.AegisContext;
 import org.apache.cxf.aegis.DatabindingException;
-import org.apache.cxf.aegis.type.DefaultTypeMappingRegistry;
 import org.apache.cxf.aegis.type.TypeMapping;
 import org.junit.Test;
 
 public class BadXMLTest extends TestCase {
     TypeMapping mapping;
-    private DefaultTypeMappingRegistry reg;
+
 
     @Test
     public void testBadDescriptorNS() throws Exception {
-
-        reg = new DefaultTypeMappingRegistry(true);
-        mapping = reg.createTypeMapping(true);
+        AegisContext context = new AegisContext();
+        context.initialize();
+        mapping = context.getTypeMapping();
         try {
             mapping.getTypeCreator().createType(BadBeanDescriptor.class);
             fail("No exception was thrown");

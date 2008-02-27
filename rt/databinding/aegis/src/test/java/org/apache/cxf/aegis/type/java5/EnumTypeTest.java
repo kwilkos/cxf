@@ -24,7 +24,7 @@ import org.w3c.dom.Document;
 
 import org.apache.cxf.aegis.AbstractAegisTest;
 import org.apache.cxf.aegis.type.Configuration;
-import org.apache.cxf.aegis.type.CustomTypeMapping;
+import org.apache.cxf.aegis.type.DefaultTypeMapping;
 import org.apache.cxf.aegis.type.Type;
 import org.apache.cxf.aegis.type.java5.CurrencyService.Currency;
 import org.apache.cxf.aegis.xml.jdom.JDOMReader;
@@ -36,7 +36,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class EnumTypeTest extends AbstractAegisTest {
-    private CustomTypeMapping tm;
+    private DefaultTypeMapping tm;
 
     private enum smallEnum {
         VALUE1, VALUE2
@@ -46,7 +46,7 @@ public class EnumTypeTest extends AbstractAegisTest {
     public void setUp() throws Exception {
         super.setUp();
 
-        tm = new CustomTypeMapping();
+        tm = new DefaultTypeMapping();
         Java5TypeCreator creator = new Java5TypeCreator();
         creator.setConfiguration(new Configuration());
         tm.setTypeCreator(creator);

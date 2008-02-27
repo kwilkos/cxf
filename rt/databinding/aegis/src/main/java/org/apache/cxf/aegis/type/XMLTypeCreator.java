@@ -267,8 +267,9 @@ public class XMLTypeCreator extends AbstractTypeCreator {
             return null;
         }
 
-        Element mapping = getMatch(doc, "/mappings/mapping[@uri='" + getTypeMapping().getEncodingStyleURI()
-                                        + "']");
+        Element mapping = getMatch(doc, "/mappings/mapping[@uri='" 
+                                   + getTypeMapping().getMappingIdentifierURI()
+                                   + "']");
         if (mapping == null) {
             mapping = getMatch(doc, "/mappings/mapping[not(@uri)]");
         }
@@ -668,7 +669,7 @@ public class XMLTypeCreator extends AbstractTypeCreator {
         int index = value.indexOf(":");
 
         if (index == -1) {
-            return new QName(getTypeMapping().getEncodingStyleURI(), value);
+            return new QName(getTypeMapping().getMappingIdentifierURI(), value);
         }
 
         String prefix = value.substring(0, index);

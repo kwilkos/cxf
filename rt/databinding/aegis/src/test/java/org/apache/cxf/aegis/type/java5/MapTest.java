@@ -29,7 +29,7 @@ import javax.xml.namespace.QName;
 
 import org.apache.cxf.aegis.AbstractAegisTest;
 import org.apache.cxf.aegis.type.Configuration;
-import org.apache.cxf.aegis.type.CustomTypeMapping;
+import org.apache.cxf.aegis.type.DefaultTypeMapping;
 import org.apache.cxf.aegis.type.Type;
 import org.apache.cxf.aegis.type.collection.CollectionType;
 import org.apache.cxf.aegis.type.collection.MapType;
@@ -39,14 +39,14 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class MapTest extends AbstractAegisTest {
-    private CustomTypeMapping tm;
+    private DefaultTypeMapping tm;
     private Java5TypeCreator creator;
 
     @Before
     public void setUp() throws Exception {
         super.setUp();
 
-        tm = new CustomTypeMapping();
+        tm = new DefaultTypeMapping();
         creator = new Java5TypeCreator();
         creator.setConfiguration(new Configuration());
         tm.setTypeCreator(creator);
@@ -122,7 +122,7 @@ public class MapTest extends AbstractAegisTest {
     @SuppressWarnings("unchecked")
     @Test
     public void testMapDTO() {
-        tm = new CustomTypeMapping();
+        tm = new DefaultTypeMapping();
         creator = new Java5TypeCreator();
         creator.setConfiguration(new Configuration());
         tm.setTypeCreator(creator);

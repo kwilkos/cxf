@@ -275,7 +275,7 @@ public abstract class AbstractTypeCreator implements TypeCreator {
                       + "Map";
 
         // TODO: Get namespace from XML?
-        return new QName(tm.getEncodingStyleURI(), name);
+        return new QName(tm.getMappingIdentifierURI(), name);
     }
 
     protected boolean isMap(Class javaType) {
@@ -302,7 +302,7 @@ public abstract class AbstractTypeCreator implements TypeCreator {
         if (type.isComplex()) {
             ns = type.getSchemaType().getNamespaceURI();
         } else {
-            ns = tm.getEncodingStyleURI();
+            ns = tm.getMappingIdentifierURI();
         }
         if (WSDLConstants.NS_SCHEMA_XSD.equals(ns)) {
             ns = "http://cxf.apache.org/arrays";

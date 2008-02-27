@@ -22,7 +22,7 @@ import java.io.ByteArrayInputStream;
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.aegis.AbstractAegisTest;
-import org.apache.cxf.aegis.type.DefaultTypeMappingRegistry;
+import org.apache.cxf.aegis.AegisContext;
 import org.apache.cxf.aegis.type.TypeMapping;
 import org.apache.cxf.aegis.type.basic.BeanTypeInfo;
 import org.apache.cxf.aegis.xml.stax.ElementReader;
@@ -40,8 +40,9 @@ public class ArrayTypeInfoTest extends AbstractAegisTest {
         addNamespace("a", "urn:anotherns");
         addNamespace("xsi", SOAPConstants.XSI_NS);
 
-        DefaultTypeMappingRegistry reg = new DefaultTypeMappingRegistry(true);
-        mapping = reg.createTypeMapping(true);
+        AegisContext context = new AegisContext();
+        context.initialize();
+        mapping = context.getTypeMapping();
 
         // address type
         BeanTypeInfo addressInfo = new BeanTypeInfo(Address.class, "urn:Bean");

@@ -36,7 +36,11 @@ public class JDOMWriter extends AbstractMessageWriter {
     }
 
     public void writeValue(Object value) {
-        element.addContent(value.toString());
+        // an NPE is not helpful, and code at a higher level is responsible for
+        // xsi:nil processing.
+        if (value != null) {
+            element.addContent(value.toString());
+        }
     }
 
     public void writeValue(Object value, String ns, String attr) {

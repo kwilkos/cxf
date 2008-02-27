@@ -51,9 +51,13 @@ public interface TypeMapping {
 
     QName getTypeQName(Class clazz);
 
-    String getEncodingStyleURI();
-
-    void setEncodingStyleURI(String encodingStyleURI);
-
     TypeCreator getTypeCreator();
+    
+    /**
+     * Each mapping has a URI that identifies it.
+     * The mapping for a service uses the service URI.
+     * XML files can choose to only contribute mappings that match.
+     * @return the URI.
+     */
+    String getMappingIdentifierURI();
 }

@@ -27,7 +27,7 @@ import org.apache.cxf.aegis.AbstractAegisTest;
 import org.apache.cxf.aegis.AegisContext;
 import org.apache.cxf.aegis.Context;
 import org.apache.cxf.aegis.DatabindingException;
-import org.apache.cxf.aegis.type.DefaultTypeMappingRegistry;
+import org.apache.cxf.aegis.type.DefaultTypeMapping;
 import org.apache.cxf.aegis.type.Type;
 import org.apache.cxf.aegis.type.TypeMapping;
 import org.apache.cxf.aegis.xml.MessageReader;
@@ -44,7 +44,7 @@ import org.jdom.output.XMLOutputter;
 import org.junit.Before;
 
 public abstract class AbstractEncodedTest extends AbstractAegisTest {
-    protected TypeMapping mapping;
+    protected DefaultTypeMapping mapping;
     protected TrailingBlocks trailingBlocks;
 
     @Before
@@ -56,9 +56,13 @@ public abstract class AbstractEncodedTest extends AbstractAegisTest {
         addNamespace("xsi", SOAPConstants.XSI_NS);
         addNamespace("soapenc", Soap11.getInstance().getSoapEncodingStyle());
 
-        DefaultTypeMappingRegistry reg = new DefaultTypeMappingRegistry(true);
-        mapping = reg.createTypeMapping(Soap11.getInstance().getSoapEncodingStyle(), true);
-
+        AegisContext context = new AegisContext();
+        // create a different mapping than the context creates.
+        TypeMapping baseMapping = DefaultTypeMapping.createSoap11TypeMapping(true, false);
+        mapping = new DefaultTypeMapping(SOAPConstants.XSD, baseMapping);
+        mapping.setTypeCreator(context.createTypeCreator());
+        context.setTypeMapping(mapping);
+        context.initialize();
         // serialization root type
         trailingBlocks = new TrailingBlocks();
     }
