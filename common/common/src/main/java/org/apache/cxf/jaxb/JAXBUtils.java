@@ -456,8 +456,10 @@ public final class JAXBUtils {
 
         if (cls == Object.class || cls == String.class || cls == Holder.class) {
             cls = null;
-        } else if (cls.isPrimitive() || cls.isInterface() || cls.isAnnotation()) {
+        } else if (cls.isPrimitive() || cls.isAnnotation()) {
             cls = null;
+        } else if (cls.isInterface()) {
+            return cls;
         }
         if (cls != null) {
             if (cls.getName().equals("javax.xml.ws.wsaddressing.W3CEndpointReference")) {

@@ -16,22 +16,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-// START SNIPPET: service
 package demo.hw.server;
 
-import javax.jws.WebService;
 
-@WebService(endpointInterface = "demo.hw.server.HelloWorld", 
-            serviceName = "HelloWorld")
-public class HelloWorldImpl implements HelloWorld {
+import javax.xml.bind.annotation.adapters.XmlAdapter;
 
-    public String sayHi(String text) {
-        return "Hello " + text;
+
+public class UserAdapter extends XmlAdapter<UserImpl, User> {
+    public UserImpl marshal(User v) throws Exception {
+        if (v instanceof UserImpl) {
+            return (UserImpl)v;
+        }
+        return new UserImpl(v.getName());
     }
 
-    public String sayHiToUser(User user) {
-        return "Hello "  + user.getName();
+    public User unmarshal(UserImpl v) throws Exception {
+        return v;
     }
-
 }
-// END SNIPPET: service
+

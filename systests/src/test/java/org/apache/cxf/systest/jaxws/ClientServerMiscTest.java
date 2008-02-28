@@ -341,6 +341,7 @@ public class ClientServerMiscTest extends AbstractBusClientServerTestBase {
         assertEquals(3, ints.length);
         assertEquals(1, ints[0]);
         
+        assertEquals("Val", port.createBar("Val").getName());
         testExceptionCases(port);
     }
     

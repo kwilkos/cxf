@@ -22,6 +22,7 @@ package org.apache.cxf.jaxb.io;
 import java.lang.annotation.Annotation;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.namespace.QName;
@@ -36,16 +37,20 @@ import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.ws.commons.schema.XmlSchemaElement;
 
 public class DataWriterImpl<T> extends JAXBDataBase implements DataWriter<T> {
-    
+    private Set<Class<?>> contextClasses;
     private Map<String, Object> marshallerProperties = Collections.emptyMap();
     
-    public DataWriterImpl(JAXBContext ctx) {
+    public DataWriterImpl(JAXBContext ctx, Set<Class<?>> contextClasses) {
         super(ctx);
+        this.contextClasses = contextClasses;
     }
     
-    public DataWriterImpl(JAXBContext ctx, Map<String, Object> marshallerProperties) {
+    public DataWriterImpl(JAXBContext ctx, 
+                          Map<String, Object> marshallerProperties,
+                          Set<Class<?>> contextClasses) {
         super(ctx);
         this.marshallerProperties = marshallerProperties;
+        this.contextClasses = contextClasses;
     }
     
     public void write(Object obj, T output) {
@@ -79,7 +84,7 @@ public class DataWriterImpl<T> extends JAXBDataBase implements DataWriter<T> {
                     //TODO:Cache the JAXBRIContext
                     QName qname = new QName(null, part.getConcreteName().getLocalPart());
                     TypeReference typeReference = new TypeReference(qname, part.getTypeClass(), anns);
-                    JAXBEncoderDecoder.marshalWithBridge(typeReference, obj, 
+                    JAXBEncoderDecoder.marshalWithBridge(typeReference, contextClasses, obj, 
                                                          output, getAttachmentMarshaller());
                 }
             }

@@ -16,22 +16,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-// START SNIPPET: service
-package demo.hw.server;
 
-import javax.jws.WebService;
+package org.apache.cxf.systest.jaxws.types;
 
-@WebService(endpointInterface = "demo.hw.server.HelloWorld", 
-            serviceName = "HelloWorld")
-public class HelloWorldImpl implements HelloWorld {
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-    public String sayHi(String text) {
-        return "Hello " + text;
-    }
-
-    public String sayHiToUser(User user) {
-        return "Hello "  + user.getName();
-    }
-
+/**
+ * 
+ */
+@XmlJavaTypeAdapter(BarAdapter.class)
+public interface Bar {
+    
+    String getName();
+    void setName(String s);
 }
-// END SNIPPET: service

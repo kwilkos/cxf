@@ -32,6 +32,7 @@ import javax.xml.ws.RequestWrapper;
 import javax.xml.ws.ResponseWrapper;
 
 import org.apache.cxf.message.Exchange;
+import org.apache.cxf.systest.jaxws.types.Bar;
 
 @WebService(name = "DocLitWrappedCodeFirstService",
             targetNamespace = "http://cxf.apache.org/systest/jaxws/DocLitWrappedCodeFirstService")
@@ -100,6 +101,8 @@ public interface DocLitWrappedCodeFirstService {
                           name = "String_1")
                         String msg);
 
+    Bar createBar(String val);
+    
     static class Foo  {
         String name;
         
@@ -114,4 +117,5 @@ public interface DocLitWrappedCodeFirstService {
         }
     }
     
+
 }

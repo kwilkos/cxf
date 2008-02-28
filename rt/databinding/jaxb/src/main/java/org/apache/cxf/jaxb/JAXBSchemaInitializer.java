@@ -19,13 +19,18 @@
 
 package org.apache.cxf.jaxb;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.Iterator;
 import java.util.logging.Logger;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.adapters.XmlAdapter;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import javax.xml.namespace.QName;
 
 import com.sun.xml.bind.v2.runtime.JAXBContextImpl;
@@ -90,6 +95,31 @@ class JAXBSchemaInitializer extends ServiceModelVisitor {
 
         JaxBeanInfo<?> beanInfo = context.getBeanInfo(clazz);
         if (beanInfo == null) {
+            Annotation[] anns = (Annotation[])part.getProperty("parameter.annotations");
+            XmlJavaTypeAdapter jta = findFromTypeAdapter(clazz, anns);
+            if (jta != null) {
+                beanInfo = findFromTypeAdapter(jta.value());
+                if (anns == null) {
+                    anns = new Annotation[] {jta};
+                } else {
+                    boolean found = false;
+                    for (Annotation t : anns) {
+                        if (t == jta) {
+                            found = true;
+                        }
+                    }
+                    if (!found) {
+                        Annotation tmp[] = new Annotation[anns.length + 1];
+                        System.arraycopy(anns, 0, tmp, 0, anns.length);
+                        tmp[anns.length] = jta;
+                        anns = tmp;
+                    }
+                }
+                part.setProperty("parameter.annotations", anns);
+                part.setProperty("honor.jaxb.annotations", Boolean.TRUE);
+            }
+        }
+        if (beanInfo == null) {
             if (Exception.class.isAssignableFrom(clazz)) {
                 QName name = (QName)part.getMessageInfo().getProperty("elementName");
                 part.setElementQName(name);
@@ -126,6 +156,44 @@ class JAXBSchemaInitializer extends ServiceModelVisitor {
                 part.setXmlSchema(schemas.getTypeByQName(typeName));
             }
         }
+    }
+
+    private XmlJavaTypeAdapter findFromTypeAdapter(Class<?> clazz, Annotation[] anns) {
+        JaxBeanInfo<?> ret = null;
+        if (anns != null) {
+            for (Annotation a : anns) {
+                if (XmlJavaTypeAdapter.class.isAssignableFrom(a.annotationType())) {
+                    ret = findFromTypeAdapter(((XmlJavaTypeAdapter)a).value());
+                    if (ret != null) {
+                        return (XmlJavaTypeAdapter)a;
+                    }
+                }
+            }
+        }
+        XmlJavaTypeAdapter xjta = clazz.getAnnotation(XmlJavaTypeAdapter.class);
+        if (xjta != null) {
+            ret = findFromTypeAdapter(xjta.value());
+            if (ret != null) {
+                return xjta;
+            }
+        }
+        return null;
+    }
+
+    private JaxBeanInfo<?> findFromTypeAdapter(Class<? extends XmlAdapter> aclass) {
+        Class<?> c2 = aclass;
+        Type sp = c2.getGenericSuperclass();
+        while (!XmlAdapter.class.equals(c2) && c2 != null) {
+            sp = c2.getGenericSuperclass();
+            c2 = c2.getSuperclass();
+        }
+        if (sp instanceof ParameterizedType) {
+            Type tp = ((ParameterizedType)sp).getActualTypeArguments()[0];
+            if (tp instanceof Class) {
+                return context.getBeanInfo((Class<?>)tp);
+            }
+        }
+        return null;
     }
 
     private QName getTypeName(JaxBeanInfo<?> beanInfo) {

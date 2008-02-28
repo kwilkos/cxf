@@ -35,7 +35,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -213,12 +213,16 @@ public final class JAXBEncoderDecoder {
     }
     //TODO: cache the JAXBRIContext
     @SuppressWarnings("unchecked")
-    public static void marshalWithBridge(TypeReference ref, Object elValue,
+    public static void marshalWithBridge(TypeReference ref,
+                                         Set<Class<?>> ctxClasses,
+                                         Object elValue,
                                          Object source, AttachmentMarshaller am) {
-        List<TypeReference> typeRefs = new CopyOnWriteArrayList<TypeReference>();
+        List<TypeReference> typeRefs = new ArrayList<TypeReference>();
         typeRefs.add(ref);
+        List<Class<?>> clses = new ArrayList<Class<?>>(ctxClasses);
+        clses.add(ref.type.getClass());
         try {
-            JAXBRIContext riContext = JAXBRIContext.newInstance(new Class[] {ref.type.getClass()},
+            JAXBRIContext riContext = JAXBRIContext.newInstance(clses.toArray(new Class[clses.size()]),
                                                                     typeRefs, null, null, true, null);
             Bridge bridge = riContext.createBridge(ref);
 
@@ -252,11 +256,16 @@ public final class JAXBEncoderDecoder {
     
 //  TODO: cache the JAXBRIContext
     @SuppressWarnings("unchecked")
-    public static Object unmarshalWithBridge(TypeReference ref, Object source, AttachmentUnmarshaller am) {
-        List<TypeReference> typeRefs = new CopyOnWriteArrayList<TypeReference>();
+    public static Object unmarshalWithBridge(TypeReference ref,
+                                             Set<Class<?>> ctxClasses,
+                                             Object source,
+                                             AttachmentUnmarshaller am) {
+        List<TypeReference> typeRefs = new ArrayList<TypeReference>();
         typeRefs.add(ref);
+        List<Class<?>> clses = new ArrayList<Class<?>>(ctxClasses);
+        clses.add(ref.type.getClass());
         try {
-            JAXBRIContext riContext = JAXBRIContext.newInstance(new Class[] {ref.type.getClass()},
+            JAXBRIContext riContext = JAXBRIContext.newInstance(clses.toArray(new Class[clses.size()]),
                                                                     typeRefs, null, null, true, null);
             Bridge bridge = riContext.createBridge(ref);
            

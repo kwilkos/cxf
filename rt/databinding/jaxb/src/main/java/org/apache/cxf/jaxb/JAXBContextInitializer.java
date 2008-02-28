@@ -33,7 +33,10 @@ import java.util.Set;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlTransient;
+import javax.xml.bind.annotation.adapters.XmlAdapter;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.apache.cxf.service.ServiceModelVisitor;
 import org.apache.cxf.service.model.MessageInfo;
@@ -91,8 +94,9 @@ class JAXBContextInitializer extends ServiceModelVisitor {
             clazz = clazz.getComponentType();
         }
         
-        
-            
+        Annotation[] a = (Annotation[])part.getProperty("parameter.annotations");
+        checkForAdapter(clazz, a);
+
         Type genericType = (Type) part.getProperty("generic.type");
         if (genericType != null) {
             boolean isList = Collection.class.isAssignableFrom(clazz);
@@ -147,6 +151,21 @@ class JAXBContextInitializer extends ServiceModelVisitor {
         }
     }
 
+    private void checkForAdapter(Class<?> clazz, Annotation[] anns) {
+        if (anns != null) {
+            for (Annotation a : anns) {
+                if (XmlJavaTypeAdapter.class.isAssignableFrom(a.annotationType())) {
+                    inspectTypeAdapter(((XmlJavaTypeAdapter)a).value());
+                }
+            }
+        }
+        XmlJavaTypeAdapter xjta = clazz.getAnnotation(XmlJavaTypeAdapter.class);
+        if (xjta != null) {
+            inspectTypeAdapter(xjta.value());
+        }
+        
+    }
+
     private void addType(Type cls) {
         addType(cls, false);
     }
@@ -184,20 +203,46 @@ class JAXBContextInitializer extends ServiceModelVisitor {
         } else {
             cls = JAXBUtils.getValidClass(cls);
             if (null != cls) {
-                if (classes.contains(cls)) {
+                if (cls.isInterface()) {
+                    //interfaces cannot be added directly, however, they
+                    //may have some interesting annoations we should consider
+                    XmlSeeAlso xsa = cls.getAnnotation(XmlSeeAlso.class);
+                    if (xsa != null) {
+                        for (Class c : xsa.value()) {
+                            addClass(c);
+                        }
+                    }
+                    XmlJavaTypeAdapter xjta = cls.getAnnotation(XmlJavaTypeAdapter.class);
+                    if (xjta != null) {
+                        Class<? extends XmlAdapter> c2 = xjta.value();
+                        inspectTypeAdapter(c2);
+                    }
+                } else if (classes.contains(cls)) {
                     return;
-                }
-                if (cls.isEnum()) {
-                    // The object factory stuff doesn't work for enums
+                } else {
                     classes.add(cls);
+                    walkReferences(cls);
                 }
-                classes.add(cls);
-                walkReferences(cls);
             }
         }
     }
 
+    private void inspectTypeAdapter(Class<? extends XmlAdapter> aclass) {
+        Class<?> c2 = aclass;
+        Type sp = c2.getGenericSuperclass();
+        while (!XmlAdapter.class.equals(c2) && c2 != null) {
+            sp = c2.getGenericSuperclass();
+            c2 = c2.getSuperclass();
+        }
+        if (sp instanceof ParameterizedType) {
+            addType(((ParameterizedType)sp).getActualTypeArguments()[0]);
+        }
+    }
+
     private void walkReferences(Class<?> cls) {
+        if (cls == null) {
+            return;
+        }
         if (cls.getName().startsWith("java.")
             || cls.getName().startsWith("javax.")) {
             return;

@@ -26,6 +26,8 @@ import javax.jws.WebService;
 import javax.xml.ws.Holder;
 
 import org.apache.cxf.message.Exchange;
+import org.apache.cxf.systest.jaxws.types.Bar;
+import org.apache.cxf.systest.jaxws.types.BarImpl;
 
 @WebService(endpointInterface = "org.apache.cxf.systest.jaxws.DocLitWrappedCodeFirstService",
             serviceName = "DocLitWrappedCodeFirstService",
@@ -152,4 +154,7 @@ public class DocLitWrappedCodeFirstServiceImpl implements DocLitWrappedCodeFirst
         return i;
     }
 
+    public Bar createBar(String val) {
+        return new BarImpl(val);
+    }
 }

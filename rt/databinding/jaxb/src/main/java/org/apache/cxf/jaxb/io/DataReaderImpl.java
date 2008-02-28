@@ -20,6 +20,7 @@
 package org.apache.cxf.jaxb.io;
 
 import java.lang.annotation.Annotation;
+import java.util.Set;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.namespace.QName;
@@ -32,8 +33,10 @@ import org.apache.cxf.jaxb.JAXBEncoderDecoder;
 import org.apache.cxf.service.model.MessagePartInfo;
 
 public class DataReaderImpl<T> extends JAXBDataBase implements DataReader<T> {
-    public DataReaderImpl(JAXBContext ctx) {
+    Set<Class<?>> contextClasses;
+    public DataReaderImpl(JAXBContext ctx, Set<Class<?>> contextClasses) {
         super(ctx);
+        this.contextClasses = contextClasses;
     }
 
     public Object read(T input) {
@@ -52,7 +55,9 @@ public class DataReaderImpl<T> extends JAXBDataBase implements DataReader<T> {
             //TODO:Cache the JAXBRIContext
             QName qname = new QName(null, part.getConcreteName().getLocalPart());
             TypeReference typeReference = new TypeReference(qname, part.getTypeClass(), anns);
-            return JAXBEncoderDecoder.unmarshalWithBridge(typeReference, reader, 
+            return JAXBEncoderDecoder.unmarshalWithBridge(typeReference, 
+                                                          contextClasses,
+                                                          reader,
                                                           getAttachmentUnmarshaller());
         }
         

@@ -16,13 +16,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-// START SNIPPET: service
 package demo.hw.server;
 
 import javax.jws.WebService;
 
 @WebService
 public interface HelloWorld {
+
     String sayHi(String text);
+
+
+    /* Advanced usecase of passing an Interface in.  JAX-WS/JAXB does not
+     * support interfaces directly.  Special XmlAdapter classes need to
+     * be written to handle them
+     */
+    String sayHiToUser(User user);
 }
 // END SNIPPET: service

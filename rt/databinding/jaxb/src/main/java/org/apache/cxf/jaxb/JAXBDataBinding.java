@@ -167,21 +167,23 @@ public final class JAXBDataBinding extends AbstractDataBinding {
         Integer mtomThresholdInt = new Integer(getMtomThreshold());
         if (c == XMLStreamWriter.class) {
             DataWriterImpl<XMLStreamWriter> r = 
-                new DataWriterImpl<XMLStreamWriter>(context, currentMarshallerProperties);
+                new DataWriterImpl<XMLStreamWriter>(context, currentMarshallerProperties, contextClasses);
             r.setMtomThreshold(mtomThresholdInt);
             return (DataWriter<T>)r;
         } else if (c == OutputStream.class) {
             DataWriterImpl<OutputStream> r = 
-                new DataWriterImpl<OutputStream>(context, currentMarshallerProperties);
+                new DataWriterImpl<OutputStream>(context, currentMarshallerProperties, contextClasses);
             r.setMtomThreshold(mtomThresholdInt);
             return (DataWriter<T>)r;    
         } else if (c == XMLEventWriter.class) {
             DataWriterImpl<XMLEventWriter> r = new DataWriterImpl<XMLEventWriter>(context,
-                currentMarshallerProperties);
+                currentMarshallerProperties, contextClasses);
             r.setMtomThreshold(mtomThresholdInt);
             return (DataWriter<T>)r;        
         } else if (c == Node.class) {
-            DataWriterImpl<Node> r = new DataWriterImpl<Node>(context, currentMarshallerProperties);
+            DataWriterImpl<Node> r = new DataWriterImpl<Node>(context, 
+                    currentMarshallerProperties,
+                    contextClasses);
             r.setMtomThreshold(mtomThresholdInt);
             return (DataWriter<T>)r;      
         }
@@ -196,11 +198,11 @@ public final class JAXBDataBinding extends AbstractDataBinding {
     public <T> DataReader<T> createReader(Class<T> c) {
         DataReader<T> dr = null;
         if (c == XMLStreamReader.class) {
-            dr = (DataReader<T>)new DataReaderImpl<XMLStreamReader>(context);
+            dr = (DataReader<T>)new DataReaderImpl<XMLStreamReader>(context, contextClasses);
         } else if (c == XMLEventReader.class) {
-            dr = (DataReader<T>)new DataReaderImpl<XMLEventReader>(context);
+            dr = (DataReader<T>)new DataReaderImpl<XMLEventReader>(context, contextClasses);
         } else if (c == Node.class) {
-            dr = (DataReader<T>)new DataReaderImpl<Node>(context);
+            dr = (DataReader<T>)new DataReaderImpl<Node>(context, contextClasses);
         }
         
         return dr;

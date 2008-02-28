@@ -24,6 +24,8 @@ import javax.xml.ws.Service;
 import javax.xml.ws.soap.SOAPBinding;
 
 import demo.hw.server.HelloWorld;
+import demo.hw.server.User;
+import demo.hw.server.UserImpl;
 
 public final class Client {
 
@@ -47,6 +49,8 @@ public final class Client {
         HelloWorld hw = service.getPort(HelloWorld.class);
         System.out.println(hw.sayHi("World"));
 
+        User user = new UserImpl("World");
+        System.out.println(hw.sayHiToUser(user));
     }
 
 }
