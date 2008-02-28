@@ -47,6 +47,30 @@ Committers:
 X  -- Have all of the active long-term volunteers been identified
      and acknowledged as committers on the project?
 
+	apaibir
+	bharathganesh
+	blin
+	bmargulies
+	ddiephouse
+	dkulp
+	eglynn
+	ejohnson
+	ema
+	ffang
+	gmazza
+	gnodet
+	jgawor
+	jgenender
+	jim
+	jliu
+	maomaode
+	ningjiang
+	pjones
+	seanoc
+	ubhole
+	unrealjiang
+
+
 X  -- Have all the commiters signed the CLA?
 
 X  -- Do they have accounts on svn.apache.org?
@@ -58,7 +82,7 @@ Collaborative Development:
 
 X  -- Are project decisions being made in public by the committers?
 
-  -- Are the decision-making guidelines published and agreed to by
+X  -- Are the decision-making guidelines published and agreed to by
      all of the committers?
 
 X  -- Does the documentation site has enough information on the architecure, design decisions and
