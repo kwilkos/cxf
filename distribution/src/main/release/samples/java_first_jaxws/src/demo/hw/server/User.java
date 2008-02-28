@@ -23,5 +23,5 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 @XmlJavaTypeAdapter(UserAdapter.class)
 public interface User {
 
-    public String getName();
+    String getName();
 }
