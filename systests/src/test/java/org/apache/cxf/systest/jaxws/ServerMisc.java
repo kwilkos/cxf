@@ -23,7 +23,12 @@ import javax.xml.ws.Endpoint;
 
 import org.apache.cxf.anonymous_complex_type.AnonymousComplexTypeImpl;
 import org.apache.cxf.jaxb_element_test.JaxbElementTestImpl;
+import org.apache.cxf.jaxws.JAXWSMethodInvoker;
+import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
 import org.apache.cxf.ordered_param_holder.OrderedParamHolderImpl;
+import org.apache.cxf.service.invoker.Factory;
+import org.apache.cxf.service.invoker.PerRequestFactory;
+import org.apache.cxf.service.invoker.PooledFactory;
 import org.apache.cxf.testutil.common.AbstractBusTestServerBase;
 
 
@@ -38,8 +43,19 @@ public class ServerMisc extends AbstractBusTestServerBase {
         "http://localhost:9003/DocLitBareCodeFirstService/";
     
     protected void run() {
-        Object implementor4 = new DocLitWrappedCodeFirstServiceImpl();
-        Endpoint.publish(DOCLIT_CODEFIRST_URL, implementor4);
+        
+        Factory factory = new PerRequestFactory(DocLitWrappedCodeFirstServiceImpl.class);
+        factory = new PooledFactory(factory, 4);
+        
+        JAXWSMethodInvoker invoker = new JAXWSMethodInvoker(factory);
+        JaxWsServerFactoryBean factoryBean = new JaxWsServerFactoryBean();
+        factoryBean.setAddress(DOCLIT_CODEFIRST_URL);
+        factoryBean.setServiceClass(DocLitWrappedCodeFirstServiceImpl.class);
+        factoryBean.setInvoker(invoker);
+        factoryBean.create();
+         
+        //Object implementor4 = new DocLitWrappedCodeFirstServiceImpl();
+        //Endpoint.publish(DOCLIT_CODEFIRST_URL, implementor4);
         
         Object implementor7 = new DocLitBareCodeFirstServiceImpl();
         Endpoint.publish(DOCLITBARE_CODEFIRST_URL, implementor7);

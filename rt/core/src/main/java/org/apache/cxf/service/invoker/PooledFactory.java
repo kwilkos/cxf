@@ -86,15 +86,24 @@ public class PooledFactory implements Factory {
     /** {@inheritDoc}*/
     public Object create(Exchange ex) throws Throwable {
         if (factory == null 
-            || ((count == max) && !createMore)) {
+            || ((count >= max) && !createMore)) {
             return pool.take();
         }
         Object o = pool.poll();
         if (o == null) {
-            count++;
-            return factory.create(ex);
+            return createObject(ex);
         }
         return o;
+    }
+    protected synchronized Object createObject(Exchange e) throws Throwable {
+        //recheck the count/max stuff now that we're in a sync block
+        if (factory == null 
+            || ((count >= max) && !createMore)) {
+            return pool.take();
+        }
+        
+        count++;
+        return factory.create(e);        
     }
 
     /** {@inheritDoc}*/

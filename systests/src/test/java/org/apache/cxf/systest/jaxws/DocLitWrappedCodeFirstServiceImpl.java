@@ -22,8 +22,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
 
+import javax.annotation.Resource;
 import javax.jws.WebService;
 import javax.xml.ws.Holder;
+import javax.xml.ws.WebServiceContext;
 
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.systest.jaxws.types.Bar;
@@ -36,19 +38,31 @@ import org.apache.cxf.systest.jaxws.types.BarImpl;
 public class DocLitWrappedCodeFirstServiceImpl implements DocLitWrappedCodeFirstService {
     public static final String DATA[] = new String[] {"string1", "string2", "string3"};
     
+    @Resource
+    WebServiceContext context;
+    
     public int thisShouldNotBeInTheWSDL(int i) {
         return i;
     }
     
     public String[] arrayOutput() {
+        if (context == null) {
+            throw new RuntimeException("No CONTEXT!!!");
+        }
         return DATA;
     }
 
     public Vector<String> listOutput() {
+        if (context == null) {
+            throw new RuntimeException("No CONTEXT!!!");
+        }
         return new Vector<String>(Arrays.asList(DATA));
     }
 
     public String arrayInput(String[] inputs) {
+        if (context == null) {
+            throw new RuntimeException("No CONTEXT!!!");
+        }
         StringBuffer buf = new StringBuffer();
         for (String s : inputs) {
             buf.append(s);
@@ -57,11 +71,17 @@ public class DocLitWrappedCodeFirstServiceImpl implements DocLitWrappedCodeFirst
     }
     
     public int[] echoIntArray(int[] ar, Exchange ex) {
+        if (context == null) {
+            throw new RuntimeException("No CONTEXT!!!");
+        }
         return ar;
     }
 
 
     public String listInput(List<String> inputs) {
+        if (context == null) {
+            throw new RuntimeException("No CONTEXT!!!");
+        }
         StringBuffer buf = new StringBuffer();
         if (inputs != null) {
             for (String s : inputs) {
@@ -72,6 +92,9 @@ public class DocLitWrappedCodeFirstServiceImpl implements DocLitWrappedCodeFirst
     }
     
     public String multiListInput(List<String> inputs1, List<String> inputs2, String x, int y) {
+        if (context == null) {
+            throw new RuntimeException("No CONTEXT!!!");
+        }
         StringBuffer buf = new StringBuffer();
         for (String s : inputs1) {
             buf.append(s);
