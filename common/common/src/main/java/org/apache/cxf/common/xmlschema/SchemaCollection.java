@@ -21,13 +21,13 @@ package org.apache.cxf.common.xmlschema;
 
 import java.io.Reader;
 import java.io.StringReader;
+import java.lang.reflect.Method;
 
 import javax.xml.namespace.QName;
 import javax.xml.transform.Source;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-
 import org.xml.sax.InputSource;
 
 import org.apache.ws.commons.schema.ValidationEventHandler;
@@ -46,6 +46,17 @@ import org.apache.ws.commons.schema.utils.TargetNamespaceValidator;
  * One bug is WSCOMMONS-272.
  */
 public class SchemaCollection {
+    private static final Method GET_ELEMENT_BY_NAME_METHOD;
+    static {
+        Method m = null;
+        try {
+            m = XmlSchema.class.getMethod("getElementByName",
+                                          new Class[] {String.class});
+        } catch (Exception ex) {
+            //ignore
+        }
+        GET_ELEMENT_BY_NAME_METHOD = m;
+    }
     
     private XmlSchemaCollection schemaCollection;
     
@@ -156,6 +167,33 @@ public class SchemaCollection {
         for (XmlSchema schema : schemaCollection.getXmlSchemas()) {
             if (schema.getTargetNamespace().equals(namespaceURI)) {
                 return schema;
+            }
+        }
+        return null;
+    }
+
+    public XmlSchema getSchemaForElement(QName name) {
+        for (XmlSchema schema : schemaCollection.getXmlSchemas()) {
+            if (name.getNamespaceURI().equals(schema.getTargetNamespace())) {
+
+                //for XmlSchema 1.4, we should use:
+                //schema.getElementByName(name.getLocalPart()) != null
+                //but that doesn't exist in 1.3 so for now, use reflection
+                try {
+                    if (GET_ELEMENT_BY_NAME_METHOD != null) {
+                        if (GET_ELEMENT_BY_NAME_METHOD.invoke(schema,
+                                                              new Object[] {name.getLocalPart()}) != null) {
+                            return schema;
+                        }
+                    } else if (schema.getElementByName(name) != null) {
+                        return schema;
+                    }
+
+                } catch (java.lang.reflect.InvocationTargetException ex) {
+                    //ignore
+                } catch (IllegalAccessException ex) {
+                    //ignore
+                }
             }
         }
         return null;
