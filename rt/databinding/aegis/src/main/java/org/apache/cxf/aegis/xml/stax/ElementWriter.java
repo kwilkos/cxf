@@ -100,9 +100,18 @@ public class ElementWriter extends AbstractMessageWriter implements MessageWrite
             String decPrefix = writer.getNamespaceContext().getPrefix(namespace);
 
             // If the user didn't specify a prefix, create one
-            if (StringUtils.isEmpty(prefix) && decPrefix == null) {
-                declare = true;
-                prefix = NamespaceHelper.getUniquePrefix(writer);
+            if (StringUtils.isEmpty(prefix) 
+                && decPrefix == null) {
+               
+                if (!StringUtils.isEmpty(namespace)) {
+                    declare = true;
+                    prefix = NamespaceHelper.getUniquePrefix(writer);
+                } else {
+                    prefix = "";
+                    if (!StringUtils.isEmpty(writer.getNamespaceContext().getNamespaceURI(""))) {
+                        declare = true;
+                    }
+                }
             } else if (StringUtils.isEmpty(prefix)) {
                 prefix = decPrefix;
             } else if (!prefix.equals(decPrefix)) {
