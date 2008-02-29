@@ -21,6 +21,7 @@ package org.apache.cxf.tools.corba.processors.wsdl;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -63,7 +64,7 @@ public class WSDLToProcessor implements Processor {
     private ExtensionRegistry extReg;        
     private List<Definition> importedDefinitions = new ArrayList<Definition>();    
     private XmlSchemaCollection schemaCol = new XmlSchemaCollection();
-    private List<XmlSchema> schematypeList = new ArrayList<XmlSchema>();
+    private Map<String, XmlSchema> schematypeList = new HashMap<String, XmlSchema>();
     private List<Schema> schemaList;  
     private List<String> schemaTargetNamespaces = new ArrayList<String>();
     
@@ -157,8 +158,12 @@ public class WSDLToProcessor implements Processor {
                 }
                 
                 if (schemaElem != null) {
-                    schematype = schemaCol.read(schemaElem);                    
-                    schematypeList.add(schematype);                    
+                    String uri = def.getDocumentBaseURI() + "#types";
+                    String ns = schemaElem.getAttribute("targetNamespace");
+                    if (!schematypeList.containsKey("{" + ns + "}" + uri)) {
+                        schematype = schemaCol.read(schemaElem, uri);                    
+                        schematypeList.put("{" + ns + "}" + uri, schematype);                    
+                    }
                 }
             }
         }
@@ -226,8 +231,8 @@ public class WSDLToProcessor implements Processor {
         return this.schematype;
     }
 
-    public List<XmlSchema> getXmlSchemaTypes() {
-        return this.schematypeList;
+    public Collection<XmlSchema> getXmlSchemaTypes() {
+        return this.schematypeList.values();
     }
         
     public void setEnvironment(ProcessorEnvironment environement) {

@@ -23,6 +23,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -118,7 +119,7 @@ public class WSDLToCorbaBinding {
         return helper;
     }
     
-    private void createXmlSchemaList(List<XmlSchema> list) {                
+    private void createXmlSchemaList(Collection<XmlSchema> list) {                
         List<XmlSchema> schemaList = new ArrayList<XmlSchema>();        
         Iterator s = list.iterator();
             

@@ -137,12 +137,7 @@ public class CodeGenOptionTest extends ProcessorTestBase {
         env.put(ToolConstants.CFG_CLASSDIR, null);
 
         processor.setContext(env);
-        try {
-            processor.execute();
-        } catch (Exception e) {
-            e.printStackTrace();
-            fail("Catalog not working");
-        }
+        processor.execute();
     }
 
     @Test
@@ -153,11 +148,6 @@ public class CodeGenOptionTest extends ProcessorTestBase {
         env.put(ToolConstants.CFG_CLASSDIR, null);
 
         processor.setContext(env);
-        try {
-            processor.execute();
-        } catch (Exception e) {
-            e.printStackTrace();
-            fail("Catalog not working");
-        }
+        processor.execute();
     }
 }

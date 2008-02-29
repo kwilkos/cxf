@@ -59,7 +59,7 @@ import org.apache.ws.commons.schema.XmlSchemaSequence;
 
 public final class ProcessorUtil {
     private static final String KEYWORDS_PREFIX = "_";
-    
+
     private ProcessorUtil() {
     }
 
@@ -396,12 +396,9 @@ public final class ProcessorUtil {
     public static boolean isSchemaFormQualified(ToolContext context, QName partElement) {
         ServiceInfo serviceInfo = (ServiceInfo)context.get(ServiceInfo.class);
         SchemaCollection schemaCol = serviceInfo.getXmlSchemaCollection();
-
-        for (int i = 0; i < schemaCol.getXmlSchemas().length; i++) {
-            XmlSchema schema = schemaCol.getXmlSchemas().clone()[i];
-            if (schema.getElementByName(partElement) != null) {
-                return schema.getElementFormDefault().getValue().equals(XmlSchemaForm.QUALIFIED);
-            }
+        XmlSchema schema = schemaCol.getSchemaForElement(partElement);
+        if (schema != null) {
+            return schema.getElementFormDefault().getValue().equals(XmlSchemaForm.QUALIFIED);
         }
         return false;
     
