@@ -21,6 +21,7 @@ package org.apache.cxf.wsdl11;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -63,10 +64,16 @@ public final class SchemaUtil {
         extractSchema(def, schemaCol, serviceInfo);
         // added
         getSchemaList(def);
+        
+        Map<Definition, Definition> done = new IdentityHashMap<Definition, Definition>();
+        done.put(def, def);
         for (Definition def2 : defList) {
-            extractSchema(def2, schemaCol, serviceInfo);
-            // added
-            getSchemaList(def2);
+            if (!done.containsKey(def2)) {
+                extractSchema(def2, schemaCol, serviceInfo);
+                // added
+                getSchemaList(def2);
+                done.put(def2, def2);
+            }
         }
     }
 

@@ -20,10 +20,10 @@
 package org.apache.cxf.databinding.source;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
 import javax.xml.transform.dom.DOMSource;
 
 import org.w3c.dom.Document;
@@ -69,7 +69,7 @@ public class AbstractDataBinding {
         }
         SchemaInfo schema = new SchemaInfo(serviceInfo, ns);
         schema.setSystemId(systemId);
-        XmlSchema xmlSchema = col.read(d, null);
+        XmlSchema xmlSchema = col.read(d, systemId, null);
         schema.setSchema(xmlSchema);
         serviceInfo.addSchema(schema);
         return xmlSchema;

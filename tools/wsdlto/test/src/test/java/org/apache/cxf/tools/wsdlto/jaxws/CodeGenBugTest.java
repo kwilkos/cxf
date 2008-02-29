@@ -521,6 +521,7 @@ public class CodeGenBugTest extends ProcessorTestBase {
         String results = getStringFromFile(new File(output.getCanonicalPath(), 
                                                     "org/apache/sayhi/SayHi.java"));
         assertTrue(results.trim().length() > 0);
+        
         assertTrue(results.indexOf("@WebResult(name  =  \"return\",  " 
                                    + "targetNamespace  =  \"http://apache.org/sayHi\")") != -1);
         assertTrue(results.indexOf("@WebResult(name  =  \"return\",  targetNamespace  =  \"\")") != -1);
