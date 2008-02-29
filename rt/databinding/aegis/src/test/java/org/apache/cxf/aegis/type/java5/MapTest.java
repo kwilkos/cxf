@@ -28,9 +28,9 @@ import java.util.Set;
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.aegis.AbstractAegisTest;
-import org.apache.cxf.aegis.type.Configuration;
 import org.apache.cxf.aegis.type.DefaultTypeMapping;
 import org.apache.cxf.aegis.type.Type;
+import org.apache.cxf.aegis.type.TypeCreationOptions;
 import org.apache.cxf.aegis.type.collection.CollectionType;
 import org.apache.cxf.aegis.type.collection.MapType;
 import org.apache.cxf.aegis.type.java5.dto.MapDTO;
@@ -48,7 +48,7 @@ public class MapTest extends AbstractAegisTest {
 
         tm = new DefaultTypeMapping();
         creator = new Java5TypeCreator();
-        creator.setConfiguration(new Configuration());
+        creator.setConfiguration(new TypeCreationOptions());
         tm.setTypeCreator(creator);
     }
 
@@ -124,7 +124,7 @@ public class MapTest extends AbstractAegisTest {
     public void testMapDTO() {
         tm = new DefaultTypeMapping();
         creator = new Java5TypeCreator();
-        creator.setConfiguration(new Configuration());
+        creator.setConfiguration(new TypeCreationOptions());
         tm.setTypeCreator(creator);
 
         Type dto = creator.createType(MapDTO.class);

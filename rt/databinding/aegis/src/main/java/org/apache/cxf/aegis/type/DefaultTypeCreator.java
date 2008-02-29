@@ -30,7 +30,7 @@ public class DefaultTypeCreator extends AbstractTypeCreator {
     public DefaultTypeCreator() {
     }
 
-    public DefaultTypeCreator(Configuration configuration) {
+    public DefaultTypeCreator(TypeCreationOptions configuration) {
         setConfiguration(configuration);
     }
 

@@ -23,7 +23,7 @@ import org.w3c.dom.Document;
 
 import org.apache.cxf.aegis.AbstractAegisTest;
 import org.apache.cxf.aegis.databinding.AegisDatabinding;
-import org.apache.cxf.aegis.type.Configuration;
+import org.apache.cxf.aegis.type.TypeCreationOptions;
 import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
 import org.junit.Test;
 
@@ -36,7 +36,7 @@ public class DuplicateArrayTest extends AbstractAegisTest {
         JaxWsServerFactoryBean serviceFactory = new JaxWsServerFactoryBean();
         serviceFactory.getServiceFactory().setDataBinding(binder);
 
-        Configuration configuration = binder.getAegisContext().getConfiguration();
+        TypeCreationOptions configuration = binder.getAegisContext().getTypeCreationOptions();
         configuration.setDefaultMinOccurs(1);
         configuration.setDefaultNillable(false);
 

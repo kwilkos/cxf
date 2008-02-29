@@ -29,9 +29,9 @@ import javax.xml.namespace.QName;
 import org.w3c.dom.Document;
 
 import org.apache.cxf.aegis.AbstractAegisTest;
-import org.apache.cxf.aegis.type.Configuration;
 import org.apache.cxf.aegis.type.DefaultTypeMapping;
 import org.apache.cxf.aegis.type.Type;
+import org.apache.cxf.aegis.type.TypeCreationOptions;
 import org.apache.cxf.aegis.type.collection.CollectionType;
 import org.apache.cxf.aegis.type.java5.dto.CollectionDTO;
 import org.apache.cxf.aegis.type.java5.dto.DTOService;
@@ -50,7 +50,7 @@ public class CollectionTest extends AbstractAegisTest {
 
         tm = new DefaultTypeMapping(SOAPConstants.XSD);
         creator = new Java5TypeCreator();
-        creator.setConfiguration(new Configuration());
+        creator.setConfiguration(new TypeCreationOptions());
         tm.setTypeCreator(creator);
     }
 
@@ -121,7 +121,7 @@ public class CollectionTest extends AbstractAegisTest {
     public void testCollectionDTO() {
         tm = new DefaultTypeMapping(SOAPConstants.XSD);
         creator = new Java5TypeCreator();
-        creator.setConfiguration(new Configuration());
+        creator.setConfiguration(new TypeCreationOptions());
         tm.setTypeCreator(creator);
 
         Type dto = creator.createType(CollectionDTO.class);
@@ -144,7 +144,7 @@ public class CollectionTest extends AbstractAegisTest {
     public void testObjectDTO() {
         tm = new DefaultTypeMapping(SOAPConstants.XSD);
         creator = new Java5TypeCreator();
-        creator.setConfiguration(new Configuration());
+        creator.setConfiguration(new TypeCreationOptions());
         tm.setTypeCreator(creator);
 
         Type dto = creator.createType(ObjectDTO.class);

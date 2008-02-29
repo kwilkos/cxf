@@ -29,8 +29,8 @@ import org.apache.cxf.aegis.AbstractAegisTest;
 import org.apache.cxf.aegis.AegisContext;
 import org.apache.cxf.aegis.Context;
 import org.apache.cxf.aegis.services.SimpleBean;
-import org.apache.cxf.aegis.type.Configuration;
 import org.apache.cxf.aegis.type.Type;
+import org.apache.cxf.aegis.type.TypeCreationOptions;
 import org.apache.cxf.aegis.type.TypeMapping;
 import org.apache.cxf.aegis.util.jdom.StaxBuilder;
 import org.apache.cxf.aegis.xml.jdom.JDOMReader;
@@ -315,10 +315,10 @@ public class BeanTest extends AbstractAegisTest {
     public void testNillableIntMinOccurs1() throws Exception {
         context = new AegisContext();
 
-        Configuration config = new Configuration();
+        TypeCreationOptions config = new TypeCreationOptions();
         config.setDefaultMinOccurs(1);
         config.setDefaultNillable(false);
-        context.setConfiguration(config);
+        context.setTypeCreationOptions(config);
         context.initialize();
         mapping = context.getTypeMapping();
 

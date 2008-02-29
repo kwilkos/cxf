@@ -22,9 +22,9 @@ import javax.xml.namespace.QName;
 
 import org.apache.cxf.aegis.AbstractAegisTest;
 import org.apache.cxf.aegis.AegisContext;
-import org.apache.cxf.aegis.type.Configuration;
 import org.apache.cxf.aegis.type.DefaultTypeMapping;
 import org.apache.cxf.aegis.type.Type;
+import org.apache.cxf.aegis.type.TypeCreationOptions;
 import org.apache.cxf.aegis.type.XMLTypeCreator;
 import org.apache.cxf.aegis.type.basic.BeanType;
 import org.apache.cxf.aegis.type.basic.BeanTypeInfo;
@@ -35,15 +35,15 @@ public class ConfigurationTest extends AbstractAegisTest {
 
     DefaultTypeMapping tm;
 
-    Configuration config;
+    TypeCreationOptions config;
 
     @Before
     public void setUp() throws Exception {
         super.setUp();
 
         AegisContext context = new AegisContext();
-        config = new Configuration();
-        context.setConfiguration(config);
+        config = new TypeCreationOptions();
+        context.setTypeCreationOptions(config);
         context.initialize();
         XMLTypeCreator creator = new XMLTypeCreator();
         creator.setConfiguration(config);

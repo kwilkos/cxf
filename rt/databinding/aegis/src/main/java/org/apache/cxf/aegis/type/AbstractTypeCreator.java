@@ -45,7 +45,7 @@ public abstract class AbstractTypeCreator implements TypeCreator {
 
     protected AbstractTypeCreator nextCreator;
 
-    private Configuration typeConfiguration;
+    private TypeCreationOptions typeConfiguration;
 
     private TypeCreator parent;
 
@@ -378,11 +378,11 @@ public abstract class AbstractTypeCreator implements TypeCreator {
         return createTypeForClass(info);
     }
 
-    public Configuration getConfiguration() {
+    public TypeCreationOptions getConfiguration() {
         return typeConfiguration;
     }
 
-    public void setConfiguration(Configuration tpConfiguration) {
+    public void setConfiguration(TypeCreationOptions tpConfiguration) {
         this.typeConfiguration = tpConfiguration;
     }
 

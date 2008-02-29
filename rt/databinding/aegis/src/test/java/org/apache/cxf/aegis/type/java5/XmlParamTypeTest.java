@@ -25,10 +25,10 @@ import javax.xml.namespace.QName;
 import org.w3c.dom.Document;
 
 import org.apache.cxf.aegis.AbstractAegisTest;
-import org.apache.cxf.aegis.type.Configuration;
 import org.apache.cxf.aegis.type.DefaultTypeCreator;
 import org.apache.cxf.aegis.type.DefaultTypeMapping;
 import org.apache.cxf.aegis.type.Type;
+import org.apache.cxf.aegis.type.TypeCreationOptions;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -43,7 +43,7 @@ public class XmlParamTypeTest extends AbstractAegisTest {
         tm = new DefaultTypeMapping();
         creator = new Java5TypeCreator();
         creator.setNextCreator(new DefaultTypeCreator());
-        creator.setConfiguration(new Configuration());
+        creator.setConfiguration(new TypeCreationOptions());
         tm.setTypeCreator(creator);
     }
 

@@ -18,44 +18,9 @@
  */
 package org.apache.cxf.aegis.type;
 
-public class Configuration {
-    private boolean defaultExtensibleElements;
-
-    private boolean defaultExtensibleAttributes;
-
-    private boolean defaultNillable = true;
-
-    private int defaultMinOccurs;
-
-    public boolean isDefaultExtensibleAttributes() {
-        return defaultExtensibleAttributes;
-    }
-
-    public void setDefaultExtensibleAttributes(boolean defaultExtensibleAttributes) {
-        this.defaultExtensibleAttributes = defaultExtensibleAttributes;
-    }
-
-    public boolean isDefaultExtensibleElements() {
-        return defaultExtensibleElements;
-    }
-
-    public void setDefaultExtensibleElements(boolean defaultExtensibleElements) {
-        this.defaultExtensibleElements = defaultExtensibleElements;
-    }
-
-    public int getDefaultMinOccurs() {
-        return defaultMinOccurs;
-    }
-
-    public void setDefaultMinOccurs(int defaultMinOccurs) {
-        this.defaultMinOccurs = defaultMinOccurs;
-    }
-
-    public boolean isDefaultNillable() {
-        return defaultNillable;
-    }
-
-    public void setDefaultNillable(boolean defaultNillable) {
-        this.defaultNillable = defaultNillable;
-    }
+/**
+ * This class is preserved for compatibility. Please use {@link TypeCreationOptions}.
+ * @deprecated 2.1
+ */
+public class Configuration extends TypeCreationOptions {
 }

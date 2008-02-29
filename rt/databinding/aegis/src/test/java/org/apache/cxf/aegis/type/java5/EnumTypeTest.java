@@ -23,9 +23,9 @@ import javax.xml.namespace.QName;
 import org.w3c.dom.Document;
 
 import org.apache.cxf.aegis.AbstractAegisTest;
-import org.apache.cxf.aegis.type.Configuration;
 import org.apache.cxf.aegis.type.DefaultTypeMapping;
 import org.apache.cxf.aegis.type.Type;
+import org.apache.cxf.aegis.type.TypeCreationOptions;
 import org.apache.cxf.aegis.type.java5.CurrencyService.Currency;
 import org.apache.cxf.aegis.xml.jdom.JDOMReader;
 import org.apache.cxf.aegis.xml.jdom.JDOMWriter;
@@ -48,7 +48,7 @@ public class EnumTypeTest extends AbstractAegisTest {
 
         tm = new DefaultTypeMapping();
         Java5TypeCreator creator = new Java5TypeCreator();
-        creator.setConfiguration(new Configuration());
+        creator.setConfiguration(new TypeCreationOptions());
         tm.setTypeCreator(creator);
     }
     

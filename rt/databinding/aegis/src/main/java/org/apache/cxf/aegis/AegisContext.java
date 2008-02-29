@@ -28,10 +28,10 @@ import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 
 import org.apache.cxf.aegis.type.AbstractTypeCreator;
-import org.apache.cxf.aegis.type.Configuration;
 import org.apache.cxf.aegis.type.DefaultTypeCreator;
 import org.apache.cxf.aegis.type.DefaultTypeMapping;
 import org.apache.cxf.aegis.type.Type;
+import org.apache.cxf.aegis.type.TypeCreationOptions;
 import org.apache.cxf.aegis.type.TypeCreator;
 import org.apache.cxf.aegis.type.TypeMapping;
 import org.apache.cxf.aegis.type.TypeUtil;
@@ -45,13 +45,15 @@ import org.apache.cxf.common.util.SOAPConstants;
  * The Aegis Databinding context object. This object coordinates the data binding process: reading
  * and writing XML.
  * 
- * By default, this object will use the DefaultTypeMapping registry and set up two type mappings:
- * the default set, plus an empty one that will be used for classes mapped here. Applications
- * may replace the type mapping registry and/or the mappings, though there are currently no examples
- * that show how to do this or how it would be useful.
+ * By default, this object sets up a default set of type mappings. 
+ * This consists of two DefaultTypeMapping objects. The first is empty
+ * and has the Default, Java5, and XML TypeCreator classes configured. The second contains the
+ * standard mappings of the stock types. If a type can't be mapped in either, then the creators 
+ * create a mapping and store it in the first one.
  * 
- * This class has no API that maps from a Class or QName to a Type or visa versa. Our goal is to allow
- * Aegis-sans-CXF, but the marshal/unmarshal-level APIs aren't sorted out yet.
+ * The application can control some parameters of the type creators by creating a TypeCreationOptions
+ * object and setting properties. The application can add custom mappings to the type mapping, or 
+ * even use its own classes for the TypeMapping or TypeCreator objecrs.
  * 
  * At the level of the data binding, the 'root elements' are defined by the WSDL message parts.
  * Additional classes that participate are termed 'override' classes.
@@ -61,11 +63,13 @@ import org.apache.cxf.common.util.SOAPConstants;
  * root elements) or have its own mapping from elements to classes, and pass the 
  * resulting Class objects to the readers.
  * 
- * At this level, the initial set of classes are just the initial set of classes.
- * If the application leaves this list empty, and reads, then no .aegis.xml files 
- * are used unless the application feeds in a Class&lt;T&gt; for the root of a 
+ * At this level, the application must specify the initial set of classes to make 
+ * make use of untyped collections or .aegis.xml files.
+ * 
+ * If the application leaves this list empty, and reads XML messages, then no .aegis.xml files 
+ * are used unless the application has specified a Class&lt;T&gt; for the root of a 
  * particular item read. Specifically, if the application just leaves it to Aegis to
- * map an xsi:type spec to a class, Aegis can't know that some arbitrary class in
+ * map an element tagged with an xsi:type to a class, Aegis can't know that some arbitrary class in
  * some arbitrary package is mapped to a particular schema type by QName in a
  * mapping XML file. 
  * 
@@ -81,7 +85,7 @@ public class AegisContext {
     private TypeMapping typeMapping;
     private Set<Type> rootTypes;
     private Map<Class<?>, String> beanImplementationMap;
-    private Configuration configuration;
+    private TypeCreationOptions configuration;
     private boolean mtomEnabled;
     private boolean mtomUseXmime;
     // this URI goes into the type map.
@@ -129,7 +133,7 @@ public class AegisContext {
         // The use of the XSD URI in the mapping is, MAGIC. 
         // allow spring config of an alternative mapping.
         if (configuration == null) {
-            configuration = new Configuration();
+            configuration = new TypeCreationOptions();
         }
         if (typeMapping == null) {
             boolean defaultNillable = configuration.isDefaultNillable();
@@ -258,9 +262,28 @@ public class AegisContext {
     /** 
      * Return the type mapping configuration associated with this context.
      * @return Returns the configuration.
+     * @deprecated 2.1
      */
-    public Configuration getConfiguration() {
+    public TypeCreationOptions getConfiguration() {
         return configuration;
+    }
+
+    /** 
+     * Return the type mapping configuration associated with this context.
+     * @return Returns the configuration.
+     */
+    public TypeCreationOptions getTypeCreationOptions() {
+        return configuration;
+    }
+
+    /**
+     * Set the configuration object. The configuration specifies default
+     * type mapping behaviors. 
+     * @param configuration The configuration to set.
+     * @deprecated 2.1
+     */
+    public void setConfiguration(TypeCreationOptions newConfiguration) {
+        this.configuration = newConfiguration;
     }
 
     /**
@@ -268,7 +291,7 @@ public class AegisContext {
      * type mapping behaviors.
      * @param configuration The configuration to set.
      */
-    public void setConfiguration(Configuration newConfiguration) {
+    public void setTypeCreationOptions(TypeCreationOptions newConfiguration) {
         this.configuration = newConfiguration;
     }
 
@@ -292,7 +315,7 @@ public class AegisContext {
     /**
      * Controls the use of xsi:type attributes when reading objects. By default,
      * xsi:type reading is enabled. When disabled, Aegis will only map for objects
-     * in the type mapping. 
+     * that the application manually maps in the type mapping. 
      * @param flag
      */
     public void setReadXsiTypes(boolean flag) {
@@ -323,6 +346,13 @@ public class AegisContext {
         return rootTypes;
     }
     
+    
+    /** 
+     * This property provides support for interfaces. If there is a mapping from an interface's Class<T>
+     * to a string containing a class name, Aegis will create proxy objects of that class name.
+     * @see org.apache.cxf.aegis.type.basic.BeanType
+     * @return
+     */
     public Map<Class<?>, String> getBeanImplementationMap() {
         return beanImplementationMap;
     }
@@ -335,6 +365,10 @@ public class AegisContext {
         return rootClasses;
     }
 
+    /**
+     * The list of initial classes.
+     * @param rootClasses
+     */
     public void setRootClasses(Set<Class<?>> rootClasses) {
         this.rootClasses = rootClasses;
     }
@@ -352,7 +386,7 @@ public class AegisContext {
     }
 
     /**
-     * Is the schema for MTOM types xmime:base64Binary instead of xsd:base64Binary?
+     * Should this service use schema for MTOM types xmime:base64Binary instead of xsd:base64Binary?
      * @return
      */
     public boolean isMtomUseXmime() {
