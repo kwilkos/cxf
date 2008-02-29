@@ -29,6 +29,7 @@ import javax.xml.soap.SOAPConnection;
 import javax.xml.soap.SOAPConnectionFactory;
 import javax.xml.soap.SOAPFactory;
 import javax.xml.soap.SOAPMessage;
+import javax.xml.ws.soap.SOAPFaultException;
 
 import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
 import org.apache.hello_world_rpclit.GreeterRPCLit;
@@ -40,7 +41,7 @@ public class ProviderRPCClientServerTest extends AbstractBusClientServerTestBase
 
     @BeforeClass
     public static void startServers() throws Exception {
-        assertTrue("server did not launch correctly", launchServer(Server.class));
+        assertTrue("server did not launch correctly", launchServer(Server.class, true));
     }
     
     @Test
@@ -68,7 +69,10 @@ public class ProviderRPCClientServerTest extends AbstractBusClientServerTestBase
         assertEquals(2, response.countAttachments());
     }
 
-    private void doGreeterRPCLit(SOAPServiceRPCLit service, QName portName, int count) throws Exception {
+    private void doGreeterRPCLit(SOAPServiceRPCLit service,
+                                 QName portName,
+                                 int count,
+                                 boolean doFault) throws Exception {
         String response1 = new String("TestGreetMeResponse");
         String response2 = new String("TestSayHiResponse");
         try {
@@ -81,6 +85,15 @@ public class ProviderRPCClientServerTest extends AbstractBusClientServerTestBase
                 String reply = greeter.sayHi();
                 assertNotNull("no response received from service", reply);
                 assertEquals(response2, reply);
+                
+                if (doFault) {
+                    try {
+                        greeter.greetMe("throwFault");
+                    } catch (SOAPFaultException ex) {
+                        assertNotNull(ex.getFault().getDetail());
+                        assertTrue(ex.getFault().getDetail().getDetailEntries().hasNext());
+                    }
+                }
             }
         } catch (UndeclaredThrowableException ex) {
             throw (Exception)ex.getCause();
@@ -99,7 +112,7 @@ public class ProviderRPCClientServerTest extends AbstractBusClientServerTestBase
         SOAPServiceRPCLit service = new SOAPServiceRPCLit(wsdl, serviceName);
         assertNotNull(service);
 
-        doGreeterRPCLit(service, portName, 2);
+        doGreeterRPCLit(service, portName, 2, false);
     }
 
     @Test
@@ -113,7 +126,7 @@ public class ProviderRPCClientServerTest extends AbstractBusClientServerTestBase
         SOAPServiceRPCLit service = new SOAPServiceRPCLit(wsdl, serviceName);
         assertNotNull(service);
 
-        doGreeterRPCLit(service, portName, 2);
+        doGreeterRPCLit(service, portName, 2, false);
     }
 
     @Test
@@ -127,7 +140,7 @@ public class ProviderRPCClientServerTest extends AbstractBusClientServerTestBase
         SOAPServiceRPCLit service = new SOAPServiceRPCLit(wsdl, serviceName);
         assertNotNull(service);
 
-        doGreeterRPCLit(service, portName, 1);
+        doGreeterRPCLit(service, portName, 1, true);
     }
     
     @Test
@@ -165,7 +178,7 @@ public class ProviderRPCClientServerTest extends AbstractBusClientServerTestBase
         SOAPServiceRPCLit service = new SOAPServiceRPCLit(wsdl, serviceName);
         assertNotNull(service);
 
-        doGreeterRPCLit(service, portName, 1);
+        doGreeterRPCLit(service, portName, 1, false);
     }
 
     @Test
@@ -179,7 +192,7 @@ public class ProviderRPCClientServerTest extends AbstractBusClientServerTestBase
         SOAPServiceRPCLit service = new SOAPServiceRPCLit(wsdl, serviceName);
         assertNotNull(service);
 
-        doGreeterRPCLit(service, portName, 1);
+        doGreeterRPCLit(service, portName, 1, false);
     }
 
     @Test
@@ -193,7 +206,7 @@ public class ProviderRPCClientServerTest extends AbstractBusClientServerTestBase
         SOAPServiceRPCLit service = new SOAPServiceRPCLit(wsdl, serviceName);
         assertNotNull(service);
 
-        doGreeterRPCLit(service, portName, 1);
+        doGreeterRPCLit(service, portName, 1, false);
     }
 
 }

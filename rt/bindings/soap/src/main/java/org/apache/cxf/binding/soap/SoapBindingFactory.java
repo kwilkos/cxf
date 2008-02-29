@@ -333,6 +333,7 @@ public class SoapBindingFactory extends AbstractBindingFactory {
         }
 
         sb.getOutFaultInterceptors().add(new StaxOutInterceptor());
+        sb.getOutFaultInterceptors().add(new SoapOutInterceptor(getBus()));
 
         //Do not add any interceptors if it is Provider/Dispatch
         if (!Boolean.TRUE.equals(binding.getProperty(DATABINDING_DISABLED))) {
