@@ -20,6 +20,7 @@
 package org.apache.cxf.transport.http;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -36,6 +37,7 @@ import javax.xml.namespace.QName;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.configuration.Configurer;
+import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.EndpointInfo;
@@ -230,10 +232,25 @@ public abstract class AbstractHTTPTransportFactory
         HTTPConduit configuredConduit
     ) {
         HttpURLConnectionFactory fac = null;
+        boolean useHttps = false;
 
-        if (configuredConduit.getTlsClientParameters() != null) {
-            fac = new HttpsURLConnectionFactory(
-                             configuredConduit.getTlsClientParameters());
+        try {
+            String address = configuredConduit.getAddress();
+            if (address != null 
+                && address.startsWith(HttpsURLConnectionFactory.HTTPS_URL_PROTOCOL_ID + ":/")) {
+                useHttps = true;
+            }
+        } catch (MalformedURLException e) {
+            //ignore, just use info based on Tls
+        }
+        if (useHttps 
+            || configuredConduit.getTlsClientParameters() != null) {
+            
+            TLSClientParameters params = configuredConduit.getTlsClientParameters();
+            if (params == null) {
+                params = new TLSClientParameters(); //use defaults
+            }
+            fac = new HttpsURLConnectionFactory(params);
         } else {
             fac = new HttpURLConnectionFactoryImpl();
         }
