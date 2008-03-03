@@ -74,11 +74,10 @@ public final class SSLUtils {
      * By default, only include export-compatible ciphersuites.
      */
     private static final List<String> DEFAULT_CIPHERSUITE_FILTERS_INCLUDE =
-        Arrays.asList(new String[] {".*_EXPORT_.*",
-                                    ".*_EXPORT1024_.*",
-                                    ".*_WITH_DES_.*",
-                                    ".*_WITH_NULL_.*"});
-
+        Arrays.asList(new String[] {".*"});
+    private static final List<String> DEFAULT_CIPHERSUITE_FILTERS_EXCLUDE =
+        Arrays.asList(new String[] {".*_NULL_.*",
+                                    ".*_anon_.*"});
 
     private SSLUtils() {
     }    
@@ -371,7 +370,7 @@ public final class SSLUtils {
             List<Pattern> excludes =
                 filters != null
                 ? compileRegexPatterns(filters.getExclude(), false, log)
-                : null;
+                : compileRegexPatterns(DEFAULT_CIPHERSUITE_FILTERS_EXCLUDE, true, log);
             for (int i = 0; i < supportedCipherSuites.length; i++) {
                 if (matchesOneOf(supportedCipherSuites[i], includes)
                     && !matchesOneOf(supportedCipherSuites[i], excludes)) {
