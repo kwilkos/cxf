@@ -54,7 +54,8 @@ public class ProviderFactoryImpl extends ProviderFactory {
                      new StringProvider(),
                      new DOMSourceProvider(),
                      new AtomFeedProvider(),
-                     new AtomEntryProvider());
+                     new AtomEntryProvider(),
+                     new FormEncodingReaderProvider());
         headerProviders.add(new MediaTypeHeaderProvider());
     }
     

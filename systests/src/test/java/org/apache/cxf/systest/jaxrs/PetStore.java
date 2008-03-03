@@ -17,21 +17,21 @@
  * under the License.
  */
 
-
 package org.apache.cxf.systest.jaxrs;
 
-
+import javax.ws.rs.ConsumeMime;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.ProduceMime;
 import javax.ws.rs.UriParam;
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
-
 
 @Path("/petstore/")
 public class PetStore {
 
-    public static final  String CLOSED = "The Pet Store is closed"; 
+    public static final String CLOSED = "The Pet Store is closed";
 
     public PetStore() {
         System.out.println("Petstore constructed");
@@ -40,11 +40,21 @@ public class PetStore {
     @GET
     @Path("/pets/{petId}/")
     @ProduceMime("text/xml")
-    public Response getStatus(@UriParam("petId") String petId) throws Exception {
+    public Response getStatus(@UriParam("petId")
+                              String petId) throws Exception {
         System.out.println("----invoking getStatus on the petStore for id: " + petId);
-        
+
         return Response.ok(CLOSED).build();
     }
+
+    @POST
+    @Path("/pets/")
+    @ConsumeMime("application/x-www-form-urlencoded")
+    @ProduceMime("text/xml")
+    public Response updateStatus(MultivaluedMap<String, String> params) throws Exception {
+        System.out.println("----invoking updateStatus on the petStore with stauts post param value of: "
+                           + params.getFirst("status"));
+
+        return Response.ok(params.getFirst("status")).build();
+    }
 }
-
-

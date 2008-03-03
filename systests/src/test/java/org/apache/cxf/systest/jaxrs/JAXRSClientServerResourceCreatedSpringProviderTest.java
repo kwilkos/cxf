@@ -19,7 +19,10 @@
 
 package org.apache.cxf.systest.jaxrs;
 
+import java.io.FileInputStream;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 
@@ -54,6 +57,48 @@ public class JAXRSClientServerResourceCreatedSpringProviderTest extends Abstract
         assertEquals("BadgerFish output not correct", 
                      getStringFromInputStream(expected).trim(),
                      getStringFromInputStream(in).trim());
+    }
+    
+    @Test
+    public void testPostPetStatus() throws Exception {
+        
+        String endpointAddress =
+            "http://localhost:9080/petstore/pets";
+
+        URL url = new URL(endpointAddress);   
+        HttpURLConnection httpUrlConnection = (HttpURLConnection)url.openConnection();  
+             
+        httpUrlConnection.setUseCaches(false);   
+        httpUrlConnection.setDefaultUseCaches(false);   
+        httpUrlConnection.setDoOutput(true);   
+        httpUrlConnection.setDoInput(true);   
+        httpUrlConnection.setRequestMethod("POST");   
+        httpUrlConnection.setRequestProperty("Accept",   "text/xml");   
+        httpUrlConnection.setRequestProperty("Content-type",   "application/x-www-form-urlencoded");   
+        httpUrlConnection.setRequestProperty("Connection",   "close");   
+        //httpurlconnection.setRequestProperty("Content-Length",   String.valueOf(is.available()));   
+
+        OutputStream outputstream = httpUrlConnection.getOutputStream();
+        String inputFile = getClass().getResource("resources/singleValPostBody.txt").getFile();         
+         
+        byte[] tmp = new byte[4096];
+        int i = 0;
+        InputStream is = new FileInputStream(inputFile);
+        try {
+            while ((i = is.read(tmp)) >= 0) {
+                outputstream.write(tmp, 0, i);
+            }
+        } finally {
+            is.close();
+        }
+
+        outputstream.flush();
+
+        int responseCode = httpUrlConnection.getResponseCode();   
+        assertEquals(200, responseCode); 
+        assertEquals("Wrong status returned", "open", getStringFromInputStream(httpUrlConnection
+            .getInputStream()));  
+        httpUrlConnection.disconnect();
     }
     
     private String getStringFromInputStream(InputStream in) throws Exception {
