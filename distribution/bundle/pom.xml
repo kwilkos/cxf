@@ -37,7 +37,7 @@
         <maven.test.skip>true</maven.test.skip>
         <cxf.version>${pom.version}</cxf.version>
         <createSourcesJar>false</createSourcesJar>
-	<shade.version>1.0-beta-1</shade.version>
+        <shade.version>1.0</shade.version>
     </properties>
 
     <dependencies>
@@ -340,9 +340,9 @@
     <profiles>
          <profile>
              <id>deploy</id>
-             <!--properties>
-                 <createSourcesJar>true</createSourcesJar>                     
-             </properties-->
+             <properties>
+                 <createSourcesJar>true</createSourcesJar>
+             </properties>
              <build>
                  <plugins>
                      <plugin>
