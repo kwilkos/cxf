@@ -18,6 +18,9 @@
  */
 package org.apache.cxf.aegis.type.encoded;
 
+import java.math.BigDecimal;
+import java.util.Arrays;
+
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.aegis.Context;
@@ -119,13 +122,15 @@ public class SoapArrayTypeTest extends AbstractEncodedTest {
         reader = new ElementReader(getClass().getResourceAsStream("arrayUrType2.xml"));
         objects = (Object[]) createArrayType(Object[].class).readObject(reader, context);
         reader.getXMLStreamReader().close();
-        assertArrayEquals(new Object[]{42, (float)42.42, "Forty Two"}, objects);
+        assertArrayEquals(Arrays.asList(objects).toString(),
+                          new Object[]{42, new BigDecimal("42.42"), "Forty Two"},
+                          objects);
 
         // round trip tests
         objects = readWriteReadRef("arrayUrType1.xml", Object[].class);
-        assertArrayEquals(new Object[]{42, (float)42.42, "Forty Two"}, objects);
+        assertArrayEquals(new Object[]{42, new Float(42.42f), "Forty Two"}, objects);
         objects = readWriteReadRef("arrayUrType2.xml", Object[].class);
-        assertArrayEquals(new Object[]{42, (float)42.42, "Forty Two"}, objects);
+        assertArrayEquals(new Object[]{42, new BigDecimal("42.42"), "Forty Two"}, objects);
     }
 
     @Test
@@ -142,13 +147,13 @@ public class SoapArrayTypeTest extends AbstractEncodedTest {
         reader = new ElementReader(getClass().getResourceAsStream("arrayAnyType2.xml"));
         objects = (Object[]) createArrayType(Object[].class).readObject(reader, context);
         reader.getXMLStreamReader().close();
-        assertArrayEquals(new Object[]{42, (float)42.42, "Forty Two"}, objects);
+        assertArrayEquals(new Object[]{42, new BigDecimal("42.42"), "Forty Two"}, objects);
 
         // round trip tests
         objects = readWriteReadRef("arrayAnyType1.xml", Object[].class);
         assertArrayEquals(new Object[]{42, (float)42.42, "Forty Two"}, objects);
         objects = readWriteReadRef("arrayAnyType2.xml", Object[].class);
-        assertArrayEquals(new Object[]{42, (float)42.42, "Forty Two"}, objects);
+        assertArrayEquals(new Object[]{42, new BigDecimal("42.42"), "Forty Two"}, objects);
     }
 
     @Test

@@ -64,7 +64,7 @@ public class SEIWithJAXBAnnoTest extends AbstractJaxWsTest {
             + "<arg0>str1 str2 str3</arg0></ns2:addNumbers>";
         assertTrue("Client does not use the generated wrapper class to marshal request parameters",
                      strWriter.toString().indexOf(expected) > -1);
-        assertEquals("Get the wrong result", 100, result.get(0));
+        assertEquals("Get the wrong result", 100, (int)result.get(0));
         
     }    
 }

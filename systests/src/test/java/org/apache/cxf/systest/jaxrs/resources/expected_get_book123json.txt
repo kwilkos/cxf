@@ -1,1 +1,1 @@
-{"Book":{"id":"123","name":"CXF in Action"}}
+{"Book":{"id":123,"name":"CXF in Action"}}

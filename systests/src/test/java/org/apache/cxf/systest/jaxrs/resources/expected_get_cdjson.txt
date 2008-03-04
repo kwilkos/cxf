@@ -1,1 +1,1 @@
-{"CD":{"id":"123","name":"BOHEMIAN RHAPSODY"}}
+{"CD":{"id":123,"name":"BOHEMIAN RHAPSODY"}}

@@ -159,7 +159,7 @@ public class DocLitWrappedClientTest extends JavascriptRhinoTest {
                 assertNotNull(responseObject);
                 // by default, for doc/lit/wrapped, we end up with a part object with a slot named 
                 // 'return'.
-                Integer returnValue = testUtilities.rhinoCallMethodInContext(Integer.class, responseObject,
+                int returnValue = testUtilities.rhinoCallMethodInContext(Integer.class, responseObject,
                                                                              "getReturn");
                 assertEquals(42, returnValue);
 

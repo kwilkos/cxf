@@ -1,1 +1,1 @@
-{"acme.book":"2"}
+{"acme.book":2}
