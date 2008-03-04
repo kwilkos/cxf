@@ -23,9 +23,11 @@ package org.apache.cxf.jaxrs.model;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import javax.ws.rs.Path;
+import javax.ws.rs.core.MultivaluedMap;
 
 public final class URITemplate {
     public static final String LIMITED_REGEX_SUFFIX = "(/.*)?";
@@ -89,6 +91,10 @@ public final class URITemplate {
         templateRegexPattern = Pattern.compile(templateRegex);
     }
 
+    public String getValue() {
+        return template;
+    }
+    
     private void copyURITemplateCharacters(String templateValue, int start, int end, StringBuilder b) {
         for (int i = start; i < end; i++) {
             char c = templateValue.charAt(i);
@@ -100,7 +106,7 @@ public final class URITemplate {
         }
     }
 
-    public boolean match(String uri, Map<String, String> templateVariableToValue) {
+    public boolean match(String uri, MultivaluedMap<String, String> templateVariableToValue) {
         //templateVariableToValue.clear();
 
         if (uri == null) {
@@ -119,21 +125,44 @@ public final class URITemplate {
         // Assign the matched template values to template variables
         int i = 1;
         for (String name : templateVariables) {
-            String previousValue = templateVariableToValue.get(name);
+            String previousValue = templateVariableToValue.getFirst(name);
             String currentValue = m.group(i++);
 
             if (previousValue != null && !previousValue.equals(currentValue)) {
                 return false;
             }
 
-            templateVariableToValue.put(name, currentValue);
+            templateVariableToValue.putSingle(name, currentValue);
         }
 
         // The right hand side value, might be used to further resolve sub-resources.
         if (regexSuffix != null) {
-            templateVariableToValue.put(RIGHT_HAND_VALUE, m.group(i));
+            templateVariableToValue.putSingle(RIGHT_HAND_VALUE, m.group(i));
         }
 
         return true;
+    }
+    
+    public static URITemplate createTemplate(ClassResourceInfo cri,
+                                             Path path) {
+        
+        if (path == null) {
+            return cri == null ? new URITemplate("/", URITemplate.UNLIMITED_REGEX_SUFFIX)
+                               : cri.getURITemplate();
+        }
+        
+        String prefix = cri != null && !cri.isRoot() ? cri.getURITemplate().getValue() : "/";
+        if (!prefix.endsWith("/")) {
+            prefix += "/";
+        }                
+        String pathValue = path.value();
+        if (pathValue.startsWith("/")) {
+            pathValue = pathValue.length() == 1 ? "" : pathValue.substring(1);
+        }
+                
+        String suffixPattern = (path.limited())
+            ? URITemplate.LIMITED_REGEX_SUFFIX : URITemplate.UNLIMITED_REGEX_SUFFIX;
+        
+        return new URITemplate(prefix + pathValue, suffixPattern);
     }
 }

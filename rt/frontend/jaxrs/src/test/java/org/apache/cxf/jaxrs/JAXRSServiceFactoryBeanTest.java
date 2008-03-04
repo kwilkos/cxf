@@ -18,9 +18,9 @@
  */
 package org.apache.cxf.jaxrs;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+
+import javax.ws.rs.core.MultivaluedMap;
 
 import org.apache.cxf.jaxrs.model.ClassResourceInfo;
 import org.apache.cxf.jaxrs.model.MethodDispatcher;
@@ -49,7 +49,7 @@ public class JAXRSServiceFactoryBeanTest extends Assert {
         ClassResourceInfo rootCri = resources.get(0);
         assertNotNull(rootCri.getURITemplate());
         URITemplate template = rootCri.getURITemplate();
-        Map<String, String> values = new HashMap<String, String>();
+        MultivaluedMap<String, String> values = new MetadataMap<String, String>();
         assertTrue(template.match("/bookstore/books/123", values));     
         assertFalse(rootCri.hasSubResources());   
         MethodDispatcher md = rootCri.getMethodDispatcher();
@@ -94,7 +94,7 @@ public class JAXRSServiceFactoryBeanTest extends Assert {
         ClassResourceInfo rootCri = resources.get(0);
         assertNotNull(rootCri.getURITemplate());
         URITemplate template = rootCri.getURITemplate();
-        Map<String, String> values = new HashMap<String, String>();
+        MultivaluedMap<String, String> values = new MetadataMap<String, String>();
         assertTrue(template.match("/bookstore/books/123", values));     
         assertTrue(rootCri.hasSubResources());   
         MethodDispatcher md = rootCri.getMethodDispatcher();
@@ -124,7 +124,7 @@ public class JAXRSServiceFactoryBeanTest extends Assert {
         // Verify sub-resource ClassResourceInfo: Book
         assertEquals(1, rootCri.getSubClassResourceInfo().size());
         ClassResourceInfo subCri = rootCri.getSubClassResourceInfo().get(0);        
-        assertTrue(subCri.getURITemplate() == null);
+        assertEquals(subCri.getURITemplate().getValue(), "/");
         assertEquals(org.apache.cxf.jaxrs.resources.Book.class, subCri.getResourceClass());
         MethodDispatcher subMd = subCri.getMethodDispatcher();
         assertEquals(2, subMd.getOperationResourceInfos().size());

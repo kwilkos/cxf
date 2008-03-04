@@ -57,6 +57,7 @@ public class AtomClientBookTest extends AbstractBusClientServerTestBase {
 
         Document<Feed> doc = abdera.getParser().parse(in);
         Feed feed = doc.getRoot();
+        assertEquals(endpointAddress, feed.getBaseUri().toString());
         assertEquals("Collection of Books", feed.getTitle());
         
         
@@ -89,6 +90,7 @@ public class AtomClientBookTest extends AbstractBusClientServerTestBase {
         
         Document<Entry> entryDoc = abdera.getParser().parse(in);
         Entry entry = entryDoc.getRoot();
+        assertEquals(location, entry.getBaseUri().toString());
         assertEquals("AtomBook", entry.getTitle());
         
         in.close();

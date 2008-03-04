@@ -18,6 +18,7 @@
  */
 package org.apache.cxf.jaxrs.provider;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -25,8 +26,14 @@ import java.util.List;
 
 import javax.ws.rs.ConsumeMime;
 import javax.ws.rs.ProduceMime;
+import javax.ws.rs.core.CacheControl;
+import javax.ws.rs.core.Cookie;
+import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
+import javax.ws.rs.core.Variant.VariantListBuilder;
 import javax.ws.rs.ext.MessageBodyReader;
 import javax.ws.rs.ext.MessageBodyWriter;
 import javax.ws.rs.ext.ProviderFactory;
@@ -35,6 +42,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.apache.abdera.model.Entry;
 import org.apache.abdera.model.Feed;
 import org.apache.cxf.helpers.IOUtils;
+import org.apache.cxf.jaxrs.JAXRSUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -44,6 +52,35 @@ public class ProviderFactoryImplTest extends Assert {
     @Before
     public void setUp() throws Exception {
 
+    }
+    
+    @Test
+    public void testCreateInstance() throws Exception {
+        assertSame(BuilderImpl.class,
+                   new ProviderFactoryImpl().
+                       createInstance(Response.Builder.class).getClass());
+        assertSame(UriBuilderImpl.class,
+                   new ProviderFactoryImpl().
+                       createInstance(UriBuilder.class).getClass());
+        assertSame(VariantListBuilderImpl.class,
+                   new ProviderFactoryImpl().
+                       createInstance(VariantListBuilder.class).getClass());
+    }
+    
+    @Test
+    public void testCreateHeaderProvider() throws Exception {
+        assertSame(MediaTypeHeaderProvider.class,
+                   new ProviderFactoryImpl().
+                       createHeaderProvider(MediaType.class).getClass());
+        assertSame(EntityTagHeaderProvider.class,
+                   new ProviderFactoryImpl().
+                       createHeaderProvider(EntityTag.class).getClass());
+        assertSame(CacheControlHeaderProvider.class,
+                   new ProviderFactoryImpl().
+                       createHeaderProvider(CacheControl.class).getClass());
+        assertSame(CookieHeaderProvider.class,
+                   new ProviderFactoryImpl().
+                       createHeaderProvider(Cookie.class).getClass());
     }
     
     @Test
@@ -71,6 +108,14 @@ public class ProviderFactoryImplTest extends Assert {
         verifyProvider(String.class, StringProvider.class, "text/html");
     }
     
+    @Test
+    public void testGetBinaryProvider() throws Exception {
+        verifyProvider(byte[].class, BinaryDataProvider.class, "*/*");
+        verifyProvider(InputStream.class, BinaryDataProvider.class, "image/png");
+        MessageBodyWriter writer = ProviderFactory.getInstance()
+            .createMessageBodyWriter(File.class, JAXRSUtils.ALL_TYPES);
+        assertTrue(BinaryDataProvider.class == writer.getClass());
+    }
     
     private void verifyProvider(Class<?> type, Class<?> provider, String mediaType,
                                 String errorMessage) 

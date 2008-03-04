@@ -23,19 +23,29 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.ws.rs.ConsumeMime;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.ProduceMime;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.HttpContext;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Request;
+import javax.ws.rs.core.UriInfo;
 
 import org.apache.cxf.jaxrs.model.ClassResourceInfo;
 import org.apache.cxf.jaxrs.model.MethodDispatcher;
 import org.apache.cxf.jaxrs.model.OperationResourceInfo;
 import org.apache.cxf.jaxrs.model.URITemplate;
+import org.apache.cxf.jaxrs.provider.HttpHeadersImpl;
+import org.apache.cxf.jaxrs.provider.RequestImpl;
+import org.apache.cxf.jaxrs.provider.UriInfoImpl;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
+import org.easymock.classextension.EasyMock;
+import org.easymock.classextension.IMocksControl;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -43,6 +53,23 @@ import org.junit.Test;
 public class JAXRSUtilsTest extends Assert {
     
     public class Customer {
+        
+        @HttpContext private UriInfo uriInfo;
+        @HttpContext private HttpHeaders headers;
+        @HttpContext private Request request;
+        
+        public UriInfo getUriInfo() {
+            return uriInfo;
+        }
+        
+        public HttpHeaders getHeaders() {
+            return headers;
+        }
+        
+        public Request getRequest() {
+            return request;
+        }
+        
         @ProduceMime("text/xml")
         @ConsumeMime("text/xml")
         public void test() {
@@ -59,13 +86,21 @@ public class JAXRSUtilsTest extends Assert {
         }
         
         @ProduceMime("text/xml")   
-        public void testQuery(@QueryParam("query") String queryString, @QueryParam("query") int queryInt) {
+        public void testQuery(@QueryParam("query") String queryString, 
+                              @QueryParam("query") int queryInt) {
             // complete
         }
         
         @ProduceMime("text/xml")   
         public void testMultipleQuery(@QueryParam("query") 
                                       String queryString, @QueryParam("query2") String queryString2) {
+            // complete
+        }
+        
+        public void testParams(@HttpContext UriInfo info,
+                               @HttpContext HttpHeaders hs,
+                               @HttpContext Request r,
+                               @HeaderParam("Foo") String h) {
             // complete
         }
     };
@@ -81,7 +116,7 @@ public class JAXRSUtilsTest extends Assert {
         sf.create();        
         List<ClassResourceInfo> resources = ((JAXRSServiceImpl)sf.getService()).getClassResourceInfos();
 
-        Map<String, String> values = new HashMap<String, String>(); 
+        MultivaluedMap<String, String> values = new MetadataMap<String, String>(); 
         String contentTypes = "*/*";
         String acceptContentTypes = "*/*";
 
@@ -139,7 +174,7 @@ public class JAXRSUtilsTest extends Assert {
         sf.create();        
         List<ClassResourceInfo> resources = ((JAXRSServiceImpl)sf.getService()).getClassResourceInfos();
 
-        Map<String, String> values = new HashMap<String, String>(); 
+        MultivaluedMap<String, String> values = new MetadataMap<String, String>();
         String contentTypes = "*/*";
         String acceptContentTypes = "*/*";
 
@@ -418,5 +453,56 @@ public class JAXRSUtilsTest extends Assert {
                                           "*/*", "*,x/y,text/xml,text/plain");
                      
         assertSame(ori, ori2);
+    }
+    
+    @Test
+    public void testHttpContextParameters() throws Exception {
+        
+        ClassResourceInfo cri = new ClassResourceInfo(Customer.class, true);
+        OperationResourceInfo ori = 
+            new OperationResourceInfo(
+                Customer.class.getMethod("testParams", 
+                                         new Class[]{UriInfo.class, 
+                                                     HttpHeaders.class, 
+                                                     Request.class,
+                                                     String.class}), 
+                cri);
+        ori.setHttpMethod("GET");
+        MultivaluedMap<String, String> headers = new MetadataMap<String, String>();
+        headers.add("Foo", "bar");
+        headers.add("Foo", "baz");
+        
+        Message m = new MessageImpl();
+        m.put(Message.PROTOCOL_HEADERS, headers);
+        
+        List<Object> params = 
+            JAXRSUtils.processParameters(ori, new MetadataMap<String, String>(), m);
+        assertEquals("4 parameters expected", 4, params.size());
+        assertSame(UriInfoImpl.class, params.get(0).getClass());
+        assertSame(HttpHeadersImpl.class, params.get(1).getClass());
+        assertSame(RequestImpl.class, params.get(2).getClass());
+        assertSame(String.class, params.get(3).getClass());
+        assertEquals("Wrong header param", "bar,baz", params.get(3));
+    }
+    
+    @Test
+    public void testHttpContextFields() throws Exception {
+        
+        ClassResourceInfo cri = new ClassResourceInfo(Customer.class, true);
+        OperationResourceInfo ori = new OperationResourceInfo(null, cri);
+        
+        Customer c = new Customer();
+        
+        IMocksControl control = EasyMock.createNiceControl();
+        Message m = control.createMock(Message.class);
+        m.get(Message.PROTOCOL_HEADERS);
+        EasyMock.expectLastCall().andReturn(new HashMap<String, List<String>>());
+        
+        JAXRSUtils.injectHttpContextValues(c, ori, m);
+        assertSame(UriInfoImpl.class, c.getUriInfo().getClass());
+        assertSame(HttpHeadersImpl.class, c.getHeaders().getClass());
+        assertSame(RequestImpl.class, c.getRequest().getClass());
+        
+        
     }
 }

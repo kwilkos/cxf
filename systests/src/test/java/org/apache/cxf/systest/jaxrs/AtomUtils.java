@@ -36,10 +36,17 @@ public final class AtomUtils {
     }
     
     public static Entry createBookEntry(Book b) throws Exception {
+        return createBookEntry(b, null);
+    }
+    
+    public static Entry createBookEntry(Book b, String baseUri) throws Exception {
         Factory factory = Abdera.getNewFactory();
         JAXBContext jc = JAXBContext.newInstance(Book.class);
         
         Entry e = factory.getAbdera().newEntry();
+        if (baseUri != null) {
+            e.setBaseUri(baseUri);
+        }
         e.setTitle(b.getName());
         e.setId(Long.toString(b.getId()));
         

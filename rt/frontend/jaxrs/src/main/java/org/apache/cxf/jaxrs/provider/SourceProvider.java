@@ -30,48 +30,53 @@ import javax.ws.rs.ext.MessageBodyWriter;
 import javax.ws.rs.ext.Provider;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
 
 import org.w3c.dom.Document;
 
-import org.xml.sax.SAXException;
-
 @Provider
-public class DOMSourceProvider implements 
-    MessageBodyReader<DOMSource>, MessageBodyWriter<DOMSource> {
+public class SourceProvider implements 
+    MessageBodyReader<Object>, MessageBodyWriter<Source> {
 
     public boolean isWriteable(Class<?> type) {
-        return DOMSource.class.isAssignableFrom(type);
+        return Source.class.isAssignableFrom(type);
     }
     
     public boolean isReadable(Class<?> type) {
-        return DOMSource.class.isAssignableFrom(type);
+        return Source.class.isAssignableFrom(type);
     }
     
-    public DOMSource readFrom(Class<DOMSource> source, MediaType media,
-                              MultivaluedMap<String, String> httpHeaders, InputStream is) throws IOException {
-        Document doc = null;
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder builder;
-        try {
-            builder = factory.newDocumentBuilder();
-            doc = builder.parse(is);
-        } catch (SAXException e) {
-            e.printStackTrace();
-
-        } catch (ParserConfigurationException e1) {
-            e1.printStackTrace();
+    public Object readFrom(Class<Object> source, MediaType media,
+                           MultivaluedMap<String, String> httpHeaders, InputStream is) throws IOException {
+        if (DOMSource.class.isAssignableFrom(source)) {
+            Document doc = null;
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder builder;
+            try {
+                builder = factory.newDocumentBuilder();
+                doc = builder.parse(is);
+            } catch (Exception e) {
+                IOException ioex = new IOException("Problem creating a Source object");
+                ioex.setStackTrace(e.getStackTrace());
+                throw ioex;
+            }
+    
+            return new DOMSource(doc);
+        } else if (StreamSource.class.isAssignableFrom(source)
+                   || Source.class.isAssignableFrom(source)) {
+            return new StreamSource(is);
         }
-
-        return new DOMSource(doc);
+        
+        throw new IOException("Unrecognized source");
     }
 
-    public void writeTo(DOMSource source, MediaType media, MultivaluedMap<String, Object> httpHeaders,
+    public void writeTo(Source source, MediaType media, MultivaluedMap<String, Object> httpHeaders,
                         OutputStream os) throws IOException {
         StreamResult result = new StreamResult(os);
         TransformerFactory tf = TransformerFactory.newInstance();
@@ -83,7 +88,7 @@ public class DOMSourceProvider implements
         }
     }
     
-    public long getSize(DOMSource source) {
+    public long getSize(Source source) {
         return -1;
     }
 }

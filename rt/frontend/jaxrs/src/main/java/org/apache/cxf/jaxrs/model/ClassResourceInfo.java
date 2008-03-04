@@ -19,22 +19,39 @@
 
 package org.apache.cxf.jaxrs.model;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+
+import javax.ws.rs.core.HttpContext;
 
 import org.apache.cxf.jaxrs.lifecycle.ResourceProvider;
 
 public class ClassResourceInfo {
+    
+    private boolean root;
     private Class<?> resourceClass;
     private URITemplate uriTemplate;
     private MethodDispatcher methodDispatcher;
     private ResourceProvider resourceProvider;
     private List<ClassResourceInfo> subClassResourceInfo = new ArrayList<ClassResourceInfo>();
+    private List<Field> httpContexts;
 
     public ClassResourceInfo(Class<?> theResourceClass) {
+        this(theResourceClass, false);
+    }
+    
+    public ClassResourceInfo(Class<?> theResourceClass, boolean theRoot) {
         resourceClass = theResourceClass;
+        root = theRoot;
+        initHttpContexts();
     }
 
+    public boolean isRoot() {
+        return root;
+    }
+    
     public Class<?> getResourceClass() {
         return resourceClass;
     }
@@ -73,5 +90,27 @@ public class ClassResourceInfo {
 
     public void setResourceProvider(ResourceProvider rp) {
         resourceProvider = rp;
-    }    
+    }
+    
+    private void initHttpContexts() {
+        if (resourceClass == null || !root) {
+            return;
+        }
+        httpContexts = new ArrayList<Field>();
+        Field[] fields = resourceClass.getDeclaredFields();
+        
+        for (Field f : fields) {
+            HttpContext context = f.getAnnotation(HttpContext.class);
+            if (context != null) {
+                httpContexts.add(f);               
+            }
+        }
+    }
+    
+    
+    @SuppressWarnings("unchecked")
+    public List<Field> getHttpContexts() {
+        return httpContexts == null ? Collections.EMPTY_LIST 
+               : Collections.unmodifiableList(httpContexts);
+    }                               
 }

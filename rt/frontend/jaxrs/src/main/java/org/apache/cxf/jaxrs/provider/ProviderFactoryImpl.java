@@ -28,6 +28,8 @@ import javax.ws.rs.ConsumeMime;
 import javax.ws.rs.ProduceMime;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response.Builder;
+import javax.ws.rs.core.UriBuilder;
+import javax.ws.rs.core.Variant.VariantListBuilder;
 import javax.ws.rs.ext.HeaderProvider;
 import javax.ws.rs.ext.MessageBodyReader;
 import javax.ws.rs.ext.MessageBodyWriter;
@@ -50,13 +52,17 @@ public class ProviderFactoryImpl extends ProviderFactory {
         setProviders(defaultMessageReaders,
                      defaultMessageWriters,
                      new JSONProvider(),
+                     new BinaryDataProvider(),
                      new JAXBElementProvider(),
                      new StringProvider(),
-                     new DOMSourceProvider(),
+                     new SourceProvider(),
                      new AtomFeedProvider(),
                      new AtomEntryProvider(),
                      new FormEncodingReaderProvider());
         headerProviders.add(new MediaTypeHeaderProvider());
+        headerProviders.add(new CacheControlHeaderProvider());
+        headerProviders.add(new EntityTagHeaderProvider());
+        headerProviders.add(new CookieHeaderProvider());
     }
     
     
@@ -65,6 +71,12 @@ public class ProviderFactoryImpl extends ProviderFactory {
         if (type.isAssignableFrom(Builder.class)) {
             return type.cast(new BuilderImpl());
         } 
+        if (type.isAssignableFrom(UriBuilder.class)) {
+            return type.cast(new UriBuilderImpl());
+        }
+        if (type.isAssignableFrom(VariantListBuilder.class)) {
+            return type.cast(new VariantListBuilderImpl());
+        }
         return null;
     }
    

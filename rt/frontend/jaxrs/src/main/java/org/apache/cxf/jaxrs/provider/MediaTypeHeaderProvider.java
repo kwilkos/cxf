@@ -27,7 +27,9 @@ import java.util.StringTokenizer;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.ext.HeaderProvider;
+import javax.ws.rs.ext.Provider;
 
+@Provider
 public class MediaTypeHeaderProvider implements HeaderProvider<MediaType> {
 
     public MediaType fromString(String mType) throws ParseException {

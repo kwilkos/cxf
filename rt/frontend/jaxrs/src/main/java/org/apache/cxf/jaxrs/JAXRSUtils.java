@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.net.URLDecoder;
@@ -30,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -44,7 +46,12 @@ import javax.ws.rs.ProduceMime;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.UriParam;
 import javax.ws.rs.core.HttpContext;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.PathSegment;
+import javax.ws.rs.core.Request;
+import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.ext.MessageBodyReader;
 import javax.ws.rs.ext.ProviderFactory;
 
@@ -54,6 +61,10 @@ import org.apache.cxf.jaxrs.interceptor.JAXRSInInterceptor;
 import org.apache.cxf.jaxrs.model.ClassResourceInfo;
 import org.apache.cxf.jaxrs.model.OperationResourceInfo;
 import org.apache.cxf.jaxrs.model.URITemplate;
+import org.apache.cxf.jaxrs.provider.HttpHeadersImpl;
+import org.apache.cxf.jaxrs.provider.PathSegmentImpl;
+import org.apache.cxf.jaxrs.provider.RequestImpl;
+import org.apache.cxf.jaxrs.provider.UriInfoImpl;
 import org.apache.cxf.message.Message;
 
 public final class JAXRSUtils {
@@ -71,6 +82,17 @@ public final class JAXRSUtils {
             }
         }
         return null;
+    }
+    
+    public static List<PathSegment> getPathSegments(String thePath, boolean decode) {
+        String[] segments = thePath.split("/");
+        List<PathSegment> theList = new ArrayList<PathSegment>();
+        for (String path : segments) {
+            if (!StringUtils.isEmpty(path)) {
+                theList.add(new PathSegmentImpl(path, decode));
+            }
+        }
+        return theList;
     }
 
     public static List<MediaType> getMediaTypes(String[] values) {
@@ -94,14 +116,14 @@ public final class JAXRSUtils {
     public static OperationResourceInfo findTargetResourceClass(List<ClassResourceInfo> resources,
                                                                 String path, 
                                                                 String httpMethod,
-                                                                Map<String, String> values,
+                                                                MultivaluedMap<String, String> values,
                                                                 String requestContentType, 
                                                                 String acceptContentTypes) {
         
         for (ClassResourceInfo resource : resources) {
             URITemplate uriTemplate = resource.getURITemplate();
             if (uriTemplate.match(path, values)) {
-                String subResourcePath = values.get(URITemplate.RIGHT_HAND_VALUE);
+                String subResourcePath = values.getFirst(URITemplate.RIGHT_HAND_VALUE);
                 OperationResourceInfo ori = findTargetMethod(resource, subResourcePath, httpMethod, values,
                                                              requestContentType, acceptContentTypes);
                 if (ori != null) {
@@ -115,7 +137,7 @@ public final class JAXRSUtils {
     public static OperationResourceInfo findTargetMethod(ClassResourceInfo resource, 
                                                          String path,
                                                          String httpMethod, 
-                                                         Map<String, String> values, 
+                                                         MultivaluedMap<String, String> values, 
                                                          String requestContentType, 
                                                          String acceptContentTypes) {
         List<OperationResourceInfo> candidateList = new ArrayList<OperationResourceInfo>();
@@ -226,7 +248,7 @@ public final class JAXRSUtils {
     
     //Message contains following information: PATH, HTTP_REQUEST_METHOD, CONTENT_TYPE, InputStream.
     public static List<Object> processParameters(OperationResourceInfo ori, 
-                                                 Map<String, String> values, 
+                                                 MultivaluedMap<String, String> values, 
                                                  Message message) {
         
         
@@ -253,43 +275,113 @@ public final class JAXRSUtils {
     private static Object processParameter(Class<?> parameterClass, 
                                            Type parameterType,
                                            Annotation[] parameterAnnotations, 
-                                           Map<String, String> values,
+                                           MultivaluedMap<String, String> values,
                                            Message message,
                                            OperationResourceInfo ori) {
         InputStream is = message.getContent(InputStream.class);
         String contentType = (String)message.get(Message.CONTENT_TYPE);
         
         String path = (String)message.get(JAXRSInInterceptor.RELATIVE_PATH);
-        String httpMethod = (String)message.get(Message.HTTP_REQUEST_METHOD);
-
-        Object result = null;
-
+        
         if ((parameterAnnotations == null || parameterAnnotations.length == 0)
-            && ("PUT".equals(httpMethod) || "POST".equals(httpMethod))) {
-            result = readFromMessageBody(parameterClass, 
+            && ("PUT".equals(ori.getHttpMethod()) || "POST".equals(ori.getHttpMethod()))) {
+            return readFromMessageBody(parameterClass, 
                                          is, 
                                          MediaType.parse(contentType),
                                          ori.getConsumeTypes());
+        } else if (parameterAnnotations[0].annotationType() == HttpContext.class
+                   && ori.getClassResourceInfo().isRoot()) {
+            return createHttpContextValue(message, parameterClass, ori);
         } else if (parameterAnnotations[0].annotationType() == UriParam.class) {
-            result = readFromUriParam((UriParam)parameterAnnotations[0], parameterClass, parameterType,
+            return readFromUriParam((UriParam)parameterAnnotations[0], parameterClass, parameterType,
                                       parameterAnnotations, path, values);
-        } else if (parameterAnnotations[0].annotationType() == QueryParam.class) {
-            result = readQueryString((QueryParam)parameterAnnotations[0], parameterClass, message);
+        }  
+        
+        Object result = null;
+
+        // TODO : deal with @DefaultValues
+        if (parameterAnnotations[0].annotationType() == QueryParam.class) {
+            result = readQueryString((QueryParam)parameterAnnotations[0], parameterClass, message, null);
         } else if (parameterAnnotations[0].annotationType() == MatrixParam.class) {
-            //TODO
+            result = processMatrixParam(message, ((MatrixParam)parameterAnnotations[0]).value(), null);
         } else if (parameterAnnotations[0].annotationType() == HeaderParam.class) {
-            //TODO
-        } else if (parameterAnnotations[0].annotationType() == HttpContext.class) {
-            //TODO
-        }
+            result = processHeaderParam(message, ((HeaderParam)parameterAnnotations[0]).value(), null);
+        } 
 
         return result;
     }
+    
+    // TODO:
+    private static Object processMatrixParam(Message m, String value, String defaultValue) {
+        return null;
+    }
+    
+    public static MultivaluedMap<String, String> getMatrixParams(String path, boolean decode) {
+        int index = path.indexOf(';');
+        return index == -1 ? new MetadataMap<String, String>()
+                           : JAXRSUtils.getStructuredParams(path.substring(index + 1), ";", decode);
+    }
+    
+    @SuppressWarnings("unchecked")
+    private static Object processHeaderParam(Message m, String header, String defaultValue) {
+        Map<String, List<String>> headers = (Map<String, List<String>>)m.get(Message.PROTOCOL_HEADERS);
+        List<String> values = headers.get(header);
+        StringBuilder sb = new StringBuilder();
+        if (values != null) {
+            for (Iterator<String> it = values.iterator(); it.hasNext();) {
+                sb.append(it.next());
+                if (it.hasNext()) {
+                    sb.append(',');
+                }
+            }
+        }
+        return sb.length() > 0 ? sb.toString() : defaultValue;
+    }
+    
+    public static Object createHttpContextValue(Message m, 
+                                                 Class<?> clazz,
+                                                 OperationResourceInfo ori) {
+        if (UriInfo.class.isAssignableFrom(clazz)) {
+            return new UriInfoImpl(m, ori.getURITemplate());
+        }
+        if (HttpHeaders.class.isAssignableFrom(clazz)) {
+            return new HttpHeadersImpl(m);
+        }
+        if (Request.class.isAssignableFrom(clazz)) {
+            return new RequestImpl(m);
+        }
+        
+        return null;
+    }
 
-    private static Object readQueryString(QueryParam queryParam, Class<?> parameter, Message message) {
+    private static Object readFromUriParam(UriParam uriParamAnnotation,
+                                           Class<?> parameter,
+                                           Type parameterType,
+                                           Annotation[] parameterAnnotations,
+                                           String path,
+                                           MultivaluedMap<String, String> values) {
+        String parameterName = uriParamAnnotation.value();
+        if (parameterName == null || parameterName.length() == 0) {
+            // Invalid URI parameter name
+            return null;
+        }
+
+        Object result = values.getFirst(parameterName);
+
+        if (parameter.isPrimitive()) {
+            result = PrimitiveUtils.read((String)result, parameter);
+        }
+        return result;
+    }
+    
+    //TODO : multiple query string parsing, do it once
+    private static Object readQueryString(QueryParam queryParam, Class<?> parameter,
+                                          Message m, String defaultValue) {
         String queryName = queryParam.value();
 
-        Object result = getQueries(message).get(queryName);
+        Object result = getStructuredParams((String)m.get(Message.QUERY_STRING),
+                                   "&",
+                                   true).getFirst(queryName);
 
         if (parameter.isPrimitive()) {
             result = PrimitiveUtils.read((String)result, parameter);
@@ -302,20 +394,24 @@ public final class JAXRSUtils {
      * @param message
      * @return a Map of query parameters.
      */
-    protected  static Map<String, String> getQueries(Message message) {
-        Map<String, String> queries = new LinkedHashMap<String, String>();
-        String query = (String)message.get(Message.QUERY_STRING);
+    public static MultivaluedMap<String, String> getStructuredParams(String query, 
+                                                                    String sep, 
+                                                                    boolean decode) {
+        MultivaluedMap<String, String> queries = 
+            new MetadataMap<String, String>(new LinkedHashMap<String, List<String>>());
+        
         if (!StringUtils.isEmpty(query)) {            
-            List<String> parts = Arrays.asList(query.split("&"));
+            List<String> parts = Arrays.asList(query.split(sep));
             for (String part : parts) {
                 String[] keyValue = part.split("=");
-                queries.put(keyValue[0], uriDecode(keyValue[1]));
+                queries.add(keyValue[0], 
+                            decode ? uriDecode(keyValue[1]) : keyValue[1]);
             }
         }
         return queries;
     }
 
-    private static String uriDecode(String query) {
+    public static String uriDecode(String query) {
         try {
             query = URLDecoder.decode(query, "UTF-8");
         } catch (UnsupportedEncodingException e) {
@@ -348,25 +444,7 @@ public final class JAXRSUtils {
         return null;
     }
 
-    private static Object readFromUriParam(UriParam uriParamAnnotation,
-                                           Class<?> parameter,
-                                           Type parameterType,
-                                           Annotation[] parameterAnnotations,
-                                           String path,
-                                           Map<String, String> values) {
-        String parameterName = uriParamAnnotation.value();
-        if (parameterName == null || parameterName.length() == 0) {
-            // Invalid URI parameter name
-            return null;
-        }
-
-        Object result = values.get(parameterName);
-
-        if (parameter.isPrimitive()) {
-            result = PrimitiveUtils.read((String)result, parameter);
-        }
-        return result;
-    }
+    
 
     public static boolean matchMimeTypes(MediaType requestContentType, 
                                          MediaType acceptContentType, 
@@ -453,5 +531,20 @@ public final class JAXRSUtils {
             });
         }
         return types;
+    }
+    
+    public static void injectHttpContextValues(Object o,
+                                         OperationResourceInfo ori,
+                                         Message m) {
+        
+        for (Field f : ori.getClassResourceInfo().getHttpContexts()) {
+            Object value = createHttpContextValue(m, f.getType(), ori);
+            f.setAccessible(true);
+            try {
+                f.set(o, value);
+            } catch (IllegalAccessException ex) {
+                // ignore
+            }
+        }
     }
 }

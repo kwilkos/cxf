@@ -30,7 +30,15 @@ import javax.ws.rs.core.MultivaluedMap;
 
 public class MetadataMap<K, V> implements MultivaluedMap<K, V> {
 
-    private Map<K, List<V>> m = new HashMap<K, List<V>>();
+    private Map<K, List<V>> m;
+    
+    public MetadataMap() {
+        this(new HashMap<K, List<V>>());
+    }
+    
+    public MetadataMap(Map<K, List<V>> store) {
+        this.m = store;
+    }
     
     public void add(K key, V value) {
         List<V> data = m.get(key);

@@ -22,9 +22,9 @@ package org.apache.cxf.jaxrs;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+
+import javax.ws.rs.core.MultivaluedMap;
 
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.jaxrs.interceptor.JAXRSInInterceptor;
@@ -48,9 +48,12 @@ public class JAXRSInvoker extends AbstractInvoker {
     public Object invoke(Exchange exchange, Object request) {
         OperationResourceInfo ori = exchange.get(OperationResourceInfo.class);
 
-        ClassResourceInfo classResourceInfo = ori.getClassResourceInfo();
-        Method m = classResourceInfo.getMethodDispatcher().getMethod(ori);
+        ClassResourceInfo cri = ori.getClassResourceInfo();
+        Method m = cri.getMethodDispatcher().getMethod(ori);
         Object resourceObject = getServiceObject(exchange);
+        if (cri.isRoot()) {
+            JAXRSUtils.injectHttpContextValues(resourceObject, ori, exchange.getInMessage());
+        }
 
         List<Object> params = null;
         if (request instanceof List) {
@@ -75,7 +78,7 @@ public class JAXRSInvoker extends AbstractInvoker {
             resourceObjects = new ArrayList<Object>();
             resourceObjects.add(result);
             
-            Map<String, String> values = new HashMap<String, String>();                 
+            MultivaluedMap<String, String> values = new MetadataMap<String, String>();                 
             Message msg = exchange.getInMessage();
             String subResourcePath = (String)msg.get(JAXRSInInterceptor.RELATIVE_PATH);
             String httpMethod = (String)msg.get(Message.HTTP_REQUEST_METHOD); 
@@ -87,10 +90,13 @@ public class JAXRSInvoker extends AbstractInvoker {
             if (acceptContentType == null) {
                 acceptContentType = "*/*";
             }
-            ClassResourceInfo subCri = JAXRSUtils.findSubResourceClass(classResourceInfo, result.getClass());
-            OperationResourceInfo subOri = JAXRSUtils.findTargetMethod(subCri, subResourcePath, 
-                                                                       httpMethod, values, 
-                                                                       contentType, acceptContentType);
+            ClassResourceInfo subCri = JAXRSUtils.findSubResourceClass(cri, result.getClass());
+            OperationResourceInfo subOri = JAXRSUtils.findTargetMethod(subCri, 
+                                                                       subResourcePath, 
+                                                                       httpMethod, 
+                                                                       values, 
+                                                                       contentType, 
+                                                                       acceptContentType);
             exchange.put(OperationResourceInfo.class, subOri);
             msg.put(JAXRSInInterceptor.RELATIVE_PATH, subResourcePath);
             // work out request parameters for the sub-resouce class. Here we
@@ -110,10 +116,10 @@ public class JAXRSInvoker extends AbstractInvoker {
         Object serviceObject = null;
         
         OperationResourceInfo ori = exchange.get(OperationResourceInfo.class);
-        ClassResourceInfo classResourceInfo = ori.getClassResourceInfo();
+        ClassResourceInfo cri = ori.getClassResourceInfo();
         
         if (resourceObjects != null) {
-            Class c  = classResourceInfo.getResourceClass();
+            Class c  = cri.getResourceClass();
             for (Object resourceObject : resourceObjects) {
                 if (c.isInstance(resourceObject)) {
                     serviceObject = resourceObject;
@@ -122,9 +128,11 @@ public class JAXRSInvoker extends AbstractInvoker {
         }
         
         if (serviceObject == null) {
-            serviceObject = classResourceInfo.getResourceProvider().getInstance();
+            serviceObject = cri.getResourceProvider().getInstance();
         }
         
         return serviceObject;
     }
+    
+    
 }

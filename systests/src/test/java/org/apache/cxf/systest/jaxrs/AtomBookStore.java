@@ -32,7 +32,9 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.ProduceMime;
 import javax.ws.rs.UriParam;
+import javax.ws.rs.core.HttpContext;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 import javax.xml.bind.JAXBContext;
 
 import org.apache.abdera.Abdera;
@@ -45,6 +47,7 @@ import org.apache.cxf.customer.book.BookNotFoundFault;
 @Path("/bookstore/")
 public class AtomBookStore {
 
+    @HttpContext private UriInfo uField;
     private Map<Long, Book> books = new HashMap<Long, Book>();
     private Map<Long, CD> cds = new HashMap<Long, CD>();
     private long bookId = 123;
@@ -58,9 +61,10 @@ public class AtomBookStore {
     @GET
     @Path("/books/feed")
     @ProduceMime("application/atom+xml")
-    public Feed getBooksAsFeed() {
+    public Feed getBooksAsFeed(@HttpContext UriInfo uParam) {
         Factory factory = Abdera.getNewFactory();
         Feed f = factory.newFeed();
+        f.setBaseUri(uParam.getAbsolutePath().toString());
         f.setTitle("Collection of Books");
         f.setId("http://www.books.com");
         f.addAuthor("BookStore Management Company");
@@ -89,7 +93,10 @@ public class AtomBookStore {
             books.put(b.getId(), b);
             
             // this code is broken as Response does not
-            URI uri = new URI("http://localhost:9080/bookstore/books/entries/" + b.getId());
+            
+            URI uri = 
+                uField.getBaseUriBuilder().path("bookstore", "books", "entries", 
+                                                Long.toString(b.getId())).build();
             return Response.created(uri).build();
         } catch (Exception ex) {
             return Response.serverError().build();
@@ -104,7 +111,7 @@ public class AtomBookStore {
         Book book = books.get(Long.parseLong(id));
         if (book != null) {
             try {
-                return AtomUtils.createBookEntry(book);
+                return AtomUtils.createBookEntry(book, uField.getAbsolutePath().toString());
             } catch (Exception ex) {
                 // ignore
             }

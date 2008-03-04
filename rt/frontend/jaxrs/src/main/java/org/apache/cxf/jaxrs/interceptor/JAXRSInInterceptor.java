@@ -19,14 +19,15 @@
 
 package org.apache.cxf.jaxrs.interceptor;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Logger;
+
+import javax.ws.rs.core.MultivaluedMap;
 
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.jaxrs.JAXRSServiceImpl;
 import org.apache.cxf.jaxrs.JAXRSUtils;
+import org.apache.cxf.jaxrs.MetadataMap;
 import org.apache.cxf.jaxrs.model.ClassResourceInfo;
 import org.apache.cxf.jaxrs.model.OperationResourceInfo;
 import org.apache.cxf.jaxrs.model.URITemplate;
@@ -89,7 +90,7 @@ public class JAXRSInInterceptor extends AbstractPhaseInterceptor<Message> {
         Service service = message.getExchange().get(Service.class);
         List<ClassResourceInfo> resources = ((JAXRSServiceImpl)service).getClassResourceInfos();
 
-        Map<String, String> values = new HashMap<String, String>();
+        MultivaluedMap<String, String> values = new MetadataMap<String, String>();
         OperationResourceInfo ori = JAXRSUtils.findTargetResourceClass(resources, 
                                                                        path, 
                                                                        httpMethod, 
@@ -105,7 +106,7 @@ public class JAXRSInInterceptor extends AbstractPhaseInterceptor<Message> {
         LOG.info("Found operation: " + ori.getMethod().getName());
         
         message.getExchange().put(OperationResourceInfo.class, ori);
-        message.put(RELATIVE_PATH, values.get(URITemplate.RIGHT_HAND_VALUE));
+        message.put(RELATIVE_PATH, values.getFirst(URITemplate.RIGHT_HAND_VALUE));
       
         //2. Process parameters
         List<Object> params = JAXRSUtils
