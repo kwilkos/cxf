@@ -39,7 +39,7 @@ public final class Client {
         //factory.getServiceFactory().setDataBinding(new AegisDatabinding());
         HelloWorld client = (HelloWorld)factory.create();
         System.out.println("Invoke sayHi()....");
-        System.out.println(client.sayHi("user"));
+        System.out.println(client.sayHi(System.getProperty("user.name")));
         System.exit(0);
     }
 

@@ -66,3 +66,16 @@ For Windows (may use either forward or back slashes):
 
 A new command windows opens for the server process.  After running the
 client, terminate the server process by issuing Ctrl-C in its command window.
+
+Running the client in a browser
+-------------------------------
+
+Once the server is running, browse to:
+
+  http://HOSTNAME:9000/Beverages.html
+
+(Substitute your hostname for HOSTNAME.)
+
+On the web page you see, click on the 'invoke' button to invoke the
+very simple sayHi service, which takes no input and returns a single
+string.
