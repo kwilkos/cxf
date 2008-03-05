@@ -252,7 +252,33 @@
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
-                        <Export-Package>org.apache.cxf.*,org.codehaus.xfire.aegis.type.java5.*,org.xmlsoap.schemas.wsdl.http.*,org.w3._2006._05.addressing.wsdl.*</Export-Package>
+                        <Import-Package>
+                            com.ibm*;resolution:=optional,
+                            com.sun*;resolution:=optional,
+                            javanet.staxutils*;resolution:=optional,
+                            javax.jms*;resolution:=optional,
+                            javax.xml.soap,
+                            junit.framework*;resolution:=optional,
+                            org.apache.abdera*;resolution:=optional,
+                            org.apache.commons.lang*;resolution:=optional,
+                            org.apache.log4j*;resolution:=optional,
+                            org.apache.velocity*;resolution:=optional,
+                            org.apache.xmlbeans*;resolution:=optional,
+                            org.apache.ws.security*;resolution:=optional,
+                            org.codehaus.jra*;resolution:=optional,
+                            org.jdom*;resolution:=optional,
+                            org.junit*;resolution:=optional,
+                            org.mortbay*;resolution:=optional,
+                            org.mozilla.javascript*;resolution:=optional,
+                            org.springframework*;resolution:=optional,
+                            *
+                        </Import-Package>
+                        <Export-Package>
+                            org.apache.cxf.*;version=${pom.version};-split-package:=merge-first,
+                            org.codehaus.xfire.aegis.type.java5.*,
+                            org.xmlsoap.schemas.wsdl.http.*,
+                            org.w3._2006._05.addressing.wsdl.*
+                        </Export-Package>
                     </instructions>
                 </configuration>
             </plugin>
