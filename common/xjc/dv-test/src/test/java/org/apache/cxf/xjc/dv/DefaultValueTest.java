@@ -65,9 +65,9 @@ public class DefaultValueTest extends Assert {
         assertEquals("Unexpected value for attribute decimalAttr",
                      new BigDecimal("115"), foo.getDecimalAttr());
         assertEquals("Unexpected value for attribute floatAttr",
-                     new Float(116F), foo.getFloatAttr());
+                     new Float(116F), new Float(foo.getFloatAttr()));
         assertEquals("Unexpected value for attribute doubleAttr",
-                     new Double(117D), foo.getDoubleAttr());
+                     new Double(117D), new Double(foo.getDoubleAttr()));
         assertEquals("Unexpected value for attribute byteAttr",
                      118, foo.getByteAttr());
         

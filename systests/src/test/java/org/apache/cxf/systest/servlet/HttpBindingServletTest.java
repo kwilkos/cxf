@@ -37,7 +37,7 @@ import org.junit.Test;
 
 public class HttpBindingServletTest extends AbstractServletTest {
     static final String JSON_CUSTOMER = "{\"jra.customer\":"
-              + "{\"jra.id\":\"123\",\"jra.name\":\"Dan Diephouse\"}}";
+              + "{\"jra.id\":123,\"jra.name\":\"Dan Diephouse\"}}";
    
 
     @Override
