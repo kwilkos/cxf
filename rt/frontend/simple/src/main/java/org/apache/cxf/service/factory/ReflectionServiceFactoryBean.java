@@ -695,6 +695,10 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         }
     }
     protected Invoker createInvoker() {
+        Class<?> cls = getServiceClass();
+        if (cls.isInterface()) {
+            return null;
+        }
         return new FactoryInvoker(new SingletonFactory(getServiceClass()));
     }
 

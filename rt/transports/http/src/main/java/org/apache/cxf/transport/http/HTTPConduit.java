@@ -192,17 +192,13 @@ public class HTTPConduit
      */
     private final EndpointInfo endpointInfo;
     
-    /**
-     * This field holds the "default" address for this particular conduit, which
-     * is set at construction.
-     */
-    private final String defaultEndpointAddress;
 
     /**
      * This field holds the "default" URL for this particular conduit, which
      * is created on demand.
      */
     private URL defaultEndpointURL;
+    private boolean fromEndpointReferenceType;
 
     private Destination decoupledDestination;
     private MessageObserver decoupledObserver;
@@ -290,9 +286,9 @@ public class HTTPConduit
         bus = b;
         endpointInfo = ei;
 
-        defaultEndpointAddress = t == null
-                                 ? ei.getAddress()
-                                 : t.getAddress().getValue();
+        if (t != null) {
+            fromEndpointReferenceType = true;
+        }
 
         initializeConfig();                                    
     }
@@ -666,11 +662,13 @@ public class HTTPConduit
      * @throws MalformedURLException
      */
     private URL setupURL(Message message) throws MalformedURLException {
-        String value = (String)message.get(Message.ENDPOINT_ADDRESS);
+        String result = (String)message.get(Message.ENDPOINT_ADDRESS);
         String pathInfo = (String)message.get(Message.PATH_INFO);
         String queryString = (String)message.get(Message.QUERY_STRING);
-        
-        String result = value != null ? value : getURL().toString();
+        if (result == null) {
+            result = getURL().toString();
+            
+        }
         
         // REVISIT: is this really correct?
         if (null != pathInfo && !result.endsWith(pathInfo)) { 
@@ -724,7 +722,12 @@ public class HTTPConduit
      * @return the default target address
      */
     protected String getAddress() throws MalformedURLException {
-        return defaultEndpointAddress;
+        if (defaultEndpointURL != null) {
+            return defaultEndpointURL.toExternalForm();
+        } else if (fromEndpointReferenceType) {
+            return getTarget().getAddress().getValue();
+        }
+        return endpointInfo.getAddress();
     }
 
     /**
@@ -741,7 +744,14 @@ public class HTTPConduit
     protected synchronized URL getURL(boolean createOnDemand)
         throws MalformedURLException {
         if (defaultEndpointURL == null && createOnDemand) {
-            defaultEndpointURL = new URL(defaultEndpointAddress);
+            if (fromEndpointReferenceType && getTarget().getAddress().getValue() != null) {
+                defaultEndpointURL = new URL(this.getTarget().getAddress().getValue());
+                return defaultEndpointURL;
+            }
+            if (endpointInfo.getAddress() == null) {
+                throw new MalformedURLException("Invalid address. Endpoint address cannot be null.");
+            }
+            defaultEndpointURL = new URL(endpointInfo.getAddress());
         }
         return defaultEndpointURL;
     }
