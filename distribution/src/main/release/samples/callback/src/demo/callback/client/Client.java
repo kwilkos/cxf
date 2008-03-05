@@ -61,7 +61,7 @@ public final class Client {
         
         Object implementor = new CallbackImpl();
         String address = "http://localhost:9005/CallbackContext/CallbackPort";
-        Endpoint.publish(address, implementor);
+        Endpoint endpoint = Endpoint.publish(address, implementor);
         
         if (args.length == 0) { 
             System.out.println("please specify wsdl");
