@@ -152,7 +152,7 @@
         <profile>
             <id>setup.eclipse</id>
             <modules>
-                <module>distribution</module>
+                <!--module>distribution</module-->
                 <module>tools/eclipse-plugin</module>
             </modules>
             <properties>
