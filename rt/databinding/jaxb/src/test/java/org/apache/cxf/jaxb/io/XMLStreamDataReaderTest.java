@@ -132,7 +132,7 @@ public class XMLStreamDataReaderTest extends Assert {
         assertNotNull(val);
         assertTrue(val instanceof TradePriceData);
         assertEquals("CXF", ((TradePriceData)val).getTickerSymbol());
-        assertEquals(1.0f, ((TradePriceData)val).getTickerPrice());
+        assertEquals(new Float(1.0f), new Float(((TradePriceData)val).getTickerPrice()));
     }
 
     private JAXBDataBinding getDataBinding(Class... clz) throws Exception {
