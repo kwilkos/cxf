@@ -42,6 +42,7 @@ import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.catalog.OASISCatalogManager;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.StringUtils;
@@ -52,6 +53,7 @@ import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.util.URIParserUtil;
 import org.apache.cxf.tools.validator.AbstractValidator;
+import org.apache.xml.resolver.Catalog;
 
 public class WSDL11Validator extends AbstractDefinitionValidator {
     protected static final Logger LOG = LogUtils.getL7dLogger(SchemaValidator.class);
@@ -70,9 +72,21 @@ public class WSDL11Validator extends AbstractDefinitionValidator {
     }
 
     private Document getWSDLDoc(String wsdl) {
-        LOG.log(Level.INFO, new Message("VALIDATE_WSDL", LOG, wsdl).toString());
+        LOG.log(Level.FINE, new Message("VALIDATE_WSDL", LOG, wsdl).toString());
         try {
-            return XMLUtils.parse(new InputSource(URIParserUtil.getAbsoluteURI(wsdl)));
+            Catalog catalogResolver = OASISCatalogManager.getCatalogManager(this.getBus()).getCatalog();
+
+            String nw = catalogResolver.resolveSystem(wsdl);
+            if (nw == null) {
+                nw = catalogResolver.resolveURI(wsdl);
+            }
+            if (nw == null) {
+                nw = catalogResolver.resolvePublic(wsdl, null);
+            }
+            if (nw == null) {
+                nw = wsdl;
+            }
+            return XMLUtils.parse(new InputSource(URIParserUtil.getAbsoluteURI(nw)));
         } catch (FileNotFoundException fe) {
             LOG.log(Level.WARNING, "Can not find the wsdl " + wsdl + "to validate");
             return null;
