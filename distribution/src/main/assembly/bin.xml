@@ -99,14 +99,14 @@
             <directory>manifest/target</directory>
             <outputDirectory>apache-cxf-${cxf.version}/lib</outputDirectory>
             <includes>
-                <include>cxf-manifest-incubator.jar</include>
+                <include>**/cxf-manifest-incubator.jar</include>
             </includes>
         </fileSet>
         <fileSet>
             <directory>manifest/target</directory>
             <outputDirectory>apache-cxf-${cxf.version}/modules</outputDirectory>
             <includes>
-                <include>cxf-manifest-incubator.jar</include>
+                <include>**/cxf-manifest-incubator.jar</include>
             </includes>
         </fileSet>
         <fileSet>
@@ -159,7 +159,7 @@
                 <include>org.apache.cxf:cxf-bundle</include>
             </includes>
             <scope>runtime</scope>
-            <outputFileNameMapping>cxf-${version}.${extension}</outputFileNameMapping>
+            <outputFileNameMapping>cxf-${version}.jar</outputFileNameMapping>
         </dependencySet>
 
     </dependencySets>
