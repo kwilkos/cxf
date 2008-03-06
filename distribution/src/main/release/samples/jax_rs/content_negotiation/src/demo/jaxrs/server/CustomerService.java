@@ -21,11 +21,12 @@ package demo.jaxrs.server;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.ws.rs.HttpMethod;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
 import javax.ws.rs.UriParam;
-import javax.ws.rs.UriTemplate;
 
-@UriTemplate("/customerservice/")
+
+@Path("/customerservice/")
 public class CustomerService {
     long currentId = 123;
     Map<Long, Customer> customers = new HashMap<Long, Customer>();
@@ -34,8 +35,8 @@ public class CustomerService {
         init();
     }
 
-    @HttpMethod("GET")
-    @UriTemplate("/customers/{id}/")
+    @GET
+    @Path("/customers/{id}/")
     public Customer getCustomer(@UriParam("id") String id) {
         System.out.println("----invoking getCustomer, Customer id is: " + id);
         long idNumber = Long.parseLong(id);

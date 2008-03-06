@@ -20,9 +20,10 @@ package demo.jaxrs.server;
 
 import java.util.HashMap;
 import java.util.Map;
-import javax.ws.rs.HttpMethod;
+import javax.ws.rs.GET;
 import javax.ws.rs.UriParam;
-import javax.ws.rs.UriTemplate;
+import javax.ws.rs.Path;
+
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "Order")
@@ -51,8 +52,8 @@ public class Order {
         this.description = d;
     }
 
-    @HttpMethod("GET")
-    @UriTemplate("products/{productId}/")
+    @GET
+    @Path("products/{productId}/")
     public Product getProduct(@UriParam("productId")int productId) {
         System.out.println("----invoking getProduct with id: " + productId);
         Product p = products.get(new Long(productId));

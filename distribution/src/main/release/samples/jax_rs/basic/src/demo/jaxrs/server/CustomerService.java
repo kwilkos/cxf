@@ -21,12 +21,14 @@ package demo.jaxrs.server;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.ws.rs.HttpMethod;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;import javax.ws.rs.Path;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.UriParam;
-import javax.ws.rs.UriTemplate;
 import javax.ws.rs.core.Response;
 
-@UriTemplate("/customerservice/")
+@Path("/customerservice/")
 public class CustomerService {
     long currentId = 123;
     Map<Long, Customer> customers = new HashMap<Long, Customer>();
@@ -36,8 +38,8 @@ public class CustomerService {
         init();
     }
 
-    @HttpMethod("GET")
-    @UriTemplate("/customers/{id}/")
+    @GET
+    @Path("/customers/{id}/")
     public Customer getCustomer(@UriParam("id") String id) {
         System.out.println("----invoking getCustomer, Customer id is: " + id);
         long idNumber = Long.parseLong(id);
@@ -45,35 +47,35 @@ public class CustomerService {
         return c;
     }
 
-    @HttpMethod("PUT")
-    @UriTemplate("/customers/")
+    @PUT
+    @Path("/customers/")
     public Response updateCustomer(Customer customer) {
         System.out.println("----invoking updateCustomer, Customer name is: " + customer.getName());
         Customer c = customers.get(customer.getId());
         Response r;
         if (c != null) {
             customers.put(customer.getId(), customer);
-            r = Response.Builder.ok().build();
+            r = Response.ok().build();
         } else {
-            r = Response.Builder.notModified().build();
+            r = Response.notModified().build();
         }
 
         return r;
     }
 
-    @HttpMethod("POST")
-    @UriTemplate("/customers/")
+    @POST
+    @Path("/customers/")
     public Response addCustomer(Customer customer) {
         System.out.println("----invoking addCustomer, Customer name is: " + customer.getName());
         customer.setId(++currentId);
 
         customers.put(customer.getId(), customer);
 
-        return Response.Builder.ok(customer).build();
+        return Response.ok(customer).build();
     }
 
-    @HttpMethod("DELETE")
-    @UriTemplate("/customers/{id}/")
+    @DELETE
+    @Path("/customers/{id}/")
     public Response deleteCustomer(@UriParam("id") String id) {
         System.out.println("----invoking deleteCustomer, Customer id is: " + id);
         long idNumber = Long.parseLong(id);
@@ -81,16 +83,16 @@ public class CustomerService {
 
         Response r;
         if (c != null) {
-            r = Response.Builder.ok().build();
+            r = Response.ok().build();
             customers.remove(idNumber);
         } else {
-            r = Response.Builder.notModified().build();
+            r = Response.notModified().build();
         }
 
         return r;
     }
 
-    @UriTemplate("/orders/{orderId}/")
+    @Path("/orders/{orderId}/")
     public Order getOrder(@UriParam("orderId") String orderId) {
         System.out.println("----invoking getOrder, Order id is: " + orderId);
         long idNumber = Long.parseLong(orderId);
