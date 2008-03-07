@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.logging.Logger;
 
+import javax.xml.XMLConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
@@ -33,6 +34,7 @@ import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.Service;
+import org.apache.cxf.service.model.BindingMessageInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
 
@@ -58,7 +60,7 @@ public class JBIWrapperOutInterceptor extends AbstractOutDatabindingInterceptor 
             xmlWriter.writeStartElement(JBIConstants.NS_JBI_WRAPPER, 
                                         JBIConstants.JBI_WRAPPER_MESSAGE.getLocalPart());
             xmlWriter.writeNamespace("jbi", JBIConstants.NS_JBI_WRAPPER);
-            
+            setTypeAttr(xmlWriter, message);
             List<MessagePartInfo> parts = null;
             if (!isRequestor(message)) {
                 parts = bop.getOutput().getMessageParts();
@@ -98,5 +100,37 @@ public class JBIWrapperOutInterceptor extends AbstractOutDatabindingInterceptor 
             throw new Fault(new org.apache.cxf.common.i18n.Message("STAX_WRITE_EXC", BUNDLE), e);
         }
     }
+    
+    private void setTypeAttr(XMLStreamWriter xmlWriter, Message message) throws XMLStreamException {
+        BindingOperationInfo wsdlOperation = getOperation(message);
+        BindingMessageInfo wsdlMessage = isRequestor(message)
+            ? wsdlOperation.getInput() : wsdlOperation.getOutput();
+        
+        String typeNamespace = wsdlMessage.getMessageInfo().getName().getNamespaceURI();
+        if (typeNamespace == null || typeNamespace.length() == 0) {
+            throw new IllegalArgumentException("messageType namespace is null or empty");
+        }
+        xmlWriter.writeAttribute(XMLConstants.XMLNS_ATTRIBUTE + ":" + "msg",
+                          typeNamespace);
+        String typeLocalName = wsdlMessage.getMessageInfo().getName().getLocalPart();
+        if (typeLocalName == null || typeLocalName.length() == 0) {
+            throw new IllegalArgumentException("messageType local name is null or empty");
+        }
+        xmlWriter.writeAttribute("type", "msg" + ":" + typeLocalName);
+        
+    }
+    
+    protected BindingOperationInfo getOperation(Message message) {
+        BindingOperationInfo operation = message.getExchange().get(BindingOperationInfo.class);
+        if (operation == null) {
+            throw new Fault(new Exception("Operation not bound on this message"));
+        }
+        return operation;
+    }
+    
+    protected boolean isRequestor(org.apache.cxf.message.Message message) {
+        return Boolean.TRUE.equals(message.containsKey(
+            org.apache.cxf.message.Message.REQUESTOR_ROLE));
+    }  
 
 }
