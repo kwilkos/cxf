@@ -40,6 +40,10 @@
         value="../../../../../target/srcbuild_env.ant"
         file="target/srcbuild_env.ant"
         filepath="../../../../.."/>
+     <available property="srcbuild_paths.file"
+        value="../../../../../../target/srcbuild_env.ant"
+        file="target/srcbuild_env.ant"
+        filepath="../../../../../.."/>
     <property name="srcbuild_paths.file" value="${build.dir}/notsrcbuildpath"/>
     <mkdir dir="${build.dir}"/>
     <touch file="${build.dir}/notsrcbuildpath" verbose="false"/>

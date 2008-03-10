@@ -31,6 +31,7 @@ import javax.xml.namespace.QName;
 
 import org.apache.cxf.binding.corba.types.CorbaHandlerUtils;
 import org.apache.cxf.binding.corba.types.CorbaObjectHandler;
+import org.apache.cxf.binding.corba.types.CorbaPrimitiveHandler;
 import org.apache.cxf.binding.corba.utils.ContextUtils;
 import org.apache.cxf.binding.corba.utils.CorbaBindingHelper;
 import org.apache.cxf.binding.corba.utils.CorbaUtils;
@@ -62,6 +63,7 @@ import org.omg.CORBA.NamedValue;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.Request;
 import org.omg.CORBA.SystemException;
+import org.omg.CORBA.TCKind;
 import org.omg.CORBA.TypeCode;
 import org.omg.CORBA.UnknownUserException;
 
@@ -218,10 +220,10 @@ public class CorbaConduit implements Conduit {
             CorbaStreamable[] arguments = message.getStreamableArguments();
             list = orb.create_list(arguments.length);
 
-            for (int i = 0; i < arguments.length; ++i) {
+            for (CorbaStreamable argument : arguments) {
                 Any value = orb.create_any();
-                value.insert_Streamable(arguments[i]);
-                list.add_value(arguments[i].getName(), value, arguments[i].getMode());
+                setIntoAny(value, argument);
+                list.add_value(argument.getName(), value, argument.getMode());
             }
         } else {
             list = orb.create_list(0);
@@ -230,6 +232,17 @@ public class CorbaConduit implements Conduit {
         return list;        
     }
     
+    private void setIntoAny(Any value, CorbaStreamable argument) {
+        switch (argument._type().kind().value()) {
+        case TCKind._tk_string:
+            value.insert_string((String)((CorbaPrimitiveHandler)argument.getObject()).getValue());
+            break;
+            //FIXME - other primatives that the Sun ORB apparently cannot handle
+        default:
+            value.insert_Streamable(argument);
+        }
+    }
+
     protected NamedValue getReturn(CorbaMessage message) {
         CorbaStreamable retVal = message.getStreamableReturn();
         NamedValue ret = null;

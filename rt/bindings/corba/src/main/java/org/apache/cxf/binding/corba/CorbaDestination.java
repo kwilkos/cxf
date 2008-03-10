@@ -185,16 +185,19 @@ public class CorbaDestination implements Destination {
             } catch (org.omg.PortableServer.POAPackage.AdapterNonExistent ex) {
                 // An AdapterNonExistent exception will be thrown if the POA does not exist.  If
                 // this is the case, then we'll create one.
-                Policy[] policies = new Policy[3];
+                Policy[] policies = new Policy[2];
                 policies[0] = rootPOA
-                        .create_lifespan_policy(
-                            org.omg.PortableServer.LifespanPolicyValue.PERSISTENT);
+                .create_id_uniqueness_policy(
+                    org.omg.PortableServer.IdUniquenessPolicyValue.UNIQUE_ID);
                 policies[1] = rootPOA
                         .create_implicit_activation_policy(
                             org.omg.PortableServer.ImplicitActivationPolicyValue.NO_IMPLICIT_ACTIVATION);
+                /*
+                REVISIT - PERSISTENT POA with Sun ORB?
                 policies[2] = rootPOA
-                        .create_id_uniqueness_policy(
-                            org.omg.PortableServer.IdUniquenessPolicyValue.UNIQUE_ID);
+                    .create_lifespan_policy(org.omg.PortableServer.LifespanPolicyValue.PERSISTENT);
+                policies[3] = rootPOA.create_id_assignment_policy(IdAssignmentPolicyValue.USER_ID);
+                */
 
                 bindingPOA = rootPOA.create_POA("BindingPOA", poaManager, policies);
             }

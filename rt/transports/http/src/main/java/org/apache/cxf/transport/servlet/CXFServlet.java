@@ -30,6 +30,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 
 
+import org.apache.cxf.bus.spring.BusApplicationContext;
 import org.apache.cxf.bus.spring.SpringBusFactory;
 import org.apache.cxf.common.classloader.ClassLoaderUtils;
 import org.apache.cxf.common.logging.LogUtils;
@@ -96,6 +97,7 @@ public class CXFServlet extends AbstractCXFServlet {
         if (ctx == null) {            
             LOG.info("LOAD_BUS_WITHOUT_APPLICATION_CONTEXT");
             bus = new SpringBusFactory().createBus();
+            ctx = bus.getExtension(BusApplicationContext.class);
         } else {
             LOG.info("LOAD_BUS_WITH_APPLICATION_CONTEXT");
             bus = new SpringBusFactory(ctx).createBus();

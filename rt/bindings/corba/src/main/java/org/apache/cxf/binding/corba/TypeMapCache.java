@@ -40,8 +40,9 @@ public final class TypeMapCache {
                     List<TypeMappingType> corbaTypes = service.getDescription()
                             .getExtensors(TypeMappingType.class);
                     if (corbaTypes != null) {
-                        service.setProperty(KEY, CorbaUtils.createCorbaTypeMap(corbaTypes));
-                    }                   
+                        map = CorbaUtils.createCorbaTypeMap(corbaTypes);
+                        service.setProperty(KEY, map);
+                    }
                 }
                 return map; 
             }
