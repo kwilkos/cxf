@@ -104,6 +104,11 @@ public class ServerFactoryBean extends AbstractWSDLBasedEndpointFactory {
             if (serviceBean != null && getServiceClass() == null) {
                 setServiceClass(serviceBean.getClass());
             }
+            if (invoker != null) {
+                getServiceFactory().setInvoker(invoker);
+            } else if (serviceBean != null) {
+                getServiceFactory().setInvoker(createInvoker());
+            }
             
             Endpoint ep = createEndpoint();
             server = new ServerImpl(getBus(), 
