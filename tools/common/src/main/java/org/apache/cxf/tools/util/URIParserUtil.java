@@ -222,16 +222,19 @@ public final class URIParserUtil {
             return url.toString().replace("\\", "/");
         } catch (MalformedURLException e1) {
             try {
+                File file = new File(uri);
+                if (file.exists()) {
+                    return file.toURI().normalize().toString();
+                }
                 String f = null;
                 if (uri.indexOf(":") != -1 && !uri.startsWith("/")) {
                     f = "file:/" + uri;
                 } else {
                     f = "file:" + uri;
                 }
-
                 url = new URL(f);
                 return url.toString().replace("\\", "/");
-            } catch (MalformedURLException e2) {
+            } catch (Exception e2) {
                 return uri.replace("\\", "/");
             }
         }
