@@ -1459,7 +1459,10 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
 
 
     public QName getServiceQName() {
-        if (serviceName == null) {
+        return getServiceQName(true);
+    }
+    public QName getServiceQName(boolean lookup) {
+        if (serviceName == null && lookup) {
             serviceName = new QName(getServiceNamespace(), getServiceName());
         }
 
@@ -1467,7 +1470,10 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     }
 
     public QName getEndpointName() {
-        if (endpointName != null) {
+        return getEndpointName(true);
+    }
+    public QName getEndpointName(boolean lookup) {
+        if (endpointName != null || !lookup) {
             return endpointName;
         }
 

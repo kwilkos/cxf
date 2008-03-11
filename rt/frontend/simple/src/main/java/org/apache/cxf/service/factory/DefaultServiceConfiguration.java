@@ -164,7 +164,9 @@ public class DefaultServiceConfiguration extends AbstractServiceConfiguration {
     @Override
     public String getServiceNamespace() {
         String ret = super.getServiceNamespace();
-        if (ret == null) {
+        if (ret == null 
+            && getServiceFactory() != null
+            && getServiceFactory().getServiceClass() != null) {
             ret = ServiceUtils.makeNamespaceFromClassName(getServiceFactory().getServiceClass().getName(),
                 "http");
         }
