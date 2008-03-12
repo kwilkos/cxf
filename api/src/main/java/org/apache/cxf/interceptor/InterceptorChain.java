@@ -25,6 +25,13 @@ import java.util.ListIterator;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.transport.MessageObserver;
 
+/**
+ * Base interface for all interceptor chains.  An interceptor chain is an
+ * ordered list of interceptors associated with one portion of the web service
+ * processing pipeline.  Interceptor chains are defined for either the SOAP 
+ * client's request or response handling, the web service's, or error handling
+ * interceptor chains for SOAP faults.
+ */
 public interface InterceptorChain extends Iterable<Interceptor<? extends Message>> {
     
     enum State {

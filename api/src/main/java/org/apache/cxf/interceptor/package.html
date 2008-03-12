@@ -23,7 +23,10 @@
 <body bgcolor="white">
 
 Core interceptor interfaces which form the basis for message processing chains
-in CXF.
-
+in CXF.  Interceptors are grouped into ordered lists called an interceptor
+chains.  There is both an outbound and an inbound interceptor chain for both 
+a CXF-based SOAP client, and a CXF-based web service.  Additionally, in 
+the case of SOAPFaults, a CXF web service will create a separate outbound 
+error handling chain and the client an inbound one.
 </body>
 </html>
