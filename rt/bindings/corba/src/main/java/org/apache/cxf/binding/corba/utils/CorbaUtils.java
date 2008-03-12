@@ -18,9 +18,11 @@
  */
 package org.apache.cxf.binding.corba.utils;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -456,10 +458,17 @@ public final class CorbaUtils {
         return map;
     }
     
-    public static void exportObjectReferenceToFile(org.omg.CORBA.Object obj, ORB orb, String iorFile) 
+    public static void exportObjectReferenceToFile(org.omg.CORBA.Object obj, ORB orb,
+                                                  URI iorFile) 
         throws IOException {
         String ref = orb.object_to_string(obj);
-        FileOutputStream file = new FileOutputStream(iorFile);
+        File f = null;
+        if (iorFile.isOpaque()) {
+            f = new File(iorFile.getSchemeSpecificPart());
+        } else {
+            f = new File(iorFile);
+        }
+        FileOutputStream file = new FileOutputStream(f);
         PrintWriter out = new PrintWriter(file);
         out.println(ref);
         out.flush();

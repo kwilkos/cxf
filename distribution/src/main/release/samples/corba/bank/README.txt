@@ -1,11 +1,10 @@
-Hello World CORBA Demo
-======================
+CORBA Bank Demo
+===============
 
-This demo illustrates the use of the JAX-WS APIs to run a simple
-"hello world" application using CORBA/IIOP instead of SOAP/XML.  It
-also contains standard CORBA client/server applications using 
-pure CORBA code so you can can see the JAX-WS client hit a pure
-CORBA server and a pure CORBA client hit the JAX-WS server.
+This demo illustrates the user of JAX-WS API's for creating a service
+that uses the CORBA/IIOP protocol for communication.  It also 
+shows throwing exceptions accross that connection.
+
 
 
 Prerequisite
@@ -35,32 +34,13 @@ nameing service.   From a command prompt, run:
 Other ORB's may have different requirements.
 
 
-Use Case 1 - Pure CORBA Server, CXF/JAX-WS Client
--------------------------------------------------
-Start the pure CORBA server by running
-  ant corba.server
-
-Run the JAX-WS client by running:
-  ant cxf.client
-
-
-Use Case 2 - CXF/JAX-WS Server, Pure CORBA Client
--------------------------------------------------
-Start the CXF/JAX-WS server by running
-  ant cxf.server
-
-Run the pure CORBA client by running:
-  ant corba.client
-
-
-Use Case 3 - CXF/JAX-WS Server, CXF/JAX-WS Client
+Use Case - CXF/JAX-WS Server, CXF/JAX-WS Client
 -------------------------------------------------
 Start the CXF/JAX-WS server by running
   ant cxf.server
 
 Run the CXF/JAX-WS client by running:
   ant cxf.client
-
 
 
 Cleanup
@@ -70,4 +50,5 @@ To remove the code generated from the WSDL file and the .class
 files, either delete the build directory and its contents or run:
 
   ant clean
+
 

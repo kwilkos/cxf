@@ -36,6 +36,7 @@ import org.apache.cxf.binding.corba.types.HandlerIterator;
 import org.apache.cxf.binding.corba.types.ParameterEventProducer;
 import org.apache.cxf.binding.corba.types.WrappedParameterSequenceEventProducer;
 import org.apache.cxf.binding.corba.utils.ContextUtils;
+import org.apache.cxf.binding.corba.utils.CorbaAnyHelper;
 import org.apache.cxf.binding.corba.utils.CorbaUtils;
 import org.apache.cxf.binding.corba.wsdl.ModeType;
 import org.apache.cxf.binding.corba.wsdl.OperationType;
@@ -278,17 +279,19 @@ public class CorbaStreamInInterceptor extends AbstractPhaseInterceptor<Message> 
                 CorbaObjectHandler obj = 
                     CorbaHandlerUtils.initializeObjectHandler(orb, paramName, paramIdlType, map, service);
                 streamables[i] = corbaMsg.createStreamableObject(obj, paramName);
-                
+
+                Any value = CorbaAnyHelper.createAny(orb);
                 if (paramMode.value().equals("in")) {
                     streamables[i].setMode(org.omg.CORBA.ARG_IN.value);
+                    streamables[i].getObject().setIntoAny(value, streamables[i], false);
                 } else if (paramMode.value().equals("out")) {
                     streamables[i].setMode(org.omg.CORBA.ARG_OUT.value);
+                    streamables[i].getObject().setIntoAny(value, streamables[i], true);
                 } else {
                     streamables[i].setMode(org.omg.CORBA.ARG_INOUT.value);
+                    streamables[i].getObject().setIntoAny(value, streamables[i], false);
                 }
 
-                Any value = orb.create_any();
-                streamables[i].getObject().setIntoAny(value, streamables[i], false);
                 list.add_value(streamables[i].getName(), value, streamables[i].getMode());              
                 corbaMsg.addStreamableArgument(streamables[i]);
             }

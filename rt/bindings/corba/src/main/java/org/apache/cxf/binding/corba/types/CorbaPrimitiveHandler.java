@@ -99,6 +99,9 @@ public class CorbaPrimitiveHandler extends CorbaObjectHandler {
     public void setValue(Object obj) {
         objectSet = true;
         value = obj;
+        if (any != null && value != null) {
+            setIntoAny(any, null, true);
+        }
     }
 
     public String getDataFromValue() {
@@ -160,9 +163,10 @@ public class CorbaPrimitiveHandler extends CorbaObjectHandler {
     }
     
     public void setValueFromData(String data) {
+        Object obj = null;
         switch (typeCode.kind().value()) {
         case TCKind._tk_boolean:
-            value = Boolean.valueOf(data);
+            obj = Boolean.valueOf(data);
             break;
         case TCKind._tk_char:
             // A char is mapped to a byte, we need it as a character
@@ -170,48 +174,49 @@ public class CorbaPrimitiveHandler extends CorbaObjectHandler {
             // for values < 0 + 256 
             // This means that we can directly write out the chars in the normal
             // range 0-127 even when using UTF-8
-            value = new Character((char)(byteValue.byteValue() < 0 
+            obj = new Character((char)(byteValue.byteValue() < 0 
                                          ? byteValue.byteValue() + UNSIGNED_MAX
                                          : byteValue.byteValue()));
             break;
         case TCKind._tk_wchar:
             // A wide char is mapped to a string, we need it as a character
-            value = new Character(data.charAt(0));
+            obj = new Character(data.charAt(0));
             break;
         case TCKind._tk_octet:
-            value = new Byte(data);
+            obj = new Byte(data);
             break;
         case TCKind._tk_short:
-            value = new Short(data);
+            obj = new Short(data);
             break;
         case TCKind._tk_ushort:
-            value = new Integer(data);
+            obj = new Integer(data);
             break;
         case TCKind._tk_long:
-            value = new Integer(data);
+            obj = new Integer(data);
             break;
         case TCKind._tk_longlong:
-            value = new Long(data);
+            obj = new Long(data);
             break;
         case TCKind._tk_ulong:
         case TCKind._tk_ulonglong:
-            value = new java.math.BigInteger(data);
+            obj = new java.math.BigInteger(data);
             break;
         case TCKind._tk_float:
-            value = new Float(data);
+            obj = new Float(data);
             break;
         case TCKind._tk_double:
-            value = new Double(data);
+            obj = new Double(data);
             break;
         case TCKind._tk_string:
         case TCKind._tk_wstring:
-            value = data;
+            obj = data;
             break;
         default:
             // Default: just store the data we were given.  We'll expect that whatever stored the data
             // will also know how to convert it into what it needs.
-            value = data;
+            obj = data;
         }
+        setValue(obj);
     }
     public String getDataFromAny() {
         String data = "";

@@ -22,6 +22,7 @@ package org.apache.cxf.binding.corba;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import org.apache.cxf.binding.corba.utils.CorbaAnyHelper;
 import org.apache.cxf.binding.corba.utils.CorbaBindingHelper;
 import org.apache.cxf.binding.corba.utils.OrbConfig;
 import org.apache.cxf.binding.corba.wsdl.CorbaConstants;
@@ -49,12 +50,17 @@ public class CorbaServerConduit implements Conduit {
 
     public CorbaServerConduit(EndpointInfo ei,
                               EndpointReferenceType ref,
-                              org.omg.CORBA.Object targetObj, 
+                              org.omg.CORBA.Object targetObj,
+                              ORB o,
                               OrbConfig config,
                               CorbaTypeMap map) {
         endpointInfo = ei;
         target = getTargetReference(ref);
-        orb = CorbaBindingHelper.getDefaultORB(config);
+        if (o == null) {
+            orb = CorbaBindingHelper.getDefaultORB(config);
+        } else {
+            orb = o;
+        }
         typeMap = map;
         targetObject = targetObj;
     }
@@ -112,7 +118,7 @@ public class CorbaServerConduit implements Conduit {
                 NVList list = inMsg.getList();
 
                 if (msg.getStreamableException() != null) {                    
-                    Any exAny = orb.create_any();
+                    Any exAny = CorbaAnyHelper.createAny(orb);
                     CorbaStreamable exception = msg.getStreamableException();
                     exAny.insert_Streamable(exception);
                     request.set_exception(exAny);
@@ -132,7 +138,7 @@ public class CorbaServerConduit implements Conduit {
 
                     CorbaStreamable resultValue = msg.getStreamableReturn();
                     if (resultValue != null) {
-                        Any resultAny = orb.create_any();
+                        Any resultAny = CorbaAnyHelper.createAny(orb);
                         resultValue.getObject().setIntoAny(resultAny, resultValue, true);
                         request.set_result(resultAny);
                     }

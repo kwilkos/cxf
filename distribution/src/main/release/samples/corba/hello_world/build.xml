@@ -41,10 +41,10 @@
         </exec>
     </target>
 
-    <target name="cxf.client">
+    <target name="cxf.client" depends="build">
         <cxfrun classname="yoko.client.Client"/>
     </target>
-    <target name="corba.client">
+    <target name="corba.client" depends="build">
         <java classname="corba.client.Client" fork="yes">
             <classpath>
                 <pathelement path="build/classes"/>
@@ -53,11 +53,11 @@
         </java>
     </target>
 
-    <target name="cxf.server">
+    <target name="cxf.server" depends="build">
         <cxfrun classname="yoko.server.Server"/>
     </target>
 
-    <target name="corba.server">
+    <target name="corba.server" depends="build">
         <java classname="corba.server.Server" fork="yes">
             <classpath>
                 <pathelement path="build/classes"/>

@@ -226,7 +226,7 @@ public class CorbaStreamFaultOutInterceptor extends AbstractPhaseInterceptor<Mes
         message.setSystemException(sysEx);
         ServerRequest request  = message.getExchange().get(ServerRequest.class);
         Any exAny = orb.create_any();
-        //SystemExceptionHelper.insert(exAny, sysEx);
+        SystemExceptionHelper.insert(exAny, sysEx);
         request.set_exception(exAny);
     }
 

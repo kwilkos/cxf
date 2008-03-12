@@ -109,6 +109,7 @@ public class CorbaServerConduitTest extends Assert {
         CorbaServerConduit conduit = new CorbaServerConduit(endpointInfo,
                                                             destination.getAddress(),
                                                             targetObject,
+                                                            null,
                                                             orbConfig,
                                                             corbaTypeMap);
         CorbaMessage message = new CorbaMessage(new MessageImpl());
@@ -141,6 +142,7 @@ public class CorbaServerConduitTest extends Assert {
         CorbaServerConduit conduit = new CorbaServerConduit(endpointInfo,
                                                             destination.getAddress(),
                                                             targetObject,
+                                                            null,
                                                             orbConfig,
                                                             corbaTypeMap);
         
@@ -161,6 +163,7 @@ public class CorbaServerConduitTest extends Assert {
         CorbaServerConduit conduit = new CorbaServerConduit(endpointInfo,
                                                             destination.getAddress(),
                                                             targetObject,
+                                                            null,
                                                             orbConfig,
                                                             corbaTypeMap);
         String address = conduit.getAddress();
@@ -296,7 +299,8 @@ public class CorbaServerConduitTest extends Assert {
         target = EasyMock.createMock(EndpointReferenceType.class);                   
         endpointInfo = EasyMock.createMock(EndpointInfo.class);
         CorbaServerConduit corbaServerConduit = 
-            new CorbaServerConduit(endpointInfo, target, targetObject, orbConfig, corbaTypeMap);
+            new CorbaServerConduit(endpointInfo, target, targetObject, 
+                                   null, orbConfig, corbaTypeMap);
         
         if (send) {
             // setMessageObserver

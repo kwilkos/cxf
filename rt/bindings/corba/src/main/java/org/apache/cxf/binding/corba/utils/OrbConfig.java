@@ -27,6 +27,12 @@ public class OrbConfig {
     String orbClass;
     String orbSingletonClass;
     List<String> orbArgs = new ArrayList<String>();
+    
+    boolean persistentPoa;
+    
+    public OrbConfig() {
+        //nothing
+    }
 
     public void setOrbClass(String cls) {
         orbClass = cls;
@@ -52,5 +58,11 @@ public class OrbConfig {
         return orbArgs;
     }
     
+    public void setPersistentPoa(boolean b) {
+        persistentPoa = b;
+    }
+    public boolean isPersistentPoa() {
+        return persistentPoa;
+    }
 
 }

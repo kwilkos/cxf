@@ -21,6 +21,7 @@ package org.apache.cxf.binding.corba;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.net.URI;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
@@ -108,6 +109,10 @@ public class CorbaDestination implements Destination {
         }
     }
 
+    public OrbConfig getOrbConfig() {
+        return orbConfig;
+    }
+    
     public EndpointReferenceType getAddress() {
         return reference;
     }    
@@ -116,7 +121,8 @@ public class CorbaDestination implements Destination {
                                   Message partialResponse,
                                   EndpointReferenceType ref)
         throws IOException {
-        return  new CorbaServerConduit(endpointInfo, reference, obj, orbConfig, typeMap);
+        return new CorbaServerConduit(endpointInfo, reference, obj,
+                                      orb, orbConfig, typeMap);
     }
 
     public BindingInfo getBindingInfo() {
@@ -189,20 +195,17 @@ public class CorbaDestination implements Destination {
             } catch (org.omg.PortableServer.POAPackage.AdapterNonExistent ex) {
                 // An AdapterNonExistent exception will be thrown if the POA does not exist.  If
                 // this is the case, then we'll create one.
-                Policy[] policies = new Policy[2];
+                Policy[] policies = new Policy[ orbConfig.isPersistentPoa() ? 3 : 2];
                 policies[0] = rootPOA
                 .create_id_uniqueness_policy(
                     org.omg.PortableServer.IdUniquenessPolicyValue.UNIQUE_ID);
                 policies[1] = rootPOA
                         .create_implicit_activation_policy(
                             org.omg.PortableServer.ImplicitActivationPolicyValue.NO_IMPLICIT_ACTIVATION);
-                /*
-                REVISIT - PERSISTENT POA with Sun ORB?
-                policies[2] = rootPOA
-                    .create_lifespan_policy(org.omg.PortableServer.LifespanPolicyValue.PERSISTENT);
-                policies[3] = rootPOA.create_id_assignment_policy(IdAssignmentPolicyValue.USER_ID);
-                */
-
+                if (orbConfig.isPersistentPoa()) {
+                    policies[2] = rootPOA
+                        .create_lifespan_policy(org.omg.PortableServer.LifespanPolicyValue.PERSISTENT);
+                }
                 bindingPOA = rootPOA.create_POA("BindingPOA", poaManager, policies);
             }
             
@@ -216,31 +219,11 @@ public class CorbaDestination implements Destination {
             obj = bindingPOA.id_to_reference(objectId);
             
             if (location.startsWith("relfile:")) {
-                String iorFile = location.substring("relfile:".length(), location.length());
-                // allow for up to 3 '/' to match common uses of relfile url format
-                for (int n = 0; n < 3; n++) {
-                    if (iorFile.charAt(0) != '/') {
-                        break;
-                    } else {
-                        iorFile = iorFile.substring(1);
-                    }
-                }
-
+                URI iorFile = new URI(location.substring(3));
                 CorbaUtils.exportObjectReferenceToFile(obj, orb, iorFile);
             } else if (location.startsWith("file:")) {
-                String iorFile = location.substring("file:".length(), location.length());
-                // allow for up to 3 '/' to match common uses of file url format
-                for (int n = 0; n < 3; n++) {
-                    if (iorFile.charAt(0) != '/') {
-                        break;
-                    } else {
-                        iorFile = iorFile.substring(1);
-                    }
-                }
-                // to match the ORB, file must have complete path information, therefore we add
-                // a '/' prefix to the address
-                //iorFile = "/" + iorFile;
-                CorbaUtils.exportObjectReferenceToFile(obj, orb, iorFile);
+                URI uri = new URI(location);
+                CorbaUtils.exportObjectReferenceToFile(obj, orb, uri);
             } else if (location.startsWith("corbaloc")) {
                 // Try add the key to the boot manager.  This is required for a corbaloc
                 addKeyToBootManager(location, obj);
@@ -249,8 +232,8 @@ public class CorbaDestination implements Destination {
             } else {
                 String ior = orb.object_to_string(obj);
                 address.setLocation(ior);
-                String iorFile = "endpoint.ior";
-                CorbaUtils.exportObjectReferenceToFile(obj, orb, iorFile);
+                URI uri = new URI("endpoint.ior");
+                CorbaUtils.exportObjectReferenceToFile(obj, orb, uri);
             }
             populateEpr(orb.object_to_string(obj));
             LOG.info("Object Reference: " + orb.object_to_string(obj));

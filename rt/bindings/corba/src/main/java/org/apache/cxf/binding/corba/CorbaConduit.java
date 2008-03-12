@@ -32,6 +32,7 @@ import javax.xml.namespace.QName;
 import org.apache.cxf.binding.corba.types.CorbaHandlerUtils;
 import org.apache.cxf.binding.corba.types.CorbaObjectHandler;
 import org.apache.cxf.binding.corba.utils.ContextUtils;
+import org.apache.cxf.binding.corba.utils.CorbaAnyHelper;
 import org.apache.cxf.binding.corba.utils.CorbaBindingHelper;
 import org.apache.cxf.binding.corba.utils.CorbaUtils;
 import org.apache.cxf.binding.corba.utils.OrbConfig;
@@ -80,12 +81,21 @@ public class CorbaConduit implements Conduit {
         endpointInfo = ei;
         target = getTargetReference(ref);
         orbConfig = config;
-        orb = CorbaBindingHelper.getDefaultORB(config);
         typeMap = TypeMapCache.get(ei.getService());
     }
 
+    public OrbConfig getOrbConfig() {
+        return orbConfig;
+    }
+    
+    protected synchronized void prepareOrb() {
+        if (orb == null) {
+            orb = CorbaBindingHelper.getDefaultORB(orbConfig);
+        }
+    }
     public void prepare(Message message) throws IOException {    
         try {
+            prepareOrb();
             AddressType address = endpointInfo.getExtensor(AddressType.class);
 
             if (address == null) {
@@ -212,6 +222,9 @@ public class CorbaConduit implements Conduit {
     }
        
     protected NVList getArguments(CorbaMessage message) {
+        if (orb == null) {
+            prepareOrb();
+        }
         // Build the list of DII arguments, returns, and exceptions
         NVList list = null;
         if (message.getStreamableArguments() != null) {
@@ -219,7 +232,7 @@ public class CorbaConduit implements Conduit {
             list = orb.create_list(arguments.length);
 
             for (CorbaStreamable argument : arguments) {
-                Any value = orb.create_any();
+                Any value = CorbaAnyHelper.createAny(orb);
                 argument.getObject().setIntoAny(value, argument, true);
                 list.add_value(argument.getName(), value, argument.getMode());
             }
@@ -231,10 +244,13 @@ public class CorbaConduit implements Conduit {
     }
     
     protected NamedValue getReturn(CorbaMessage message) {
+        if (orb == null) {
+            prepareOrb();
+        }
         CorbaStreamable retVal = message.getStreamableReturn();
         NamedValue ret = null;
         if (retVal != null) {
-            Any returnAny = orb.create_any();
+            Any returnAny = CorbaAnyHelper.createAny(orb);
             retVal.getObject().setIntoAny(returnAny, retVal, false);
             ret = orb.create_named_value(retVal.getName(), returnAny, org.omg.CORBA.ARG_OUT.value);
         } else {
@@ -249,6 +265,10 @@ public class CorbaConduit implements Conduit {
     protected ExceptionList getExceptionList(Map<TypeCode, RaisesType> exceptions,
                                              CorbaMessage message, 
                                              OperationType opType) {
+        if (orb == null) {
+            prepareOrb();
+        }
+
         // Get the typecodes for the exceptions this operation can throw.
         // These are defined in the operation definition from WSDL.
         ExceptionList exList = orb.create_exception_list();
@@ -272,6 +292,9 @@ public class CorbaConduit implements Conduit {
                                  org.omg.CORBA.ExceptionList exList) 
         throws Exception {
         Request request = null;
+        if (orb == null) {
+            prepareOrb();
+        }
         ContextList ctxList = orb.create_context_list();
         Context ctx = null;
         try {
@@ -291,6 +314,9 @@ public class CorbaConduit implements Conduit {
     protected Map<TypeCode, RaisesType> getOperationExceptions(
                                          OperationType operation, 
                                          CorbaTypeMap map) {
+        if (orb == null) {
+            prepareOrb();
+        }
         Map<TypeCode, RaisesType> exceptions = new HashMap<TypeCode, RaisesType>();
         List<RaisesType> exList = operation.getRaises(); 
         if (exList != null) {

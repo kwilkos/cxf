@@ -24,7 +24,7 @@ import java.util.Collection;
 
 import javax.xml.bind.JAXBElement;
 
-import org.apache.cxf.jaxws.util.ASMHelper;
+import org.apache.cxf.common.util.ASMHelper;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Label;

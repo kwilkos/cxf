@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.cxf.jaxws.util;
+package org.apache.cxf.common.util;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -25,7 +25,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.cxf.common.util.WeakIdentityHashMap;
 import org.objectweb.asm.ClassWriter;
 
 public class ASMHelper {
