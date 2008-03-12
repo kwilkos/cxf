@@ -31,7 +31,6 @@ import javax.xml.namespace.QName;
 
 import org.apache.cxf.binding.corba.types.CorbaHandlerUtils;
 import org.apache.cxf.binding.corba.types.CorbaObjectHandler;
-import org.apache.cxf.binding.corba.types.CorbaPrimitiveHandler;
 import org.apache.cxf.binding.corba.utils.ContextUtils;
 import org.apache.cxf.binding.corba.utils.CorbaBindingHelper;
 import org.apache.cxf.binding.corba.utils.CorbaUtils;
@@ -63,7 +62,6 @@ import org.omg.CORBA.NamedValue;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.Request;
 import org.omg.CORBA.SystemException;
-import org.omg.CORBA.TCKind;
 import org.omg.CORBA.TypeCode;
 import org.omg.CORBA.UnknownUserException;
 
@@ -222,7 +220,7 @@ public class CorbaConduit implements Conduit {
 
             for (CorbaStreamable argument : arguments) {
                 Any value = orb.create_any();
-                setIntoAny(value, argument);
+                argument.getObject().setIntoAny(value, argument, true);
                 list.add_value(argument.getName(), value, argument.getMode());
             }
         } else {
@@ -232,23 +230,12 @@ public class CorbaConduit implements Conduit {
         return list;        
     }
     
-    private void setIntoAny(Any value, CorbaStreamable argument) {
-        switch (argument._type().kind().value()) {
-        case TCKind._tk_string:
-            value.insert_string((String)((CorbaPrimitiveHandler)argument.getObject()).getValue());
-            break;
-            //FIXME - other primatives that the Sun ORB apparently cannot handle
-        default:
-            value.insert_Streamable(argument);
-        }
-    }
-
     protected NamedValue getReturn(CorbaMessage message) {
         CorbaStreamable retVal = message.getStreamableReturn();
         NamedValue ret = null;
         if (retVal != null) {
             Any returnAny = orb.create_any();
-            returnAny.insert_Streamable(retVal);
+            retVal.getObject().setIntoAny(returnAny, retVal, false);
             ret = orb.create_named_value(retVal.getName(), returnAny, org.omg.CORBA.ARG_OUT.value);
         } else {
             // TODO: REVISIT: for some reason,some ORBs do not like to

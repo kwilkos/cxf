@@ -51,7 +51,6 @@ public final class CorbaBindingHelper {
             if (config.getOrbSingletonClass() != null) {
                 props.put("org.omg.CORBA.ORBSingletonClass", config.getOrbSingletonClass());
             }
-            props.put("yoko.orb.id", "CXF-CORBA-Binding");
             List<String> orbArgs = config.getOrbArgs();
             defaultORB = ORB.init(orbArgs.toArray(new String[orbArgs.size()]), props);
             if (defaultORB == null) {
@@ -79,14 +78,13 @@ public final class CorbaBindingHelper {
         if (config.getOrbSingletonClass() != null) {
             props.put("org.omg.CORBA.ORBSingletonClass", config.getOrbSingletonClass());
         }
-        props.put("yoko.orb.id", "CXF-CORBA-Binding-" + address);
         List<String> orbArgs = config.getOrbArgs();
         
         String scheme = addressURI.getScheme();
         // A corbaloc address gives us host and port information to use when setting up the
         // endpoint for the ORB.  Other types of references will just create ORBs on the 
         // host and port used when no preference has been specified.
-        if ("corbalob".equals(scheme)) {
+        if ("corbaloc".equals(scheme)) {
             String schemeSpecificPart = addressURI.getSchemeSpecificPart();
             int keyIndex = schemeSpecificPart.indexOf('/');
             String corbaAddr = schemeSpecificPart.substring(0, keyIndex);
@@ -102,20 +100,26 @@ public final class CorbaBindingHelper {
             String port = corbaAddr.substring(index + 1);
             
             props.put("yoko.orb.oa.endpoint", new String(protocol + " --host " + host + " --port " + port));
+            // WHAT to do for non-yoko orb? 
+        } else if ("corbaname".equals(scheme)) {
+            String schemeSpecificPart = addressURI.getSchemeSpecificPart();
+            if (schemeSpecificPart.startsWith(":")) {
+                schemeSpecificPart = schemeSpecificPart.substring(1);
+            }
+            int idx = schemeSpecificPart.indexOf(':');
             
-            orb = ORB.init(orbArgs.toArray(new String[orbArgs.size()]), props);
-            
-            orbList.put(getORBNameFromAddress(address), orb);
+            props.put("org.omg.CORBA.ORBInitialHost", schemeSpecificPart.substring(0, idx));
+            props.put("org.omg.CORBA.ORBInitialPort", schemeSpecificPart.substring(idx + 1));
         } else if ("file".equals(scheme)
             || "relfile".equals(scheme)
             || "IOR".equals(scheme)
             || "ior".equals(scheme)) {
-            orb = ORB.init(orbArgs.toArray(new String[orbArgs.size()]), props);
-            
-            orbList.put(getORBNameFromAddress(address), orb);
+            //use defaults
         } else {
             throw new CorbaBindingException("Unsupported address scheme type " + scheme);
         }
+        orb = ORB.init(orbArgs.toArray(new String[orbArgs.size()]), props);
+        orbList.put(getORBNameFromAddress(address), orb);
 
         return orb;
     }
@@ -141,8 +145,18 @@ public final class CorbaBindingHelper {
         String scheme = addressURI.getScheme();
         if ("corbaloc".equals(scheme) || "corbaname".equals(scheme)) {
             String schemeSpecificPart = addressURI.getSchemeSpecificPart();
+            if (schemeSpecificPart.startsWith(":")) {
+                schemeSpecificPart = schemeSpecificPart.substring(1);
+            }
             int keyIndex = schemeSpecificPart.indexOf('/');
-            name = schemeSpecificPart.substring(0, keyIndex);        
+            if (keyIndex != -1) {
+                name = schemeSpecificPart.substring(0, keyIndex);        
+            } else {
+                name = schemeSpecificPart;
+            }
+            if (addressURI.getRawQuery() != null) {
+                name += addressURI.getRawQuery();
+            }
         } else if ("IOR".equals(scheme) || "ior".equals(scheme)) {        
             name = addressURI.toString();
         } else if ("file".equals(scheme) || "relfile".equals(scheme)) {

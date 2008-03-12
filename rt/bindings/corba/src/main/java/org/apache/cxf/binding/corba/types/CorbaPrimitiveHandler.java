@@ -20,6 +20,8 @@ package org.apache.cxf.binding.corba.types;
 
 import javax.xml.namespace.QName;
 
+import org.apache.cxf.binding.corba.CorbaStreamable;
+import org.omg.CORBA.Any;
 import org.omg.CORBA.TCKind;
 import org.omg.CORBA.TypeCode;
 
@@ -27,6 +29,8 @@ public class CorbaPrimitiveHandler extends CorbaObjectHandler {
 
     private static final int UNSIGNED_MAX = 256; 
     private Object value;
+    private boolean objectSet;
+    private Any any;
     
     public CorbaPrimitiveHandler(QName primName, QName primIdlType, TypeCode primTC, Object primType) {
         super(primName, primIdlType, primTC, primType);
@@ -36,12 +40,71 @@ public class CorbaPrimitiveHandler extends CorbaObjectHandler {
         return value;
     }
     
-    
+    public void setIntoAny(Any val, CorbaStreamable stream, boolean output) {
+        any = val;
+        if (output && value != null) {
+            switch (this.typeCode.kind().value()) {
+            case TCKind._tk_boolean:
+                any.insert_boolean((Boolean)value);
+                break;
+            case TCKind._tk_char:
+                any.insert_char(((Character)value).charValue());
+                break;
+            case TCKind._tk_wchar:
+                any.insert_wchar(((Character)value).charValue());
+                break;
+            case TCKind._tk_octet:
+                any.insert_octet(((Byte)value).byteValue());
+                break;
+            case TCKind._tk_short:
+                any.insert_short(((Short)value).shortValue());
+                break;
+            case TCKind._tk_ushort:
+                any.insert_ushort((short)((Integer)value).intValue());
+                break;
+            case TCKind._tk_long:
+                any.insert_long(((Integer)value).intValue());
+                break;
+            case TCKind._tk_longlong:
+                any.insert_longlong(((Long)value).longValue());
+                break;
+            case TCKind._tk_ulong:
+                any.insert_ulong((int)((java.math.BigInteger)value).longValue());
+                break;
+            case TCKind._tk_ulonglong:
+                any.insert_ulonglong(((java.math.BigInteger)value).longValue());
+                break;
+            case TCKind._tk_float:
+                any.insert_float((Float)value);
+                break;
+            case TCKind._tk_double:
+                any.insert_double((Double)value);
+                break;
+            case TCKind._tk_string:
+                any.insert_string((String)value);
+                break;
+            case TCKind._tk_wstring:
+                any.insert_wstring((String)value);
+                break;
+            default:
+                // Default: assume that whatever stored the data will also know how to convert it into what 
+                // it needs.
+                val.insert_Streamable(stream);
+            }
+        } else {
+            val.insert_Streamable(stream);
+        }
+    }
+
     public void setValue(Object obj) {
+        objectSet = true;
         value = obj;
     }
 
     public String getDataFromValue() {
+        if (!objectSet && any != null) {
+            return getDataFromAny();
+        }
         String data = "";
 
         switch (this.typeCode.kind().value()) {
@@ -149,6 +212,61 @@ public class CorbaPrimitiveHandler extends CorbaObjectHandler {
             // will also know how to convert it into what it needs.
             value = data;
         }
+    }
+    public String getDataFromAny() {
+        String data = "";
+        switch (this.typeCode.kind().value()) {
+        case TCKind._tk_boolean:
+            data = any.extract_boolean() ? "true" : "false";
+            break;
+        case TCKind._tk_char:
+            char charValue = any.extract_char();
+            // outside the normal range it will -256
+            data = Byte.toString((byte)(charValue > Byte.MAX_VALUE 
+                                                    ? charValue - UNSIGNED_MAX 
+                                                    : charValue));
+            break;
+        case TCKind._tk_wchar:
+            data = Character.toString(any.extract_wchar());
+            break;
+        case TCKind._tk_octet:
+            data = Byte.toString(any.extract_octet());
+            break;
+        case TCKind._tk_short:
+            data = Short.toString(any.extract_short());
+            break;
+        case TCKind._tk_ushort:
+            data = Integer.toString(any.extract_ushort());
+            break;
+        case TCKind._tk_long:
+            data = Integer.toString(any.extract_long());
+            break;
+        case TCKind._tk_longlong:
+            data = Long.toString(any.extract_longlong());
+            break;
+        case TCKind._tk_ulong:
+            data = Long.toString(any.extract_ulong());
+            break;
+        case TCKind._tk_ulonglong:
+            data = java.math.BigInteger.valueOf(any.extract_ulonglong()).toString();
+            break;
+        case TCKind._tk_float:
+            data = Float.toString(any.extract_float());
+            break;
+        case TCKind._tk_double:
+            data = Double.toString(any.extract_double());
+            break;
+        case TCKind._tk_string:
+            data = any.extract_string();
+            break;
+        case TCKind._tk_wstring:
+            data = any.extract_wstring();
+            break;
+        default:
+            //should not get here
+            throw new RuntimeException("Unknown tc: " + this.typeCode);
+        }
+        return data;
     }
     
     public void clear() {

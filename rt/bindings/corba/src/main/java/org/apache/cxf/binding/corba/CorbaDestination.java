@@ -43,7 +43,11 @@ import org.apache.cxf.transport.MessageObserver;
 import org.apache.cxf.ws.addressing.AttributedURIType;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
 import org.omg.CORBA.ORB;
+import org.omg.CORBA.Object;
 import org.omg.CORBA.Policy;
+import org.omg.CosNaming.NameComponent;
+import org.omg.CosNaming.NamingContextExt;
+import org.omg.CosNaming.NamingContextExtHelper;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
 import org.omg.PortableServer.POAManager;
@@ -240,6 +244,8 @@ public class CorbaDestination implements Destination {
             } else if (location.startsWith("corbaloc")) {
                 // Try add the key to the boot manager.  This is required for a corbaloc
                 addKeyToBootManager(location, obj);
+            } else if (location.startsWith("corbaname")) {
+                addKeyToNameservice(location, obj);
             } else {
                 String ior = orb.object_to_string(obj);
                 address.setLocation(ior);
@@ -253,6 +259,17 @@ public class CorbaDestination implements Destination {
         } catch (Exception ex) {
             throw new CorbaBindingException("Unable to activate CORBA servant", ex);
         }
+    }
+
+    private void addKeyToNameservice(String location, Object ref) throws Exception {
+        int idx = location.indexOf("#");
+        String name = location.substring(idx + 1);
+        
+        //Register in NameService
+        org.omg.CORBA.Object nsObj = orb.resolve_initial_references("NameService");
+        NamingContextExt rootContext = NamingContextExtHelper.narrow(nsObj);
+        NameComponent[] nc = rootContext.to_name(name);
+        rootContext.rebind(nc, ref);
     }
 
     private void populateEpr(String ior) {
@@ -305,7 +322,8 @@ public class CorbaDestination implements Destination {
             Class<?> bootMgrClass = Class.forName("org.apache.yoko.orb.OB.BootManager");
             Method narrowMethod =
                 bootMgrHelperClass.getMethod("narrow", org.omg.CORBA.Object.class);
-            Object bootMgr = narrowMethod.invoke(null, orb.resolve_initial_references("BootManager"));
+            java.lang.Object bootMgr = narrowMethod.invoke(null,
+                                                           orb.resolve_initial_references("BootManager"));
             Method addBindingMethod = 
                 bootMgrClass.getMethod("add_binding", byte[].class, org.omg.CORBA.Object.class);
             addBindingMethod.invoke(bootMgr, key.getBytes(), value);

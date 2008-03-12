@@ -278,6 +278,7 @@ public class CorbaStreamInInterceptor extends AbstractPhaseInterceptor<Message> 
                 CorbaObjectHandler obj = 
                     CorbaHandlerUtils.initializeObjectHandler(orb, paramName, paramIdlType, map, service);
                 streamables[i] = corbaMsg.createStreamableObject(obj, paramName);
+                
                 if (paramMode.value().equals("in")) {
                     streamables[i].setMode(org.omg.CORBA.ARG_IN.value);
                 } else if (paramMode.value().equals("out")) {
@@ -287,7 +288,7 @@ public class CorbaStreamInInterceptor extends AbstractPhaseInterceptor<Message> 
                 }
 
                 Any value = orb.create_any();
-                value.insert_Streamable(streamables[i]);
+                streamables[i].getObject().setIntoAny(value, streamables[i], false);
                 list.add_value(streamables[i].getName(), value, streamables[i].getMode());              
                 corbaMsg.addStreamableArgument(streamables[i]);
             }

@@ -124,7 +124,8 @@ public class CorbaServerConduit implements Conduit {
                     if (arguments != null) {
                         for (int i = 0; i < arguments.length; ++i) {
                             if (list.item(i).flags() != org.omg.CORBA.ARG_IN.value) {
-                                list.item(i).value().insert_Streamable(arguments[i]);
+                                arguments[i].getObject().setIntoAny(list.item(i).value(),
+                                                                    arguments[i], true);
                             }   
                         }
                     }
@@ -132,7 +133,7 @@ public class CorbaServerConduit implements Conduit {
                     CorbaStreamable resultValue = msg.getStreamableReturn();
                     if (resultValue != null) {
                         Any resultAny = orb.create_any();
-                        resultAny.insert_Streamable(resultValue);
+                        resultValue.getObject().setIntoAny(resultAny, resultValue, true);
                         request.set_result(resultAny);
                     }
                 }

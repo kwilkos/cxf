@@ -20,8 +20,10 @@ package org.apache.cxf.binding.corba.types;
 
 import javax.xml.namespace.QName;
 
+import org.apache.cxf.binding.corba.CorbaStreamable;
 import org.apache.cxf.binding.corba.wsdl.CorbaTypeImpl;
 
+import org.omg.CORBA.Any;
 import org.omg.CORBA.TCKind;
 import org.omg.CORBA.TypeCode;
 
@@ -87,5 +89,9 @@ public class CorbaObjectHandler {
     }
 
     public void clear() {        
+    }
+    
+    public void setIntoAny(Any value, CorbaStreamable stream, boolean output) {
+        value.insert_Streamable(stream);
     }
 }
