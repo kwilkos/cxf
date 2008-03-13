@@ -42,7 +42,7 @@ public final class CorbaObjectReferenceHelper {
 
     public static final String WSDLI_NAMESPACE_URI = "http://www.w3.org/2006/01/wsdl-instance";
     public static final String ADDRESSING_NAMESPACE_URI = "http://www.w3.org/2005/08/addressing";
-    public static final String ADDRESSING_WSDL_NAMESPACE_URI = "http://www.w3.org/2005/02/addressing/wsdl";
+    public static final String ADDRESSING_WSDL_NAMESPACE_URI = "http://www.w3.org/2006/05/addressing/wsdl";
     
     private static final Logger LOG = LogUtils.getL7dLogger(CorbaObjectReferenceHelper.class);
     

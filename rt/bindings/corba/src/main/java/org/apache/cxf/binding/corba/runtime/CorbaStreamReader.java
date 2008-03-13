@@ -156,7 +156,7 @@ public class CorbaStreamReader implements XMLStreamReader {
     }
 
     public String getAttributeType(int arg0) {
-        return null;
+        return "CDATA";
     }
 
     public String getAttributeValue(int arg0) {

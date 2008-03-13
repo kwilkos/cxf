@@ -33,6 +33,7 @@ import javax.xml.ws.EndpointReference;
 import javax.xml.ws.WebServiceException;
 import javax.xml.ws.WebServicePermission;
 import javax.xml.ws.handler.Handler;
+import javax.xml.ws.http.HTTPBinding;
 import javax.xml.ws.wsaddressing.W3CEndpointReference;
 import javax.xml.ws.wsaddressing.W3CEndpointReferenceBuilder;
 
@@ -51,7 +52,6 @@ import org.apache.cxf.endpoint.ServerImpl;
 import org.apache.cxf.feature.AbstractFeature;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.interceptor.InterceptorProvider;
-import org.apache.cxf.jaxws.binding.soap.SOAPBindingImpl;
 import org.apache.cxf.jaxws.support.JaxWsEndpointImpl;
 import org.apache.cxf.jaxws.support.JaxWsImplementorInfo;
 import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
@@ -508,12 +508,11 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
         if (!isPublished()) {
             throw new WebServiceException(new Message("ENDPOINT_NOT_PUBLISHED", LOG).toString());
         }
-        
-        String bindingId = getBinding().getBindingID();        
-        if (!SOAPBindingImpl.isSoapBinding(bindingId)) {
+
+        if (getBinding() instanceof HTTPBinding) {        
             throw new UnsupportedOperationException(new Message("GET_ENDPOINTREFERENCE_UNSUPPORTED_BINDING",
                                                                 LOG).toString());
-        }
+        }        
         
         W3CEndpointReferenceBuilder builder = new W3CEndpointReferenceBuilder();
         builder.address(address);
