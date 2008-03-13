@@ -23,7 +23,7 @@
     <artifactId>cxf-tools-corba</artifactId>
     <packaging>jar</packaging>
     <version>2.1-incubator-SNAPSHOT</version>
-    <name>Apache CXF CORBA Command Line Tools</name>
+    <name>Apache CXF Command Line Tools CORBA</name>
     <url>http://cwiki.apache.org/CXF</url>
 
     <parent>
