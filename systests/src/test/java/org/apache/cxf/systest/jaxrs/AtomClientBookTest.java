@@ -21,7 +21,6 @@ package org.apache.cxf.systest.jaxrs;
 
 import java.io.InputStream;
 import java.io.StringWriter;
-import java.net.URL;
 
 import javax.xml.bind.JAXBContext;
 
@@ -32,8 +31,11 @@ import org.apache.abdera.model.Document;
 import org.apache.abdera.model.Entry;
 import org.apache.abdera.model.Feed;
 import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.cxf.helpers.IOUtils;
+import org.apache.cxf.io.CachedOutputStream;
 import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -51,21 +53,16 @@ public class AtomClientBookTest extends AbstractBusClientServerTestBase {
     public void testGetBooks() throws Exception {
         String endpointAddress =
             "http://localhost:9080/bookstore/books/feed"; 
-        URL url = new URL(endpointAddress);
-        InputStream in = url.openStream();
-        assertNotNull(in);           
-
-        Document<Feed> doc = abdera.getParser().parse(in);
-        Feed feed = doc.getRoot();
+        Feed feed = getFeed(endpointAddress, null);
         assertEquals(endpointAddress, feed.getBaseUri().toString());
         assertEquals("Collection of Books", feed.getTitle());
         
+        getAndCompareAsStrings("http://localhost:9080/bookstore/books/feed",
+                               "resources/expected_atom_books_json.txt",
+                               "application/json");
         
         // add new book
-        Book b = new Book();
-        b.setId(256);
-        b.setName("AtomBook");
-        Entry e = createBookEntry(b);
+        Entry e = createBookEntry(256, "AtomBook");
         StringWriter w = new StringWriter();
         e.writeTo(w);
         
@@ -79,39 +76,67 @@ public class AtomClientBookTest extends AbstractBusClientServerTestBase {
             int result = httpclient.executeMethod(post);
             assertEquals(201, result);
             location = post.getResponseHeader("Location").getValue();
+            Document<Entry> entryDoc = abdera.getParser().parse(post.getResponseBodyAsStream());
+            assertEquals(entryDoc.getRoot().toString(), e.toString());
         } finally {
             // Release current connection to the connection pool once you are done
             post.releaseConnection();
         }         
         
-        url = new URL(location);
-        in = url.openStream();
-        assertNotNull(in);
-        
-        Document<Entry> entryDoc = abdera.getParser().parse(in);
-        Entry entry = entryDoc.getRoot();
+        Entry entry = getEntry(location, null);
         assertEquals(location, entry.getBaseUri().toString());
         assertEquals("AtomBook", entry.getTitle());
-        
-        in.close();
-        
+                
         // get existing book
         
         endpointAddress =
             "http://localhost:9080/bookstore/books/subresources/123"; 
-        url = new URL(endpointAddress);
-        in = url.openStream();
-        assertNotNull(in);           
-
-        entryDoc = abdera.getParser().parse(in);
-        entry = entryDoc.getRoot();
+        entry = getEntry(endpointAddress, null);
         assertEquals("CXF in Action", entry.getTitle());
         
-        in.close();
+        // now json
+        getAndCompareAsStrings("http://localhost:9080/bookstore/books/entries/123",
+                               "resources/expected_atom_book_json.txt",
+                               "application/json");
+        
+        // do the same using a system query
+        getAndCompareAsStrings("http://localhost:9080/bookstore/books/entries/123?_contentType="
+                               + "application/json",
+                               "resources/expected_atom_book_json.txt",
+                               "*/*");
+//      do the same using a system query shortcut
+        getAndCompareAsStrings("http://localhost:9080/bookstore/books/entries/123?_contentType="
+                               + "json",
+                               "resources/expected_atom_book_json.txt",
+                               "*/*");
+        
         
     }
     
-    private Entry createBookEntry(Book b) throws Exception {
+    private void getAndCompareAsStrings(String address, 
+                                        String resourcePath,
+                                        String type) throws Exception {
+        GetMethod get = new GetMethod(address);
+        get.setRequestHeader("Accept", type);
+        HttpClient httpClient = new HttpClient();
+        try {
+            httpClient.executeMethod(get);           
+            String jsonContent = getStringFromInputStream(get.getResponseBodyAsStream());
+            String expected = getStringFromInputStream(
+                  getClass().getResourceAsStream(resourcePath));
+            assertEquals("Atom entry should've been formatted as json", expected, jsonContent);
+        } finally {
+            get.releaseConnection();
+        }
+    }
+    
+    private Entry createBookEntry(int id, String name) throws Exception {
+        
+        Book b = new Book();
+        b.setId(id);
+        b.setName(name);
+        
+        
         Factory factory = Abdera.getNewFactory();
         JAXBContext jc = JAXBContext.newInstance(Book.class);
         
@@ -130,5 +155,41 @@ public class AtomClientBookTest extends AbstractBusClientServerTestBase {
         return e;
     }   
     
-   
+    private Feed getFeed(String endpointAddress, String acceptType) throws Exception {
+        GetMethod get = new GetMethod(endpointAddress);
+        if (acceptType != null) {
+            get.setRequestHeader("Accept", acceptType);
+        }
+        HttpClient httpClient = new HttpClient();
+        try {
+            httpClient.executeMethod(get);           
+            Document<Feed> doc = abdera.getParser().parse(get.getResponseBodyAsStream());
+            return doc.getRoot();
+        } finally {
+            get.releaseConnection();
+        }
+    }
+    
+    private Entry getEntry(String endpointAddress, String acceptType) throws Exception {
+        GetMethod get = new GetMethod(endpointAddress);
+        if (acceptType != null) {
+            get.setRequestHeader("Accept", acceptType);
+        }
+        HttpClient httpClient = new HttpClient();
+        try {
+            httpClient.executeMethod(get);           
+            Document<Entry> doc = abdera.getParser().parse(get.getResponseBodyAsStream());
+            return doc.getRoot();
+        } finally {
+            get.releaseConnection();
+        }
+    }
+    
+    private String getStringFromInputStream(InputStream in) throws Exception {        
+        CachedOutputStream bos = new CachedOutputStream();
+        IOUtils.copy(in, bos);
+        in.close();
+        bos.close();
+        return bos.getOut().toString();        
+    }
 }

@@ -26,7 +26,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
-import javax.ws.rs.UriParam;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
 
 @Path("/customerservice/")
@@ -40,7 +40,7 @@ public class CustomerService {
 
     @GET
     @Path("/customers/{id}/")
-    public Customer getCustomer(@UriParam("id") String id) {
+    public Customer getCustomer(@PathParam("id") String id) {
         System.out.println("----invoking getCustomer, Customer id is: " + id);
         long idNumber = Long.parseLong(id);
         Customer c = customers.get(idNumber);
@@ -76,7 +76,7 @@ public class CustomerService {
 
     @DELETE
     @Path("/customers/{id}/")
-    public Response deleteCustomer(@UriParam("id") String id) {
+    public Response deleteCustomer(@PathParam("id") String id) {
         System.out.println("----invoking deleteCustomer, Customer id is: " + id);
         long idNumber = Long.parseLong(id);
         Customer c = customers.get(idNumber);

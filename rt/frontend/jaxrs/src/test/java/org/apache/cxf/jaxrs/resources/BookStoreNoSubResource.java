@@ -25,45 +25,61 @@ import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.ProduceMime;
-import javax.ws.rs.UriParam;
 import javax.ws.rs.core.Response;
 
+@ProduceMime("text/plain")
 @Path("/bookstore/")
 public class BookStoreNoSubResource {
 
     public BookStoreNoSubResource() {
     }
+    
+    @GET
+    public String getBookStoreInfo() {
+        return "This is a great store";
+    }
 
+    @GET
+    @Path("/books")
+    @ProduceMime("application/xml")
+    public Book getBooks() {
+        return null;
+    }
+    
     @GET
     @Path("/books/{bookId}/")
     @ProduceMime("application/xml")
-    public Book getBook(@UriParam("bookId") String id) {
+    public Book getBook(@PathParam("bookId") String id) {
         return null;
     }    
     
     @GET
     @Path("/books/{bookId}/")
     @ProduceMime("application/json")
-    public Book getBookJSON(@UriParam("bookId") String id) {
+    public Book getBookJSON(@PathParam("bookId") String id) {
         return null;
     } 
 
     @POST
     @Path("/books")
+    @ProduceMime("application/xml")
     public Response addBook(Book book) {
         return null;
     }
 
     @PUT
     @Path("/books/")
+    @ProduceMime("application/*")
     public Response updateBook(Book book) {
         return null;
     }
 
     @Path("/books/{bookId}/")
     @DELETE
-    public Response deleteBook(@UriParam("bookId") String id) {
+    @ProduceMime("application/xml")
+    public Response deleteBook(@PathParam("bookId") String id) {
         return null;
     }
 }

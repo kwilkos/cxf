@@ -34,14 +34,16 @@ import javax.ws.rs.ext.Provider;
 import org.apache.abdera.Abdera;
 import org.apache.abdera.model.Document;
 import org.apache.abdera.model.Entry;
+import org.apache.abdera.writer.Writer;
 
-@ProduceMime("application/atom+xml")
-@ConsumeMime("application/atom+xml")
+@ProduceMime({"application/atom+xml", "application/atom+xml;type=entry", "application/json" })
+@ConsumeMime({"application/atom+xml", "application/atom+xml;type=entry" })
 @Provider
 public class AtomEntryProvider 
     implements MessageBodyReader<Entry>, MessageBodyWriter<Entry> {
 
     private static final Abdera ATOM_ENGINE = new Abdera();
+    private static final String JSON_TYPE = "application/json";
     
     public Entry readFrom(Class<Entry> clazz, MediaType mt, 
                           MultivaluedMap <String, String> headers, InputStream is)
@@ -61,7 +63,12 @@ public class AtomEntryProvider
     public void writeTo(Entry entry, MediaType mt, 
                         MultivaluedMap<String, Object> headers, OutputStream os)
         throws IOException {
-        entry.writeTo(os);
+        if (JSON_TYPE.equals(mt.toString())) {
+            Writer w = ATOM_ENGINE.getWriterFactory().getWriter("json");
+            entry.writeTo(w, os);   
+        } else {
+            entry.writeTo(os);
+        }
     }
  
     public long getSize(Entry entry) {

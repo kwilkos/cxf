@@ -17,44 +17,22 @@
  * under the License.
  */
 
+package org.apache.cxf.jaxrs.provider;
 
-package org.apache.cxf.jaxrs.resources;
-
-import javax.ws.rs.DELETE;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
-@Path("/bookstore/")
-public class BookStore {
+import org.apache.cxf.message.Message;
 
-    public BookStore() {
-    }
+/**
+ * SystemQueryHandler is capable of dealing with query extensions
+ * starting from _, for example, _contentType
+ *
+ */
+    
+public interface SystemQueryHandler {
+    
+    Response handleSystemQuery(Message m, MultivaluedMap<String, String> queries);
+    boolean supports(MultivaluedMap<String, String> queries);
 
-    @Path("/books/{bookId}/")
-    public Book getBook(@PathParam("bookId") String id) {
-        return null;
-    }
-
-    @POST
-    @Path("/books")
-    public Response addBook(Book book) {
-        return null;
-    }
-
-    @PUT
-    @Path("/books/")
-    public Response updateBook(Book book) {
-        return null;
-    }
-
-    @DELETE
-    @Path("/books/{bookId}/")
-    public Response deleteBook(@PathParam("bookId") String id) {
-        return null;
-    }
 }
-
-

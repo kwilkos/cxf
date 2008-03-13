@@ -22,7 +22,7 @@ package org.apache.cxf.jaxrs.model;
 import java.lang.reflect.Field;
 import java.util.List;
 
-import javax.ws.rs.core.HttpContext;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.UriInfo;
 
@@ -32,8 +32,8 @@ import org.junit.Test;
 public class ClassResourceInfoTest extends Assert {
     
     private static class TestClass {
-        @HttpContext UriInfo u;
-        @HttpContext HttpHeaders h;
+        @Context UriInfo u;
+        @Context HttpHeaders h;
         int i;
     }
     

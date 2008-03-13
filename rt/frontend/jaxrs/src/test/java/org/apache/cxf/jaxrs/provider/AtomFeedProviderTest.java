@@ -79,10 +79,15 @@ public class AtomFeedProviderTest extends Assert {
     
     @Test
     public void testAnnotations() {
-        assertEquals("application/atom+xml",
-                     afd.getClass().getAnnotation(ProduceMime.class).value()[0]);
-        assertEquals("application/atom+xml",
-                     afd.getClass().getAnnotation(ConsumeMime.class).value()[0]);
+        String[] values = afd.getClass().getAnnotation(ProduceMime.class).value();
+        assertEquals("3 types can be produced", 3, values.length);
+        assertTrue("application/atom+xml".equals(values[0])
+                   && "application/atom+xml;type=feed".equals(values[1])
+                   && "application/json".equals(values[2]));
+        values = afd.getClass().getAnnotation(ConsumeMime.class).value();
+        assertEquals("2 types can be consumed", 2, values.length);
+        assertTrue("application/atom+xml".equals(values[0])
+                   && "application/atom+xml;type=feed".equals(values[1]));
     }
     
 }

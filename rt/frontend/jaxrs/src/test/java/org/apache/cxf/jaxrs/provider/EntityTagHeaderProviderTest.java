@@ -26,29 +26,27 @@ import org.junit.Test;
 
 public class EntityTagHeaderProviderTest extends Assert {
     
-    @Test
-    public void testSupports() {
-        assertTrue(new EntityTagHeaderProvider().supports(EntityTag.class));
-    }
-    
+      
     @Test
     public void testFromString() {
-        EntityTag tag = EntityTag.parse("");
+        EntityTag tag = EntityTag.parse("\"\"");
         assertTrue(!tag.isWeak() && "".equals(tag.getValue()));
         tag = EntityTag.parse("W/");
         assertTrue(tag.isWeak() && "".equals(tag.getValue()));
-        tag = EntityTag.parse("W/12345");
+        tag = EntityTag.parse("W/\"12345\"");
         assertTrue(tag.isWeak() && "12345".equals(tag.getValue()));
-        tag = EntityTag.parse("12345");
+        tag = EntityTag.parse("\"12345\"");
         assertTrue(!tag.isWeak() && "12345".equals(tag.getValue()));
     }
     
     @Test
     public void testToString() {
         EntityTag tag = new EntityTag("");
-        assertEquals("", tag.toString());
+        assertEquals("\"\"", tag.toString());
         tag = new EntityTag("", true);
-        assertEquals("W/", tag.toString());
+        assertEquals("W/\"\"", tag.toString());
+        tag = new EntityTag("bar");
+        assertEquals("\"bar\"", tag.toString());
         
     }
 }

@@ -28,7 +28,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 
-public class BuilderImplTest extends Assert {
+public class ResponseBuilderImplTest extends Assert {
 
         
     @Test

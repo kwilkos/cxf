@@ -20,7 +20,7 @@
 package org.apache.cxf.jaxrs.provider;
 
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -49,11 +49,12 @@ public class HttpHeadersImpl implements HttpHeaders {
         return JAXRSUtils.parseMediaTypes((String)m.get(Message.ACCEPT_CONTENT_TYPE));
     }
 
-    public List<Cookie> getCookies() {
+    public Map<String, Cookie> getCookies() {
         List<String> cs = headers.get("Cookie");
-        List<Cookie> cl = new ArrayList<Cookie>(); 
+        Map<String, Cookie> cl = new HashMap<String, Cookie>(); 
         for (String c : cs) {
-            cl.add(Cookie.parse(c));
+            Cookie cookie = Cookie.parse(c);
+            cl.put(cookie.getName(), cookie);
         }
         return cl;
     }

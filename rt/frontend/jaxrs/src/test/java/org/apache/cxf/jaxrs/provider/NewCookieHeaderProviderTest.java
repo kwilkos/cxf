@@ -19,42 +19,39 @@
 
 package org.apache.cxf.jaxrs.provider;
 
-import javax.ws.rs.core.Cookie;
+import javax.ws.rs.core.NewCookie;
 
 import org.junit.Assert;
 import org.junit.Test;
 
-public class CookieHeaderProviderTest extends Assert {
+public class NewCookieHeaderProviderTest extends Assert {
     
         
     @Test
     public void testFromSimpleString() {
-        Cookie c = Cookie.parse("foo=bar");
+        NewCookie c = NewCookie.parse("foo=bar");
         assertTrue("bar".equals(c.getValue())
                    && "foo".equals(c.getName()));
     }
     
-    @Test
-    public void testNoValue() {
-        Cookie c = Cookie.parse("foo=");
-        assertTrue("".equals(c.getValue())
-                   && "foo".equals(c.getName()));
-    }
-    
+        
     @Test
     public void testFromComplexString() {
-        Cookie c = Cookie.parse("$Version=2;foo=bar;$Path=path;$Domain=domain");
+        NewCookie c = 
+            NewCookie.parse("foo=bar;Comment=comment;Path=path;Max-Age=10;Domain=domain;Secure;Version=1");
         assertTrue("bar".equals(c.getValue())
                    && "foo".equals(c.getName())
-                   && 2 == c.getVersion()
+                   && 1 == c.getVersion()
                    && "path".equals(c.getPath())
-                   && "domain".equals(c.getDomain()));
+                   && "domain".equals(c.getDomain())
+                   && "comment".equals(c.getComment())
+                   && 10 == c.getMaxAge());
     }
     
     @Test
     public void testToString() {
-        Cookie c = new Cookie("foo", "bar", "path", "domain", 2);
-        assertEquals("$Version=2;foo=bar;$Path=path;$Domain=domain", 
+        NewCookie c = new NewCookie("foo", "bar", "path", "domain", "comment", 2, true);
+        assertEquals("foo=bar;Comment=comment;Domain=domain;Max-Age=2;Path=path;Secure;Version=1", 
                      c.toString());
                
     }

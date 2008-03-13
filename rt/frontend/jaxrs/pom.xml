@@ -65,7 +65,7 @@
         <dependency>
             <groupId>javax.ws.rs</groupId>
             <artifactId>jsr311-api</artifactId>
-            <version>0.5</version>
+            <version>0.6</version>
         </dependency>
         <dependency>
             <groupId>jaxen</groupId>
@@ -79,6 +79,17 @@
             <groupId>org.apache.abdera</groupId>
             <artifactId>abdera-parser</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.apache.abdera</groupId>
+            <artifactId>abdera-extensions-json</artifactId>
+            <version>0.3.0-incubating</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.abdera</groupId>
+                    <artifactId>abdera-client</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency> 
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-servlet_2.5_spec</artifactId>

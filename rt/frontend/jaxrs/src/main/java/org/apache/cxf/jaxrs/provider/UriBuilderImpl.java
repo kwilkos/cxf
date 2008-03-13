@@ -165,12 +165,6 @@ public class UriBuilderImpl extends UriBuilder {
     }
 
     @Override
-    public UriBuilder replacePath(String p) throws IllegalArgumentException {
-        paths = JAXRSUtils.getPathSegments(p, false);
-        return this;
-    }
-
-    @Override
     public UriBuilder replaceQueryParams(String q) throws IllegalArgumentException {
         this.query = JAXRSUtils.getStructuredParams(q, "&", true);
         return this;
@@ -233,6 +227,18 @@ public class UriBuilderImpl extends UriBuilder {
             }
         }
         return b.length() > 0 ? b.toString() : null;
+    }
+
+    @Override
+    public boolean isEncode() {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public UriBuilder replacePath(String... segments) throws IllegalArgumentException {
+        // TODO Auto-generated method stub
+        return null;
     }
     
     

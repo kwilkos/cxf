@@ -32,7 +32,6 @@ import javax.ws.rs.core.Variant.VariantListBuilder;
 
 public class VariantListBuilderImpl extends VariantListBuilder {
     
-    private Set<String> charsets = new HashSet<String>();
     private Set<String> encodings = new HashSet<String>();
     private Set<String> languages = new HashSet<String>();
     private Set<MediaType> mediaTypes = new HashSet<MediaType>();
@@ -54,12 +53,6 @@ public class VariantListBuilderImpl extends VariantListBuilder {
         List<Variant> vs = new ArrayList<Variant>(variants);
         reset();
         return vs;
-    }
-
-    @Override
-    public VariantListBuilder charsets(String... csets) {
-        charsets.addAll(Arrays.asList(csets));
-        return this;
     }
 
     @Override
@@ -89,17 +82,42 @@ public class VariantListBuilderImpl extends VariantListBuilder {
         mediaTypes.clear();
         languages.clear();
         encodings.clear();
-        charsets.clear();
     }
     
     private void addVariants() {
+        if (mediaTypes.size() > 0) {
+            handleMediaTypes();
+        } else if (languages.size() > 0) {
+            handleLanguages(null);
+        } else if (encodings.size() > 0) {
+            for (String enc : encodings) {
+                variants.add(new Variant(null, null, enc));
+            }
+        } 
+    }
+    
+    private void handleMediaTypes() {
         for (MediaType type : mediaTypes) {
-            for (String lang : languages) {
-                for (String charset : charsets) {
-                    for (String enc : encodings) {
-                        variants.add(new Variant(type, lang, charset, enc));
-                    }
+            if (languages.size() > 0) {
+                handleLanguages(type);
+            } else if (encodings.size() > 0) {
+                for (String enc : encodings) {
+                    variants.add(new Variant(type, null, enc));
                 }
+            } else {
+                variants.add(new Variant(type, null, null));
+            }
+        }
+    }
+    
+    private void handleLanguages(MediaType type) {
+        for (String lang : languages) {
+            if (encodings.size() > 0) {
+                for (String enc : encodings) {
+                    variants.add(new Variant(type, lang, enc));
+                }    
+            } else {
+                variants.add(new Variant(type, lang, null));
             }
         }
     }

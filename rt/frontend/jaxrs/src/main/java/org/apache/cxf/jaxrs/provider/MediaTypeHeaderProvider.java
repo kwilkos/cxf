@@ -19,20 +19,17 @@
 
 package org.apache.cxf.jaxrs.provider;
 
-import java.text.ParseException;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
 
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.ext.HeaderProvider;
-import javax.ws.rs.ext.Provider;
+import javax.ws.rs.ext.RuntimeDelegate.HeaderDelegate;
 
-@Provider
-public class MediaTypeHeaderProvider implements HeaderProvider<MediaType> {
+public class MediaTypeHeaderProvider implements HeaderDelegate<MediaType> {
 
-    public MediaType fromString(String mType) throws ParseException {
+    public MediaType fromString(String mType) {
         
         if (mType.equals(MediaType.MEDIA_TYPE_WILDCARD) || mType.startsWith("*;")) {
             return new MediaType("*", "*");
@@ -40,7 +37,7 @@ public class MediaTypeHeaderProvider implements HeaderProvider<MediaType> {
         
         int i = mType.indexOf('/');
         if (i == -1) {
-            throw new ParseException("Media type separator is missing", 0);
+            throw new IllegalArgumentException("Media type separator is missing");
         }
         
         int paramsStart = mType.indexOf(';', i + 1);
@@ -60,7 +57,7 @@ public class MediaTypeHeaderProvider implements HeaderProvider<MediaType> {
                 String token = st.nextToken();
                 int equalSign = token.indexOf('=');
                 if (equalSign == -1) {
-                    throw new ParseException("Wrong media type  parameter, seperator is missing", 0);
+                    throw new IllegalArgumentException("Wrong media type  parameter, seperator is missing");
                 }
                 parameters.put(token.substring(0, equalSign).trim().toLowerCase(), 
                                token.substring(equalSign + 1).trim().toLowerCase());
@@ -71,10 +68,6 @@ public class MediaTypeHeaderProvider implements HeaderProvider<MediaType> {
         return new MediaType(type.trim().toLowerCase(), 
                              subtype.trim().toLowerCase(), 
                              parameters);
-    }
-
-    public boolean supports(Class<?> clazz) {
-        return MediaType.class.isAssignableFrom(clazz);
     }
 
     public String toString(MediaType type) {

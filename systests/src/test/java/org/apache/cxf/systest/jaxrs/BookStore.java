@@ -17,7 +17,6 @@
  * under the License.
  */
 
-
 package org.apache.cxf.systest.jaxrs;
 
 
@@ -29,8 +28,8 @@ import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.ProduceMime;
-import javax.ws.rs.UriParam;
 import javax.ws.rs.core.Response;
 import javax.xml.transform.dom.DOMSource;
 
@@ -53,14 +52,21 @@ public class BookStore {
 
     @GET
     @Path("/books/{bookId}/")
-    public Book getBook(@UriParam("bookId") String id) throws BookNotFoundFault {
+    public Book getBook(@PathParam("bookId") String id) throws BookNotFoundFault {
         return doGetBook(id);
     }
     
     @GET
+    @Path("/books")
+    public Books getBooks() {
+        return new Books(books.values());
+    }
+    
+    
+    @GET
     @Path("/books/{bookId}/")
     @ProduceMime("application/json")
-    public Book getBookAsJSON(@UriParam("bookId") String id) throws BookNotFoundFault {
+    public Book getBookAsJSON(@PathParam("bookId") String id) throws BookNotFoundFault {
         return doGetBook(id);
     }
     
@@ -77,7 +83,7 @@ public class BookStore {
     }
     
     @Path("/booksubresource/{bookId}/")
-    public Book getBookSubResource(@UriParam("bookId") String id) throws BookNotFoundFault {
+    public Book getBookSubResource(@PathParam("bookId") String id) throws BookNotFoundFault {
         System.out.println("----invoking getBookSubResource with id: " + id);
         Book book = books.get(Long.parseLong(id));
         if (book != null) {
@@ -92,7 +98,7 @@ public class BookStore {
     @GET
     @Path("/booknames/{bookId}/")
     @ProduceMime("text/*")
-    public String getBookName(@UriParam("bookId") int id) throws BookNotFoundFault {
+    public String getBookName(@PathParam("bookId") int id) throws BookNotFoundFault {
         System.out.println("----invoking getBookName with id: " + id);
         Book book = books.get(new Long(id));
         if (book != null) {
@@ -159,7 +165,7 @@ public class BookStore {
 
     @DELETE
     @Path("/books/{bookId}/")
-    public Response deleteBook(@UriParam("bookId") String id) {
+    public Response deleteBook(@PathParam("bookId") String id) {
         System.out.println("----invoking deleteBook with bookId: " + id);
         Book b = books.get(Long.parseLong(id));
 
@@ -175,7 +181,7 @@ public class BookStore {
 
     @GET
     @Path("/cd/{CDId}/")
-    public CD getCD(@UriParam("CDId") String id) {
+    public CD getCD(@PathParam("CDId") String id) {
         System.out.println("----invoking getCD with cdId: " + id);
         CD cd = cds.get(Long.parseLong(id));
 
@@ -185,7 +191,7 @@ public class BookStore {
     @GET
     @Path("/cdwithmultitypes/{CDId}/")
     @ProduceMime({"application/xml", "application/json" }) 
-    public CD getCDWithMultiContentTypes(@UriParam("CDId") String id) {
+    public CD getCDWithMultiContentTypes(@PathParam("CDId") String id) {
         System.out.println("----invoking getCDWithMultiContentTypes with cdId: " + id);
         CD cd = cds.get(Long.parseLong(id));
 

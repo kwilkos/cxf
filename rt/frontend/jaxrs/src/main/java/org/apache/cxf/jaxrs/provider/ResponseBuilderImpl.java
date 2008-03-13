@@ -29,21 +29,26 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Builder;
+import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Variant;
-import javax.ws.rs.ext.HeaderProvider;
-import javax.ws.rs.ext.ProviderFactory;
 
 import org.apache.cxf.jaxrs.MetadataMap;
 
-public final class BuilderImpl extends Builder {
+public final class ResponseBuilderImpl extends ResponseBuilder {
     private int status = 200;
     private Object entity;
     private MultivaluedMap<String, Object> metadata = new MetadataMap<String, Object>();
 
-    public BuilderImpl() {
+    public ResponseBuilderImpl() {
     }
 
+    private ResponseBuilderImpl(ResponseBuilderImpl copy) {
+        status = copy.status;
+        if (entity != null) {
+            entity = copy.entity;
+            metadata.putAll(copy.metadata);
+        }
+    }
        
     public Response build() {
         ResponseImpl r = new ResponseImpl(status, entity);
@@ -54,88 +59,112 @@ public final class BuilderImpl extends Builder {
         return r;
     }
 
-    public Response.Builder status(int s) {
+    public ResponseBuilder status(int s) {
         status = s;
         return this;
     }
 
-    public Response.Builder entity(Object e) {
+    public ResponseBuilder entity(Object e) {
         entity = e;
         return this;
     }
 
-    public Response.Builder type(MediaType type) {
+    public ResponseBuilder type(MediaType type) {
         return type(type.toString());
     }
 
-    public Response.Builder type(String type) {
+    public ResponseBuilder type(String type) {
         metadata.putSingle("Content-Type", type);
         return this;
     }
 
-    public Response.Builder language(String language) {
-        return null;
+    public ResponseBuilder language(String language) {
+        metadata.putSingle("Content-Language", language.toString());
+        return this;
     }
 
-    public Response.Builder location(URI location) {
+    public ResponseBuilder location(URI location) {
         metadata.putSingle("Location", location.toString());
         return this;
     }
 
-    public Response.Builder contentLocation(URI location) {
+    public ResponseBuilder contentLocation(URI location) {
         metadata.putSingle("Content-Location", location.toString());
         return this;
     }
 
-    public Response.Builder tag(EntityTag tag) {
+    public ResponseBuilder tag(EntityTag tag) {
         return tag(tag.toString());
     }
 
-    public Response.Builder tag(String tag) {
+    public ResponseBuilder tag(String tag) {
         metadata.putSingle("ETag", tag.toString());
         return this;
     }
 
-    public Response.Builder lastModified(Date lastModified) {
+    public ResponseBuilder lastModified(Date lastModified) {
         metadata.putSingle("Last-Modified", lastModified.toString());
         return this;
     }
 
-    public Response.Builder cacheControl(CacheControl cacheControl) {
+    public ResponseBuilder cacheControl(CacheControl cacheControl) {
         metadata.putSingle("Cache-Control", cacheControl.toString());
         return this;
     }
 
-    public Response.Builder cookie(NewCookie cookie) {
-        metadata.putSingle("Cookie", cookie.toString());
+    public ResponseBuilder cookie(NewCookie cookie) {
+        metadata.putSingle("Set-Cookie", cookie.toString());
         return this;
     }
-
+    
+    @Override
+    public ResponseBuilder cookie(NewCookie... cookies) {
+        for (NewCookie cookie : cookies) {
+            metadata.add("Set-Cookie", cookie.toString());
+        }
+        return this;
+    }
+    
     @SuppressWarnings("unchecked")
-    public Response.Builder header(String name, Object value) {
-        HeaderProvider hp = 
-            ProviderFactory.getInstance().createHeaderProvider(value.getClass());
-        metadata.putSingle(name, hp.toString(value));
+    public ResponseBuilder header(String name, Object value) {
+        metadata.add(name, value.toString());
         return this;
     }
 
     
     @Override
-    public Response.Builder variant(Variant variant) {
-        // TODO Auto-generated method stub
-        return null;
+    public ResponseBuilder variant(Variant variant) {
+        if (variant.getMediaType() != null) {
+            type(variant.getMediaType());
+        }
+        if (variant.getLanguage() != null) {
+            language(variant.getLanguage());
+        }
+        if (variant.getEncoding() != null) {
+            metadata.putSingle("Content-Encoding", variant.getEncoding());
+        }
+        return this;
     }
 
 
     @Override
-    public Builder variants(List<Variant> variants) {
-        // TODO Auto-generated method stub
-        return null;
+    public ResponseBuilder variants(List<Variant> variants) {
+        throw new UnsupportedOperationException("Only a single variant option is supported");
     }
+    
+//  CHECKSTYLE:OFF
+    @Override
+    public ResponseBuilder clone() {
+        return new ResponseBuilderImpl(this);
+    }
+//  CHECKSTYLE:ON
+
     
     private void reset() {
         metadata.clear();
         entity = null;
         status = 200;
     }
+
+    
 }

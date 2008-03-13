@@ -24,7 +24,7 @@ import java.util.Map;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
-import javax.ws.rs.UriParam;
+import javax.ws.rs.PathParam;
 import javax.xml.bind.annotation.XmlRootElement;
 
 
@@ -56,7 +56,7 @@ public class Book {
     
     @GET
     @Path("chapters/{chapterid}/")    
-    public Chapter getChapter(@UriParam("chapterid")int chapterid) {
+    public Chapter getChapter(@PathParam("chapterid")int chapterid) {
         System.out.println("----invoking getChapter with chapterid: " + chapterid);
 
         return chapters.get(new Long(chapterid));

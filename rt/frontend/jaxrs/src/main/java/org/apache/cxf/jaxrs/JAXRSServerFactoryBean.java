@@ -23,8 +23,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.ws.rs.ext.ProviderFactory;
-
 import org.apache.cxf.BusException;
 import org.apache.cxf.binding.BindingConfiguration;
 import org.apache.cxf.binding.BindingFactory;
@@ -37,7 +35,7 @@ import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.endpoint.ServerImpl;
 import org.apache.cxf.feature.AbstractFeature;
 import org.apache.cxf.jaxrs.lifecycle.ResourceProvider;
-import org.apache.cxf.jaxrs.provider.ProviderFactoryImpl;
+import org.apache.cxf.jaxrs.provider.ProviderFactory;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.factory.ServiceConstructionException;
 import org.apache.cxf.service.invoker.Invoker;
@@ -92,8 +90,7 @@ public class JAXRSServerFactoryBean extends AbstractEndpointFactory {
                 ep.getService().setInvoker(invoker);
             }
             if (entityProviders != null) {
-                ProviderFactoryImpl providerFactoryImpl = (ProviderFactoryImpl)ProviderFactory.getInstance();
-                providerFactoryImpl.setUserEntityProviders(entityProviders); 
+                ProviderFactory.getInstance().setUserEntityProviders(entityProviders); 
             }
             
             if (start) {

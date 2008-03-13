@@ -18,18 +18,16 @@
  */
 package org.apache.cxf.jaxrs.provider;
 
-import java.text.ParseException;
-
 import javax.ws.rs.core.Cookie;
-import javax.ws.rs.ext.HeaderProvider;
+import javax.ws.rs.ext.RuntimeDelegate.HeaderDelegate;
 
-public class CookieHeaderProvider implements HeaderProvider<Cookie> {
+public class CookieHeaderProvider implements HeaderDelegate<Cookie> {
 
     private static final String VERSION = "$Version";
     private static final String PATH = "$Path";
     private static final String DOMAIN = "$Domain";
     
-    public Cookie fromString(String c) throws ParseException {
+    public Cookie fromString(String c) {
         
         int version = -1;
         String name = null;
@@ -37,7 +35,7 @@ public class CookieHeaderProvider implements HeaderProvider<Cookie> {
         String path = null;
         String domain = null;
         
-        // ignore the fact the possible version may be seperated by ','        
+        // ignore the fact the possible version may be seperated by ','
         String[] tokens = c.split(";");
         for (String token : tokens) {
             if (token.startsWith(VERSION)) {
@@ -55,19 +53,17 @@ public class CookieHeaderProvider implements HeaderProvider<Cookie> {
             }
         }
         
-        if (name == null) {
-            throw new ParseException("No Cookie name can be found : " + c, 0);
+        if (name == null || value == null) {
+            throw new IllegalArgumentException("Cookie is malformed : " + c);
         }
         
         return new Cookie(name, value, path, domain, version);
     }
 
-    public boolean supports(Class<?> type) {
-        return Cookie.class.isAssignableFrom(type);
-    }
-
+    
     public String toString(Cookie c) {
         StringBuilder sb = new StringBuilder();
+        
         if (c.getVersion() != -1) {
             sb.append(VERSION).append('=').append(c.getVersion()).append(';');
         }

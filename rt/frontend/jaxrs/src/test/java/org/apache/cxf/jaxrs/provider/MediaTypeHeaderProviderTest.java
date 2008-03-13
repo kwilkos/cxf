@@ -19,12 +19,10 @@
 
 package org.apache.cxf.jaxrs.provider;
 
-import java.text.ParseException;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.MediaType;
 
 import org.junit.Assert;
@@ -60,7 +58,7 @@ public class MediaTypeHeaderProviderTest extends Assert {
         try {
             new MediaTypeHeaderProvider().fromString("texthtml");
             fail("Parse exception must've been thrown");
-        } catch (ParseException pe) {
+        } catch (IllegalArgumentException pe) {
             // expected
         }
         
@@ -71,7 +69,7 @@ public class MediaTypeHeaderProviderTest extends Assert {
         try {
             new MediaTypeHeaderProvider().fromString("text/html;*");
             fail("Parse exception must've been thrown");
-        } catch (ParseException pe) {
+        } catch (IllegalArgumentException pe) {
             // expected
         }
     }
@@ -87,16 +85,6 @@ public class MediaTypeHeaderProviderTest extends Assert {
         MediaType expected = new MediaType("text", "html", params);
         
         assertEquals("Media type was not parsed correctly", expected, m);
-    }
-    
-    @Test
-    public void testSupports() {
-        MediaTypeHeaderProvider provider = 
-            new MediaTypeHeaderProvider();
-        
-        assertTrue(provider.supports(MediaType.class));
-        // I think we should have a single default header provider
-        assertFalse(provider.supports(EntityTag.class));
     }
     
     @Test

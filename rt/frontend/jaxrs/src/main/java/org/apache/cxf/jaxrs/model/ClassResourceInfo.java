@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import javax.ws.rs.core.HttpContext;
+import javax.ws.rs.core.Context;
 
 import org.apache.cxf.jaxrs.lifecycle.ResourceProvider;
 
@@ -100,7 +100,7 @@ public class ClassResourceInfo {
         Field[] fields = resourceClass.getDeclaredFields();
         
         for (Field f : fields) {
-            HttpContext context = f.getAnnotation(HttpContext.class);
+            Context context = f.getAnnotation(Context.class);
             if (context != null) {
                 httpContexts.add(f);               
             }

@@ -27,26 +27,23 @@ import java.util.List;
 import javax.ws.rs.ConsumeMime;
 import javax.ws.rs.ProduceMime;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response.Builder;
-import javax.ws.rs.core.UriBuilder;
-import javax.ws.rs.core.Variant.VariantListBuilder;
-import javax.ws.rs.ext.HeaderProvider;
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.MessageBodyReader;
 import javax.ws.rs.ext.MessageBodyWriter;
-import javax.ws.rs.ext.ProviderFactory;
 
 import org.apache.cxf.jaxrs.JAXRSUtils;
 
-
-public class ProviderFactoryImpl extends ProviderFactory {
-    protected List<MessageBodyReader> defaultMessageReaders = new ArrayList<MessageBodyReader>();
-    protected List<MessageBodyWriter> defaultMessageWriters = new ArrayList<MessageBodyWriter>();
-    protected List<MessageBodyReader> userMessageReaders = new ArrayList<MessageBodyReader>();
-    protected List<MessageBodyWriter> userMessageWriters = new ArrayList<MessageBodyWriter>();
+public final class ProviderFactory {
     
-    protected List<HeaderProvider> headerProviders = new ArrayList<HeaderProvider>();    
-
-    public ProviderFactoryImpl() {
+    private static final ProviderFactory PF = new ProviderFactory();
+    
+    private List<MessageBodyReader> defaultMessageReaders = new ArrayList<MessageBodyReader>();
+    private List<MessageBodyWriter> defaultMessageWriters = new ArrayList<MessageBodyWriter>();
+    private List<MessageBodyReader> userMessageReaders = new ArrayList<MessageBodyReader>();
+    private List<MessageBodyWriter> userMessageWriters = new ArrayList<MessageBodyWriter>();
+    private List<SystemQueryHandler> queryHandlers = new ArrayList<SystemQueryHandler>();
+    
+    private ProviderFactory() {
         // TODO : this needs to be done differently,
         // we need to use cxf-jaxrs-extensions
         setProviders(defaultMessageReaders,
@@ -59,28 +56,14 @@ public class ProviderFactoryImpl extends ProviderFactory {
                      new AtomFeedProvider(),
                      new AtomEntryProvider(),
                      new FormEncodingReaderProvider());
-        headerProviders.add(new MediaTypeHeaderProvider());
-        headerProviders.add(new CacheControlHeaderProvider());
-        headerProviders.add(new EntityTagHeaderProvider());
-        headerProviders.add(new CookieHeaderProvider());
+        
+        queryHandlers.add(new AcceptTypeQueryHandler());
     }
     
-    
-    
-    public <T> T createInstance(Class<T> type) {
-        if (type.isAssignableFrom(Builder.class)) {
-            return type.cast(new BuilderImpl());
-        } 
-        if (type.isAssignableFrom(UriBuilder.class)) {
-            return type.cast(new UriBuilderImpl());
-        }
-        if (type.isAssignableFrom(VariantListBuilder.class)) {
-            return type.cast(new VariantListBuilderImpl());
-        }
-        return null;
+    public static ProviderFactory getInstance() {
+        return PF;
     }
-   
-    @Override
+
     public <T> MessageBodyReader<T> createMessageBodyReader(Class<T> bodyType, MediaType mediaType) {
         // Try user provided providers
         MessageBodyReader<T> mr = chooseMessageReader(userMessageReaders, 
@@ -96,8 +79,18 @@ public class ProviderFactoryImpl extends ProviderFactory {
         
         return mr;
     }
+    
+    public SystemQueryHandler getQueryHandler(MultivaluedMap<String, String> query) {
+        
+        for (SystemQueryHandler h : queryHandlers) {
+            if (h.supports(query)) {
+                return h;
+            }
+        }
+        
+        return null;
+    }
 
-    @Override
     public <T> MessageBodyWriter<T> createMessageBodyWriter(Class<T> bodyType, MediaType mediaType) {
         // Try user provided providers
         MessageBodyWriter<T> mw = chooseMessageWriter(userMessageWriters,
@@ -112,18 +105,6 @@ public class ProviderFactoryImpl extends ProviderFactory {
         }     
         
         return mw;
-    }
-    
-    
-    @SuppressWarnings("unchecked")
-    public <T> HeaderProvider<T> createHeaderProvider(Class<T> type) {
-        for (HeaderProvider<T> hp : headerProviders) {
-            if (hp.supports(type)) {
-                return hp;
-            }
-        }     
-        
-        return null;
     }
     
        
@@ -229,7 +210,7 @@ public class ProviderFactoryImpl extends ProviderFactory {
         
     }
     
-        
+    //TODO : also scan for the @Provider annotated implementations    
     public boolean registerUserEntityProvider(Object o) {
         setProviders(userMessageReaders, userMessageWriters, o);
         return true;
@@ -259,6 +240,11 @@ public class ProviderFactoryImpl extends ProviderFactory {
     
     public List<MessageBodyWriter> getUserMessageWriters() {
         return userMessageWriters;
+    }
+    
+    public void clearUserMessageProviders() {
+        userMessageReaders.clear();
+        userMessageWriters.clear();
     }
 
     /**
@@ -332,6 +318,4 @@ public class ProviderFactoryImpl extends ProviderFactory {
             return str1.compareTo(str2);
         }
     }
-    
-
 }

@@ -21,59 +21,87 @@ package org.apache.cxf.jaxrs.provider;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Variant;
 
 import org.apache.cxf.message.Message;
 
 /**
- * This is actually a complete no-op implementation, null is a valid response,
- * by default all the precondions are met.
+ * TODO : deal with InvalidStateExceptions
  *
  */
 
 public class RequestImpl implements Request {
     
+    private final Message m;
+    
     public RequestImpl(Message m) {
-        // complete
+        this.m = m;
     }
 
-    public Response evaluatePreconditions(EntityTag eTag) {
+    
+
+    public Variant selectVariant(List<Variant> vars) throws IllegalArgumentException {
         // TODO Auto-generated method stub
         return null;
     }
 
-    public Response evaluatePreconditions(Date lastModified) {
-        // TODO Auto-generated method stub
+
+
+    public ResponseBuilder evaluatePreconditions(EntityTag eTag) {
+        String ifMatch = getHeaderValue("If-Match");
+        
+        if (ifMatch == null || ifMatch.equals("*")) {
+            return null;
+        }
+        
+        try {
+            EntityTag requestTag = EntityTag.parse(ifMatch);
+            if (requestTag.equals(eTag) && !requestTag.isWeak()) {
+                return null;
+            }
+        } catch (IllegalArgumentException ex) {
+            // ignore
+        }
+        
+        return Response.status(412).tag(eTag);
+    }
+
+
+
+    public ResponseBuilder evaluatePreconditions(Date lastModified) {
+        // TODO : these dates wreck my head
         return null;
     }
 
-    public Response evaluatePreconditions(EntityTag eTag, Variant variant) {
-        // TODO Auto-generated method stub
-        return null;
-    }
 
-    public Response evaluatePreconditions(Date lastModified, Variant variant) {
-        // TODO Auto-generated method stub
-        return null;
-    }
 
-    public Response evaluatePreconditions(Date lastModified, EntityTag eTag) {
-        // TODO Auto-generated method stub
-        return null;
+    public ResponseBuilder evaluatePreconditions(Date lastModified, EntityTag eTag) {
+        ResponseBuilder rb = evaluatePreconditions(eTag);
+        if (rb != null) {
+            return rb;
+        }
+        return evaluatePreconditions(lastModified);
+                
     }
-
-    public Response evaluatePreconditions(Date lastModified, EntityTag eTag, Variant variant) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    public Variant selectVariant(List<Variant> arg0) throws IllegalArgumentException {
-        // TODO Auto-generated method stub
-        return null;
+    
+    @SuppressWarnings("unchecked")
+    private String getHeaderValue(String name) {
+        Map<String, List<String>> headers = 
+            (Map<String, List<String>>)m.get(Message.PROTOCOL_HEADERS);
+        if (headers == null) {
+            return null;
+        }
+        List<String> values = headers.get(name);
+        if (values == null || values.size() == 0) {
+            return null;
+        }
+        return values.get(0);
     }
 
 }

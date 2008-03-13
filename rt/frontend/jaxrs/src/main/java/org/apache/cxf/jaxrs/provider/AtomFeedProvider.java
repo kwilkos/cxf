@@ -34,13 +34,15 @@ import javax.ws.rs.ext.Provider;
 import org.apache.abdera.Abdera;
 import org.apache.abdera.model.Document;
 import org.apache.abdera.model.Feed;
+import org.apache.abdera.writer.Writer;
 
-@ProduceMime("application/atom+xml")
-@ConsumeMime("application/atom+xml")
+@ProduceMime({"application/atom+xml", "application/atom+xml;type=feed", "application/json" })
+@ConsumeMime({"application/atom+xml", "application/atom+xml;type=feed" })
 @Provider
 public class AtomFeedProvider 
     implements MessageBodyWriter<Feed>, MessageBodyReader<Feed> {
 
+    private static final String JSON_TYPE = "application/json";
     private static final Abdera ATOM_ENGINE = new Abdera();
         
     public boolean isWriteable(Class<?> type) {
@@ -50,7 +52,12 @@ public class AtomFeedProvider
     public void writeTo(Feed feed, MediaType mt, 
                         MultivaluedMap<String, Object> headers, OutputStream os)
         throws IOException {
-        feed.writeTo(os);
+        if (JSON_TYPE.equals(mt.toString())) {
+            Writer w = ATOM_ENGINE.getWriterFactory().getWriter("json");
+            feed.writeTo(w, os);   
+        } else {
+            feed.writeTo(os);
+        }
     }
     
     public long getSize(Feed feed) {

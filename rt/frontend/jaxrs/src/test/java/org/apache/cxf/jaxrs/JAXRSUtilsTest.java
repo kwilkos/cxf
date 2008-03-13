@@ -26,9 +26,10 @@ import java.util.List;
 
 import javax.ws.rs.ConsumeMime;
 import javax.ws.rs.HeaderParam;
+import javax.ws.rs.MatrixParam;
 import javax.ws.rs.ProduceMime;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.HttpContext;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
@@ -48,15 +49,16 @@ import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class JAXRSUtilsTest extends Assert {
     
     public class Customer {
         
-        @HttpContext private UriInfo uriInfo;
-        @HttpContext private HttpHeaders headers;
-        @HttpContext private Request request;
+        @Context private UriInfo uriInfo;
+        @Context private HttpHeaders headers;
+        @Context private Request request;
         
         public UriInfo getUriInfo() {
             return uriInfo;
@@ -92,14 +94,21 @@ public class JAXRSUtilsTest extends Assert {
         }
         
         @ProduceMime("text/xml")   
-        public void testMultipleQuery(@QueryParam("query") 
-                                      String queryString, @QueryParam("query2") String queryString2) {
+        public void testMultipleQuery(@QueryParam("query")  String queryString, 
+                                      @QueryParam("query2") String queryString2,
+                                      @QueryParam("query3") String queryString3) {
             // complete
         }
         
-        public void testParams(@HttpContext UriInfo info,
-                               @HttpContext HttpHeaders hs,
-                               @HttpContext Request r,
+        @ProduceMime("text/xml")   
+        public void testMatrixParam(@MatrixParam("p1")  String queryString, 
+                                    @MatrixParam("p2") String queryString2) {
+            // complete
+        }
+        
+        public void testParams(@Context UriInfo info,
+                               @Context HttpHeaders hs,
+                               @Context Request r,
                                @HeaderParam("Foo") String h) {
             // complete
         }
@@ -116,90 +125,133 @@ public class JAXRSUtilsTest extends Assert {
         sf.create();        
         List<ClassResourceInfo> resources = ((JAXRSServiceImpl)sf.getService()).getClassResourceInfos();
 
-        MultivaluedMap<String, String> values = new MetadataMap<String, String>(); 
         String contentTypes = "*/*";
         String acceptContentTypes = "*/*";
 
         //If acceptContentTypes does not specify a specific Mime type, the  
         //method is declared with a most specific ProduceMime type is selected.
         OperationResourceInfo ori = JAXRSUtils.findTargetResourceClass(resources, "/bookstore/books/123/",
-                                                                       "GET", values, contentTypes,
-                                                                       acceptContentTypes);       
+             "GET", new MetadataMap<String, String>(), contentTypes, acceptContentTypes);       
         assertNotNull(ori);
         assertEquals("getBookJSON", ori.getMethod().getName());
         
         //test
         acceptContentTypes = "application/json";
-        ori = JAXRSUtils.findTargetResourceClass(resources, "/bookstore/books/123/",
-                                                                       "GET", values, contentTypes,
-                                                                       acceptContentTypes);        
+        ori = JAXRSUtils.findTargetResourceClass(resources, "/bookstore/books/123",
+             "GET", new MetadataMap<String, String>(), contentTypes, acceptContentTypes);        
         assertNotNull(ori);
         assertEquals("getBookJSON", ori.getMethod().getName());
         
         //test 
         acceptContentTypes = "application/xml";
-        ori = JAXRSUtils.findTargetResourceClass(resources, "/bookstore/books/123/",
-                                                                       "GET", values, contentTypes,
-                                                                       acceptContentTypes);        
+        ori = JAXRSUtils.findTargetResourceClass(resources, "/bookstore/books/123",
+              "GET", new MetadataMap<String, String>(), contentTypes, acceptContentTypes);        
         assertNotNull(ori);
         assertEquals("getBook", ori.getMethod().getName());
         
+        //test 
+        acceptContentTypes = "application/xml";
+        ori = JAXRSUtils.findTargetResourceClass(resources, "/bookstore/books",
+                      "GET", new MetadataMap<String, String>(), contentTypes, acceptContentTypes);        
+        assertNotNull(ori);
+        assertEquals("getBooks", ori.getMethod().getName());
+        
         //test find POST
         ori = JAXRSUtils.findTargetResourceClass(resources, "/bookstore/books",
-                                                                       "POST", values, contentTypes,
-                                                                       acceptContentTypes);       
+                 "POST", new MetadataMap<String, String>(), contentTypes, acceptContentTypes);       
         assertNotNull(ori);
         assertEquals("addBook", ori.getMethod().getName());
         
         //test find PUT
         ori = JAXRSUtils.findTargetResourceClass(resources, "/bookstore/books",
-                                                                       "PUT", values, contentTypes,
-                                                                       acceptContentTypes);  
+            "PUT", new MetadataMap<String, String>(), contentTypes, acceptContentTypes);  
         assertEquals("updateBook", ori.getMethod().getName());
         
         //test find DELETE
         ori = JAXRSUtils.findTargetResourceClass(resources, "/bookstore/books/123",
-                                                                       "DELETE", values, contentTypes,
-                                                                       acceptContentTypes);        
+             "DELETE", new MetadataMap<String, String>(), contentTypes, acceptContentTypes);        
         assertNotNull(ori);
         assertEquals("deleteBook", ori.getMethod().getName());     
         
     }
     
     @Test
-    @org.junit.Ignore
+    public void testFindTargetResourceClassWithTemplates() throws Exception {
+        JAXRSServiceFactoryBean sf = new JAXRSServiceFactoryBean();
+        sf.setResourceClasses(org.apache.cxf.jaxrs.resources.BookStoreTemplates.class);
+        sf.create();        
+        List<ClassResourceInfo> resources = ((JAXRSServiceImpl)sf.getService()).getClassResourceInfos();
+
+        String contentTypes = "*/*";
+        String acceptContentTypes = "*/*";
+
+        //If acceptContentTypes does not specify a specific Mime type, the  
+        //method is declared with a most specific ProduceMime type is selected.
+        MetadataMap<String, String> values = new MetadataMap<String, String>();
+        OperationResourceInfo ori = JAXRSUtils.findTargetResourceClass(resources, "/1/2/",
+             "GET", values, contentTypes, acceptContentTypes);       
+        assertNotNull(ori);
+        assertEquals("getBooks", ori.getMethod().getName());
+        assertEquals("Only the first {id} should've been picked up", 2, values.size());
+        assertEquals("Only the first {id} should've been picked up", 1, values.get("id").size());
+        assertEquals("Only the first {id} should've been picked up", 1, 
+                     values.get(URITemplate.RIGHT_HAND_VALUE).size());
+        assertEquals("Only the first {id} should've been picked up", "1", values.getFirst("id"));
+        
+        values = new MetadataMap<String, String>();
+        ori = JAXRSUtils.findTargetResourceClass(resources, "/2",
+             "POST", values, contentTypes, acceptContentTypes);       
+        assertNotNull(ori);
+        assertEquals("updateBookStoreInfo", ori.getMethod().getName());
+        assertEquals("Only the first {id} should've been picked up", 2, values.size());
+        assertEquals("Only the first {id} should've been picked up", 1, values.get("id").size());
+        assertEquals("Only the first {id} should've been picked up", 1, 
+                     values.get(URITemplate.RIGHT_HAND_VALUE).size());
+        assertEquals("Only the first {id} should've been picked up", "2", values.getFirst("id"));
+        
+        values = new MetadataMap<String, String>();
+        ori = JAXRSUtils.findTargetResourceClass(resources, "/3/4",
+             "PUT", values, contentTypes, acceptContentTypes);       
+        assertNotNull(ori);
+        assertEquals("updateBook", ori.getMethod().getName());
+        assertEquals("Only the first {id} should've been picked up", 3, values.size());
+        assertEquals("Only the first {id} should've been picked up", 1, values.get("id").size());
+        assertEquals("Only the first {id} should've been picked up", 1, values.get("bookId").size());
+        assertEquals("Only the first {id} should've been picked up", 1, 
+                     values.get(URITemplate.RIGHT_HAND_VALUE).size());
+        assertEquals("Only the first {id} should've been picked up", "3", values.getFirst("id"));
+        assertEquals("Only the first {id} should've been picked up", "4", values.getFirst("bookId"));
+    }
+    
+    @Test
+    @Ignore
     public void testFindTargetResourceClassWithSubResource() throws Exception {
         JAXRSServiceFactoryBean sf = new JAXRSServiceFactoryBean();
         sf.setResourceClasses(org.apache.cxf.jaxrs.resources.BookStore.class);
         sf.create();        
         List<ClassResourceInfo> resources = ((JAXRSServiceImpl)sf.getService()).getClassResourceInfos();
 
-        MultivaluedMap<String, String> values = new MetadataMap<String, String>();
         String contentTypes = "*/*";
         String acceptContentTypes = "*/*";
 
         OperationResourceInfo ori = JAXRSUtils.findTargetResourceClass(resources,
-                                                                       "/bookstore/books/123/chapter/1",
-                                                                       "GET", values, contentTypes,
+            "/bookstore/books/123/chapter/1", "GET", new MetadataMap<String, String>(), contentTypes,
                                                                        acceptContentTypes);       
         assertNotNull(ori);
         assertEquals("getBook", ori.getMethod().getName());
         
         ori = JAXRSUtils.findTargetResourceClass(resources, "/bookstore/books",
-                                                                       "POST", values, contentTypes,
-                                                                       acceptContentTypes);      
+            "POST", new MetadataMap<String, String>(), contentTypes, acceptContentTypes);      
         assertNotNull(ori);
         assertEquals("addBook", ori.getMethod().getName());
         
         ori = JAXRSUtils.findTargetResourceClass(resources, "/bookstore/books",
-                                                                       "PUT", values, contentTypes,
-                                                                       acceptContentTypes);        
+             "PUT", new MetadataMap<String, String>(), contentTypes, acceptContentTypes);        
         assertNotNull(ori);
         assertEquals("updateBook", ori.getMethod().getName());
         
         ori = JAXRSUtils.findTargetResourceClass(resources, "/bookstore/books/123",
-                                                                       "DELETE", values, contentTypes,
-                                                                       acceptContentTypes);        
+            "DELETE", new MetadataMap<String, String>(), contentTypes, acceptContentTypes);        
         assertNotNull(ori);
         assertEquals("deleteBook", ori.getMethod().getName());
     }
@@ -405,16 +457,36 @@ public class JAXRSUtilsTest extends Assert {
     
     @Test
     public void testMultipleQueryParameters() throws Exception {
-        Class[] argType = {String.class, String.class};
+        Class[] argType = {String.class, String.class, String.class};
         Method m = Customer.class.getMethod("testMultipleQuery", argType);
         MessageImpl messageImpl = new MessageImpl();
         
-        messageImpl.put(Message.QUERY_STRING, "query=first&query2=second");
+        messageImpl.put(Message.QUERY_STRING, "query=first&query2=second&query3");
         List<Object> params = JAXRSUtils.processParameters(new OperationResourceInfo(m, null), 
                                                            null, messageImpl);
-        assertEquals("First Query Parameter of multiple was not matched correctly", "first", params.get(0));
+        assertEquals("First Query Parameter of multiple was not matched correctly", "first", 
+                     params.get(0));
         assertEquals("Second Query Parameter of multiple was not matched correctly", 
-                     "second", params.get(1));    
+                     "second", params.get(1));
+        assertEquals("Third Query Parameter of multiple was not matched correctly", 
+                     "", params.get(2));
+    }
+    
+    @Test
+    public void testMatrixParameters() throws Exception {
+        Class[] argType = {String.class, String.class};
+        Method m = Customer.class.getMethod("testMatrixParam", argType);
+        MessageImpl messageImpl = new MessageImpl();
+        
+        messageImpl.put(Message.PATH_INFO, "/foo/bar;p1=1;p2");
+        List<Object> params = JAXRSUtils.processParameters(new OperationResourceInfo(m, null), 
+                                                           null, messageImpl);
+        assertEquals("2 Matrix params should've been identified", 2, params.size());
+        
+        assertEquals("First Matrix Parameter of multiple was not matched correctly", 
+                     "1", params.get(0));
+        assertEquals("Second Matrix Parameter of multiple was not matched correctly", 
+                     "", params.get(1));
     }
     
     @Test
@@ -435,21 +507,21 @@ public class JAXRSUtilsTest extends Assert {
         md.bind(ori2, Customer.class.getMethod("getItPlain", new Class[]{}));
         cri.setMethodDispatcher(md);
         
-        OperationResourceInfo ori = JAXRSUtils.findTargetMethod(cri, "/", "GET", null, 
-                                               "*/*", "text/plain");
+        OperationResourceInfo ori = JAXRSUtils.findTargetMethod(cri, "/", "GET", 
+                                              new MetadataMap<String, String>(), "*/*", "text/plain");
         
         assertSame(ori, ori2);
         
-        ori = JAXRSUtils.findTargetMethod(cri, "/", "GET", null, 
+        ori = JAXRSUtils.findTargetMethod(cri, "/", "GET", new MetadataMap<String, String>(), 
                                               "*/*", "text/xml");
                          
         assertSame(ori, ori1);
         
-        ori = JAXRSUtils.findTargetMethod(cri, "/", "GET", null, 
+        ori = JAXRSUtils.findTargetMethod(cri, "/", "GET", new MetadataMap<String, String>(), 
                                           "*/*", "*,text/plain,text/xml");
                      
         assertSame(ori, ori2);
-        ori = JAXRSUtils.findTargetMethod(cri, "/", "GET", null, 
+        ori = JAXRSUtils.findTargetMethod(cri, "/", "GET", new MetadataMap<String, String>(), 
                                           "*/*", "*,x/y,text/xml,text/plain");
                      
         assertSame(ori, ori2);

@@ -31,6 +31,8 @@ import org.apache.cxf.jaxrs.MetadataMap;
 import org.apache.cxf.jaxrs.model.ClassResourceInfo;
 import org.apache.cxf.jaxrs.model.OperationResourceInfo;
 import org.apache.cxf.jaxrs.model.URITemplate;
+import org.apache.cxf.jaxrs.provider.ProviderFactory;
+import org.apache.cxf.jaxrs.provider.SystemQueryHandler;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
@@ -55,11 +57,6 @@ public class JAXRSInInterceptor extends AbstractPhaseInterceptor<Message> {
         if (requestContentType == null) {
             requestContentType = "*/*";
         }
-        String acceptContentTypes = (String)message.get(Message.ACCEPT_CONTENT_TYPE);
-        if (acceptContentTypes == null) {
-            acceptContentTypes = "*/*";
-        }
-        message.getExchange().put(Message.ACCEPT_CONTENT_TYPE, acceptContentTypes);
         
         if (address.startsWith("http")) {
             int idx = address.indexOf('/', 7);
@@ -80,12 +77,28 @@ public class JAXRSInInterceptor extends AbstractPhaseInterceptor<Message> {
         }
         message.put(RELATIVE_PATH, path);
         
+        
+        //TODO : make sure we do this parsing ony once, not expensove though
+        MultivaluedMap<String, String> queries = 
+            JAXRSUtils.getStructuredParams((String)message.get(Message.QUERY_STRING), 
+                                            "&", true);
+        SystemQueryHandler sqh = ProviderFactory.getInstance().getQueryHandler(queries);
+        if (sqh != null) {
+            // TODO : if Response != null then make sure no invocations happen
+            sqh.handleSystemQuery(message, queries);
+        }
+        
+        String acceptContentTypes = (String)message.get(Message.ACCEPT_CONTENT_TYPE);
+        if (acceptContentTypes == null) {
+            acceptContentTypes = "*/*";
+        }
+        message.getExchange().put(Message.ACCEPT_CONTENT_TYPE, acceptContentTypes);
+        
         LOG.fine("Request path is: " + path);
         LOG.fine("Request HTTP method is: " + httpMethod);
         LOG.fine("Request contentType is: " + requestContentType);
         LOG.fine("Accept contentType is: " + acceptContentTypes);
-
-
+        
         //1. Matching target resource classes and method
         Service service = message.getExchange().get(Service.class);
         List<ClassResourceInfo> resources = ((JAXRSServiceImpl)service).getClassResourceInfos();

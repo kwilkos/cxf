@@ -30,11 +30,13 @@ import javax.ws.rs.ConsumeMime;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.MessageBodyReader;
+import javax.ws.rs.ext.Provider;
 
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.jaxrs.MetadataMap;
 
 @ConsumeMime("application/x-www-form-urlencoded")
+@Provider
 public final class FormEncodingReaderProvider implements MessageBodyReader<Object> {
 
     public boolean isReadable(Class<?> type) {

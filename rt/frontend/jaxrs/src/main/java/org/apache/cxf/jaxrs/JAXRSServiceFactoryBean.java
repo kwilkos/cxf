@@ -152,8 +152,10 @@ public class JAXRSServiceFactoryBean extends AbstractServiceFactoryBean {
     protected ClassResourceInfo createClassResourceInfo(final Class<?> c, boolean root) {
         ClassResourceInfo cri  = new ClassResourceInfo(c, root);
 
-        URITemplate t = URITemplate.createTemplate(null, c.getAnnotation(Path.class));
-        cri.setURITemplate(t);
+        if (root) {
+            URITemplate t = URITemplate.createTemplate(cri, c.getAnnotation(Path.class));
+            cri.setURITemplate(t);
+        }
         
         MethodDispatcher md = createOperation(cri);
         cri.setMethodDispatcher(md);

@@ -24,7 +24,7 @@ import java.util.Map;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
-import javax.ws.rs.UriParam;
+import javax.ws.rs.PathParam;
 import javax.xml.bind.annotation.XmlRootElement;
 
 
@@ -54,7 +54,7 @@ public class BookNoSubResource {
     
     @Path("chapters/{chapterid}/")
     @GET
-    public Chapter getChapter(@UriParam("id")int chapterid) {
+    public Chapter getChapter(@PathParam("id")int chapterid) {
         return chapters.get(new Long(chapterid));
     }   
 

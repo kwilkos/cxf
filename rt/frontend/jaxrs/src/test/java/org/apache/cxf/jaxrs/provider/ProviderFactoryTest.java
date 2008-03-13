@@ -16,6 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.apache.cxf.jaxrs.provider;
 
 import java.io.File;
@@ -26,17 +27,10 @@ import java.util.List;
 
 import javax.ws.rs.ConsumeMime;
 import javax.ws.rs.ProduceMime;
-import javax.ws.rs.core.CacheControl;
-import javax.ws.rs.core.Cookie;
-import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriBuilder;
-import javax.ws.rs.core.Variant.VariantListBuilder;
 import javax.ws.rs.ext.MessageBodyReader;
 import javax.ws.rs.ext.MessageBodyWriter;
-import javax.ws.rs.ext.ProviderFactory;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.abdera.model.Entry;
@@ -47,45 +41,17 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class ProviderFactoryImplTest extends Assert {
+public class ProviderFactoryTest extends Assert {
 
+    
     @Before
-    public void setUp() throws Exception {
-
-    }
-    
-    @Test
-    public void testCreateInstance() throws Exception {
-        assertSame(BuilderImpl.class,
-                   new ProviderFactoryImpl().
-                       createInstance(Response.Builder.class).getClass());
-        assertSame(UriBuilderImpl.class,
-                   new ProviderFactoryImpl().
-                       createInstance(UriBuilder.class).getClass());
-        assertSame(VariantListBuilderImpl.class,
-                   new ProviderFactoryImpl().
-                       createInstance(VariantListBuilder.class).getClass());
-    }
-    
-    @Test
-    public void testCreateHeaderProvider() throws Exception {
-        assertSame(MediaTypeHeaderProvider.class,
-                   new ProviderFactoryImpl().
-                       createHeaderProvider(MediaType.class).getClass());
-        assertSame(EntityTagHeaderProvider.class,
-                   new ProviderFactoryImpl().
-                       createHeaderProvider(EntityTag.class).getClass());
-        assertSame(CacheControlHeaderProvider.class,
-                   new ProviderFactoryImpl().
-                       createHeaderProvider(CacheControl.class).getClass());
-        assertSame(CookieHeaderProvider.class,
-                   new ProviderFactoryImpl().
-                       createHeaderProvider(Cookie.class).getClass());
+    public void setUp() {
+        ProviderFactory.getInstance().clearUserMessageProviders();
     }
     
     @Test
     public void testSortEntityProviders() throws Exception {
-        ProviderFactoryImpl pf = new ProviderFactoryImpl();
+        ProviderFactory pf = ProviderFactory.getInstance();
         pf.registerUserEntityProvider(new TestStringProvider());
         pf.registerUserEntityProvider(new StringProvider());
         
@@ -125,7 +91,7 @@ public class ProviderFactoryImplTest extends Assert {
         
         MessageBodyReader reader = ProviderFactory.getInstance()
             .createMessageBodyReader(type, mType);
-        assertTrue(errorMessage, provider == reader.getClass());
+        assertSame(errorMessage, provider, reader.getClass());
     
         MessageBodyWriter writer = ProviderFactory.getInstance()
             .createMessageBodyWriter(type, mType);
@@ -152,7 +118,7 @@ public class ProviderFactoryImplTest extends Assert {
     
     @Test
     public void testGetStringProviderUsingProviderDeclaration() throws Exception {
-        ProviderFactoryImpl pf = (ProviderFactoryImpl)ProviderFactory.getInstance();
+        ProviderFactory pf = ProviderFactory.getInstance();
         pf.registerUserEntityProvider(new TestStringProvider());
         verifyProvider(String.class, TestStringProvider.class, "text/html");
     }    
@@ -165,7 +131,7 @@ public class ProviderFactoryImplTest extends Assert {
     
     @Test
     public void testRegisterCustomJSONEntityProvider() throws Exception {
-        ProviderFactoryImpl pf = (ProviderFactoryImpl)ProviderFactory.getInstance();
+        ProviderFactory pf = ProviderFactory.getInstance();
         pf.registerUserEntityProvider(new CustomJSONProvider());
         verifyProvider(org.apache.cxf.jaxrs.resources.Book.class, CustomJSONProvider.class, 
                        "application/json", "User-registered provider was not returned first");
@@ -173,7 +139,7 @@ public class ProviderFactoryImplTest extends Assert {
     
     @Test
     public void testRegisterCustomEntityProvider() throws Exception {
-        ProviderFactoryImpl pf = (ProviderFactoryImpl)ProviderFactory.getInstance();
+        ProviderFactory pf = (ProviderFactory)ProviderFactory.getInstance();
         pf.registerUserEntityProvider(new CustomWidgetProvider());
         
         verifyProvider(org.apache.cxf.jaxrs.resources.Book.class, CustomWidgetProvider.class, 

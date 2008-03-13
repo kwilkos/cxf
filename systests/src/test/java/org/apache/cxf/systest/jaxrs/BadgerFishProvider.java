@@ -31,6 +31,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.MessageBodyReader;
 import javax.ws.rs.ext.MessageBodyWriter;
+import javax.ws.rs.ext.Provider;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
@@ -46,6 +47,7 @@ import org.codehaus.jettison.badgerfish.BadgerFishXMLOutputFactory;
 
 @ProduceMime("application/json")
 @ConsumeMime("application/json")
+@Provider
 public final class BadgerFishProvider 
     implements MessageBodyReader<Object>, MessageBodyWriter<Object>  {
 

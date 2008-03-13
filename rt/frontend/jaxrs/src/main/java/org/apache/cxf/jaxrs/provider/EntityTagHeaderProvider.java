@@ -19,32 +19,32 @@
 
 package org.apache.cxf.jaxrs.provider;
 
-import java.text.ParseException;
-
 import javax.ws.rs.core.EntityTag;
-import javax.ws.rs.ext.HeaderProvider;
-import javax.ws.rs.ext.Provider;
+import javax.ws.rs.ext.RuntimeDelegate.HeaderDelegate;
 
-@Provider
-public class EntityTagHeaderProvider implements HeaderProvider<EntityTag> {
+public class EntityTagHeaderProvider implements HeaderDelegate<EntityTag> {
 
     private static final String WEAK_PREFIX = "W/";
     
-    public EntityTag fromString(String header) throws ParseException {
+    public EntityTag fromString(String header) {
+        String tag = null;
+        boolean weak =  false;
         int i = header.indexOf(WEAK_PREFIX);
         if (i != -1) {
+            weak = true;
             if (i + 2 < header.length()) {
-                return new EntityTag(header.substring(i + 2), true);
+                tag = header.substring(i + 2);
             } else {
-                return new EntityTag("", true);
+                return new EntityTag("", weak);
             }
-        } 
-        
-        return new EntityTag(header);
-    }
-
-    public boolean supports(Class type) {
-        return EntityTag.class.isAssignableFrom(type);
+        }  else {
+            tag = header;
+        }
+        if (tag.length() < 2 || !tag.startsWith("\"") || !tag.endsWith("\"")) {
+            throw new IllegalArgumentException("Misformatted ETag : " + header);
+        }
+        tag = tag.length() == 2 ? "" : tag.substring(1, tag.length() - 1); 
+        return new EntityTag(tag, weak);
     }
 
     public String toString(EntityTag tag) {
@@ -52,7 +52,7 @@ public class EntityTagHeaderProvider implements HeaderProvider<EntityTag> {
         if (tag.isWeak()) {
             sb.append(WEAK_PREFIX);
         }
-        sb.append(tag.getValue());
+        sb.append("\"").append(tag.getValue()).append("\"");
         return sb.toString();
     }
 

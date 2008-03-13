@@ -107,7 +107,6 @@ public final class URITemplate {
     }
 
     public boolean match(String uri, MultivaluedMap<String, String> templateVariableToValue) {
-        //templateVariableToValue.clear();
 
         if (uri == null) {
             return (templateRegexPattern == null) ? true : false;
@@ -125,19 +124,18 @@ public final class URITemplate {
         // Assign the matched template values to template variables
         int i = 1;
         for (String name : templateVariables) {
-            String previousValue = templateVariableToValue.getFirst(name);
-            String currentValue = m.group(i++);
-
-            if (previousValue != null && !previousValue.equals(currentValue)) {
-                return false;
+            String value = m.group(i++);
+            if (templateVariableToValue.getFirst(name) != null) {
+                continue;
             }
 
-            templateVariableToValue.putSingle(name, currentValue);
+            templateVariableToValue.putSingle(name, value);
         }
 
         // The right hand side value, might be used to further resolve sub-resources.
         if (regexSuffix != null) {
-            templateVariableToValue.putSingle(RIGHT_HAND_VALUE, m.group(i));
+            String finalGroup = m.group(i);
+            templateVariableToValue.putSingle(RIGHT_HAND_VALUE, finalGroup == null ? "/" : finalGroup);
         }
 
         return true;
@@ -147,22 +145,17 @@ public final class URITemplate {
                                              Path path) {
         
         if (path == null) {
-            return cri == null ? new URITemplate("/", URITemplate.UNLIMITED_REGEX_SUFFIX)
-                               : cri.getURITemplate();
+            return new URITemplate("/", URITemplate.UNLIMITED_REGEX_SUFFIX);
         }
         
-        String prefix = cri != null && !cri.isRoot() ? cri.getURITemplate().getValue() : "/";
-        if (!prefix.endsWith("/")) {
-            prefix += "/";
-        }                
         String pathValue = path.value();
-        if (pathValue.startsWith("/")) {
-            pathValue = pathValue.length() == 1 ? "" : pathValue.substring(1);
+        if (!pathValue.startsWith("/")) {
+            pathValue = "/" + pathValue;
         }
-                
+        
         String suffixPattern = (path.limited())
             ? URITemplate.LIMITED_REGEX_SUFFIX : URITemplate.UNLIMITED_REGEX_SUFFIX;
         
-        return new URITemplate(prefix + pathValue, suffixPattern);
+        return new URITemplate(pathValue, suffixPattern);
     }
 }

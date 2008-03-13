@@ -25,6 +25,7 @@ import java.io.InputStream;
 
 import javax.ws.rs.ConsumeMime;
 import javax.ws.rs.ProduceMime;
+import javax.ws.rs.core.MediaType;
 
 import org.apache.abdera.model.Entry;
 import org.apache.abdera.model.Feed;
@@ -54,11 +55,13 @@ public class AtomEntryProviderTest extends Assert {
     @Test
     public void testWriteTo() throws Exception {
         InputStream is = getClass().getResourceAsStream("atomEntry.xml");
-        Entry simple = afd.readFrom(Entry.class, null, null, is);
+        Entry simple = afd.readFrom(Entry.class, 
+                                    MediaType.parse("application/atom+xml;type=entry"), null, is);
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        afd.writeTo(simple, null, null, bos);
+        afd.writeTo(simple, MediaType.parse("application/atom+xml;type=entry"), null, bos);
         ByteArrayInputStream bis = new ByteArrayInputStream(bos.toByteArray());
-        Entry simpleCopy = afd.readFrom(Entry.class, null, null, bis);
+        Entry simpleCopy = afd.readFrom(Entry.class, 
+                                        MediaType.parse("application/atom+xml"), null, bis);
         assertEquals("Wrong entry title", 
                      "Atom-Powered Robots Run Amok", simpleCopy.getTitle());
         assertEquals("Wrong entry title", 
@@ -81,10 +84,15 @@ public class AtomEntryProviderTest extends Assert {
     
     @Test
     public void testAnnotations() {
-        assertEquals("application/atom+xml",
-                     afd.getClass().getAnnotation(ProduceMime.class).value()[0]);
-        assertEquals("application/atom+xml",
-                     afd.getClass().getAnnotation(ConsumeMime.class).value()[0]);
+        String[] values = afd.getClass().getAnnotation(ProduceMime.class).value();
+        assertEquals("3 types can be produced", 3, values.length);
+        assertTrue("application/atom+xml".equals(values[0])
+                   && "application/atom+xml;type=entry".equals(values[1])
+                   && "application/json".equals(values[2]));
+        values = afd.getClass().getAnnotation(ConsumeMime.class).value();
+        assertEquals("2 types can be consumed", 2, values.length);
+        assertTrue("application/atom+xml".equals(values[0])
+                   && "application/atom+xml;type=entry".equals(values[1]));
     }
     
 }
