@@ -32,6 +32,7 @@ import javax.xml.ws.Binding;
 import javax.xml.ws.EndpointReference;
 import javax.xml.ws.WebServiceException;
 import javax.xml.ws.WebServicePermission;
+import javax.xml.ws.handler.Handler;
 import javax.xml.ws.wsaddressing.W3CEndpointReference;
 import javax.xml.ws.wsaddressing.W3CEndpointReferenceBuilder;
 
@@ -96,6 +97,7 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
     private List<Interceptor> out = new ModCountCopyOnWriteArrayList<Interceptor>();
     private List<Interceptor> outFault  = new ModCountCopyOnWriteArrayList<Interceptor>();
     private List<Interceptor> inFault  = new ModCountCopyOnWriteArrayList<Interceptor>();
+    private List<Handler> handlers = new ModCountCopyOnWriteArrayList<Handler>();
 
     public EndpointImpl(Object implementor) {
         this(BusFactory.getThreadDefaultBus(), implementor);
@@ -304,7 +306,10 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
             if (executor != null) {
                 serverFactory.getServiceFactory().setExecutor(executor);
             }
-            
+            if (handlers.size() > 0) {
+                serverFactory.addHandlers(handlers);
+            }
+
             configureObject(serverFactory);
             
             server = serverFactory.create();
@@ -451,6 +456,13 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
 
     public void setOutFaultInterceptors(List<Interceptor> interceptors) {
         outFault = interceptors;
+    }
+    public void setHandlers(List<Handler> h) {
+        handlers.clear();
+        handlers.addAll(h);
+    }
+    public List<Handler> getHandlers() {
+        return handlers;
     }
 
     public List<AbstractFeature> getFeatures() {

@@ -21,6 +21,7 @@ package org.apache.cxf.jaxws;
 
 
 import java.lang.reflect.Proxy;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.ws.WebServiceException;
@@ -58,6 +59,7 @@ import org.apache.cxf.service.model.BindingInfo;
  */
 public class JaxWsServerFactoryBean extends ServerFactoryBean {
     protected boolean doInit;
+    protected List<Handler> handlers = new ArrayList<Handler>();
     
     public JaxWsServerFactoryBean() {
         this(new JaxWsServiceFactoryBean());
@@ -70,6 +72,17 @@ public class JaxWsServerFactoryBean extends ServerFactoryBean {
         
         setBindingConfig(defConfig);
         doInit = true;
+    }
+    
+    public void setHandlers(List<Handler> h) {
+        handlers.clear();
+        handlers.addAll(h);
+    }
+    public void addHandlers(List<Handler> h) {
+        handlers.addAll(h);
+    }
+    public List<Handler> getHandlers() {
+        return handlers;
     }
 
     /**
@@ -172,13 +185,13 @@ public class JaxWsServerFactoryBean extends ServerFactoryBean {
     private void buildHandlerChain() {
         AnnotationHandlerChainBuilder builder = new AnnotationHandlerChainBuilder();
         JaxWsServiceFactoryBean sf = (JaxWsServiceFactoryBean)getServiceFactory(); 
+        List<Handler> chain = new ArrayList<Handler>(handlers);
         
-        List<Handler> chain = builder.buildHandlerChainFromClass(getServiceBeanClass(), sf.getEndpointInfo()
-            .getName(), sf.getServiceQName(), this.getBindingId());
+        chain.addAll(builder.buildHandlerChainFromClass(getServiceBeanClass(), sf.getEndpointInfo()
+            .getName(), sf.getServiceQName(), this.getBindingId()));
         for (Handler h : chain) {
             injectResources(h);
         }
-        
         ((JaxWsEndpointImpl)getServer().getEndpoint()).getJaxwsBinding().setHandlerChain(chain);
     }
     

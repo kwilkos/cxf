@@ -72,7 +72,7 @@ public class ClientProxyFactoryBeanDefinitionParser
             setFirstChildAsProperty(e, ctx, bean, "bindingConfig");
         } else if ("inInterceptors".equals(name) || "inFaultInterceptors".equals(name)
             || "outInterceptors".equals(name) || "outFaultInterceptors".equals(name)
-            || "features".equals(name)) {
+            || "features".equals(name) || "handlers".equals(name)) {
             List list = ctx.getDelegate().parseListElement(e, bean.getBeanDefinition());
             bean.addPropertyValue(name, list);
         } else {
