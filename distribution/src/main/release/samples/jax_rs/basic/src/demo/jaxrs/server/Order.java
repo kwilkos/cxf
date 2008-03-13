@@ -23,7 +23,6 @@ import java.util.Map;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
-import javax.ws.rs.UriParam;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
