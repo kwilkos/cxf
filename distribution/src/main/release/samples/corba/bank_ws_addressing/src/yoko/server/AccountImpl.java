@@ -15,7 +15,7 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
-*/
+ */
 
 package yoko.server;
 
@@ -24,8 +24,7 @@ import yoko.common.Account;
 @javax.jws.WebService(portName = "AccountCORBAPort",
                       serviceName = "AccountCORBAService",
                       targetNamespace = "http://schemas.apache.org/yoko/idl/Bank",
-                      //wsdlLocation = "file:./BankWS-corba.wsdl",
-                      wsdlLocation = "file:/home/dkulp/working/cxf/distribution/src/main/release/samples/corba/bank_ws_addressing/BankWS-corba.wsdl",
+                      wsdlLocation = "file:./BankWS-corba.wsdl",
                       endpointInterface = "yoko.common.Account")
 
 public class AccountImpl implements Account {

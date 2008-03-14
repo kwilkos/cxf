@@ -19,15 +19,9 @@
 
 package yoko.client;
 
-import java.io.File;
-import java.net.URL;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.xml.namespace.QName;
-import javax.xml.ws.BindingProvider;
-import javax.xml.ws.Service;
 import javax.xml.ws.wsaddressing.W3CEndpointReference;
 
 import yoko.common.Account;

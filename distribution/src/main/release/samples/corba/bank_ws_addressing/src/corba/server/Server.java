@@ -21,6 +21,8 @@ package corba.server;
 
 import java.util.Properties;
 
+import corba.common.BankHelper;
+
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.UserException;
 import org.omg.CosNaming.NameComponent;
@@ -30,13 +32,13 @@ import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
 import org.omg.PortableServer.POAManager;
 
-import corba.common.BankHelper;
-
-public class Server
-{
-    static int
-    run(ORB orb, String[] args) throws UserException
-    {
+public final class Server {
+    private Server() {
+        //not created
+    }
+    
+    
+    static int run(ORB orb, String[] args) throws UserException {
         //
         // Resolve Root POA
         //
@@ -50,7 +52,7 @@ public class Server
         //
         // Create implementation object
         //
-        Bank_impl bankImpl = new Bank_impl(poa);
+        BankImpl bankImpl = new BankImpl(poa);
 
         byte[] oid = "Bank".getBytes();
         poa.activate_object_with_id(oid, bankImpl);
@@ -73,34 +75,25 @@ public class Server
         return 0;
     }
 
-    public static void
-    main(String args[])
-    {
+    public static void main(String args[]) {
         Properties props = System.getProperties();
         props.put("org.omg.CORBA.ORBInitialHost", "localhost");
         props.put("org.omg.CORBA.ORBInitialPort", "1050");                
 
         int status = 0;
         ORB orb = null;
-        try
-        {
+        try         {
             orb = ORB.init(args, props);
             status = run(orb, args);
-        }
-        catch(Exception ex)
-        {
+        } catch (Exception ex) {
             ex.printStackTrace();
             status = 1;
         }
 
-        if(orb != null)
-        {
-            try
-            {
+        if (orb != null) {
+            try {
                 orb.destroy();
-            }
-            catch(Exception ex)
-            {
+            } catch (Exception ex) {
                 ex.printStackTrace();
                 status = 1;
             }

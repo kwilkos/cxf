@@ -19,19 +19,20 @@
 
 package corba.server;
 
-import org.omg.PortableServer.POA;
-
 import corba.common.AccountPOA;
 
+import org.omg.PortableServer.POA;
 
-public class Account_impl extends AccountPOA {
+
+
+public class AccountImpl extends AccountPOA {
     
     // The servants default POA
     private POA poa_;
 
     private float balance;
     
-    public Account_impl(POA poa) {
+    public AccountImpl(POA poa) {
         poa_ = poa;
         
         balance = 0.0f;

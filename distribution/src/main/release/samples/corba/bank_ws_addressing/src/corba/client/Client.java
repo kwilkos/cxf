@@ -21,15 +21,19 @@ package corba.client;
 
 import java.util.Properties;
 
+import corba.common.Account;
+import corba.common.AccountHelper;
+import corba.common.Bank;
+import corba.common.BankHelper;
+
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.UserException;
 
-import corba.common.Bank;
-import corba.common.BankHelper;
-import corba.common.Account;
-import corba.common.AccountHelper;
 
-public class Client {
+public final class Client {
+    private Client() {
+        //not constructed
+    }
     static int run(ORB orb, String[] args) throws UserException {
         
         // Get the Bank object
@@ -100,17 +104,15 @@ public class Client {
         try {
             orb = ORB.init(args, props);
             status = run(orb, args);
-        }
-        catch(Exception ex) {
+        } catch (Exception ex) {
             ex.printStackTrace();
             status = 1;
         }
 
-        if(orb != null) {
+        if (orb != null) {
             try {
                 orb.destroy();
-            }
-            catch(Exception ex) {
+            } catch (Exception ex) {
                 ex.printStackTrace();
                 status = 1;
             }

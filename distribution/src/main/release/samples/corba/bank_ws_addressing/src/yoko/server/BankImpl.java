@@ -15,30 +15,22 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
-*/
+ */
 
 package yoko.server;
 
-import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.xml.bind.JAXBElement;
-import javax.xml.namespace.QName;
 import javax.xml.ws.Endpoint;
-import javax.xml.ws.Service;
 import javax.xml.ws.wsaddressing.W3CEndpointReference;
 
 import yoko.common.Bank;
-import yoko.common.Account;
 
 @javax.jws.WebService(portName = "BankCORBAPort", 
                       serviceName = "BankCORBAService",
                       targetNamespace = "http://schemas.apache.org/yoko/idl/Bank",
-                      //wsdlLocation = "file:./BankWS-corba.wsdl",
-                      wsdlLocation = "file:/home/dkulp/working/cxf/distribution/src/main/release/samples/corba/bank_ws_addressing/BankWS-corba.wsdl",
+                      wsdlLocation = "file:./BankWS-corba.wsdl",
                       endpointInterface = "yoko.common.Bank")
 
 public class BankImpl implements Bank {

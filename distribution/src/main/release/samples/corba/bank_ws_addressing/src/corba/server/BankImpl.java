@@ -22,33 +22,33 @@ package corba.server;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.omg.CORBA.ORB;
-import org.omg.PortableServer.POA;
-
 import corba.common.Account;
 import corba.common.AccountHelper;
 import corba.common.BankPOA;
-public class Bank_impl extends BankPOA {
+
+import org.omg.PortableServer.POA;
+
+public class BankImpl extends BankPOA {
     
     private POA poa_;
 
     private Map<String, Account> accountList;
     
-    Bank_impl(POA poa) {
+    BankImpl(POA poa) {
         poa_ = poa;
 
         accountList = new HashMap<String, Account>();
     }
 
-    public Account create_account(String account_name) {
-        if (accountList.containsKey(account_name)) {
-            return accountList.get(account_name);
+    public Account create_account(String accountName) {
+        if (accountList.containsKey(accountName)) {
+            return accountList.get(accountName);
         }
         
-        System.out.println("[Bank] Called create_account( " + account_name + " )...");
+        System.out.println("[Bank] Called create_account( " + accountName + " )...");
         System.out.println();        
-        Account_impl accountImpl = new Account_impl(poa_);
-        String name = "Account-" + account_name;
+        AccountImpl accountImpl = new AccountImpl(poa_);
+        String name = "Account-" + accountName;
         byte[] oid = name.getBytes();       
         try {
             poa_.activate_object_with_id(oid, accountImpl);
@@ -59,19 +59,19 @@ public class Bank_impl extends BankPOA {
         org.omg.CORBA.Object obj = poa_.create_reference_with_id(oid, AccountHelper.id());
         Account account = AccountHelper.narrow(obj);
 
-        accountList.put(account_name, account);
+        accountList.put(accountName, account);
         return account;
     }
 
-    public org.omg.CORBA.Object create_epr_account(String account_name) {
-        System.out.println("[Bank] Called create_epr_account( " + account_name + ")...");
+    public org.omg.CORBA.Object create_epr_account(String accountName) {
+        System.out.println("[Bank] Called create_epr_account( " + accountName + ")...");
         System.out.println();
         /*Account_impl accountImpl = new Account_impl(poa_);
         Account account = accountImpl._this(orb_);
         accountList.put(account_name, account);*/
 
-        Account_impl accountImpl = new Account_impl(poa_);
-        String name = "Account-" + account_name;
+        AccountImpl accountImpl = new AccountImpl(poa_);
+        String name = "Account-" + accountName;
         byte[] oid = name.getBytes();       
         try {
             poa_.activate_object_with_id(oid, accountImpl);
@@ -82,39 +82,39 @@ public class Bank_impl extends BankPOA {
         org.omg.CORBA.Object obj = poa_.create_reference_with_id(oid, AccountHelper.id());
         Account account = AccountHelper.narrow(obj);
 
-        accountList.put(account_name, account);
+        accountList.put(accountName, account);
         return account;
     }
 
-    public Account get_account(String account_name) {
-        System.out.println("[Bank] Called get_account( " + account_name + ")...");
+    public Account get_account(String accountName) {
+        System.out.println("[Bank] Called get_account( " + accountName + ")...");
         System.out.println();
-        return accountList.get(account_name);
+        return accountList.get(accountName);
     }
 
-    public org.omg.CORBA.Object get_epr_account(String account_name) {
-        System.out.println("[Bank] Called get_epr_account( " + account_name + ")...");
+    public org.omg.CORBA.Object get_epr_account(String accountName) {
+        System.out.println("[Bank] Called get_epr_account( " + accountName + ")...");
         System.out.println();
-        return accountList.get(account_name);
+        return accountList.get(accountName);
     }
 
     // TODO: What is the correct implementation for this operation?
-    public org.omg.CORBA.Object get_account_epr_with_no_use_attribute(String account_name) {
-        System.out.println("[Bank] Called get_epr_with_no_use_attribute( " + account_name + " )...");
+    public org.omg.CORBA.Object get_account_epr_with_no_use_attribute(String accountName) {
+        System.out.println("[Bank] Called get_epr_with_no_use_attribute( " + accountName + " )...");
         System.out.println();
         return null;
     }
 
     // TODO: What is the correct implementation for this operation?
-    public void find_account(org.omg.CORBA.AnyHolder account_details) {
+    public void find_account(org.omg.CORBA.AnyHolder accountDetails) {
         System.out.println("[Bank] Called find_account (account_details)...");
         System.out.println();
     }
 
-    public void remove_account(String account_name) {
-        System.out.println("[Bank] Called remove_account ( " + account_name + ")...");
+    public void remove_account(String accountName) {
+        System.out.println("[Bank] Called remove_account ( " + accountName + ")...");
         System.out.println();
-        accountList.remove(account_name);
+        accountList.remove(accountName);
     }
     
     public POA _default_POA() {
