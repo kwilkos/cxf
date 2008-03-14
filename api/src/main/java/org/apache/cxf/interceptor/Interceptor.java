@@ -21,6 +21,9 @@ package org.apache.cxf.interceptor;
 
 import org.apache.cxf.message.Message;
 
+/**
+ * Base interface for all interceptors.
+ */
 public interface Interceptor<T extends Message> {
     /**
      * Intercepts a message. 
