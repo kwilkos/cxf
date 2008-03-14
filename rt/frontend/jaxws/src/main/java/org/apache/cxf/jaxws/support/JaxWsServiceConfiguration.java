@@ -25,6 +25,8 @@ import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Future;
 
 import javax.jws.Oneway;
@@ -58,9 +60,20 @@ import org.apache.cxf.tools.util.AnnotationUtil;
 public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
 
     private JaxWsImplementorInfo implInfo;
+    /**
+     * We retrieve the wrapper methods more than once
+     * while creating an endpoint. So caching the wrapper
+     * classes saves CPU time.
+     * 
+     * It would also be good to cache across creations,
+     * but Method.equals isn't good enough.
+     */
+    private Map<Object, Class> responseMethodClassCache;
+    private Map<Object, Class> requestMethodClassCache;
     
     public JaxWsServiceConfiguration() {
-        
+        responseMethodClassCache = new HashMap<Object, Class>();
+        requestMethodClassCache = new HashMap<Object, Class>();
     }
 
     @Override
@@ -500,6 +513,11 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
     
     @Override
     public Class getResponseWrapper(Method selected) {
+        Class cachedClass = responseMethodClassCache.get(selected);
+        if (cachedClass != null) {
+            return cachedClass;
+        }
+
         Method m = getDeclaredMethod(selected);
 
         ResponseWrapper rw = m.getAnnotation(ResponseWrapper.class);
@@ -512,8 +530,15 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
         }
         
         if (clsName.length() > 0) {
+            cachedClass = responseMethodClassCache.get(clsName);
+            if (cachedClass != null) {
+                return cachedClass;
+            }
             try {
-                return ClassLoaderUtils.loadClass(clsName, implInfo.getEndpointClass());
+                Class r = ClassLoaderUtils.loadClass(clsName, implInfo.getEndpointClass());
+                responseMethodClassCache.put(clsName, r);
+                responseMethodClassCache.put(selected, r);
+                return r;
             } catch (ClassNotFoundException e) {
                 //do nothing, we will mock a schema for wrapper bean later on
             }
@@ -552,6 +577,11 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
     
     @Override
     public Class getRequestWrapper(Method selected) {
+        Class cachedClass = requestMethodClassCache.get(selected);
+        if (cachedClass != null) {
+            return cachedClass;
+        }
+
         Method m = getDeclaredMethod(selected);
 
         RequestWrapper rw = m.getAnnotation(RequestWrapper.class);
@@ -563,8 +593,15 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
         }
 
         if (clsName.length() > 0) {
+            cachedClass = requestMethodClassCache.get(clsName);
+            if (cachedClass != null) {
+                return cachedClass;
+            }
             try {
-                return ClassLoaderUtils.loadClass(clsName, implInfo.getEndpointClass());
+                Class r = ClassLoaderUtils.loadClass(clsName, implInfo.getEndpointClass());
+                requestMethodClassCache.put(clsName, r);
+                requestMethodClassCache.put(selected, r);
+                return r;
             } catch (ClassNotFoundException e) {
                 //do nothing, we will mock a schema for wrapper bean later on
             }
