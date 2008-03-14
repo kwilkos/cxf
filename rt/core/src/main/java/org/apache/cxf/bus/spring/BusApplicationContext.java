@@ -33,9 +33,11 @@ import java.util.logging.Logger;
 
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.configuration.Configurer;
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.xml.BeansDtdResolver;
 import org.springframework.beans.factory.xml.DefaultNamespaceHandlerResolver;
 import org.springframework.beans.factory.xml.PluggableSchemaResolver;
+import org.springframework.beans.factory.xml.ResourceEntityResolver;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -193,7 +195,10 @@ public class BusApplicationContext extends ClassPathXmlApplicationContext {
         }
         reader.setNamespaceHandlerResolver(nsHandlerResolver);
         
-        String mode = System.getProperty("spring.validation.mode");
+        String mode = System.getProperty("org.apache.cxf.spring.validation.mode");
+        if (mode == null) {
+            mode = System.getProperty("spring.validation.mode");
+        }
         if (null != mode) {
             reader.setValidationModeName(mode);
         }
@@ -206,6 +211,22 @@ public class BusApplicationContext extends ClassPathXmlApplicationContext {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
         reader.setEntityResolver(new BusEntityResolver(new BeansDtdResolver(),
             new PluggableSchemaResolver(cl)));
+    }
+    @Override
+    protected void loadBeanDefinitions(DefaultListableBeanFactory beanFactory) throws IOException {
+            // Create a new XmlBeanDefinitionReader for the given BeanFactory.
+        XmlBeanDefinitionReader beanDefinitionReader = 
+            new ControlledValidationXmlBeanDefinitionReader(beanFactory);
+        
+        // Configure the bean definition reader with this context's
+        // resource loading environment.
+        beanDefinitionReader.setResourceLoader(this);
+        beanDefinitionReader.setEntityResolver(new ResourceEntityResolver(this));
+
+        // Allow a subclass to provide custom initialization of the reader,
+        // then proceed with actually loading the bean definitions.
+        initBeanDefinitionReader(beanDefinitionReader);
+        loadBeanDefinitions(beanDefinitionReader);
     }
     
 }
