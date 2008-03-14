@@ -22,6 +22,8 @@ package org.apache.cxf.tools.wsdlto;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -365,6 +367,31 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
         }
 
         env.put(ToolConstants.CFG_WSDLURL, URIParserUtil.normalize(wsdl));
+        if (!env.containsKey(ToolConstants.CFG_WSDLLOCATION)) {
+            //make sure the "raw" form is used for the wsdlLocation
+            //instead of the absolute URI that normalize may return
+            try {
+                URL url = new URL(wsdl);
+                wsdl = url.toString();
+            } catch (MalformedURLException e) {
+                //not a URL, assume file
+                if (wsdl.indexOf(":") != -1 && !wsdl.startsWith("/")) {
+                    wsdl = "file:/" + wsdl;
+                } else {
+                    wsdl = "file:" + wsdl;
+                }
+                try {
+                    URL url = new URL(wsdl);
+                    wsdl = url.toString();
+                } catch (MalformedURLException e1) {
+                    //ignore... 
+                }
+            }
+            wsdl = wsdl.replace("\\", "/");
+
+            env.put(ToolConstants.CFG_WSDLLOCATION, wsdl);
+        }
+        
 
         String[] bindingFiles;
         try {

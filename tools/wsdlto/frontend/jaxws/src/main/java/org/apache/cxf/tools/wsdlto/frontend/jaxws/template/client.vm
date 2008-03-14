@@ -48,21 +48,18 @@ public final class ${clientClassName} {
     }
 
     public static void main(String args[]) throws Exception {
-
-        if (args.length == 0) { 
-            System.out.println("please specify wsdl");
-            System.exit(1); 
-        }
-        URL wsdlURL = null;
-        File wsdlFile = new File(args[0]);
-        try {
-            if (wsdlFile.exists()) {
-                wsdlURL = wsdlFile.toURI().toURL();
-            } else {
-                wsdlURL = new URL(args[0]);
+        URL wsdlURL = ${service.Name}.WSDL_LOCATION;
+        if (args.length > 0) { 
+            File wsdlFile = new File(args[0]);
+            try {
+                if (wsdlFile.exists()) {
+                    wsdlURL = wsdlFile.toURI().toURL();
+                } else {
+                    wsdlURL = new URL(args[0]);
+                }
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
             }
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
         }
       
         $service.Name ss = new ${service.Name}(wsdlURL, SERVICE_NAME);
