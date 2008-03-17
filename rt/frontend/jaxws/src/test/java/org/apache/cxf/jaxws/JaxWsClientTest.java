@@ -106,6 +106,43 @@ public class JaxWsClientTest extends AbstractJaxWsTest {
     }
 
     @Test
+    public void testRequestContextPutAndRemoveEcho() throws Exception {
+        URL url = getClass().getResource("/wsdl/hello_world.wsdl");
+        javax.xml.ws.Service s = javax.xml.ws.Service
+            .create(url, serviceName);
+        Greeter greeter = s.getPort(portName, Greeter.class);
+        final InvocationHandler handler  = Proxy.getInvocationHandler(greeter);
+                
+        Map<String, Object> requestContext = ((BindingProvider)handler).getRequestContext();
+        requestContext.put(JaxWsClientProxy.THREAD_LOCAL_REQUEST_CONTEXT, Boolean.TRUE);
+        
+        //re-get the context so it's not a thread safe variant
+        requestContext = ((BindingProvider)handler).getRequestContext();
+        
+        final String key = "Hi";
+    
+        requestContext.put(key, "ho");
+        
+        final Object[] result = new Object[2];
+        Thread t = new Thread() {
+            public void run() {
+                Map<String, Object> requestContext = ((BindingProvider)handler).getRequestContext();
+                result[0] = requestContext.get(key);
+                requestContext.remove(key);
+                result[1] = requestContext.get(key);
+            }
+        };
+        t.start();
+        t.join();
+        
+        assertEquals("thread sees the put", "ho", result[0]);
+        assertNull("thread did not remove the put", result[1]);
+        
+        assertEquals("main thread does not see removal", 
+                     "ho", requestContext.get(key));
+    }
+
+    @Test
     public void testEndpoint() throws Exception {
         ReflectionServiceFactoryBean bean = new JaxWsServiceFactoryBean();
         URL resource = getClass().getResource("/wsdl/hello_world.wsdl");
