@@ -20,8 +20,6 @@
 package org.apache.cxf.jaxws.support;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Array;
-import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -728,27 +726,13 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
         return Holder.class.equals(cls);
     }
     
-    public Class<?> getHolderType(Class<?> cls, Type type) {
+    public Type getHolderType(Class<?> cls, Type type) {
         if (cls.equals(Holder.class) && type instanceof ParameterizedType) {
             ParameterizedType paramType = (ParameterizedType)type;
-            cls = getHolderClass(paramType);
+            return paramType.getActualTypeArguments()[0];
         }
 
         return cls;
     }   
     
-    private static Class getHolderClass(ParameterizedType paramType) {
-        Object rawType = paramType.getActualTypeArguments()[0];
-        Class rawClass;
-        if (rawType instanceof GenericArrayType) {
-            rawClass = (Class)((GenericArrayType)rawType).getGenericComponentType();
-            rawClass = Array.newInstance(rawClass, 0).getClass();
-        } else {
-            if (rawType instanceof ParameterizedType) {
-                rawType = (Class)((ParameterizedType)rawType).getRawType();
-            }
-            rawClass = (Class)rawType;
-        }
-        return rawClass;
-    }
 }

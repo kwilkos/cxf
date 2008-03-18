@@ -152,4 +152,8 @@ public class DocLitWrappedCodeFirstServiceImpl implements DocLitWrappedCodeFirst
         return i;
     }
 
+
+    public boolean listObjectIn(Holder<List<Foo[]>> foos) {
+        return false;
+    }
 }
