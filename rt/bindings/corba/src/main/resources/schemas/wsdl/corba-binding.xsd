@@ -28,7 +28,8 @@
     elementFormDefault="qualified" 
     attributeFormDefault="unqualified"> 
     
-    <xs:import namespace="http://schemas.xmlsoap.org/wsdl/" schemaLocation="http://schemas.xmlsoap.org/wsdl/"/>
+    <xs:import namespace="http://schemas.xmlsoap.org/wsdl/"
+        schemaLocation="http://schemas.xmlsoap.org/wsdl/2003-02-11.xsd"/>
   
         <xs:complexType name="corbaType">
                 <xs:annotation>

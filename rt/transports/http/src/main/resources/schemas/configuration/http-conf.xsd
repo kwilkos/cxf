@@ -34,7 +34,7 @@
 
     <xs:include schemaLocation="http://cxf.apache.org/schemas/wsdl/http-conf.xsd"/> 
     <xs:import namespace="http://schemas.xmlsoap.org/wsdl/" 
-               schemaLocation="http://schemas.xmlsoap.org/wsdl/"/>
+               schemaLocation="http://schemas.xmlsoap.org/wsdl/2003-02-11.xsd"/>
     <xs:import namespace="http://cxf.apache.org/configuration/security" 
                schemaLocation="http://cxf.apache.org/schemas/configuration/security.xsd"/>
     <xs:import namespace="http://www.springframework.org/schema/beans" 
