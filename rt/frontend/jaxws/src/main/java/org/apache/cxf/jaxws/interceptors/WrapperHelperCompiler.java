@@ -24,8 +24,11 @@ import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.xml.bind.JAXBElement;
+
+import org.apache.cxf.common.util.WeakIdentityHashMap;
 
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
@@ -34,6 +37,8 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
 final class WrapperHelperCompiler {
+    private static final Map<Class<?>, TypeHelperClassLoader> LOADER_MAP 
+        = new WeakIdentityHashMap<Class<?>, TypeHelperClassLoader>();
     private static final Map<Class<?>, String> PRIMITIVE_MAP = new HashMap<Class<?>, String>();
     private static final Map<Class<?>, String> NONPRIMITIVE_MAP = new HashMap<Class<?>, String>();
     
@@ -138,9 +143,31 @@ final class WrapperHelperCompiler {
         if (cw == null) {
             return null;
         }
-        String newClassName = wrapperType.getName() + "_WrapperTypeHelper";
+        int count = 1;
+        String newClassName = wrapperType.getName() + "_WrapperTypeHelper" + count;
         newClassName = newClassName.replaceAll("\\$", ".");
         newClassName = periodToSlashes(newClassName);
+
+        Class<?> cls = findClass(newClassName.replace('/', '.'), wrapperType);
+        while (cls != null) {
+            try {
+                WrapperHelper helper = WrapperHelper.class.cast(cls.newInstance());
+                if (!helper.getSignature().equals(computeSignature())) {
+                    count++;
+                    newClassName = wrapperType.getName() + "_WrapperTypeHelper" + count;
+                    newClassName = newClassName.replaceAll("\\$", ".");
+                    newClassName = periodToSlashes(newClassName);
+                    cls = findClass(newClassName.replace('/', '.'), wrapperType);
+                } else {
+                    return helper;
+                }
+            } catch (Exception e) {
+                return null;
+            }
+        }
+        
+        
+        
         cw.visit(Opcodes.V1_5,
                  Opcodes.ACC_PUBLIC | Opcodes.ACC_SUPER,
                  newClassName,
@@ -149,13 +176,15 @@ final class WrapperHelperCompiler {
                  null);
         
         addConstructor(newClassName, cw, objectFactory == null ? null : objectFactory.getClass());
-        boolean b = addCreateWrapperObject(newClassName,
-                                           objectFactory == null ? null : objectFactory.getClass());
+        boolean b = addSignature();
+        if (b) {
+            addCreateWrapperObject(newClassName,
+                                   objectFactory == null ? null : objectFactory.getClass());
+        }
         if (b) {
             b = addGetWrapperParts(newClassName, wrapperType,
                            getMethods, fields, cw);
         }
-        
                                                                           
         try {
             if (b) {
@@ -167,21 +196,46 @@ final class WrapperHelperCompiler {
                 Object o = cl.newInstance();
                 return WrapperHelper.class.cast(o);
             }
-        } catch (Exception e) {
+        } catch (Throwable e) {
             //ignore, we'll just fall down to reflection based
         }
         return null;
     }
     
-    
-    private static class TypeHelperClassLoader extends ClassLoader {
-        TypeHelperClassLoader(ClassLoader parent) {
-            super(parent);
+
+    private String computeSignature() {
+        StringBuilder b = new StringBuilder();
+        b.append(setMethods.length).append(':');
+        for (int x = 0; x < setMethods.length; x++) {
+            if (getMethods[x] == null) {
+                b.append("null,");
+            } else {
+                b.append(getMethods[x].getName()).append('/');
+                b.append(getMethods[x].getReturnType().getName()).append(',');                
+            }
         }
-        public Class<?> defineClass(String name, byte bytes[]) {
-            return super.defineClass(name, bytes, 0, bytes.length);
-        }
+        return b.toString();
     }
+    
+    private boolean addSignature() {
+        String sig = computeSignature();
+        if (sig == null) {
+            return false;
+        }
+        MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC,
+                                          "getSignature", "()Ljava/lang/String;", null, null);
+        mv.visitCode();
+        Label l0 = new Label();
+        mv.visitLabel(l0);
+        mv.visitLdcInsn(sig);
+        mv.visitInsn(Opcodes.ARETURN);
+        Label l1 = new Label();
+        mv.visitLabel(l1);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+        return true;
+    }
+
     private static void addConstructor(String newClassName, ClassWriter cw,  Class<?> objectFactory) {
         
         if (objectFactory != null) {
@@ -322,7 +376,6 @@ final class WrapperHelperCompiler {
         mv.visitMethodInsn(Opcodes.INVOKEINTERFACE, "java/util/List",
                            "get", "(I)Ljava/lang/Object;");
         mv.visitTypeInsn(Opcodes.CHECKCAST, "java/util/List");
-        mv.visitTypeInsn(Opcodes.CHECKCAST, "java/util/List");
         mv.visitVarInsn(Opcodes.ASTORE, 4);
         mv.visitVarInsn(Opcodes.ALOAD, 3);
         Label nonNullLabel = new Label();
@@ -339,6 +392,8 @@ final class WrapperHelperCompiler {
         } else {
             mv.visitVarInsn(Opcodes.ALOAD, 2);
             mv.visitVarInsn(Opcodes.ALOAD, 4);
+            mv.visitTypeInsn(Opcodes.CHECKCAST,
+                             getMethods[x].getReturnType().getName().replace('.', '/'));
             mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
                                periodToSlashes(wrapperType.getName()),
                                setMethods[x].getName(),
@@ -475,6 +530,56 @@ final class WrapperHelperCompiler {
             }
         }
         return new String(ch);
+    }
+
+
+    public Class<?> loadClass(String className, Class clz , byte[] bytes) { 
+        TypeHelperClassLoader loader = getTypeHelperClassLoader(clz);
+        return loader.defineClass(className, bytes);
+    }
+    public Class<?> findClass(String className, Class clz) { 
+        TypeHelperClassLoader loader = getTypeHelperClassLoader(clz);
+        return loader.lookupDefinedClass(className);
+    }
+
+    private static synchronized TypeHelperClassLoader getTypeHelperClassLoader(Class<?> l) {
+        TypeHelperClassLoader ret = LOADER_MAP.get(l);
+        if (ret == null) {
+            ret = new TypeHelperClassLoader(l.getClassLoader());
+            LOADER_MAP.put(l, ret);
+        }
+        return ret;
+    }
+
+    public static class TypeHelperClassLoader extends ClassLoader {
+        Map<String, Class<?>> defined = new ConcurrentHashMap<String, Class<?>>();
+
+        TypeHelperClassLoader(ClassLoader parent) {
+            super(parent);
+        }
+        public Class<?> lookupDefinedClass(String name) {
+            return defined.get(name);
+        }
+
+        public Class<?> defineClass(String name, byte bytes[]) {
+            if (name.endsWith("package-info")) {
+                Package p = super.getPackage(name.substring(0, name.length() - 13));
+                if (p == null) {
+                    definePackage(name.substring(0, name.length() - 13).replace('/', '.'),
+                                    null,
+                                    null,
+                                    null, 
+                                    null,
+                                    null,
+                                    null,
+                                    null);
+                }
+            }
+
+            Class<?> ret = super.defineClass(name.replace('/', '.'), bytes, 0, bytes.length);
+            defined.put(name, ret);
+            return ret;
+        }
     }
 
 }

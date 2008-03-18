@@ -42,6 +42,7 @@ public abstract class WrapperHelper {
     
     public abstract List<Object> getWrapperParts(Object o) throws Fault;
 
+    public abstract String getSignature();
     
     public static WrapperHelper createWrapperHelper(Class<?> wrapperType,
                                                     List<String> partNames,
@@ -260,7 +261,9 @@ public abstract class WrapperHelper {
             wrapperType = wt;
             objectFactory = of;
         }
-        
+        public String getSignature() {
+            return "" + System.identityHashCode(this);
+        }
         public Object createWrapperObject(List<?> lst) 
             throws Fault {
             
