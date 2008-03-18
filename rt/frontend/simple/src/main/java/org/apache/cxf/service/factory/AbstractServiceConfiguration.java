@@ -184,7 +184,7 @@ public abstract class AbstractServiceConfiguration {
         return null;
     }
     
-    public Class<?> getHolderType(Class<?> cls, Type type) {
+    public Type getHolderType(Class<?> cls, Type type) {
         return null;
     }
 }
