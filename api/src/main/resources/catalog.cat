@@ -19,4 +19,5 @@
 
 
 SYSTEM "http://schemas.xmlsoap.org/wsdl/" "../../../target/schemas/schemas/wsdl/wsdl.xsd"
+SYSTEM "http://schemas.xmlsoap.org/wsdl/2003-02-11.xsd" "../../../target/schemas/schemas/wsdl/wsdl.xsd"
 
