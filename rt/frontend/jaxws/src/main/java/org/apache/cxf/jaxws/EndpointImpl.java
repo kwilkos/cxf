@@ -29,6 +29,7 @@ import javax.xml.namespace.QName;
 import javax.xml.transform.Source;
 import javax.xml.ws.Binding;
 import javax.xml.ws.WebServicePermission;
+import javax.xml.ws.handler.Handler;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
@@ -85,6 +86,7 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
     private List<Interceptor> out = new ModCountCopyOnWriteArrayList<Interceptor>();
     private List<Interceptor> outFault  = new ModCountCopyOnWriteArrayList<Interceptor>();
     private List<Interceptor> inFault  = new ModCountCopyOnWriteArrayList<Interceptor>();
+    private List<Handler> handlers = new ModCountCopyOnWriteArrayList<Handler>();
 
     public EndpointImpl(Object implementor) {
         this(BusFactory.getThreadDefaultBus(), implementor);
@@ -293,7 +295,10 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
             if (executor != null) {
                 serverFactory.getServiceFactory().setExecutor(executor);
             }
-            
+            if (handlers.size() > 0) {
+                serverFactory.addHandlers(handlers);
+            }
+
             configureObject(serverFactory);
             
             server = serverFactory.create();
@@ -435,6 +440,13 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
 
     public void setOutFaultInterceptors(List<Interceptor> interceptors) {
         outFault = interceptors;
+    }
+    public void setHandlers(List<Handler> h) {
+        handlers.clear();
+        handlers.addAll(h);
+    }
+    public List<Handler> getHandlers() {
+        return handlers;
     }
 
     public List<AbstractFeature> getFeatures() {

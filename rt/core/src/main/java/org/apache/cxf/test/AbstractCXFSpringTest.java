@@ -44,7 +44,7 @@ public abstract class AbstractCXFSpringTest extends AbstractCXFTest {
      * Load up all the beans from the XML files returned by the getConfigLocations method.
      * @throws Exception 
      */
-    protected AbstractCXFSpringTest() throws Exception {
+    protected AbstractCXFSpringTest() {
     }
     
     @Before
@@ -96,7 +96,9 @@ public abstract class AbstractCXFSpringTest extends AbstractCXFTest {
      * @param context
      * @throws Exception 
      */
-    protected abstract void additionalSpringConfiguration(GenericApplicationContext context) throws Exception;
+    protected void additionalSpringConfiguration(GenericApplicationContext context) throws Exception {
+        //default - do nothing
+    }
 
     /**
      * Convenience method for the common case of retrieving a bean from the context.
@@ -110,3 +112,4 @@ public abstract class AbstractCXFSpringTest extends AbstractCXFTest {
         return type.cast(applicationContext.getBean(beanName));
     }
 }
+
