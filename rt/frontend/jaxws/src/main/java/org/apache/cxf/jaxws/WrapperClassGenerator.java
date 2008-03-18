@@ -21,7 +21,6 @@ package org.apache.cxf.jaxws;
 
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Array;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
@@ -38,11 +37,13 @@ import javax.xml.bind.annotation.XmlMimeType;
 import javax.xml.bind.annotation.XmlNsForm;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import javax.xml.namespace.QName;
+import javax.xml.ws.Holder;
 
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.ASMHelper;
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.helpers.JavaUtils;
+import org.apache.cxf.jaxb.JAXBUtils;
 import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
 import org.apache.cxf.service.model.InterfaceInfo;
 import org.apache.cxf.service.model.MessageInfo;
@@ -250,40 +251,79 @@ public final class WrapperClassGenerator extends ASMHelper {
         if (obj != null) {
             clz = (Class)obj;
         }
-        Class genericTypeClass = null;
         Type genericType = (Type)mpi.getProperty(ReflectionServiceFactoryBean.GENERIC_TYPE);
+        if (genericType instanceof ParameterizedType) {
+            ParameterizedType tp = (ParameterizedType)genericType;
+            if (tp.getRawType() instanceof Class
+                && Holder.class.isAssignableFrom((Class)tp.getRawType())) {
+                genericType = tp.getActualTypeArguments()[0];
+            }
+        }
+        String classCode = getClassCode(clz);
+        String fieldDescriptor = null;
+        
         if (genericType instanceof ParameterizedType
-            && Collection.class.isAssignableFrom(clz)) {
+            && (Collection.class.isAssignableFrom(clz) || clz.isArray())) {
             ParameterizedType ptype = (ParameterizedType)genericType;
 
             Type[] types = ptype.getActualTypeArguments();
             // TODO: more complex Parameterized type
             if (types.length > 0) {
                 if (types[0] instanceof Class) {
-                    genericTypeClass = (Class)types[0];
+                    fieldDescriptor = getClassCode(genericType);
                 } else if (types[0] instanceof GenericArrayType) {
-                    genericTypeClass = (Class)((GenericArrayType)types[0]).getGenericComponentType();
-                    genericTypeClass = Array.newInstance(genericTypeClass, 0).getClass();
+                    fieldDescriptor = getClassCode(genericType);
+                } else if (types[0] instanceof ParameterizedType) {
+                    classCode = getClassCode(((ParameterizedType)types[0]).getRawType());
+                    fieldDescriptor = getClassCode(genericType);
                 }
             }
         }
-        String classCode = getClassCode(clz);
-
-        String filedDescriptor = null;
-        if (genericTypeClass != null
-            && Collection.class.isAssignableFrom(clz)) {
-            filedDescriptor = classCode.substring(0, classCode.lastIndexOf(";")) + "<"
-                              + getClassCode(genericTypeClass) + ">;";
-        }
         String fieldName = JavaUtils.isJavaKeyword(name) ? JavaUtils.makeNonJavaKeyword(name) : name;
         
-        FieldVisitor fv = cw.visitField(Opcodes.ACC_PRIVATE, fieldName, 
-                                        classCode, filedDescriptor, null);
+        FieldVisitor fv = cw.visitField(Opcodes.ACC_PRIVATE,
+                                        fieldName, 
+                                        classCode,
+                                        fieldDescriptor,
+                                        null);
+        
+        
         AnnotationVisitor av0 = fv.visitAnnotation("Ljavax/xml/bind/annotation/XmlElement;", true);
         av0.visit("name", name);
         av0.visitEnd();
 
         List<Annotation> jaxbAnnos = getJaxbAnnos(mpi);
+        addJAXBAnnotations(fv, jaxbAnnos);
+        fv.visitEnd();
+
+        String methodName = JAXBUtils.nameToIdentifier(name, JAXBUtils.IdentifierType.GETTER);
+        MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC, methodName, "()" + classCode, 
+                                          fieldDescriptor == null ? null : "()" + fieldDescriptor,
+                                          null);
+        mv.visitCode();
+
+        mv.visitVarInsn(Opcodes.ALOAD, 0);
+        mv.visitFieldInsn(Opcodes.GETFIELD, classFileName, fieldName, classCode);
+        mv.visitInsn(org.objectweb.asm.Type.getType(classCode).getOpcode(Opcodes.IRETURN));
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+        
+        methodName = JAXBUtils.nameToIdentifier(name, JAXBUtils.IdentifierType.SETTER);
+        mv = cw.visitMethod(Opcodes.ACC_PUBLIC, methodName, "(" + classCode + ")V",
+                            fieldDescriptor == null ? null : "(" + fieldDescriptor + ")V", null);
+        mv.visitCode();
+        mv.visitVarInsn(Opcodes.ALOAD, 0);
+        org.objectweb.asm.Type setType = org.objectweb.asm.Type.getType(classCode);
+        mv.visitVarInsn(setType.getOpcode(Opcodes.ILOAD), 1);
+        mv.visitFieldInsn(Opcodes.PUTFIELD, className, fieldName, classCode);       
+        mv.visitInsn(Opcodes.RETURN);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+
+    }
+     
+    private void addJAXBAnnotations(FieldVisitor fv, List<Annotation> jaxbAnnos) {
+        AnnotationVisitor av0;
         for (Annotation ann : jaxbAnnos) {
             if (ann instanceof XmlMimeType) {
                 av0 = fv.visitAnnotation("Ljavax/xml/bind/annotation/XmlMimeType;", true);
@@ -306,32 +346,8 @@ public final class WrapperClassGenerator extends ASMHelper {
                 av0 = fv.visitAnnotation("Ljavax/xml/bind/annotation/XmlList;", true);
                 av0.visitEnd();
             }
-
         }
-
-        fv.visitEnd();
-
-        String methodName = StringUtils.capitalize(name);
-
-        MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC, "get" + methodName, "()" + classCode, null,
-                                          null);
-        mv.visitCode();
-
-        mv.visitVarInsn(Opcodes.ALOAD, 0);
-        mv.visitFieldInsn(Opcodes.GETFIELD, classFileName, fieldName, classCode);
-        mv.visitInsn(org.objectweb.asm.Type.getType(classCode).getOpcode(Opcodes.IRETURN));
-        mv.visitMaxs(0, 0);
-        mv.visitEnd();
-        
-        mv = cw.visitMethod(Opcodes.ACC_PUBLIC, "set" + methodName, "(" + classCode + ")V", null, null);
-        mv.visitCode();
-        mv.visitVarInsn(Opcodes.ALOAD, 0);
-        org.objectweb.asm.Type setType = org.objectweb.asm.Type.getType(classCode);
-        mv.visitVarInsn(setType.getOpcode(Opcodes.ILOAD), 1);
-        mv.visitFieldInsn(Opcodes.PUTFIELD, className, fieldName, classCode);       
-        mv.visitInsn(Opcodes.RETURN);
-        mv.visitMaxs(0, 0);
-        mv.visitEnd();
-
     }
+    
+    
 }

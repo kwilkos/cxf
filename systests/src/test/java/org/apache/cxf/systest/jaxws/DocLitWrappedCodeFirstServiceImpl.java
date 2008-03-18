@@ -180,4 +180,8 @@ public class DocLitWrappedCodeFirstServiceImpl implements DocLitWrappedCodeFirst
     public Bar createBar(String val) {
         return new BarImpl(val);
     }
+
+    public boolean listObjectIn(Holder<List<Foo[]>> foos) {
+        return false;
+    }
 }

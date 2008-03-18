@@ -81,6 +81,11 @@ public interface DocLitWrappedCodeFirstService {
     List<Foo> listObjectOutput();
 
     @WebMethod
+    boolean listObjectIn(@WebParam(mode = WebParam.Mode.INOUT)
+                         Holder<List<Foo[]>> foos);
+
+    
+    @WebMethod
     List<Foo[]> listObjectArrayOutput();
     
     @WebMethod

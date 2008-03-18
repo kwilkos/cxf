@@ -20,8 +20,11 @@
 package org.apache.cxf.service.factory;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
+import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
 import java.net.MalformedURLException;
@@ -1441,11 +1444,42 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         }
     }
 
+    private static Class createArrayClass(GenericArrayType atp) {
+        Type tp = ((GenericArrayType)atp).getGenericComponentType();
+        Class rawClass = null;
+        if (tp instanceof Class) {
+            rawClass = (Class)tp;
+        } else if (tp instanceof GenericArrayType) {
+            rawClass = createArrayClass((GenericArrayType)tp);
+        } else if (tp instanceof ParameterizedType) {
+            rawClass = (Class)((ParameterizedType)tp).getRawType();
+            if (List.class.isAssignableFrom(rawClass)) { 
+                rawClass = getClass((ParameterizedType)tp);
+                rawClass = Array.newInstance(rawClass, 0).getClass();
+            }
+        }
+        return Array.newInstance(rawClass, 0).getClass();
+    }
+    
+    private static Class getClass(Type paramType) {
+        Class rawClass = null;
+        if (paramType instanceof Class) {
+            rawClass = (Class)paramType;
+        } else if (paramType instanceof GenericArrayType) {
+            rawClass = createArrayClass((GenericArrayType)paramType);
+        } else if (paramType instanceof ParameterizedType) {
+            rawClass = (Class)((ParameterizedType)paramType).getRawType();
+        } 
+        return rawClass;
+    }
+    
+    
     protected void initializeParameter(MessagePartInfo part, Class rawClass, Type type) {
         if (isHolder(rawClass, type)) {
-            Class<?> c = getHolderType(rawClass, type);
+            Type c = getHolderType(rawClass, type);
             if (c != null) {
-                rawClass = c;
+                type = c;
+                rawClass = getClass(type);
             }
         }
         part.setProperty(GENERIC_TYPE, type);
@@ -1549,9 +1583,9 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         return false;
     }
     
-    public Class<?> getHolderType(Class<?> cls, Type type) {
+    public Type getHolderType(Class<?> cls, Type type) {
         for (AbstractServiceConfiguration c : serviceConfigurations) {
-            Class<?> b = c.getHolderType(cls, type);
+            Type b = c.getHolderType(cls, type);
             if (b != null) {
                 return b;
             }

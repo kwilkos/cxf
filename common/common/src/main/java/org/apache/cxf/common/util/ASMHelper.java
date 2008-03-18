@@ -20,7 +20,10 @@
 package org.apache.cxf.common.util;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -89,6 +92,30 @@ public class ASMHelper {
             return "[" + getClassCode(cl.getComponentType());
         }
         return "L" + periodToSlashes(cl.getName()) + ";";
+    }
+    public static String getClassCode(Type type) {
+        if (type instanceof Class) {
+            return getClassCode((Class)type);
+        } else if (type instanceof GenericArrayType) {
+            GenericArrayType at = (GenericArrayType)type;
+            return "[" + getClassCode(at.getGenericComponentType());
+        } else if (type instanceof ParameterizedType) {
+            ParameterizedType pt = (ParameterizedType)type;
+            StringBuilder a = new StringBuilder(getClassCode(pt.getRawType()));
+            a.setLength(a.length() - 1);
+            a.append('<');
+            boolean first = true;
+            for (Type t : pt.getActualTypeArguments()) {
+                if (!first) {
+                    a.append(" ,");
+                }
+                first = false;
+                a.append(getClassCode(t));  
+            }
+            a.append(">;");
+            return a.toString();
+        }
+        return null;
     }
     
     
