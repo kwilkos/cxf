@@ -189,7 +189,7 @@ public class ASMHelper {
             if (name.endsWith("package-info")) {
                 Package p = super.getPackage(name.substring(0, name.length() - 13));
                 if (p == null) {
-                    definePackage(name.substring(0, name.length() - 13),
+                    definePackage(name.substring(0, name.length() - 13).replace('/', '.'),
                                     null,
                                     null,
                                     null, 
@@ -200,7 +200,7 @@ public class ASMHelper {
                 }
             }
             
-            Class<?> ret = super.defineClass(name, bytes, 0, bytes.length);
+            Class<?> ret = super.defineClass(name.replace('/', '.'), bytes, 0, bytes.length);
             defined.put(name, ret);
             return ret;
         }

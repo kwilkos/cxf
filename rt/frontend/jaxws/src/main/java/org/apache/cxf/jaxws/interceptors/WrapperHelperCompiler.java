@@ -85,9 +85,31 @@ final class WrapperHelperCompiler extends ASMHelper {
         if (cw == null) {
             return null;
         }
-        String newClassName = wrapperType.getName() + "_WrapperTypeHelper";
+        int count = 1;
+        String newClassName = wrapperType.getName() + "_WrapperTypeHelper" + count;
         newClassName = newClassName.replaceAll("\\$", ".");
         newClassName = periodToSlashes(newClassName);
+
+        Class<?> cls = super.findClass(newClassName.replace('/', '.'), wrapperType);
+        while (cls != null) {
+            try {
+                WrapperHelper helper = WrapperHelper.class.cast(cls.newInstance());
+                if (!helper.getSignature().equals(computeSignature())) {
+                    count++;
+                    newClassName = wrapperType.getName() + "_WrapperTypeHelper" + count;
+                    newClassName = newClassName.replaceAll("\\$", ".");
+                    newClassName = periodToSlashes(newClassName);
+                    cls = super.findClass(newClassName.replace('/', '.'), wrapperType);
+                } else {
+                    return helper;
+                }
+            } catch (Exception e) {
+                return null;
+            }
+        }
+        
+        
+        
         cw.visit(Opcodes.V1_5,
                  Opcodes.ACC_PUBLIC | Opcodes.ACC_SUPER,
                  newClassName,
@@ -96,28 +118,63 @@ final class WrapperHelperCompiler extends ASMHelper {
                  null);
         
         addConstructor(newClassName, cw, objectFactory == null ? null : objectFactory.getClass());
-        boolean b = addCreateWrapperObject(newClassName,
-                                           objectFactory == null ? null : objectFactory.getClass());
+        boolean b = addSignature();
+        if (b) {
+            addCreateWrapperObject(newClassName,
+                                   objectFactory == null ? null : objectFactory.getClass());
+        }
         if (b) {
             b = addGetWrapperParts(newClassName, wrapperType,
                            getMethods, fields, cw);
         }
-        
                                                                           
         try {
             if (b) {
                 cw.visitEnd();
                 byte bt[] = cw.toByteArray();                
-                Class<?> cl = loadClass(newClassName, wrapperType, bt);
+                Class<?> cl = loadClass(newClassName.replace('/', '.'), wrapperType, bt);
                 Object o = cl.newInstance();
                 return WrapperHelper.class.cast(o);
             }
-        } catch (Exception e) {
+        } catch (Throwable e) {
             // ignore, we'll just fall down to reflection based
         }
         return null;
     }
     
+    private String computeSignature() {
+        StringBuilder b = new StringBuilder();
+        b.append(setMethods.length).append(':');
+        for (int x = 0; x < setMethods.length; x++) {
+            if (getMethods[x] == null) {
+                b.append("null,");
+            } else {
+                b.append(getMethods[x].getName()).append('/');
+                b.append(getMethods[x].getReturnType().getName()).append(',');                
+            }
+        }
+        return b.toString();
+    }
+    
+    private boolean addSignature() {
+        String sig = computeSignature();
+        if (sig == null) {
+            return false;
+        }
+        MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC,
+                                          "getSignature", "()Ljava/lang/String;", null, null);
+        mv.visitCode();
+        Label l0 = new Label();
+        mv.visitLabel(l0);
+        mv.visitLdcInsn(sig);
+        mv.visitInsn(Opcodes.ARETURN);
+        Label l1 = new Label();
+        mv.visitLabel(l1);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+        return true;
+    }
+
     private static void addConstructor(String newClassName, ClassWriter cw,  Class<?> objectFactory) {
         
         if (objectFactory != null) {
@@ -182,7 +239,7 @@ final class WrapperHelperCompiler extends ASMHelper {
             if (getMethods[x] == null) { 
                 if (setMethods[x] == null
                     && fields[x] == null) {
-                    // null placeholder, just skip it
+                    // null placeholder
                     continue;
                 } else {
                     return false;
@@ -258,7 +315,6 @@ final class WrapperHelperCompiler extends ASMHelper {
         mv.visitMethodInsn(Opcodes.INVOKEINTERFACE, "java/util/List",
                            "get", "(I)Ljava/lang/Object;");
         mv.visitTypeInsn(Opcodes.CHECKCAST, "java/util/List");
-        mv.visitTypeInsn(Opcodes.CHECKCAST, "java/util/List");
         mv.visitVarInsn(Opcodes.ASTORE, 4);
         mv.visitVarInsn(Opcodes.ALOAD, 3);
         Label nonNullLabel = new Label();
@@ -275,6 +331,8 @@ final class WrapperHelperCompiler extends ASMHelper {
         } else {
             mv.visitVarInsn(Opcodes.ALOAD, 2);
             mv.visitVarInsn(Opcodes.ALOAD, 4);
+            mv.visitTypeInsn(Opcodes.CHECKCAST,
+                             getMethods[x].getReturnType().getName().replace('.', '/'));
             mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
                                periodToSlashes(wrapperType.getName()),
                                setMethods[x].getName(),
