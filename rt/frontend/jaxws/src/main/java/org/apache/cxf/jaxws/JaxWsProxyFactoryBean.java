@@ -57,6 +57,7 @@ public class JaxWsProxyFactoryBean extends ClientProxyFactoryBean {
     protected ClientProxy clientClientProxy(Client c) {
         JaxWsClientProxy cp = new JaxWsClientProxy(c, 
                                                    ((JaxWsEndpointImpl)c.getEndpoint()).getJaxwsBinding());
+        cp.getRequestContext().putAll(this.getProperties());
         buildHandlerChain(cp);
         return cp;
     }
