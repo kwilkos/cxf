@@ -21,13 +21,40 @@ package org.apache.cxf.interceptor;
 
 import java.util.List;
 
+/**
+ * The InterceptorProvider interface is implemented by objects that have
+ * interceptor chains associated with them.  The methods in this interface
+ * provide an ability to add and remove interceptors within the chains
+ * of the InterceptorProvider.
+ */
 public interface InterceptorProvider {
     
+    /**
+     * Returns the list of interceptors attached to the incoming interceptor
+     * chain of the object.
+     * @return <code>List<Interceptor></code> incoming interceptor chain
+     */
     List<Interceptor> getInInterceptors();
     
+    /**
+     * Returns the list of interceptors attached to the outgoing interceptor
+     * chain of the object.
+     * @return <code>List<Interceptor></code> outgoing interceptor chain
+     */
     List<Interceptor> getOutInterceptors();
     
+    /**
+     * Returns the list of interceptors attached to the incoming fault interceptor
+     * chain of the object.
+     * @return <code>List<Interceptor></code> incoming fault interceptor chain
+     */
+    List<Interceptor> getInFaultInterceptors();
+
+    /**
+     * Returns the list of interceptors attached to the outgoing fault interceptor
+     * chain of the object.
+     * @return <code>List<Interceptor></code> outgoing fault interceptor chain
+     */
     List<Interceptor> getOutFaultInterceptors();
     
-    List<Interceptor> getInFaultInterceptors();
 }
