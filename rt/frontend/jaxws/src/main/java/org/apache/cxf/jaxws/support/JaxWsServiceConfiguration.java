@@ -67,10 +67,12 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
      */
     private Map<Object, Class> responseMethodClassCache;
     private Map<Object, Class> requestMethodClassCache;
+    private Map<Method, Annotation[][]> methodAnnotationCache;
     
     public JaxWsServiceConfiguration() {
         responseMethodClassCache = new HashMap<Object, Class>();
         requestMethodClassCache = new HashMap<Object, Class>();
+        methodAnnotationCache = new HashMap<Method, Annotation[][]>();
     }
 
     @Override
@@ -318,7 +320,12 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
     }
 
     private WebParam getWebParam(Method method, int parameter) {
-        Annotation[][] annotations = method.getParameterAnnotations();
+        // we could really use a centralized location for this.
+        Annotation[][] annotations = methodAnnotationCache.get(method);
+        if (annotations == null) {
+            annotations = method.getParameterAnnotations();
+            methodAnnotationCache.put(method, annotations);
+        } 
         if (parameter >= annotations.length) {
             return null;
         } else {
@@ -536,6 +543,7 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
         if (clsName.length() > 0) {
             cachedClass = responseMethodClassCache.get(clsName);
             if (cachedClass != null) {
+                responseMethodClassCache.put(selected, cachedClass);
                 return cachedClass;
             }
             try {
@@ -599,6 +607,7 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
         if (clsName.length() > 0) {
             cachedClass = requestMethodClassCache.get(clsName);
             if (cachedClass != null) {
+                requestMethodClassCache.put(selected, cachedClass);
                 return cachedClass;
             }
             try {
