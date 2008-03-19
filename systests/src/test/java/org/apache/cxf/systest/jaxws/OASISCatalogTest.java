@@ -34,6 +34,8 @@ import org.apache.cxf.BusFactory;
 import org.apache.cxf.catalog.CatalogWSDLLocator;
 import org.apache.cxf.catalog.OASISCatalogManager;
 import org.apache.cxf.helpers.IOUtils;
+import org.apache.cxf.wsdl.WSDLManager;
+import org.apache.cxf.wsdl11.WSDLManagerImpl;
 
 import org.apache.hello_world.Greeter;
 import org.apache.hello_world.GreeterImpl;
@@ -97,6 +99,9 @@ public class OASISCatalogTest extends Assert {
         Bus bus = BusFactory.getDefaultBus();
         OASISCatalogManager catalog = new OASISCatalogManager();
         bus.setExtension(catalog, OASISCatalogManager.class);
+        // prevent cache from papering over the lack of a schema.
+        WSDLManagerImpl mgr = (WSDLManagerImpl)bus.getExtension(WSDLManager.class);
+        mgr.setDisableSchemaCache(true);
         
         try {
             SOAPService service = new SOAPService(wsdl, serviceName);

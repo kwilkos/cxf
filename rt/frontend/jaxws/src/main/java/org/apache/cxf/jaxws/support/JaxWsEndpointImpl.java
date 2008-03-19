@@ -208,7 +208,7 @@ public class JaxWsEndpointImpl extends EndpointImpl {
         Addressing addressing = getAddressing();
         if (addressing != null) {            
             ExtensionRegistry extensionRegistry = getBus().getExtension(WSDLManager.class)
-            .getExtenstionRegistry();            
+            .getExtensionRegistry();            
             try {
                 ExtensibilityElement el = extensionRegistry.createExtension(javax.wsdl.Binding.class, 
                                                                             JAXWSAConstants.

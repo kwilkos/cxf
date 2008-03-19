@@ -25,8 +25,8 @@ import java.util.WeakHashMap;
 
 
 /**
- * Implements a useful caching map.   It weakly references the keys, 
- * but strongly references the data.  It works a log like the WeakHashMap,
+ * Implements a useful caching map. It weakly references the keys, 
+ * but strongly references the data. It works much like the WeakHashMap,
  * in that when the keys are garbage collected, the data is removed from 
  * the map.
  * 

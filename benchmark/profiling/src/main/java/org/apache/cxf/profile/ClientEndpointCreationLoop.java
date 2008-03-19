@@ -61,6 +61,8 @@ public final class ClientEndpointCreationLoop {
         }
         Controller.stopAllocRecording();
         Controller.stopCPURecording();
-        Controller.saveSnapshot(new File(args[1]));
+        if (args.length > 1) {
+            Controller.saveSnapshot(new File(args[1]));
+        }
     }
 }

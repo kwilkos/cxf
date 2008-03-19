@@ -180,7 +180,7 @@ public class SoapBindingFactory extends AbstractBindingFactory {
     private void createSoapBinding(final SoapBindingInfo bi) throws WSDLException {
         boolean isSoap12 = bi.getSoapVersion() instanceof Soap12;
         ExtensionRegistry extensionRegistry = getBus().getExtension(WSDLManager.class)
-            .getExtenstionRegistry();
+            .getExtensionRegistry();
 
         SoapBinding soapBinding = SOAPBindingUtil.createSoapBinding(extensionRegistry, isSoap12);
         soapBinding.setStyle(bi.getStyle());

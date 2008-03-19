@@ -107,7 +107,7 @@ public class JaxWsServerFactoryBeanTest extends AbstractJaxWsTest {
         Definition def = new ServiceWSDLBuilder(bus, service).build();
 
         WSDLWriter wsdlWriter = bus.getExtension(WSDLManager.class).getWSDLFactory().newWSDLWriter();
-        def.setExtensionRegistry(bus.getExtension(WSDLManager.class).getExtenstionRegistry());
+        def.setExtensionRegistry(bus.getExtension(WSDLManager.class).getExtensionRegistry());
         Document doc = wsdlWriter.getDocument(def);
 
         Map<String, String> ns = new HashMap<String, String>();
@@ -142,7 +142,7 @@ public class JaxWsServerFactoryBeanTest extends AbstractJaxWsTest {
         Definition def = new ServiceWSDLBuilder(bus, service).build();
 
         WSDLWriter wsdlWriter = bus.getExtension(WSDLManager.class).getWSDLFactory().newWSDLWriter();
-        def.setExtensionRegistry(bus.getExtension(WSDLManager.class).getExtenstionRegistry());
+        def.setExtensionRegistry(bus.getExtension(WSDLManager.class).getExtensionRegistry());
         Document doc = wsdlWriter.getDocument(def);
 
         Map<String, String> ns = new HashMap<String, String>();
