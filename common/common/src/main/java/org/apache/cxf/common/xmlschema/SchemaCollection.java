@@ -251,23 +251,30 @@ public class SchemaCollection {
     }
     
     public void addGlobalElementToSchema(XmlSchemaElement element) {
-        XmlSchema schema = getSchemaByTargetNamespace(element.getQName().getNamespaceURI());
-        if (schema == null) {
-            schema = newXmlSchemaInCollection(element.getQName().getNamespaceURI());
+        synchronized (this) {
+            XmlSchema schema = getSchemaByTargetNamespace(element.getQName().getNamespaceURI());
+            if (schema == null) {
+                schema = newXmlSchemaInCollection(element.getQName().getNamespaceURI());
+            }
+            schema.getItems().add(element);
+             // believe it or not, it is up to us to do both of these adds!
+            schema.getElements().add(element.getQName(), element);
         }
-        schema.getItems().add(element);
-        // believe it or not, it is up to us to do both of these adds!
-        schema.getElements().add(element.getQName(), element);
     }
     
     public static void addGlobalElementToSchema(XmlSchema schema, XmlSchemaElement element) {
-        schema.getItems().add(element);
-        // believe it or not, it is up to us to do both of these adds!
-        schema.getElements().add(element.getQName(), element);
+        synchronized (schema) {
+            schema.getItems().add(element);
+            // believe it or not, it is up to us to do both of these adds!
+            schema.getElements().add(element.getQName(), element);
+        }
     }
     
     public static void addGlobalTypeToSchema(XmlSchema schema, XmlSchemaType type) {
-        schema.getItems().add(type);
-        schema.addType(type);
+        synchronized (schema) {
+            schema.getItems().add(type);
+            schema.addType(type);
+        }
     }
 }
+

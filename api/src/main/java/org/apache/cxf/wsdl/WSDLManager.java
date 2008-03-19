@@ -26,8 +26,9 @@ import javax.wsdl.Definition;
 import javax.wsdl.WSDLException;
 import javax.wsdl.extensions.ExtensionRegistry;
 import javax.wsdl.factory.WSDLFactory;
-
 import org.w3c.dom.Element;
+import org.apache.cxf.service.model.ServiceSchemaInfo;
+
 
 /**
  * WSDLManager
@@ -41,7 +42,7 @@ public interface WSDLManager {
      * this to register their own extensors.
      * @return the ExtensionRegistry
      */
-    ExtensionRegistry getExtenstionRegistry();
+    ExtensionRegistry getExtensionRegistry();
     
     /**
      * Returns the WSDLFactory that is used to read/write WSDL definitions
@@ -90,5 +91,19 @@ public interface WSDLManager {
      * @return all Definitions in the map
      */
     Map<Object, Definition> getDefinitions();
+    
+    /**
+     * This object will cache the schemas for a WSDL.
+     * @param wsdl
+     * @return
+     */
+    ServiceSchemaInfo getSchemasForDefinition(Definition wsdl);
+    
+    /**
+     * Register a collection of schemas for a WSDL.
+     * @param wsdl
+     * @param schemas
+     */
+    void putSchemasForDefinition(Definition wsdl, ServiceSchemaInfo schemas);
     
 }

@@ -201,7 +201,7 @@ public class ServiceWSDLBuilder {
 
     private Definition newDefinition(final QName name, String targetNamespace) {
         Definition d = bus.getExtension(WSDLManager.class).getWSDLFactory().newDefinition();
-        d.setExtensionRegistry(bus.getExtension(WSDLManager.class).getExtenstionRegistry());
+        d.setExtensionRegistry(bus.getExtension(WSDLManager.class).getExtensionRegistry());
         d.setQName(name);
         d.setTargetNamespace(targetNamespace);
         addNamespace(WSDLConstants.NP_SCHEMA_XSD, WSDLConstants.NU_SCHEMA_XSD, d);
