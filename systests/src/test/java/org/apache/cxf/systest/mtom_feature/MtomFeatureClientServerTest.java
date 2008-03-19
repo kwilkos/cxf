@@ -23,10 +23,14 @@ import java.awt.Image;
 import java.net.URL;
 import javax.imageio.ImageIO;
 import javax.xml.namespace.QName;
+import javax.xml.ws.BindingProvider;
+import javax.xml.ws.Endpoint;
 import javax.xml.ws.Holder;
+import javax.xml.ws.Service;
 import javax.xml.ws.soap.MTOMFeature;
 
 import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
+import org.apache.cxf.transport.local.LocalConduit;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -56,6 +60,45 @@ public class MtomFeatureClientServerTest extends AbstractBusClientServerTestBase
         Holder<byte[]> image = new Holder<byte[]>(bytes);
         port.echoData(image);
         assertNotNull(image);
+    }
+    
+    @Test
+    public void testWithLocalTransport() throws Exception {
+        Object implementor = new HelloImpl();
+        String address = "local://Hello";
+        Endpoint.publish(address, implementor);
+        QName portName = new QName("http://apache.org/cxf/systest/mtom_feature",
+                                   "HelloPort");
+        
+        Service service = Service.create(serviceName);
+        service.addPort(portName, 
+                        "http://schemas.xmlsoap.org/soap/", 
+                        "local://Hello");
+        port = service.getPort(portName,
+                               Hello.class,
+                               new MTOMFeature());
+
+        
+
+        ((BindingProvider)port).getRequestContext()
+            .put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, address);
+        
+        ((BindingProvider)port).getRequestContext()
+            .put(LocalConduit.DIRECT_DISPATCH, Boolean.TRUE);
+        Holder<byte[]> photo = new Holder<byte[]>("CXF".getBytes());
+        Holder<Image> image = new Holder<Image>(getImage("/java.jpg"));
+        port.detail(photo, image);
+        assertEquals("CXF", new String(photo.value));
+        assertNotNull(image.value);
+        
+        
+        ((BindingProvider)port).getRequestContext()
+            .put(LocalConduit.DIRECT_DISPATCH, Boolean.FALSE);
+        photo = new Holder<byte[]>("CXF".getBytes());
+        image = new Holder<Image>(getImage("/java.jpg"));
+        port.detail(photo, image);
+        assertEquals("CXF", new String(photo.value));
+        assertNotNull(image.value);
     }
 
     private Image getImage(String name) throws Exception {
