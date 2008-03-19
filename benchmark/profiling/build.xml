@@ -1,4 +1,4 @@
-<project name="CXF JProfile" default="run">
+<project name="CXF JProfile" default="compile">
 
    <property name="jprofile.home" location="/opt/jprofiler5"/>
    <property name="cxf.dist" location="../../distribution/target/apache-cxf-2.1-incubator-SNAPSHOT.dir/apache-cxf-2.1-incubator-SNAPSHOT"/>
@@ -152,11 +152,24 @@
     </delete>
   </target>
 
-  <target name="run" depends="compile,setNativeLibDir" description="Run the offline profiling sample">
+  <target name="run-client-endpoint" depends="compile,setNativeLibDir" description="Run the offline profiling sample">
 
     <java classname="org.apache.cxf.profile.ClientEndpointCreationLoop" fork="true">
       <arg value="100"/>
       <arg value="client_endpoint.jps"/>
+      <jvmarg value="-agentlib:jprofilerti=offline,id=146,config=jprofileConfig.xml"></jvmarg>
+      <jvmarg value="-Xbootclasspath/a:${jprofile.home}/bin/agent.jar"></jvmarg>
+      <env key="LD_LIBRARY_PATH" path="${nativelib.dir}:${nativelib.envvarValue}"/>
+
+      <classpath refid="run-classpath"/>
+    </java>
+  </target>
+
+  <target name="run-bus-init" depends="compile,setNativeLibDir" description="Run the offline profiling sample">
+
+    <java classname="org.apache.cxf.profile.DefaultBusInitialization" fork="true">
+      <arg value="100"/>
+      <arg value="bus_initialization.jps"/>
       <jvmarg value="-agentlib:jprofilerti=offline,id=146,config=jprofileConfig.xml"></jvmarg>
       <jvmarg value="-Xbootclasspath/a:${jprofile.home}/bin/agent.jar"></jvmarg>
       <env key="LD_LIBRARY_PATH" path="${nativelib.dir}:${nativelib.envvarValue}"/>
