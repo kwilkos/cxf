@@ -42,8 +42,8 @@
     </prerequisites>
 
     <properties>
-         <compiler.fork>false</compiler.fork>
-     </properties>
+        <compiler.fork>false</compiler.fork>
+    </properties>
 
 
     <distributionManagement>
@@ -141,7 +141,7 @@
         <module>maven-plugins/eclipse-plugin-generator</module>
 
     </modules>
-    
+
 
     <repositories>
         <repository>
@@ -151,8 +151,8 @@
             <layout>legacy</layout>
         </repository>
     </repositories>
-    
-    
+
+
     <profiles>
         <profile>
             <!-- default profile enables checkstyle and Xlint stuff -->
@@ -183,13 +183,14 @@
                                 <id>setup.eclipse.workspace</id>
                                 <phase>process-test-sources</phase>
                                 <goals>
-                                    <goal>add-maven-repo</goal>
+                                    <goal>configure-workspace</goal>
                                 </goals>
-                                <configuration>
-                                    <workspace>${eclipse.workspace.dir}</workspace>
-                                </configuration>
                             </execution>
                         </executions>
+                        <configuration>
+                            <workspace>${eclipse.workspace.dir}</workspace>
+                            <workspaceCodeStylesURL>file:etc/eclipse/CXFCodeFormatter.xml</workspaceCodeStylesURL>
+                        </configuration>
                     </plugin>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
@@ -260,15 +261,12 @@
 
 
                                         <!-- Add code format rules -->
-                                        <concat destfile="${full.eclipse.workspace}/.metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.jdt.core.prefs" append="true" fixlastline="true">
-                                            <filelist dir="${basedir}/etc/eclipse" files="org.eclipse.jdt.core.prefs" />
-                                        </concat>
-                                        <loadfile property="eclipse.code.format" srcFile="${basedir}/etc/eclipse/CXFCodeFormatter.xml" />
+                                        <loadfile property="eclipse.code.cleanup" srcFile="${basedir}/etc/eclipse/CXFCleanUp.xml" />
                                         <loadfile property="eclipse.code.templates" srcFile="${basedir}/etc/eclipse/codetemplates.xml" />
                                         <loadfile property="eclipse.xml.templates" srcFile="${basedir}/etc/eclipse/xmltemplates.xml" />
                                         <propertyfile file="${full.eclipse.workspace}/.metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.jdt.ui.prefs">
-                                            <entry key="formatter_profile" value="_CXF Java Conventions" />
-                                            <entry key="org.eclipse.jdt.ui.formatterprofiles" value="${eclipse.code.format}" />
+                                            <entry key="cleanup_profile" value="_CXF" />
+                                            <entry key="org.eclipse.jdt.ui.cleanupprofiles" value="${eclipse.code.cleanup}" />
                                             <entry key="org.eclipse.jdt.ui.text.custom_code_templates" value="${eclipse.code.templates}" />
 
                                             <!-- Add import order -->
@@ -278,10 +276,10 @@
                                             <entry key="outlinesortoption" value="T,SF,F,SI,I,C,SM,M," />
                                             <entry key="org.eclipse.jdt.ui.enable.visibility.order" value="true" />
                                         </propertyfile>
-					<propertyfile file="${full.eclipse.workspace}/.metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.wst.xml.ui.prefs">
-					    <entry key="eclipse.preferences.version" value="1"/>
-					    <entry key="org.eclipse.wst.sse.ui.custom_templates" value="${eclipse.xml.templates}" />
-					</propertyfile>
+                                        <propertyfile file="${full.eclipse.workspace}/.metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.wst.xml.ui.prefs">
+                                            <entry key="eclipse.preferences.version" value="1"/>
+                                            <entry key="org.eclipse.wst.sse.ui.custom_templates" value="${eclipse.xml.templates}" />
+                                        </propertyfile>
                                     </tasks>
                                 </configuration>
                                 <goals>
@@ -426,7 +424,7 @@
                                 <Implementation-Vendor>The Apache Software Foundation</Implementation-Vendor>
                                 <Implementation-Version>${version}</Implementation-Version>
                             </manifestEntries>
-                         </archive>
+                        </archive>
                     </configuration>
                 </plugin>
                 <plugin>
@@ -448,19 +446,14 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-eclipse-plugin</artifactId>
-                    <version>2.4</version>
-                    <configuration>
-                        <buildcommands>
-                            <java.lang.String>org.eclipse.jdt.core.javabuilder</java.lang.String>
-                            <java.lang.String>com.atlassw.tools.eclipse.checkstyle.CheckstyleBuilder</java.lang.String>
-                            <java.lang.String>net.sourceforge.pmd.runtime.pmdBuilder</java.lang.String>
-                        </buildcommands>
-                        <projectnatures>
-                            <nature>org.eclipse.jdt.core.javanature</nature>
-                            <nature>com.atlassw.tools.eclipse.checkstyle.CheckstyleNature</nature>
-                            <nature>net.sourceforge.pmd.runtime.pmdNature</nature>
-                        </projectnatures>
-                    </configuration>
+                    <version>2.5</version>
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.apache.cxf</groupId>
+                            <artifactId>cxf-buildtools</artifactId>
+                            <version>${project.version}</version>
+                        </dependency>
+                    </dependencies>
                 </plugin>
             </plugins>
         </pluginManagement>

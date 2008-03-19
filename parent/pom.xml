@@ -125,6 +125,37 @@
         <pluginManagement>
             <plugins>
                 <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-eclipse-plugin</artifactId>
+                    <configuration>
+                        <outputDirectory>${eclipse.outputDirectory}</outputDirectory>
+                        <buildcommands>
+                            <java.lang.String>org.eclipse.jdt.core.javabuilder</java.lang.String>
+                            <java.lang.String>com.atlassw.tools.eclipse.checkstyle.CheckstyleBuilder</java.lang.String>
+                            <java.lang.String>net.sourceforge.pmd.runtime.pmdBuilder</java.lang.String>
+                        </buildcommands>
+                        <projectnatures>
+                            <nature>org.eclipse.jdt.core.javanature</nature>
+                            <nature>com.atlassw.tools.eclipse.checkstyle.CheckstyleNature</nature>
+                            <nature>net.sourceforge.pmd.runtime.pmdNature</nature>
+                        </projectnatures>
+                        <additionalConfig>
+                            <file>
+                                <name>.checkstyle</name>
+                                <location>/cxf-eclipse-checkstyle${checkstyle.extension}</location>
+                            </file>
+                            <file>
+                                <name>.pmd</name>
+                                <location>/cxf-eclipse-pmd</location>
+                            </file>
+                            <file>
+                                <name>.ruleset</name>
+                                <location>/cxf-pmd-ruleset.xml</location>
+                            </file>
+                        </additionalConfig>
+                    </configuration>
+                </plugin>
+                <plugin>
                     <groupId>com.sun.tools.xjc.maven2</groupId>
                     <artifactId>maven-jaxb-plugin</artifactId>
                     <version>1.1</version>
@@ -979,47 +1010,12 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-eclipse-plugin</artifactId>
-                        <configuration>
-                            <outputDirectory>${eclipse.outputDirectory}</outputDirectory>
-                        </configuration>
                         <executions>
                             <execution>
                                 <id>setup.eclipse.project</id>
                                 <phase>process-test-sources</phase>
                                 <goals>
                                     <goal>eclipse</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-antrun-plugin</artifactId>
-                        <dependencies>
-                            <dependency>
-                                <groupId>org.apache.cxf</groupId>
-                                <artifactId>cxf-buildtools</artifactId>
-                                <version>${project.version}</version>
-                            </dependency>
-                        </dependencies>
-                        <executions>
-                            <execution>
-                                <id>setup.workspace</id>
-                                <phase>validate</phase>
-                                <configuration>
-                                    <tasks>
-                                        <whichresource resource="/cxf-eclipse-pmd" property="pmd.url" />
-                                        <whichresource resource="/cxf-pmd-ruleset.xml" property="pmdruleset.url" />
-                                        <whichresource resource="/cxf-eclipse-checkstyle${checkstyle.extension}" property="eclipse.checkstyle.url" />
-
-                                        <get src="${pmdruleset.url}" dest=".ruleset" />
-                                        <get src="${pmd.url}" dest=".pmd" />
-                                        <get src="${eclipse.checkstyle.url}" dest=".checkstyle" />
-
-                                    </tasks>
-                                </configuration>
-                                <goals>
-                                    <goal>run</goal>
                                 </goals>
                             </execution>
                         </executions>
