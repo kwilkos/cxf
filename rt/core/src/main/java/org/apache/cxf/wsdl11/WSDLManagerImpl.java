@@ -53,6 +53,7 @@ import org.apache.cxf.catalog.OASISCatalogManager;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.CacheMap;
 import org.apache.cxf.common.util.PropertiesLoaderUtils;
+import org.apache.cxf.service.model.ServiceSchemaInfo;
 import org.apache.cxf.wsdl.JAXBExtensionHelper;
 import org.apache.cxf.wsdl.WSDLConstants;
 import org.apache.cxf.wsdl.WSDLManager;
@@ -71,6 +72,9 @@ public class WSDLManagerImpl implements WSDLManager {
     final ExtensionRegistry registry;
     final WSDLFactory factory;
     final Map<Object, Definition> definitionsMap;
+    final Map<Definition, ServiceSchemaInfo> schemaCacheMap; 
+    private boolean disableSchemaCache;
+    
     private Bus bus;
 
     public WSDLManagerImpl() throws BusException {
@@ -93,6 +97,7 @@ public class WSDLManagerImpl implements WSDLManager {
             throw new BusException(e);
         }
         definitionsMap = new CacheMap<Object, Definition>();
+        schemaCacheMap = new CacheMap<Definition, ServiceSchemaInfo>();
 
         registerInitialExtensions();
     }
@@ -127,7 +132,7 @@ public class WSDLManagerImpl implements WSDLManager {
      * 
      * @see org.apache.cxf.wsdl.WSDLManager#getExtenstionRegistry()
      */
-    public ExtensionRegistry getExtenstionRegistry() {
+    public ExtensionRegistry getExtensionRegistry() {
         return registry;
     }
 
@@ -230,6 +235,37 @@ public class WSDLManagerImpl implements WSDLManager {
                 LOG.log(Level.WARNING, "EXTENSION_ADD_FAILED_MSG", ex);
             }
         }
+    }
+
+    public ServiceSchemaInfo getSchemasForDefinition(Definition wsdl) {
+        if (disableSchemaCache) {
+            return null;
+        }
+        synchronized (schemaCacheMap) {
+            return schemaCacheMap.get(wsdl);
+        }
+        
+    }
+
+    public void putSchemasForDefinition(Definition wsdl, ServiceSchemaInfo schemas) {
+        if (!disableSchemaCache) {
+            synchronized (schemaCacheMap) {
+                schemaCacheMap.put(wsdl, schemas);
+            }
+        }
+        
+    }
+
+    public boolean isDisableSchemaCache() {
+        return disableSchemaCache;
+    }
+
+    /**
+     * There's a test that 'fails' by succeeding if the cache is operational.
+     * @param disableSchemaCache
+     */
+    public void setDisableSchemaCache(boolean disableSchemaCache) {
+        this.disableSchemaCache = disableSchemaCache;
     }
 
 }

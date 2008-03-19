@@ -138,11 +138,16 @@ public class ServiceInfo extends AbstractDescriptionElement {
         return null;
     }
 
-    public Collection<SchemaInfo> getSchemas() {
-        return Collections.unmodifiableCollection(schemas);
+    public List<SchemaInfo> getSchemas() {
+        return Collections.unmodifiableList(schemas);
     }
 
     public SchemaCollection getXmlSchemaCollection() {
         return xmlSchemaCollection;
+    }
+
+    public void setServiceSchemaInfo(ServiceSchemaInfo serviceSchemaInfo) {
+        xmlSchemaCollection = serviceSchemaInfo.getSchemaCollection();
+        schemas = serviceSchemaInfo.getSchemaInfoList();
     }
 }

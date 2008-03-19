@@ -161,7 +161,7 @@ public class WSDLQueryHandler implements StemMatchingQueryHandler {
     
                 WSDLWriter wsdlWriter = bus.getExtension(WSDLManager.class)
                     .getWSDLFactory().newWSDLWriter();
-                def.setExtensionRegistry(bus.getExtension(WSDLManager.class).getExtenstionRegistry());
+                def.setExtensionRegistry(bus.getExtension(WSDLManager.class).getExtensionRegistry());
                 doc = wsdlWriter.getDocument(def);
             } else {
                 SchemaReference si = smp.get(xsd);

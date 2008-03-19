@@ -70,9 +70,11 @@ import org.apache.cxf.service.model.MessageInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.service.model.ServiceInfo;
+import org.apache.cxf.service.model.ServiceSchemaInfo;
 import org.apache.cxf.service.model.UnwrappedOperationInfo;
 import org.apache.cxf.transport.DestinationFactory;
 import org.apache.cxf.transport.DestinationFactoryManager;
+import org.apache.cxf.wsdl.WSDLManager;
 import org.apache.ws.commons.schema.XmlSchemaComplexContentExtension;
 import org.apache.ws.commons.schema.XmlSchemaComplexType;
 import org.apache.ws.commons.schema.XmlSchemaElement;
@@ -235,8 +237,24 @@ public class WSDLServiceBuilder {
                 description.getDescribed().add(service);
                 service.setProperty(WSDL_DEFINITION, def);
                 service.setProperty(WSDL_SERVICE, serv);
+                WSDLManager wsdlManager = bus.getExtension(WSDLManager.class); 
+                ServiceSchemaInfo serviceSchemaInfo = null;
+                if (wsdlManager != null) {
+                    serviceSchemaInfo = wsdlManager.getSchemasForDefinition(def);
+                }
+                
+                if (serviceSchemaInfo != null) {
+                    service.setServiceSchemaInfo(serviceSchemaInfo);
+                } else {
+                    getSchemas(def, service);
+                    if (wsdlManager != null) {
+                        serviceSchemaInfo = new ServiceSchemaInfo();
+                        serviceSchemaInfo.setSchemaCollection(service.getXmlSchemaCollection());
+                        serviceSchemaInfo.setSchemaInfoList(service.getSchemas());
+                        wsdlManager.putSchemasForDefinition(def, serviceSchemaInfo);
+                    }
+                }
 
-                getSchemas(def, service);
                 service.setProperty(WSDL_SCHEMA_ELEMENT_LIST, this.schemaList);
                 service.setTargetNamespace(def.getTargetNamespace());
                 service.setName(serv.getQName());
