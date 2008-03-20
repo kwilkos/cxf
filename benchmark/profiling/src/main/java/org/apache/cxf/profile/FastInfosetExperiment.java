@@ -20,6 +20,7 @@
 package org.apache.cxf.profile;
 
 import com.ctc.wstx.sax.WstxSAXParserFactory;
+import com.sun.xml.fastinfoset.dom.DOMDocumentParser;
 import com.sun.xml.fastinfoset.sax.SAXDocumentParser;
 import com.sun.xml.fastinfoset.sax.SAXDocumentSerializer;
 
@@ -43,6 +44,8 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.sax.SAXSource;
 
+import org.jvnet.fastinfoset.FastInfosetException;
+
 import org.w3c.dom.Document;
 
 import org.xml.sax.InputSource;
@@ -56,6 +59,7 @@ public class FastInfosetExperiment {
     private DocumentBuilder documentBuilder;
     TransformerFactory transformerFactory;
     private File fiFile;
+    private final static int iterCount = 10000;
     
     private FastInfosetExperiment() throws ParserConfigurationException {
         documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
@@ -112,7 +116,16 @@ public class FastInfosetExperiment {
         is.close();
     }
     
-    private void benchmark() throws ParserConfigurationException, SAXException, IOException, TransformerConfigurationException, TransformerException {
+    private void readWithFIDom() throws FastInfosetException, IOException {
+        InputStream is = new FileInputStream(fiFile);
+        DOMDocumentParser ddp = new DOMDocumentParser();
+        Document document;
+        document = documentBuilder.newDocument();
+        ddp.parse(document, is);
+        is.close();
+    }
+    
+    private void benchmark() throws ParserConfigurationException, SAXException, IOException, TransformerConfigurationException, TransformerException, FastInfosetException {
         InputStream is = getClass().getResourceAsStream("/META-INF/cxf/cxf.xml");
         OutputStream os = new FileOutputStream(fiFile);
         dehydrate(is, os);
@@ -121,27 +134,39 @@ public class FastInfosetExperiment {
         
         long totalTime = 0;
         
-        for(int x = 0; x < 100; x ++) {
+        for(int x = 0; x < iterCount; x ++) {
             long startTime = System.nanoTime();
             readWithWoodstox();
             long endTime = System.nanoTime();
             totalTime += endTime - startTime;
         }
         
-        double averageNanos = totalTime / 100;
+        double averageNanos = totalTime / iterCount;
         System.out.println("Woodstox average us: " + averageNanos / 1000);
 
         totalTime = 0;
         
-        for(int x = 0; x < 100; x ++) {
+        for(int x = 0; x < iterCount; x ++) {
             long startTime = System.nanoTime();
             readWithFI();
             long endTime = System.nanoTime();
             totalTime += endTime - startTime;
         }
         
-        averageNanos = totalTime / 100;
+        averageNanos = totalTime / iterCount;
         System.out.println("FastInfoset average us: " + averageNanos / 1000);
+        
+        totalTime = 0;
+
+        for(int x = 0; x < iterCount; x ++) {
+            long startTime = System.nanoTime();
+            readWithFIDom();
+            long endTime = System.nanoTime();
+            totalTime += endTime - startTime;
+        }
+        
+        averageNanos = totalTime / iterCount;
+        System.out.println("FastInfoset DOM average us: " + averageNanos / 1000);
     }
     
     public static void main(String[] args) throws Exception {
