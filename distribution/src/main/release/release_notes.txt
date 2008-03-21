@@ -1,12 +1,12 @@
-Apache CXF 2.0.3 (incubating) Release Notes
+Apache CXF 2.1 (incubating) Beta 1 Release Notes
 
 1. Overview
 
-Apache CXF 2.0.3, under incubation,  delivers the third milestone of 
+Apache CXF 2.1 (Beta 1), under incubation,  delivers the second major version of 
 the Celtix project (http://celtix.objectweb.org) and the XFire project
-(http://xfire.codehaus.org) merge.  This release is mostly a patch release
-from 2.0.2 fixing 82 JIRA issues.
-
+(http://xfire.codehaus.org) merge.  This release is a major update from 
+the 2.0.x series.   The major new addition is JAX-WS 2.1 support.  However, there
+are a lot of other improvements like CORBA support, javascript generation, etc...
 
 2. Installation Prerequisites 
 
@@ -54,7 +54,6 @@ http://bouncycastle.org/download/bcprov-jdk14-136.jar
 and add that to the lib directory or classpath.   
 
 
-
 3. Building the Samples
 
 Building the samples included in the binary distribution is easy. Change to
@@ -74,100 +73,8 @@ cxf dev list, cxf-dev@incubator.apache.org.  You can also file issues in JIRA at
 
 http://issues.apache.org/jira/browse/CXF
 
-6. Specific issues, features, and improvements fixed in the 
-Apache CXF 2.0.3 (incubating) release:
-
-** Sub-task
-    * [CXF-987] - Aegis schema does not match the actual situation
-    * [CXF-1037] - ClassCastException writing a Map<Long, someclass> in a reply message with Aegis
-    * [CXF-1043] - Presence of .aegis.xml file disrupts java5 generic processing for return Maps
-    * [CXF-1044] - Make JCA get Connection without providing wsdl.
-    * [CXF-1045] - JCA outbound codes refactoring.
-    * [CXF-1047] - Write EJBInvoker to publish the EJB servant.
-    * [CXF-1063] - Refactor the jca/hello_world_soap_http sample.
-    * [CXF-1082] - Improve the Log in jca module.
-    * [CXF-1093] - create the polling thread by using WorkManager
-    * [CXF-1130] - Add the weblogic specfic file in deploying RAR.
-    * [CXF-1147] - Refactoring the jca handler chain building.
-
-** Bug
-    * [CXF-917] - org.apache.cxf.systest.handlers.DispatchHandlerInvocationTest failure
-    * [CXF-919] - cxf-codgen-plugin needs to depend on cxf-rt-bindings-soap
-    * [CXF-922] - HTTP Conduit configuration is not loaded
-    * [CXF-948] - NullPointerException when ?wsdl url contains extra parameters
-    * [CXF-982] - Eclipse settings don't match checkstyle settings
-    * [CXF-986] - Cached file was deleted, java.io.FileNotFoundException in SWA with Logging on.
-    * [CXF-992] - If a null parameter is passed using the ClientProxyFactoryBean, all subsequent parameters become null
-    * [CXF-996] - WSDL2Java validate error for doc/lit bare wsdl.
-    * [CXF-1021] - Map entries not reconstructed on other side of WS call due to namespace mismatch (see Xfire Bug: XFIRE-842)
-    * [CXF-1029] - The given example is not correct!
-    * [CXF-1032] - @WebMethod (exclude = true)  are not being excluded
-    * [CXF-1053] - Catalog entry in codegen maven plugin and command line ignored.
-    * [CXF-1059] - CachedOutputStream closes streams prematurely
-    * [CXF-1060] - Code depends on spring bean initialization order
-    * [CXF-1062] - Bug in EndpointImpl#stop()
-    * [CXF-1071] - url re-writing for xsd imported into xsd not working with catalogs set.
-    * [CXF-1077] - system test DispatchHandlerInvocationTest failed
-    * [CXF-1080] - Aegis + JAX-WS fails to throw specific exceptions
-    * [CXF-1083] - LogUtils is missing some MissingResourceException handling
-    * [CXF-1086] - Noise log traffic due to lifecycle management problem with jetty server
-    * [CXF-1092] - Aegis+Jaxws ignores namespaces on @WebParams
-    * [CXF-1095] - The binding file does not take effect for imported wsdl 
-    * [CXF-1096] - Resources not being loaded correctly for tls
-    * [CXF-1097] - JMS transport cannot handle messages > 64K
-    * [CXF-1103] - Schema imports missing from cross-tns embedded schemata
-    * [CXF-1105] - Arrays with Aegis+JAX-WS produce incorrect WSDL
-    * [CXF-1106] - XPATH result  in jaxws customization  is not NodeList
-    * [CXF-1107] - Local transport direct dispatch mode can't work
-    * [CXF-1108] - CXF AbstractEndpointFactory 's setServiceName and setEndpointName do not take effect
-    * [CXF-1110] - Adding DefaultHandler to handler list for jetty disables all service endpoints.
-    * [CXF-1115] - SOAP w/ Attachments does not work with Dispatch/Provider based services
-    * [CXF-1116] - 1-dimentional arrays appear as 2-dimentional in the wsdl
-    * [CXF-1118] - JAXB serialized private fields of faults
-    * [CXF-1120] - Server lifecycle management problems, perhaps
-    * [CXF-1121] - jaxb binding fails for property getters marked @XmlTransient if they return an array with component type that is an interface
-    * [CXF-1122] - DynamicClientFactory xsd:any sub-element No DynamicClientFactory: no compiled schema element could be found ....
-    * [CXF-1123] - ClientFaultConverter needs to deal with unqualified part names.
-    * [CXF-1124] - Does not honor localName in RequestWrapper/ResponseWrapper annotations.
-    * [CXF-1127] - JAXB Data Binding Generates Duplicate Fault Elements in Generated WSDL
-    * [CXF-1129] - org.apache.cxf.interceptor.Fault: Index: 1, Size: 1
-    * [CXF-1131] - JAX-WS + JAXB problem - javax.xml.ws.soap.SOAPFaultException thrown instead of custom exception
-    * [CXF-1136] - Custom exception not appearing in SOAP fault response
-    * [CXF-1137] - CXF wsdl2java NPE's if it cannot find the wsdl:portType identified by a wsdl:binding
-    * [CXF-1139] - Sample wsdl_first_xml_pure build failure
-    * [CXF-1140] - wsdl2java failed if the schema import use the relative path to a url
-    * [CXF-1141] - wsdl2java failed to generate code when use the following jaxb binding file 
-    * [CXF-1145] - Not able to set the namespace for a service wsdl
-    * [CXF-1146] - wsdl2java validator incorrectly requiring doc/lit soap:body messages to have namespaces
-    * [CXF-1149] - Error thrown with Schema validation enabled when using xml-catalogs
-    * [CXF-1150] - EndpointReferenceUtils cannot obtain schema for client
-    * [CXF-1152] - wsdl2java can not process two jaxws binding files at the same time
-    * [CXF-1153] - wsdlvalidator failed with recursive wsdl
-    * [CXF-1154] - wsdlvalidator failed with imported wsdl
-    * [CXF-1168] - Dynamic client horks when asked to process a schema using base64
-    * [CXF-1169] - wsdl2java from maven-code-gen plugin has validation and no warning suppression - wsdl with no service blows with error warning ...
-
-** Improvement
-    * [CXF-940] - adding operations to wsdls make old clients fail
-    * [CXF-1034] - JettyHTTPServerEngineFactory should automatically stop all jettyEngines which it buffered
-    * [CXF-1056] - Add a constructor to generated Service class for setting only WSDL location
-    * [CXF-1057] - wsdlvalidator does not support catalogs
-    * [CXF-1088] - document handling of case where spring aop breaks wsdl generation
-    * [CXF-1094] - Tooling binding file wsdllcaotion and schemaLocation improvement
-    * [CXF-1099] - if finalizeConfig in org.apache.cxf.transport.http.HTTPConduit could be protected or public
-    * [CXF-1109] - if org.apache.cxf.transport.http.HTTPConduit.WrappedOutputStream could be protected
-    * [CXF-1112] - Add catalog support for wsdlLocation and schemaLocation in customization binding file 
-    * [CXF-1134] - Adding a attribute in the JettyEngine's configuration to set the SO_REUSEADDR flage
-    * [CXF-1143] - Default CXF behavior of listing all available endpoints
-    * [CXF-1170] - Enhancement for tooling help text message format
-    * [CXF-1033] - Migrate to another logging solution rather than java.util.logging
-    * [CXF-1085] - EnhReq: Add support for TrustStores in PEM format
-    * [CXF-1158] - configurability of endpoint rewrting
-
-** Task
-    * [CXF-733] - Refactor the EJBServant 
-
-
+6. Specific issues, features, and improvements fixed in 2.1.
+--- TBD ---
 
 
 
