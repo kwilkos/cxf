@@ -55,7 +55,7 @@ public class ControlledValidationXmlBeanDefinitionReader extends XmlBeanDefiniti
         boolean suppressValidation = false;
         try {
             URL url = resource.getURL();
-            if (url.getFile().contains("/META-INF/cxf/")) {
+            if (url.getFile().contains("META-INF/cxf/")) {
                 suppressValidation = true;
             }
         } catch (IOException e) {
