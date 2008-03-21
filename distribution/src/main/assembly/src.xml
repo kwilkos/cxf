@@ -69,6 +69,7 @@
                 <exclude>**/.wtpmodules</exclude>
                 <exclude>**/surefire*</exclude>
                 <exclude>**/cobertura.ser</exclude>
+                <exclude>**/velocity.log</exclude>
                 <exclude>bin</exclude>
                 <exclude>bin/*</exclude>
                 <exclude>**/var/journal</exclude>

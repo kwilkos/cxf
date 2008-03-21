@@ -37,7 +37,6 @@
         <maven.test.skip>true</maven.test.skip>
         <cxf.version>${pom.version}</cxf.version>
         <createSourcesJar>false</createSourcesJar>
-        <shade.version>1.0</shade.version>
     </properties>
 
     <dependencies>
@@ -261,7 +260,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>${shade.version}</version>
+                <version>1.0.1</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
