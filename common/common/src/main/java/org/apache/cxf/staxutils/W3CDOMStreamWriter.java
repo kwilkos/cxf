@@ -24,7 +24,6 @@ import java.util.Stack;
 
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
@@ -32,6 +31,8 @@ import javax.xml.stream.XMLStreamWriter;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+
+import org.apache.cxf.helpers.XMLUtils;
 
 public class W3CDOMStreamWriter implements XMLStreamWriter {
     static final String XML_NS = "http://www.w3.org/2000/xmlns/";
@@ -42,9 +43,7 @@ public class W3CDOMStreamWriter implements XMLStreamWriter {
     private Map properties = Collections.EMPTY_MAP;
 
     public W3CDOMStreamWriter() throws ParserConfigurationException {
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        factory.setNamespaceAware(true);
-        document = factory.newDocumentBuilder().newDocument();
+        document = XMLUtils.newDocument();
     }
 
     public W3CDOMStreamWriter(DocumentBuilder builder) {
