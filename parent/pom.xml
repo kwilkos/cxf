@@ -20,13 +20,13 @@
     <parent>
         <groupId>org.apache.cxf</groupId>
         <artifactId>cxf</artifactId>
-        <version>2.1-incubator-SNAPSHOT</version>
+        <version>2.1-incubator-beta-1</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.apache.cxf</groupId>
     <artifactId>cxf-parent</artifactId>
-    <version>2.1-incubator-SNAPSHOT</version>
+    <version>2.1-incubator-beta-1</version>
     <name>Apache CXF Parent</name>
     <url>http://cwiki.apache.org/CXF</url>
 
@@ -58,7 +58,7 @@
         <rhino.version>1.6R7</rhino.version>
         <jdom.version>1.0</jdom.version>
         <xmlbeans.version>2.2.0</xmlbeans.version>
-        <checkstyle.extension/>
+        <checkstyle.extension />
 
         <spring.validation.mode>VALIDATION_AUTO</spring.validation.mode>
 
@@ -1117,9 +1117,9 @@
 
 
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/trunk/parent</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/trunk/parent</developerConnection>
-        <url>http://svn.apache.org/viewvc/incubator/cxf/trunk/cxf-parent</url>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/tags/cxf-2.1-incubator-beta-1/parent</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/tags/cxf-2.1-incubator-beta-1/parent</developerConnection>
+        <url>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/tags/cxf-2.1-incubator-beta-1cxf-parent</url>
     </scm>
 
 </project>

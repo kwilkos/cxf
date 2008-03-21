@@ -22,13 +22,13 @@
     <artifactId>apache-cxf</artifactId>
     <packaging>pom</packaging>
     <name>Apache CXF Distribution</name>
-    <version>2.1-incubator-SNAPSHOT</version>
+    <version>2.1-incubator-beta-1</version>
     <url>http://cwiki.apache.org/CXF</url>
 
     <parent>
         <groupId>org.apache.cxf</groupId>
         <artifactId>cxf-parent</artifactId>
-        <version>2.1-incubator-SNAPSHOT</version>
+        <version>2.1-incubator-beta-1</version>
         <relativePath>../parent</relativePath>
     </parent>
 
@@ -384,7 +384,7 @@
                         <phase>process-sources</phase>
                         <configuration>
                             <tasks>
-                                <mkdir dir="${basedir}/target"/>
+                                <mkdir dir="${basedir}/target" />
                                 <pathconvert property="cp" refid="maven.runtime.classpath" />
                                 <condition property="output.cp" value="set CXF_CLASSPATH=${cp}">
                                     <os family="windows" />
@@ -415,9 +415,9 @@
     </build>
 
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/trunk/distribution</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/trunk/distribution</developerConnection>
-        <url>http://svn.apache.org/viewvc/incubator/cxf/trunk/cxf-parent/cxf-distribution</url>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/tags/cxf-2.1-incubator-beta-1/distribution</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/tags/cxf-2.1-incubator-beta-1/distribution</developerConnection>
+        <url>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/tags/cxf-2.1-incubator-beta-1cxf-parent/cxf-distribution</url>
     </scm>
 
 </project>
