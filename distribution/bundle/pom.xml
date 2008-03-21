@@ -236,7 +236,6 @@
                             javax.jms*;resolution:=optional,
                             javax.xml.soap,
                             junit.framework*;resolution:=optional,
-                            org.apache.abdera*;resolution:=optional,
                             org.apache.commons.lang*;resolution:=optional,
                             org.apache.log4j*;resolution:=optional,
                             org.apache.velocity*;resolution:=optional,
@@ -252,10 +251,10 @@
                         </Import-Package>
                         <Export-Package>
                             org.apache.cxf.*;version=${pom.version};-split-package:=merge-first,
-                            org.codehaus.xfire.aegis.type.java5.*,
                             org.xmlsoap.schemas.wsdl.http.*,
-                            org.w3._2006._05.addressing.wsdl.*
+                            '=META-INF.cxf'
                         </Export-Package>
+                        <_failok>true</_failok>
                     </instructions>
                 </configuration>
             </plugin>
