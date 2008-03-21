@@ -361,14 +361,17 @@ public abstract class AbstractTypeTestClient
         }
     }
 
+    protected float[][] getTestFloatData() {
+        return new float[][] {{0.0f, 1.0f}, {-1.0f, (float)java.lang.Math.PI}, {-100.0f, 100.0f},
+                              {Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY}, };
+    }
     @Test
     public void testFloat() throws Exception {
         if (!shouldRunTest("Float")) {
             return;
         }
         float delta = 0.0f;
-        float valueSets[][] = {{0.0f, 1.0f}, {-1.0f, (float)java.lang.Math.PI}, {-100.0f, 100.0f},
-                               {Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY}, };
+        float valueSets[][] = getTestFloatData();
 
         for (int i = 0; i < valueSets.length; i++) {
             float x = valueSets[i][0];
@@ -409,6 +412,10 @@ public abstract class AbstractTypeTestClient
             assertTrue("testFloat(): Incorrect return value", Float.isNaN(ret));
         }
     }
+    protected double[][] getTestDoubleData() {
+        return new double[][] {{0.0f, 1.0f}, {-1, java.lang.Math.PI}, {-100.0, 100.0},
+                               {Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY}};
+    }
 
     @Test
     public void testDouble() throws Exception {
@@ -416,11 +423,7 @@ public abstract class AbstractTypeTestClient
             return;
         }
         double delta = 0.0d;
-        double valueSets[][] = {{0.0f, 1.0f}, {-1, java.lang.Math.PI}, {-100.0, 100.0},
-                                {Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY},
-        // {Double.MIN_VALUE, 0},
-        // {Double.MAX_VALUE,0},
-        };
+        double valueSets[][] = getTestDoubleData();
         for (int i = 0; i < valueSets.length; i++) {
             double x = valueSets[i][0];
             Holder<Double> yOrig = new Holder<Double>(valueSets[i][1]);

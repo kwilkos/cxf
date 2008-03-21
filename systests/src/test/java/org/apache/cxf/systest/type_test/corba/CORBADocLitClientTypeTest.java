@@ -61,15 +61,55 @@ public class CORBADocLitClientTypeTest extends AbstractTypeTestClient5 {
             "CompoundArray",
             "NestedArray",
             "EmptyChoice",
+            "Name",
             "Void",
             "Oneway",
+            "Byte",
+            "Short",
+            "UnsignedShort",
+            "Int",
+            //"UnsignedInt",
+            "Long",
+            "UnsignedLong",
+            "Float",
+            "Double",
+            //"UnsignedByte",
+            "Boolean",
+            "String",
+            //"StringI18N",
+            "Date",
+            //"DateTime",
+            "Time",
+            "GYear",
+            "GYearMonth",
+            "GMonth",
+            "GMonthDay",
+            "GDay",
+            "Duration",
+            "NormalizedString",
+            "Token",
+            "Language",
+            "NMTOKEN",
+            //"NMTOKENS",
+            "NCName",
+            "ID",
             "Decimal",
+            "Integer",
+            "PositiveInteger",
+            "NonPositiveInteger",
+            "NegativeInteger",
+            "NonNegativeInteger",
             "HexBinary",
+            "Base64Binary",
+            "AnyURI",
             "ColourEnum",
             "NumberEnum",
             "StringEnum",
+            "DecimalEnum",
             "NMTokenEnum",
             "AnyURIEnum",
+            "SimpleRestriction",
+            "SimpleRestriction4",
         };
         WORKING_TESTS.addAll(Arrays.asList(working));
     }
@@ -77,7 +117,7 @@ public class CORBADocLitClientTypeTest extends AbstractTypeTestClient5 {
 
     @BeforeClass
     public static void startServers() throws Exception {
-        boolean ok = launchServer(CORBADocLitServerImpl.class);
+        boolean ok = launchServer(CORBADocLitServerImpl.class, true);
         assertTrue("failed to launch server", ok);
         initClient(AbstractTypeTestClient5.class, SERVICE_NAME, PORT_NAME, WSDL_PATH);
     }
@@ -101,5 +141,13 @@ public class CORBADocLitClientTypeTest extends AbstractTypeTestClient5 {
     
     @Test
     public void testA() throws Exception {
-    }    
+    }
+    
+    protected float[][] getTestFloatData() {
+        return new float[][] {{0.0f, 1.0f}, {-1.0f, (float)java.lang.Math.PI}, {-100.0f, 100.0f}};
+    }
+    protected double[][] getTestDoubleData() {
+        return new double[][] {{0.0f, 1.0f}, {-1, java.lang.Math.PI}, {-100.0, 100.0}};
+    }
+
 }

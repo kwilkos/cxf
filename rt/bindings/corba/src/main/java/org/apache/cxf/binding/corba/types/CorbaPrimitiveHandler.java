@@ -42,6 +42,9 @@ public class CorbaPrimitiveHandler extends CorbaObjectHandler {
     
     public void setIntoAny(Any val, CorbaStreamable stream, boolean output) {
         any = val;
+        if (stream != null) {
+            val.insert_Streamable(stream);
+        }
         if (output && value != null) {
             switch (this.typeCode.kind().value()) {
             case TCKind._tk_boolean:
@@ -89,10 +92,7 @@ public class CorbaPrimitiveHandler extends CorbaObjectHandler {
             default:
                 // Default: assume that whatever stored the data will also know how to convert it into what 
                 // it needs.
-                val.insert_Streamable(stream);
             }
-        } else {
-            val.insert_Streamable(stream);
         }
     }
 
@@ -145,10 +145,18 @@ public class CorbaPrimitiveHandler extends CorbaObjectHandler {
             data = ((java.math.BigInteger)value).toString();
             break;
         case TCKind._tk_float:
-            data = ((Float)value).toString();
+            if (((Float)value).isInfinite()) {
+                data = "INF";
+            } else {
+                data = ((Float)value).toString();
+            }
             break;
         case TCKind._tk_double:
-            data = ((Double)value).toString();
+            if (((Double)value).isInfinite()) {
+                data = "INF";
+            } else {
+                data = ((Double)value).toString();
+            }
             break;
         case TCKind._tk_string:
         case TCKind._tk_wstring:
@@ -202,10 +210,22 @@ public class CorbaPrimitiveHandler extends CorbaObjectHandler {
             obj = new java.math.BigInteger(data);
             break;
         case TCKind._tk_float:
-            obj = new Float(data);
+            if ("INF".equals(data)) {
+                obj = Float.POSITIVE_INFINITY;
+            } else if ("-INF".equals(data)) {
+                obj = Float.NEGATIVE_INFINITY;
+            } else {
+                obj = new Float(data);
+            }
             break;
         case TCKind._tk_double:
-            obj = new Double(data);
+            if ("INF".equals(data)) {
+                obj = Double.POSITIVE_INFINITY;
+            } else if ("-INF".equals(data)) {
+                obj = Double.NEGATIVE_INFINITY;
+            } else {
+                obj = new Double(data);
+            }
             break;
         case TCKind._tk_string:
         case TCKind._tk_wstring:
@@ -256,10 +276,18 @@ public class CorbaPrimitiveHandler extends CorbaObjectHandler {
             data = java.math.BigInteger.valueOf(any.extract_ulonglong()).toString();
             break;
         case TCKind._tk_float:
-            data = Float.toString(any.extract_float());
+            if (Float.isInfinite(any.extract_float())) {
+                data = "INF";
+            } else {
+                data = Float.toString(any.extract_float());
+            }
             break;
         case TCKind._tk_double:
-            data = Double.toString(any.extract_double());
+            if (Double.isInfinite(any.extract_double())) {
+                data = "INF";
+            } else {
+                data = Double.toString(any.extract_double());
+            }
             break;
         case TCKind._tk_string:
             data = any.extract_string();
