@@ -19,6 +19,7 @@
 
 package org.apache.cxf.bus.spring;
 
+import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
@@ -35,17 +36,26 @@ import org.xml.sax.XMLReader;
 
 import com.ctc.wstx.sax.WstxSAXParserFactory;
 
-import org.apache.cxf.helpers.XMLUtils;
 import org.springframework.beans.factory.xml.DefaultDocumentLoader;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
-
-
 
 /**
  * A Spring DocumentLoader that uses WoodStox when we are not validating to speed up the process. 
  */
 class TunedDocumentLoader extends DefaultDocumentLoader {
     
+    // DocumentBuilderFactories are somewhat expensive but not thread-safe.
+    // We only use this builder with WoodStox, we respect Spring's desire to make new factories 
+    // when we aren't doing the optimization.
+    private static DocumentBuilder documentBuilder;
+    static {
+        try {
+            documentBuilder = 
+                DocumentBuilderFactory.newInstance().newDocumentBuilder();
+        } catch (ParserConfigurationException e) {
+            throw new RuntimeException(e);
+        }
+    }
     private TransformerFactory transformerFactory;
     
     TunedDocumentLoader() {
@@ -66,7 +76,11 @@ class TunedDocumentLoader extends DefaultDocumentLoader {
             reader.setEntityResolver(entityResolver);
             reader.setErrorHandler(errorHandler);
             SAXSource saxSource = new SAXSource(reader, inputSource);
-            Document document = XMLUtils.newDocument();
+            Document document;
+            // collisions are quite unlikely here, but making documentBuilderFactory objects is expensive.
+            synchronized (documentBuilder) {
+                document = documentBuilder.newDocument();
+            }
             DOMResult domResult = new DOMResult(document, inputSource.getSystemId());
             transformerFactory.newTransformer().transform(saxSource, domResult);
             return document;
