@@ -44,6 +44,7 @@ public class ControlledValidationXmlBeanDefinitionReader extends XmlBeanDefiniti
      */
     public ControlledValidationXmlBeanDefinitionReader(BeanDefinitionRegistry beanFactory) {
         super(beanFactory);
+        this.setDocumentLoader(new TunedDocumentLoader());
     }
 
     @Override
