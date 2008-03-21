@@ -50,18 +50,25 @@ public class JBIOperationInInterceptor extends AbstractPhaseInterceptor<JBIMessa
         Exchange ex = message.getExchange();
         Endpoint ep = ex.get(Endpoint.class);
         BindingOperationInfo boi = ex.get(BindingOperationInfo.class);
-        if (boi == null && message.getJbiExchange().getOperation() != null) {
-            BindingInfo service = ep.getEndpointInfo().getBinding();
-            boi = getBindingOperationInfo(service, message.getJbiExchange().getOperation());
-            if (boi == null) {
-                throw new Fault(new Message("UNKNOWN_OPERATION", BUNDLE, 
+        if (boi == null) {
+            if (message.getJbiExchange().getOperation() != null) {
+                BindingInfo service = ep.getEndpointInfo().getBinding();
+                boi = getBindingOperationInfo(service, message.getJbiExchange().getOperation());
+                if (boi == null) {
+                    throw new Fault(new Message("UNKNOWN_OPERATION", BUNDLE, 
                         message.getJbiExchange().getOperation().toString()));
+                }
+                
+            } else {
+                throw new Fault(new Message("UNKNOWN_OPERATION", BUNDLE, 
+                            message.getJbiExchange().getInterfaceName().toString()));
             }
             ex.put(BindingOperationInfo.class, boi);
             ex.put(OperationInfo.class, boi.getOperationInfo());
             ex.setOneWay(boi.getOperationInfo().isOneWay());
             message.put(MessageInfo.class, boi.getInput().getMessageInfo());
         }
+        
     }
 
     protected BindingOperationInfo getBindingOperationInfo(BindingInfo service, QName operation) {
