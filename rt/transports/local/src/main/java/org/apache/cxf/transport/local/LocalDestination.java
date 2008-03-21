@@ -27,6 +27,7 @@ import java.io.PipedOutputStream;
 import java.util.logging.Logger;
 
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.io.AbstractWrappedOutputStream;
 import org.apache.cxf.io.CachedOutputStream;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
@@ -66,7 +67,7 @@ public class LocalDestination extends AbstractDestination {
         return null;
     }
 
-    static class SynchronousConduit extends AbstractConduit {
+    class SynchronousConduit extends AbstractConduit {
         private LocalConduit conduit;
 
         public SynchronousConduit(LocalConduit conduit) {
@@ -77,22 +78,31 @@ public class LocalDestination extends AbstractDestination {
         public void prepare(final Message message) throws IOException {            
             if (!Boolean.TRUE.equals(message.getExchange().get(LocalConduit.DIRECT_DISPATCH))) {
                 final Exchange exchange = (Exchange)message.getExchange().get(LocalConduit.IN_EXCHANGE);
-                
-                final PipedInputStream stream = new PipedInputStream();
-                final Runnable receiver = new Runnable() {
-                    public void run() {
-                        MessageImpl m = new MessageImpl();
-                        if (exchange != null) {
-                            exchange.setInMessage(m);
-                        }
-                        m.setContent(InputStream.class, stream);
-                        conduit.getMessageObserver().onMessage(m);
-                    }
-                };
+
+                AbstractWrappedOutputStream cout 
+                    = new AbstractWrappedOutputStream() {
+                        protected void onFirstWrite() throws IOException {
+                            final PipedInputStream stream = new PipedInputStream();
+                            wrappedStream = new PipedOutputStream(stream);
     
-                PipedOutputStream outStream = new PipedOutputStream(stream);
-                message.setContent(OutputStream.class, outStream);    
-                new Thread(receiver).start();
+                            final Runnable receiver = new Runnable() {
+                                public void run() {
+                                    MessageImpl m = new MessageImpl();
+                                    localDestinationFactory.copy(message, m);
+                                    
+                                    if (exchange != null) {
+                                        exchange.setInMessage(m);
+                                    }
+                                    m.setContent(InputStream.class, stream);
+                                    conduit.getMessageObserver().onMessage(m);
+                                }
+                            };
+                            
+                            new Thread(receiver).start();
+                        }
+                    };
+                
+                message.setContent(OutputStream.class, cout);    
                 
             } else {
                 CachedOutputStream stream = new CachedOutputStream();
