@@ -48,9 +48,19 @@ public final class ClassLoaderUtils {
      */
     public static URL getResource(String resourceName, Class callingClass) {
         URL url = Thread.currentThread().getContextClassLoader().getResource(resourceName);
+        if (url == null && resourceName.startsWith("/")) {
+            //certain classloaders need it without the leading /
+            url = Thread.currentThread().getContextClassLoader()
+                .getResource(resourceName.substring(1));
+        }
 
         if (url == null) {
             url = ClassLoaderUtils.class.getClassLoader().getResource(resourceName);
+        }
+        if (url == null && resourceName.startsWith("/")) {
+            //certain classloaders need it without the leading /
+            url = ClassLoaderUtils.class.getClassLoader()
+                .getResource(resourceName.substring(1));
         }
 
         if (url == null) {

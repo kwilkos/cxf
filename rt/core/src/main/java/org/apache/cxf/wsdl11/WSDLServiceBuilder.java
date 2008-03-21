@@ -158,6 +158,7 @@ public class WSDLServiceBuilder {
         List<Definition> defList = new ArrayList<Definition>();
         defList.add(d);
         parseImports(d, defList);
+        WSDLManager wsdlManager = bus.getExtension(WSDLManager.class); 
         for (Definition def : defList) {
 
             for (Iterator ite = def.getPortTypes().entrySet().iterator(); ite.hasNext();) {
@@ -180,6 +181,12 @@ public class WSDLServiceBuilder {
                 service.setDescription(description);
                 service.setProperty(WSDL_DEFINITION, def);
                 getSchemas(def, service);
+                if (wsdlManager != null) {
+                    ServiceSchemaInfo serviceSchemaInfo = new ServiceSchemaInfo();
+                    serviceSchemaInfo.setSchemaCollection(service.getXmlSchemaCollection());
+                    serviceSchemaInfo.setSchemaInfoList(service.getSchemas());
+                    wsdlManager.putSchemasForDefinition(def, serviceSchemaInfo);
+                }
 
                 service.setProperty(WSDL_SCHEMA_ELEMENT_LIST, this.schemaList);
                 serviceList.add(service);
@@ -204,6 +211,15 @@ public class WSDLServiceBuilder {
         service.setProperty(WSDL_SCHEMA_ELEMENT_LIST, this.schemaList);
 
         buildInterface(service, p);
+
+        getSchemas(def, service);
+        WSDLManager wsdlManager = bus.getExtension(WSDLManager.class); 
+        if (wsdlManager != null) {
+            ServiceSchemaInfo serviceSchemaInfo = new ServiceSchemaInfo();
+            serviceSchemaInfo.setSchemaCollection(service.getXmlSchemaCollection());
+            serviceSchemaInfo.setSchemaInfoList(service.getSchemas());
+            wsdlManager.putSchemasForDefinition(def, serviceSchemaInfo);
+        }
 
         return service;
     }

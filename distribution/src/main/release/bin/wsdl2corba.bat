@@ -21,37 +21,38 @@ rem
 rem
 
 rem 
-rem  invoke the CXF management console tool
+rem  invoke the Apache CXF wsdl2java tool
 rem 
-rem @setlocal
+@setlocal
 
-if not defined CXF_HOME goto set_cxf_home                           
-                                                                                                                              
+if not defined CXF_HOME goto set_cxf_home
+                                                                                                                                                             
 :cont
 if not defined JAVA_HOME goto no_java_home
+
+set SUN_TOOL_PATH=%JAVA_HOME%\lib\tools.jar;
 
 if not exist "%CXF_HOME%\lib\cxf-manifest-incubator.jar" goto no_cxf_jar
 
 set CXF_JAR=%CXF_HOME%\lib\cxf-manifest-incubator.jar
 
-"%JAVA_HOME%\bin\java" -cp "%CXF_JAR%;%CLASSPATH%" -Djava.util.logging.config.file="%CXF_HOME%\etc\logging.properties" org.apache.cxf.management.utils.ManagementConsole %*
 
-rem @endlocal
+"%JAVA_HOME%\bin\java" -cp "%CXF_JAR%;%SUN_TOOL_PATH%;%CLASSPATH%" -Djava.util.logging.config.file="%CXF_HOME%\etc\logging.properties" org.apache.cxf.tools.corba.WSDLToIDL %*
 
+@endlocal
+
+goto end
+
+:no_cxf_jar
+echo ERROR: Unable to find cxf-manifest-incubator.jar in %cxf_home/lib
 goto end
 
 :no_java_home
 echo ERROR: Set JAVA_HOME to the path where the J2SE 5.0 (JDK5.0) is installed
 goto end 
 
-:no_cxf_jar
-echo ERROR: Unable to find cxf-manifest-incubator.jar in %cxf_home/lib
-goto end
-
 :set_cxf_home
 set CXF_HOME=%~dp0..
 goto cont
 
 :end
-
-

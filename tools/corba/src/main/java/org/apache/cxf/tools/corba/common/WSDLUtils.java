@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.io.Writer;
 
 import java.util.Iterator;
-import java.util.List;
 
 import javax.wsdl.Definition;
 import javax.wsdl.WSDLException;
@@ -31,6 +30,7 @@ import javax.wsdl.xml.WSDLWriter;
 
 import javax.xml.namespace.QName;
 
+import org.apache.cxf.common.xmlschema.SchemaCollection;
 import org.apache.cxf.tools.util.FileWriterUtil;
 
 import org.apache.ws.commons.schema.XmlSchema;
@@ -43,13 +43,11 @@ public final class WSDLUtils {
         //complete
     }
 
-    public static boolean isElementFormQualified(List<XmlSchema> schemas, QName type) {
-        if (type != null) {     
-            for (int i = 0; i < schemas.size(); i++) {
-                XmlSchema schema = schemas.get(i);
-                if (isElementFormQualified(schema, type)) {
-                    return true;
-                }
+    public static boolean isElementFormQualified(SchemaCollection schemas, QName type) {
+        if (type != null) {   
+            XmlSchema sch = schemas.getSchemaByTargetNamespace(type.getNamespaceURI());
+            if (sch != null) {
+                return sch.getElementFormDefault().getValue().equals(XmlSchemaForm.QUALIFIED);
             }
         }
         return false;

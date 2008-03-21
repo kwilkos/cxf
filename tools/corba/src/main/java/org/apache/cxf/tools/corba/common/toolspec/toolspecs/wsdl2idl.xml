@@ -116,14 +116,6 @@ te parameters.</annotation>
          </associatedArgument>
     </option>
 
-    <option id="license" maxOccurs="1">
-        <annotation>Specify the license file</annotation>
-        <switch>L</switch>
-        <associatedArgument placement="afterSpace">
-          <annotation>license-file</annotation>
-        </associatedArgument>
-    </option>
-
     </optionGroup>
     <optionGroup id="common_options">
 		

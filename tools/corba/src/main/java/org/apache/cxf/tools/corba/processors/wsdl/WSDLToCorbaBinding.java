@@ -23,7 +23,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -62,7 +61,9 @@ import org.apache.cxf.binding.corba.wsdl.OperationType;
 import org.apache.cxf.binding.corba.wsdl.ParamType;
 import org.apache.cxf.binding.corba.wsdl.RaisesType;
 import org.apache.cxf.binding.corba.wsdl.TypeMappingType;
+import org.apache.cxf.binding.corba.wsdl.W3CConstants;
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.common.xmlschema.SchemaCollection;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.wsdl.JAXBExtensionHelper;
@@ -91,61 +92,28 @@ public class WSDLToCorbaBinding {
     TypeMappingType typeMappingType;
     ExtensionRegistry extReg;
 
-    List<Object> interfaceNames = new ArrayList<Object>();
+    List<String> interfaceNames = new ArrayList<String>();
     Map<Object, Object> bindingNameMap = new HashMap<Object, Object>();
     String bindingName;
     String address;
     String addressFile;
     WSDLParameter wsdlParameter;
     List<String> bindingNames;
-    List<XmlSchema> xmlSchemaList;
+    SchemaCollection xmlSchemaList;
     WSDLToTypeProcessor typeProcessor = new WSDLToTypeProcessor();
     private boolean allbindings;
         
     public WSDLToCorbaBinding() {            
     }
 
-    public void setXMLSchemaList(List<XmlSchema> list) {
-        xmlSchemaList = list;
-        helper.setXMLSchemaList(list);
-    }
-
-    public void setXMLSchema(XmlSchema schema) {
-        xmlSchemaType = schema;
-        helper.setXMLSchema(schema);
-    }
 
     public WSDLToCorbaHelper getHelper() {
         return helper;
     }
     
-    private void createXmlSchemaList(Collection<XmlSchema> list) {                
-        List<XmlSchema> schemaList = new ArrayList<XmlSchema>();        
-        Iterator s = list.iterator();
-            
-        while (s.hasNext()) {
-            XmlSchema xmlSchemaTypes = (XmlSchema)s.next();
-            schemaList.add(xmlSchemaTypes);
-                
-            Iterator schemas = xmlSchemaTypes.getIncludes().getIterator();
-            while (schemas.hasNext()) {
-                Object obj = schemas.next();                               
-                if (obj instanceof XmlSchemaExternal) {
-                    XmlSchemaExternal extSchema = (XmlSchemaExternal) obj;                    
-                    schemaList.add(extSchema.getSchema());
-                }
-            }
-        }
-        
-        setXMLSchemaList(schemaList);
-        
-    }
 
     public Definition generateCORBABinding() throws Exception {
         try {
-            extReg = new ExtensionRegistry(); 
-            addExtensions(extReg);
-            typeProcessor.setExtensionRegistry(extReg);            
             typeProcessor.parseWSDL(getWsdlFileName());           
             def = typeProcessor.getWSDLDefinition();
             generateCORBABinding(def);            
@@ -158,11 +126,6 @@ public class WSDLToCorbaBinding {
     public Binding[] generateCORBABinding(Definition definition) throws Exception {    
         def = definition;
         helper.setWsdlDefinition(def);
-        if (extReg == null) {
-            extReg = def.getExtensionRegistry();
-            addExtensions(extReg);
-            typeProcessor.setExtensionRegistry(extReg);
-        }
         typeProcessor.setWSDLDefinition(def);
         wsdlParameter = new WSDLParameter();
         if (idlNamespace == null) {
@@ -171,19 +134,17 @@ public class WSDLToCorbaBinding {
         generateNSPrefix(def, getIdlNamespace(), "ns");
 
         typeProcessor.process();
+        xmlSchemaList = typeProcessor.getXmlSchemaTypes();
+        helper.setXMLSchemaList(xmlSchemaList);
         
-        setXMLSchema(typeProcessor.getXmlSchemaType());
-        createXmlSchemaList(typeProcessor.getXmlSchemaTypes());
         List<PortType> intfs = null;
-
         if (interfaceNames.size() > 0) {
             intfs = new ArrayList<PortType>(interfaceNames.size());
 
-            for (int i = 0; i < interfaceNames.size(); i++) {
+            for (String interfaceName : interfaceNames) {
                 PortType portType = null;
-                String interfaceName = (String)interfaceNames.get(i);
 
-                Map portTypes = def.getPortTypes();
+                Map portTypes = def.getAllPortTypes();
                 if (portTypes != null) {
                     Iterator it2 = portTypes.keySet().iterator();
                     while (it2.hasNext()) {
@@ -218,7 +179,7 @@ public class WSDLToCorbaBinding {
     }
 
     private List<PortType> getPortTypeList() throws Exception {
-        Map portTypes = def .getPortTypes();
+        Map portTypes = def.getAllPortTypes();
         List<PortType> intfs = null;
 
         if (portTypes == null) {
@@ -336,7 +297,7 @@ public class WSDLToCorbaBinding {
             binding.setUndefined(false);
             definition.addBinding(binding);            
         } catch (Exception ex) {
-            ex.printStackTrace();
+            binding.setUndefined(true);
         }
 
         cleanUpTypeMap(typeMappingType);
@@ -412,32 +373,36 @@ public class WSDLToCorbaBinding {
         
         List<Operation> ops = CastUtils.cast(portType.getOperations());
         for (Operation op : ops) {
-            BindingOperation bindingOperation = definition.createBindingOperation();
-            addCorbaOperationExtElement(bindingOperation, op);
-            bindingOperation.setName(op.getName());
-            if (op.getInput() != null) {
-                BindingInput bindingInput = definition.createBindingInput();
-                bindingInput.setName(op.getInput().getName());
-                bindingOperation.setBindingInput(bindingInput);
+            try {
+                BindingOperation bindingOperation = definition.createBindingOperation();
+                addCorbaOperationExtElement(bindingOperation, op);
+                bindingOperation.setName(op.getName());
+                if (op.getInput() != null) {
+                    BindingInput bindingInput = definition.createBindingInput();
+                    bindingInput.setName(op.getInput().getName());
+                    bindingOperation.setBindingInput(bindingInput);
+                }
+                if (op.getOutput() != null) {
+                    BindingOutput bindingOutput = definition.createBindingOutput();
+                    bindingOutput.setName(op.getOutput().getName());
+                    bindingOperation.setBindingOutput(bindingOutput);
+                }
+                // add Faults
+                if (op.getFaults() != null && op.getFaults().size() > 0) {
+                    Map faults = op.getFaults();
+                    Iterator i = faults.values().iterator();               
+                    while (i.hasNext()) {
+                        Fault fault = (Fault)i.next();
+                        BindingFault bindingFault = definition.createBindingFault();
+                        bindingFault.setName(fault.getName());                    
+                        bindingOperation.addBindingFault(bindingFault);
+                    }               
+                }
+                bindingOperation.setOperation(op);
+                binding.addBindingOperation(bindingOperation);
+            } catch (Exception ex) {
+                LOG.warning("Operation " + op.getName() + " not mapped to CORBA binding.");
             }
-            if (op.getOutput() != null) {
-                BindingOutput bindingOutput = definition.createBindingOutput();
-                bindingOutput.setName(op.getOutput().getName());
-                bindingOperation.setBindingOutput(bindingOutput);
-            }
-            // add Faults
-            if (op.getFaults() != null && op.getFaults().size() > 0) {
-                Map faults = op.getFaults();
-                Iterator i = faults.values().iterator();               
-                while (i.hasNext()) {
-                    Fault fault = (Fault)i.next();
-                    BindingFault bindingFault = definition.createBindingFault();
-                    bindingFault.setName(fault.getName());                    
-                    bindingOperation.addBindingFault(bindingFault);
-                }               
-            }
-            bindingOperation.setOperation(op);
-            binding.addBindingOperation(bindingOperation);
         }
     }
 
@@ -526,11 +491,7 @@ public class WSDLToCorbaBinding {
     }
     
     private void addCorbaTypes(Definition definition) throws Exception {   
-        List<XmlSchema> xmlSchemaLst = xmlSchemaList;
-        Iterator s = xmlSchemaLst.iterator();
-            
-        while (s.hasNext()) {
-            XmlSchema xmlSchemaTypes = (XmlSchema)s.next();
+        for (XmlSchema xmlSchemaTypes : xmlSchemaList.getXmlSchemas()) {
                 
             Iterator schemas = xmlSchemaTypes.getIncludes().getIterator();
             while (schemas.hasNext()) {
@@ -548,9 +509,9 @@ public class WSDLToCorbaBinding {
                     //}
                 }
             }
-                
-            addCorbaTypes(xmlSchemaTypes);
-
+            if (!W3CConstants.NU_SCHEMA_XSD.equals(xmlSchemaTypes.getTargetNamespace())) {
+                addCorbaTypes(xmlSchemaTypes);
+            }
         }
     }              
     

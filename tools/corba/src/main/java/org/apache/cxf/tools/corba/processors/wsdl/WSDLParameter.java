@@ -36,6 +36,7 @@ import org.apache.cxf.binding.corba.wsdl.ArgType;
 import org.apache.cxf.binding.corba.wsdl.CorbaTypeImpl;
 import org.apache.cxf.binding.corba.wsdl.ModeType;
 import org.apache.cxf.binding.corba.wsdl.ParamType;
+import org.apache.cxf.common.xmlschema.SchemaCollection;
 import org.apache.ws.commons.schema.XmlSchema;
 import org.apache.ws.commons.schema.XmlSchemaAnnotation;
 import org.apache.ws.commons.schema.XmlSchemaAppInfo;
@@ -54,7 +55,7 @@ public final class WSDLParameter {
     static Definition definition;
 
     public void processParameters(WSDLToCorbaBinding wsdlToCorbaBinding,
-            Operation operation, Definition def, List<XmlSchema> xmlSchemaList,
+            Operation operation, Definition def, SchemaCollection xmlSchemaList,
             List<ParamType> params, List<ArgType> returns,
             boolean simpleOrdering) throws Exception {
 
@@ -87,7 +88,7 @@ public final class WSDLParameter {
 
     private void processWrappedInputParams(WSDLToCorbaBinding wsdlToCorbaBinding,
                                            Operation operation,
-                                           List<XmlSchema> xmlSchemaList,
+                                           SchemaCollection xmlSchemaList,
                                            List<ParamType> inputs)
         throws Exception {
         Input input = operation.getInput();
@@ -131,7 +132,7 @@ public final class WSDLParameter {
 
     private void processInputParams(WSDLToCorbaBinding wsdlToCorbaBinding,
                                     Operation operation,
-                                    List<XmlSchema> xmlSchemaList,
+                                    SchemaCollection xmlSchemaList,
                                     List<ParamType> inputs)
         throws Exception {
 
@@ -188,7 +189,7 @@ public final class WSDLParameter {
 
     private void processWrappedOutputParams(
             WSDLToCorbaBinding wsdlToCorbaBinding, Operation operation,
-            List<XmlSchema> xmlSchemaList, List<ParamType> inputs,
+            SchemaCollection xmlSchemaList, List<ParamType> inputs,
             List<ParamType> outputs) throws Exception {
 
         Output output = operation.getOutput();
@@ -259,7 +260,7 @@ public final class WSDLParameter {
     }
 
     private void processOutputParams(WSDLToCorbaBinding wsdlToCorbaBinding,
-            Operation operation, List<XmlSchema> xmlSchemaList,
+            Operation operation, SchemaCollection xmlSchemaList,
             List<ParamType> inputs, List<ParamType> outputs) throws Exception {
 
         Output output = operation.getOutput();
@@ -407,13 +408,11 @@ public final class WSDLParameter {
     }
 
     private static XmlSchemaType getType(Part part,
-                                         List<XmlSchema> xmlSchemaList)
+                                         SchemaCollection xmlSchemaList)
         throws Exception {
         XmlSchemaType schemaType = null;
 
-        Iterator i = xmlSchemaList.iterator();
-        while (i.hasNext()) {
-            XmlSchema xmlSchema = (XmlSchema) i.next();
+        for (XmlSchema xmlSchema : xmlSchemaList.getXmlSchemas()) {
             if (part.getTypeName() != null) {
                 schemaType = findSchemaType(xmlSchema, part.getTypeName());                
                 if (schemaType != null) {
@@ -467,13 +466,11 @@ public final class WSDLParameter {
     }
 
     private static XmlSchemaElement getElement(Part part,
-                                               List<XmlSchema> xmlSchemaList)
+                                               SchemaCollection xmlSchemaList)
         throws Exception {
         XmlSchemaElement schemaElement = null;
 
-        Iterator i = xmlSchemaList.iterator();        
-        while (i.hasNext()) {
-            XmlSchema xmlSchema = (XmlSchema) i.next();
+        for (XmlSchema xmlSchema : xmlSchemaList.getXmlSchemas()) {
             if (part.getElementName() != null) {
                 schemaElement = findElement(xmlSchema, part.getElementName()); 
                 if (schemaElement !=  null) {
@@ -564,11 +561,9 @@ public final class WSDLParameter {
     private static XmlSchemaObject getSchemaObject(
         WSDLToCorbaBinding wsdlToCorbaBinding, QName typeName) {
 
-        List<XmlSchema> schemaList = wsdlToCorbaBinding.getHelper().getXMLSchemaList();
-        Iterator<XmlSchema> schemaIterator = schemaList.iterator();
+        SchemaCollection schemaList = wsdlToCorbaBinding.getHelper().getXMLSchemaList();
         XmlSchemaObject schemaObj = null;
-        while (schemaIterator.hasNext()) {
-            XmlSchema s = schemaIterator.next();
+        for (XmlSchema s : schemaList.getXmlSchemas()) {
             XmlSchemaObjectTable schemaTable = s.getElements();
             schemaObj = schemaTable.getItem(typeName);
             if (schemaObj != null) {
@@ -614,7 +609,7 @@ public final class WSDLParameter {
         return paramtype;
     }
 
-    private boolean isWrappedOperation(Operation op, List<XmlSchema> xmlSchemaList)
+    private boolean isWrappedOperation(Operation op, SchemaCollection xmlSchemaList)
         throws Exception {
         Message inputMessage = op.getInput().getMessage();
         Message outputMessage = null;
@@ -742,11 +737,8 @@ public final class WSDLParameter {
         return false;
     }
 
-    private boolean isObjectReference(List<XmlSchema> schemaList, QName name) {
-        int length = schemaList.size();
-
-        for (int i = 0; i < length; ++i) {
-            XmlSchema schema = schemaList.get(i);
+    private boolean isObjectReference(SchemaCollection schemaList, QName name) {
+        for (XmlSchema schema : schemaList.getXmlSchemas()) {
             XmlSchemaElement element = schema.getElementByName(name);
             if (element != null) {
                 XmlSchemaAnnotation annotation = element.getAnnotation();

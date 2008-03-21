@@ -97,6 +97,8 @@ public class WSDLToCorbaProcessor extends WSDLToProcessor {
     }
 
     private void writeToWSDL(Definition def) throws ToolException {
+        
+        
         try {
             WSDLUtils.writeWSDL(def, outputdir, wsdlOutput);
         } catch (Throwable t) {

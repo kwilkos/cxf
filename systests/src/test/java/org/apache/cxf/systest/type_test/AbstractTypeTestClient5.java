@@ -33,6 +33,9 @@ public abstract class AbstractTypeTestClient5 extends AbstractTypeTestClient4 {
 
     @Test
     public void testComplexRestriction() throws Exception {
+        if (!shouldRunTest("ComplexRestriction")) {
+            return;
+        }
         // normal case, maxLength=10
         ComplexRestriction x = new ComplexRestriction();
         x.setValue("str_x");
@@ -81,6 +84,9 @@ public abstract class AbstractTypeTestClient5 extends AbstractTypeTestClient4 {
 
     @Test
     public void testComplexRestriction2() throws Exception {
+        if (!shouldRunTest("ComplexRestriction2")) {
+            return;
+        }
         // normal case, length=10
         ComplexRestriction2 x = new ComplexRestriction2();
         x.setValue("string_xxx");
@@ -129,6 +135,9 @@ public abstract class AbstractTypeTestClient5 extends AbstractTypeTestClient4 {
 
     @Test
     public void testComplexRestriction3() throws Exception {
+        if (!shouldRunTest("ComplexRestriction3")) {
+            return;
+        }
         // normal case, maxLength=10 for ComplexRestriction
         // && minLength=5 for ComplexRestriction3
         ComplexRestriction3 x = new ComplexRestriction3();
@@ -188,6 +197,9 @@ public abstract class AbstractTypeTestClient5 extends AbstractTypeTestClient4 {
 
     @Test
     public void testComplexRestriction4() throws Exception {
+        if (!shouldRunTest("ComplexRestriction4")) {
+            return;
+        }
         // normal case, maxLength=10 for ComplexRestriction
         // && maxLength=5 for ComplexRestriction4
         ComplexRestriction4 x = new ComplexRestriction4();
@@ -233,6 +245,9 @@ public abstract class AbstractTypeTestClient5 extends AbstractTypeTestClient4 {
     //org.apache.type_test.types1.ComplexRestriction5
     @Test
     public void testComplexRestriction5() throws Exception {
+        if (!shouldRunTest("ComplexRestriction5")) {
+            return;
+        }
         // normal case, maxLength=50 && minLength=5 for ComplexRestriction5
         ComplexRestriction5 x = new ComplexRestriction5();
         x.setValue("http://www.iona.com");

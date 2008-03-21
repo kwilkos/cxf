@@ -56,11 +56,15 @@ public abstract class AbstractTypeTestClient
         perfTestOnly = true;
     }
 
+    public boolean shouldRunTest(String name) {
+        return true;
+    }
+    
     public static void initClient(Class clz, QName serviceName, QName portName, String wsdlPath)
         throws Exception {
         URL wsdlLocation = clz.getResource(wsdlPath);
         assertNotNull("Could not load wsdl " + wsdlPath, wsdlLocation);
-        testDocLiteral = wsdlPath.contains("doclit");
+        testDocLiteral = wsdlPath.contains("doclit") || wsdlPath.contains("-corba");
         testXMLBinding = wsdlPath.contains("_xml");
         if (testXMLBinding) {
             org.apache.type_test.xml.XMLService xmlService
@@ -121,6 +125,9 @@ public abstract class AbstractTypeTestClient
 
     @Test
     public void testVoid() throws Exception {
+        if (!shouldRunTest("Void")) {
+            return;
+        }
         if (testDocLiteral) {
             docClient.testVoid();
         } else if (testXMLBinding) {
@@ -132,6 +139,9 @@ public abstract class AbstractTypeTestClient
 
     @Test
     public void testOneway() throws Exception {
+        if (!shouldRunTest("Oneway")) {
+            return;
+        }
         String x = "hello";
         String y = "oneway";
         if (testDocLiteral) {
@@ -145,6 +155,9 @@ public abstract class AbstractTypeTestClient
 
     @Test
     public void testByte() throws Exception {
+        if (!shouldRunTest("Byte")) {
+            return;
+        }
         byte valueSets[][] = {{0, 1}, {-1, 0}, {Byte.MIN_VALUE, Byte.MAX_VALUE}};
 
         for (int i = 0; i < valueSets.length; i++) {
@@ -171,6 +184,9 @@ public abstract class AbstractTypeTestClient
 
     @Test
     public void testShort() throws Exception {
+        if (!shouldRunTest("Short")) {
+            return;
+        }
         short valueSets[][] = {{0, 1}, {-1, 0}, {Short.MIN_VALUE, Short.MAX_VALUE}};
 
         for (int i = 0; i < valueSets.length; i++) {
@@ -197,6 +213,9 @@ public abstract class AbstractTypeTestClient
 
     @Test
     public void testUnsignedShort() throws Exception {
+        if (!shouldRunTest("UnsignedShort")) {
+            return;
+        }
         int valueSets[][] = {{0, 1}, {1, 0}, {0, Short.MAX_VALUE * 2 + 1}};
 
         for (int i = 0; i < valueSets.length; i++) {
@@ -224,6 +243,9 @@ public abstract class AbstractTypeTestClient
 
     @Test
     public void testInt() throws Exception {
+        if (!shouldRunTest("Int")) {
+            return;
+        }
         int valueSets[][] = {{5, 10}, {-10, 50}, {Integer.MIN_VALUE, Integer.MAX_VALUE}};
 
         for (int i = 0; i < valueSets.length; i++) {
@@ -250,6 +272,9 @@ public abstract class AbstractTypeTestClient
 
     @Test
     public void testUnsignedInt() throws Exception {
+        if (!shouldRunTest("UnsignedInt")) {
+            return;
+        }
         long valueSets[][] = {{11, 20}, {1, 0}, {0, ((long)Integer.MAX_VALUE) * 2 + 1}};
 
         for (int i = 0; i < valueSets.length; i++) {
@@ -277,6 +302,9 @@ public abstract class AbstractTypeTestClient
 
     @Test
     public void testLong() throws Exception {
+        if (!shouldRunTest("Long")) {
+            return;
+        }
         long valueSets[][] = {{0, 1}, {-1, 0}, {Long.MIN_VALUE, Long.MAX_VALUE}};
 
         for (int i = 0; i < valueSets.length; i++) {
@@ -303,6 +331,9 @@ public abstract class AbstractTypeTestClient
 
     @Test
     public void testUnsignedLong() throws Exception {
+        if (!shouldRunTest("UnsignedLong")) {
+            return;
+        }
         BigInteger valueSets[][] = {{new BigInteger("0"), new BigInteger("1")},
                                     {new BigInteger("1"), new BigInteger("0")},
                                     {new BigInteger("0"),
@@ -332,6 +363,9 @@ public abstract class AbstractTypeTestClient
 
     @Test
     public void testFloat() throws Exception {
+        if (!shouldRunTest("Float")) {
+            return;
+        }
         float delta = 0.0f;
         float valueSets[][] = {{0.0f, 1.0f}, {-1.0f, (float)java.lang.Math.PI}, {-100.0f, 100.0f},
                                {Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY}, };
@@ -378,6 +412,9 @@ public abstract class AbstractTypeTestClient
 
     @Test
     public void testDouble() throws Exception {
+        if (!shouldRunTest("Double")) {
+            return;
+        }
         double delta = 0.0d;
         double valueSets[][] = {{0.0f, 1.0f}, {-1, java.lang.Math.PI}, {-100.0, 100.0},
                                 {Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY},
@@ -426,6 +463,9 @@ public abstract class AbstractTypeTestClient
 
     @Test
     public void testUnsignedByte() throws Exception {
+        if (!shouldRunTest("UnsignedByte")) {
+            return;
+        }
         short valueSets[][] = {{0, 1}, {1, 0}, {0, Byte.MAX_VALUE * 2 + 1}};
 
         for (int i = 0; i < valueSets.length; i++) {
@@ -453,6 +493,9 @@ public abstract class AbstractTypeTestClient
 
     @Test
     public void testBoolean() throws Exception {
+        if (!shouldRunTest("Boolean")) {
+            return;
+        }
         boolean valueSets[][] = {{true, false}, {true, true}, {false, true}, {false, false}};
 
         for (int i = 0; i < valueSets.length; i++) {
@@ -479,6 +522,9 @@ public abstract class AbstractTypeTestClient
 
     @Test
     public void testString() throws Exception {
+        if (!shouldRunTest("String")) {
+            return;
+        }
         int bufferSize = 1000;
         StringBuffer buffer = new StringBuffer(bufferSize);
         StringBuffer buffer2 = new StringBuffer(bufferSize);
@@ -514,6 +560,9 @@ public abstract class AbstractTypeTestClient
 
     @Test
     public void testStringI18N() throws Exception {
+        if (!shouldRunTest("StringI18N")) {
+            return;
+        }
         String valueSets[][] = {{"hello", I18NStrings.CHINESE_COMPLEX_STRING},
                                 {"hello", I18NStrings.JAP_SIMPLE_STRING}, };
 
@@ -541,6 +590,9 @@ public abstract class AbstractTypeTestClient
 
     @Test
     public void testQName() throws Exception {
+        if (!shouldRunTest("QName")) {
+            return;
+        }
         String valueSets[][] = {{"NoNamespaceService", ""},
                                 {"HelloWorldService", "http://www.iona.com/services"},
                                 {I18NStrings.JAP_SIMPLE_STRING, "http://www.iona.com/iona"},
@@ -571,6 +623,9 @@ public abstract class AbstractTypeTestClient
     // Revisit When client Fault is ready. Comment should be removed
     @Test
     public void testDate() throws Exception {
+        if (!shouldRunTest("Date")) {
+            return;
+        }
         javax.xml.datatype.DatatypeFactory datatypeFactory = javax.xml.datatype.DatatypeFactory.newInstance();
 
         XMLGregorianCalendar x = datatypeFactory.newXMLGregorianCalendar();
@@ -621,6 +676,9 @@ public abstract class AbstractTypeTestClient
 
     @Test
     public void testDateTime() throws Exception {
+        if (!shouldRunTest("DateTime")) {
+            return;
+        }
         javax.xml.datatype.DatatypeFactory datatypeFactory = javax.xml.datatype.DatatypeFactory.newInstance();
 
         XMLGregorianCalendar x = datatypeFactory.newXMLGregorianCalendar();
@@ -658,6 +716,9 @@ public abstract class AbstractTypeTestClient
 
     @Test
     public void testTime() throws Exception {
+        if (!shouldRunTest("Time")) {
+            return;
+        }
         javax.xml.datatype.DatatypeFactory datatypeFactory = javax.xml.datatype.DatatypeFactory.newInstance();
 
         XMLGregorianCalendar x = datatypeFactory.newXMLGregorianCalendar();
@@ -693,6 +754,9 @@ public abstract class AbstractTypeTestClient
 
     @Test
     public void testGYear() throws Exception {
+        if (!shouldRunTest("GYear")) {
+            return;
+        }
         javax.xml.datatype.DatatypeFactory datatypeFactory = javax.xml.datatype.DatatypeFactory.newInstance();
 
         XMLGregorianCalendar x = datatypeFactory.newXMLGregorianCalendar("2004");
@@ -716,6 +780,9 @@ public abstract class AbstractTypeTestClient
 
     @Test
     public void testGYearMonth() throws Exception {
+        if (!shouldRunTest("GYearMonth")) {
+            return;
+        }
         javax.xml.datatype.DatatypeFactory datatypeFactory = javax.xml.datatype.DatatypeFactory.newInstance();
 
         XMLGregorianCalendar x = datatypeFactory.newXMLGregorianCalendar("2004-08");
@@ -739,6 +806,9 @@ public abstract class AbstractTypeTestClient
 
     @Test
     public void testGMonth() throws Exception {
+        if (!shouldRunTest("GMonth")) {
+            return;
+        }
         javax.xml.datatype.DatatypeFactory datatypeFactory = javax.xml.datatype.DatatypeFactory.newInstance();
 
         XMLGregorianCalendar x;
@@ -771,6 +841,9 @@ public abstract class AbstractTypeTestClient
 
     @Test
     public void testGMonthDay() throws Exception {
+        if (!shouldRunTest("GMonthDay")) {
+            return;
+        }
         javax.xml.datatype.DatatypeFactory datatypeFactory = javax.xml.datatype.DatatypeFactory.newInstance();
 
         XMLGregorianCalendar x = datatypeFactory.newXMLGregorianCalendar("--08-21");
@@ -794,6 +867,9 @@ public abstract class AbstractTypeTestClient
 
     @Test
     public void testGDay() throws Exception {
+        if (!shouldRunTest("GDay")) {
+            return;
+        }
         javax.xml.datatype.DatatypeFactory datatypeFactory = javax.xml.datatype.DatatypeFactory.newInstance();
 
         XMLGregorianCalendar x = datatypeFactory.newXMLGregorianCalendar("---21");
@@ -817,6 +893,9 @@ public abstract class AbstractTypeTestClient
 
     @Test
     public void testDuration() throws Exception {
+        if (!shouldRunTest("Duration")) {
+            return;
+        }
         javax.xml.datatype.DatatypeFactory datatypeFactory = javax.xml.datatype.DatatypeFactory.newInstance();
 
         Duration x = datatypeFactory.newDuration("P1Y35DT60M60.500S");
@@ -840,6 +919,9 @@ public abstract class AbstractTypeTestClient
 
     @Test
     public void testNormalizedString() throws Exception {
+        if (!shouldRunTest("NormalizedString")) {
+            return;
+        }
         String x = "  normalized string ";
         String yOrig = "  another normalized  string ";
 
@@ -861,6 +943,9 @@ public abstract class AbstractTypeTestClient
 
     @Test
     public void testToken() throws Exception {
+        if (!shouldRunTest("Token")) {
+            return;
+        }
         String x = "token";
         String yOrig = "another token";
 
@@ -882,6 +967,9 @@ public abstract class AbstractTypeTestClient
 
     @Test
     public void testLanguage() throws Exception {
+        if (!shouldRunTest("Language")) {
+            return;
+        }
         String x = "abc";
         String yOrig = "abc-def";
 
@@ -903,6 +991,9 @@ public abstract class AbstractTypeTestClient
 
     @Test
     public void testNMTOKEN() throws Exception {
+        if (!shouldRunTest("NMTOKEN")) {
+            return;
+        }
         String x = "123:abc";
         String yOrig = "abc.-_:";
 
@@ -924,6 +1015,9 @@ public abstract class AbstractTypeTestClient
 
     @Test
     public void testNMTOKENS() throws Exception {
+        if (!shouldRunTest("NMTOKENS")) {
+            return;
+        }
         //
         // XXX - The jaxb ri code generation produces different method
         // signatures for the NMTOKENS type between using rpc literal
@@ -966,6 +1060,9 @@ public abstract class AbstractTypeTestClient
 
     @Test
     public void testName() throws Exception {
+        if (!shouldRunTest("Name")) {
+            return;
+        }
         String x = "abc:123";
         String yOrig = "abc.-_";
 
@@ -987,6 +1084,9 @@ public abstract class AbstractTypeTestClient
 
     @Test
     public void testNCName() throws Exception {
+        if (!shouldRunTest("NCName")) {
+            return;
+        }
         String x = "abc-123";
         String yOrig = "abc.-";
 
@@ -1008,6 +1108,9 @@ public abstract class AbstractTypeTestClient
 
     @Test
     public void testID() throws Exception {
+        if (!shouldRunTest("ID")) {
+            return;
+        }
         // n.b. to be valid, elements with an ID in the response message
         // must have a unique ID, so this test does not return x as the
         // return value (like the other tests).
@@ -1036,6 +1139,9 @@ public abstract class AbstractTypeTestClient
 
     @Test
     public void testDecimal() throws Exception {
+        if (!shouldRunTest("Decimal")) {
+            return;
+        }
         BigDecimal valueSets[][] = {{new BigDecimal("-1234567890.000000"),
                                      new BigDecimal("1234567890.000000")},
                                     {new BigDecimal("-" + String.valueOf(Long.MAX_VALUE * Long.MAX_VALUE)
@@ -1067,6 +1173,9 @@ public abstract class AbstractTypeTestClient
 
     @Test
     public void testInteger() throws Exception {
+        if (!shouldRunTest("Integer")) {
+            return;
+        }
         BigInteger valueSets[][] = {{new BigInteger("-1234567890"), new BigInteger("1234567890")},
                                     {new BigInteger("-" + String.valueOf(Long.MAX_VALUE * Long.MAX_VALUE)),
                                      new BigInteger(String.valueOf(Long.MAX_VALUE * Long.MAX_VALUE))}};
@@ -1095,6 +1204,9 @@ public abstract class AbstractTypeTestClient
 
     @Test
     public void testPositiveInteger() throws Exception {
+        if (!shouldRunTest("PositiveInteger")) {
+            return;
+        }
         BigInteger valueSets[][] = {{new BigInteger("1"), new BigInteger("1234567890")},
                                     {new BigInteger(String.valueOf(Integer.MAX_VALUE * Integer.MAX_VALUE)),
                                      new BigInteger(String.valueOf(Long.MAX_VALUE * Long.MAX_VALUE))}};
@@ -1123,6 +1235,9 @@ public abstract class AbstractTypeTestClient
 
     @Test
     public void testNonPositiveInteger() throws Exception {
+        if (!shouldRunTest("NonPositiveInteger")) {
+            return;
+        }
         BigInteger valueSets[][] = {{new BigInteger("0"), new BigInteger("-1234567890")},
                                     {new BigInteger("-"
                                                     + String.valueOf(Integer.MAX_VALUE * Integer.MAX_VALUE)),
@@ -1152,6 +1267,9 @@ public abstract class AbstractTypeTestClient
 
     @Test
     public void testNegativeInteger() throws Exception {
+        if (!shouldRunTest("NegativeInteger")) {
+            return;
+        }
         BigInteger valueSets[][] = {{new BigInteger("-1"), new BigInteger("-1234567890")},
                                     {new BigInteger("-"
                                                     + String.valueOf(Integer.MAX_VALUE * Integer.MAX_VALUE)),
@@ -1181,6 +1299,9 @@ public abstract class AbstractTypeTestClient
 
     @Test
     public void testNonNegativeInteger() throws Exception {
+        if (!shouldRunTest("NonNegativeInteger")) {
+            return;
+        }
         BigInteger valueSets[][] = {{new BigInteger("0"),
                                         new BigInteger("1234567890")},
                                     {new BigInteger(String.valueOf(Integer.MAX_VALUE
@@ -1212,6 +1333,9 @@ public abstract class AbstractTypeTestClient
 
     @Test
     public void testHexBinary() throws Exception {
+        if (!shouldRunTest("HexBinary")) {
+            return;
+        }
         byte[] x = "hello".getBytes();
         Holder<byte[]> y = new Holder<byte[]>("goodbye".getBytes());
         Holder<byte[]> yOriginal = new Holder<byte[]>("goodbye".getBytes());
@@ -1234,6 +1358,9 @@ public abstract class AbstractTypeTestClient
 
     @Test
     public void testBase64Binary() throws Exception {
+        if (!shouldRunTest("Base64Binary")) {
+            return;
+        }
         byte[] x = "hello".getBytes();
         Holder<byte[]> y = new Holder<byte[]>("goodbye".getBytes());
         Holder<byte[]> yOriginal = new Holder<byte[]>("goodbye".getBytes());
@@ -1272,6 +1399,9 @@ public abstract class AbstractTypeTestClient
 
     @Test
     public void testAnyURI() throws Exception {
+        if (!shouldRunTest("AnyURI")) {
+            return;
+        }
         String valueSets[][] = {{"file:///root%20%20/-;?&+",
                                     "file:///w:/test!artix~java*"},
                                 {"http://iona.com/",
@@ -1302,6 +1432,9 @@ public abstract class AbstractTypeTestClient
 
     @Test
     public void testColourEnum() throws Exception {
+        if (!shouldRunTest("ColourEnum")) {
+            return;
+        }
         String[] xx = {"RED", "GREEN", "BLUE"};
         String[] yy = {"GREEN", "BLUE", "RED"};
 
@@ -1331,6 +1464,9 @@ public abstract class AbstractTypeTestClient
 
     @Test
     public void testNumberEnum() throws Exception {
+        if (!shouldRunTest("NumberEnum")) {
+            return;
+        }
         int[] xx = {1, 2, 3};
         int[] yy = {3, 1, 2};
 
@@ -1360,6 +1496,9 @@ public abstract class AbstractTypeTestClient
 
     @Test
     public void testStringEnum() throws Exception {
+        if (!shouldRunTest("StringEnum")) {
+            return;
+        }
         String[] xx = {"a b c", "d e f", "g h i"};
         String[] yy = {"g h i", "a b c", "d e f"};
 
@@ -1388,6 +1527,9 @@ public abstract class AbstractTypeTestClient
 
     @Test
     public void testDecimalEnum() throws Exception {
+        if (!shouldRunTest("DecimalEnum")) {
+            return;
+        }
         BigDecimal[] xx = {new BigDecimal("-10.34"), new BigDecimal("11.22"), new BigDecimal("14.55")};
         BigDecimal[] yy = {new BigDecimal("14.55"), new BigDecimal("-10.34"), new BigDecimal("11.22")};
 
@@ -1418,6 +1560,9 @@ public abstract class AbstractTypeTestClient
 
     @Test
     public void testNMTokenEnum() throws Exception {
+        if (!shouldRunTest("NMTokenEnum")) {
+            return;
+        }
         String[] xx = {"hello", "there"};
         String[] yy = {"there", "hello"};
 
@@ -1448,6 +1593,9 @@ public abstract class AbstractTypeTestClient
 
     @Test
     public void testAnyURIEnum() throws Exception {
+        if (!shouldRunTest("AnyURIEnum")) {
+            return;
+        }
         String[] xx = {"http://www.iona.com", "http://www.google.com"};
         String[] yy = {"http://www.google.com", "http://www.iona.com"};
 
@@ -1476,6 +1624,9 @@ public abstract class AbstractTypeTestClient
 
     @Test
     public void testSimpleRestriction() throws Exception {
+        if (!shouldRunTest("SimpleRestriction")) {
+            return;
+        }
         // normal case, maxLength=10
         String x = "string_x";
         String yOrig = "string_y";
@@ -1525,6 +1676,9 @@ public abstract class AbstractTypeTestClient
 
     @Test
     public void testSimpleRestriction2() throws Exception {
+        if (!shouldRunTest("SimpleRestriction2")) {
+            return;
+        }
         // normal case, minLength=5
         String x = "str_x";
         String yOrig = "string_yyy";
@@ -1563,6 +1717,9 @@ public abstract class AbstractTypeTestClient
 
     @Test
     public void testSimpleRestriction3() throws Exception {
+        if (!shouldRunTest("SimpleRestriction3")) {
+            return;
+        }
         // normal case, maxLength=10 && minLength=5
         String x = "str_x";
         String yOrig = "string_yyy";
@@ -1613,6 +1770,9 @@ public abstract class AbstractTypeTestClient
 
     @Test
     public void testSimpleRestriction4() throws Exception {
+        if (!shouldRunTest("SimpleRestriction4")) {
+            return;
+        }
         // normal case, length=1
         String x = "x";
         String yOrig = "y";
@@ -1651,6 +1811,9 @@ public abstract class AbstractTypeTestClient
 
     @Test
     public void testSimpleRestriction5() throws Exception {
+        if (!shouldRunTest("SimpleRestriction5")) {
+            return;
+        }
         // normal case, maxLength=10 for SimpleRestrction
         // && minLength=5 for SimpleRestriction5
         String x = "str_x";
@@ -1702,6 +1865,9 @@ public abstract class AbstractTypeTestClient
 
     @Test
     public void testSimpleRestriction6() throws Exception {
+        if (!shouldRunTest("SimpleRestriction6")) {
+            return;
+        }
         String x = "str_x";
         String yOrig = "y";
         Holder<String> y = new Holder<String>(yOrig);
@@ -1740,6 +1906,9 @@ public abstract class AbstractTypeTestClient
 
     @Test
     public void testHexBinaryRestriction() throws Exception {
+        if (!shouldRunTest("HexBinaryRestriction")) {
+            return;
+        }
         // normal case, maxLength=10 && minLength=1
         byte[] x = "x".getBytes();
         byte[] yOrig = "string_yyy".getBytes();
@@ -1796,6 +1965,9 @@ public abstract class AbstractTypeTestClient
 
     @Test
     public void testBase64BinaryRestriction() throws Exception {
+        if (!shouldRunTest("Base64BinaryRestriction")) {
+            return;
+        }
         byte[] x = "string_xxx".getBytes();
         byte[] yOrig = "string_yyy".getBytes();
         Holder<byte[]> y = new Holder<byte[]>(yOrig);
@@ -1833,6 +2005,9 @@ public abstract class AbstractTypeTestClient
 
     @Test
     public void testSimpleListRestriction2() throws Exception {
+        if (!shouldRunTest("SimpleListRestriction2")) {
+            return;
+        }
         if (testDocLiteral || testXMLBinding) {
             List<String> x = Arrays.asList("I", "am", "SimpleList");
             List<String> yOrig = Arrays.asList("Does", "SimpleList", "Work");
@@ -1879,6 +2054,9 @@ public abstract class AbstractTypeTestClient
 
     @Test
     public void testStringList() throws Exception {
+        if (!shouldRunTest("StringList")) {
+            return;
+        }
         if (testDocLiteral || testXMLBinding) {
             List<String> x = Arrays.asList("I", "am", "SimpleList");
             List<String> yOrig = Arrays.asList("Does", "SimpleList", "Work");
@@ -1915,6 +2093,9 @@ public abstract class AbstractTypeTestClient
 
     @Test
     public void testNumberList() throws Exception {
+        if (!shouldRunTest("NumberList")) {
+            return;
+        }
         if (testDocLiteral || testXMLBinding) {
             List<Integer> x = Arrays.asList(1, 2, 3);
             List<Integer> yOrig = Arrays.asList(10, 100, 1000);
@@ -1951,6 +2132,9 @@ public abstract class AbstractTypeTestClient
 
     @Test
     public void testQNameList() throws Exception {
+        if (!shouldRunTest("QNameList")) {
+            return;
+        }
         if (testDocLiteral || testXMLBinding) {
             List<QName> x = Arrays.asList(new QName("http://schemas.iona.com/type_test", "testqname1"),
                                           new QName("http://schemas.iona.com/type_test", "testqname2"),
@@ -1996,6 +2180,9 @@ public abstract class AbstractTypeTestClient
 
     @Test
     public void testSimpleUnionList() throws Exception {
+        if (!shouldRunTest("SimpleUnionList")) {
+            return;
+        }
         if (testDocLiteral || testXMLBinding) {
             List<String> x = Arrays.asList("5", "-7");
             List<String> yOrig = Arrays.asList("-9", "7");
@@ -2033,64 +2220,4 @@ public abstract class AbstractTypeTestClient
         }
     }
 
-    @Test
-    public void testAnonEnumList() throws Exception {
-        if (testDocLiteral || testXMLBinding) {
-            List<Short> x = Arrays.asList((short)10, (short)100);
-            List<Short> yOrig = Arrays.asList((short)1000, (short)10);
-
-            Holder<List<Short>> y = new Holder<List<Short>>(yOrig);
-            Holder<List<Short>> z = new Holder<List<Short>>();
-
-            List<Short> ret = testDocLiteral ? docClient.testAnonEnumList(x, y, z) : xmlClient
-                .testAnonEnumList(x, y, z);
-            if (!perfTestOnly) {
-                assertTrue("testAnonEnumList(): Incorrect value for inout param", x.equals(y.value));
-                assertTrue("testAnonEnumList(): Incorrect value for out param", yOrig.equals(z.value));
-                assertTrue("testAnonEnumList(): Incorrect return value", x.equals(ret));
-            }
-        } else {
-            Short[] x = {(short)10, (short)100};
-            Short[] yOrig = {(short)1000, (short)10};
-
-            Holder<Short[]> y = new Holder<Short[]>(yOrig);
-            Holder<Short[]> z = new Holder<Short[]>();
-
-            Short[] ret = rpcClient.testAnonEnumList(x, y, z);
-
-            assertTrue(y.value.length == 2);
-            assertTrue(z.value.length == 2);
-            assertTrue(ret.length == 2);
-            if (!perfTestOnly) {
-                for (int i = 0; i < 2; i++) {
-                    assertEquals("testAnonEnumList(): Incorrect value for inout param", x[i].shortValue(),
-                                 y.value[i].shortValue());
-                    assertEquals("testAnonEnumList(): Incorrect value for out param", yOrig[i].shortValue(),
-                                 z.value[i].shortValue());
-                    assertEquals("testAnonEnumList(): Incorrect return value", x[i].shortValue(), ret[i]
-                        .shortValue());
-                }
-            }
-        }
-    }
-
-    @Test
-    public void testUnionWithAnonEnum() throws Exception {
-        String x = "5";
-        String yOrig = "n/a";
-
-        Holder<String> y = new Holder<String>(yOrig);
-        Holder<String> z = new Holder<String>();
-        String ret;
-        if (testDocLiteral) {
-            ret = docClient.testUnionWithAnonEnum(x, y, z);
-        } else if (testXMLBinding) {
-            ret = xmlClient.testUnionWithAnonEnum(x, y, z);
-        } else {
-            ret = rpcClient.testUnionWithAnonEnum(x, y, z);
-        }
-        assertEquals("testUnionWithAnonEnum(): Incorrect value for inout param", x, y.value);
-        assertEquals("testUnionWithAnonEnum(): Incorrect value for out param", yOrig, z.value);
-        assertEquals("testUnionWithAnonEnum(): Incorrect return value", x, ret);
-    }
 }

@@ -73,6 +73,10 @@ public class SchemaCollection {
         }
     }
 
+    public XmlSchemaCollection getXmlSchemaCollection() {
+        return schemaCollection;
+    }
+    
     public boolean equals(Object obj) {
         return schemaCollection.equals(obj);
     }

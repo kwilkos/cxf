@@ -114,17 +114,12 @@ public class WSDLToIDLAction {
     
     public void generateIDL(Definition definition) throws Exception {
         if (definition == null) {
-            extReg = new ExtensionRegistry(); 
-            addExtensions(extReg);
-            typeProcessor.setExtensionRegistry(extReg); 
             typeProcessor.parseWSDL(wsdlFileName);
             def = typeProcessor.getWSDLDefinition();
         } else {
             def = definition;
-            extReg = def.getExtensionRegistry();
-            addExtensions(extReg);
-            typeProcessor.setExtensionRegistry(extReg);
         }
+        extReg = def.getExtensionRegistry();
 
         if (printWriter == null) {
             printWriter = createPrintWriter(outputFile);

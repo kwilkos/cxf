@@ -17,92 +17,58 @@
  * specific language governing permissions and limitations
  * under the License.
 -->
-<project>
-  <modelVersion>4.0.0</modelVersion>
-  <artifactId>yoko-maven-plugins</artifactId>
-  <name>Apache Yoko Maven plugins</name>
-  <packaging>maven-plugin</packaging>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.apache.cxf</groupId>
+    <artifactId>cxf-corbatools-maven-plugin</artifactId>
+    <packaging>maven-plugin</packaging>
+    <version>2.1-incubator-SNAPSHOT</version>
+    <name>Apache CXF CORBA Tools Maven2 Plugins</name>
+    <url>http://cwiki.apache.org/CXF</url>
 
-  <parent>
-      <groupId>org.apache.yoko</groupId>
-      <artifactId>yoko</artifactId>
-      <version>1.0-incubating-SNAPSHOT</version>
-  </parent>
+    <parent>
+        <groupId>org.apache.cxf</groupId>
+        <artifactId>cxf-parent</artifactId>
+        <version>2.1-incubator-SNAPSHOT</version>
+        <relativePath>../../parent/pom.xml</relativePath>
+    </parent>
 
-  <dependencies>
-    <dependency>
-        <groupId>junit</groupId>
-        <artifactId>junit</artifactId>
-        <scope>test</scope>
-    </dependency>
+    <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
 
-    <dependency>
-        <groupId>org.apache.maven</groupId>
-        <artifactId>maven-plugin-api</artifactId>
-        <scope>compile</scope>
-        <exclusions>
-            <exclusion>
-                <groupId>junit</groupId>
-                <artifactId>junit</artifactId>
-            </exclusion>
-        </exclusions>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.maven</groupId>
-        <artifactId>maven-project</artifactId>
-        <scope>compile</scope>
-        <exclusions>
-            <exclusion>
-                <groupId>junit</groupId>
-                <artifactId>junit</artifactId>
-            </exclusion>
-        </exclusions>
-    </dependency>
-    <dependency>
-       <groupId>org.apache.yoko</groupId>
-       <artifactId>yoko-tools</artifactId>
-    </dependency>
-    <dependency>
-        <groupId>ant</groupId>
-        <artifactId>ant</artifactId>
-    </dependency>
-    <dependency>
-        <groupId>ant</groupId>
-        <artifactId>ant-nodeps</artifactId>
-    </dependency>
-  </dependencies>
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-plugin-api</artifactId>
+            <scope>compile</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>junit</groupId>
+                    <artifactId>junit</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-project</artifactId>
+            <scope>compile</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>junit</groupId>
+                    <artifactId>junit</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-tools-corba</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
-  <build>
-    <plugins>
-       <plugin>
-           <groupId>org.apache.maven.plugins</groupId>
-           <artifactId>maven-checkstyle-plugin</artifactId>
-       </plugin>
-    </plugins>
-  </build>
-
-  <reporting> 
-    <plugins>
-      <plugin>
-        <artifactId>maven-checkstyle-plugin</artifactId>
-      </plugin>
-      <plugin>
-        <artifactId>maven-clover-plugin</artifactId>
-      </plugin>
-      <plugin>
-        <artifactId>maven-pmd-plugin</artifactId>
-      </plugin>
-      <plugin>
-        <artifactId>maven-project-info-reports-plugin</artifactId>
-      </plugin>
-    </plugins>
-  </reporting>
-
-  <scm>
-    <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/yoko/trunk/maven-plugins</connection>
-    <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/incubator/yoko/trunk/maven-plugins</developerConnection>
-    <url>http://svn.apache.org/viewvc/incubator/yoko/trunk/maven-plugins</url>
-  </scm>
+    </dependencies>
 
 </project>
 

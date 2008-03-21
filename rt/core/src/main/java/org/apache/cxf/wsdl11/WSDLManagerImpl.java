@@ -21,8 +21,10 @@ package org.apache.cxf.wsdl11;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.StringTokenizer;
@@ -266,6 +268,23 @@ public class WSDLManagerImpl implements WSDLManager {
      */
     public void setDisableSchemaCache(boolean disableSchemaCache) {
         this.disableSchemaCache = disableSchemaCache;
+    }
+
+    public void removeDefinition(Definition wsdl) {
+        synchronized (definitionsMap) {
+            List<Object> keys = new ArrayList<Object>();
+            for (Map.Entry<Object, Definition> e : definitionsMap.entrySet()) {
+                if (e.getValue() == wsdl) {
+                    keys.add(e.getKey());
+                }
+            }
+            for (Object o : keys) {
+                definitionsMap.remove(o);
+            }
+        }
+        synchronized (schemaCacheMap) {
+            schemaCacheMap.remove(wsdl);
+        }
     }
 
 }

@@ -106,4 +106,11 @@ public interface WSDLManager {
      */
     void putSchemasForDefinition(Definition wsdl, ServiceSchemaInfo schemas);
     
+    
+    /**
+     * If the definition is cached, remove it from the cache
+     * @param wsdl
+     */
+    void removeDefinition(Definition wsdl);
+    
 }

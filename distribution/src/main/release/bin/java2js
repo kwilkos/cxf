@@ -45,11 +45,11 @@ cxf_jar=$cxf_home/lib/cxf-manifest-incubator.jar
 
 
 if [ ! -f $cxf_jar ]; then 
-    if [ ! -f ${cxf_home}/../../target/srcbuild_env ]; then
+    if [ ! -f ${cxf_home}/../../../target/srcbuild_env ]; then
         echo "ERROR: Unable to find cxf-manifest-incubator.jar in $cxf_home/lib"
         exit 1
     else
-        . ${cxf_home}/../../target/srcbuild_env
+        . ${cxf_home}/../../../target/srcbuild_env
         cxf_jar=${CXF_CLASSPATH}
     fi
 fi 
