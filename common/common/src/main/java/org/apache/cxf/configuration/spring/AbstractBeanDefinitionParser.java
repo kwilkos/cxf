@@ -18,6 +18,7 @@
  */
 package org.apache.cxf.configuration.spring;
 
+import java.util.Map;
 import java.util.StringTokenizer;
 
 import javax.xml.bind.JAXBContext;
@@ -32,6 +33,7 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import org.apache.cxf.common.util.CacheMap;
 import org.apache.cxf.helpers.DOMUtils;
 import org.springframework.beans.factory.BeanDefinitionStoreException;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -44,9 +46,9 @@ import org.springframework.util.StringUtils;
 
 public abstract class AbstractBeanDefinitionParser 
     extends org.springframework.beans.factory.xml.AbstractSingleBeanDefinitionParser {
-
+    private static Map<String, JAXBContext> packageContextCache = new CacheMap<String, JAXBContext>(); 
     private Class beanClass;
-
+    
     @Override
     protected void doParse(Element element, ParserContext ctx, BeanDefinitionBuilder bean) {
         boolean setBus = parseAttributes(element, ctx, bean);        
@@ -255,7 +257,11 @@ public abstract class AbstractBeanDefinitionParser
             if (null != c && c.getPackage() != null) {
                 pkg = c.getPackage().getName();
             }
-            context = JAXBContext.newInstance(pkg, getClass().getClassLoader());
+            context = packageContextCache.get(pkg);
+            if (context == null) {
+                context = JAXBContext.newInstance(pkg, getClass().getClassLoader());
+                packageContextCache.put(pkg, context);
+            }
             Unmarshaller u = context.createUnmarshaller();
             if (c != null) {
                 obj = u.unmarshal(data, c);
