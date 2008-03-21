@@ -32,8 +32,6 @@
             <directory>src/main/release</directory>
             <outputDirectory>apache-cxf-${cxf.version}</outputDirectory>
             <includes>
-                <include>DISCLAIMER</include>
-                <include>LICENSE</include>
                 <include>licenses/*.*</include>
                 <include>lib/*</include>
                 <include>release_notes.txt</include>
@@ -46,6 +44,9 @@
             <includes>
                 <include>*</include>
             </includes>
+            <excludes>
+                <exclude>DEPENDENCIES</exclude>
+            </excludes>
         </fileSet>
         <fileSet>
             <directory>src/main/release/bin</directory>
