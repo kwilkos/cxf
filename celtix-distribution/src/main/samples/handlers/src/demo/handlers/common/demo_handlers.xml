@@ -1,9 +1,0 @@
-<handler-config> 
-  <handler-chain> 
-    <handler-chain-name>DemoHandlerChain</handler-chain-name> 
-    <handler> 
-      <handler-name>SOAPLoggingHandler</handler-name> 
-      <handler-class>demo.handlers.common.LoggingHandler</handler-class> 
-    </handler> 
-  </handler-chain> 
-</handler-config> 
