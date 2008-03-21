@@ -76,11 +76,32 @@ public final class StaxUtils {
     private StaxUtils() {
     }
 
+    /**
+     * Return a cached, namespace-aware, factory.
+     * @return
+     */
     public static XMLInputFactory getXMLInputFactory() {
         return getXMLInputFactory(true);
     }
+    
+    /**
+     * Return a cached factory.
+     * @param nsAware
+     * @return
+     */
     public static XMLInputFactory getXMLInputFactory(boolean nsAware) {
         return nsAware ? XML_NS_AWARE_INPUT_FACTORY : XML_INPUT_FACTORY;
+    }
+    
+    /**
+     * Return a new factory so that the caller can set sticky parameters.
+     * @param nsAware
+     * @return
+     */
+    public static XMLInputFactory createXMLInputFactory(boolean nsAware) {
+        XMLInputFactory factory = XMLInputFactory.newInstance();
+        factory.setProperty(XMLInputFactory.IS_NAMESPACE_AWARE, nsAware);
+        return factory;
     }
 
     public static XMLOutputFactory getXMLOutputFactory() {
