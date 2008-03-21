@@ -67,16 +67,19 @@ public class ObjectBindingTest extends AbstractCXFTest {
 
         assertNotNull(bop.getOperationInfo());
 
+        
         MessageImpl m = new MessageImpl();
         m.setContent(List.class, content);
-        m.put(LocalConduit.DIRECT_DISPATCH, Boolean.TRUE);
-        m.put(ObjectBinding.BINDING, bop.getBinding().getName());
-        m.put(ObjectBinding.OPERATION, bop.getName());
-
         ExchangeImpl ex = new ExchangeImpl();
         ex.setInMessage(m);
+        ex.put(BindingOperationInfo.class, bop);
 
         Conduit c = getLocalConduit("local://Echo");
+        ex.setConduit(c);
+        
+        new ObjectDispatchOutInterceptor().handleMessage(m);
+
+
         ex.setConduit(c);
 
         c.setMessageObserver(new MessageObserver() {

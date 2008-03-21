@@ -24,12 +24,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
-import java.util.Map;
-import java.util.Set;
 import java.util.logging.Logger;
 
 import org.apache.cxf.common.logging.LogUtils;
-import org.apache.cxf.helpers.CastUtils;
+import org.apache.cxf.io.AbstractWrappedOutputStream;
 import org.apache.cxf.io.CachedOutputStream;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.ExchangeImpl;
@@ -43,7 +41,7 @@ public class LocalConduit extends AbstractConduit {
     public static final String RESPONSE_CONDUIT = LocalConduit.class.getName() + ".inConduit";
     public static final String IN_EXCHANGE = LocalConduit.class.getName() + ".inExchange";
     public static final String DIRECT_DISPATCH = LocalConduit.class.getName() + ".directDispatch";
-    public static final String MESSAGE_FILTER_PROPERTIES = LocalConduit.class.getName() + ".filterProperties";
+    public static final String MESSAGE_FILTER_PROPERTIES = LocalTransportFactory.MESSAGE_FILTER_PROPERTIES;
 
     private static final Logger LOG = LogUtils.getL7dLogger(LocalConduit.class);
     
@@ -86,7 +84,8 @@ public class LocalConduit extends AbstractConduit {
         copy.put(IN_CONDUIT, this);
         copy.setDestination(destination);
         
-        copy(message, copy, transportFactory.getMessageFilterProperties());
+        transportFactory.copy(message, copy);
+        MessageImpl.copyContent(message, copy);
         
         CachedOutputStream stream = (CachedOutputStream)message.getContent(OutputStream.class);
         copy.setContent(InputStream.class, stream.getInputStream());
@@ -101,24 +100,8 @@ public class LocalConduit extends AbstractConduit {
         destination.getMessageObserver().onMessage(copy);
     }
 
-    public static void copy(Message message, MessageImpl copy, Set<String> defaultFilter) {
-        Set<String> filter = CastUtils.cast((Set)message.get(MESSAGE_FILTER_PROPERTIES));
-        if (filter == null) {
-            filter = defaultFilter;
-        }
-        
-        // copy all the contents
-        for (Map.Entry<String, Object> e : message.entrySet()) {
-            if (!filter.contains(e.getKey())) {
-                copy.put(e.getKey(), e.getValue());
-            }
-        }
-        
-        MessageImpl.copyContent(message, copy);
-    }
 
     private void dispatchViaPipe(final Message message) throws IOException {
-        final PipedInputStream stream = new PipedInputStream();
         final LocalConduit conduit = this;
         final Exchange exchange = message.getExchange();
         
@@ -127,24 +110,32 @@ public class LocalConduit extends AbstractConduit {
                                             + destination.getAddress().getAddress().getValue());
         }
         
-        final Runnable receiver = new Runnable() {
-            public void run() {
-                MessageImpl inMsg = new MessageImpl();
-                inMsg.setContent(InputStream.class, stream);
-                inMsg.setDestination(destination);
-                inMsg.put(IN_CONDUIT, conduit);
-                
-                ExchangeImpl ex = new ExchangeImpl();
-                ex.setInMessage(inMsg);
-                ex.put(IN_EXCHANGE, exchange);
-                destination.getMessageObserver().onMessage(inMsg);
-            }
-        };
+        
+        AbstractWrappedOutputStream cout 
+            = new AbstractWrappedOutputStream() {
+                protected void onFirstWrite() throws IOException {
+                    final PipedInputStream stream = new PipedInputStream();
+                    wrappedStream = new PipedOutputStream(stream);
 
-        message.setContent(OutputStream.class, new PipedOutputStream(stream));
-
-        // TODO: put on executor
-        new Thread(receiver).start();
+                    final Runnable receiver = new Runnable() {
+                        public void run() {
+                            MessageImpl inMsg = new MessageImpl();
+                            transportFactory.copy(message, inMsg); 
+                            inMsg.setContent(InputStream.class, stream);
+                            inMsg.setDestination(destination);
+                            inMsg.put(IN_CONDUIT, conduit);
+                            
+                            ExchangeImpl ex = new ExchangeImpl();
+                            ex.setInMessage(inMsg);
+                            ex.put(IN_EXCHANGE, exchange);
+                            destination.getMessageObserver().onMessage(inMsg);
+                        }
+                    };
+                    
+                    new Thread(receiver).start();
+                }
+            };
+        message.setContent(OutputStream.class, cout);
     }
     
     protected Logger getLogger() {

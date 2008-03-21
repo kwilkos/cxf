@@ -39,7 +39,6 @@ import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.ConduitInitiator;
 import org.apache.cxf.transport.ConduitInitiatorManager;
 import org.apache.cxf.transport.MessageObserver;
-import org.apache.cxf.transport.local.LocalConduit;
 import org.apache.cxf.transport.local.LocalTransportFactory;
 import org.junit.Test;
 
@@ -67,19 +66,20 @@ public class LocalServerRegistrationTest extends AbstractCXFTest {
         BindingInfo bi = serviceInfo.getBindings().iterator().next();
         BindingOperationInfo bop = bi.getOperations().iterator().next();
 
-        assertNotNull(bop.getOperationInfo());
-
+        assertNotNull(bop.getOperationInfo());       
+        
         MessageImpl m = new MessageImpl();
         m.setContent(List.class, content);
-        m.put(LocalConduit.DIRECT_DISPATCH, Boolean.TRUE);
-        m.put(ObjectBinding.BINDING, bop.getBinding().getName());
-        m.put(ObjectBinding.OPERATION, bop.getName());
-
         ExchangeImpl ex = new ExchangeImpl();
         ex.setInMessage(m);
+        ex.put(BindingOperationInfo.class, bop);
 
         Conduit c = getLocalConduit("local://" + server);
         ex.setConduit(c);
+        
+        new ObjectDispatchOutInterceptor().handleMessage(m);
+        
+
 
         c.setMessageObserver(new MessageObserver() {
             public void onMessage(Message message) {

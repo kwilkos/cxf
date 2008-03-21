@@ -32,6 +32,7 @@ import javax.annotation.Resource;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.AbstractTransportFactory;
@@ -46,6 +47,10 @@ public class LocalTransportFactory extends AbstractTransportFactory
     implements DestinationFactory, ConduitInitiator {
    
     public static final String TRANSPORT_ID = "http://cxf.apache.org/transports/local";
+    public static final String MESSAGE_FILTER_PROPERTIES 
+        = LocalTransportFactory.class.getName() + ".filterProperties";
+    public static final String MESSAGE_INCLUDE_PROPERTIES 
+        = LocalTransportFactory.class.getName() + ".includeProperties";
 
     private static final Logger LOG = LogUtils.getL7dLogger(LocalTransportFactory.class);
     private static final Set<String> URI_PREFIXES = new HashSet<String>();
@@ -58,6 +63,7 @@ public class LocalTransportFactory extends AbstractTransportFactory
     private Bus bus;
 
     private Set<String> messageFilterProperties;
+    private Set<String> messageIncludeProperties;
     
     public LocalTransportFactory() {
         super();
@@ -66,7 +72,14 @@ public class LocalTransportFactory extends AbstractTransportFactory
         setTransportIds(ids);
         
         messageFilterProperties = new HashSet<String>();
-        messageFilterProperties.add(Message.REQUESTOR_ROLE);        
+        messageIncludeProperties = new HashSet<String>();
+        messageFilterProperties.add(Message.REQUESTOR_ROLE); 
+        
+        messageIncludeProperties.add(Message.PROTOCOL_HEADERS);
+        messageIncludeProperties.add(Message.ENCODING);
+        messageIncludeProperties.add(Message.CONTENT_TYPE);
+        messageIncludeProperties.add(Message.ACCEPT_CONTENT_TYPE);
+        messageIncludeProperties.add(Message.RESPONSE_CODE);
     }
     
     @Resource(name = "bus")
@@ -126,8 +139,36 @@ public class LocalTransportFactory extends AbstractTransportFactory
         return messageFilterProperties;
     }
 
-    public void setMessageFilterProperties(Set<String> messageFilterProperties) {
-        this.messageFilterProperties = messageFilterProperties;
+    public void setMessageFilterProperties(Set<String> props) {
+        this.messageFilterProperties = props;
+    }
+    public Set<String> getIncludeMessageProperties() {
+        return messageIncludeProperties;
     }
 
+    public void setMessageIncludeProperties(Set<String> props) {
+        this.messageIncludeProperties = props;
+    }
+
+    
+    public void copy(Message message, Message copy) {
+        Set<String> filter = CastUtils.cast((Set)message.get(MESSAGE_FILTER_PROPERTIES));
+        if (filter == null) {
+            filter = messageFilterProperties;
+        }
+        
+        Set<String> includes =  CastUtils.cast((Set)message.get(MESSAGE_INCLUDE_PROPERTIES));
+        if (includes == null) {
+            includes = messageIncludeProperties;
+        }
+
+        // copy all the contents
+        for (Map.Entry<String, Object> e : message.entrySet()) {
+            if ((includes.contains(e.getKey())
+                || messageIncludeProperties.contains(e.getKey()))
+                && !filter.contains(e.getKey())) {
+                copy.put(e.getKey(), e.getValue());
+            }
+        }
+    }    
 }
