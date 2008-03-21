@@ -236,6 +236,7 @@ public class DefaultTypeMapping implements TypeMapping {
         defaultRegister(tm, defaultNillable, Element.class, XMLSchemaQNames.XSD_ANY,
                         new JDOMElementType());
         defaultRegister(tm, defaultNillable, Float.class, XMLSchemaQNames.XSD_FLOAT, new FloatType());
+        defaultRegister(tm, defaultNillable, Double.class, XMLSchemaQNames.XSD_DOUBLE, new DoubleType());
         defaultRegister(tm, defaultNillable, Integer.class, XMLSchemaQNames.XSD_INT, new IntType());
         defaultRegister(tm, defaultNillable, Long.class, XMLSchemaQNames.XSD_LONG, new LongType());
         defaultRegister(tm, defaultNillable, Object.class, XMLSchemaQNames.XSD_ANY, new ObjectType());

@@ -22,6 +22,7 @@ import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 import javax.xml.namespace.QName;
@@ -191,6 +192,17 @@ public class CollectionTest extends AbstractAegisTest {
                     + "/xsd:sequence/xsd:element[@type='tns:ArrayOfString']",
                     doc);
     }
+    
+    @Test
+    public void testDoubleList() throws Exception {
+        createService(CollectionService.class, new CollectionService(), null);
+        Document doc = getWSDLDocument("CollectionService");
+        assertValid(
+                    "//xsd:complexType[@name='ArrayOfDouble']"
+                    + "/xsd:sequence/xsd:element[@type='xsd:double']",
+                    doc);
+        
+    }
 
     public class CollectionService {
         
@@ -207,6 +219,9 @@ public class CollectionTest extends AbstractAegisTest {
 
         public Collection<Collection<String>> getStringCollections() {
             return null;
+        }
+        
+        public void takeDoubleList(List<Double> doublesList) {
         }
     }
 }

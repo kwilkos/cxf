@@ -105,7 +105,7 @@ public class AegisContext {
 
         Java5TypeCreator j5Creator = new Java5TypeCreator();
         j5Creator.setNextCreator(createDefaultTypeCreator());
-        j5Creator.setConfiguration(getConfiguration());
+        j5Creator.setConfiguration(getTypeCreationOptions());
         xmlCreator.setNextCreator(j5Creator);
 
         return xmlCreator;
@@ -113,13 +113,13 @@ public class AegisContext {
 
     protected AbstractTypeCreator createRootTypeCreator() {
         AbstractTypeCreator creator = new XMLTypeCreator();
-        creator.setConfiguration(getConfiguration());
+        creator.setConfiguration(getTypeCreationOptions());
         return creator;
     }
 
     protected AbstractTypeCreator createDefaultTypeCreator() {
         AbstractTypeCreator creator = new DefaultTypeCreator();
-        creator.setConfiguration(getConfiguration());
+        creator.setConfiguration(getTypeCreationOptions());
         return creator;
     }
 

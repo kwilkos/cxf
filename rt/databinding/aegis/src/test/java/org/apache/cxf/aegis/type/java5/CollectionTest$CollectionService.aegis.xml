@@ -3,5 +3,8 @@
 		<method name="getUnannotatedStrings">
 			<return-type name="UnannotatedStringCollection" componentType="java.lang.String"/>
 		</method>
+		<method name="takeDoubleList">
+            <parameter index="0" mappedName="doublesList" componentType="java.lang.Double"/>
+        </method> 
 	</mapping>
 </mappings>
