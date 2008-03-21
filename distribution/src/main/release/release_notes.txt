@@ -1,11 +1,11 @@
-Apache CXF 2.0.4 (incubating) Release Notes
+Apache CXF 2.0.5 (incubating) Release Notes
 
 1. Overview
 
-Apache CXF 2.0.4, under incubation,  delivers the third milestone of 
+Apache CXF 2.0.5, under incubation,  delivers the third milestone of 
 the Celtix project (http://celtix.objectweb.org) and the XFire project
 (http://xfire.codehaus.org) merge.  This release is mostly a patch release
-from 2.0.3 fixing 82 JIRA issues.
+from 2.0.4 fixing 34 JIRA issues as well as enhancing startup performance.
 
 
 2. Installation Prerequisites 
@@ -13,7 +13,7 @@ from 2.0.3 fixing 82 JIRA issues.
 Before installing Apache CXF (incubating), make sure the following products,
 with the specified versions, are installed on your system:
 
-    * Java 5 Development Kit
+    * Java 5 Development Kit   (Java 6 requires extra setup)
     * Apache ant 1.6
 
 2.1 Java 5 Development Kit
@@ -31,6 +31,10 @@ After installing the JDK, set or modify the following environment variables:
     * PATH -- make sure that your PATH includes: 
       %JAVA_HOME%\bin  (Windows) 
       $JAVA_HOME/bin   (UNIX)
+
+If using a Java 6 kit, you may need to copy the jaxb-*, saaj-*, jaxws-* jars 
+from the lib dir to your jre/lib/endorsed directory.
+
 
 2.2 Apache Ant 1.6.5 (or newer, 1.7.0 should work as well)
 
@@ -75,66 +79,51 @@ cxf dev list, cxf-dev@incubator.apache.org.  You can also file issues in JIRA at
 http://issues.apache.org/jira/browse/CXF
 
 6. Specific issues, features, and improvements fixed in the 
-Apache CXF 2.0.4 (incubating) release:
+
+Release Notes - CXF - Version 2.0.5
 
 
 ** Bug
-    * [CXF-865] - CXF http-jetty transport do not call the jetty server engine shutdown when the server stop
-    * [CXF-941] - Dispatch invokeOneWay is trying to parse responses
-    * [CXF-1054] - Aegis issues with maps
-    * [CXF-1180] - If Exchange is the last parameter on the method parameter list of a JAX-WS operation, then CXF generates a part for it, so invoking the service fails because there will be too many parameters 
-    * [CXF-1186] - WS-Addressing is working with the API approach
-    * [CXF-1187] - Using Spring  <context:annotation-config /> spawns creation error on  org.apache.cxf.transport.servlet.ServletTransportFactory
-    * [CXF-1192] - Jsr250BeanPostProcessor, non reentrant ResourceInjector results in IllegalArgumentException
-    * [CXF-1196] - @BindingType(SOAP11HTTP_MTOM_BINDING) is not activating MTOM
-    * [CXF-1202] - In/Out out of band headers causing Exception in HolderOutInterceptor
-    * [CXF-1212] - wsdl2java mojo dependency clash with testDependencies - no workaround available - new config option needed
-    * [CXF-1216] - WS-Addressing & .net Interop
-    * [CXF-1217] - Address in use errors from attempt to repeatedly start and stop services
-    * [CXF-1218] - Memory Leak in Policy Engine
-    * [CXF-1219] - Aegis databinding class XMLTypeCreator uses DocumentBuilderFactory.setSchema(aegisSchema), this is not implemented by all XML parsers, some throw UnsupportedOperationException, must be handled
-    * [CXF-1221] - update samples/integration/outbound sample.
-    * [CXF-1223] - Client code generates no parameters or return values for WSDL with multiple elements with same name
-    * [CXF-1225] - java2ws tooling is not fully merged to 2.0.x branch
-    * [CXF-1226] - elementFormDefault from package-info.java ignored with JAXWS+JAXB when there are no beans
-    * [CXF-1227] - NPE in HttpHeaderHelper.mapCharset
-    * [CXF-1236] - Scary warnings from new engine lifecycle
-    * [CXF-1238] - DispatchIndataBindingInterceptor removes out the inputStream even if it not a SOAP or XML Binding.
-    * [CXF-1244] - Application Exception not serialized properly
-    * [CXF-1245] - Thread hangs when processing response message using LocalTransport with dispatchDirect
-    * [CXF-1249] - CXF run with Spring 2.5  will get bean create error (out of stack memory) when CXF configures the endpoint with the <jaxws:endpoint> configure file
-    * [CXF-1251] - Error from CXF if optional method argument is missing
-    * [CXF-1256] - java.lang.SecurityException when i use cxf-codegen:wsdl2java for maven in netbeans ide
-    * [CXF-1260] - ConfigureImpl with spring construction duplicates looking for cxf.xml on the classpath and can error out with a warning
-    * [CXF-1264] - JettyHTTPDestination does not set a thread default bus
-    * [CXF-1273] - WSDLRefValidator can not pass if the type is xsd:anyType
-    * [CXF-1276] - Content-Encoding treated as a charset by HTTPConduit.WrappedOutputStream.handleResponse
-    * [CXF-1278] - ObjectFactory.class is missing when a JAXBContext is created and no WS addressing information is added
-    * [CXF-1290] - SecurityException in FileUtils.getDefaultTempDir
-    * [CXF-1294] - Problem creating several custom Headers
-    * [CXF-1296] - CXF throwing UnsupportedOperationException when including header.
-    * [CXF-1297] - Simple frontend clients don't work with wsdl first
-    * [CXF-1306] - samples/restful_http_binding/test.html does not work with IE (works with Firefox)
-    * [CXF-1308] - another javascript problem with restful_http_binding demo
-    * [CXF-1313] - MTOM client side can not unmarshal the returned Holder<Source>
-    * [CXF-1332] - CXF2.0.3 rejects wrapped array parameters when they have whitespace or comments
-    * [CXF-1333] - Aegis drops all but the last from an array of JDOMElements
-    * [CXF-1344] - Remove the duplicate Handler annotaion  when the service contains two ports
-    * [CXF-1346] - Please don't drop velocity.log files into the home directory
-    * [CXF-1351] - static DocumentBuilderFactory in XMLUtils cause ClassCastException when use different classloader
-    * [CXF-1383] - extensibleElement default is wrong for the Aegis-specific @XmlType annotation
-    * [CXF-1392] - Java first, unannotated exceptions are always written qualified although schema usually says unqualified.
-    * [CXF-1393] - WS-Policy PolicyBuilder implementation recognizes only a single policy namespace
-    * [CXF-1399] - JMS transport ignoreing Message.PROTOCOL_HEADERS
+    * [CXF-907] - WSDLToJava fails to generate parameter for request header
+    * [CXF-935] - Provider not working when its WSDL is supplied from spring configuration.
+    * [CXF-1020] - WSDL2Java tool error: failed to generate codes with twoHeadersSameNameDifferentNamespace
+    * [CXF-1247] - WSDLValidator does not use CatalogResolver to reslove wsdl 
+    * [CXF-1269] - Using contentType = "application/octet-stream" on returned Datahandler/DataSource causes an InputStream to be left open
+    * [CXF-1386] - java2wsdl: NullPointerException on @WebService interface throwing custom Exception
+    * [CXF-1401] - More shutdown problems with jetty
+    * [CXF-1408] - Data not returned if /tmp/cxf-tmp-#### deleted
+    * [CXF-1412] - In  ClientFaultConverter', setStackTrace() throws NullPointerException if 'ss' String is null
+    * [CXF-1417] - SOAPFaultException built programmatically and thrown in a JAX-WS handler are not correctly populated
+    * [CXF-1418] - Problem having multiple interceptors of the same type on the interceptor chain
+    * [CXF-1419] - JMS Server Response headers not populated properly
+    * [CXF-1420] - LogUtils.log fails when trying to log an error with a question mark.
+    * [CXF-1429] - Memory Leak at PolicyEngineImpl
+    * [CXF-1430] - ThreadLocal Memory leak in HandlerChainInvoker
+    * [CXF-1432] - Throwables should be serializable
+    * [CXF-1433] - WS-Security vulnerability
+    * [CXF-1435] - BusApplicationContext should pass empty String array to super constructor instead of null
+    * [CXF-1436] - Error in WS-Security 1.1 Signature Confirmation handling
+    * [CXF-1437] - schemas without *.xsd extensions being fetched from the internet instead of locally
+    * [CXF-1438] - AttachmentDeserializer is leaving behind temp files
+    * [CXF-1439] - WSDL2Java generates NPE for certain WSDL
+    * [CXF-1442] - Clients only handle a single Session cookie
+    * [CXF-1444] - JBIOutWrapperInterceptor fails to find objects sequentially 
+    * [CXF-1446] - null pointer in java2wsld
+    * [CXF-1448] - Aegis + SAAJ leads to namespace complaint.
+    * [CXF-1456] - Investigate a more sensible set of default cipher suites
+    * [CXF-1465] - WSDL2Java error when using <jaxb:serializable/> binding customization
+    * [CXF-1467] - CXF Bug 1435 Not Resolved
+    * [CXF-1468] - JBIWrapperOutInterceptor miss message type attribute for JBI binding
+    * [CXF-1469] - NPE with Spring 2.5.2
 
 ** Improvement
-    * [CXF-1224] - Enable setting of JAXBContext config options from within Spring context
-    * [CXF-1237] - Update wsdltojava to make generated service qnames publicly accessible
-    * [CXF-1357] - Setting CXF eclipse output directory to be eclipse-classes instead of target
-    * [CXF-1055] - Validation of Aegis files would reduce user frustration
-    * [CXF-1167] - Add new feature to publish service infomation to external repository 
-    * [CXF-1199] - new ServiceContractResolver that cxf can resolve wsdl file from extension repository/storage
-    * [CXF-1195] - xjc dv plugin doesn't provide default values for enums
-    * [CXF-1206] - xjc dv plugin doesn't provide default values for complexTypes that contain elements
+    * [CXF-1272] - Application doesn't start up without internet connection (when providing <http-conf:conduit> setting)
+    * [CXF-1484] - JBI binding should throw more meaningful exception instead of NPE when there is no operaiton in the JBI MessageExchange
+
+** New Feature
+    * [CXF-490] - Create CXF OSGi Bundles
+
+
+
 
 
