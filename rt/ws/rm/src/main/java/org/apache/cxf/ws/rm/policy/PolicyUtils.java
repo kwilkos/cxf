@@ -88,7 +88,7 @@ public final class PolicyUtils {
         if (null != aval || null != bval) {
             InactivityTimeout ia = new RMAssertion.InactivityTimeout();
             if (null != aval && null != bval) {
-                ia.setMilliseconds(aval.max(bval));
+                ia.setMilliseconds(bval);
             } else {
                 ia.setMilliseconds(aval != null ? aval : bval);
             }
@@ -108,7 +108,7 @@ public final class PolicyUtils {
         if (null != aval || null != bval) {
             BaseRetransmissionInterval bri = new RMAssertion.BaseRetransmissionInterval();
             if (null != aval && null != bval) {
-                bri.setMilliseconds(aval.min(bval));
+                bri.setMilliseconds(bval);
             } else {
                 bri.setMilliseconds(aval != null ? aval : bval);
             }
@@ -128,7 +128,7 @@ public final class PolicyUtils {
         if (null != aval || null != bval) {
             AcknowledgementInterval ai = new RMAssertion.AcknowledgementInterval();
             if (null != aval && null != bval) {
-                ai.setMilliseconds(aval.min(bval));
+                ai.setMilliseconds(bval);
             } else {
                 ai.setMilliseconds(aval != null ? aval : bval);
             }
