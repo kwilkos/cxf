@@ -60,7 +60,7 @@ public class WrapperBeanAnnotator implements Annotator {
         
         List<String> props = new ArrayList<String>();
         for (JavaField f : beanClass.getFields()) {
-            props.add(f.getRawName());
+            props.add(f.getParaName());
         }
         if (props.size() > 1) {
             xmlType.addElement(new JAnnotationElement("propOrder",
