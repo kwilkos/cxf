@@ -53,7 +53,7 @@ import org.apache.cxf.common.util.SOAPConstants;
  * 
  * The application can control some parameters of the type creators by creating a TypeCreationOptions
  * object and setting properties. The application can add custom mappings to the type mapping, or 
- * even use its own classes for the TypeMapping or TypeCreator objecrs.
+ * even use its own classes for the TypeMapping or TypeCreator objects.
  * 
  * At the level of the data binding, the 'root elements' are defined by the WSDL message parts.
  * Additional classes that participate are termed 'override' classes.
