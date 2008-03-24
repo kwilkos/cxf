@@ -53,23 +53,8 @@
            </goals>
           </execution>
         </executions>
-    <groupId>org.apache.cxf</groupId>
+      <groupId>org.apache.cxf</groupId>
 	  <artifactId>cxf-xml2fastinfoset-plugin</artifactId>
-        <configuration>
-          <compilerId>cxf-xml2fastinfoset</compilerId>
-        </configuration>
-        <dependencies>
-          <dependency>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-compiler-plugin</artifactId>
-            <version>2.0.2</version>
-          </dependency>
-          <dependency>
-            <groupId>org.apache.cxf</groupId>
-     		<artifactId>cxf-xml2fastinfoset-compiler</artifactId>
-		    <version>2.1-incubator-SNAPSHOT</version>
-          </dependency>
-        </dependencies>
 	</plugin>
 	</plugins>
     </build>
