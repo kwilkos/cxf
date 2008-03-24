@@ -48,6 +48,7 @@ import org.apache.cxf.service.model.ServiceInfo;
 
 public class JaxWsProxyFactoryBean extends ClientProxyFactoryBean {
     List<Handler> handlers = new ArrayList<Handler>();
+    boolean loadHandlers = true;
     
     public JaxWsProxyFactoryBean() {
         super(new JaxWsClientFactoryBean());
@@ -59,6 +60,13 @@ public class JaxWsProxyFactoryBean extends ClientProxyFactoryBean {
     }
     public List<Handler> getHandlers() {
         return handlers;
+    }
+    
+    public void setLoadHandlers(boolean b) {
+        loadHandlers = b;
+    }
+    public boolean isLoadHandlers() {
+        return loadHandlers;
     }
 
     
@@ -111,9 +119,12 @@ public class JaxWsProxyFactoryBean extends ClientProxyFactoryBean {
         AnnotationHandlerChainBuilder builder = new AnnotationHandlerChainBuilder();
         JaxWsServiceFactoryBean sf = (JaxWsServiceFactoryBean)getServiceFactory(); 
         List<Handler> chain = new ArrayList<Handler>(handlers);
-        chain.addAll(builder.buildHandlerChainFromClass(sf.getServiceClass(), sf.getEndpointInfo()
-            .getName(), sf.getServiceQName(), this.getBindingId()));
-        
+        if (loadHandlers) {
+            chain.addAll(builder.buildHandlerChainFromClass(sf.getServiceClass(),
+                                                            sf.getEndpointInfo().getName(),
+                                                            sf.getServiceQName(),
+                                                            this.getBindingId()));
+        }
 
         if (!chain.isEmpty()) {
             ResourceManager resourceManager = getBus().getExtension(ResourceManager.class);

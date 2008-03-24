@@ -615,7 +615,8 @@ public class HandlerChainInvokerTest extends Assert {
         //boolean continueProcessing = true;
         try {
             invoker.invokeLogicalHandlers(false, lmc);
-            fail("did not get expected exception");
+            //don't fail.  TCK says this shouldn't be thrown.
+            //fail("did not get expected exception");
         } catch (ProtocolException e) {
             assertEquals("banzai", e.getMessage());
         }
