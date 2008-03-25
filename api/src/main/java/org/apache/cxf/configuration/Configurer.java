@@ -22,7 +22,7 @@ package org.apache.cxf.configuration;
 /**
  * The configurer's interface
  * 
- * A class that implements this interface will perform the 
+ * A class that implements this interface will perform a 
  * bean's configuration work
  */
 public interface Configurer {    
@@ -34,15 +34,15 @@ public interface Configurer {
     String USER_CFG_FILE_PROPERTY_URL = "cxf.config.file.url";
 
     /**
-     * set up the Bean's value by use Dependency Injection from the application context
-     * @param beanInstance the instance of bean which need to be configured
+     * set up the Bean's value by using Dependency Injection from the application context
+     * @param beanInstance the instance of the bean which needs to be configured
      */
     void configureBean(Object beanInstance);
     
     /**
-     * set up the Bean's value by use Dependency Injection from the application context
+     * set up the Bean's value by using Dependency Injection from the application context
      * with a proper name. You can use * as the prefix of wildcard name.
-     * @param name the name of the bean which need to be configured
+     * @param name the name of the bean which needs to be configured
      * @param beanInstance the instance of bean which need to be configured
      */
     void configureBean(String name, Object beanInstance);
