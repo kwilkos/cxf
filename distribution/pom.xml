@@ -314,7 +314,7 @@
                     </execution>
                     <execution>
                         <!-- copy additional jars. These are jars we want included, but don't 
-                                     really don't want tem on the classpath in the normal case -->
+                                     really don't want them on the classpath in the normal case -->
                         <id>add-jars</id>
                         <phase>package</phase>
                         <goals>

@@ -19,10 +19,17 @@
 
 package org.apache.cxf.bus.spring;
 
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.sax.SAXSource;
@@ -35,6 +42,7 @@ import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 
 import com.ctc.wstx.sax.WstxSAXParserFactory;
+import com.sun.xml.fastinfoset.sax.SAXDocumentParser;
 
 import org.springframework.beans.factory.xml.DefaultDocumentLoader;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
@@ -45,7 +53,8 @@ import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 class TunedDocumentLoader extends DefaultDocumentLoader {
     
     // DocumentBuilderFactories are somewhat expensive but not thread-safe.
-    // We only use this builder with WoodStox, we respect Spring's desire to make new factories 
+    // We only use this builder with WoodStox, and Fast Infoset 
+    // and we respect Spring's desire to make new factories 
     // when we aren't doing the optimization.
     private static DocumentBuilder documentBuilder;
     static {
@@ -67,6 +76,7 @@ class TunedDocumentLoader extends DefaultDocumentLoader {
                                  ErrorHandler errorHandler, int validationMode, boolean namespaceAware)
         throws Exception {
         if (validationMode == XmlBeanDefinitionReader.VALIDATION_NONE) {
+            
             WstxSAXParserFactory woodstoxParserFactory;
             woodstoxParserFactory = new WstxSAXParserFactory();
             woodstoxParserFactory.setFeature("http://xml.org/sax/features/namespace-prefixes", 
@@ -100,6 +110,20 @@ class TunedDocumentLoader extends DefaultDocumentLoader {
             // blank
         }
         return factory;
+    }
+    
+    Document loadFastinfosetDocument(URL url) 
+        throws IOException, TransformerConfigurationException, TransformerException {
+        InputStream is = url.openStream();
+        XMLReader saxReader = new SAXDocumentParser();
+        InputStream in = new BufferedInputStream(is);
+        SAXSource saxSource = new SAXSource(saxReader, new InputSource(in));
+        Document document;
+        document = documentBuilder.newDocument();
+        DOMResult domResult = new DOMResult(document);
+        transformerFactory.newTransformer().transform(saxSource, domResult);
+        is.close();
+        return document;
     }
 
 }

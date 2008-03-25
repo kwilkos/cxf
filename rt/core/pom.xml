@@ -71,6 +71,13 @@
             <artifactId>easymockclassextension</artifactId>
             <scope>test</scope>
         </dependency>
+
+       <dependency>
+         <groupId>com.sun.xml.fastinfoset</groupId>
+         <artifactId>FastInfoset</artifactId>
+         <version>1.2.2</version>
+        </dependency>
+
     </dependencies>
 
 
