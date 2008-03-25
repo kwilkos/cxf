@@ -26,6 +26,7 @@ import java.util.logging.Level;
 
 import javax.jws.WebParam;
 
+import org.apache.cxf.jaxb.JAXBUtils;
 import org.apache.cxf.service.model.FaultInfo;
 import org.apache.cxf.service.model.MessageInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
@@ -239,6 +240,10 @@ public class OperationProcessor  extends AbstractProcessor {
             response = wrapperResponse.getClassName();
         } else {
             response = method.getReturn().getClassName();
+        }
+        Class<?> mappedClass = JAXBUtils.holderClass(response);
+        if (mappedClass != null) {
+            response = mappedClass.getName();
         }
 
         StringBuffer sb = new StringBuffer();
