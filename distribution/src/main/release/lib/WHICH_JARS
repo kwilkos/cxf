@@ -44,6 +44,7 @@ For XML Configuration support:
 - spring-context.jar
 - spring-core.jar
 - spring.web.jar
+- FastInfoset-1.2.2.jar
 
 For standalone HTTP support:
 - geronimo-servlet.jar
