@@ -19,12 +19,7 @@
 
 package org.apache.cxf.ws.policy;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.PostConstruct;
@@ -543,33 +538,55 @@ public class PolicyEngineImpl implements PolicyEngine, BusExtension, ServerLifeC
         // empty
     }
 
+    /**
+     * Callback recieved while the server side endpoint is being undeployed.
+     *
+     * @param server
+     */
     public void stopServer(Server server) {
         EndpointInfo ei = server.getEndpoint().getEndpointInfo();
         serverEndpointInfo.remove(ei);
 
-        cleanupBindingOperations(ei, clientRequestInfo);
-        cleanupBindingOperations(ei, clientResponseInfo);
+        /**
+         * While cleaning up the entries of requestInfo's, responseInfo's and faultInfo's map, we create a temperory
+         * Set with all the keys. Later we iterate over the keys of this temp set, and if it's same as that of the
+         * endpoint being undeployed, we remove the corresponding entries from the client and server maps.
+         */
 
-        cleanupBindingOperations(ei, serverRequestInfo);
-        cleanupBindingOperations(ei, serverResponseInfo);
+        cleanupBindingOperations(ei, new HashSet<BindingOperation>(clientRequestInfo.keySet()),
+                clientRequestInfo);
+        cleanupBindingOperations(ei, new HashSet<BindingOperation>(clientResponseInfo.keySet()),
+                clientResponseInfo);
 
-        cleanupBindingFaults(ei, clientFaultInfo);
-        cleanupBindingFaults(ei, serverFaultInfo);
+        cleanupBindingOperations(ei, new HashSet<BindingOperation>(serverRequestInfo.keySet()),
+                serverRequestInfo);
+        cleanupBindingOperations(ei, new HashSet<BindingOperation>(serverResponseInfo.keySet()),
+                serverResponseInfo);
+
+        cleanupBindingFaults(ei, new HashSet<BindingFault>(clientFaultInfo.keySet()),
+                clientFaultInfo);
+        cleanupBindingFaults(ei, new HashSet<BindingFault>(serverFaultInfo.keySet()),
+                serverFaultInfo);
     }
 
     private void cleanupBindingOperations(EndpointInfo ei,
+                                          Set<BindingOperation> bindingOperations,
                                           Map<BindingOperation, EffectivePolicy> originalMap) {
         
-        for (BindingOperation bindingOperation : originalMap.keySet()) {
+        Iterator<BindingOperation> bindingOpsItr = bindingOperations.iterator();
+        while (bindingOpsItr.hasNext()) {
+            BindingOperation bindingOperation = bindingOpsItr.next();
             if (ei.isSameAs(bindingOperation.getEndpoint())) {
                 originalMap.remove(bindingOperation);
             }
         }
     }
 
-    private void cleanupBindingFaults(EndpointInfo ei,
+    private void cleanupBindingFaults(EndpointInfo ei, Set <BindingFault> bindingFaults,
                                       Map<BindingFault, EffectivePolicy> originalMap) {
-        for (BindingFault bindingFault : originalMap.keySet()) {
+        Iterator<BindingFault> bindingFaultsItr = bindingFaults.iterator();
+        while (bindingFaultsItr.hasNext()) {
+            BindingFault bindingFault = bindingFaultsItr.next();
             if (ei.isSameAs(bindingFault.getEndpoint())) {
                 originalMap.remove(bindingFault);
             }
