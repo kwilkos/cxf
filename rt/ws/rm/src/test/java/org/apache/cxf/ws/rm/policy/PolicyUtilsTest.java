@@ -100,7 +100,7 @@ public class PolicyUtilsTest extends Assert {
         
         c = PolicyUtils.intersect(a, b);
         assertEquals(7200000L, c.getInactivityTimeout().getMilliseconds().longValue());
-        assertEquals(10000L, c.getBaseRetransmissionInterval().getMilliseconds().longValue());
+        assertEquals(20000L, c.getBaseRetransmissionInterval().getMilliseconds().longValue());
         assertNull(c.getAcknowledgementInterval());
         assertNull(c.getExponentialBackoff());
        
@@ -110,14 +110,14 @@ public class PolicyUtilsTest extends Assert {
         
         c = PolicyUtils.intersect(a, b);
         assertEquals(7200000L, c.getInactivityTimeout().getMilliseconds().longValue());
-        assertEquals(10000L, c.getBaseRetransmissionInterval().getMilliseconds().longValue());
+        assertEquals(20000L, c.getBaseRetransmissionInterval().getMilliseconds().longValue());
         assertEquals(2000L, c.getAcknowledgementInterval().getMilliseconds().longValue());
         assertNull(c.getExponentialBackoff());
         
         b.setExponentialBackoff(new RMAssertion.ExponentialBackoff());
         c = PolicyUtils.intersect(a, b);
         assertEquals(7200000L, c.getInactivityTimeout().getMilliseconds().longValue());
-        assertEquals(10000L, c.getBaseRetransmissionInterval().getMilliseconds().longValue());
+        assertEquals(20000L, c.getBaseRetransmissionInterval().getMilliseconds().longValue());
         assertEquals(2000L, c.getAcknowledgementInterval().getMilliseconds().longValue());
         assertNotNull(c.getExponentialBackoff());    
     }
