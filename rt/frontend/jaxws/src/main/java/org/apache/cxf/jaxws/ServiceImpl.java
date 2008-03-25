@@ -372,7 +372,10 @@ public class ServiceImpl extends ServiceDelegate {
             clientFac.setAddress(portInfo.getAddress());
         }
         configureObject(portName.toString() + ".jaxws-client.proxyFactory", proxyFac);
-        
+        if (clazz != ServiceImpl.class) {
+            // handlerchain should be on the generated Service object
+            proxyFac.setLoadHandlers(false);
+        }
         Object obj = proxyFac.create();
         
         // Configure the Service
@@ -391,7 +394,6 @@ public class ServiceImpl extends ServiceDelegate {
         // Configure the JaxWsEndpoitnImpl
         JaxWsEndpointImpl jaxwsEndpoint = (JaxWsEndpointImpl) clientFac.getClient().getEndpoint();
         configureObject(jaxwsEndpoint);  
-                                      
         List<Handler> hc = jaxwsEndpoint.getJaxwsBinding().getHandlerChain();
         
         hc.addAll(handlerResolver.getHandlerChain(portInfos.get(portName)));
