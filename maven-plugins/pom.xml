@@ -37,7 +37,6 @@
         <module>corba</module>
         <module>archetypes</module>
         <module>eclipse-plugin-generator</module>
-        <module>xml2fastinfoset-plugin</module>
     </modules>
 
 </project>

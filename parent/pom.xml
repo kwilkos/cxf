@@ -283,6 +283,24 @@
             </plugins>
         </pluginManagement>
         <plugins>
+             <plugin>
+                  <groupId>org.apache.cxf</groupId>
+                  <artifactId>cxf-xml2fastinfoset-plugin</artifactId>
+                  <version>${project.version}</version>
+                  <configuration>
+                    <includes><include>META-INF/cxf/cxf*.xml</include></includes>
+                    <outputDirectory>target/generated/src/main/resources</outputDirectory>
+                  </configuration>
+                  <executions>
+                   <execution>
+                     <id>xml2fastinfoset</id>
+                     <phase>generate-sources</phase>
+                    <goals>
+                     <goal>xml2fastinfoset</goal>
+                    </goals>
+                   </execution>
+                 </executions>
+          	</plugin>
             <plugin>
                 <artifactId>maven-remote-resources-plugin</artifactId>
                 <version>1.0</version>
@@ -961,6 +979,14 @@
                 <maven.test.skip>true</maven.test.skip>
             </properties>
         </profile>
+
+        <profile>
+            <id>nospringvalidation</id>
+            <properties>
+              <spring.validation.mode>VALIDATION_NONE</spring.validation.mode>
+            </properties>
+        </profile>
+
         <profile>
             <id>nochecks</id>
         </profile>

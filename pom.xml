@@ -127,6 +127,7 @@
 
     <modules>
         <module>buildtools</module>
+        <module>maven-plugins/xml2fastinfoset-plugin</module>
         <module>parent</module>
         <module>common</module>
         <module>api</module>

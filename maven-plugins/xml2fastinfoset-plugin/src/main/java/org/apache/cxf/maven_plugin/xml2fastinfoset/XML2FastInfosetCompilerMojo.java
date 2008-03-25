@@ -25,6 +25,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -42,11 +43,7 @@ import org.apache.maven.model.Resource;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.compiler.util.scan.InclusionScanException;
-import org.codehaus.plexus.compiler.util.scan.SourceInclusionScanner;
-import org.codehaus.plexus.compiler.util.scan.StaleSourceScanner;
-import org.codehaus.plexus.compiler.util.scan.mapping.SourceMapping;
-import org.codehaus.plexus.compiler.util.scan.mapping.SuffixMapping;
+import org.codehaus.plexus.util.DirectoryScanner;
 
 /**
  * Compile XML resources to FastInfoset XML resources.
@@ -55,6 +52,8 @@ import org.codehaus.plexus.compiler.util.scan.mapping.SuffixMapping;
  * @phase process-resources
  */
 public class XML2FastInfosetCompilerMojo extends AbstractMojo {
+    private static final String[] EMPTY_STRING_ARRAY = {};
+    private static final String[] DEFAULT_INCLUDES = {"**/*.xml"};
 
     /**
      * @parameter expression="${project}"
@@ -91,29 +90,11 @@ public class XML2FastInfosetCompilerMojo extends AbstractMojo {
      * 
      * @parameter expression="${project.build.outputDirectory}"
      * @required
-     * @readonly
      */
     private File outputDirectory;
 
     @SuppressWarnings("unchecked")
     public void execute() throws MojoExecutionException {
-
-        SourceInclusionScanner scanner = null;
-
-        if (includes.isEmpty() && excludes.isEmpty()) {
-            scanner = new StaleSourceScanner(0);
-        } else {
-            if (includes.isEmpty()) {
-                includes.add("**/*.xml");
-            }
-            scanner = new StaleSourceScanner(0, includes, excludes);
-        }
-
-        SourceMapping mapping;
-        mapping = new SuffixMapping(".xml", ".fixml");
-        scanner.addSourceMapping(mapping);
-
-        Set staleSources = new HashSet();
 
         for (Iterator it = resources.iterator(); it.hasNext();) {
             Resource resource = (Resource)it.next();
@@ -132,33 +113,44 @@ public class XML2FastInfosetCompilerMojo extends AbstractMojo {
             // this part is required in case the user specified "../something"
             // as destination
             // see MNG-1345
-            if (!outputDirectory.exists() 
-                && !outputDirectory.mkdirs()) {
+            if (!outputDirectory.exists() && !outputDirectory.mkdirs()) {
                 throw new MojoExecutionException("Cannot create resource output directory: "
-                                                     + outputDirectory);
+                                                 + outputDirectory);
             }
 
-            try {
-                staleSources.addAll(scanner.getIncludedSources(resourceDirectory, outputDirectory));
-            } catch (InclusionScanException e) {
-                throw new MojoExecutionException("Error scanning source root: \'" + resourceDirectory + "\' "
-                                                 + "for stale files to recompile.", e);
+            DirectoryScanner scanner = new DirectoryScanner();
+
+            scanner.setBasedir(resourceDirectory);
+            if (includes != null && !includes.isEmpty()) {
+                scanner.setIncludes((String[])includes.toArray(EMPTY_STRING_ARRAY));
+            } else {
+                scanner.setIncludes(DEFAULT_INCLUDES);
             }
 
-            for (Iterator j = staleSources.iterator(); j.hasNext();) {
-                File source = (File)j.next();
-                
-                // the source pathname has to be in common with the
-                // source directory.
-                
-                String name = source.getPath().substring(resourceDirectory.getPath().length() + 1);
-                String destination = name;
+            if (excludes != null && !excludes.isEmpty()) {
+                scanner.setExcludes((String[])excludes.toArray(EMPTY_STRING_ARRAY));
+            }
+
+            scanner.addDefaultExcludes();
+            scanner.scan();
+
+            List includedFiles = Arrays.asList(scanner.getIncludedFiles());
+
+            getLog().info(
+                          "FastInfosetting " + includedFiles.size() + " resource"
+                              + (includedFiles.size() > 1 ? "s" : "")
+                              + (targetPath == null ? "" : " to " + targetPath));
+
+            for (Iterator j = includedFiles.iterator(); j.hasNext();) {
+                String name = (String)j.next();
+
+                String destination = name.replaceFirst("\\.xml$", ".fixml");
 
                 if (targetPath != null) {
                     destination = targetPath + "/" + name;
                 }
                 
-                destination = destination.replaceFirst("\\.xml$", ".fixml");
+                File source = new File(resourceDirectory, name);
 
                 File destinationFile = new File(outputDirectory, destination);
 
