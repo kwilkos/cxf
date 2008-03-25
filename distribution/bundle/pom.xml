@@ -343,6 +343,7 @@
                                 <transformer implementation="org.apache.cxf.maven.PluginTransformer">
                                     <resource>META-INF/tools-plugin.xml</resource>
                                 </transformer>
+                                <transformer implementation="org.apache.cxf.maven.CXFAllTransformer"/>
                             </transformers>
                         </configuration>
                     </execution>
