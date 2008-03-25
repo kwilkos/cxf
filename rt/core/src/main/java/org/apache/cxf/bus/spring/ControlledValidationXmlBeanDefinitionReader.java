@@ -149,7 +149,7 @@ public class ControlledValidationXmlBeanDefinitionReader extends XmlBeanDefiniti
 
         // if we are in unpacked files, we take some extra time
         // to ensure that we aren't using a stale Fastinfoset file.
-        if (protocol.equals("file")) {
+        if ("file".equals(protocol)) {
             URLConnection resCon = null;
             URLConnection fixCon = null;
             resCon = resUrl.openConnection();
