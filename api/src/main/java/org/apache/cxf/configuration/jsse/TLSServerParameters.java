@@ -22,6 +22,11 @@ import javax.annotation.Resource;
 
 import org.apache.cxf.configuration.security.ClientAuthentication;
 
+/**
+ * This class extends {@link TLSParameterBase} with service-specific
+ * SSL/TLS parameters.
+ * 
+ */
 public class TLSServerParameters extends TLSParameterBase {
 
     ClientAuthentication clientAuthentication;
@@ -36,8 +41,7 @@ public class TLSServerParameters extends TLSParameterBase {
     }
 
     /**
-     * This parameter configures the server side to request and/or
-     * require client authentication.
+     * This parameter retrieves the client authentication settings.
      */
     public ClientAuthentication getClientAuthentication() {
         return clientAuthentication;

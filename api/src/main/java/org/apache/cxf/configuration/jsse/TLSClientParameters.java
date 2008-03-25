@@ -18,6 +18,11 @@
  */
 package org.apache.cxf.configuration.jsse;
 
+/**
+ * This class extends {@link TLSParameterBase} with client-specific
+ * SSL/TLS parameters.
+ * 
+ */
 public class TLSClientParameters extends TLSParameterBase {
     
 }
