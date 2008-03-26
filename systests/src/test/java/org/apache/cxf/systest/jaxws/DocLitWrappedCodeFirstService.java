@@ -31,6 +31,7 @@ import javax.xml.ws.Holder;
 import javax.xml.ws.RequestWrapper;
 import javax.xml.ws.ResponseWrapper;
 
+import org.apache.cxf.feature.Features;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.systest.jaxws.types.Bar;
 
@@ -38,6 +39,7 @@ import org.apache.cxf.systest.jaxws.types.Bar;
             targetNamespace = "http://cxf.apache.org/systest/jaxws/DocLitWrappedCodeFirstService")
 @SOAPBinding(style = SOAPBinding.Style.DOCUMENT,
              use = SOAPBinding.Use.LITERAL)
+@Features(features = { "org.apache.cxf.feature.FastInfosetFeature" })
 public interface DocLitWrappedCodeFirstService {
 
     @WebMethod

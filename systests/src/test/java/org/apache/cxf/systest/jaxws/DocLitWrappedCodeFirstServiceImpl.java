@@ -27,6 +27,7 @@ import javax.jws.WebService;
 import javax.xml.ws.Holder;
 import javax.xml.ws.WebServiceContext;
 
+import org.apache.cxf.feature.Features;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.systest.jaxws.types.Bar;
 import org.apache.cxf.systest.jaxws.types.BarImpl;
@@ -35,6 +36,7 @@ import org.apache.cxf.systest.jaxws.types.BarImpl;
             serviceName = "DocLitWrappedCodeFirstService",
             portName = "DocLitWrappedCodeFirstServicePort",
             targetNamespace = "http://cxf.apache.org/systest/jaxws/DocLitWrappedCodeFirstService")
+@Features(features = { "org.apache.cxf.feature.FastInfosetFeature" })
 public class DocLitWrappedCodeFirstServiceImpl implements DocLitWrappedCodeFirstService {
     public static final String DATA[] = new String[] {"string1", "string2", "string3"};
     

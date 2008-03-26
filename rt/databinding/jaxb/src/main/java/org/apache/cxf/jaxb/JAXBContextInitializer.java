@@ -296,7 +296,9 @@ class JAXBContextInitializer extends ServiceModelVisitor {
             && !Modifier.isPublic(field.getModifiers())) {
             return false;
         }
-
+        if (field.getAnnotation(XmlJavaTypeAdapter.class) != null) {
+            return false;
+        }
         if (accessType == XmlAccessType.NONE
             || accessType == XmlAccessType.PROPERTY) {
             return checkJaxbAnnotation(field.getAnnotations());
@@ -325,7 +327,8 @@ class JAXBContextInitializer extends ServiceModelVisitor {
 
         boolean isPropGetter = method.getName().startsWith("get") || method.getName().startsWith("is");
 
-        if (!isPropGetter) {
+        if (!isPropGetter 
+            || method.getAnnotation(XmlJavaTypeAdapter.class) != null) {
             return false;
         }
         int beginIndex = 3;

@@ -41,6 +41,8 @@ import org.apache.cxf.staxutils.StaxUtils;
  * Creates an XMLStreamReader from the InputStream on the Message.
  */
 public class StaxOutInterceptor extends AbstractPhaseInterceptor<Message> {
+    public static final String FORCE_START_DOCUMENT = "org.apache.cxf.stax.force-start-document";
+    
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(StaxOutInterceptor.class);
     private static Map<Object, XMLOutputFactory> factories = new HashMap<Object, XMLOutputFactory>();
 
@@ -64,6 +66,9 @@ public class StaxOutInterceptor extends AbstractPhaseInterceptor<Message> {
         
         try {
             writer = getXMLOutputFactory(message).createXMLStreamWriter(os, encoding);
+            if (Boolean.TRUE.equals(message.getContextualProperty(FORCE_START_DOCUMENT))) {
+                writer.writeStartDocument(encoding);
+            }
         } catch (XMLStreamException e) {
             throw new Fault(new org.apache.cxf.common.i18n.Message("STREAM_CREATE_EXC", BUNDLE), e);
         }
@@ -91,6 +96,9 @@ public class StaxOutInterceptor extends AbstractPhaseInterceptor<Message> {
     public static XMLOutputFactory getXMLOutputFactory(Message m) throws Fault {
         Object o = m.getContextualProperty(XMLOutputFactory.class.getName());
         if (o instanceof XMLOutputFactory) {
+            m.put(AbstractOutDatabindingInterceptor.DISABLE_OUTPUTSTREAM_OPTIMIZATION,
+                        Boolean.TRUE);
+            m.put(FORCE_START_DOCUMENT, Boolean.TRUE);
             return (XMLOutputFactory)o;
         } else if (o != null) {
             XMLOutputFactory xif = (XMLOutputFactory)factories.get(o);
@@ -118,6 +126,9 @@ public class StaxOutInterceptor extends AbstractPhaseInterceptor<Message> {
                     throw new Fault(e);
                 }
             }
+            m.put(AbstractOutDatabindingInterceptor.DISABLE_OUTPUTSTREAM_OPTIMIZATION,
+                  Boolean.TRUE);
+            m.put(FORCE_START_DOCUMENT, Boolean.TRUE);
             return xif;
         } else {
             return StaxUtils.getXMLOutputFactory();

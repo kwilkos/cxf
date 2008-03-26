@@ -19,6 +19,7 @@
 package org.apache.cxf.bus.spring;
 
 import org.apache.cxf.configuration.spring.SimpleBeanDefinitionParser;
+import org.apache.cxf.feature.FastInfosetFeature;
 import org.apache.cxf.feature.LoggingFeature;
 import org.springframework.beans.factory.xml.NamespaceHandlerSupport;
 
@@ -28,5 +29,7 @@ public class NamespaceHandler extends NamespaceHandlerSupport {
                                      new BusDefinitionParser());
         registerBeanDefinitionParser("logging",
                                      new SimpleBeanDefinitionParser(LoggingFeature.class));
+        registerBeanDefinitionParser("fastinfoset",
+                                     new SimpleBeanDefinitionParser(FastInfosetFeature.class));
     }
 }

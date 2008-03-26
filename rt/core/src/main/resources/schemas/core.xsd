@@ -48,6 +48,18 @@
       <xsd:attribute name="limit" type="xsd:int" use="optional" default="102400"/>
     </xsd:complexType>
   </xsd:element>
+  <xsd:element name="fastinfoset">
+    <xsd:annotation>
+      <xsd:documentation>
+        The fastinfoset feature enables you to turn on using fastinfoset encoding of 
+        xml payloads.   
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:complexType>
+      <xsd:sequence />
+      <xsd:attribute name="force" type="xsd:boolean" use="optional" default="false"/>
+    </xsd:complexType>
+  </xsd:element>
   
   <xsd:element name="bus">
     <xsd:complexType>

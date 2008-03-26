@@ -137,7 +137,10 @@ public class ServerFactoryBean extends AbstractWSDLBasedEndpointFactory {
         
         if (serviceBean != null) {
             initializeAnnotationInterceptors(server.getEndpoint(), this.getServiceBean().getClass());
+        } else if (getServiceClass() != null) {
+            initializeAnnotationInterceptors(server.getEndpoint(), getServiceClass());
         }
+        
         
         applyFeatures();
         return server;
