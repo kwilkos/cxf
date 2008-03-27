@@ -19,6 +19,7 @@
 
 package org.apache.cxf.interceptor;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,6 +31,7 @@ import javax.xml.stream.XMLStreamReader;
 
 import org.apache.cxf.common.classloader.ClassLoaderUtils;
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
@@ -58,6 +60,20 @@ public class StaxInInterceptor extends AbstractPhaseInterceptor<Message> {
         InputStream is = message.getContent(InputStream.class);
         assert is != null;
 
+        String contentType = (String)message.get(Message.CONTENT_TYPE);
+        
+        if (contentType != null && contentType.contains("text/html")) {
+        	String htmlMessage = null;
+        	try {
+        		htmlMessage = IOUtils.toString(is, 500);
+        	} catch (IOException e) {
+	        	throw new Fault(new org.apache.cxf.common.i18n.Message("INVALID_HTML_RESPONSETYPE",
+	                    LOG, "(none)"));
+        	}
+        	throw new Fault(new org.apache.cxf.common.i18n.Message("INVALID_HTML_RESPONSETYPE",
+                    LOG, (htmlMessage == null || htmlMessage.length() == 0) ? "(none)" : htmlMessage));
+        }
+        
         String encoding = (String)message.get(Message.ENCODING);
 
         XMLStreamReader reader;
@@ -66,8 +82,7 @@ public class StaxInInterceptor extends AbstractPhaseInterceptor<Message> {
         } catch (XMLStreamException e) {
             throw new Fault(new org.apache.cxf.common.i18n.Message("STREAM_CREATE_EXC",
                                                                    LOG,
-                                                                   encoding),
-                            e);
+                                                                   encoding), e);
         }
 
         message.setContent(XMLStreamReader.class, reader);
