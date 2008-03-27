@@ -162,7 +162,7 @@ public final class HttpsURLConnectionFactory
      * isn't always desired. The MessageTrustDecider is
      * the point at which an application can place trust in the
      * certificate and target URL. We use this default of always
-     * returning true, delegate the trust decision to the 
+     * returning true, delegating the trust decision to the 
      * MessageTrustDecider.
      */
     private static class AlwaysTrueHostnameVerifier implements HostnameVerifier {

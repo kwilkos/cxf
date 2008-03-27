@@ -49,7 +49,7 @@ import org.apache.cxf.configuration.security.TrustManagersType;
 /**
  * This class provides some functionality to convert the JAXB 
  * generated types in the security.xsd to the items needed
- * to programatically configure the HTTPConduit and HTTPDesination
+ * to programatically configure the HTTPConduit and HTTPDestination
  * with TLSClientParameters and TLSServerParameters respectively.
  */
 public final class TLSParameterJaxBUtils {

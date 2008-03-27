@@ -26,9 +26,9 @@ import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.configuration.security.TLSClientParametersType;
 
 /**
- * This class provides the TLSServerParameters that programmatically
- * configure a HTTPDestination. It is initialized with the JAXB
- * type TLSClientParametersType which is used in Spring Configuration
+ * This class provides the TLSClientParameters that programmatically
+ * configure a HTTPConduit. It is initialized with the JAXB
+ * type TLSClientParametersType that was used in the Spring configuration
  * of the http-conduit bean.
  */
 public class TLSClientParametersConfig 

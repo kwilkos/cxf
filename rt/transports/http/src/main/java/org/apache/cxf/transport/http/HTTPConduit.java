@@ -80,12 +80,12 @@ import static org.apache.cxf.message.Message.DECOUPLED_CHANNEL_MESSAGE;
  * <p>
  * This implementation is a based on the java.net.URLConnection interface and
  * dependent upon installed implementations of that URLConnection, 
- * HttpURLConnection, and HttpsURLConnection. Currently, this implemenation
+ * HttpURLConnection, and HttpsURLConnection. Currently, this implementation
  * has been known to work with the Sun JDK 1.5 default implementations. The
  * HttpsURLConnection is part of Sun's implementation of the JSSE. 
- * Presently, the source code for the Sun JSSE implemenation is unavailable
- * and therefore we may only lay a guess of whether its HttsURLConnection
- * implemenation correctly works as far as security is concerned.
+ * Presently, the source code for the Sun JSSE implementation is unavailable
+ * and therefore we may only lay a guess of whether its HttpsURLConnection
+ * implementation correctly works as far as security is concerned.
  * <p>
  * The Trust Decision. If a MessageTrustDecider is configured/set for the 
  * Conduit, it is called upon the first flush of the headers in the 
@@ -164,7 +164,7 @@ public class HTTPConduit
     private static final String SC_HTTP_CONDUIT_SUFFIX = ".http-conduit";
     
     /**
-     * Buffer to use to suck unread bytes off of input streams
+     * Buffer to use to pull unread bytes off of input streams
      */
     private static final byte BUFFER[] = new byte[1024];
 
