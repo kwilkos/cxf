@@ -36,7 +36,7 @@ public final class IOUtils {
     }
 
     public static int copy(final InputStream input, final OutputStream output)
-            throws IOException {
+        throws IOException {
         return copy(input, output, DEFAULT_BUFFER_SIZE);
     }
 
@@ -95,7 +95,7 @@ public final class IOUtils {
     }
 
     public static String toString(final InputStream input, int bufferSize)
-            throws IOException {
+        throws IOException {
 
         int avail = input.available();
         if (avail > bufferSize) {
@@ -129,7 +129,7 @@ public final class IOUtils {
     }
 
     public static String readStringFromStream(InputStream in)
-            throws IOException {
+        throws IOException {
 
         StringBuilder sb = new StringBuilder(1024);
 
@@ -151,7 +151,7 @@ public final class IOUtils {
      * @throws IOException
      */
     public static ByteArrayInputStream loadIntoBAIS(InputStream in)
-            throws IOException {
+        throws IOException {
         int i = in.available();
         if (i < DEFAULT_BUFFER_SIZE) {
             i = DEFAULT_BUFFER_SIZE;
