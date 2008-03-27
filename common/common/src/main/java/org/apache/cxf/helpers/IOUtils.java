@@ -96,18 +96,29 @@ public final class IOUtils {
     
     public static String toString(final InputStream input) 
         throws IOException {
-        
-        StringBuilder buf = new StringBuilder();
-        final byte[] buffer = new byte[DEFAULT_BUFFER_SIZE];
-        int n = 0;
-        n = input.read(buffer);
-        while (-1 != n) {
-            buf.append(new String(buffer, 0, n));
-            n = input.read(buffer);
-        }
-        input.close();
-        return buf.toString();
+        return toString(input, DEFAULT_BUFFER_SIZE);
     }
+    
+    public static String toString(final InputStream input, int bufferSize) 
+	    throws IOException {
+	    
+        int avail = input.available();
+        if (avail > bufferSize) {
+            bufferSize = avail;
+        }
+
+        StringBuilder buf = new StringBuilder();
+	    final byte[] buffer = new byte[bufferSize];
+	    int n = 0;
+	    n = input.read(buffer);
+	    while (-1 != n) {
+	        buf.append(new String(buffer, 0, n));
+	        n = input.read(buffer);
+	    }
+	    input.close();
+	    return buf.toString();
+    }
+    
     public static String toString(final Reader input) 
         throws IOException {
         
