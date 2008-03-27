@@ -75,8 +75,8 @@ public class BusApplicationContextResourceResolver
     }
 
 
-    public void setApplicationContext(ApplicationContext arg0) throws BeansException {
-        context = arg0;        
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        context = applicationContext;        
     }
 
 }

@@ -37,7 +37,7 @@ public final class ConduitInitiatorManagerImpl implements ConduitInitiatorManage
 
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(ConduitInitiatorManager.class);
 
-    final Map<String, ConduitInitiator> conduitInitiators;
+    Map<String, ConduitInitiator> conduitInitiators;
     
     private Bus bus;
     public ConduitInitiatorManagerImpl() {
@@ -48,9 +48,18 @@ public final class ConduitInitiatorManagerImpl implements ConduitInitiatorManage
     public ConduitInitiatorManagerImpl(MapProvider<String, ConduitInitiator> conduitInitiators) {
         this.conduitInitiators = conduitInitiators.createMap();
     }
-    
+
     public ConduitInitiatorManagerImpl(Map<String, ConduitInitiator> conduitInitiators) {
         this.conduitInitiators = conduitInitiators;
+    }
+    
+    /**
+     * Spring is slow to resolve constructors. This accessor allows
+     * for initialization via a property.
+     * @param mapProvider
+     */
+    public void setMapProvider(MapProvider<String, ConduitInitiator> mapProvider) {
+        this.conduitInitiators = mapProvider.createMap();
     }
     
     @Resource

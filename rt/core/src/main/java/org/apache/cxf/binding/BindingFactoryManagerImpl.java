@@ -36,7 +36,7 @@ public final class BindingFactoryManagerImpl implements BindingFactoryManager {
     
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(BindingFactoryManagerImpl.class);
     
-    final Map<String, BindingFactory> bindingFactories; 
+    Map<String, BindingFactory> bindingFactories; 
     Bus bus;
      
     public BindingFactoryManagerImpl() throws BusException {
@@ -53,6 +53,15 @@ public final class BindingFactoryManagerImpl implements BindingFactoryManager {
     public BindingFactoryManagerImpl(MapProvider<String, BindingFactory> bindingFactories) {
         super();
         this.bindingFactories = bindingFactories.createMap();
+    }
+
+    /**
+     * Spring configuration via constructor is slow.
+     * This accessor allows initialization via a property.
+     * @param bindingFactoriesMapProvider
+     */
+    public void setMapProvider(MapProvider<String, BindingFactory> bindingFactoriesMapProvider) {
+        this.bindingFactories = bindingFactoriesMapProvider.createMap();
     }
 
     @Resource

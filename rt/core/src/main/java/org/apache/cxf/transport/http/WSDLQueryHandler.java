@@ -69,9 +69,8 @@ import org.apache.cxf.wsdl11.ServiceWSDLBuilder;
 public class WSDLQueryHandler implements StemMatchingQueryHandler {
     private static final Logger LOG = LogUtils.getL7dLogger(WSDLQueryHandler.class, "QueryMessages");
     private Bus bus;
-
-    public WSDLQueryHandler(Bus b) {
-        bus = b;
+    
+    public WSDLQueryHandler() {
     }
 
     public String getResponseContentType(String baseUri, String ctx) {
@@ -382,5 +381,9 @@ public class WSDLQueryHandler implements StemMatchingQueryHandler {
     
     public boolean isRecognizedQuery(String baseUri, String ctx, EndpointInfo endpointInfo) {
         return isRecognizedQuery(baseUri, ctx, endpointInfo, false);
+    }
+
+    public void setBus(Bus bus) {
+        this.bus = bus;
     }
 }

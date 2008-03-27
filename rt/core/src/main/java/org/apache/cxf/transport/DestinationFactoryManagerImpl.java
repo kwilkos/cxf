@@ -39,7 +39,7 @@ public final class DestinationFactoryManagerImpl implements DestinationFactoryMa
 
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(DestinationFactoryManager.class);
 
-    final Map<String, DestinationFactory> destinationFactories;
+    Map<String, DestinationFactory> destinationFactories;
     Properties factoryNamespaceMappings;
 
     private Bus bus;
@@ -53,6 +53,15 @@ public final class DestinationFactoryManagerImpl implements DestinationFactoryMa
     }
     public DestinationFactoryManagerImpl(MapProvider<String, DestinationFactory> destinationFactories) {
         this.destinationFactories = destinationFactories.createMap();
+    }
+
+    /**
+     * Spring is slow for constructors with arguments. This
+     * accessor permits initialization via a property.
+     * @param mapProvider
+     */
+    public void setMapProvider(MapProvider<String, DestinationFactory> mapProvider) {
+        this.destinationFactories = mapProvider.createMap();
     }
 
     @Resource

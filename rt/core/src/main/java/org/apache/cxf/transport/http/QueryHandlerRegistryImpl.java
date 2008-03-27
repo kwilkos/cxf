@@ -37,18 +37,24 @@ public class QueryHandlerRegistryImpl implements QueryHandlerRegistry {
     
     public QueryHandlerRegistryImpl() {
     }
+    
     public QueryHandlerRegistryImpl(Bus b, List<QueryHandler> handlers) {
         bus = b;
         queryHandlers = new CopyOnWriteArrayList<QueryHandler>(handlers);
     }
     
-    
+    public void setQueryHandlers(List<QueryHandler> handlers) {
+        this.queryHandlers = new CopyOnWriteArrayList<QueryHandler>(handlers);
+    }
+
     @PostConstruct
     public void register() {
         if (queryHandlers == null) {
             queryHandlers = new CopyOnWriteArrayList<QueryHandler>();
             if (bus != null) {
-                queryHandlers.add(new WSDLQueryHandler(bus));
+                WSDLQueryHandler wsdlQueryHandler = new WSDLQueryHandler();
+                wsdlQueryHandler.setBus(bus);
+                queryHandlers.add(wsdlQueryHandler);
             }
         }
         if (null != bus) {

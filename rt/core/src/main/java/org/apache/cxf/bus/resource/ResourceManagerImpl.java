@@ -50,7 +50,16 @@ public class ResourceManagerImpl extends DefaultResourceManager implements BusEx
         registeredResolvers.clear();
         
         registeredResolvers.add(new PropertiesResolver(properties));
-    } 
+    }
+
+    /**
+     * Set the list of resolvers for this resource manager.
+     * @param resolvers
+     */
+    public void setResolvers(List<ResourceResolver> resolvers) {
+        registeredResolvers.clear();
+        registeredResolvers.addAll(resolvers);
+    }
     
     @Resource
     public void setBus(Bus b) {
