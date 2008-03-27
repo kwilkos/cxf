@@ -107,7 +107,7 @@ public class EndpointReferenceTest extends AbstractJaxWsTest {
     }
 
     /*
-     * Any JAX-WS supported epr metadata MUST match the Service instance¡¯s
+     * Any JAX-WS supported epr metadata MUST match the Service instances
      * ServiceName, otherwise a WebServiceExeption MUST be thrown. Any JAX-WS
      * supported epr metadata MUST match the PortName for the sei, otherwise a
      * WebServiceException MUST be thrown. If the Service instance has an
