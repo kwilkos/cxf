@@ -63,14 +63,14 @@ public class StaxInInterceptor extends AbstractPhaseInterceptor<Message> {
         String contentType = (String)message.get(Message.CONTENT_TYPE);
         
         if (contentType != null && contentType.contains("text/html")) {
-        	String htmlMessage = null;
-        	try {
-        		htmlMessage = IOUtils.toString(is, 500);
-        	} catch (IOException e) {
-	        	throw new Fault(new org.apache.cxf.common.i18n.Message("INVALID_HTML_RESPONSETYPE",
-	                    LOG, "(none)"));
-        	}
-        	throw new Fault(new org.apache.cxf.common.i18n.Message("INVALID_HTML_RESPONSETYPE",
+            String htmlMessage = null;
+            try {
+                htmlMessage = IOUtils.toString(is, 500);
+            } catch (IOException e) {
+                throw new Fault(new org.apache.cxf.common.i18n.Message("INVALID_HTML_RESPONSETYPE",
+                        LOG, "(none)"));
+            }
+            throw new Fault(new org.apache.cxf.common.i18n.Message("INVALID_HTML_RESPONSETYPE",
                     LOG, (htmlMessage == null || htmlMessage.length() == 0) ? "(none)" : htmlMessage));
         }
         
