@@ -140,6 +140,15 @@
         <module>maven-plugins/eclipse-plugin-generator</module>
     </modules>
 
+    <repositories>
+        <repository>
+            <id>java.net</id>
+            <name>java.net Maven Repository</name>
+            <url>http://download.java.net/maven/1/</url>
+            <layout>legacy</layout>
+        </repository>
+    </repositories>
+
     <profiles>
         <profile>
             <!-- default profile enables checkstyle and Xlint stuff -->
