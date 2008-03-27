@@ -34,6 +34,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlTransient;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.apache.cxf.service.ServiceModelVisitor;
 import org.apache.cxf.service.model.MessagePartInfo;
@@ -168,6 +169,9 @@ class JAXBContextInitializer extends ServiceModelVisitor {
     }
 
     private void walkReferences(Class<?> cls) {
+        if (cls == null) {
+            return;
+        }
         if (cls.getName().startsWith("java.")
             || cls.getName().startsWith("javax.")) {
             return;
@@ -210,7 +214,7 @@ class JAXBContextInitializer extends ServiceModelVisitor {
     }
 
     /**
-     * Checks is the field is accepted as a JAXB property.
+     * Checks if the field is accepted as a JAXB property.
      */
     static boolean isFieldAccepted(Field field, XmlAccessType accessType) {
         // We only accept non static fields which are not marked @XmlTransient
@@ -221,7 +225,9 @@ class JAXBContextInitializer extends ServiceModelVisitor {
             && !Modifier.isPublic(field.getModifiers())) {
             return false;
         }
-
+        if (field.getAnnotation(XmlJavaTypeAdapter.class) != null) {
+            return false;
+        }
         if (accessType == XmlAccessType.NONE
             || accessType == XmlAccessType.PROPERTY) {
             return checkJaxbAnnotation(field.getAnnotations());
@@ -231,7 +237,7 @@ class JAXBContextInitializer extends ServiceModelVisitor {
     }
 
     /**
-     * Checks is the method is accepted as a JAXB property getter.
+     * Checks if the method is accepted as a JAXB property getter.
      */
     static boolean isMethodAccepted(Method method, XmlAccessType accessType) {
         // We only accept non static property getters which are not marked @XmlTransient
@@ -250,7 +256,8 @@ class JAXBContextInitializer extends ServiceModelVisitor {
 
         boolean isPropGetter = method.getName().startsWith("get") || method.getName().startsWith("is");
 
-        if (!isPropGetter) {
+        if (!isPropGetter 
+            || method.getAnnotation(XmlJavaTypeAdapter.class) != null) {
             return false;
         }
         int beginIndex = 3;
