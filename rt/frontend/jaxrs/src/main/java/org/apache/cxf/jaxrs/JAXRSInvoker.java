@@ -24,12 +24,16 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
 
 import org.apache.cxf.helpers.CastUtils;
+import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.jaxrs.interceptor.JAXRSInInterceptor;
 import org.apache.cxf.jaxrs.model.ClassResourceInfo;
 import org.apache.cxf.jaxrs.model.OperationResourceInfo;
+import org.apache.cxf.jaxrs.model.URITemplate;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageContentsList;
@@ -51,8 +55,11 @@ public class JAXRSInvoker extends AbstractInvoker {
         ClassResourceInfo cri = ori.getClassResourceInfo();
         Method m = cri.getMethodDispatcher().getMethod(ori);
         Object resourceObject = getServiceObject(exchange);
+        
         if (cri.isRoot()) {
-            JAXRSUtils.injectHttpContextValues(resourceObject, ori, exchange.getInMessage());
+            JAXRSUtils.injectHttpContextValues(resourceObject, 
+                                               ori, 
+                                               exchange.getInMessage());
         }
 
         List<Object> params = null;
@@ -62,7 +69,21 @@ public class JAXRSInvoker extends AbstractInvoker {
             params = new MessageContentsList(request);
         }
 
-        Object result = invoke(exchange, resourceObject, m, params);
+        Object result = null;
+        try {
+            result = invoke(exchange, resourceObject, m, params);
+        } catch (Fault ex) {
+            if (ex.getCause() instanceof WebApplicationException) {
+                WebApplicationException wex = (WebApplicationException)ex.getCause();
+                if (wex.getResponse() != null) {
+                    result = wex.getResponse();
+                } else {
+                    result = Response.serverError().build();
+                }
+                return new MessageContentsList(result);
+            }
+            throw ex;
+        }
         
         if (ori.isSubResourceLocator()) {
             //the result becomes the object that will handle the request
@@ -77,9 +98,9 @@ public class JAXRSInvoker extends AbstractInvoker {
             }
             resourceObjects = new ArrayList<Object>();
             resourceObjects.add(result);
-            
-            MultivaluedMap<String, String> values = new MetadataMap<String, String>();                 
+        
             Message msg = exchange.getInMessage();
+            MultivaluedMap<String, String> values = new MetadataMap<String, String>();                 
             String subResourcePath = (String)msg.get(JAXRSInInterceptor.RELATIVE_PATH);
             String httpMethod = (String)msg.get(Message.HTTP_REQUEST_METHOD); 
             String contentType = (String)msg.get(Message.CONTENT_TYPE);
@@ -98,7 +119,8 @@ public class JAXRSInvoker extends AbstractInvoker {
                                                                        contentType, 
                                                                        acceptContentType);
             exchange.put(OperationResourceInfo.class, subOri);
-            msg.put(JAXRSInInterceptor.RELATIVE_PATH, subResourcePath);
+            msg.put(JAXRSInInterceptor.RELATIVE_PATH, values.getFirst(URITemplate.FINAL_MATCH_GROUP));
+            msg.put(URITemplate.TEMPLATE_PARAMETERS, values);
             // work out request parameters for the sub-resouce class. Here we
             // presume Inputstream has not been consumed yet by the root resource class.
             //I.e., only one place either in the root resource or sub-resouce class can

@@ -36,7 +36,8 @@ public class JAXRSClientServerResourceCreatedOutsideBookTest extends AbstractBus
 
     @BeforeClass
     public static void startServers() throws Exception {
-        assertTrue("server did not launch correctly", launchServer(BookServerResourceCreatedOutside.class));
+        assertTrue("server did not launch correctly", 
+                   launchServer(BookServerResourceCreatedOutside.class, true));
     }
     
     @Test
@@ -70,7 +71,7 @@ public class JAXRSClientServerResourceCreatedOutsideBookTest extends AbstractBus
         httpUrlConnection.setDoInput(true);   
         httpUrlConnection.setRequestMethod("POST");   
         httpUrlConnection.setRequestProperty("Accept",   "text/xml");   
-        httpUrlConnection.setRequestProperty("Content-type",   "text/html");   
+        httpUrlConnection.setRequestProperty("Content-type",   "application/xml");   
         httpUrlConnection.setRequestProperty("Connection",   "close");   
         //httpurlconnection.setRequestProperty("Content-Length",   String.valueOf(is.available()));   
 

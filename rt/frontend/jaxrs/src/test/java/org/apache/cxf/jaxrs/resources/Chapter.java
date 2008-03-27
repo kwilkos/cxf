@@ -44,5 +44,5 @@ public class Chapter {
     public long getId() {
         return id;
     }
-
+    
 }

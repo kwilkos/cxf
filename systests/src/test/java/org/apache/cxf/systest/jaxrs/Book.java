@@ -60,7 +60,14 @@ public class Book {
         System.out.println("----invoking getChapter with chapterid: " + chapterid);
 
         return chapters.get(new Long(chapterid));
-    }   
+    } 
+    
+    @Path("chapters/sub/{chapterid}/")    
+    public Chapter getSubChapter(@PathParam("chapterid")int chapterid) {
+        System.out.println("----invoking getChapter with chapterid: " + chapterid);
+
+        return chapters.get(new Long(chapterid));
+    } 
     
     final void init() {
         Chapter c1 = new Chapter();

@@ -117,4 +117,8 @@ public class MetadataMap<K, V> implements MultivaluedMap<K, V> {
     public boolean equals(Object o) {
         return m.equals(o);
     }
+    
+    public String toString() {
+        return m.toString();
+    }
 }

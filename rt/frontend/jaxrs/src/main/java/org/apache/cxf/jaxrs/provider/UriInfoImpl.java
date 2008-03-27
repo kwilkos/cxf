@@ -21,6 +21,7 @@ package org.apache.cxf.jaxrs.provider;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Map;
 
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.PathSegment;
@@ -34,12 +35,12 @@ import org.apache.cxf.message.Message;
 
 public class UriInfoImpl implements UriInfo {
 
-    private URITemplate template; 
+    private MultivaluedMap<String, String> templateParams; 
     private Message message;
     
-    public UriInfoImpl(Message m, URITemplate template) {
+    public UriInfoImpl(Message m, MultivaluedMap<String, String> templateParams) {
         this.message = m;
-        this.template = template;
+        this.templateParams = templateParams;
     }
     
     public URI getAbsolutePath() {
@@ -108,7 +109,14 @@ public class UriInfoImpl implements UriInfo {
     public MultivaluedMap<String, String> getTemplateParameters(boolean decode) {
         // this needs to be changed
         MetadataMap<String, String> values = new MetadataMap<String, String>();
-        template.match(getPath(decode), values);
+        for (Map.Entry<String, List<String>> entry : templateParams.entrySet()) {
+            if (entry.getKey().equals(URITemplate.FINAL_MATCH_GROUP)) {
+                continue;
+            }
+            values.add(entry.getKey(), 
+                       decode ? JAXRSUtils.uriDecode(entry.getValue().get(0)) 
+                              : entry.getValue().get(0));
+        }
         return values;
     }
 

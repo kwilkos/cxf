@@ -34,6 +34,7 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Request;
+import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.cxf.jaxrs.model.ClassResourceInfo;
@@ -42,11 +43,10 @@ import org.apache.cxf.jaxrs.model.OperationResourceInfo;
 import org.apache.cxf.jaxrs.model.URITemplate;
 import org.apache.cxf.jaxrs.provider.HttpHeadersImpl;
 import org.apache.cxf.jaxrs.provider.RequestImpl;
+import org.apache.cxf.jaxrs.provider.SecurityContextImpl;
 import org.apache.cxf.jaxrs.provider.UriInfoImpl;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
-import org.easymock.classextension.EasyMock;
-import org.easymock.classextension.IMocksControl;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -59,6 +59,7 @@ public class JAXRSUtilsTest extends Assert {
         @Context private UriInfo uriInfo;
         @Context private HttpHeaders headers;
         @Context private Request request;
+        @Context private SecurityContext sContext;
         
         public UriInfo getUriInfo() {
             return uriInfo;
@@ -70,6 +71,10 @@ public class JAXRSUtilsTest extends Assert {
         
         public Request getRequest() {
             return request;
+        }
+        
+        public SecurityContext getSecurityContext() {
+            return sContext;
         }
         
         @ProduceMime("text/xml")
@@ -109,6 +114,7 @@ public class JAXRSUtilsTest extends Assert {
         public void testParams(@Context UriInfo info,
                                @Context HttpHeaders hs,
                                @Context Request r,
+                               @Context SecurityContext s,
                                @HeaderParam("Foo") String h) {
             // complete
         }
@@ -192,21 +198,22 @@ public class JAXRSUtilsTest extends Assert {
              "GET", values, contentTypes, acceptContentTypes);       
         assertNotNull(ori);
         assertEquals("getBooks", ori.getMethod().getName());
-        assertEquals("Only the first {id} should've been picked up", 2, values.size());
-        assertEquals("Only the first {id} should've been picked up", 1, values.get("id").size());
-        assertEquals("Only the first {id} should've been picked up", 1, 
-                     values.get(URITemplate.RIGHT_HAND_VALUE).size());
-        assertEquals("Only the first {id} should've been picked up", "1", values.getFirst("id"));
+        assertEquals("Only id and final match groups should be there", 2, values.size());
+        assertEquals("2 {id} values should've been picked up", 2, values.get("id").size());
+        assertEquals("FINAL_MATCH_GROUP should've been picked up", 1, 
+                     values.get(URITemplate.FINAL_MATCH_GROUP).size());
+        assertEquals("First {id} is 1", "1", values.getFirst("id"));
+        assertEquals("Second id is 2", "2", values.get("id").get(1));
         
         values = new MetadataMap<String, String>();
         ori = JAXRSUtils.findTargetResourceClass(resources, "/2",
              "POST", values, contentTypes, acceptContentTypes);       
         assertNotNull(ori);
         assertEquals("updateBookStoreInfo", ori.getMethod().getName());
-        assertEquals("Only the first {id} should've been picked up", 2, values.size());
-        assertEquals("Only the first {id} should've been picked up", 1, values.get("id").size());
-        assertEquals("Only the first {id} should've been picked up", 1, 
-                     values.get(URITemplate.RIGHT_HAND_VALUE).size());
+        assertEquals("Only id and final match groups should be there", 2, values.size());
+        assertEquals("Only single {id} should've been picked up", 1, values.get("id").size());
+        assertEquals("FINAL_MATCH_GROUP should've been picked up", 1, 
+                     values.get(URITemplate.FINAL_MATCH_GROUP).size());
         assertEquals("Only the first {id} should've been picked up", "2", values.getFirst("id"));
         
         values = new MetadataMap<String, String>();
@@ -218,7 +225,7 @@ public class JAXRSUtilsTest extends Assert {
         assertEquals("Only the first {id} should've been picked up", 1, values.get("id").size());
         assertEquals("Only the first {id} should've been picked up", 1, values.get("bookId").size());
         assertEquals("Only the first {id} should've been picked up", 1, 
-                     values.get(URITemplate.RIGHT_HAND_VALUE).size());
+                     values.get(URITemplate.FINAL_MATCH_GROUP).size());
         assertEquals("Only the first {id} should've been picked up", "3", values.getFirst("id"));
         assertEquals("Only the first {id} should've been picked up", "4", values.getFirst("bookId"));
     }
@@ -537,6 +544,7 @@ public class JAXRSUtilsTest extends Assert {
                                          new Class[]{UriInfo.class, 
                                                      HttpHeaders.class, 
                                                      Request.class,
+                                                     SecurityContext.class,
                                                      String.class}), 
                 cri);
         ori.setHttpMethod("GET");
@@ -549,12 +557,13 @@ public class JAXRSUtilsTest extends Assert {
         
         List<Object> params = 
             JAXRSUtils.processParameters(ori, new MetadataMap<String, String>(), m);
-        assertEquals("4 parameters expected", 4, params.size());
+        assertEquals("5 parameters expected", 5, params.size());
         assertSame(UriInfoImpl.class, params.get(0).getClass());
         assertSame(HttpHeadersImpl.class, params.get(1).getClass());
         assertSame(RequestImpl.class, params.get(2).getClass());
-        assertSame(String.class, params.get(3).getClass());
-        assertEquals("Wrong header param", "bar,baz", params.get(3));
+        assertSame(SecurityContextImpl.class, params.get(3).getClass());
+        assertSame(String.class, params.get(4).getClass());
+        assertEquals("Wrong header param", "bar,baz", params.get(4));
     }
     
     @Test
@@ -565,16 +574,14 @@ public class JAXRSUtilsTest extends Assert {
         
         Customer c = new Customer();
         
-        IMocksControl control = EasyMock.createNiceControl();
-        Message m = control.createMock(Message.class);
-        m.get(Message.PROTOCOL_HEADERS);
-        EasyMock.expectLastCall().andReturn(new HashMap<String, List<String>>());
+        Message m = new MessageImpl();
+        m.put(Message.PROTOCOL_HEADERS, new HashMap<String, List<String>>());
         
         JAXRSUtils.injectHttpContextValues(c, ori, m);
         assertSame(UriInfoImpl.class, c.getUriInfo().getClass());
         assertSame(HttpHeadersImpl.class, c.getHeaders().getClass());
         assertSame(RequestImpl.class, c.getRequest().getClass());
-        
+        assertSame(SecurityContextImpl.class, c.getSecurityContext().getClass());
         
     }
 }

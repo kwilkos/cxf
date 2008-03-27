@@ -48,9 +48,11 @@ public class SecurityContextImpl implements SecurityContext {
         return sc == null ? null : sc.getUserPrincipal();
     }
 
-    //  TODO
+    
     public boolean isSecure() {
-        return false;
+        String value = m.getExchange().getDestination().getAddress()
+            .getAddress().getValue();
+        return value.startsWith("https://");
     }
 
     public boolean isUserInRole(String role) {

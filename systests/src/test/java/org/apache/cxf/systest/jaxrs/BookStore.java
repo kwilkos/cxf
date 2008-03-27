@@ -20,9 +20,12 @@
 package org.apache.cxf.systest.jaxrs;
 
 
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.ws.rs.ConsumeMime;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -30,6 +33,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.ProduceMime;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import javax.xml.transform.dom.DOMSource;
 
@@ -48,6 +52,19 @@ public class BookStore {
     public BookStore() {
         init();
         System.out.println("----books: " + books.size());
+    }
+    
+    @GET
+    @Path("webappexception")
+    public Book throwException() {
+        Response response = Response.serverError().entity("This is a WebApplicationException").build();
+        throw new WebApplicationException(response);
+    }
+    
+    @GET
+    @Path("timetable")
+    public Calendar getTimetable() {
+        return new GregorianCalendar();
     }
 
     @GET
@@ -113,6 +130,7 @@ public class BookStore {
     @POST
     @Path("/books")
     @ProduceMime("text/xml")
+    @ConsumeMime("application/xml")
     public Response addBook(Book book) {
         System.out.println("----invoking addBook, book name is: " + book.getName());
         book.setId(++bookId);
@@ -121,6 +139,14 @@ public class BookStore {
         return Response.ok(book).build();
     }
 
+    @POST
+    @Path("/binarybooks")
+    @ProduceMime("text/xml")
+    @ConsumeMime("application/octet-stream")
+    public Response addBinaryBook(long[] book) {
+        return Response.ok(book).build();
+    }
+    
     @PUT
     @Path("/books/")
     public Response updateBook(Book book) {
@@ -148,6 +174,7 @@ public class BookStore {
     
     @PUT
     @Path("/bookswithjson/")
+    @ConsumeMime("application/json")
     public Response updateBookJSON(Book book) {
         System.out.println("----invoking updateBook, book name is: " + book.getName());
         Book b = books.get(book.getId());

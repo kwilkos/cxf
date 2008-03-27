@@ -19,6 +19,9 @@
 
 package org.apache.cxf.systest.jaxrs;
 
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.ProduceMime;
 import javax.xml.bind.annotation.XmlRootElement;
 
 
@@ -43,6 +46,13 @@ public class Chapter {
     }
     public long getId() {
         return id;
+    }
+    
+    @GET
+    @Path("/recurse")
+    @ProduceMime("application/xml")
+    public Chapter getItself() {
+        return this;
     }
 
 }

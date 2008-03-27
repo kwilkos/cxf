@@ -22,6 +22,7 @@ package org.apache.cxf.jaxrs.provider;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriInfo;
 
+import org.apache.cxf.jaxrs.MetadataMap;
 import org.apache.cxf.jaxrs.model.URITemplate;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
@@ -93,25 +94,40 @@ public class UriInfoImplTest extends Assert {
     
     @Test
     public void testGetTemplateParameters() {
+       
+        MultivaluedMap<String, String> values = new MetadataMap<String, String>();
+        new URITemplate("/bar").match("/baz", values);
         
         UriInfoImpl u = new UriInfoImpl(mockMessage("http://localhost:8080/baz", "/bar"),
-                                        new URITemplate("/bar"));
+                                        values);
         assertEquals("unexpected templates", 0, u.getTemplateParameters().size());
         
+        values.clear();
+        new URITemplate("/{id}").match("/bar%201", values);
         u = new UriInfoImpl(mockMessage("http://localhost:8080/baz", "/bar%201"),
-                                        new URITemplate("/{id}"));
+                                        values);
         
         MultivaluedMap<String, String> tps = u.getTemplateParameters(false);
         assertEquals("Number of templates is wrong", 1, tps.size());
         assertEquals("Wrong template value", tps.getFirst("id"), "bar%201");
         
+        values.clear();
+        new URITemplate("/{id}/{baz}").match("/1%202/bar", values);
         u = new UriInfoImpl(mockMessage("http://localhost:8080/baz", "/1%202/bar"),
-                            new URITemplate("/{id}/{baz}"));
+                            values);
 
         tps = u.getTemplateParameters();
         assertEquals("Number of templates is wrong", 2, tps.size());
         assertEquals("Wrong template value", tps.getFirst("id"), "1 2");
         assertEquals("Wrong template value", tps.getFirst("baz"), "bar");
+        
+        // with suffix
+        values.clear();
+        new URITemplate("/bar", URITemplate.UNLIMITED_REGEX_SUFFIX).match("/bar", values);
+        
+        u = new UriInfoImpl(mockMessage("http://localhost:8080/baz", "/bar"),
+                                        values);
+        assertEquals("unexpected templates", 0, u.getTemplateParameters().size());
     }
     
     @Test

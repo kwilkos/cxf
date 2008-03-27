@@ -20,11 +20,14 @@
 package org.apache.cxf.jaxrs.interceptor;
 
 import java.util.List;
+import java.util.ResourceBundle;
 import java.util.logging.Logger;
 
 import javax.ws.rs.core.MultivaluedMap;
 
+import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.jaxrs.JAXRSServiceImpl;
 import org.apache.cxf.jaxrs.JAXRSUtils;
 import org.apache.cxf.jaxrs.MetadataMap;
@@ -43,7 +46,7 @@ public class JAXRSInInterceptor extends AbstractPhaseInterceptor<Message> {
     public static final String RELATIVE_PATH = "relative.path";
 
     private static final Logger LOG = LogUtils.getL7dLogger(JAXRSInInterceptor.class);
-    //private static final ResourceBundle BUNDLE = BundleUtils.getBundle(RESTDispatchInterceptor.class);
+    private static final ResourceBundle BUNDLE = BundleUtils.getBundle(JAXRSInInterceptor.class);
 
     public JAXRSInInterceptor() {
         super(Phase.PRE_STREAM);
@@ -75,17 +78,16 @@ public class JAXRSInInterceptor extends AbstractPhaseInterceptor<Message> {
         if (!path.endsWith("/")) {
             path = path + "/";
         }
-        message.put(RELATIVE_PATH, path);
         
-        
-        //TODO : make sure we do this parsing ony once, not expensove though
+        //TODO : make sure we do this parsing only once
         MultivaluedMap<String, String> queries = 
             JAXRSUtils.getStructuredParams((String)message.get(Message.QUERY_STRING), 
                                             "&", true);
         SystemQueryHandler sqh = ProviderFactory.getInstance().getQueryHandler(queries);
         if (sqh != null) {
             // TODO : if Response != null then make sure no invocations happen
-            sqh.handleSystemQuery(message, queries);
+            // TODO : root resource class needs be selected earlier
+            sqh.handleQuery(message, null, queries);
         }
         
         String acceptContentTypes = (String)message.get(Message.ACCEPT_CONTENT_TYPE);
@@ -112,14 +114,20 @@ public class JAXRSInInterceptor extends AbstractPhaseInterceptor<Message> {
                                                                        acceptContentTypes);
 
         if (ori == null) {
-            LOG.severe("No operation found for path: " + path + ", contentType: " 
-                       + requestContentType + ", Accept contentType: " + acceptContentTypes);
-            //throw new Fault(new org.apache.cxf.common.i18n.Message("NO_OP", BUNDLE, method, path));
+            String errorMessage = "No operation found for path: " + path + ", contentType: " 
+                + requestContentType + ", Accept contentType: " + acceptContentTypes;
+            LOG.severe(errorMessage);
+            throw new Fault(new org.apache.cxf.common.i18n.Message("NO_OP_EXC", 
+                                                                   BUNDLE, 
+                                                                   path,
+                                                                   requestContentType,
+                                                                   acceptContentTypes));
         }
         LOG.info("Found operation: " + ori.getMethod().getName());
         
         message.getExchange().put(OperationResourceInfo.class, ori);
-        message.put(RELATIVE_PATH, values.getFirst(URITemplate.RIGHT_HAND_VALUE));
+        message.put(RELATIVE_PATH, values.getFirst(URITemplate.FINAL_MATCH_GROUP));
+        message.put(URITemplate.TEMPLATE_PARAMETERS, values);
       
         //2. Process parameters
         List<Object> params = JAXRSUtils

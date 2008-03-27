@@ -22,6 +22,7 @@ package org.apache.cxf.jaxrs.interceptor;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
+import java.util.ResourceBundle;
 import java.util.logging.Logger;
 
 import javax.ws.rs.ProduceMime;
@@ -29,6 +30,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.MessageBodyWriter;
 
+import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.interceptor.AbstractOutDatabindingInterceptor;
 import org.apache.cxf.jaxrs.JAXRSUtils;
@@ -41,6 +43,7 @@ import org.apache.cxf.phase.Phase;
 
 public class JAXRSOutInterceptor extends AbstractOutDatabindingInterceptor {
     private static final Logger LOG = LogUtils.getL7dLogger(JAXRSOutInterceptor.class);
+    private static final ResourceBundle BUNDLE = BundleUtils.getBundle(JAXRSOutInterceptor.class);
 
     public JAXRSOutInterceptor() {
         super(Phase.MARSHAL);
@@ -91,6 +94,14 @@ public class JAXRSOutInterceptor extends AbstractOutDatabindingInterceptor {
                 }
             }
             
+            if (writer == null) {
+                message.put(Message.RESPONSE_CODE, 406);
+                writeResponseErrorMessage(out, 
+                                          "NO_MSG_WRITER",
+                                          responseObj.getClass().getSimpleName());
+                return;
+            }
+            
             try {
                 LOG.fine("Response EntityProvider is: " + writer.getClass().getName());
                 MediaType mt = computeFinalContentTypes(availableContentTypes, writer);
@@ -99,10 +110,26 @@ public class JAXRSOutInterceptor extends AbstractOutDatabindingInterceptor {
                 writer.writeTo(responseObj, mt, null, out);
             } catch (IOException e) {
                 e.printStackTrace();
+                message.put(Message.RESPONSE_CODE, 500);
+                writeResponseErrorMessage(out, "SERIALIZE_ERROR", 
+                                          responseObj.getClass().getSimpleName());
             }        
             
         }
 
+    }
+    
+    private void writeResponseErrorMessage(OutputStream out, String errorString, 
+                                           String parameter) {
+        try {
+            // TODO : make sure this message is picked up from a resource bundle
+            out.write(new org.apache.cxf.common.i18n.Message(errorString,
+                                                             BUNDLE,
+                                                             parameter
+                                                             ).toString().getBytes("UTF-8"));
+        } catch (IOException another) {
+            // ignore
+        }
     }
     
     private List<MediaType> computeAvailableContentTypes(Message message) {

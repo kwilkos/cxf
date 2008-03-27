@@ -22,6 +22,7 @@ package org.apache.cxf.jaxrs.provider;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
+import org.apache.cxf.jaxrs.model.ClassResourceInfo;
 import org.apache.cxf.message.Message;
 
 /**
@@ -32,7 +33,9 @@ import org.apache.cxf.message.Message;
     
 public interface SystemQueryHandler {
     
-    Response handleSystemQuery(Message m, MultivaluedMap<String, String> queries);
+    Response handleQuery(Message m, 
+                         ClassResourceInfo rootRespurce,
+                         MultivaluedMap<String, String> queries);
     boolean supports(MultivaluedMap<String, String> queries);
 
 }

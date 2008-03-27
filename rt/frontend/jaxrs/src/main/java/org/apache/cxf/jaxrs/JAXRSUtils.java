@@ -128,7 +128,7 @@ public final class JAXRSUtils {
             URITemplate uriTemplate = resource.getURITemplate();
             MultivaluedMap<String, String> map = new MetadataMap<String, String>();
             if (uriTemplate.match(path, map)) {
-                String subResourcePath = map.getFirst(URITemplate.RIGHT_HAND_VALUE);
+                String subResourcePath = map.getFirst(URITemplate.FINAL_MATCH_GROUP);
                 OperationResourceInfo ori = findTargetMethod(resource, subResourcePath, httpMethod, map,
                                                              requestContentType, acceptContentTypes);
                 if (ori != null) {
@@ -157,14 +157,13 @@ public final class JAXRSUtils {
             for (OperationResourceInfo ori : resource.getMethodDispatcher().getOperationResourceInfos()) {
                 
                 URITemplate uriTemplate = ori.getURITemplate();
-                MultivaluedMap<String, String> map = new MetadataMap<String, String>();
-                map.putAll(values);
+                MultivaluedMap<String, String> map = cloneMap(values);
                 if (uriTemplate != null && uriTemplate.match(path, map)) {
                     if (ori.isSubResourceLocator() && matchMimeTypes(requestType, acceptType, ori)) {
                         candidateList.put(ori, map);
                     } else if (ori.getHttpMethod().equalsIgnoreCase(httpMethod)
                                && matchMimeTypes(requestType, acceptType, ori)) {
-                        String finalGroup = map.getFirst(URITemplate.RIGHT_HAND_VALUE);
+                        String finalGroup = map.getFirst(URITemplate.FINAL_MATCH_GROUP);
                         if (finalGroup == null || StringUtils.isEmpty(finalGroup)
                             || finalGroup.equals("/")) {
                             candidateList.put(ori, map);    
@@ -312,7 +311,7 @@ public final class JAXRSUtils {
                                          ori.getConsumeTypes());
         } else if (parameterAnnotations[0].annotationType() == Context.class
                    && ori.getClassResourceInfo().isRoot()) {
-            return createHttpContextValue(message, parameterClass, ori);
+            return createHttpContextValue(message, parameterClass);
         } else if (parameterAnnotations[0].annotationType() == PathParam.class) {
             return readFromUriParam((PathParam)parameterAnnotations[0], parameterClass, parameterType,
                                       parameterAnnotations, path, values);
@@ -339,7 +338,10 @@ public final class JAXRSUtils {
         if (segments.size() > 0) {
             MultivaluedMap<String, String> params = 
                 segments.get(segments.size() - 1).getMatrixParameters();
-            value = params.getFirst(key);
+            List<String> values = params.get(key);
+            if (values != null && values.size() > 0) {
+                value = values.get(0);
+            }
         }
         
         return value == null ? defaultValue : value;
@@ -367,11 +369,13 @@ public final class JAXRSUtils {
         return sb.length() > 0 ? sb.toString() : defaultValue;
     }
     
-    public static Object createHttpContextValue(Message m, 
-                                                 Class<?> clazz,
-                                                 OperationResourceInfo ori) {
+    @SuppressWarnings("unchecked")
+    public static Object createHttpContextValue(Message m, Class<?> clazz) {
+                
         if (UriInfo.class.isAssignableFrom(clazz)) {
-            return new UriInfoImpl(m, ori.getURITemplate());
+            MultivaluedMap<String, String> templateParams =
+                (MultivaluedMap<String, String>)m.get(URITemplate.TEMPLATE_PARAMETERS);
+            return new UriInfoImpl(m, templateParams);
         }
         if (HttpHeaders.class.isAssignableFrom(clazz)) {
             return new HttpHeadersImpl(m);
@@ -398,9 +402,12 @@ public final class JAXRSUtils {
             return null;
         }
 
-        Object result = values.getFirst(parameterName);
-
-        if (parameter.isPrimitive()) {
+        Object result = null;
+        List<String> results = values.get(parameterName);
+        if (values != null && values.size() > 0) {
+            result = results.get(results.size() - 1);
+        }
+        if (result != null && parameter.isPrimitive()) {
             result = PrimitiveUtils.read((String)result, parameter);
         }
         return result;
@@ -463,13 +470,20 @@ public final class JAXRSUtils {
         for (MediaType type : types) { 
             provider = ProviderFactory.getInstance()
                 .createMessageBodyReader(targetTypeClass, type);
+            // TODO : make the exceptions
             if (provider != null) {
                 try {
                     return provider.readFrom(targetTypeClass, contentType, null, is);
                 } catch (IOException e) {
                     e.printStackTrace();
-                    return null;
+                    throw new RuntimeException("Error deserializing input stream into target class "
+                                               + targetTypeClass.getSimpleName() 
+                                               + ", content type : " + contentType);
                 }    
+            } else {
+                throw new RuntimeException("No message body reader found for target class "
+                                           + targetTypeClass.getSimpleName() 
+                                           + ", content type : " + contentType);
             }
         }
 
@@ -566,11 +580,11 @@ public final class JAXRSUtils {
     }
     
     public static void injectHttpContextValues(Object o,
-                                         OperationResourceInfo ori,
-                                         Message m) {
+                                               OperationResourceInfo ori,
+                                               Message m) {
         
         for (Field f : ori.getClassResourceInfo().getHttpContexts()) {
-            Object value = createHttpContextValue(m, f.getType(), ori);
+            Object value = createHttpContextValue(m, f.getType());
             f.setAccessible(true);
             try {
                 f.set(o, value);
@@ -578,5 +592,15 @@ public final class JAXRSUtils {
                 // ignore
             }
         }
+    }
+    
+    private static <K, V> MultivaluedMap<K, V> cloneMap(MultivaluedMap<K, V> map1) {
+        
+        MultivaluedMap<K, V> map2 = new MetadataMap<K, V>();
+        for (Map.Entry<K, List<V>> entry : map1.entrySet()) {
+            map2.put(entry.getKey(), new ArrayList<V>(entry.getValue()));
+        }
+        return map2;
+        
     }
 }

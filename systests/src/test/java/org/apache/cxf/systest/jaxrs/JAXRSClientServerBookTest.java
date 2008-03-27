@@ -44,80 +44,131 @@ public class JAXRSClientServerBookTest extends AbstractBusClientServerTestBase {
     }
     
     @Test
-    public void testGetBook123() throws Exception {
-        String endpointAddress =
-            "http://localhost:9080/bookstore/books/123"; 
-        URL url = new URL(endpointAddress);
-        URLConnection connect = url.openConnection();
-        connect.addRequestProperty("Accept", "application/xml");
-        InputStream in = connect.getInputStream();
-        assertNotNull(in);           
-
-        InputStream expected = getClass()
-            .getResourceAsStream("resources/expected_get_book123.txt");
-
-        assertEquals(getStringFromInputStream(expected), getStringFromInputStream(in));
+    public void testWebApplicationException() throws Exception {
+        getAndCompare("http://localhost:9080/bookstore/webappexception",
+                      "This is a WebApplicationException",
+                      "application/xml", 500);
+    }
+    
+    @Test
+    public void testAcceptTypeMismatch() throws Exception {
+        // TODO : more specific message is needed
+        String msg = "<ns1:XMLFault xmlns:ns1=\"http://cxf.apache.org/bindings/xformat\"><ns1:faultstring"
+            + " xmlns:ns1=\"http://cxf.apache.org/bindings/xformat\">.No operation matching request path "
+            + "/bookstore/booknames/123/ is found, ContentType : */*, Accept : foo/bar.</ns1:faultstring>"
+            + "</ns1:XMLFault>";
         
-        connect = url.openConnection();
-        connect.addRequestProperty("Accept", "application/xml,application/json");
-        in = connect.getInputStream();
-        assertNotNull(in);           
+        getAndCompare("http://localhost:9080/bookstore/booknames/123",
+                      msg,
+                      "foo/bar", 500);
+    }
+    
+    @Test
+    public void testNoMessageWriterFound() throws Exception {
+        // TODO : more specific message is needed
+        String msg = ".No message body writer found for response class : GregorianCalendar.";
+        
+        getAndCompare("http://localhost:9080/bookstore/timetable",
+                      msg,
+                      "*/*", 406);
+    }
+    
+    @SuppressWarnings("deprecation")
+    @Test
+    public void testNoMessageReaderFound() throws Exception {
+//      TODO : more specific message is needed
+        String msg = "<ns1:XMLFault xmlns:ns1=\"http://cxf.apache.org/bindings/xformat\"><ns1:faultstring"
+            + " xmlns:ns1=\"http://cxf.apache.org/bindings/xformat\">"
+            + "java.lang.RuntimeException: No message body reader found for target class long[], "
+            + "content type : application/octet-stream"
+            + "</ns1:faultstring>"
+            + "</ns1:XMLFault>";
+        
+        String endpointAddress =
+            "http://localhost:9080/bookstore/binarybooks";
 
-        expected = getClass()
-            .getResourceAsStream("resources/expected_get_book123json.txt");
+        PostMethod post = new PostMethod(endpointAddress);
+        post.setRequestHeader("Content-Type", "application/octet-stream");
+        post.setRequestHeader("Accept", "text/xml");
+        post.setRequestBody("Bar");
+        HttpClient httpclient = new HttpClient();
+        
+        try {
+            int result = httpclient.executeMethod(post);
+            assertEquals(500, result);
+            assertEquals(msg, post.getResponseBodyAsString());
+        } finally {
+            // Release current connection to the connection pool once you are done
+            post.releaseConnection();
+        }
+    }
+    
+    @Test
+    public void testConsumeTypeMismatch() throws Exception {
+        // TODO : more specific message is needed
+        String msg = "<ns1:XMLFault xmlns:ns1=\"http://cxf.apache.org/bindings/xformat\"><ns1:faultstring"
+            + " xmlns:ns1=\"http://cxf.apache.org/bindings/xformat\">.No operation matching request path "
+            + "/bookstore/books/ is found, ContentType : application/bar, Accept : text/xml."
+            + "</ns1:faultstring></ns1:XMLFault>";
+        
+        String endpointAddress =
+            "http://localhost:9080/bookstore/books";
 
-        assertEquals(getStringFromInputStream(expected), getStringFromInputStream(in));
+        PostMethod post = new PostMethod(endpointAddress);
+        post.setRequestHeader("Content-Type", "application/bar");
+        post.setRequestHeader("Accept", "text/xml");
+        HttpClient httpclient = new HttpClient();
+        
+        try {
+            int result = httpclient.executeMethod(post);
+            assertEquals(500, result);
+            assertEquals(msg, post.getResponseBodyAsString());
+        } finally {
+            // Release current connection to the connection pool once you are done
+            post.releaseConnection();
+        }
+    }
+    
+    @Test
+    public void testGetBook123() throws Exception {
+        getAndCompareAsStrings("http://localhost:9080/bookstore/books/123",
+                               "resources/expected_get_book123.txt",
+                               "application/xml", 200);
+        
+        getAndCompareAsStrings("http://localhost:9080/bookstore/books/123",
+                               "resources/expected_get_book123json.txt",
+                               "application/xml,application/json", 200);
     }
     
     @Test
     public void testGetChapter() throws Exception {
-        String endpointAddress =
-            "http://localhost:9080/bookstore/booksubresource/123/chapters/1"; 
-        URL url = new URL(endpointAddress);
-        URLConnection connect = url.openConnection();
-        connect.addRequestProperty("Accept", "application/xml");
-        InputStream in = connect.getInputStream();
-        assertNotNull(in);           
-
-        InputStream expected = getClass()
-            .getResourceAsStream("resources/expected_get_chapter1.txt");
-
-        assertEquals(getStringFromInputStream(expected), getStringFromInputStream(in)); 
+        
+        getAndCompareAsStrings("http://localhost:9080/bookstore/booksubresource/123/chapters/1",
+                               "resources/expected_get_chapter1.txt",
+                               "application/xml", 200);
+    }
+    
+    @Test
+    public void testGetChapterChapter() throws Exception {
+        
+        getAndCompareAsStrings("http://localhost:9080/bookstore/booksubresource/123/chapters/sub/1/recurse",
+                               "resources/expected_get_chapter1.txt",
+                               "application/xml", 200);
     }
     
     @Test
     public void testGetBook123ReturnString() throws Exception {
-        String endpointAddress =
-            "http://localhost:9080/bookstore/booknames/123"; 
-        URL url = new URL(endpointAddress);
-        InputStream in = url.openStream();
-        assertNotNull(in);           
-
-        InputStream expected = getClass()
-            .getResourceAsStream("resources/expected_get_book123_returnstring.txt");
-
-        assertEquals(getStringFromInputStream(expected), getStringFromInputStream(in)); 
+        getAndCompareAsStrings("http://localhost:9080/bookstore/booknames/123",
+                               "resources/expected_get_book123_returnstring.txt",
+                               "text/plain", 200);
     }
     
     @Test
     public void testGetBookNotFound() throws Exception {
-        String endpointAddress =
-            "http://localhost:9080/bookstore/books/126"; 
-
-        GetMethod get = new GetMethod(endpointAddress);
-        HttpClient httpclient = new HttpClient();
         
-        try {
-            int result = httpclient.executeMethod(get);
-            assertEquals(500, result);
-            
-            InputStream expected = getClass().getResourceAsStream("resources/expected_get_book_notfound.txt");
-            
-            assertEquals(getStringFromInputStream(expected), get.getResponseBodyAsString());
-        } finally {
-            // Release current connection to the connection pool once you are done
-            get.releaseConnection();
-        }  
+        getAndCompareAsStrings("http://localhost:9080/bookstore/books/126",
+                               "resources/expected_get_book_notfound.txt",
+                               "application/xml", 500);
     }
     
     @Test
@@ -128,6 +179,7 @@ public class JAXRSClientServerBookTest extends AbstractBusClientServerTestBase {
         String inputFile = getClass().getResource("resources/add_book.txt").getFile();         
         File input =  new File(inputFile);
         PostMethod post = new PostMethod(endpointAddress);
+        post.setRequestHeader("Content-Type", "application/xml");
         RequestEntity entity = new FileRequestEntity(input, "text/xml; charset=ISO-8859-1");
         post.setRequestEntity(entity);
         HttpClient httpclient = new HttpClient();
@@ -429,6 +481,37 @@ public class JAXRSClientServerBookTest extends AbstractBusClientServerTestBase {
             get.releaseConnection();
         }  
     }
+    
+    private void getAndCompareAsStrings(String address, 
+                                        String resourcePath,
+                                        String acceptType,
+                                        int status) throws Exception {
+        String expected = getStringFromInputStream(
+                              getClass().getResourceAsStream(resourcePath));
+        getAndCompare(address,
+                      expected,
+                      acceptType,
+                      status);
+    }
+    
+    private void getAndCompare(String address, 
+                               String expectedValue,
+                               String acceptType,
+                               int expectedStatus) throws Exception {
+        GetMethod get = new GetMethod(address);
+        get.setRequestHeader("Accept", acceptType);
+        HttpClient httpClient = new HttpClient();
+        try {
+            int result = httpClient.executeMethod(get);
+            assertEquals(expectedStatus, result);
+            String jsonContent = getStringFromInputStream(get.getResponseBodyAsStream());
+            assertEquals("Expected value is wrong", 
+                         expectedValue, jsonContent);
+        } finally {
+            get.releaseConnection();
+        }
+    }
+    
     
     private String getStringFromInputStream(InputStream in) throws Exception {        
         CachedOutputStream bos = new CachedOutputStream();

@@ -30,9 +30,12 @@ import javax.ws.rs.Path;
 import javax.ws.rs.core.MultivaluedMap;
 
 public final class URITemplate {
+    
+    public static final String TEMPLATE_PARAMETERS = "jaxrs.template.parameters";
+    
     public static final String LIMITED_REGEX_SUFFIX = "(/.*)?";
     public static final String UNLIMITED_REGEX_SUFFIX = "(/)?";
-    public static final String RIGHT_HAND_VALUE = "RIGHT_HAND_VALUE";
+    public static final String FINAL_MATCH_GROUP = "FINAL_MATCH_GROUP";
     
     /**
      * The regular expression for matching URI templates and names.
@@ -125,17 +128,13 @@ public final class URITemplate {
         int i = 1;
         for (String name : templateVariables) {
             String value = m.group(i++);
-            if (templateVariableToValue.getFirst(name) != null) {
-                continue;
-            }
-
-            templateVariableToValue.putSingle(name, value);
+            templateVariableToValue.add(name, value);
         }
 
         // The right hand side value, might be used to further resolve sub-resources.
         if (regexSuffix != null) {
             String finalGroup = m.group(i);
-            templateVariableToValue.putSingle(RIGHT_HAND_VALUE, finalGroup == null ? "/" : finalGroup);
+            templateVariableToValue.putSingle(FINAL_MATCH_GROUP, finalGroup == null ? "/" : finalGroup);
         }
 
         return true;

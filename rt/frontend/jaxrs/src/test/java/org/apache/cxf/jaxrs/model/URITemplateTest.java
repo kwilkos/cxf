@@ -81,7 +81,7 @@ public class URITemplateTest extends Assert {
         
         boolean match = uriTemplate.match("/customers/123", values);
         assertTrue(match);
-        String subResourcePath = values.getFirst(URITemplate.RIGHT_HAND_VALUE);
+        String subResourcePath = values.getFirst(URITemplate.FINAL_MATCH_GROUP);
         assertEquals("/123", subResourcePath);
     }
         
@@ -93,7 +93,7 @@ public class URITemplateTest extends Assert {
         
         boolean match = uriTemplate.match("/customers/name/john/dep/CS", values);
         assertTrue(match);
-        String subResourcePath = values.getFirst(URITemplate.RIGHT_HAND_VALUE);
+        String subResourcePath = values.getFirst(URITemplate.FINAL_MATCH_GROUP);
         assertEquals("/name/john/dep/CS", subResourcePath);
     }
         
@@ -108,7 +108,7 @@ public class URITemplateTest extends Assert {
         
         boolean match = uriTemplate.match("/books/123/chapter/1", values);
         assertTrue(match);
-        String subResourcePath = values.getFirst(URITemplate.RIGHT_HAND_VALUE);
+        String subResourcePath = values.getFirst(URITemplate.FINAL_MATCH_GROUP);
         assertEquals("/chapter/1", subResourcePath);
     }
 }

@@ -25,6 +25,7 @@ import java.util.Map;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
+import org.apache.cxf.jaxrs.model.ClassResourceInfo;
 import org.apache.cxf.message.Message;
 
 public class AcceptTypeQueryHandler implements SystemQueryHandler {
@@ -39,7 +40,9 @@ public class AcceptTypeQueryHandler implements SystemQueryHandler {
         // more to come
     }
     
-    public Response handleSystemQuery(Message m, MultivaluedMap<String, String> queries) {
+    public Response handleQuery(Message m,
+                                ClassResourceInfo rootResource,
+                                MultivaluedMap<String, String> queries) {
         
         String type = queries.getFirst(CONTENT_QUERY);
         if (type != null) {
