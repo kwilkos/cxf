@@ -29,7 +29,8 @@ public class BookServer extends AbstractBusTestServerBase {
         JAXRSServerFactoryBean sf = new JAXRSServerFactoryBean();
         sf.setResourceClasses(BookStore.class);
         //default lifecycle is per-request, change it to singleton
-        sf.setResourceProvider(BookStore.class, new SingletonResourceProvider());
+        sf.setResourceProvider(BookStore.class,
+                               new SingletonResourceProvider(new BookStore()));
         sf.setAddress("http://localhost:9080/");
 
         sf.create();        

@@ -20,28 +20,14 @@
 package org.apache.cxf.jaxrs.lifecycle;
 
 public class SingletonResourceProvider implements ResourceProvider {
-    private Class<?> resourceClass;
     private Object resourceInstance;
     
-    public SingletonResourceProvider() {
+    public SingletonResourceProvider(Object o) { 
+        resourceInstance = o;
     }
     
-    public void setResourceClass(Class<?> clazz) {
-        this.resourceClass = clazz;        
-    }
 
     public Object getInstance() {
-        if (resourceInstance != null) {
-            return resourceInstance;
-        }
-        
-        try {
-            resourceInstance = resourceClass.newInstance();
-        } catch (InstantiationException ex) {
-            //TODO
-        } catch (IllegalAccessException ex) {
-            //TODO
-        }        
         return resourceInstance;
     }
 }

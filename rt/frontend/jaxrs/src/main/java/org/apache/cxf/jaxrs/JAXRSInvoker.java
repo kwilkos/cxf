@@ -48,13 +48,15 @@ public class JAXRSInvoker extends AbstractInvoker {
     public JAXRSInvoker(List<Object> resourceObjects) {
         this.resourceObjects = resourceObjects;
     }
-    
     public Object invoke(Exchange exchange, Object request) {
+        return invoke(exchange, request, resourceObjects);
+    }    
+    public Object invoke(Exchange exchange, Object request, List<Object> resources) {
         OperationResourceInfo ori = exchange.get(OperationResourceInfo.class);
 
         ClassResourceInfo cri = ori.getClassResourceInfo();
         Method m = cri.getMethodDispatcher().getMethod(ori);
-        Object resourceObject = getServiceObject(exchange);
+        Object resourceObject = getServiceObject(exchange, resources);
         
         if (cri.isRoot()) {
             JAXRSUtils.injectHttpContextValues(resourceObject, 
@@ -96,8 +98,8 @@ public class JAXRSInvoker extends AbstractInvoker {
                     result = ((Object[])result)[0];
                 } 
             }
-            resourceObjects = new ArrayList<Object>();
-            resourceObjects.add(result);
+            List<Object> newResourceObjects = new ArrayList<Object>();
+            newResourceObjects.add(result);
         
             Message msg = exchange.getInMessage();
             MultivaluedMap<String, String> values = new MetadataMap<String, String>();                 
@@ -128,21 +130,24 @@ public class JAXRSInvoker extends AbstractInvoker {
             List<Object> newParams = JAXRSUtils.processParameters(subOri, values, msg);
             msg.setContent(List.class, newParams);
             
-            return this.invoke(exchange, newParams);
+            return this.invoke(exchange, newParams, newResourceObjects);
         }
         
         return result;
     }    
     
     public Object getServiceObject(Exchange exchange) {
+        return getServiceObject(exchange, resourceObjects);
+    }
+    public Object getServiceObject(Exchange exchange, List<Object> resources) {
         Object serviceObject = null;
         
         OperationResourceInfo ori = exchange.get(OperationResourceInfo.class);
         ClassResourceInfo cri = ori.getClassResourceInfo();
         
-        if (resourceObjects != null) {
+        if (resources != null) {
             Class c  = cri.getResourceClass();
-            for (Object resourceObject : resourceObjects) {
+            for (Object resourceObject : resources) {
                 if (c.isInstance(resourceObject)) {
                     serviceObject = resourceObject;
                 }

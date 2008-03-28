@@ -22,12 +22,10 @@ package org.apache.cxf.jaxrs.lifecycle;
 public class PerRequestResourceProvider implements ResourceProvider {
     private Class<?> resourceClass;
    
-    public PerRequestResourceProvider() {
+    public PerRequestResourceProvider(Class<?> clazz) {
+        resourceClass = clazz;
     }
     
-    public void setResourceClass(Class<?> clazz) {
-        this.resourceClass = clazz;        
-    }
 
     public Object getInstance() {  
         Object resourceInstance = null;

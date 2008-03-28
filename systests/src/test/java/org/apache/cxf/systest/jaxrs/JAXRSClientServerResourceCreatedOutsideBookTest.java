@@ -37,7 +37,7 @@ public class JAXRSClientServerResourceCreatedOutsideBookTest extends AbstractBus
     @BeforeClass
     public static void startServers() throws Exception {
         assertTrue("server did not launch correctly", 
-                   launchServer(BookServerResourceCreatedOutside.class, true));
+                   launchServer(BookServerResourceCreatedOutside.class));
     }
     
     @Test

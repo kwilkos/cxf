@@ -22,5 +22,5 @@ package org.apache.cxf.jaxrs.lifecycle;
 public interface ResourceProvider {
 
     Object getInstance();
-    void setResourceClass(Class<?> clazz);
+    //void setResourceClass(Class<?> clazz);
 }

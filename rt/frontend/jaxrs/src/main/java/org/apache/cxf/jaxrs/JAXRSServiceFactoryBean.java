@@ -137,12 +137,10 @@ public class JAXRSServiceFactoryBean extends AbstractServiceFactoryBean {
         //TODO: Using information from annotation to determine which lifecycle provider to use
         ResourceProvider rp = resourceProviders.get(c);
         if (rp != null) {
-            rp.setResourceClass(c);
             classResourceInfo.setResourceProvider(rp);
         } else {
             //default lifecycle is per-request
-            rp = new PerRequestResourceProvider();
-            rp.setResourceClass(c);
+            rp = new PerRequestResourceProvider(c);
             classResourceInfo.setResourceProvider(rp);  
         }
         

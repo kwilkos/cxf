@@ -29,7 +29,8 @@ public class AtomBookServer extends AbstractBusTestServerBase {
         JAXRSServerFactoryBean sf = new JAXRSServerFactoryBean();
         sf.setResourceClasses(AtomBookStore.class);
         //default lifecycle is per-request, change it to singleton
-        sf.setResourceProvider(AtomBookStore.class, new SingletonResourceProvider());
+        sf.setResourceProvider(AtomBookStore.class, 
+                               new SingletonResourceProvider(new AtomBookStore()));
         sf.setAddress("http://localhost:9080/");
 
         sf.create();        
