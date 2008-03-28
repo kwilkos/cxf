@@ -35,7 +35,7 @@
  
    <http:conduit name="{http://apache.org/hello_world}Bethal.http-conduit">
 
-	   <http:tlsClientParameters>
+	   <http:tlsClientParameters disableCNCheck="true">
 	      <sec:keyManagers keyPassword="password">
 	           <sec:keyStore type="JKS" password="password" 
 	                file="src/test/java/org/apache/cxf/systest/http/resources/Morpit.jks"/>
