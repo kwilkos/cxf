@@ -76,7 +76,7 @@ public class ReadHeadersInterceptor extends AbstractSoapInterceptor {
         if (xmlReader == null) {
             InputStream in = (InputStream)message.getContent(InputStream.class);
             if (in == null) {
-                throw new RuntimeException("Can't found input stream in message");
+                throw new RuntimeException("Can't find input stream in message");
             }
             xmlReader = StaxUtils.createXMLStreamReader(in);
         }

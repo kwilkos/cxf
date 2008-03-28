@@ -60,7 +60,7 @@ public final class HttpsURLConnectionFactory
     private static final Logger LOG =
         LogUtils.getL7dLogger(HttpsURLConnectionFactory.class);
     
-    private static final HostnameVerifier VERIFIER = new AlwaysTrueHostnameVerifier();
+    private static final HostnameVerifier DISABLE_HOSTNAME_VERIFIER = new AlwaysTrueHostnameVerifier();
     
     /*
      *  For development and testing only
@@ -105,7 +105,7 @@ public final class HttpsURLConnectionFactory
     }
     
     /**
-     * Create a HttpURLConnection, proxified if neccessary.
+     * Create a HttpURLConnection, proxified if necessary.
      * 
      * 
      * @param proxy This parameter is non-null if connection should be proxied.
@@ -153,17 +153,12 @@ public final class HttpsURLConnectionFactory
     }
 
     /**
-     * This class is the default hostname verifier that the
-     * HttpsURLConnection implementation uses to verify that
-     * a hostname belongs to a particular verified key/certificate
-     * pair. 
-     * <p>
-     * The default is to make sure that "CN=<hostname>", which
-     * isn't always desired. The MessageTrustDecider is
-     * the point at which an application can place trust in the
-     * certificate and target URL. We use this default of always
-     * returning true, delegating the trust decision to the 
-     * MessageTrustDecider.
+     * This "accept all" hostname verifier is activated when the 
+     * disableCNCheck TLS client configuration parameter is set to 
+     * true (not recommended for production use).  The default of
+     * false makes sure the Common Name (CN) on the server 
+     * certificate equals that of the https:// URL provided by
+     * the SOAP client.
      */
     private static class AlwaysTrueHostnameVerifier implements HostnameVerifier {
 
@@ -212,7 +207,9 @@ public final class HttpsURLConnectionFactory
             socketFactory = new SSLSocketFactoryWrapper(ctx.getSocketFactory(),
                                                         cipherSuites);
         }
-        connection.setHostnameVerifier(VERIFIER);        
+        if (tlsClientParameters.isDisableCNCheck()) {
+            connection.setHostnameVerifier(DISABLE_HOSTNAME_VERIFIER);
+        }
         connection.setSSLSocketFactory(socketFactory);
     }
 

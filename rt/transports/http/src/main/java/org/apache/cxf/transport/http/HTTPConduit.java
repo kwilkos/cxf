@@ -402,7 +402,8 @@ public class HTTPConduit
                     + "' has been configured for TLS "
                     + "keyManagers " + tlsClientParameters.getKeyManagers()
                     + "trustManagers " + tlsClientParameters.getTrustManagers()
-                    + "secureRandom " + tlsClientParameters.getSecureRandom());
+                    + "secureRandom " + tlsClientParameters.getSecureRandom()
+                    + "Disable Common Name (CN) Check: " + tlsClientParameters.isDisableCNCheck());
             }
         } else {
             if (LOG.isLoggable(Level.FINE)) {
@@ -1752,7 +1753,18 @@ public class HTTPConduit
          */
         @Override
         protected void onFirstWrite() throws IOException {
-            handleHeadersTrustCaching();
+            try {
+                handleHeadersTrustCaching();
+            } catch (IOException e) {
+                if (e.getMessage() != null && e.getMessage().contains("HTTPS hostname wrong:")) {
+                    throw new IOException("The https URL hostname does not match the " 
+                        + "Common Name (CN) on the server certificate.  To disable this check " 
+                        + "(NOT recommended for production) set the CXF client TLS configuration " 
+                        + "property \"disableCNCheck\" to true.");
+                } else {
+                    throw e;
+                }
+            }
         }
         
         protected void handleHeadersTrustCaching() throws IOException {
