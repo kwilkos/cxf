@@ -66,12 +66,13 @@ public class BookServerResourceCreatedSpringProviders extends AbstractBusTestSer
         }     
     }
 
-    public boolean stopInProcess() throws Exception {
-        boolean ret = super.stopInProcess();
+    public void tearDown() throws Exception {
+        super.tearDown();
         if (server != null) {
             server.stop();
+            server.destroy();
+            server = null;
         }
-        return ret;
     }    
     
     public static void main(String args[]) {
