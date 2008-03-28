@@ -117,6 +117,7 @@ public class HTTPConduitTest extends AbstractBusClientServerTestBase {
         addrMap.put("Abost",    "http://localhost:9007/");
         addrMap.put("Hurlon",   "http://localhost:9006/");
         addrMap.put("Morpit",   "https://localhost:9008/");
+        tlsClientParameters.setDisableCNCheck(true);
     }
     
     static {
@@ -440,8 +441,8 @@ public class HTTPConduitTest extends AbstractBusClientServerTestBase {
         HTTPClientPolicy httpClientPolicy = http.getClient();
         assertEquals("the httpClientPolicy's autoRedirect should be true",
                      true, httpClientPolicy.isAutoRedirect());
-        TLSClientParameters tlsParaments = http.getTlsClientParameters();
-        assertNotNull("the http conduite's tlsParaments should not be null", tlsParaments);
+        TLSClientParameters tlsParameters = http.getTlsClientParameters();
+        assertNotNull("the http conduit's tlsParameters should not be null", tlsParameters);
         
         
         // If we set any name, but Edward, Mary, or George,
