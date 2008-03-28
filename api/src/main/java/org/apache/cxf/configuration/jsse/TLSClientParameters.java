@@ -24,5 +24,24 @@ package org.apache.cxf.configuration.jsse;
  * 
  */
 public class TLSClientParameters extends TLSParameterBase {
-    
+    private boolean disableCNCheck;
+
+    /**
+     * Set whether or not JSEE should omit checking if the host name
+     * specified in the URL matches that of the Common Name
+     * (CN) on the server's certificate. Default is false;  
+     * this attribute should not be set to true during production use.
+     */
+    public void setDisableCNCheck(boolean disableCNCheck) {
+        this.disableCNCheck = disableCNCheck;
+    }
+
+    /**
+     * Returns whether or not JSSE omits checking if the
+     * host name specified in the URL matches that of the Common Name
+     * (CN) on the server's certificate.
+     */
+    public boolean isDisableCNCheck() {
+        return disableCNCheck;
+    }
 }

@@ -38,6 +38,9 @@ public class TLSClientParametersConfig
         throws GeneralSecurityException,
                IOException {
 
+        if (params.isDisableCNCheck()) {
+            this.setDisableCNCheck(true);
+        }
         if (params.isSetCipherSuitesFilter()) {
             this.setCipherSuitesFilter(params.getCipherSuitesFilter());
         }
