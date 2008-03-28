@@ -380,6 +380,16 @@
               </xs:annotation>
            </xs:element>
         </xs:all>
+           <xs:attribute name="disableCNCheck" type="xs:boolean" default="false">
+             <xs:annotation>
+                <xs:documentation>
+                This attribute specifies if JSSE should omit checking if the
+                host name specified in the URL matches that of the Common Name
+                (CN) on the server's certificate.  Default is false; this attribute 
+                should not be set to true during production use.
+                </xs:documentation>
+             </xs:annotation>
+           </xs:attribute>
            <xs:attribute name="jsseProvider"          type="xs:string">
               <xs:annotation>
                 <xs:documentation>
