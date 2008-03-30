@@ -181,5 +181,18 @@
       <classpath refid="run-classpath"/>
     </java>
   </target>
+  <target name="run-server-endpoint" depends="compile,setNativeLibDir" description="Run the offline profiling sample">
+
+    <java classname="org.apache.cxf.profile.EndpointCreationLoop3" fork="true">
+      <arg value="10"/>
+      <arg value="ecl3.jps"/>
+      <jvmarg value="-Dcxf.config.file=bloop.xml"/>
+      <jvmarg value="-agentlib:jprofilerti=offline,id=146,config=jprofileConfig.xml"></jvmarg>
+      <jvmarg value="-Xbootclasspath/a:${jprofile.home}/bin/agent.jar"></jvmarg>
+      <env key="LD_LIBRARY_PATH" path="${nativelib.dir}:${nativelib.envvarValue}"/>
+
+      <classpath refid="run-classpath"/>
+    </java>
+  </target>
 
 </project>

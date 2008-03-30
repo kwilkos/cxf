@@ -19,6 +19,9 @@
 
 package org.apache.cxf.profile;
 
+import java.io.File;
+
+import com.jprofiler.api.agent.Controller;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
 
@@ -45,10 +48,22 @@ public final class EndpointCreationLoop3 {
      * @param args
      */
     public static void main(String[] args) {
+        Controller.stopAllocRecording();
+        Controller.stopCPURecording();
         EndpointCreationLoop3 ecl = new EndpointCreationLoop3();
         int count = Integer.parseInt(args[0]);
+        ecl.iteration();
+        
+        Controller.startCPURecording(true);
+        Controller.startAllocRecording(true);
         for (int x = 0; x < count; x++) {
             ecl.iteration();
         }
+        Controller.stopAllocRecording();
+        Controller.stopCPURecording();
+        if (args.length > 1) {
+            Controller.saveSnapshot(new File(args[1]));
+        }
+        System.exit(0);
     }
 }
