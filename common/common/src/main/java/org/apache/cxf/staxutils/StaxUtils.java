@@ -30,6 +30,7 @@ import java.util.logging.Logger;
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.StreamFilter;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLOutputFactory;
@@ -255,6 +256,16 @@ public final class StaxUtils {
         return false;
     }
 
+    public static Document copy(Document doc) 
+        throws XMLStreamException, ParserConfigurationException {
+        
+        XMLStreamReader reader = createXMLStreamReader(doc);
+        W3CDOMStreamWriter writer = new W3CDOMStreamWriter();
+        copy(reader, writer);
+        Document d = writer.getDocument();
+        d.setDocumentURI(doc.getDocumentURI());
+        return d;
+    }
     public static void copy(Document doc, XMLStreamWriter writer) throws XMLStreamException {
         XMLStreamReader reader = createXMLStreamReader(doc);
         copy(reader, writer);

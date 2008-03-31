@@ -75,11 +75,10 @@ import org.apache.cxf.ws.addressing.ObjectFactory;
 
 public final class JAXBDataBinding extends AbstractDataBinding implements DataBinding {
     public static final String SCHEMA_RESOURCE = "SCHEMRESOURCE";
-    
+
     public static final String UNWRAP_JAXB_ELEMENT = "unwrap.jaxb.element";
 
     private static final Logger LOG = LogUtils.getLogger(JAXBDataBinding.class);
-
 
     private static final Class<?> SUPPORTED_READER_FORMATS[] = new Class<?>[] {Node.class,
                                                                                XMLEventReader.class,
@@ -89,11 +88,33 @@ public final class JAXBDataBinding extends AbstractDataBinding implements DataBi
                                                                                XMLEventWriter.class,
                                                                                XMLStreamWriter.class};
 
-    private static final Map<Set<Class<?>>, JAXBContext> JAXBCONTEXT_CACHE = 
-        new CacheMap<Set<Class<?>>, JAXBContext>();
+    private static final class CachedContextAndSchemas {
+        private JAXBContext context;
+        private Collection<DOMSource> schemas;
+
+        CachedContextAndSchemas(JAXBContext context) {
+            this.context = context;
+        }
+
+        public JAXBContext getContext() {
+            return context;
+        }
+
+        public Collection<DOMSource> getSchemas() {
+            return schemas;
+        }
+
+        public void setSchemas(Collection<DOMSource> schemas) {
+            this.schemas = schemas;
+        }
+
+    }
+
+    private static final Map<Set<Class<?>>, CachedContextAndSchemas> JAXBCONTEXT_CACHE 
+        = new CacheMap<Set<Class<?>>, CachedContextAndSchemas>();
 
     Class[] extraClass;
-    
+
     JAXBContext context;
     Set<Class<?>> contextClasses;
 
@@ -104,15 +125,15 @@ public final class JAXBDataBinding extends AbstractDataBinding implements DataBi
 
     private boolean qualifiedSchemas;
 
-    
+
     public JAXBDataBinding() {
     }
 
     public JAXBDataBinding(boolean q) {
         this.qualifiedSchemas = q;
     }
-    
-    public JAXBDataBinding(Class<?>...classes) throws JAXBException {
+
+    public JAXBDataBinding(Class<?>... classes) throws JAXBException {
         contextClasses = new HashSet<Class<?>>();
         contextClasses.addAll(Arrays.asList(classes));
         setContext(createJAXBContext(contextClasses));
@@ -129,16 +150,16 @@ public final class JAXBDataBinding extends AbstractDataBinding implements DataBi
 
     public void setContext(JAXBContext ctx) {
         context = ctx;
-    }    
-    
+    }
+
     private NamespacePrefixMapper getNamespacePrefixMapper() {
         Map<String, String> mappings = getDeclaredNamespaceMappings();
         if (mappings == null) {
             mappings = Collections.emptyMap();
         }
-        
+
         final Map<String, String> closedMappings = mappings;
-        
+
         NamespacePrefixMapper mapper = new NamespacePrefixMapper() {
             @Override
             public String getPreferredPrefix(String namespaceUri, String suggestion, boolean requirePrefix) {
@@ -147,11 +168,10 @@ public final class JAXBDataBinding extends AbstractDataBinding implements DataBi
                     return prefix;
                 }
                 return suggestion;
-            } 
+            }
         };
         return mapper;
     }
-
 
     @SuppressWarnings("unchecked")
     public <T> DataWriter<T> createWriter(Class<T> c) {
@@ -190,61 +210,64 @@ public final class JAXBDataBinding extends AbstractDataBinding implements DataBi
         } else if (c == Node.class) {
             dr = (DataReader<T>)new DataReaderImpl<Node>(context);
         }
-        
+
         return dr;
     }
 
     public Class<?>[] getSupportedReaderFormats() {
         return SUPPORTED_READER_FORMATS;
     }
-    
+
     public void initialize(Service service) {
-        //context is already set, don't redo it
+        // context is already set, don't redo it
         if (context != null) {
             return;
         }
-        
+
+        CachedContextAndSchemas cachedContextAndSchemas = null;
+
         contextClasses = new HashSet<Class<?>>();
         for (ServiceInfo serviceInfo : service.getServiceInfos()) {
-            JAXBContextInitializer initializer = 
-                new JAXBContextInitializer(serviceInfo, contextClasses);
+            JAXBContextInitializer initializer = new JAXBContextInitializer(serviceInfo, contextClasses);
             initializer.walk();
-    
+
         }
-                
-        String tns = service.getName().getNamespaceURI(); 
+
+        String tns = service.getName().getNamespaceURI();
         JAXBContext ctx = null;
-        try {           
+        try {
             if (service.getServiceInfos().size() > 0) {
                 tns = service.getServiceInfos().get(0).getInterface().getName().getNamespaceURI();
             }
             ctx = createJAXBContext(contextClasses, tns);
+            cachedContextAndSchemas = JAXBCONTEXT_CACHE.get(contextClasses);
         } catch (JAXBException e1) {
-            //load jaxb needed class and try to create jaxb context for more times 
-            boolean added = addJaxbObjectFactory(e1);           
+            // load jaxb needed class and try to create jaxb context for more
+            // times
+            boolean added = addJaxbObjectFactory(e1);
             while (ctx == null && added) {
                 try {
-                      synchronized (JAXBCONTEXT_CACHE) {
-                        ctx = JAXBContext.newInstance(contextClasses.toArray(new Class[contextClasses.size()])
-                                                      , null);
-                        JAXBCONTEXT_CACHE.put(contextClasses, ctx);
-                    }               
+                    synchronized (JAXBCONTEXT_CACHE) {
+                        ctx = JAXBContext.newInstance(contextClasses
+                            .toArray(new Class[contextClasses.size()]), null);
+                        cachedContextAndSchemas = new CachedContextAndSchemas(ctx);
+                        JAXBCONTEXT_CACHE.put(contextClasses, cachedContextAndSchemas);
+                    }
                 } catch (JAXBException e) {
                     e1 = e;
-                    added = addJaxbObjectFactory(e1);           
+                    added = addJaxbObjectFactory(e1);
                 }
             }
             if (ctx == null) {
                 throw new ServiceConstructionException(e1);
             }
         }
-            
+
         if (LOG.isLoggable(Level.FINE)) {
             LOG.log(Level.FINE, "CREATED_JAXB_CONTEXT", new Object[] {ctx, contextClasses});
         }
         setContext(ctx);
-        
-            
+
         for (ServiceInfo serviceInfo : service.getServiceInfos()) {
             SchemaCollection col = serviceInfo.getXmlSchemaCollection();
 
@@ -252,50 +275,55 @@ public final class JAXBDataBinding extends AbstractDataBinding implements DataBi
                 // someone has already filled in the types
                 continue;
             }
-    
-            Collection<DOMSource> schemas = getSchemas();
-            if (schemas != null) {
-                for (DOMSource r : schemas) {
-                    addSchemaDocument(serviceInfo, col, 
-                                      (Document)r.getNode(), r.getSystemId());
-                }
-            } else {
+
+            boolean schemasFromCache = false;
+            Collection<DOMSource> schemas = cachedContextAndSchemas.getSchemas();
+            if (schemas == null) {
+                schemas = getSchemas();
+            }
+            if (schemas == null) {
+                schemas = new HashSet<DOMSource>();
                 try {
                     for (DOMResult r : generateJaxbSchemas()) {
-                        addSchemaDocument(serviceInfo, col, 
-                                          (Document)r.getNode(), r.getSystemId());
+                        schemas.add(new DOMSource(r.getNode()));
                     }
                 } catch (IOException e) {
                     throw new ServiceConstructionException(new Message("SCHEMA_GEN_EXC", LOG), e);
                 }
             }
-            
+            for (DOMSource r : schemas) {
+                addSchemaDocument(serviceInfo, 
+                                  col, 
+                                 (Document)r.getNode(),
+                                  r.getSystemId());
+            }
+
             JAXBContextImpl riContext;
             if (context instanceof JAXBContextImpl) {
-                riContext = (JAXBContextImpl) context;
+                riContext = (JAXBContextImpl)context;
             } else {
                 // fall back if we're using another jaxb implementation
                 try {
-                    riContext = (JAXBContextImpl)
-                        ContextFactory.createContext(
-                            contextClasses.toArray(new Class[contextClasses.size()]), null);
+                    riContext = (JAXBContextImpl)ContextFactory.createContext(contextClasses
+                        .toArray(new Class[contextClasses.size()]), null);
                 } catch (JAXBException e) {
                     throw new ServiceConstructionException(e);
                 }
             }
-            
-            JAXBSchemaInitializer schemaInit = new JAXBSchemaInitializer(serviceInfo, 
-                                                                         col, 
-                                                                         riContext, 
+
+            JAXBSchemaInitializer schemaInit = new JAXBSchemaInitializer(serviceInfo, col, riContext,
                                                                          this.qualifiedSchemas);
             schemaInit.walk();
+            if (cachedContextAndSchemas != null && !schemasFromCache) {
+                cachedContextAndSchemas.setSchemas(schemas);
+            }
         }
     }
-
+    
     public void setExtraClass(Class[] userExtraClass) {
         extraClass = userExtraClass;
     }
-    
+
     public Class[] getExtraClass() {
         return extraClass;
     }
@@ -308,18 +336,15 @@ public final class JAXBDataBinding extends AbstractDataBinding implements DataBi
             {
                 builtIns.put("http://www.w3.org/2005/02/addressing/wsdl",
                              "classpath:/schemas/wsdl/ws-addr-wsdl.xsd");
-                builtIns.put("http://www.w3.org/2005/08/addressing",
-                             "classpath:/schemas/wsdl/ws-addr.xsd");
-                builtIns.put("http://schemas.xmlsoap.org/ws/2005/02/rm",
-                             "classpath:/schemas/wsdl/wsrm.xsd");
-                builtIns.put("http://www.w3.org/2005/05/xmlmime",
-                             "classpath:/schemas/wsdl/ws-addr.xsd");
+                builtIns.put("http://www.w3.org/2005/08/addressing", "classpath:/schemas/wsdl/ws-addr.xsd");
+                builtIns.put("http://schemas.xmlsoap.org/ws/2005/02/rm", "classpath:/schemas/wsdl/wsrm.xsd");
+                builtIns.put("http://www.w3.org/2005/05/xmlmime", "classpath:/schemas/wsdl/ws-addr.xsd");
             }
-            
+
             @Override
             public Result createOutput(String ns, String file) throws IOException {
                 DOMResult result = new DOMResult();
-                
+
                 if (builtIns.containsKey(ns)) {
                     result.setSystemId(builtIns.get(ns));
                     return result;
@@ -332,14 +357,12 @@ public final class JAXBDataBinding extends AbstractDataBinding implements DataBi
 
         return results;
     }
-    
 
     public JAXBContext createJAXBContext(Set<Class<?>> classes) throws JAXBException {
         return createJAXBContext(classes, null);
     }
-    
-    public JAXBContext createJAXBContext(Set<Class<?>> classes,
-                                          String defaultNs) throws JAXBException {
+
+    public JAXBContext createJAXBContext(Set<Class<?>> classes, String defaultNs) throws JAXBException {
         Iterator it = classes.iterator();
         String className = "";
         Object remoteExceptionObject = null;
@@ -356,24 +379,26 @@ public final class JAXBDataBinding extends AbstractDataBinding implements DataBi
                 classes.add(clz);
             }
         }
-        
-        //try and read any jaxb.index files that are with the other classes.  This should 
-        //allow loading of extra classes (such as subclasses for inheritance reasons) 
-        //that are in the same package.  Also check for ObjectFactory classes
+
+        // try and read any jaxb.index files that are with the other classes.
+        // This should
+        // allow loading of extra classes (such as subclasses for inheritance
+        // reasons)
+        // that are in the same package. Also check for ObjectFactory classes
         Map<String, InputStream> packages = new HashMap<String, InputStream>();
         Map<String, ClassLoader> packageLoaders = new HashMap<String, ClassLoader>();
         Set<Class<?>> objectFactories = new HashSet<Class<?>>();
         for (Class<?> jcls : classes) {
-            String pkgName = PackageUtils.getPackageName(jcls); 
+            String pkgName = PackageUtils.getPackageName(jcls);
             if (!packages.containsKey(pkgName)) {
                 packages.put(pkgName, jcls.getResourceAsStream("jaxb.index"));
                 packageLoaders.put(pkgName, jcls.getClassLoader());
                 try {
-                    Class<?> ofactory = Class.forName(pkgName + "." + "ObjectFactory",
-                                                 false, jcls.getClassLoader());
+                    Class<?> ofactory = Class.forName(pkgName + "." + "ObjectFactory", false, jcls
+                        .getClassLoader());
                     objectFactories.add(ofactory);
                 } catch (ClassNotFoundException e) {
-                    //ignore
+                    // ignore
                 }
             }
         }
@@ -387,7 +412,7 @@ public final class JAXBDataBinding extends AbstractDataBinding implements DataBi
                     if (!StringUtils.isEmpty(pkg)) {
                         pkg += ".";
                     }
-                    
+
                     String line = reader.readLine();
                     while (line != null) {
                         line = line.trim();
@@ -399,18 +424,18 @@ public final class JAXBDataBinding extends AbstractDataBinding implements DataBi
                                 Class<?> ncls = Class.forName(pkg + line, false, loader);
                                 classes.add(ncls);
                             } catch (Exception e) {
-                                //ignore
+                                // ignore
                             }
                         }
                         line = reader.readLine();
                     }
                 } catch (Exception e) {
-                    //ignore
+                    // ignore
                 } finally {
                     try {
                         entry.getValue().close();
                     } catch (Exception e) {
-                        //ignore
+                        // ignore
                     }
                 }
             }
@@ -420,29 +445,33 @@ public final class JAXBDataBinding extends AbstractDataBinding implements DataBi
 
         for (Class<?> clz : classes) {
             if (clz.getName().endsWith("ObjectFactory")) {
-                //kind of a hack, but ObjectFactories may be created with empty namespaces
+                // kind of a hack, but ObjectFactories may be created with empty
+                // namespaces
                 defaultNs = null;
             }
         }
-        
+
         Map<String, Object> map = new HashMap<String, Object>();
         if (defaultNs != null) {
             map.put("com.sun.xml.bind.defaultNamespaceRemap", defaultNs);
         }
-        
+
         if (contextProperties != null) {
-            //add any specified context properties into the properties map
+            // add any specified context properties into the properties map
             map.putAll(contextProperties);
-        }        
-        
+        }
+
+        CachedContextAndSchemas cachedContextAndSchemas = null;
         synchronized (JAXBCONTEXT_CACHE) {
             if (!JAXBCONTEXT_CACHE.containsKey(classes)) {
                 JAXBContext ctx = JAXBContext.newInstance(classes.toArray(new Class[classes.size()]), map);
-                JAXBCONTEXT_CACHE.put(classes, ctx);
+                cachedContextAndSchemas = new CachedContextAndSchemas(ctx);
+                JAXBCONTEXT_CACHE.put(classes, cachedContextAndSchemas);
             }
         }
 
-        return JAXBCONTEXT_CACHE.get(classes);
+        cachedContextAndSchemas = JAXBCONTEXT_CACHE.get(classes);
+        return cachedContextAndSchemas.getContext();
     }
 
     private void addWsAddressingTypes(Set<Class<?>> classes) {
@@ -456,36 +485,36 @@ public final class JAXBDataBinding extends AbstractDataBinding implements DataBi
                 // REVISIT - ignorable if WS-ADDRESSING not available?
                 // maybe add a way to allow interceptors to add stuff to the
                 // context?
-            } 
+            }
         }
     }
-    
-    
-    //Now we can not add all the classes that Jaxb needed into JaxbContext, especially when 
-    //an ObjectFactory is pointed to by an jaxb @XmlElementDecl annotation
-    //added this workaround method to load the jaxb needed ObjectFactory class
+
+    // Now we can not add all the classes that Jaxb needed into JaxbContext,
+    // especially when
+    // an ObjectFactory is pointed to by an jaxb @XmlElementDecl annotation
+    // added this workaround method to load the jaxb needed ObjectFactory class
     public boolean addJaxbObjectFactory(JAXBException e1) {
         boolean added = false;
         java.io.ByteArrayOutputStream bout = new java.io.ByteArrayOutputStream();
         java.io.PrintStream pout = new java.io.PrintStream(bout);
         e1.printStackTrace(pout);
         String str = new String(bout.toByteArray());
-        Pattern pattern = Pattern.compile("(?<=There's\\sno\\sObjectFactory\\swith\\san\\s" 
+        Pattern pattern = Pattern.compile("(?<=There's\\sno\\sObjectFactory\\swith\\san\\s"
                                           + "@XmlElementDecl\\sfor\\sthe\\selement\\s\\{)\\S*(?=\\})");
-        java.util.regex.Matcher  matcher = pattern.matcher(str);
-        while (matcher.find()) {               
+        java.util.regex.Matcher matcher = pattern.matcher(str);
+        while (matcher.find()) {
             String pkgName = JAXBUtils.namespaceURIToPackage(matcher.group());
             try {
-                Class clz  = getClass().getClassLoader().loadClass(pkgName + "." + "ObjectFactory");
-                
+                Class clz = getClass().getClassLoader().loadClass(pkgName + "." + "ObjectFactory");
+
                 if (!contextClasses.contains(clz)) {
                     contextClasses.add(clz);
                     added = true;
                 }
             } catch (ClassNotFoundException e) {
-                //do nothing
+                // do nothing
             }
-            
+
         }
         return added;
     }
@@ -493,6 +522,7 @@ public final class JAXBDataBinding extends AbstractDataBinding implements DataBi
     /**
      * Return a map of properties. These properties are passed to
      * JAXBContext.newInstance when this object creates a context.
+     * 
      * @return the map of JAXB context properties.
      */
     public Map<String, Object> getContextProperties() {
@@ -500,20 +530,22 @@ public final class JAXBDataBinding extends AbstractDataBinding implements DataBi
     }
 
     /**
-     * Set a map of JAXB context properties. These properties are passed
-     * to JAXBContext.newInstance when this object creates a context.
-     * Note that if you create a JAXB context elsewhere, you will 
-     * not respect these properties unless you handle it manually. 
+     * Set a map of JAXB context properties. These properties are passed to
+     * JAXBContext.newInstance when this object creates a context. Note that if
+     * you create a JAXB context elsewhere, you will not respect these
+     * properties unless you handle it manually.
      * 
      * @param contextProperties map of properties.
      */
     public void setContextProperties(Map<String, Object> contextProperties) {
         this.contextProperties = contextProperties;
     }
-    
+
     /**
-     * Return a map of properties. These properties are set into the JAXB Marshaller 
-     * (via Marshaller.setProperty(...) when the marshaller is created. 
+     * Return a map of properties. These properties are set into the JAXB
+     * Marshaller (via Marshaller.setProperty(...) when the marshaller is
+     * created.
+     * 
      * @return the map of JAXB marshaller properties.
      */
     public Map<String, Object> getMarshallerProperties() {
@@ -521,8 +553,9 @@ public final class JAXBDataBinding extends AbstractDataBinding implements DataBi
     }
 
     /**
-     * Set a map of JAXB marshaller properties.  These properties are set into the JAXB Marshaller 
-     * (via Marshaller.setProperty(...) when the marshaller is created.
+     * Set a map of JAXB marshaller properties. These properties are set into
+     * the JAXB Marshaller (via Marshaller.setProperty(...) when the marshaller
+     * is created.
      * 
      * @param marshallerProperties map of properties.
      */
