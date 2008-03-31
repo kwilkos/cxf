@@ -134,8 +134,9 @@ public abstract class AbstractHTTPDestination extends AbstractMultiplexDestinati
                     String authDecoded = new String(Base64Utility.decode(authEncoded));
                     String authInfo[] = authDecoded.split(":");
                     String username = authInfo[0];
-                    String password = authInfo[1];
-                    
+                    // Below line for systems that blank out password after authentication;
+                    // see CXF-1495 for more info
+                    String password = (authInfo.length > 1) ? authInfo[1] : "";
                     AuthorizationPolicy policy = new AuthorizationPolicy();
                     policy.setUserName(username);
                     policy.setPassword(password);
