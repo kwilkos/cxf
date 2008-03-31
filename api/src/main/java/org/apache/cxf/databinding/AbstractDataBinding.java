@@ -24,6 +24,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.dom.DOMSource;
 
 import org.w3c.dom.Document;
@@ -35,6 +38,7 @@ import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.common.xmlschema.SchemaCollection;
 import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.service.model.ServiceInfo;
+import org.apache.cxf.staxutils.StaxUtils;
 import org.apache.ws.commons.schema.XmlSchema;
 
 /**
@@ -65,6 +69,9 @@ public abstract class AbstractDataBinding implements DataBinding {
                                           String systemId) {
         String ns = d.getDocumentElement().getAttribute("targetNamespace");
         if (StringUtils.isEmpty(ns)) {
+            //create a copy of the dom so we 
+            //can modify it.
+            d = copy(d);
             ns = serviceInfo.getInterface().getName().getNamespaceURI();
             d.getDocumentElement().setAttribute("targetNamespace", ns);
         }
@@ -87,7 +94,17 @@ public abstract class AbstractDataBinding implements DataBinding {
         serviceInfo.addSchema(schema);
         return xmlSchema;
     }
-    
+    private Document copy(Document doc) {
+        try {
+            return StaxUtils.copy(doc);
+        } catch (XMLStreamException e) {
+            //ignore
+        } catch (ParserConfigurationException e) {
+            //ignore
+        }
+        return doc;
+    }
+
     protected void updateSchemaLocation(Element e) {
         String ns = e.getAttribute("namespace");
         String newLoc = BUILTIN_SCHEMA_LOCS.get(ns);

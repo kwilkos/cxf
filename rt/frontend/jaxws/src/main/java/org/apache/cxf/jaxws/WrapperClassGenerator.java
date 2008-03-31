@@ -161,12 +161,12 @@ public final class WrapperClassGenerator extends ASMHelper {
         QName wrapperElement = messageInfo.getName();
 
         ClassWriter cw = createClassWriter();
-        String className = getPackageName(method) + ".jaxws." 
+        String className = getPackageName(method) + ".jaxws_asm." 
             + StringUtils.capitalize(op.getName().getLocalPart());
         if (!isRequest) {
             className = className + "Response";
         }
-        String pname = getPackageName(method) + ".jaxws.package-info";
+        String pname = getPackageName(method) + ".jaxws_asm.package-info";
         Class<?> def = findClass(pname, method.getDeclaringClass());
         if (def == null) {
             generatePackageInfo(pname, wrapperElement.getNamespaceURI(),

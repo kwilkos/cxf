@@ -177,4 +177,10 @@ public class ServiceInfo extends AbstractDescriptionElement implements NamedItem
         xmlSchemaCollection = serviceSchemaInfo.getSchemaCollection();
         schemas = serviceSchemaInfo.getSchemaInfoList();
     }
+
+    public void setSchemas(SchemaCollection cachedXmlSchemaCollection,
+                           List<SchemaInfo> cachedSchemas) {
+        xmlSchemaCollection = cachedXmlSchemaCollection;
+        schemas = cachedSchemas;
+    }
 }
