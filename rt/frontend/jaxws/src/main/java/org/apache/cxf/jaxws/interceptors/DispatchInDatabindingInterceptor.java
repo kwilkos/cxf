@@ -124,7 +124,6 @@ public class DispatchInDatabindingInterceptor extends AbstractInDatabindingInter
                 SOAPMessage soapMessage = newSOAPMessage(is, (SoapMessage)message);
                 SOAPFault soapFault = soapMessage.getSOAPBody().getFault();
                 if (soapFault != null) {
-                    Endpoint ep = message.getExchange().get(Endpoint.class);
                     message.getInterceptorChain().abort();
                     if (ep.getInFaultObserver() != null) {
                         message.setContent(SOAPMessage.class, soapMessage); 
