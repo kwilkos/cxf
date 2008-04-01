@@ -108,7 +108,7 @@ public class SOAPHandlerInterceptor extends
 
             message.getInterceptorChain().add(ending);
         } else {
-            handleMessageInternal(message);
+            boolean isFault = handleMessageInternal(message);
             SOAPMessage msg = message.getContent(SOAPMessage.class);
             if (msg != null) {
                 XMLStreamReader xmlReader = createXMLStreamReaderFromSOAPMessage(msg);
@@ -120,12 +120,24 @@ public class SOAPHandlerInterceptor extends
                     e.printStackTrace();
                 }
             }
+            if (isFault) {
+                Endpoint ep = message.getExchange().get(Endpoint.class);
+                message.getInterceptorChain().abort();
+                if (ep.getInFaultObserver() != null) {
+                    ep.getInFaultObserver().onMessage(message);
+                    
+                }
+            }
         }
     }
 
-    private void handleMessageInternal(SoapMessage message) {
+    private boolean handleMessageInternal(SoapMessage message) {
         
         MessageContext context = createProtocolMessageContext(message);
+        if (context == null) {
+            return true;
+        }
+                
         HandlerChainInvoker invoker = getInvoker(message);
         invoker.setProtocolMessageContext(context);
 
@@ -140,6 +152,7 @@ public class SOAPHandlerInterceptor extends
         } else if (isOutbound(message) && isMEPComlete(message)) {
             onCompletion(message);
         }
+        return false;
     }
 
     private void handleAbort(SoapMessage message, MessageContext context) {
@@ -208,10 +221,21 @@ public class SOAPHandlerInterceptor extends
     @Override
     protected MessageContext createProtocolMessageContext(SoapMessage message) {
         SOAPMessageContextImpl sm = new SOAPMessageContextImpl(message);
+        
         boolean requestor = isRequestor(message);
         ContextPropertiesMapping.mapCxf2Jaxws(message.getExchange(), sm, requestor);
         Exchange exch = message.getExchange();
         setupBindingOperationInfo(exch, sm);
+        try {            
+            SOAPMessage msg = sm.getMessage();
+            if (msg.getSOAPPart().getEnvelope().getBody() != null 
+                && msg.getSOAPPart().getEnvelope().getBody().hasFault()) {
+                return null;
+            }            
+        } catch (SOAPException e) {
+            throw new Fault(e);
+        }
+        
         return sm;
     }
 
