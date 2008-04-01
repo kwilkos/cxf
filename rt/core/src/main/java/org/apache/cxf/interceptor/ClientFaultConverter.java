@@ -84,6 +84,9 @@ public class ClientFaultConverter extends AbstractPhaseInterceptor<Message> {
         FaultInfo faultWanted = null;
         MessagePartInfo part = null;
         BindingOperationInfo boi = msg.getExchange().get(BindingOperationInfo.class);
+        if (boi == null) {
+            return;
+        }
         if (boi.isUnwrapped()) {
             boi = boi.getWrappedOperation();
         }

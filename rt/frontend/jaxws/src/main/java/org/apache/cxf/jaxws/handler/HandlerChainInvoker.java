@@ -371,7 +371,7 @@ public class HandlerChainInvoker {
                 }
                 continueProcessing = false;
                 setFault(e);
-                if (responseExpected) {
+                if (responseExpected || isInbound()) {
                     //brain dead spec - if it's one way, swallow it
                     if (e instanceof SOAPFaultException) {
                         throw mapSoapFault((SOAPFaultException)e);
