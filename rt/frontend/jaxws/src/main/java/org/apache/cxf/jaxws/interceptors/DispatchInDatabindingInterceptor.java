@@ -35,7 +35,6 @@ import javax.xml.soap.MimeHeader;
 import javax.xml.soap.MimeHeaders;
 import javax.xml.soap.SOAPConstants;
 import javax.xml.soap.SOAPException;
-import javax.xml.soap.SOAPFault;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.transform.Source;
@@ -94,27 +93,9 @@ public class DispatchInDatabindingInterceptor extends AbstractInDatabindingInter
 
     public void handleMessage(Message message) throws Fault {
         Exchange ex = message.getExchange();     
-        /*
-        Endpoint ep = ex.get(Endpoint.class);
-        MessageInfo info = message.get(MessageInfo.class);
-        if (ep.getEndpointInfo().getBinding().getOperations().iterator().hasNext()) {
-            BindingOperationInfo bop = ep.getEndpointInfo().getBinding().getOperations().iterator().next();
-            ex.put(BindingOperationInfo.class, bop);
-            info = getMessageInfo(message, bop);
-        } 
-        */     
         
         if (isGET(message)) {
             MessageContentsList params = new MessageContentsList();
-            /*
-            if (info != null) {
-                for (MessagePartInfo i : info.getMessageParts()) {
-                    params.put(i, null);
-                }
-            } else {
-                params.add(null);
-            }
-            */
             params.add(null);
             message.setContent(List.class, params);
             LOG.info("DispatchInInterceptor skipped in HTTP GET method");
@@ -129,22 +110,19 @@ public class DispatchInDatabindingInterceptor extends AbstractInDatabindingInter
             
             if (message instanceof SoapMessage) {
                 SOAPMessage soapMessage = newSOAPMessage(is, (SoapMessage)message);
-                SOAPFault soapFault = soapMessage.getSOAPBody().getFault();
-                if (soapFault != null) {
+                if (soapMessage.getSOAPBody().hasFault()) {
                     Endpoint ep = message.getExchange().get(Endpoint.class);
                     message.getInterceptorChain().abort();
                     if (ep.getInFaultObserver() != null) {
-                        message.setContent(SOAPMessage.class, soapMessage); 
+                        message.setContent(SOAPMessage.class, soapMessage);
+                        XMLStreamReader reader = StaxUtils
+                            .createXMLStreamReader(soapMessage.getSOAPBody().getFault());
+                        reader.nextTag();
+                        message.setContent(XMLStreamReader.class, reader);
+                        
                         ep.getInFaultObserver().onMessage(message);
                         return;
                     }
-
-                    /*
-                    Fault fault = new Fault(new org.apache.cxf.common.i18n.Message(soapFault.getFaultString(),
-                                                                                   LOG));
-                    fault.setFaultCode(soapFault.getFaultCodeAsQName());
-                    message.setContent(Exception.class, fault);
-                    */
                 }                
                 
                 PostDispatchSOAPHandlerInterceptor postSoap = new PostDispatchSOAPHandlerInterceptor();

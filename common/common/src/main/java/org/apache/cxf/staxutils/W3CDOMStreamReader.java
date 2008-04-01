@@ -51,9 +51,8 @@ public class W3CDOMStreamReader extends AbstractDOMStreamReader {
     public W3CDOMStreamReader(Element element) {
         super(new ElementFrame(element, null));
         newFrame(getCurrentFrame());
-
+                
         this.document = element.getOwnerDocument();
-        
     }
 
     /**
@@ -179,6 +178,9 @@ public class W3CDOMStreamReader extends AbstractDOMStreamReader {
                 return frame.uris.get(index);
             }
 
+            if (frame.parent == null) {
+                return ((Element)frame.getElement()).lookupNamespaceURI(prefix);
+            }
             frame = frame.parent;
         }
 
