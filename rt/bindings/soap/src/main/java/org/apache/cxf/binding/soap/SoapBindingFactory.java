@@ -38,6 +38,7 @@ import javax.xml.namespace.QName;
 
 import org.apache.cxf.binding.AbstractBindingFactory;
 import org.apache.cxf.binding.Binding;
+import org.apache.cxf.binding.soap.interceptor.CheckFaultInterceptor;
 import org.apache.cxf.binding.soap.interceptor.EndpointSelectionInterceptor;
 import org.apache.cxf.binding.soap.interceptor.MustUnderstandInterceptor;
 import org.apache.cxf.binding.soap.interceptor.RPCInInterceptor;
@@ -366,6 +367,7 @@ public class SoapBindingFactory extends AbstractBindingFactory {
             sb.getInInterceptors().add(new SoapHeaderInterceptor());
 
             sb.getInInterceptors().add(new ReadHeadersInterceptor(getBus()));
+            sb.getInInterceptors().add(new CheckFaultInterceptor());
             sb.getInInterceptors().add(new MustUnderstandInterceptor());
             sb.getOutInterceptors().add(new SoapPreProtocolOutInterceptor());
             sb.getOutInterceptors().add(new SoapOutInterceptor(getBus()));
@@ -640,6 +642,7 @@ public class SoapBindingFactory extends AbstractBindingFactory {
             // processing. But, if you've disabled message processing, you
             // probably aren't going to use this feature.
             newMO.getBindingInterceptors().add(new ReadHeadersInterceptor(getBus()));
+            newMO.getBindingInterceptors().add(new CheckFaultInterceptor());
 
             // Add in a default selection interceptor
             newMO.getRoutingInterceptors().add(new EndpointSelectionInterceptor());

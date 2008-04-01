@@ -34,6 +34,7 @@ import org.w3c.dom.Element;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.attachment.AttachmentImpl;
 import org.apache.cxf.attachment.AttachmentUtil;
+import org.apache.cxf.binding.soap.interceptor.CheckFaultInterceptor;
 import org.apache.cxf.binding.soap.interceptor.ReadHeadersInterceptor;
 import org.apache.cxf.headers.Header;
 import org.apache.cxf.interceptor.StaxInInterceptor;
@@ -52,6 +53,7 @@ public class ReadHeaderInterceptorTest extends TestBase {
 
         rhi = new ReadHeadersInterceptor(BusFactory.getDefaultBus(), "phase1");
         chain.add(rhi);
+        chain.add(new CheckFaultInterceptor("phase2"));
     }
 
     @Test

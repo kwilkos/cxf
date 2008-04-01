@@ -44,14 +44,12 @@ import org.apache.cxf.binding.soap.SoapVersionFactory;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.databinding.DataBinding;
-import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.headers.HeaderManager;
 import org.apache.cxf.headers.HeaderProcessor;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.staxutils.PartialXMLStreamReader;
 import org.apache.cxf.staxutils.StaxUtils;
 
-import static org.apache.cxf.message.Message.DECOUPLED_CHANNEL_MESSAGE;
 
 public class ReadHeadersInterceptor extends AbstractSoapInterceptor {
     private static final Logger LOG = LogUtils.getL7dLogger(ReadHeadersInterceptor.class);
@@ -172,28 +170,17 @@ public class ReadHeadersInterceptor extends AbstractSoapInterceptor {
                         }                        
                     }
                 }
-
-                // advance just past body.
-                xmlReader.nextTag();
-                if (message.getVersion().getFault().equals(xmlReader.getName())) {
-                    Endpoint ep = message.getExchange().get(Endpoint.class);
-                    if (!isDecoupled(message)) {
-                        message.getInterceptorChain().abort();
-                        if (ep.getInFaultObserver() != null) {
-                            ep.getInFaultObserver().onMessage(message);
-                        }
-                    } else {
-                        message.getExchange().put("deferred.fault.observer.notification", Boolean.TRUE);
-                    }
+                //advance to just outside the <soap:body> opening tag, but not 
+                //to the nextTag as that may skip over white space that is 
+                //important to keep for ws-security signature digests and stuff
+                int i = xmlReader.next();
+                while (i == XMLStreamReader.NAMESPACE
+                    || i == XMLStreamReader.ATTRIBUTE) {
+                    i = xmlReader.next();
                 }
             }
         } catch (XMLStreamException e) {
             throw new SoapFault(new Message("XML_STREAM_EXC", LOG), e, message.getVersion().getSender());
         }
-    }
-
-    private boolean isDecoupled(SoapMessage message) {
-        Boolean decoupled = (Boolean)message.get(DECOUPLED_CHANNEL_MESSAGE);
-        return decoupled != null && decoupled.booleanValue();
     }
 }

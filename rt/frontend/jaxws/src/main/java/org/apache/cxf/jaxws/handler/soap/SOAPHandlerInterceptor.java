@@ -247,10 +247,12 @@ public class SOAPHandlerInterceptor extends
             if (body == null) {
                 return null;
             }
-            Iterator<SOAPElement> it = CastUtils.cast(body.getChildElements());
-            if (it != null && it.hasNext()) {
-                SOAPElement el = it.next();
-                return el.getElementQName();
+            org.w3c.dom.Node nd = body.getFirstChild();
+            while (nd != null && !(nd instanceof org.w3c.dom.Element)) {
+                nd = nd.getNextSibling();
+            }
+            if (nd != null) {
+                return new QName(nd.getNamespaceURI(), nd.getLocalName());
             }
         } catch (SOAPException e) {
             //ignore, nothing we can do
