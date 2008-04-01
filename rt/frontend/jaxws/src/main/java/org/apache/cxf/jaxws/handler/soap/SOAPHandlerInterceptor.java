@@ -21,12 +21,10 @@ package org.apache.cxf.jaxws.handler.soap;
 
 import java.net.URI;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPBody;
-import javax.xml.soap.SOAPElement;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.stream.XMLStreamException;
