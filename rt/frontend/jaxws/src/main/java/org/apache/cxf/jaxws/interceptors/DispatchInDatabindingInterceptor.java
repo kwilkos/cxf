@@ -124,10 +124,20 @@ public class DispatchInDatabindingInterceptor extends AbstractInDatabindingInter
                 SOAPMessage soapMessage = newSOAPMessage(is, (SoapMessage)message);
                 SOAPFault soapFault = soapMessage.getSOAPBody().getFault();
                 if (soapFault != null) {
+                    Endpoint ep = message.getExchange().get(Endpoint.class);
+                    message.getInterceptorChain().abort();
+                    if (ep.getInFaultObserver() != null) {
+                        message.setContent(SOAPMessage.class, soapMessage); 
+                        ep.getInFaultObserver().onMessage(message);
+                        return;
+                    }
+
+                    /*
                     Fault fault = new Fault(new org.apache.cxf.common.i18n.Message(soapFault.getFaultString(),
                                                                                    LOG));
                     fault.setFaultCode(soapFault.getFaultCodeAsQName());
                     message.setContent(Exception.class, fault);
+                    */
                 }                
                 
                 PostDispatchSOAPHandlerInterceptor postSoap = new PostDispatchSOAPHandlerInterceptor();
