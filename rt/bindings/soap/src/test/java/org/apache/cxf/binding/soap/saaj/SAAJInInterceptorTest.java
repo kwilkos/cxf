@@ -34,6 +34,7 @@ import org.apache.cxf.BusFactory;
 import org.apache.cxf.binding.soap.Soap12;
 import org.apache.cxf.binding.soap.TestBase;
 import org.apache.cxf.binding.soap.TestUtil;
+import org.apache.cxf.binding.soap.interceptor.CheckFaultInterceptor;
 import org.apache.cxf.binding.soap.interceptor.ReadHeadersInterceptor;
 import org.apache.cxf.headers.Header;
 import org.apache.cxf.interceptor.StaxInInterceptor;
@@ -56,6 +57,8 @@ public class SAAJInInterceptorTest extends TestBase {
 
         saajIntc = new SAAJInInterceptor("phase2");
         chain.add(saajIntc);
+        
+        chain.add(new CheckFaultInterceptor("phase3"));
 
     }
 
