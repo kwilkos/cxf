@@ -20,8 +20,14 @@
 package org.apache.cxf.jaxrs.model;
 
 import java.lang.reflect.Field;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
+import javax.annotation.Resource;
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.UriInfo;
@@ -34,6 +40,9 @@ public class ClassResourceInfoTest extends Assert {
     private static class TestClass {
         @Context UriInfo u;
         @Context HttpHeaders h;
+        @Resource HttpServletRequest req;
+        @Resource HttpServletResponse res;
+        @Resource ServletContext c;
         int i;
     }
     
@@ -51,6 +60,24 @@ public class ClassResourceInfoTest extends Assert {
                    || fields.get(1).getType() == UriInfo.class)
                    && (fields.get(0).getType() == HttpHeaders.class
                    || fields.get(1).getType() == HttpHeaders.class));
+    }
+
+    @Test
+    public void testGetResources() {
+        ClassResourceInfo c = new ClassResourceInfo(TestClass.class);
+        List<Field> fields = c.getResources();
+        assertEquals("Only root classes should check these fields", 0, fields.size());
+        c = new ClassResourceInfo(TestClass.class, true);
+        fields = c.getResources();
         
+        Set<Class<?>> clses = new HashSet<Class<?>>(); 
+        for (Field f : fields) {
+            clses.add(f.getType());
+        }
+        assertEquals("3 resources fields available", 3, fields.size());
+        assertTrue("Wrong fields selected",
+                   clses.contains(HttpServletRequest.class)
+                   && clses.contains(HttpServletResponse.class)
+                   && clses.contains(ServletContext.class)); 
     }
 }

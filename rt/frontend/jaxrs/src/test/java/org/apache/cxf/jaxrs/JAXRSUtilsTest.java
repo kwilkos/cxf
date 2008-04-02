@@ -24,6 +24,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
+import javax.annotation.Resource;
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.ConsumeMime;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.MatrixParam;
@@ -47,10 +51,15 @@ import org.apache.cxf.jaxrs.provider.SecurityContextImpl;
 import org.apache.cxf.jaxrs.provider.UriInfoImpl;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
+import org.apache.cxf.transport.http.AbstractHTTPDestination;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.replay;
 
 public class JAXRSUtilsTest extends Assert {
     
@@ -60,6 +69,9 @@ public class JAXRSUtilsTest extends Assert {
         @Context private HttpHeaders headers;
         @Context private Request request;
         @Context private SecurityContext sContext;
+        @Resource private HttpServletRequest servletRequest;
+        @Resource private HttpServletResponse servletResponse;
+        @Resource private ServletContext servletContext;
         
         public UriInfo getUriInfo() {
             return uriInfo;
@@ -77,6 +89,18 @@ public class JAXRSUtilsTest extends Assert {
             return sContext;
         }
         
+        public HttpServletRequest getServletRequest() {
+            return servletRequest;
+        }
+        
+        public HttpServletResponse getServletResponse() {
+            return servletResponse;
+        }
+        
+        public ServletContext getServletContext() {
+            return servletContext;
+        }
+
         @ProduceMime("text/xml")
         @ConsumeMime("text/xml")
         public void test() {
@@ -582,6 +606,34 @@ public class JAXRSUtilsTest extends Assert {
         assertSame(HttpHeadersImpl.class, c.getHeaders().getClass());
         assertSame(RequestImpl.class, c.getRequest().getClass());
         assertSame(SecurityContextImpl.class, c.getSecurityContext().getClass());
+        
+    }
+
+    @Test
+    public void testServletResourceFields() throws Exception {
+        
+        ClassResourceInfo cri = new ClassResourceInfo(Customer.class, true);
+        OperationResourceInfo ori = new OperationResourceInfo(null, cri);
+        
+        Customer c = new Customer();
+        
+        // Creating mocks for the servlet request, response and context
+        HttpServletRequest request = createMock(HttpServletRequest.class);
+        HttpServletResponse response = createMock(HttpServletResponse.class);
+        ServletContext context = createMock(ServletContext.class);
+        replay(request);
+        replay(response);
+        replay(context);
+        
+        Message m = new MessageImpl();
+        m.put(AbstractHTTPDestination.HTTP_REQUEST, request);
+        m.put(AbstractHTTPDestination.HTTP_RESPONSE, response);
+        m.put(AbstractHTTPDestination.HTTP_CONTEXT, context);
+        
+        JAXRSUtils.injectServletResourceValues(c, ori, m);
+        assertSame(request.getClass(), c.getServletRequest().getClass());
+        assertSame(response.getClass(), c.getServletResponse().getClass());
+        assertSame(context.getClass(), c.getServletContext().getClass());
         
     }
 }

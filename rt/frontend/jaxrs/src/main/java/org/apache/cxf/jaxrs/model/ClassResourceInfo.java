@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import javax.annotation.Resource;
 import javax.ws.rs.core.Context;
 
 import org.apache.cxf.jaxrs.lifecycle.ResourceProvider;
@@ -37,6 +38,7 @@ public class ClassResourceInfo {
     private ResourceProvider resourceProvider;
     private List<ClassResourceInfo> subClassResourceInfo = new ArrayList<ClassResourceInfo>();
     private List<Field> httpContexts;
+    private List<Field> resources;
 
     public ClassResourceInfo(Class<?> theResourceClass) {
         this(theResourceClass, false);
@@ -46,6 +48,7 @@ public class ClassResourceInfo {
         resourceClass = theResourceClass;
         root = theRoot;
         initHttpContexts();
+        initResources();
     }
 
     public boolean isRoot() {
@@ -106,11 +109,41 @@ public class ClassResourceInfo {
             }
         }
     }
+
+    private void initResources() {
+        if (resourceClass == null || !root) {
+            return;
+        }
+        resources = new ArrayList<Field>();
+        Field[] fields = resourceClass.getDeclaredFields();
+        
+        for (Field f : fields) {
+            Resource resource = f.getAnnotation(Resource.class);
+            if (resource != null) {
+                resources.add(f);               
+            }
+        }
+    }
+
     
     
-    @SuppressWarnings("unchecked")
     public List<Field> getHttpContexts() {
-        return httpContexts == null ? Collections.EMPTY_LIST 
-               : Collections.unmodifiableList(httpContexts);
+        List<Field> ret;
+        if (httpContexts != null) {
+            ret = Collections.unmodifiableList(httpContexts);
+        } else {
+            ret = Collections.emptyList();
+        }
+        return ret;
+    }
+    
+    public List<Field> getResources() {
+        List<Field> ret;
+        if (resources != null) {
+            ret = Collections.unmodifiableList(resources);
+        } else {
+            ret = Collections.emptyList();
+        }
+        return ret;
     }                               
 }

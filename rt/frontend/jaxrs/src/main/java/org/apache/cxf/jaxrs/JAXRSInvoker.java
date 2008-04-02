@@ -62,6 +62,9 @@ public class JAXRSInvoker extends AbstractInvoker {
             JAXRSUtils.injectHttpContextValues(resourceObject, 
                                                ori, 
                                                exchange.getInMessage());
+            JAXRSUtils.injectServletResourceValues(resourceObject, 
+                                               ori, 
+                                               exchange.getInMessage());
         }
 
         List<Object> params = null;

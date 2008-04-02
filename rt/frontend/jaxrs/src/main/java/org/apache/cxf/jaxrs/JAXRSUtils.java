@@ -40,6 +40,9 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.ConsumeMime;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.HttpMethod;
@@ -70,6 +73,7 @@ import org.apache.cxf.jaxrs.provider.RequestImpl;
 import org.apache.cxf.jaxrs.provider.SecurityContextImpl;
 import org.apache.cxf.jaxrs.provider.UriInfoImpl;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.transport.http.AbstractHTTPDestination;
 
 public final class JAXRSUtils {
 
@@ -390,6 +394,21 @@ public final class JAXRSUtils {
         return null;
     }
 
+    public static Object createServletResourceValue(Message m, Class<?> clazz) {
+                
+        if (HttpServletRequest.class.isAssignableFrom(clazz)) {
+            return (HttpServletRequest) m.get(AbstractHTTPDestination.HTTP_REQUEST);
+        }
+        if (HttpServletResponse.class.isAssignableFrom(clazz)) {
+            return (HttpServletResponse) m.get(AbstractHTTPDestination.HTTP_RESPONSE);
+        }
+        if (ServletContext.class.isAssignableFrom(clazz)) {
+            return (ServletContext) m.get(AbstractHTTPDestination.HTTP_CONTEXT);
+        }
+        
+        return null;
+    }
+
     private static Object readFromUriParam(PathParam uriParamAnnotation,
                                            Class<?> parameter,
                                            Type parameterType,
@@ -594,6 +613,21 @@ public final class JAXRSUtils {
         }
     }
     
+    public static void injectServletResourceValues(Object o,
+                                               OperationResourceInfo ori,
+                                               Message m) {
+        
+        for (Field f : ori.getClassResourceInfo().getResources()) {
+            Object value = createServletResourceValue(m, f.getType());
+            f.setAccessible(true);
+            try {
+                f.set(o, value);
+            } catch (IllegalAccessException ex) {
+                // ignore
+            }
+        }
+    }
+
     private static <K, V> MultivaluedMap<K, V> cloneMap(MultivaluedMap<K, V> map1) {
         
         MultivaluedMap<K, V> map2 = new MetadataMap<K, V>();
