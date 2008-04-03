@@ -378,7 +378,7 @@
         </dependency>
         <dependency>
             <groupId>xmlbeans</groupId>
-            <artifactId>xbean</artifactId>
+            <artifactId>xmlbeans</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

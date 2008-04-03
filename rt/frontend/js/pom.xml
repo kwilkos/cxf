@@ -39,7 +39,7 @@
         </dependency>
         <dependency>
             <groupId>xmlbeans</groupId>
-            <artifactId>xbean</artifactId>
+            <artifactId>xmlbeans</artifactId>
         </dependency>
         <dependency>
             <groupId>javax.xml.bind</groupId>

@@ -57,7 +57,7 @@
         <activemq.version>4.1.1</activemq.version>
         <rhino.version>1.6R7</rhino.version>
         <jdom.version>1.0</jdom.version>
-        <xmlbeans.version>2.2.0</xmlbeans.version>
+        <xmlbeans.version>2.3.0</xmlbeans.version>
         <checkstyle.extension />
 
         <spring.validation.mode>VALIDATION_AUTO</spring.validation.mode>
@@ -861,7 +861,7 @@
             </dependency>
             <dependency>
                 <groupId>xmlbeans</groupId>
-                <artifactId>xbean</artifactId>
+                <artifactId>xmlbeans</artifactId>
                 <version>${xmlbeans.version}</version>
             </dependency>
             <dependency>
