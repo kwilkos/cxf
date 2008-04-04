@@ -250,7 +250,7 @@
                         </Import-Package>
                         <Export-Package>
                             org.apache.cxf.*;version=${pom.version};-split-package:=merge-first,
-                            org.xmlsoap.schemas.wsdl.http.*,
+                            org.xmlsoap.schemas*;version=${pkgVersion};-split-package:=merge-first,
                             '=META-INF.cxf'
                         </Export-Package>
                         <_failok>true</_failok>
