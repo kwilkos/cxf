@@ -32,6 +32,7 @@ import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.validator.ServiceValidator;
+import org.apache.cxf.tools.wsdlto.frontend.jaxws.customization.JAXWSBinding;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal.ProcessorUtil;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal.WrapperElement;
 
@@ -65,7 +66,26 @@ public class WrapperStyleNameCollisionValidator extends ServiceValidator {
     private boolean isValidOperation(OperationInfo operation) {
         ToolContext context = service.getProperty(ToolContext.class.getName(), ToolContext.class);
 
+        boolean valid = false;
         if (operation.getUnwrappedOperation() == null) {
+            valid = true;
+        }
+        
+        JAXWSBinding binding = (JAXWSBinding)operation.getExtensor(JAXWSBinding.class);
+        if (binding != null && !binding.isEnableWrapperStyle()) {
+            valid = true;
+        }
+        binding = operation.getInterface().getExtensor(JAXWSBinding.class);
+        if (binding != null && !binding.isEnableWrapperStyle()) {
+            valid = true;
+        }
+        binding = operation.getInterface().getService()
+            .getDescription().getExtensor(JAXWSBinding.class);
+        if (binding != null && !binding.isEnableWrapperStyle()) {
+            valid = true;
+        }
+        
+        if (valid) {
             return true;
         }
 
