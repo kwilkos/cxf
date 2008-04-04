@@ -31,6 +31,7 @@ import org.w3c.dom.Document;
 import org.apache.cxf.BusException;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.common.util.ClassHelper;
 import org.apache.cxf.databinding.AbstractDataBinding;
 import org.apache.cxf.databinding.DataBinding;
 import org.apache.cxf.endpoint.Endpoint;
@@ -102,7 +103,7 @@ public class ServerFactoryBean extends AbstractWSDLBasedEndpointFactory {
         try {
             applyExtraClass();
             if (serviceBean != null && getServiceClass() == null) {
-                setServiceClass(serviceBean.getClass());
+                setServiceClass(ClassHelper.getRealClass(serviceBean));
             }
             if (invoker != null) {
                 getServiceFactory().setInvoker(invoker);
@@ -136,7 +137,8 @@ public class ServerFactoryBean extends AbstractWSDLBasedEndpointFactory {
         }
         
         if (serviceBean != null) {
-            initializeAnnotationInterceptors(server.getEndpoint(), this.getServiceBean().getClass());
+            initializeAnnotationInterceptors(server.getEndpoint(),
+                                             ClassHelper.getRealClass(getServiceBean()));
         } else if (getServiceClass() != null) {
             initializeAnnotationInterceptors(server.getEndpoint(), getServiceClass());
         }
@@ -237,7 +239,7 @@ public class ServerFactoryBean extends AbstractWSDLBasedEndpointFactory {
     
     public Class<?> getServiceBeanClass() {
         if (serviceBean != null) {
-            return serviceBean.getClass();
+            return ClassHelper.getRealClass(serviceBean);
         } else {
             return getServiceFactory().getServiceClass();
         }
