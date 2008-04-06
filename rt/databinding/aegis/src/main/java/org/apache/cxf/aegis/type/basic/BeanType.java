@@ -530,7 +530,11 @@ public class BeanType extends Type {
 
     private String getNameWithPrefix(Element root, String nameNS, String localName) {
         if (!nameNS.equals(getSchemaType().getNamespaceURI())) {
-            String prefix = NamespaceHelper.getUniquePrefix((Element)root.getParent(), nameNS);
+            Element rootElement = (Element)root.getParent();
+            String prefix = null;
+            if (rootElement != null) { // can happen with doc/lit/bare
+                prefix = NamespaceHelper.getUniquePrefix(rootElement, nameNS);
+            }
 
             if (prefix == null || prefix.length() == 0) {
                 prefix = NamespaceHelper.getUniquePrefix(root, nameNS);

@@ -112,9 +112,28 @@ public final class JAXBDataBinding extends AbstractDataBinding {
         }
 
     }
+    
+    private static final class CachedClassOrNull {
+        private Class<?> cachedClass;
+
+        public CachedClassOrNull(Class<?> cachedClass) {
+            this.cachedClass = cachedClass;
+        }
+
+        public Class<?> getCachedClass() {
+            return cachedClass;
+        }
+
+        public void setCachedClass(Class<?> cachedClass) {
+            this.cachedClass = cachedClass;
+        }
+    }
 
     private static final Map<Set<Class<?>>, CachedContextAndSchemas> JAXBCONTEXT_CACHE 
         = new CacheMap<Set<Class<?>>, CachedContextAndSchemas>();
+    
+    private static final Map<String, CachedClassOrNull> OBJECT_FACTORY_CACHE
+        = new CacheMap<String, CachedClassOrNull>();
 
     Class[] extraClass;
 
@@ -418,12 +437,24 @@ public final class JAXBDataBinding extends AbstractDataBinding {
             if (!packages.containsKey(pkgName)) {
                 packages.put(pkgName, jcls.getResourceAsStream("jaxb.index"));
                 packageLoaders.put(pkgName, jcls.getClassLoader());
-                try {
-                    Class<?> ofactory = Class.forName(pkgName + "." + "ObjectFactory", false, jcls
-                        .getClassLoader());
-                    objectFactories.add(ofactory);
-                } catch (ClassNotFoundException e) {
-                    // ignore
+                String objectFactoryClassName = pkgName + "." + "ObjectFactory";
+                Class<?> ofactory = null;
+                CachedClassOrNull cachedFactory = 
+                    OBJECT_FACTORY_CACHE.get(objectFactoryClassName);
+                if (cachedFactory != null) {
+                    ofactory = cachedFactory.getCachedClass();
+                }
+                if (ofactory == null) {
+                    try {
+                        ofactory = Class.forName(objectFactoryClassName, false, jcls
+                                                 .getClassLoader());
+                        objectFactories.add(ofactory);
+                        OBJECT_FACTORY_CACHE.put(objectFactoryClassName, 
+                                                 new CachedClassOrNull(ofactory));
+                    } catch (ClassNotFoundException e) {
+                        OBJECT_FACTORY_CACHE.put(objectFactoryClassName, 
+                                                 new CachedClassOrNull(null));
+                    }
                 }
             }
         }
