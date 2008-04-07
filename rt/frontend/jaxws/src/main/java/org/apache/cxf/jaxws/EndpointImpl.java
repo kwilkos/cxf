@@ -34,6 +34,7 @@ import javax.xml.ws.handler.Handler;
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.binding.BindingConfiguration;
+import org.apache.cxf.common.util.ClassHelper;
 import org.apache.cxf.common.util.ModCountCopyOnWriteArrayList;
 import org.apache.cxf.configuration.Configurable;
 import org.apache.cxf.configuration.Configurer;
@@ -155,7 +156,7 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
      * @return the class of the implementor object
      */
     public Class getImplementorClass() {
-        return implementorClass != null ? implementorClass : implementor.getClass();
+        return implementorClass != null ? implementorClass : ClassHelper.getRealClass(implementor);
     }
 
     public List<Source> getMetadata() {
