@@ -118,7 +118,7 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-aop</artifactId>
             <version>${spring.version}</version>
-            <optional>provided</optional>
+            <scope>provided</scope>
         </dependency>
 
         
