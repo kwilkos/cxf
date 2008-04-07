@@ -44,6 +44,7 @@ import org.apache.cxf.frontend.ClientProxy;
 import org.apache.cxf.jaxb.JAXBDataBinding;
 import org.apache.hello_world_soap_http.Greeter;
 import org.apache.hello_world_soap_http.SOAPService;
+import org.junit.Before;
 import org.junit.Test;
 
 public class ServiceImplTest extends AbstractJaxWsTest {
@@ -60,6 +61,11 @@ public class ServiceImplTest extends AbstractJaxWsTest {
     private static final QName SOAP_PORT1 =
         new QName("http://apache.org/hello_world_soap_http", "SoapPort1");
 
+    @Before
+    public void clearCaches() {
+        JAXBDataBinding.clearCaches();
+    }
+    
     @Test
     public void testServiceImpl() throws Exception {
         SOAPService service = new SOAPService();

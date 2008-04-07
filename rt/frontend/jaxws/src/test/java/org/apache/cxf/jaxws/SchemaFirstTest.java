@@ -25,15 +25,16 @@ import java.util.List;
 import org.w3c.dom.Document;
 
 import org.apache.cxf.endpoint.Server;
+import org.apache.cxf.jaxb.JAXBDataBinding;
 import org.apache.cxf.jaxws.service.EchoFoo;
 import org.junit.Test;
 
 public class SchemaFirstTest extends AbstractJaxWsTest {
 
-
     @Test
     public void testEndpoint() throws Exception {
-
+        JAXBDataBinding.clearCaches();
+        
         JaxWsServerFactoryBean svr = new JaxWsServerFactoryBean();
         svr.setBus(bus);
         svr.setServiceBean(new EchoFoo());

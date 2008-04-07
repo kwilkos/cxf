@@ -31,6 +31,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -143,7 +144,7 @@ public final class JAXBDataBinding extends AbstractDataBinding implements DataBi
     private Map<String, Object> marshallerProperties = Collections.emptyMap();
 
     private boolean qualifiedSchemas;
-
+    private Service service;
 
     public JAXBDataBinding() {
     }
@@ -153,7 +154,7 @@ public final class JAXBDataBinding extends AbstractDataBinding implements DataBi
     }
 
     public JAXBDataBinding(Class<?>... classes) throws JAXBException {
-        contextClasses = new HashSet<Class<?>>();
+        contextClasses = new LinkedHashSet<Class<?>>();
         contextClasses.addAll(Arrays.asList(classes));
         setContext(createJAXBContext(contextClasses));
     }
@@ -237,7 +238,9 @@ public final class JAXBDataBinding extends AbstractDataBinding implements DataBi
         return SUPPORTED_READER_FORMATS;
     }
 
-    public void initialize(Service service) {
+    @SuppressWarnings("unchecked")
+    public void initialize(Service aservice) {
+        this.service = aservice;
         // context is already set, don't redo it
         if (context != null) {
             return;
@@ -245,10 +248,14 @@ public final class JAXBDataBinding extends AbstractDataBinding implements DataBi
 
         CachedContextAndSchemas cachedContextAndSchemas = null;
 
-        contextClasses = new HashSet<Class<?>>();
+        contextClasses = new LinkedHashSet<Class<?>>();
         for (ServiceInfo serviceInfo : service.getServiceInfos()) {
             JAXBContextInitializer initializer = new JAXBContextInitializer(serviceInfo, contextClasses);
             initializer.walk();
+            if (serviceInfo.getProperty("extra.class") != null) {
+                Set<Class<?>> exClasses = serviceInfo.getProperty("extra.class", Set.class);
+                contextClasses.addAll(exClasses);
+            }
 
         }
 
@@ -592,5 +599,15 @@ public final class JAXBDataBinding extends AbstractDataBinding implements DataBi
      */
     public void setMarshallerProperties(Map<String, Object> marshallerProperties) {
         this.marshallerProperties = marshallerProperties;
+    }
+    
+    
+    public static void clearCaches() {
+        synchronized (JAXBCONTEXT_CACHE) {
+            JAXBCONTEXT_CACHE.clear();
+        }
+        synchronized (OBJECT_FACTORY_CACHE) {
+            OBJECT_FACTORY_CACHE.clear();
+        }
     }
 }

@@ -28,6 +28,7 @@ import org.apache.cxf.binding.soap.Soap12;
 import org.apache.cxf.binding.soap.SoapConstants;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.model.SoapOperationInfo;
+import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.interceptor.Fault;
@@ -85,7 +86,7 @@ public class SoapActionInInterceptor extends AbstractSoapInterceptor {
     }
 
     private void getAndSetOperation(SoapMessage message, String action) {
-        if ("".equals(action)) {
+        if (StringUtils.isEmpty(action)) {
             return;
         }
         
@@ -95,9 +96,12 @@ public class SoapActionInInterceptor extends AbstractSoapInterceptor {
         BindingOperationInfo bindingOp = null;
         
         Collection<BindingOperationInfo> bops = ep.getBinding().getBindingInfo().getOperations();
+        if (bops == null) {
+            return;
+        }
         for (BindingOperationInfo boi : bops) {
             SoapOperationInfo soi = (SoapOperationInfo) boi.getExtensor(SoapOperationInfo.class);
-            if (soi != null && soi.getAction().equals(action)) {
+            if (soi != null && action.equals(soi.getAction())) {
                 if (bindingOp != null) {
                     //more than one op with the same action, will need to parse normally
                     return;
