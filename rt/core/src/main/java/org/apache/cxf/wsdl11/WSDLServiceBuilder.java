@@ -205,6 +205,13 @@ public class WSDLServiceBuilder {
 
         buildInterface(service, p);
 
+        WSDLManager wsdlManager = bus.getExtension(WSDLManager.class); 
+        if (wsdlManager != null) {
+            ServiceSchemaInfo serviceSchemaInfo = new ServiceSchemaInfo();
+            serviceSchemaInfo.setSchemaCollection(service.getXmlSchemaCollection());
+            serviceSchemaInfo.setSchemaInfoList(service.getSchemas());
+            wsdlManager.putSchemasForDefinition(def, serviceSchemaInfo);
+        }
         return service;
     }
 
