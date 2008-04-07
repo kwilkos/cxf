@@ -202,6 +202,7 @@ public final class JAXBDataBinding extends AbstractDataBinding {
             currentMarshallerProperties.put("com.sun.xml.bind.namespacePrefixMapper",
                                             getNamespacePrefixMapper());
         }
+        currentMarshallerProperties.putAll(marshallerProperties);
 
         Integer mtomThresholdInt = new Integer(getMtomThreshold());
         if (c == XMLStreamWriter.class) {
