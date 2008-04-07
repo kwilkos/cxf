@@ -19,7 +19,6 @@
 
 package org.apache.cxf.transport.http;
 
-import java.io.IOException;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -37,7 +36,6 @@ import javax.wsdl.Import;
 import javax.wsdl.Port;
 import javax.wsdl.Service;
 import javax.wsdl.Types;
-import javax.wsdl.WSDLException;
 import javax.wsdl.extensions.ExtensibilityElement;
 import javax.wsdl.extensions.schema.Schema;
 import javax.wsdl.extensions.schema.SchemaImport;
@@ -46,15 +44,13 @@ import javax.wsdl.extensions.soap.SOAPAddress;
 import javax.wsdl.extensions.soap12.SOAP12Address;
 import javax.wsdl.xml.WSDLWriter;
 import javax.xml.namespace.QName;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.dom.DOMSource;
+import javax.xml.stream.XMLStreamWriter;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.catalog.OASISCatalogManager;
@@ -63,6 +59,7 @@ import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.helpers.XMLUtils;
 import org.apache.cxf.service.model.EndpointInfo;
+import org.apache.cxf.staxutils.StaxUtils;
 import org.apache.cxf.transports.http.StemMatchingQueryHandler;
 import org.apache.cxf.wsdl.WSDLManager;
 import org.apache.cxf.wsdl11.ResourceManagerWSDLLocator;
@@ -217,23 +214,19 @@ public class WSDLQueryHandler implements StemMatchingQueryHandler {
                 }
             }
             doc.setXmlStandalone(true);
-            XMLUtils.writeTo(new DOMSource(doc), os);
-        } catch (WSDLException wex) {
+            String enc = doc.getXmlEncoding();
+            if (enc == null) {
+                enc = "utf-8";
+            }
+
+            XMLStreamWriter writer = StaxUtils.createXMLStreamWriter(os,
+                                                                     enc);
+            StaxUtils.writeNode(doc, writer, true);
+            writer.flush();
+        } catch (Exception wex) {
             throw new WSDLQueryException(new Message("COULD_NOT_PROVIDE_WSDL",
                                                      LOG,
                                                      baseUri), wex);
-        } catch (SAXException e) {
-            throw new WSDLQueryException(new Message("COULD_NOT_PROVIDE_WSDL",
-                                                     LOG,
-                                                     baseUri), e);
-        } catch (IOException e) {
-            throw new WSDLQueryException(new Message("COULD_NOT_PROVIDE_WSDL",
-                                                     LOG,
-                                                     baseUri), e);
-        } catch (ParserConfigurationException e) {
-            throw new WSDLQueryException(new Message("COULD_NOT_PROVIDE_WSDL",
-                                                     LOG,
-                                                     baseUri), e);
         }
     }
 
