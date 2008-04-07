@@ -135,14 +135,15 @@ public class ServletController {
                             OutputStream out = res.getOutputStream();
                             try {
                                 qh.writeResponse(baseUri, ctxUri, ei, out);
-                                out.flush();
-                                return;
                             } catch (Exception e) {
-                                //throw new ServletException(e);
-                                LOG.warning(qh.getClass().getName() 
-                                    + " Exception caught writing response: " 
-                                    + e.getMessage());
+                                LogUtils.log(LOG, Level.WARNING,
+                                             qh.getClass().getName() 
+                                             + " Exception caught writing response.",
+                                             e);
+                                throw new ServletException(e);                                
                             }
+                            out.flush();
+                            return;
                         }   
                     }
                 }
