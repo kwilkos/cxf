@@ -30,6 +30,7 @@ public final class JAXWSAConstants {
     
     public static final String WSAW_PREFIX = "wsaw";
     public static final String NS_WSAW = "http://www.w3.org/2006/05/addressing/wsdl";
+    public static final String NS_WSAOLD = "http://www.w3.org/2005/02/addressing/wsdl";
 
     public static final QName WSAW_ACTION_QNAME = new QName(NS_WSAW,  "Action");
     

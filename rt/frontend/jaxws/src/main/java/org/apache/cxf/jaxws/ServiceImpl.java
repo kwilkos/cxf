@@ -48,6 +48,7 @@ import org.apache.cxf.BusException;
 import org.apache.cxf.binding.BindingFactoryManager;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.configuration.Configurer;
 import org.apache.cxf.databinding.DataBinding;
 import org.apache.cxf.databinding.source.SourceDataBinding;
@@ -292,6 +293,13 @@ public class ServiceImpl extends ServiceDelegate {
         
         QName portQName = null;
         if (portName != null && serviceQName != null) {
+            String ns = serviceQName.getNamespaceURI();
+            if (StringUtils.isEmpty(ns)) {
+                //try to workaround bug in xalan where namespace
+                //definitions are lost
+                ns = this.getServiceName().getNamespaceURI();
+                serviceQName = new QName(ns, serviceQName.getLocalPart());
+            }
             portQName = new QName(serviceQName.getNamespaceURI(), portName);
         }
         

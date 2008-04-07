@@ -257,7 +257,8 @@ public final class EndpointReferenceUtils {
             for (Object obj : metadata.getAny()) {
                 if (obj instanceof Element) {
                     Node node = (Element)obj;
-                    if (node.getNamespaceURI().equals(JAXWSAConstants.NS_WSAW) 
+                    if ((node.getNamespaceURI().equals(JAXWSAConstants.NS_WSAW)
+                         || node.getNamespaceURI().equals(JAXWSAConstants.NS_WSAOLD))
                         && node.getLocalName().equals("ServiceName")) {
                         String content = node.getTextContent();
                         String namespaceURI = node.getFirstChild().getNamespaceURI();
@@ -296,7 +297,8 @@ public final class EndpointReferenceUtils {
             for (Object obj : metadata.getAny()) {
                 if (obj instanceof Element) {
                     Node node = (Element)obj;
-                    if (node.getNamespaceURI().equals(JAXWSAConstants.NS_WSAW)
+                    if ((node.getNamespaceURI().equals(JAXWSAConstants.NS_WSAW)
+                        || node.getNamespaceURI().equals(JAXWSAConstants.NS_WSAOLD))
                         && node.getNodeName().contains("ServiceName")) {
                         return node.getAttributes().getNamedItem("EndpointName").getTextContent();
                     }
@@ -364,7 +366,8 @@ public final class EndpointReferenceUtils {
             for (Object obj : metadata.getAny()) {
                 if (obj instanceof Element) {
                     Node node = (Element)obj;
-                    if (node.getNamespaceURI().equals(JAXWSAConstants.NS_WSAW)
+                    if ((node.getNamespaceURI().equals(JAXWSAConstants.NS_WSAW)
+                        || node.getNamespaceURI().equals(JAXWSAConstants.NS_WSAOLD))
                         && node.getNodeName().contains("InterfaceName")) {
                         
                         String content = node.getTextContent();

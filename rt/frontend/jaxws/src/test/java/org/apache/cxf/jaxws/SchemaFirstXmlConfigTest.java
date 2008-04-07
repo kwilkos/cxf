@@ -23,6 +23,7 @@ import org.w3c.dom.Document;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
+import org.apache.cxf.jaxb.JAXBDataBinding;
 import org.junit.Test;
 
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -44,6 +45,7 @@ public class SchemaFirstXmlConfigTest extends AbstractJaxWsTest {
     @Test
     public void testEndpoint() throws Exception {
 
+        JAXBDataBinding.clearCaches();
         JaxWsServerFactoryBean serverFB = (JaxWsServerFactoryBean) ctx.getBean("helloServer");
 
         Document d = getWSDLDocument(serverFB.getServer());
