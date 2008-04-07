@@ -22,8 +22,6 @@ package org.apache.cxf.binding.corba;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URI;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -32,11 +30,9 @@ import org.apache.cxf.binding.corba.utils.CorbaBindingHelper;
 import org.apache.cxf.binding.corba.utils.CorbaUtils;
 import org.apache.cxf.binding.corba.utils.OrbConfig;
 import org.apache.cxf.binding.corba.wsdl.AddressType;
-import org.apache.cxf.binding.corba.wsdl.OperationType;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.service.model.BindingInfo;
-import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.Destination;
@@ -55,25 +51,6 @@ import org.omg.PortableServer.POAManager;
 
 public class CorbaDestination implements Destination {
     
-    public static final class OpInfoEntry {
-
-        private BindingOperationInfo boInfo;
-        private OperationType opType;
-
-        public OpInfoEntry(BindingOperationInfo bopInfo, OperationType extensor) {
-            this.boInfo = bopInfo;
-            this.opType = extensor;
-        }
-
-        public BindingOperationInfo getBoInfo() {
-            return boInfo;
-        }
-
-        public OperationType getOpType() {
-            return opType;
-        }
-
-    }
 
     private static final Logger LOG = LogUtils.getL7dLogger(CorbaDestination.class);
     private AddressType address;
@@ -87,7 +64,6 @@ public class CorbaDestination implements Destination {
     private byte[] objectId;
     private POA bindingPOA;
     private org.omg.CORBA.Object obj;
-    private Map<String, OpInfoEntry> opInfoCache = new ConcurrentHashMap<String, OpInfoEntry>();
 
     public CorbaDestination(EndpointInfo ei, OrbConfig config) {
         this(ei, config, null);    
@@ -320,16 +296,4 @@ public class CorbaDestination implements Destination {
         }
     }
 
-    public OpInfoEntry getBindingOpInfo(String opName) {
-        if (!opInfoCache .containsKey(opName)) {
-            for (BindingOperationInfo bopInfo : binding.getOperations()) {
-                if (bopInfo.getName().getLocalPart().equals(opName)) {
-                    opInfoCache.put(opName, new OpInfoEntry(bopInfo,
-                            bopInfo.getExtensor(OperationType.class)));
-                    break;
-                }
-            }
-        }
-        return opInfoCache.get(opName);
-    }
 }

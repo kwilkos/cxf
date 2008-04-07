@@ -66,8 +66,8 @@ public class XMLMessageOutInterceptor extends AbstractOutDatabindingInterceptor 
         if (xmf != null) {
             rootInModel = xmf.getRootNode();
         }
-        if (mi.getMessageParts().size() == 1) {
-            // bare-one-param & wrap
+        if (!boi.isUnwrapped() && mi.getMessageParts().size() == 1) {
+            // bare-one-param
             new BareOutInterceptor().handleMessage(message);
         } else {
             if (rootInModel == null) {

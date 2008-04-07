@@ -619,4 +619,14 @@ public final class JAXBDataBinding extends AbstractDataBinding {
     public void setMarshallerProperties(Map<String, Object> marshallerProperties) {
         this.marshallerProperties = marshallerProperties;
     }
+    
+    
+    public static void clearCaches() {
+        synchronized (JAXBCONTEXT_CACHE) {
+            JAXBCONTEXT_CACHE.clear();
+        }
+        synchronized (OBJECT_FACTORY_CACHE) {
+            OBJECT_FACTORY_CACHE.clear();
+        }
+    }
 }
