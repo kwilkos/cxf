@@ -212,7 +212,6 @@ public class WSDLServiceBuilder {
 
         buildInterface(service, p);
 
-        getSchemas(def, service);
         WSDLManager wsdlManager = bus.getExtension(WSDLManager.class); 
         if (wsdlManager != null) {
             ServiceSchemaInfo serviceSchemaInfo = new ServiceSchemaInfo();
