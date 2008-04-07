@@ -19,7 +19,6 @@
 package org.apache.cxf.jaxrs;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -238,27 +237,18 @@ public class JAXRSServerFactoryBean extends AbstractEndpointFactory {
     }
     
     /**
-     * Set the backing service bean. If this is set, JAX-RS runtimi will not be
+     * Set the backing service bean. If this is set, JAX-RS runtime will not be
      * responsible for the lifecycle of resource classes.
      * 
      * @return
      */
     public void setServiceBeans(Object... beans) {
-        this.serviceBeans = new ArrayList<Object>(Arrays.asList(beans));
-        Class[] classes = new Class[beans.length];
-        for (int i = 0; i < beans.length; i++) {
-            classes[i] = beans[i].getClass();
-        }
-        serviceFactory.setResourceClasses(classes);
+        setServiceBeans(Arrays.asList(beans));
     }
     
     public void setServiceBeans(List<Object> beans) {
         this.serviceBeans = beans;
-        List<Class> classes = new ArrayList<Class>();
-        for (Object bean : beans) {
-            classes.add(bean.getClass());
-        }
-        serviceFactory.setResourceClasses(classes);
+        serviceFactory.setResourceClassesFromBeans(beans);
     }
     
     public void setResourceProvider(Class c, ResourceProvider rp) {

@@ -85,8 +85,7 @@ public class OperationResourceInfo {
             return JAXRSUtils.getMediaTypes(pm.value());
         }
         
-        return JAXRSUtils.getProduceTypes(classResourceInfo.getResourceClass()
-                                          .getAnnotation(ProduceMime.class));
+        return JAXRSUtils.getProduceTypes(classResourceInfo.getProduceMime());
     }
     
     public List<MediaType> getConsumeTypes() {
@@ -97,7 +96,6 @@ public class OperationResourceInfo {
             return JAXRSUtils.getMediaTypes(pm.value());
         }
         
-        return JAXRSUtils.getConsumeTypes(classResourceInfo.getResourceClass()
-                                          .getAnnotation(ConsumeMime.class));
+        return JAXRSUtils.getConsumeTypes(classResourceInfo.getConsumeMime());
     }
 }

@@ -25,6 +25,9 @@ import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.Resource;
+import javax.ws.rs.ConsumeMime;
+import javax.ws.rs.Path;
+import javax.ws.rs.ProduceMime;
 import javax.ws.rs.core.Context;
 
 import org.apache.cxf.jaxrs.lifecycle.ResourceProvider;
@@ -33,6 +36,7 @@ public class ClassResourceInfo {
     
     private boolean root;
     private Class<?> resourceClass;
+    private Class<?> serviceClass;
     private URITemplate uriTemplate;
     private MethodDispatcher methodDispatcher;
     private ResourceProvider resourceProvider;
@@ -45,7 +49,16 @@ public class ClassResourceInfo {
     }
     
     public ClassResourceInfo(Class<?> theResourceClass, boolean theRoot) {
+        this(theResourceClass, theResourceClass, theRoot);
+    }
+    
+    public ClassResourceInfo(Class<?> theResourceClass, Class<?> theServiceClass) {
+        this(theResourceClass, theServiceClass, false);
+    }
+    
+    public ClassResourceInfo(Class<?> theResourceClass, Class<?> theServiceClass, boolean theRoot) {
         resourceClass = theResourceClass;
+        serviceClass = theServiceClass;
         root = theRoot;
         initHttpContexts();
         initResources();
@@ -57,6 +70,10 @@ public class ClassResourceInfo {
     
     public Class<?> getResourceClass() {
         return resourceClass;
+    }
+    
+    public Class<?> getServiceClass() {
+        return serviceClass;
     }
 
     public URITemplate getURITemplate() {
@@ -100,7 +117,7 @@ public class ClassResourceInfo {
             return;
         }
         httpContexts = new ArrayList<Field>();
-        Field[] fields = resourceClass.getDeclaredFields();
+        Field[] fields = getServiceClass().getDeclaredFields();
         
         for (Field f : fields) {
             Context context = f.getAnnotation(Context.class);
@@ -115,7 +132,7 @@ public class ClassResourceInfo {
             return;
         }
         resources = new ArrayList<Field>();
-        Field[] fields = resourceClass.getDeclaredFields();
+        Field[] fields = getServiceClass().getDeclaredFields();
         
         for (Field f : fields) {
             Resource resource = f.getAnnotation(Resource.class);
@@ -125,7 +142,20 @@ public class ClassResourceInfo {
         }
     }
 
+    //TODO : check supeclass as well
+    public ProduceMime getProduceMime() {
+        return getServiceClass().getAnnotation(ProduceMime.class);
+    }
     
+    //TODO : check supeclass as well
+    public ConsumeMime getConsumeMime() {
+        return getServiceClass().getAnnotation(ConsumeMime.class);
+    }
+    
+    //TODO : check supeclass as well
+    public Path getPath() {
+        return getServiceClass().getAnnotation(Path.class);
+    }
     
     public List<Field> getHttpContexts() {
         List<Field> ret;

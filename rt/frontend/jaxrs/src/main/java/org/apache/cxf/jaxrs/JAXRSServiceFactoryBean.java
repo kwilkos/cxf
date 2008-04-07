@@ -29,6 +29,7 @@ import java.util.concurrent.Executor;
 
 import javax.ws.rs.Path;
 
+import org.apache.cxf.common.util.ClassHelper;
 import org.apache.cxf.jaxrs.lifecycle.PerRequestResourceProvider;
 import org.apache.cxf.jaxrs.lifecycle.ResourceProvider;
 import org.apache.cxf.jaxrs.model.ClassResourceInfo;
@@ -48,8 +49,8 @@ public class JAXRSServiceFactoryBean extends AbstractServiceFactoryBean {
     //private static final Logger LOG = Logger.getLogger(JAXRSServiceFactoryBean.class.getName());
     //private static final ResourceBundle BUNDLE = BundleUtils.getBundle(JAXRSServiceFactoryBean.class);
 
-    protected List<ClassResourceInfo> classResourceInfos;
-    protected List<Class> resourceClasses;
+    protected List<ClassResourceInfo> classResourceInfos = 
+        new ArrayList<ClassResourceInfo>();
     protected Map<Class, ResourceProvider> resourceProviders = new HashMap<Class, ResourceProvider>();
     
     private Invoker invoker;
@@ -98,29 +99,45 @@ public class JAXRSServiceFactoryBean extends AbstractServiceFactoryBean {
     }
 
     public List<Class> getResourceClasses() {
+        List<Class> resourceClasses = new ArrayList<Class>();
+        for (ClassResourceInfo cri : classResourceInfos) {
+            resourceClasses.add(cri.getResourceClass());
+        }
         return resourceClasses;
     }
 
     public void setResourceClasses(List<Class> classes) {
-        this.resourceClasses = classes;
+        for (Class resourceClass : classes) {
+            ClassResourceInfo classResourceInfo = 
+                createClassResourceInfo(resourceClass, resourceClass, true);
+            classResourceInfos.add(classResourceInfo);
+        }
     }
 
     public void setResourceClasses(Class... classes) {
-        this.resourceClasses = new ArrayList<Class>(Arrays.asList(classes));
+        setResourceClasses(Arrays.asList(classes));
+    }
+    
+    public void setResourceClassesFromBeans(List<Object> beans) {
+        for (Object bean : beans) {
+            
+            ClassResourceInfo classResourceInfo = 
+                createClassResourceInfo(bean.getClass(), 
+                                        ClassHelper.getRealClass(bean),
+                                            true);
+            classResourceInfos.add(classResourceInfo);
+        }
     }
     
     public void setResourceProvider(Class c, ResourceProvider rp) {
         resourceProviders.put(c, rp);
+        updateClassResourceProviders();
     }
     
     protected void initializeServiceModel() {
-        classResourceInfos = new ArrayList<ClassResourceInfo>();
-
-        for (Class resourceClass : resourceClasses) {
-            ClassResourceInfo classResourceInfo = createRootClassResourceInfo(resourceClass);
-            classResourceInfos.add(classResourceInfo);
-        }
-
+        
+        updateClassResourceProviders();
+        
         JAXRSServiceImpl service = new JAXRSServiceImpl(classResourceInfos);
 
         setService(service);
@@ -130,28 +147,26 @@ public class JAXRSServiceFactoryBean extends AbstractServiceFactoryBean {
         }
     }
 
-    protected ClassResourceInfo createRootClassResourceInfo(final Class<?> c) {
-        
-        ClassResourceInfo classResourceInfo = createClassResourceInfo(c, true);
-
-        //TODO: Using information from annotation to determine which lifecycle provider to use
-        ResourceProvider rp = resourceProviders.get(c);
-        if (rp != null) {
-            classResourceInfo.setResourceProvider(rp);
-        } else {
-            //default lifecycle is per-request
-            rp = new PerRequestResourceProvider(c);
-            classResourceInfo.setResourceProvider(rp);  
+    private void updateClassResourceProviders() {
+        for (ClassResourceInfo cri : classResourceInfos) {
+            //TODO: Using information from annotation to determine which lifecycle provider to use
+            ResourceProvider rp = resourceProviders.get(cri.getResourceClass());
+            if (rp != null) {
+                cri.setResourceProvider(rp);
+            } else {
+                //default lifecycle is per-request
+                rp = new PerRequestResourceProvider(cri.getResourceClass());
+                cri.setResourceProvider(rp);  
+            }
         }
-        
-        return classResourceInfo;
     }
-
-    protected ClassResourceInfo createClassResourceInfo(final Class<?> c, boolean root) {
-        ClassResourceInfo cri  = new ClassResourceInfo(c, root);
+    
+    protected ClassResourceInfo createClassResourceInfo(
+        final Class<?> rClass, final Class<?> sClass, boolean root) {
+        ClassResourceInfo cri  = new ClassResourceInfo(rClass, sClass, root);
 
         if (root) {
-            URITemplate t = URITemplate.createTemplate(cri, c.getAnnotation(Path.class));
+            URITemplate t = URITemplate.createTemplate(cri, cri.getPath());
             cri.setURITemplate(t);
         }
         
@@ -162,7 +177,7 @@ public class JAXRSServiceFactoryBean extends AbstractServiceFactoryBean {
 
     protected MethodDispatcher createOperation(ClassResourceInfo cri) {
         MethodDispatcher md = new MethodDispatcher();
-        for (Method m : cri.getResourceClass().getMethods()) {
+        for (Method m : cri.getServiceClass().getMethods()) {
             
                        
             String httpMethod = JAXRSUtils.getHttpMethodValue(m);
@@ -187,7 +202,8 @@ public class JAXRSServiceFactoryBean extends AbstractServiceFactoryBean {
                 ori.setURITemplate(t);
                 md.bind(ori, m);     
                 Class subResourceClass = m.getReturnType();
-                ClassResourceInfo subCri = createClassResourceInfo(subResourceClass, false);
+                ClassResourceInfo subCri = createClassResourceInfo(
+                     subResourceClass, subResourceClass, false);
                 cri.addSubClassResourceInfo(subCri);
             } else if (httpMethod != null) {
                 OperationResourceInfo ori = new OperationResourceInfo(m, cri);

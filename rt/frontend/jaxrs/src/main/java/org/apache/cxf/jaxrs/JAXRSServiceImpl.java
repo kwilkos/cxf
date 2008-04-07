@@ -57,7 +57,7 @@ public class JAXRSServiceImpl extends AbstractAttributedInterceptorProvider impl
     }
 
     public QName getName() {    
-        Class primaryClass = classResourceInfos.get(0).getResourceClass();
+        Class primaryClass = classResourceInfos.get(0).getServiceClass();
         return new QName("jaxrs", primaryClass.getSimpleName());
     }
 

@@ -17,33 +17,16 @@
  * under the License.
  */
 
-package org.apache.cxf.common.util;
+package org.apache.cxf.systest.jaxrs;
 
-/**
- * 
- */
-public class ClassHelper {
-    static final ClassHelper HELPER;
-    static {
-        ClassHelper theHelper = null;
-        try {
-            theHelper = new SpringAopClassHelper();
-        } catch (Exception ex) {
-            theHelper = new ClassHelper();
-        }
-        HELPER = theHelper;
+public class SimpleLoggingAspect {
+    
+    public void logBefore() {
+        System.out.println("AOP in before action");
     }
     
-    
-    protected ClassHelper() {
+    public void logAfter() {
+        System.out.println("AOP in after action");
     }
     
-    protected Class getRealClassInternal(Object o) {
-        return o.getClass();
-    }
-    
-    
-    public static Class getRealClass(Object o) {
-        return HELPER.getRealClassInternal(o);
-    }
 }
