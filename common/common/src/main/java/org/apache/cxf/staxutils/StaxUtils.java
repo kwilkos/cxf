@@ -202,7 +202,11 @@ public final class StaxUtils {
 
         if (namespace.length() > 0) {
             writer.writeStartElement(prefix, name, namespace);
-            writer.writeNamespace(prefix, namespace);
+            if (prefix.length() > 0) {
+                writer.writeNamespace(prefix, namespace);
+            } else {
+                writer.writeDefaultNamespace(namespace);
+            }
         } else {
             writer.writeStartElement(name);
             writer.writeDefaultNamespace("");
