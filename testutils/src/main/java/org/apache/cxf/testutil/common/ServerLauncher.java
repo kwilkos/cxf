@@ -328,7 +328,7 @@ public class ServerLauncher {
                 cmd.add("-D" + entry.getKey() + "=" + entry.getValue());
             }
         }
-
+        cmd.add("-Djava.awt.headless=true");
         cmd.add("-ea");
         
         cmd.add("-Djavax.xml.ws.spi.Provider=org.apache.cxf.bus.jaxws.spi.ProviderImpl");
