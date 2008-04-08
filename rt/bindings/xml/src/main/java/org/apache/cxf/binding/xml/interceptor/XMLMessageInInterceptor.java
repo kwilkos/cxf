@@ -135,6 +135,19 @@ public class XMLMessageInInterceptor extends AbstractInDatabindingInterceptor {
                 }
             }
         }
+        if (match == null) {
+            for (BindingOperationInfo boi : bi.getOperations()) {
+                if (startQName.equals(boi.getName())) {
+                    match = boi;
+                    //Consume The rootNode tag
+                    try {
+                        xsr.nextTag();
+                    } catch (XMLStreamException xse) {
+                        throw new Fault(new org.apache.cxf.common.i18n.Message("STAX_READ_EXC", LOG));
+                    }
+                }
+            } 
+        }
         return match;
     }
 

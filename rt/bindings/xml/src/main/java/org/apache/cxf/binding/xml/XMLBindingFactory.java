@@ -31,6 +31,7 @@ import org.apache.cxf.interceptor.DocLiteralInInterceptor;
 import org.apache.cxf.interceptor.StaxInInterceptor;
 import org.apache.cxf.interceptor.StaxOutInterceptor;
 import org.apache.cxf.interceptor.URIMappingInterceptor;
+import org.apache.cxf.interceptor.WrappedOutInterceptor;
 import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.OperationInfo;
@@ -44,12 +45,13 @@ public class XMLBindingFactory extends AbstractBindingFactory {
         if (!Boolean.TRUE.equals(binding.getProperty(DATABINDING_DISABLED))) {
             xb.getInInterceptors().add(new AttachmentInInterceptor());    
             xb.getInInterceptors().add(new StaxInInterceptor());
-            xb.getOutInterceptors().add(new StaxOutInterceptor());
-            
             xb.getInInterceptors().add(new URIMappingInterceptor());
-            xb.getOutInterceptors().add(new XMLMessageOutInterceptor());
             xb.getInInterceptors().add(new DocLiteralInInterceptor());
             xb.getInInterceptors().add(new XMLMessageInInterceptor());
+
+            xb.getOutInterceptors().add(new StaxOutInterceptor());
+            xb.getOutInterceptors().add(new WrappedOutInterceptor());
+            xb.getOutInterceptors().add(new XMLMessageOutInterceptor());            
         }        
 
         xb.getInFaultInterceptors().add(new XMLFaultInInterceptor());
