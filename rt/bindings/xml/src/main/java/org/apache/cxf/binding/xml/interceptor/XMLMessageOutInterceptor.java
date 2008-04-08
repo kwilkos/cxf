@@ -27,6 +27,7 @@ import javax.xml.stream.XMLStreamWriter;
 
 import org.apache.cxf.bindings.xformat.XMLBindingMessageFormat;
 import org.apache.cxf.common.i18n.BundleUtils;
+import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.interceptor.AbstractOutDatabindingInterceptor;
 import org.apache.cxf.interceptor.BareOutInterceptor;
 import org.apache.cxf.interceptor.Fault;
@@ -66,8 +67,10 @@ public class XMLMessageOutInterceptor extends AbstractOutDatabindingInterceptor 
         if (xmf != null) {
             rootInModel = xmf.getRootNode();
         }
-        if (!boi.isUnwrapped() && mi.getMessageParts().size() == 1) {
-            // bare-one-param
+        if (boi.isUnwrapped() 
+            || mi.getMessageParts().size() == 1) {
+            // wrapper out interceptor created the wrapper
+            // or if bare-one-param
             new BareOutInterceptor().handleMessage(message);
         } else {
             if (rootInModel == null) {
@@ -93,8 +96,12 @@ public class XMLMessageOutInterceptor extends AbstractOutDatabindingInterceptor 
     private void writeMessage(Message message, QName name, boolean executeBare) {
         XMLStreamWriter xmlWriter = message.getContent(XMLStreamWriter.class);
         try {
+            String pfx = name.getPrefix();
+            if (StringUtils.isEmpty(pfx)) {
+                pfx = "ns1";
+            }
             StaxUtils.writeStartElement(xmlWriter,
-                                        name.getPrefix(),
+                                        pfx,
                                         name.getLocalPart(),
                                         name.getNamespaceURI());
             if (executeBare) {
