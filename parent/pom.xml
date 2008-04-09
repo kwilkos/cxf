@@ -223,7 +223,7 @@
                         <systemProperties>
                             <property>
                                 <name>java.awt.headless</name>
-                                <value>true</value>
+                                <value>${java.awt.headless}</value>
                             </property>
                             <property>
                                 <name>java.util.logging.config.file</name>
