@@ -335,7 +335,7 @@ public final class LogUtils {
     }
 
     /**
-     * Retreive localized message retreived from a logger's resource
+     * Retrieve localized message retrieved from a logger's resource
      * bundle.
      *
      * @param logger the Logger
