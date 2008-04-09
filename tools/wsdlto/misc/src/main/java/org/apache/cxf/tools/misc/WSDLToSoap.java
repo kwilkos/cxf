@@ -25,6 +25,7 @@ import java.util.Set;
 
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.tools.common.AbstractCXFToolContainer;
+import org.apache.cxf.tools.common.CommandInterfaceUtils;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolException;
@@ -117,6 +118,7 @@ public class WSDLToSoap extends AbstractCXFToolContainer {
     }
 
     public static void main(String[] pargs) {
+        CommandInterfaceUtils.commandCommonMain();
         try {
             ToolRunner.runTool(WSDLToSoap.class,
                                WSDLToSoap.class.getResourceAsStream("wsdl2soap.xml"),

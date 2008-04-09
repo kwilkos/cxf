@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.apache.cxf.common.util.StringUtils;
+import org.apache.cxf.tools.common.CommandInterfaceUtils;
 import org.apache.cxf.tools.common.toolspec.ToolRunner;
 
 public class JavaToWS {
@@ -37,6 +38,7 @@ public class JavaToWS {
     }
 
     public static void main(String[] args) {
+        CommandInterfaceUtils.commandCommonMain();
         JavaToWS j2w = new JavaToWS(args);
         try {
             j2w.run();

@@ -105,7 +105,7 @@ public final class PluginLoader {
 
     private void loadPlugins(Enumeration<URL> pluginFiles) throws IOException {
         if (pluginFiles == null) {
-            LOG.log(Level.INFO, "FOUND_NO_PLUGINS");
+            LOG.log(Level.WARNING, "FOUND_NO_PLUGINS");
             return;
         }
 
@@ -130,7 +130,7 @@ public final class PluginLoader {
 
     public void loadPlugin(URL url) throws IOException {
         try {
-            LOG.log(Level.INFO, "PLUGIN_LOADING", url);
+            LOG.log(Level.FINE, "PLUGIN_LOADING", url);
             loadPlugin(getPlugin(url));
         } catch (JAXBException e) {
             Message msg = new Message("PLUGIN_LOAD_FAIL", LOG, url);
@@ -141,7 +141,7 @@ public final class PluginLoader {
 
     public void loadPlugin(String resource) {
         try {
-            LOG.log(Level.INFO, "PLUGIN_LOADING", resource);
+            LOG.log(Level.FINE, "PLUGIN_LOADING", resource);
             loadPlugin(getPlugin(resource));
         } catch (JAXBException e) {
             Message msg = new Message("PLUGIN_LOAD_FAIL", LOG, resource);
@@ -157,12 +157,12 @@ public final class PluginLoader {
 
     protected void loadPlugin(Plugin plugin) {
         if (plugin.getFrontend().size() > 0) {
-            LOG.log(Level.INFO, "FOUND_FRONTENDS", new Object[]{plugin.getName(),
+            LOG.log(Level.FINE, "FOUND_FRONTENDS", new Object[]{plugin.getName(),
                                                                 plugin.getFrontend().size()});
         }
 
         for (FrontEnd frontend : plugin.getFrontend()) {
-            LOG.log(Level.INFO, "LOADING_FRONTEND", new Object[]{frontend.getName(), plugin.getName()});
+            LOG.log(Level.FINE, "LOADING_FRONTEND", new Object[]{frontend.getName(), plugin.getName()});
             if (StringUtils.isEmpty(frontend.getName())) {
                 LOG.log(Level.WARNING, "FRONTEND_MISSING_NAME", plugin.getName());
                 continue;
@@ -178,12 +178,12 @@ public final class PluginLoader {
         }
 
         if (plugin.getDatabinding().size() > 0) {
-            LOG.log(Level.INFO, "FOUND_DATABINDINGS", new Object[]{plugin.getName(),
+            LOG.log(Level.FINE, "FOUND_DATABINDINGS", new Object[]{plugin.getName(),
                                                                    plugin.getDatabinding().size()});
         }
 
         for (DataBinding databinding : plugin.getDatabinding()) {
-            LOG.log(Level.INFO, "LOADING_DATABINDING", new Object[]{databinding.getName(), plugin.getName()});
+            LOG.log(Level.FINE, "LOADING_DATABINDING", new Object[]{databinding.getName(), plugin.getName()});
             if (StringUtils.isEmpty(databinding.getName())) {
                 LOG.log(Level.WARNING, "DATABINDING_MISSING_NAME", plugin.getName());
                 continue;
