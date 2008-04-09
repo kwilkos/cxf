@@ -299,17 +299,23 @@ public class JsXMLHttpRequest extends ScriptableObject {
         }
         
         if (post) {
+            OutputStream outputStream = null;
             try {
-                OutputStream outputStream = connection.getOutputStream(); // implicitly connects?
+                outputStream = connection.getOutputStream(); // implicitly connects?
                 if (dataToSend != null) {
                     outputStream.write(dataToSend);
                     outputStream.flush();
-                    outputStream.close();
                 }
+                outputStream.close();
             } catch (IOException e) {
                 errorFlag = true;
                 LOG.log(Level.SEVERE, "send output error.", e);
                 throwError("NETWORK_ERR");
+                try {
+                    outputStream.close();
+                } catch (IOException e1) {
+                    //
+                }
             }
         }
         // 6
