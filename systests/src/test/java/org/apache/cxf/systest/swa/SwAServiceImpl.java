@@ -96,7 +96,6 @@ public class SwAServiceImpl implements SwAServiceInterface {
                                                     Holder<DataHandler> attach2, Holder<Source> attach3,
                                                     Holder<Image> attach4, Holder<Image> attach5) {
         try {
-            System.out.println("Enter echoAllAttachmentTypes() ......");
             OutputResponseAll theResponse = new OutputResponseAll();
             theResponse.setResult("ok");
             theResponse.setReason("ok");
@@ -141,7 +140,6 @@ public class SwAServiceImpl implements SwAServiceInterface {
                 }
                 theResponse.setResult("not ok");
             }
-            System.out.println("Leave echoAllAttachmentTypes() ......");
             return theResponse;
         } catch (Exception e) {
             throw new WebServiceException(e.getMessage());
