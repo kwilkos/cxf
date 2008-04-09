@@ -38,6 +38,7 @@ public abstract class ToolTestBase extends AbstractCXFTest {
 
     @Before
     public void setUp() { 
+        CommandInterfaceUtils.setTestInProgress(true);
         oldStdErr = System.err; 
         oldStdOut = System.out;
         

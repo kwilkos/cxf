@@ -29,24 +29,33 @@ import java.util.logging.LogManager;
  */
 public final class CommandInterfaceUtils {
 
+    // when testing, don't change logging config.
+    private static boolean testInProgress;
+
     private CommandInterfaceUtils() {
     }
 
     public static void commandCommonMain() {
-        // force commons-logging into j.u.l so we can
-        // configure it.
-        System.setProperty("org.apache.commons.logging.Log",
-                           "org.apache.commons.logging.impl.Jdk14Logger");
-        InputStream commandConfig = CommandInterfaceUtils.class
-            .getResourceAsStream("commandLogging.properties");
-        try {
+        if (!testInProgress) {
+            // force commons-logging into j.u.l so we can
+            // configure it.
+            System.setProperty("org.apache.commons.logging.Log",
+                               "org.apache.commons.logging.impl.Jdk14Logger");
+            InputStream commandConfig = CommandInterfaceUtils.class
+                .getResourceAsStream("commandLogging.properties");
             try {
-                LogManager.getLogManager().readConfiguration(commandConfig);
-            } finally {
-                commandConfig.close();
+                try {
+                    LogManager.getLogManager().readConfiguration(commandConfig);
+                } finally {
+                    commandConfig.close();
+                }
+            } catch (IOException ioe) {
+                throw new RuntimeException(ioe);
             }
-        } catch (IOException ioe) {
-            throw new RuntimeException(ioe);
         }
+    }
+
+    public static void setTestInProgress(boolean testInProgress) {
+        CommandInterfaceUtils.testInProgress = testInProgress;
     }
 }
