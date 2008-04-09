@@ -33,9 +33,32 @@ import org.apache.tools.ant.taskdefs.Execute;
 import org.apache.tools.ant.taskdefs.LogStreamHandler;
 import org.apache.tools.ant.types.FileSet;
 import org.apache.tools.ant.types.Path;
-
+/**
+ * Ant task for wsdl2java
+ */
 public class WSDL2JavaTask extends CxfAntTask {
 
+    /* 
+     * For reference, here's the usage message from the command-line.
+     *  wsdl2java -fe <frontend name>* 
+     *  -db <data binding name>* 
+     *  -wv <[wsdl version]>* 
+     *  -p <[wsdl namespace =]Package Name>* 
+     *  -sn <service-name> -b <binding-name>* 
+     *  -catalog <catalog-file-name> 
+     *  -d <output-directory> 
+     *  -compile -classdir <compile-classes-directory> 
+     *  -impl -server -client -all 
+     *  -defaultValues<=class name for DefaultValueProvider> 
+     *  -ant 
+     *  -nexclude <schema namespace [= java packagename]>* 
+     *  -exsh <enable extended soap header message binding (true, false)> 
+     *  -dns <Default value is true> 
+     *  -dex <Default value is true> -validate -keep 
+     *  -wsdlLocation <wsdlLocation attribute> -xjc<xjc arguments> 
+     *  -noAddressBinding -h -v -verbose -quiet <wsdlurl> 
+     */
+    
     private String wsdlLocation;
     private String wsdl;
     private Set<File> bindingFiles = new HashSet<File>();
