@@ -52,7 +52,7 @@ public class MTOMBindingTypeTest extends AbstractBusClientServerTestBase {
 
     @BeforeClass
     public static void startServers() throws Exception {
-        assertTrue("server did not launch correctly", launchServer(Server.class));
+        assertTrue("server did not launch correctly", launchServer(Server.class, true));
     }
 
     protected ByteArrayOutputStream setupInLogging() {
@@ -75,6 +75,10 @@ public class MTOMBindingTypeTest extends AbstractBusClientServerTestBase {
 
     @Test
     public void testDetail() throws Exception {
+        if (Boolean.getBoolean("java.awt.headless")) {
+            System.out.println("Running headless. Skipping test as Images may not work.");
+            return;
+        }        
         ByteArrayOutputStream input = setupInLogging();
         ByteArrayOutputStream output = setupOutLogging();
 
@@ -100,6 +104,10 @@ public class MTOMBindingTypeTest extends AbstractBusClientServerTestBase {
     @Test
     @org.junit.Ignore
     public void testEcho() throws Exception {
+        if (Boolean.getBoolean("java.awt.headless")) {
+            System.out.println("Running headless. Skipping test as Images may not work.");
+            return;
+        }        
         byte[] bytes = ImageHelper.getImageBytes(getImage("/java.jpg"), "image/jpeg");
         Holder<byte[]> image = new Holder<byte[]>(bytes);
 

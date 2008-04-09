@@ -42,7 +42,7 @@ public class ClientServerSwaTest extends AbstractBusClientServerTestBase {
 
     @BeforeClass
     public static void startServers() throws Exception {
-        assertTrue("server did not launch correctly", launchServer(Server.class));
+        assertTrue("server did not launch correctly", launchServer(Server.class, true));
     }
     
     @Test
@@ -134,6 +134,11 @@ public class ClientServerSwaTest extends AbstractBusClientServerTestBase {
     
     @Test
     public void testSwaTypes() throws Exception {
+        if (Boolean.getBoolean("java.awt.headless")) {
+            System.out.println("Running headless. Skipping test as Images may not work.");
+            return;
+        }
+        
         SwAService service = new SwAService();
         
         SwAServiceInterface port = service.getSwAServiceHttpPort();
