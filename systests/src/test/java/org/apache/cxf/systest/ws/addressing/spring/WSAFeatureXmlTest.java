@@ -51,7 +51,7 @@ public class WSAFeatureXmlTest extends AbstractCXFTest {
      
         assert bus != null;
         sf.setServiceBean(new GreeterImpl());
-        sf.setAddress("http://localhost/test");
+        sf.setAddress("http://localhost:9000/test");
         sf.setStart(false);
         
         Configurer c = getBus().getExtension(Configurer.class);
@@ -67,7 +67,7 @@ public class WSAFeatureXmlTest extends AbstractCXFTest {
     public void testClientProxyFactory() {
       
         JaxWsProxyFactoryBean cf = new JaxWsProxyFactoryBean(); 
-        cf.setAddress("http://localhost/test");        
+        cf.setAddress("http://localhost:9000/test");        
         cf.setServiceClass(Greeter.class);
         cf.setBus(getBus());
         Configurer c = getBus().getExtension(Configurer.class);

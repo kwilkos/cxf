@@ -31,7 +31,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
+import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.ExchangeImpl;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.service.model.EndpointInfo;
@@ -139,14 +141,14 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
      */
     protected void activate() {
         LOG.log(Level.FINE, "Activating receipt of incoming messages");
+        URL url = null;
         try {
-            URL url = new URL(endpointInfo.getAddress());
-            engine.addServant(url, 
-                    new JettyHTTPHandler(this, contextMatchOnExact()));
-            
+            url = new URL(endpointInfo.getAddress());
         } catch (Exception e) {
-            LOG.log(Level.WARNING, "URL creation failed: ", e);
+            throw new Fault(new Message("START_UP_SERVER_FAILED_MSG", LOG, e.getMessage()), e);
         }
+        engine.addServant(url, 
+                          new JettyHTTPHandler(this, contextMatchOnExact()));
     }
 
     /**

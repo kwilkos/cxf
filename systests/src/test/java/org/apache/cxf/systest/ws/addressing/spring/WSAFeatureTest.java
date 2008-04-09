@@ -41,7 +41,7 @@ public class WSAFeatureTest extends AbstractCXFTest {
         JaxWsServerFactoryBean sf = new JaxWsServerFactoryBean();
         sf.getFeatures().add(new WSAddressingFeature());
         sf.setServiceBean(new GreeterImpl());
-        sf.setAddress("http://localhost/test");
+        sf.setAddress("http://localhost:9000/test");
         sf.setStart(false);
         sf.setBus(getBus());
         
@@ -55,7 +55,7 @@ public class WSAFeatureTest extends AbstractCXFTest {
     @Test
     public void testClientProxyFactory() {
         JaxWsProxyFactoryBean cf = new JaxWsProxyFactoryBean(); 
-        cf.setAddress("http://localhost/test");
+        cf.setAddress("http://localhost:9000/test");
         cf.getFeatures().add(new WSAddressingFeature());
         cf.setServiceClass(Greeter.class);
         Greeter greeter = (Greeter) cf.create();

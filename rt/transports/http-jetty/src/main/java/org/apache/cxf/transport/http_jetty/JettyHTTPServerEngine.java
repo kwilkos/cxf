@@ -32,8 +32,10 @@ import javax.annotation.Resource;
 import javax.servlet.ServletContext;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.configuration.jsse.TLSServerParameters;
+import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.transport.HttpUriMapper;
 import org.apache.cxf.transport.https_jetty.JettySslConnectorFactory;
 import org.mortbay.jetty.AbstractConnector;
@@ -305,8 +307,9 @@ public class JettyHTTPServerEngine
                     server.stop();
                     server.destroy();
                 } catch (Exception ex) {
-                    LOG.log(Level.SEVERE, "START_UP_SERVER_FAILED_MSG", new Object[] {e.getMessage()});
-                }    
+                    //ignore - probably wasn't fully started anyway
+                }
+                throw new Fault(new Message("START_UP_SERVER_FAILED_MSG", LOG, e.getMessage()), e);
             }
         }        
         
