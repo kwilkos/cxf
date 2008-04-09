@@ -21,6 +21,9 @@ package org.apache.cxf.tools.java2wsdl.processor.internal.jaxws;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Map;
+import java.util.TreeMap;
+
 import javax.xml.namespace.QName;
 import javax.xml.ws.WebFault;
 
@@ -81,16 +84,21 @@ public final class FaultBean {
     }
     
     private void buildBeanFields(final Class exceptionClass, final JavaClass jClass) {
+        Map<String, JavaField> fields = new TreeMap<String, JavaField>(); 
+        
         for (Method method : exceptionClass.getMethods()) {
             if (isIncludedGetter(method)) {
                 JavaField field = new JavaField(getFieldName(method),
                                                 method.getReturnType().getName(),
                                                 "");
                 field.setOwner(jClass);
-                jClass.addField(field);
-                jClass.appendGetter(field);
-                jClass.appendSetter(field);
+                fields.put(field.getName(), field);
             }
+        }
+        for (Map.Entry<String, JavaField> ent : fields.entrySet()) {
+            jClass.addField(ent.getValue());
+            jClass.appendGetter(ent.getValue());
+            jClass.appendSetter(ent.getValue());
         }
     }
     
