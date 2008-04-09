@@ -77,7 +77,7 @@ public class WebserviceDescriptionType {
     protected DisplayNameType displayName;
     protected IconType icon;
     @XmlElement(name = "webservice-description-name", required = true)
-    protected org.apache.cxf.jaxws.javaee.String webserviceDescriptionName;
+    protected org.apache.cxf.jaxws.javaee.CString webserviceDescriptionName;
     @XmlElement(name = "wsdl-file")
     protected PathType wsdlFile;
     @XmlElement(name = "jaxrpc-mapping-file")
@@ -166,10 +166,10 @@ public class WebserviceDescriptionType {
      * 
      * @return
      *     possible object is
-     *     {@link org.apache.cxf.jaxws.javaee.String }
+     *     {@link org.apache.cxf.jaxws.javaee.CString }
      *     
      */
-    public org.apache.cxf.jaxws.javaee.String getWebserviceDescriptionName() {
+    public org.apache.cxf.jaxws.javaee.CString getWebserviceDescriptionName() {
         return webserviceDescriptionName;
     }
 
@@ -178,10 +178,10 @@ public class WebserviceDescriptionType {
      * 
      * @param value
      *     allowed object is
-     *     {@link org.apache.cxf.jaxws.javaee.String }
+     *     {@link org.apache.cxf.jaxws.javaee.CString }
      *     
      */
-    public void setWebserviceDescriptionName(org.apache.cxf.jaxws.javaee.String value) {
+    public void setWebserviceDescriptionName(org.apache.cxf.jaxws.javaee.CString value) {
         this.webserviceDescriptionName = value;
     }
 

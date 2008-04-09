@@ -97,7 +97,7 @@ public class PersistenceContextRefType {
     @XmlElement(name = "persistence-context-ref-name", required = true)
     protected JndiNameType persistenceContextRefName;
     @XmlElement(name = "persistence-unit-name")
-    protected org.apache.cxf.jaxws.javaee.String persistenceUnitName;
+    protected org.apache.cxf.jaxws.javaee.CString persistenceUnitName;
     @XmlElement(name = "persistence-context-type")
     protected PersistenceContextTypeType persistenceContextType;
     @XmlElement(name = "persistence-property")
@@ -169,10 +169,10 @@ public class PersistenceContextRefType {
      * 
      * @return
      *     possible object is
-     *     {@link org.apache.cxf.jaxws.javaee.String }
+     *     {@link org.apache.cxf.jaxws.javaee.CString }
      *     
      */
-    public org.apache.cxf.jaxws.javaee.String getPersistenceUnitName() {
+    public org.apache.cxf.jaxws.javaee.CString getPersistenceUnitName() {
         return persistenceUnitName;
     }
 
@@ -181,10 +181,10 @@ public class PersistenceContextRefType {
      * 
      * @param value
      *     allowed object is
-     *     {@link org.apache.cxf.jaxws.javaee.String }
+     *     {@link org.apache.cxf.jaxws.javaee.CString }
      *     
      */
-    public void setPersistenceUnitName(org.apache.cxf.jaxws.javaee.String value) {
+    public void setPersistenceUnitName(org.apache.cxf.jaxws.javaee.CString value) {
         this.persistenceUnitName = value;
     }
 

@@ -346,11 +346,11 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link String }
+     * Create an instance of {@link CString }
      * 
      */
-    public String createString() {
-        return new String();
+    public CString createString() {
+        return new CString();
     }
 
     /**

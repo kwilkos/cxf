@@ -53,7 +53,7 @@ import javax.xml.bind.annotation.XmlType;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "display-nameType")
 public class DisplayNameType
-    extends org.apache.cxf.jaxws.javaee.String
+    extends org.apache.cxf.jaxws.javaee.CString
 {
 
     @XmlAttribute(namespace = "http://www.w3.org/XML/1998/namespace")

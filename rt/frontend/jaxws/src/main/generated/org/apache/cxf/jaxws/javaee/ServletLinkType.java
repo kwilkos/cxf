@@ -50,7 +50,7 @@ import javax.xml.bind.annotation.XmlType;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "servlet-linkType")
 public class ServletLinkType
-    extends String
+    extends CString
 {
 
 
