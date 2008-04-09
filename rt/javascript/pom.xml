@@ -13,11 +13,6 @@
         <relativePath>../../parent/pom.xml</relativePath>
     </parent>
 
-    <properties>
-        <surefire.fork.mode>pertest</surefire.fork.mode>
-    </properties>
-
-
     <dependencies>
         <dependency>
             <groupId>org.apache.cxf</groupId>
