@@ -230,16 +230,23 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
     protected void doPublish(String addr) {
         checkPublishPermission();
         
-        ServerImpl serv = getServer(addr);
-        if (addr != null) {            
-            EndpointInfo endpointInfo = serv.getEndpoint().getEndpointInfo();
-            endpointInfo.setAddress(addr);
-            if (publishedEndpointUrl != null) {
-                // TODO is there a good place to put this key-string as a constant?
-                endpointInfo.setProperty("publishedEndpointUrl", publishedEndpointUrl);
+        try {
+            ServerImpl serv = getServer(addr);
+            if (addr != null) {            
+                EndpointInfo endpointInfo = serv.getEndpoint().getEndpointInfo();
+                endpointInfo.setAddress(addr);
+                if (publishedEndpointUrl != null) {
+                    // TODO is there a good place to put this key-string as a constant?
+                    endpointInfo.setProperty("publishedEndpointUrl", publishedEndpointUrl);
+                }
+                this.address = addr;
             }
+            serv.start();
+        } catch (WebServiceException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            throw new WebServiceException(ex);
         }
-        serv.start();
     }
     
     public ServerImpl getServer() {
