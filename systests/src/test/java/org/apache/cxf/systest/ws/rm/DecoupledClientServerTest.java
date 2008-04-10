@@ -70,7 +70,8 @@ public class DecoupledClientServerTest extends AbstractBusClientServerTestBase {
             
             Endpoint ep = Endpoint.create(implementor);
             Map<String, Object> properties = new HashMap<String, Object>();
-            properties.put("schema-validation-enabled", Boolean.TRUE);
+            properties.put("schema-validation-enabled",
+                           shouldValidate());
             ep.setProperties(properties);
             ep.publish(address);
 
@@ -93,9 +94,20 @@ public class DecoupledClientServerTest extends AbstractBusClientServerTestBase {
     
     @BeforeClass
     public static void startServers() throws Exception {
-        assertTrue("server did not launch correctly", launchServer(Server.class));
+        assertTrue("server did not launch correctly", 
+                   launchServer(Server.class));
     }
             
+    public static Boolean shouldValidate() {
+        String ver = System.getProperty("java.version");
+        if (ver.startsWith("1.5.0_0")) {
+            //older versions of the JDK have a bug in the parser
+            //that prevent the validation from actually working
+            return Boolean.FALSE;
+        }
+        return Boolean.TRUE;
+    }
+    
     @Test
     public void testDecoupled() throws Exception {
         SpringBusFactory bf = new SpringBusFactory();
@@ -110,7 +122,8 @@ public class DecoupledClientServerTest extends AbstractBusClientServerTestBase {
         
         GreeterService gs = new GreeterService();
         final Greeter greeter = gs.getGreeterPort();
-        ((BindingProvider)greeter).getRequestContext().put("schema-validation-enabled", Boolean.TRUE);
+        ((BindingProvider)greeter).getRequestContext().put("schema-validation-enabled", 
+                                                           shouldValidate());
         LOG.fine("Created greeter client.");
        
         ConnectionHelper.setKeepAliveConnection(greeter, true);
