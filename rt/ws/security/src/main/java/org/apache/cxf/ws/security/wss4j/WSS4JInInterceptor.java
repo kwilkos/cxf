@@ -180,7 +180,8 @@ public class WSS4JInInterceptor extends AbstractWSS4JInterceptor {
                 .fetchActionResult(wsResult, WSConstants.SIGN);
 
             if (actionResult != null) {
-                X509Certificate returnCert = actionResult.getCertificate();
+                X509Certificate returnCert = (X509Certificate)actionResult
+                    .get(WSSecurityEngineResult.TAG_X509_CERTIFICATE);
 
                 if (returnCert != null && !verifyTrust(returnCert, reqData)) {
                     LOG.warning("The certificate used for the signature is not trusted");
@@ -202,7 +203,7 @@ public class WSS4JInInterceptor extends AbstractWSS4JInterceptor {
             actionResult = WSSecurityUtil.fetchActionResult(wsResult, WSConstants.TS);
 
             if (actionResult != null) {
-                Timestamp timestamp = actionResult.getTimestamp();
+                Timestamp timestamp = (Timestamp)actionResult.get(WSSecurityEngineResult.TAG_TIMESTAMP);
 
                 if (timestamp != null && !verifyTimestamp(timestamp, decodeTimeToLive(reqData))) {
                     LOG.warning("The timestamp could not be validated");
@@ -310,7 +311,9 @@ public class WSS4JInInterceptor extends AbstractWSS4JInterceptor {
         // broken checkReceiverResults method in WSS4J.
         //
         for (int i = 0; i < wsResult.size(); i++) {
-            if (((WSSecurityEngineResult) wsResult.get(i)).getAction() == WSConstants.SC) {
+            Integer action = (Integer)((WSSecurityEngineResult)wsResult.get(i))
+                .get(WSSecurityEngineResult.TAG_ACTION);
+            if (action != null && action.intValue() == WSConstants.SC) {
                 wsResult.remove(i);
             }
         }

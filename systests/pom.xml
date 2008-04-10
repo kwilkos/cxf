@@ -312,13 +312,13 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>aspectj</groupId>
+            <groupId>org.aspectj</groupId>
             <artifactId>aspectjrt</artifactId>
             <version>1.5.4</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>aspectj</groupId>
+            <groupId>org.aspectj</groupId>
             <artifactId>aspectjweaver</artifactId>
             <version>1.5.4</version>
             <scope>test</scope>
@@ -401,7 +401,7 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>xmlbeans</groupId>
+            <groupId>org.apache.xmlbeans</groupId>
             <artifactId>xmlbeans</artifactId>
             <scope>test</scope>
         </dependency>

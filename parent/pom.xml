@@ -47,7 +47,7 @@
         <jaxb.impl.version>2.1.6</jaxb.impl.version>
         <jaxb.xjc.version>2.1.6</jaxb.xjc.version>
         <jaxws.version>2.1-1</jaxws.version>
-        <jetty.version>6.1.8</jetty.version>
+        <jetty.version>6.1.9</jetty.version>
         <saaj.version>1.3</saaj.version>
         <saaj.impl.version>1.3</saaj.impl.version>
         <spring.version>2.0.8</spring.version>
@@ -810,12 +810,12 @@
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
                 <artifactId>geronimo-servlet_2.5_spec</artifactId>
-                <version>1.1.2</version>
+                <version>1.2</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
                 <artifactId>geronimo-javamail_1.4_spec</artifactId>
-                <version>1.2</version>
+                <version>1.3</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
@@ -864,7 +864,7 @@
                 <version>${rhino.version}</version>
             </dependency>
             <dependency>
-                <groupId>xmlbeans</groupId>
+                <groupId>org.apache.xmlbeans</groupId>
                 <artifactId>xmlbeans</artifactId>
                 <version>${xmlbeans.version}</version>
             </dependency>
