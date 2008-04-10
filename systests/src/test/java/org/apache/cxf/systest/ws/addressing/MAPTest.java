@@ -20,11 +20,6 @@
 package org.apache.cxf.systest.ws.addressing;
 
 import java.lang.reflect.UndeclaredThrowableException;
-import java.net.SocketException;
-import org.apache.cxf.message.Message;
-import org.apache.cxf.phase.AbstractPhaseInterceptor;
-import org.apache.cxf.phase.Phase;
-import org.apache.cxf.systest.ws.util.ConnectionHelper;
 import org.apache.hello_world_soap_http.BadRecordLitFault;
 import org.junit.Test;
 
