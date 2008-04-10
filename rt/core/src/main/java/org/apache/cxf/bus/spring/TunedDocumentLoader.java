@@ -28,6 +28,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
@@ -41,7 +42,6 @@ import org.xml.sax.ErrorHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 
-import com.ctc.wstx.sax.WstxSAXParserFactory;
 import com.sun.xml.fastinfoset.sax.SAXDocumentParser;
 
 import org.springframework.beans.factory.xml.DefaultDocumentLoader;
@@ -66,9 +66,28 @@ class TunedDocumentLoader extends DefaultDocumentLoader {
         }
     }
     private TransformerFactory transformerFactory;
+    private SAXParserFactory saxParserFactory;
+    private SAXParserFactory nsasaxParserFactory;
     
     TunedDocumentLoader() {
         transformerFactory = TransformerFactory.newInstance();
+        
+        try {
+            Class<?> cls = Class.forName("com.ctc.wstx.sax.WstxSAXParserFactory");
+            saxParserFactory = (SAXParserFactory)cls.newInstance();
+            nsasaxParserFactory = (SAXParserFactory)cls.newInstance();
+        } catch (Exception e) {
+            //woodstox not found, use any other Stax parser
+            saxParserFactory = SAXParserFactory.newInstance();
+            nsasaxParserFactory = SAXParserFactory.newInstance();
+        }
+
+        try {
+            nsasaxParserFactory.setFeature("http://xml.org/sax/features/namespace-prefixes", 
+                                           true);
+        } catch (Exception e) {
+            //ignore
+        }
     }
 
     @Override
@@ -77,11 +96,9 @@ class TunedDocumentLoader extends DefaultDocumentLoader {
         throws Exception {
         if (validationMode == XmlBeanDefinitionReader.VALIDATION_NONE) {
             
-            WstxSAXParserFactory woodstoxParserFactory;
-            woodstoxParserFactory = new WstxSAXParserFactory();
-            woodstoxParserFactory.setFeature("http://xml.org/sax/features/namespace-prefixes", 
-                                             namespaceAware);
-            SAXParser parser = woodstoxParserFactory.newSAXParser();
+            SAXParserFactory parserFactory = 
+                namespaceAware ? nsasaxParserFactory : saxParserFactory;
+            SAXParser parser = parserFactory.newSAXParser();
             XMLReader reader = parser.getXMLReader();
             reader.setEntityResolver(entityResolver);
             reader.setErrorHandler(errorHandler);
