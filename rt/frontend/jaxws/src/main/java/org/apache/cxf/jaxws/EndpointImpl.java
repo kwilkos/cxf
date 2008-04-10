@@ -28,6 +28,7 @@ import java.util.concurrent.Executor;
 import javax.xml.namespace.QName;
 import javax.xml.transform.Source;
 import javax.xml.ws.Binding;
+import javax.xml.ws.WebServiceException;
 import javax.xml.ws.WebServicePermission;
 import javax.xml.ws.handler.Handler;
 
