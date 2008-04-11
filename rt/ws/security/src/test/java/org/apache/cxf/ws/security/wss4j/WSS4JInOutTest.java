@@ -134,7 +134,8 @@ public class WSS4JInOutTest extends AbstractSecurityTest {
         WSSecurityEngineResult result = 
             (WSSecurityEngineResult) inmsg.get(WSS4JInInterceptor.SIGNATURE_RESULT);
         assertNotNull(result);
-        X509Certificate certificate = result.getCertificate();
+        X509Certificate certificate = (X509Certificate)result
+            .get(WSSecurityEngineResult.TAG_X509_CERTIFICATE);
         assertNotNull(certificate);
     }
     
@@ -198,7 +199,8 @@ public class WSS4JInOutTest extends AbstractSecurityTest {
         WSSecurityEngineResult result = 
             (WSSecurityEngineResult) inmsg.get(WSS4JInInterceptor.SIGNATURE_RESULT);
         assertNotNull(result);
-        X509Certificate certificate = result.getCertificate();
+        X509Certificate certificate = (X509Certificate)result
+            .get(WSSecurityEngineResult.TAG_X509_CERTIFICATE);
         assertNotNull(certificate);
     }
 

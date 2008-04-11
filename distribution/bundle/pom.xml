@@ -237,6 +237,7 @@
                             junit.framework*;resolution:=optional,
                             org.apache.commons.lang*;resolution:=optional,
                             org.apache.log4j*;resolution:=optional,
+                            org.apache.tools.ant*;resolution:=optional,
                             org.apache.velocity*;resolution:=optional,
                             org.apache.xmlbeans*;resolution:=optional,
                             org.apache.ws.security*;resolution:=optional,
