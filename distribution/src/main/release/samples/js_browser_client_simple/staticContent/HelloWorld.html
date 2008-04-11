@@ -29,19 +29,20 @@ Greeter.url = "/SoapContext/SoapPort";
 
 var responseSpan;
 
-<!-- This is the function called upon success. -->
+// This is the function called upon success.
 function sayHiResponse(response)
 {
     responseSpan.firstChild.nodeValue = response.getResponseType();
 }
 
-<!-- This is the function called for an error. -->
+// This is the function called for an error.
+
 function sayHiError(error)
 {
       alert('error ' + error);
 }
 
-<!-- This function is invoked from the button press to run the service. -->
+// This function is invoked from the button press to run the service. 
 function invokeSayHi()
 {
     responseSpan = document.getElementById('sayHiResponse');

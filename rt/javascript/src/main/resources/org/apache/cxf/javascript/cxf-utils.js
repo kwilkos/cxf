@@ -20,8 +20,8 @@
 // Alternative, it could be made 'static', but this allowed us to use this same
 // object
 // to carry some state.
-const org_apache_cxf_XSI_namespace_uri = "http://www.w3.org/2001/XMLSchema-instance";
-const org_apache_cxf_XSD_namespace_uri = "http://www.w3.org/2001/XMLSchema";
+var org_apache_cxf_XSI_namespace_uri = "http://www.w3.org/2001/XMLSchema-instance";
+var org_apache_cxf_XSD_namespace_uri = "http://www.w3.org/2001/XMLSchema";
 
 function cxf_apache_org_util_null_trace(message) {
 }
@@ -268,7 +268,7 @@ function org_apache_cxf_end_soap11_message() {
 
 CxfApacheOrgUtil.prototype.endSoap11Message = org_apache_cxf_end_soap11_message;
 
-const org_apache_cxf_base64_keyStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+var org_apache_cxf_base64_keyStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
 
 function org_apache_cxf_base64_encode64array(input) {
 	var output = "";
@@ -397,7 +397,7 @@ function org_apache_cxf_base64_decode64array(input) {
 	return output;
 }
 
-const org_apache_cxf_base64_hD = "0123456789ABCDEF";
+var org_apache_cxf_base64_hD = "0123456789ABCDEF";
 function org_apache_cxf_base64_d2h(d) {
 	var h = org_apache_cxf_base64_hD.substr(d & 15, 1);
 	while (d > 15) {
@@ -467,7 +467,7 @@ function org_apache_cxf_base64_decode64UTF8(input) {
 // <'
 // + uuid + '>\r\n\r\n' + value + '\r\n';
 
-const org_apache_cxf_XOP_NS = 'http://www.w3.org/2004/08/xop/include';
+var org_apache_cxf_XOP_NS = 'http://www.w3.org/2004/08/xop/include';
 
 function org_apache_cxf_deserialize_MTOM_or_base64(element) {
 	var elementChild = this.getFirstElementChild(element);
@@ -528,9 +528,9 @@ function CxfApacheOrgClient(utils) {
 	this.READY_STATE_DONE = 4;
 }
 
-const org_apache_cxf_pad_string_PAD_LEFT = 0;
-const org_apache_cxf_pad_string_PAD_RIGHT = 1;
-const org_apache_cxf_pad_string_PAD_BOTH = 2;
+var org_apache_cxf_pad_string_PAD_LEFT = 0;
+var org_apache_cxf_pad_string_PAD_RIGHT = 1;
+var org_apache_cxf_pad_string_PAD_BOTH = 2;
 
 function org_apache_cxf_pad_string(string, len, pad, type) {
 	var append = new String();
@@ -600,7 +600,7 @@ function org_apache_cxf_make_uuid(type) {
 	return null;
 }
 
-const ORG_APACHE_CXF_MTOM_REQUEST_HEADER = 'Content-Type: application/xop+xml; type="text/xml"; charset=utf-8\r\n';
+var ORG_APACHE_CXF_MTOM_REQUEST_HEADER = 'Content-Type: application/xop+xml; type="text/xml"; charset=utf-8\r\n';
 
 // Caller must avoid stupid mistakes like 'GET' with a request body.
 // This does not support attempts to cross-script.

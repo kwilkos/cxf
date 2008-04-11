@@ -22,14 +22,14 @@
 <!-- Generate and retrieve a JavaScript client for the server. -->
 <script type="text/javascript" src="/beverages?js"></script>
 <script type="text/javascript">
-<!-- create an object that talks to the server. -->
+// Create an object that talks to the server.
 var server = new urn_cxf_apache_org_jsjaxws_JavascriptExample();
-<!-- set the URL for the service. No cross-scripting allowed. -->
+// Set the URL for the service. No cross-scripting allowed. 
 server.url = "/beverages";
 
 var responseSpan;
 
-<!-- This is the function called upon success. -->
+// This is the function called upon success.
 function beverageListResponse(response)
 {
     responseSpan = document.getElementById('beverages');
@@ -42,13 +42,13 @@ function beverageListResponse(response)
     responseSpan.firstChild.nodeValue = str;
 }
 
-<!-- This is the function called for an error. -->
+// This is the function called for an error.
 function onerror(error)
 {
       alert('error ' + error);
 }
 
-<!-- This function is invoked from the button press to run the service. -->
+// This function is invoked from the button press to run the service.
 function invokeCategoryQuery()
 {
     responseSpan = document.getElementById('beverages');
