@@ -229,7 +229,6 @@
                 <configuration>
                     <instructions>
                         <Import-Package>
-                            antlr*;resolution:=optional,
                             com.ctc.wstx*;resolution:=optional,
                             com.ibm*;resolution:=optional,
                             com.sun*;resolution:=optional,
@@ -238,14 +237,12 @@
                             javax.xml.soap,
                             junit.framework*;resolution:=optional,
                             org.apache.commons.lang*;resolution:=optional,
-                            org.apache.commons.codec*;resolution:=optional,
                             org.apache.log4j*;resolution:=optional,
                             org.apache.tools.ant*;resolution:=optional,
                             org.apache.velocity*;resolution:=optional,
                             org.apache.xmlbeans*;resolution:=optional,
                             org.apache.ws.security*;resolution:=optional,
                             org.codehaus.jra*;resolution:=optional,
-                            org.codehaus.jettison*;resolution:=optional,
                             org.jdom*;resolution:=optional,
                             org.junit*;resolution:=optional,
                             org.mortbay*;resolution:=optional,
