@@ -29,10 +29,12 @@ import java.util.logging.Logger;
 
 import javax.activation.DataSource;
 import javax.mail.util.ByteArrayDataSource;
+import javax.xml.namespace.QName;
 import javax.xml.soap.AttachmentPart;
 import javax.xml.soap.MessageFactory;
 import javax.xml.soap.MimeHeader;
 import javax.xml.soap.MimeHeaders;
+import javax.xml.soap.SOAPBody;
 import javax.xml.soap.SOAPConstants;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
@@ -74,6 +76,9 @@ import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.MessageInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
+import org.apache.cxf.service.model.BindingOperationInfo;
+import org.apache.cxf.service.model.OperationInfo;
+import org.apache.cxf.service.model.ServiceModelUtil;
 import org.apache.cxf.staxutils.StaxUtils;
 
 public class DispatchInDatabindingInterceptor extends AbstractInDatabindingInterceptor {
@@ -176,7 +181,7 @@ public class DispatchInDatabindingInterceptor extends AbstractInDatabindingInter
         } catch (Exception e) {
             throw new Fault(e);
         }
-    }
+    }    
     
     private SOAPMessage newSOAPMessage(InputStream is, SoapMessage msg) throws Exception {
         SoapVersion version = msg.getVersion();
@@ -199,7 +204,44 @@ public class DispatchInDatabindingInterceptor extends AbstractInDatabindingInter
         }
         return msgFactory.createMessage(headers, is);
     }
-    
+
+    void setupBindingOperationInfo(Exchange exch, SOAPMessage msg) {
+        if (exch.get(BindingOperationInfo.class) == null) {
+            //need to know the operation to determine if oneway
+            QName opName = null;
+            try {
+                SOAPBody body = msg.getSOAPBody();
+                if (body != null) {
+                    org.w3c.dom.Node nd = body.getFirstChild();
+                    while (nd != null && !(nd instanceof org.w3c.dom.Element)) {
+                        nd = nd.getNextSibling();
+                    }
+                    if (nd != null) {
+                        opName = new QName(nd.getNamespaceURI(), nd.getLocalName());
+                    }
+                }
+                if (opName == null) {
+                    return;
+                }
+            } catch (SOAPException e) {
+                //ignore and return;
+                return;
+            }
+            BindingOperationInfo bop = ServiceModelUtil
+                .getOperationForWrapperElement(exch, opName, false);
+            if (bop == null) {
+                bop = ServiceModelUtil.getOperation(exch, opName);
+            }
+            if (bop != null) {
+                exch.put(BindingOperationInfo.class, bop);
+                exch.put(OperationInfo.class, bop.getOperationInfo());
+                if (bop.getOutput() == null) {
+                    exch.setOneWay(true);
+                }
+            }
+
+        }
+    }    
     //This interceptor is invoked after DispatchSOAPHandlerInterceptor, converts SOAPMessage to Source
     private class PostDispatchSOAPHandlerInterceptor extends AbstractInDatabindingInterceptor {
 
@@ -215,7 +257,7 @@ public class DispatchInDatabindingInterceptor extends AbstractInDatabindingInter
             if (message instanceof SoapMessage) {
                 SOAPMessage soapMessage = message.getContent(SOAPMessage.class);
                 message.removeContent(SOAPMessage.class);
-
+                setupBindingOperationInfo(message.getExchange(), soapMessage);
                 DataReader<Node> dataReader = new NodeDataReader();
                 Node n = null;
                 if (mode == Service.Mode.MESSAGE) {
@@ -306,6 +348,7 @@ public class DispatchInDatabindingInterceptor extends AbstractInDatabindingInter
                             }
                         }
                         obj = msg;
+                        setupBindingOperationInfo(message.getExchange(), msg);
                     } catch (Exception e) {
                         throw new Fault(e);
                     } 
