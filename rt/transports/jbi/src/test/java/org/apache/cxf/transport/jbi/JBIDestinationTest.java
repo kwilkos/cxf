@@ -20,8 +20,17 @@
 package org.apache.cxf.transport.jbi;
 
 import java.util.logging.Logger;
-
+import javax.jbi.messaging.DeliveryChannel;
+import javax.jbi.messaging.MessageExchange;
+import javax.jbi.messaging.NormalizedMessage;
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.message.Exchange;
+import org.apache.cxf.message.ExchangeImpl;
+import org.apache.cxf.message.Message;
+import org.apache.cxf.message.MessageImpl;
+import org.easymock.EasyMock;
+
+
 import org.junit.Test;
 
 public class JBIDestinationTest extends AbstractJBITest {
@@ -29,5 +38,43 @@ public class JBIDestinationTest extends AbstractJBITest {
     @Test
     public void testDestination() throws Exception {
         LOG.info("JBI destination test");
+    }
+    
+    @Test
+    public void testOutputStreamSubstitutionDoesntCauseExceptionInDoClose() throws Exception {
+        //Create enough of the object structure to get through the code.
+        NormalizedMessage normalizedMessage = control.createMock(NormalizedMessage.class);
+        channel = control.createMock(DeliveryChannel.class);
+        Exchange exchange = new ExchangeImpl();
+        exchange.setOneWay(false);
+        Message message = new MessageImpl();
+        message.setExchange(exchange);
+        
+        
+        MessageExchange messageExchange = control.createMock(MessageExchange.class);
+        EasyMock.expect(messageExchange.createMessage()).andReturn(normalizedMessage);
+        message.put(MessageExchange.class, messageExchange);
+        channel.send(messageExchange);
+        EasyMock.replay(channel);
+        
+        JBIDestinationOutputStream jbiOS = new JBIDestinationOutputStream(message, channel);
+        
+        //Create array of more than what is in threshold in CachedOutputStream, 
+        //though the threshold in CachedOutputStream should be made protected 
+        //perhaps so it can be referenced here in case it ever changes.
+        int targetLength = 64 * 1025;
+        StringBuffer sb = new StringBuffer();
+        sb.append("<root>");
+        while (sb.length() < targetLength) {
+            sb.append("<dummy>some xml</dummy>");
+        }
+        sb.append("</root>");
+        byte[] testBytes = sb.toString().getBytes();
+        
+        jbiOS.write(testBytes);        
+        jbiOS.doClose();
+        
+        //Verify send method was called.
+        EasyMock.verify(channel);
     }
 }
