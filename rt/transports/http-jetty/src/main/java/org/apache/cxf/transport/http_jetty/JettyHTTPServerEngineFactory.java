@@ -187,7 +187,7 @@ public class JettyHTTPServerEngineFactory implements BusLifeCycleListener {
      * engine is being Spring configured for TLS a GeneralSecurityException
      * may be thrown.
      */
-    protected synchronized JettyHTTPServerEngine createJettyHTTPServerEngine(int port, String protocol)
+    public synchronized JettyHTTPServerEngine createJettyHTTPServerEngine(int port, String protocol)
         throws GeneralSecurityException, IOException {
         LOG.fine("Creating Jetty HTTP Server Engine for port " + port + ".");        
         JettyHTTPServerEngine ref = retrieveJettyHTTPServerEngine(port);
