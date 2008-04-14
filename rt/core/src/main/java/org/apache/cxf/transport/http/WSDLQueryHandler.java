@@ -151,15 +151,20 @@ public class WSDLQueryHandler implements StemMatchingQueryHandler {
                     def = mp.get(wsdl2);
                 }
                 
-                if (endpointInfo.getProperty("publishedEndpointUrl") != null) {
-                    String publishingUrl = String.valueOf(endpointInfo.getProperty("publishedEndpointUrl"));
-                    updatePublishedEndpointUrl(publishingUrl, def, endpointInfo.getName());
+                synchronized (def) {
+                    //writing a def is not threadsafe.  Sync on it to make sure
+                    //we don't get any ConcurrentModificationExceptions
+                    if (endpointInfo.getProperty("publishedEndpointUrl") != null) {
+                        String publishingUrl = 
+                            String.valueOf(endpointInfo.getProperty("publishedEndpointUrl"));
+                        updatePublishedEndpointUrl(publishingUrl, def, endpointInfo.getName());
+                    }
+        
+                    WSDLWriter wsdlWriter = bus.getExtension(WSDLManager.class)
+                        .getWSDLFactory().newWSDLWriter();
+                    def.setExtensionRegistry(bus.getExtension(WSDLManager.class).getExtensionRegistry());
+                    doc = wsdlWriter.getDocument(def);
                 }
-    
-                WSDLWriter wsdlWriter = bus.getExtension(WSDLManager.class)
-                    .getWSDLFactory().newWSDLWriter();
-                def.setExtensionRegistry(bus.getExtension(WSDLManager.class).getExtensionRegistry());
-                doc = wsdlWriter.getDocument(def);
             } else {
                 SchemaReference si = smp.get(xsd);
                 if (si == null) {
