@@ -88,7 +88,7 @@ public class PortComponentType {
     protected DisplayNameType displayName;
     protected IconType icon;
     @XmlElement(name = "port-component-name", required = true)
-    protected org.apache.cxf.jaxws.javaee.String portComponentName;
+    protected org.apache.cxf.jaxws.javaee.CString portComponentName;
     @XmlElement(name = "wsdl-service")
     protected XsdQNameType wsdlService;
     @XmlElement(name = "wsdl-port")
@@ -186,10 +186,10 @@ public class PortComponentType {
      * 
      * @return
      *     possible object is
-     *     {@link org.apache.cxf.jaxws.javaee.String }
+     *     {@link org.apache.cxf.jaxws.javaee.CString }
      *     
      */
-    public org.apache.cxf.jaxws.javaee.String getPortComponentName() {
+    public org.apache.cxf.jaxws.javaee.CString getPortComponentName() {
         return portComponentName;
     }
 
@@ -198,10 +198,10 @@ public class PortComponentType {
      * 
      * @param value
      *     allowed object is
-     *     {@link org.apache.cxf.jaxws.javaee.String }
+     *     {@link org.apache.cxf.jaxws.javaee.CString }
      *     
      */
-    public void setPortComponentName(org.apache.cxf.jaxws.javaee.String value) {
+    public void setPortComponentName(org.apache.cxf.jaxws.javaee.CString value) {
         this.portComponentName = value;
     }
 

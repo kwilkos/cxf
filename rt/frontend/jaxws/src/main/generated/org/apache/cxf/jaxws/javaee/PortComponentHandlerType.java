@@ -72,7 +72,7 @@ public class PortComponentHandlerType {
     protected List<DisplayNameType> displayName;
     protected List<IconType> icon;
     @XmlElement(name = "handler-name", required = true)
-    protected org.apache.cxf.jaxws.javaee.String handlerName;
+    protected org.apache.cxf.jaxws.javaee.CString handlerName;
     @XmlElement(name = "handler-class", required = true)
     protected FullyQualifiedClassType handlerClass;
     @XmlElement(name = "init-param")
@@ -80,7 +80,7 @@ public class PortComponentHandlerType {
     @XmlElement(name = "soap-header")
     protected List<XsdQNameType> soapHeader;
     @XmlElement(name = "soap-role")
-    protected List<org.apache.cxf.jaxws.javaee.String> soapRole;
+    protected List<org.apache.cxf.jaxws.javaee.CString> soapRole;
     @XmlAttribute
     @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
     @XmlID
@@ -178,10 +178,10 @@ public class PortComponentHandlerType {
      * 
      * @return
      *     possible object is
-     *     {@link org.apache.cxf.jaxws.javaee.String }
+     *     {@link org.apache.cxf.jaxws.javaee.CString }
      *     
      */
-    public org.apache.cxf.jaxws.javaee.String getHandlerName() {
+    public org.apache.cxf.jaxws.javaee.CString getHandlerName() {
         return handlerName;
     }
 
@@ -190,10 +190,10 @@ public class PortComponentHandlerType {
      * 
      * @param value
      *     allowed object is
-     *     {@link org.apache.cxf.jaxws.javaee.String }
+     *     {@link org.apache.cxf.jaxws.javaee.CString }
      *     
      */
-    public void setHandlerName(org.apache.cxf.jaxws.javaee.String value) {
+    public void setHandlerName(org.apache.cxf.jaxws.javaee.CString value) {
         this.handlerName = value;
     }
 
@@ -297,13 +297,13 @@ public class PortComponentHandlerType {
      * 
      * <p>
      * Objects of the following type(s) are allowed in the list
-     * {@link org.apache.cxf.jaxws.javaee.String }
+     * {@link org.apache.cxf.jaxws.javaee.CString }
      * 
      * 
      */
-    public List<org.apache.cxf.jaxws.javaee.String> getSoapRole() {
+    public List<org.apache.cxf.jaxws.javaee.CString> getSoapRole() {
         if (soapRole == null) {
-            soapRole = new ArrayList<org.apache.cxf.jaxws.javaee.String>();
+            soapRole = new ArrayList<org.apache.cxf.jaxws.javaee.CString>();
         }
         return this.soapRole;
     }

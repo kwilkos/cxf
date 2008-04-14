@@ -85,7 +85,7 @@ public class HandlerChainBuilderTest extends Assert {
         List<ParamValueType> params = h.getInitParam();
 
         ParamValueType p = new ParamValueType();
-        org.apache.cxf.jaxws.javaee.String pName = new org.apache.cxf.jaxws.javaee.String();
+        org.apache.cxf.jaxws.javaee.CString pName = new org.apache.cxf.jaxws.javaee.CString();
         pName.setValue("foo");
         p.setParamName(pName);
         org.apache.cxf.jaxws.javaee.XsdStringType pValue = new org.apache.cxf.jaxws.javaee.XsdStringType();
@@ -94,7 +94,7 @@ public class HandlerChainBuilderTest extends Assert {
         params.add(p);
 
         p = new ParamValueType();
-        pName = new org.apache.cxf.jaxws.javaee.String();
+        pName = new org.apache.cxf.jaxws.javaee.CString();
         pName.setValue("bar");
         p.setParamName(pName);
         pValue = new org.apache.cxf.jaxws.javaee.XsdStringType();
@@ -126,7 +126,7 @@ public class HandlerChainBuilderTest extends Assert {
         List<ParamValueType> params = h.getInitParam();
 
         ParamValueType p = new ParamValueType();
-        org.apache.cxf.jaxws.javaee.String pName = new org.apache.cxf.jaxws.javaee.String();
+        org.apache.cxf.jaxws.javaee.CString pName = new org.apache.cxf.jaxws.javaee.CString();
         pName.setValue("foo");
         p.setParamName(pName);
         params.add(p);
@@ -166,7 +166,7 @@ public class HandlerChainBuilderTest extends Assert {
         List<PortComponentHandlerType> handlers = hc.getHandler();
 
         PortComponentHandlerType h = new PortComponentHandlerType();
-        org.apache.cxf.jaxws.javaee.String name = new org.apache.cxf.jaxws.javaee.String();
+        org.apache.cxf.jaxws.javaee.CString name = new org.apache.cxf.jaxws.javaee.CString();
         name.setValue("lh1");
         h.setHandlerName(name);
         FullyQualifiedClassType type = new FullyQualifiedClassType();
@@ -175,7 +175,7 @@ public class HandlerChainBuilderTest extends Assert {
         handlers.add(h);
 
         h = new PortComponentHandlerType();
-        name = new org.apache.cxf.jaxws.javaee.String();
+        name = new org.apache.cxf.jaxws.javaee.CString();
         name.setValue("ph1");
         h.setHandlerName(name);
         type = new FullyQualifiedClassType();
@@ -184,7 +184,7 @@ public class HandlerChainBuilderTest extends Assert {
         handlers.add(h);
 
         h = new PortComponentHandlerType();
-        name = new org.apache.cxf.jaxws.javaee.String();
+        name = new org.apache.cxf.jaxws.javaee.CString();
         name.setValue("ph2");
         h.setHandlerName(name);
         type = new FullyQualifiedClassType();
@@ -193,7 +193,7 @@ public class HandlerChainBuilderTest extends Assert {
         handlers.add(h);
 
         h = new PortComponentHandlerType();
-        name = new org.apache.cxf.jaxws.javaee.String();
+        name = new org.apache.cxf.jaxws.javaee.CString();
         name.setValue("lh2");
         h.setHandlerName(name);
         type = new FullyQualifiedClassType();
