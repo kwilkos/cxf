@@ -18,6 +18,7 @@
  */
 package org.apache.cxf.jaxrs;
 
+
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,12 +32,15 @@ import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.ConsumeMime;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.MatrixParam;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.ProduceMime;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.PathSegment;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
@@ -46,20 +50,18 @@ import org.apache.cxf.jaxrs.model.MethodDispatcher;
 import org.apache.cxf.jaxrs.model.OperationResourceInfo;
 import org.apache.cxf.jaxrs.model.URITemplate;
 import org.apache.cxf.jaxrs.provider.HttpHeadersImpl;
+import org.apache.cxf.jaxrs.provider.PathSegmentImpl;
 import org.apache.cxf.jaxrs.provider.RequestImpl;
 import org.apache.cxf.jaxrs.provider.SecurityContextImpl;
 import org.apache.cxf.jaxrs.provider.UriInfoImpl;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.transport.http.AbstractHTTPDestination;
-
+import org.easymock.EasyMock;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.replay;
 
 public class JAXRSUtilsTest extends Assert {
     
@@ -73,6 +75,7 @@ public class JAXRSUtilsTest extends Assert {
         @Resource private HttpServletResponse servletResponse;
         @Resource private ServletContext servletContext;
         
+               
         public UriInfo getUriInfo() {
             return uriInfo;
         }
@@ -140,6 +143,12 @@ public class JAXRSUtilsTest extends Assert {
                                @Context Request r,
                                @Context SecurityContext s,
                                @HeaderParam("Foo") String h) {
+            // complete
+        }
+        
+        @Path("{id1}/{id2}")
+        public void testConversion(@PathParam("id1") PathSegmentImpl id1,
+                                   @PathParam("id2") SimpleFactory f) {
             // complete
         }
     };
@@ -618,12 +627,12 @@ public class JAXRSUtilsTest extends Assert {
         Customer c = new Customer();
         
         // Creating mocks for the servlet request, response and context
-        HttpServletRequest request = createMock(HttpServletRequest.class);
-        HttpServletResponse response = createMock(HttpServletResponse.class);
-        ServletContext context = createMock(ServletContext.class);
-        replay(request);
-        replay(response);
-        replay(context);
+        HttpServletRequest request = EasyMock.createMock(HttpServletRequest.class);
+        HttpServletResponse response = EasyMock.createMock(HttpServletResponse.class);
+        ServletContext context = EasyMock.createMock(ServletContext.class);
+        EasyMock.replay(request);
+        EasyMock.replay(response);
+        EasyMock.replay(context);
         
         Message m = new MessageImpl();
         m.put(AbstractHTTPDestination.HTTP_REQUEST, request);
@@ -635,5 +644,32 @@ public class JAXRSUtilsTest extends Assert {
         assertSame(response.getClass(), c.getServletResponse().getClass());
         assertSame(context.getClass(), c.getServletContext().getClass());
         
+    }
+    
+    @Test
+    public void testConversion() throws Exception {
+        ClassResourceInfo cri = new ClassResourceInfo(Customer.class, true);
+        OperationResourceInfo ori = 
+            new OperationResourceInfo(
+                Customer.class.getMethod("testConversion", 
+                                         new Class[]{PathSegmentImpl.class, 
+                                                     SimpleFactory.class}), 
+                cri);
+        ori.setHttpMethod("GET");
+        ori.setURITemplate(new URITemplate("{id1}/{id2}"));
+        MultivaluedMap<String, String> values = new MetadataMap<String, String>();
+        values.putSingle("id1", "1");
+        values.putSingle("id2", "2");
+        
+        Message m = new MessageImpl();
+        
+        
+        List<Object> params = 
+            JAXRSUtils.processParameters(ori, values, m);
+        PathSegment ps = (PathSegment)params.get(0);
+        assertEquals("1", ps.getPath());
+        
+        SimpleFactory sf = (SimpleFactory)params.get(1);
+        assertEquals(2, sf.getId());
     }
 }

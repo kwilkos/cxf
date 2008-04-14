@@ -17,35 +17,19 @@
  * under the License.
  */
 
-package org.apache.cxf.jaxrs.provider;
+package org.apache.cxf.jaxrs;
 
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.PathSegment;
-import javax.ws.rs.ext.Provider;
-
-import org.apache.cxf.jaxrs.JAXRSUtils;
-
-@Provider
-public class PathSegmentImpl implements PathSegment {
-
-    private String path;
-    private boolean decode;
-    
-    public PathSegmentImpl(String path) {
-        this(path, true);
+public final class SimpleFactory {
+    private int id;
+    private SimpleFactory(String s) {
+        id = Integer.valueOf(s);
     }
     
-    public PathSegmentImpl(String path, boolean decode) {
-        this.path = path;
-        this.decode = decode;
+    public int getId() {
+        return id;
     }
     
-    public MultivaluedMap<String, String> getMatrixParameters() {
-        return JAXRSUtils.getMatrixParams(path, decode);
+    public static SimpleFactory valueOf(String s) {
+        return new SimpleFactory(s);
     }
-
-    public String getPath() {
-        return path;
-    }
-
 }

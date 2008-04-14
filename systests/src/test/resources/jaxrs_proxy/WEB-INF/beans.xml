@@ -44,18 +44,20 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
 		        address="/">
     <jaxrs:serviceBeans>
       <ref bean="bookstore"/>
+      <ref bean="bookstoreInterface"/>
     </jaxrs:serviceBeans>		   
   </jaxrs:server>
   <bean id="bookstore" scope="prototype" class="org.apache.cxf.systest.jaxrs.BookStore"/>
+  <bean id="bookstoreInterface" scope="prototype" class="org.apache.cxf.systest.jaxrs.BookStoreWithInterface"/>
   
   <aop:config>
 		<aop:aspect id="loggingAspect" ref="simpleLogger">
 			<aop:before
 			      method="logBefore"
-			      pointcut="execution(* org.apache.cxf.systest.jaxrs.BookStore.*(..))"/>
+			      pointcut="execution(* org.apache.cxf.systest.jaxrs.BookStore*.*(..))"/>
 			<aop:after-returning
 			      method="logAfter"
-			      pointcut="execution(* org.apache.cxf.systest.jaxrs.BookStore.*(..))"/>
+			      pointcut="execution(* org.apache.cxf.systest.jaxrs.BookStore*.*(..))"/>
 		</aop:aspect>
 	</aop:config>
 

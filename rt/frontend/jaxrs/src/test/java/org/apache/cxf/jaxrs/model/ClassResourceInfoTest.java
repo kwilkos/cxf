@@ -28,6 +28,9 @@ import javax.annotation.Resource;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.ConsumeMime;
+import javax.ws.rs.Path;
+import javax.ws.rs.ProduceMime;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.UriInfo;
@@ -37,6 +40,9 @@ import org.junit.Test;
 
 public class ClassResourceInfoTest extends Assert {
     
+    @Path("/bar")
+    @ProduceMime("test/bar")
+    @ConsumeMime("test/foo")
     private static class TestClass {
         @Context UriInfo u;
         @Context HttpHeaders h;
@@ -45,6 +51,13 @@ public class ClassResourceInfoTest extends Assert {
         @Resource ServletContext c;
         int i;
     }
+    
+    private static class TestClass1 extends TestClass {
+    }
+    
+    private static class TestClass2 extends TestClass1 {
+    }
+    
     
     @Test
     public void testGetHttpContexts() {
@@ -79,5 +92,41 @@ public class ClassResourceInfoTest extends Assert {
                    clses.contains(HttpServletRequest.class)
                    && clses.contains(HttpServletResponse.class)
                    && clses.contains(ServletContext.class)); 
+    }
+    
+    @Test
+    public void testGetPath() {
+        ClassResourceInfo c = new ClassResourceInfo(TestClass.class);
+        assertEquals("/bar", c.getPath().value());
+        
+        c = new ClassResourceInfo(TestClass1.class);
+        assertEquals("/bar", c.getPath().value());
+        
+        c = new ClassResourceInfo(TestClass2.class);
+        assertEquals("/bar", c.getPath().value());
+    }
+    
+    @Test
+    public void testGetProduce() {
+        ClassResourceInfo c = new ClassResourceInfo(TestClass.class);
+        assertEquals("test/bar", c.getProduceMime().value()[0]);
+        
+        c = new ClassResourceInfo(TestClass1.class);
+        assertEquals("test/bar", c.getProduceMime().value()[0]);
+        
+        c = new ClassResourceInfo(TestClass2.class);
+        assertEquals("test/bar", c.getProduceMime().value()[0]);
+    }
+    
+    @Test
+    public void testGetConsume() {
+        ClassResourceInfo c = new ClassResourceInfo(TestClass.class);
+        assertEquals("test/foo", c.getConsumeMime().value()[0]);
+        
+        c = new ClassResourceInfo(TestClass1.class);
+        assertEquals("test/foo", c.getConsumeMime().value()[0]);
+        
+        c = new ClassResourceInfo(TestClass2.class);
+        assertEquals("test/foo", c.getConsumeMime().value()[0]);
     }
 }

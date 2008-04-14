@@ -83,9 +83,21 @@ public class JAXRSServiceFactoryBeanTest extends Assert {
         assertTrue(template.match("/bookstore/books/123", values));     
         assertTrue(rootCri.hasSubResources());   
         MethodDispatcher md = rootCri.getMethodDispatcher();
-        assertEquals(4, md.getOperationResourceInfos().size());  
+        assertEquals(6, md.getOperationResourceInfos().size());  
         for (OperationResourceInfo ori : md.getOperationResourceInfos()) {
-            if ("getBook".equals(ori.getMethod().getName())) {
+            if ("getDescription".equals(ori.getMethod().getName())) {
+                assertEquals("GET", ori.getHttpMethod());
+                assertEquals("/path", ori.getURITemplate().getValue());
+                assertEquals("text/bar", ori.getProduceTypes().get(0).toString());
+                assertEquals("text/foo", ori.getConsumeTypes().get(0).toString());
+                assertFalse(ori.isSubResourceLocator());
+            } else if ("getAuthor".equals(ori.getMethod().getName())) {
+                assertEquals("GET", ori.getHttpMethod());
+                assertEquals("/path2", ori.getURITemplate().getValue());
+                assertEquals("text/bar2", ori.getProduceTypes().get(0).toString());
+                assertEquals("text/foo2", ori.getConsumeTypes().get(0).toString());
+                assertFalse(ori.isSubResourceLocator());
+            } else if ("getBook".equals(ori.getMethod().getName())) {
                 assertNull(ori.getHttpMethod());
                 assertNotNull(ori.getURITemplate());
                 assertTrue(ori.isSubResourceLocator());

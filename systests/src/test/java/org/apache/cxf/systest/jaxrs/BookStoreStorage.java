@@ -17,35 +17,15 @@
  * under the License.
  */
 
-package org.apache.cxf.jaxrs.provider;
+package org.apache.cxf.systest.jaxrs;
 
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.PathSegment;
-import javax.ws.rs.ext.Provider;
+import java.util.HashMap;
+import java.util.Map;
 
-import org.apache.cxf.jaxrs.JAXRSUtils;
+import javax.ws.rs.Path;
 
-@Provider
-public class PathSegmentImpl implements PathSegment {
-
-    private String path;
-    private boolean decode;
-    
-    public PathSegmentImpl(String path) {
-        this(path, true);
-    }
-    
-    public PathSegmentImpl(String path, boolean decode) {
-        this.path = path;
-        this.decode = decode;
-    }
-    
-    public MultivaluedMap<String, String> getMatrixParameters() {
-        return JAXRSUtils.getMatrixParams(path, decode);
-    }
-
-    public String getPath() {
-        return path;
-    }
-
+@Path("/bookstorestorage/")
+public abstract class BookStoreStorage {
+    protected Map<Long, Book> books = new HashMap<Long, Book>();
+    protected long bookId = 123;
 }

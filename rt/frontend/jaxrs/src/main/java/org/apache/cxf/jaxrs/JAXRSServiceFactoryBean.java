@@ -181,8 +181,8 @@ public class JAXRSServiceFactoryBean extends AbstractServiceFactoryBean {
             
                        
             String httpMethod = JAXRSUtils.getHttpMethodValue(m);
-            
-            if (httpMethod != null && m.getAnnotation(Path.class) != null) {
+            Path path = (Path)JAXRSUtils.getMethodAnnotation(m, Path.class);
+            if (httpMethod != null && path != null) {
                 /*
                  * Sub-resource method, URI template created by concatenating
                  * the URI template of the resource class with the URI template
@@ -190,15 +190,15 @@ public class JAXRSServiceFactoryBean extends AbstractServiceFactoryBean {
                  */
                 OperationResourceInfo ori = new OperationResourceInfo(m, cri);
                 URITemplate t = 
-                    URITemplate.createTemplate(cri, m.getAnnotation(Path.class));
+                    URITemplate.createTemplate(cri, path);
                 ori.setURITemplate(t);
                 ori.setHttpMethod(httpMethod);
                 md.bind(ori, m);
-            } else if (m.getAnnotation(Path.class) != null) {
+            } else if (path != null) {
                 // sub-resource locator
                 OperationResourceInfo ori = new OperationResourceInfo(m, cri);
                 URITemplate t = 
-                    URITemplate.createTemplate(cri, m.getAnnotation(Path.class));
+                    URITemplate.createTemplate(cri, path);
                 ori.setURITemplate(t);
                 md.bind(ori, m);     
                 Class subResourceClass = m.getReturnType();

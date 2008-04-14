@@ -17,35 +17,19 @@
  * under the License.
  */
 
-package org.apache.cxf.jaxrs.provider;
+package org.apache.cxf.jaxrs.resources;
 
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.PathSegment;
-import javax.ws.rs.ext.Provider;
+import javax.ws.rs.ConsumeMime;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.ProduceMime;
 
-import org.apache.cxf.jaxrs.JAXRSUtils;
 
-@Provider
-public class PathSegmentImpl implements PathSegment {
+public abstract class BookSuperClass {
 
-    private String path;
-    private boolean decode;
-    
-    public PathSegmentImpl(String path) {
-        this(path, true);
-    }
-    
-    public PathSegmentImpl(String path, boolean decode) {
-        this.path = path;
-        this.decode = decode;
-    }
-    
-    public MultivaluedMap<String, String> getMatrixParameters() {
-        return JAXRSUtils.getMatrixParams(path, decode);
-    }
-
-    public String getPath() {
-        return path;
-    }
-
+    @GET
+    @Path("/path")
+    @ProduceMime("text/bar")
+    @ConsumeMime("text/foo")
+    public abstract String getDescription();
 }

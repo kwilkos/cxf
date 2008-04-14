@@ -23,8 +23,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.net.URLDecoder;
 import java.util.ArrayList;
@@ -89,7 +91,77 @@ public final class JAXRSUtils {
                 return httpM.value();
             }
         }
+        // TODO : make it shorter
+        for (Class<?> i : m.getDeclaringClass().getInterfaces()) {
+            try {
+                Method interfaceMethod = i.getMethod(m.getName(), m.getParameterTypes());
+                if (interfaceMethod != null) {
+                    return getHttpMethodValue(interfaceMethod);
+                }
+            } catch (NoSuchMethodException ex) {
+                //ignore
+            }
+        }
+        Class<?> superC = m.getDeclaringClass().getSuperclass();
+        if (superC != null) {
+            try {
+                Method cMethod = superC.getMethod(m.getName(), m.getParameterTypes());
+                if (cMethod != null) {
+                    return getHttpMethodValue(cMethod);
+                }
+            } catch (NoSuchMethodException ex) {
+                //ignore
+            }
+        }
+        
         return null;
+    }
+    
+    public static Annotation getMethodAnnotation(Method m,
+                                                 Class<? extends Annotation> aClass) {
+        Annotation a = m.getAnnotation(aClass);
+        if (a != null) {
+            return a;
+        }
+        
+        for (Class<?> i : m.getDeclaringClass().getInterfaces()) {
+            a = getClassMethodAnnotation(m, i, aClass);
+            if (a != null) {
+                return a;
+            }
+        }
+        Class<?> superC = m.getDeclaringClass().getSuperclass();
+        if (superC != null) {
+            return getClassMethodAnnotation(m, superC, aClass);
+        }
+        
+        return null;
+    }
+    
+    private static Annotation getClassMethodAnnotation(Method m,
+                                                       Class<?> c, 
+                                                       Class<? extends Annotation> aClass) {
+        try {
+            Method interfaceMethod = c.getMethod(m.getName(), m.getParameterTypes());
+            if (interfaceMethod != null) {
+                return getMethodAnnotation(interfaceMethod, aClass);
+            }
+        } catch (NoSuchMethodException ex) {
+            //ignore
+        }
+        return null;
+    }
+    
+    public static Annotation getClassAnnotation(Class<?> c, 
+                                                Class<? extends Annotation> aClass) {
+        if (c == null) {
+            return null;
+        }
+        Annotation p = c.getAnnotation(aClass);
+        if (p != null) {
+            return p;
+        }
+        return getClassAnnotation(c.getSuperclass(), aClass);
     }
     
     public static List<PathSegment> getPathSegments(String thePath, boolean decode) {
@@ -327,15 +399,18 @@ public final class JAXRSUtils {
         if (parameterAnnotations[0].annotationType() == QueryParam.class) {
             result = readQueryString((QueryParam)parameterAnnotations[0], parameterClass, message, null);
         } else if (parameterAnnotations[0].annotationType() == MatrixParam.class) {
-            result = processMatrixParam(message, ((MatrixParam)parameterAnnotations[0]).value(), null);
+            result = processMatrixParam(message, ((MatrixParam)parameterAnnotations[0]).value(), 
+                                        parameterClass, null);
         } else if (parameterAnnotations[0].annotationType() == HeaderParam.class) {
-            result = processHeaderParam(message, ((HeaderParam)parameterAnnotations[0]).value(), null);
+            result = processHeaderParam(message, ((HeaderParam)parameterAnnotations[0]).value(),
+                                        parameterClass, null);
         } 
 
         return result;
     }
     
-    private static Object processMatrixParam(Message m, String key, String defaultValue) {
+    private static Object processMatrixParam(Message m, String key, 
+                                             Class<?> pClass, String defaultValue) {
         List<PathSegment> segments = JAXRSUtils.getPathSegments(
                                       (String)m.get(Message.PATH_INFO), true);
         String value = null;
@@ -348,7 +423,7 @@ public final class JAXRSUtils {
             }
         }
         
-        return value == null ? defaultValue : value;
+        return value == null ? defaultValue : handleParameter(value, pClass);
     }
     
     public static MultivaluedMap<String, String> getMatrixParams(String path, boolean decode) {
@@ -358,7 +433,8 @@ public final class JAXRSUtils {
     }
     
     @SuppressWarnings("unchecked")
-    private static Object processHeaderParam(Message m, String header, String defaultValue) {
+    private static Object processHeaderParam(Message m, String header, 
+                                             Class<?> pClass, String defaultValue) {
         Map<String, List<String>> headers = (Map<String, List<String>>)m.get(Message.PROTOCOL_HEADERS);
         List<String> values = headers.get(header);
         StringBuilder sb = new StringBuilder();
@@ -370,7 +446,7 @@ public final class JAXRSUtils {
                 }
             }
         }
-        return sb.length() > 0 ? sb.toString() : defaultValue;
+        return sb.length() > 0 ? handleParameter(sb.toString(), pClass) : defaultValue;
     }
     
     @SuppressWarnings("unchecked")
@@ -421,15 +497,40 @@ public final class JAXRSUtils {
             return null;
         }
 
-        Object result = null;
+        String result = null;
         List<String> results = values.get(parameterName);
         if (values != null && values.size() > 0) {
             result = results.get(results.size() - 1);
         }
-        if (result != null && parameter.isPrimitive()) {
-            result = PrimitiveUtils.read((String)result, parameter);
+        if (result != null) {
+            return handleParameter(result, parameter);
         }
         return result;
+    }
+    
+    private static Object handleParameter(String value, Class<?> pClass) {
+        if (pClass.isPrimitive()) {
+            return PrimitiveUtils.read(value, pClass);
+        }
+        // check constructors accepting a single String value
+        try {
+            Constructor<?> c = pClass.getConstructor(new Class<?>[]{String.class});
+            if (c !=  null) {
+                return c.newInstance(new Object[]{value});
+            }
+        } catch (Exception ex) {
+            // try valueOf
+        }
+        // check for valueOf(String) static methods
+        try {
+            Method m = pClass.getMethod("valueOf", new Class<?>[]{String.class});
+            if (m != null && Modifier.isStatic(m.getModifiers())) {
+                return m.invoke(null, new Object[]{value});
+            }
+        } catch (Exception ex) {
+            // no luck
+        }
+        return null;
     }
     
     //TODO : multiple query string parsing, do it once
@@ -437,12 +538,12 @@ public final class JAXRSUtils {
                                           Message m, String defaultValue) {
         String queryName = queryParam.value();
 
-        Object result = getStructuredParams((String)m.get(Message.QUERY_STRING),
+        String result = getStructuredParams((String)m.get(Message.QUERY_STRING),
                                    "&",
                                    true).getFirst(queryName);
 
         if (parameter.isPrimitive()) {
-            result = PrimitiveUtils.read((String)result, parameter);
+            return handleParameter(result, parameter);
         }
         return result;  
     }

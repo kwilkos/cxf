@@ -21,6 +21,7 @@ package org.apache.cxf.jaxrs;
 
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -55,8 +56,26 @@ public class JAXRSInvoker extends AbstractInvoker {
         OperationResourceInfo ori = exchange.get(OperationResourceInfo.class);
 
         ClassResourceInfo cri = ori.getClassResourceInfo();
-        Method m = cri.getMethodDispatcher().getMethod(ori);
+        Method methodToInvoke = cri.getMethodDispatcher().getMethod(ori);
         Object resourceObject = getServiceObject(exchange, resources);
+        
+        // TODO : update the method dispatcher
+        if (Proxy.class.isInstance(resourceObject)) {
+            
+            for (Class<?> c : resourceObject.getClass().getInterfaces()) {
+                try {
+                    Method m = c.getMethod(
+                        methodToInvoke.getName(), methodToInvoke.getParameterTypes());
+                    if (m != null) {
+                        methodToInvoke = m;
+                        break;
+                    }
+                } catch (NoSuchMethodException ex) {
+                    //ignore
+                }
+            }
+            
+        }
         
         if (cri.isRoot()) {
             JAXRSUtils.injectHttpContextValues(resourceObject, 
@@ -76,7 +95,7 @@ public class JAXRSInvoker extends AbstractInvoker {
 
         Object result = null;
         try {
-            result = invoke(exchange, resourceObject, m, params);
+            result = invoke(exchange, resourceObject, methodToInvoke, params);
         } catch (Fault ex) {
             if (ex.getCause() instanceof WebApplicationException) {
                 WebApplicationException wex = (WebApplicationException)ex.getCause();

@@ -80,7 +80,8 @@ public class OperationResourceInfo {
     public List<MediaType> getProduceTypes() {
         
         // this needs to be calculated on init
-        ProduceMime pm = method.getAnnotation(ProduceMime.class);
+        ProduceMime pm = 
+            (ProduceMime)JAXRSUtils.getMethodAnnotation(method, ProduceMime.class);
         if (pm != null) {
             return JAXRSUtils.getMediaTypes(pm.value());
         }
@@ -91,7 +92,8 @@ public class OperationResourceInfo {
     public List<MediaType> getConsumeTypes() {
         
         // this needs to be calculated on init
-        ConsumeMime pm = method.getAnnotation(ConsumeMime.class);
+        ConsumeMime pm = 
+            (ConsumeMime)JAXRSUtils.getMethodAnnotation(method, ConsumeMime.class);
         if (pm != null) {
             return JAXRSUtils.getMediaTypes(pm.value());
         }

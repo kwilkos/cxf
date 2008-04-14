@@ -30,6 +30,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.ProduceMime;
 import javax.ws.rs.core.Context;
 
+import org.apache.cxf.jaxrs.JAXRSUtils;
 import org.apache.cxf.jaxrs.lifecycle.ResourceProvider;
 
 public class ClassResourceInfo {
@@ -142,19 +143,16 @@ public class ClassResourceInfo {
         }
     }
 
-    //TODO : check supeclass as well
     public ProduceMime getProduceMime() {
-        return getServiceClass().getAnnotation(ProduceMime.class);
+        return (ProduceMime)JAXRSUtils.getClassAnnotation(getServiceClass(), ProduceMime.class);
     }
     
-    //TODO : check supeclass as well
     public ConsumeMime getConsumeMime() {
-        return getServiceClass().getAnnotation(ConsumeMime.class);
+        return (ConsumeMime)JAXRSUtils.getClassAnnotation(getServiceClass(), ConsumeMime.class);
     }
     
-    //TODO : check supeclass as well
     public Path getPath() {
-        return getServiceClass().getAnnotation(Path.class);
+        return (Path)JAXRSUtils.getClassAnnotation(getServiceClass(), Path.class);
     }
     
     public List<Field> getHttpContexts() {
@@ -175,5 +173,7 @@ public class ClassResourceInfo {
             ret = Collections.emptyList();
         }
         return ret;
-    }                               
+    }
+    
+    
 }

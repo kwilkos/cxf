@@ -28,7 +28,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
 
 @Path("/bookstore/")
-public class BookStore {
+public class BookStore extends BookSuperClass implements BookInterface {
 
     public BookStore() {
     }
@@ -53,6 +53,17 @@ public class BookStore {
     @DELETE
     @Path("/books/{bookId}/")
     public Response deleteBook(@PathParam("bookId") String id) {
+        return null;
+    }
+
+    @Override
+    public String getDescription() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public String getAuthor() {
+        // TODO Auto-generated method stub
         return null;
     }
 }
