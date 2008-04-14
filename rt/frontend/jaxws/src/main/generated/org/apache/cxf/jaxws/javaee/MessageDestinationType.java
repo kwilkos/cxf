@@ -84,7 +84,7 @@ public class MessageDestinationType {
     protected List<DisplayNameType> displayName;
     protected List<IconType> icon;
     @XmlElement(name = "message-destination-name", required = true)
-    protected org.apache.cxf.jaxws.javaee.String messageDestinationName;
+    protected org.apache.cxf.jaxws.javaee.CString messageDestinationName;
     @XmlElement(name = "mapped-name")
     protected XsdStringType mappedName;
     @XmlAttribute
@@ -184,10 +184,10 @@ public class MessageDestinationType {
      * 
      * @return
      *     possible object is
-     *     {@link org.apache.cxf.jaxws.javaee.String }
+     *     {@link org.apache.cxf.jaxws.javaee.CString }
      *     
      */
-    public org.apache.cxf.jaxws.javaee.String getMessageDestinationName() {
+    public org.apache.cxf.jaxws.javaee.CString getMessageDestinationName() {
         return messageDestinationName;
     }
 
@@ -196,10 +196,10 @@ public class MessageDestinationType {
      * 
      * @param value
      *     allowed object is
-     *     {@link org.apache.cxf.jaxws.javaee.String }
+     *     {@link org.apache.cxf.jaxws.javaee.CString }
      *     
      */
-    public void setMessageDestinationName(org.apache.cxf.jaxws.javaee.String value) {
+    public void setMessageDestinationName(org.apache.cxf.jaxws.javaee.CString value) {
         this.messageDestinationName = value;
     }
 

@@ -63,7 +63,7 @@ public class PortComponentRefType {
     @XmlElement(name = "enable-mtom")
     protected TrueFalseType enableMtom;
     @XmlElement(name = "port-component-link")
-    protected org.apache.cxf.jaxws.javaee.String portComponentLink;
+    protected org.apache.cxf.jaxws.javaee.CString portComponentLink;
     @XmlAttribute
     @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
     @XmlID
@@ -122,10 +122,10 @@ public class PortComponentRefType {
      * 
      * @return
      *     possible object is
-     *     {@link org.apache.cxf.jaxws.javaee.String }
+     *     {@link org.apache.cxf.jaxws.javaee.CString }
      *     
      */
-    public org.apache.cxf.jaxws.javaee.String getPortComponentLink() {
+    public org.apache.cxf.jaxws.javaee.CString getPortComponentLink() {
         return portComponentLink;
     }
 
@@ -134,10 +134,10 @@ public class PortComponentRefType {
      * 
      * @param value
      *     allowed object is
-     *     {@link org.apache.cxf.jaxws.javaee.String }
+     *     {@link org.apache.cxf.jaxws.javaee.CString }
      *     
      */
-    public void setPortComponentLink(org.apache.cxf.jaxws.javaee.String value) {
+    public void setPortComponentLink(org.apache.cxf.jaxws.javaee.CString value) {
         this.portComponentLink = value;
     }
 

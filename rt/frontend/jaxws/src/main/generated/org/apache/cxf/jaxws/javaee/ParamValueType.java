@@ -59,7 +59,7 @@ public class ParamValueType {
 
     protected List<DescriptionType> description;
     @XmlElement(name = "param-name", required = true)
-    protected org.apache.cxf.jaxws.javaee.String paramName;
+    protected org.apache.cxf.jaxws.javaee.CString paramName;
     @XmlElement(name = "param-value", required = true)
     protected XsdStringType paramValue;
     @XmlAttribute
@@ -101,10 +101,10 @@ public class ParamValueType {
      * 
      * @return
      *     possible object is
-     *     {@link org.apache.cxf.jaxws.javaee.String }
+     *     {@link org.apache.cxf.jaxws.javaee.CString }
      *     
      */
-    public org.apache.cxf.jaxws.javaee.String getParamName() {
+    public org.apache.cxf.jaxws.javaee.CString getParamName() {
         return paramName;
     }
 
@@ -113,10 +113,10 @@ public class ParamValueType {
      * 
      * @param value
      *     allowed object is
-     *     {@link org.apache.cxf.jaxws.javaee.String }
+     *     {@link org.apache.cxf.jaxws.javaee.CString }
      *     
      */
-    public void setParamName(org.apache.cxf.jaxws.javaee.String value) {
+    public void setParamName(org.apache.cxf.jaxws.javaee.CString value) {
         this.paramName = value;
     }
 
