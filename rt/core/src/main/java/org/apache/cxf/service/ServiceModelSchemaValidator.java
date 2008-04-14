@@ -51,9 +51,11 @@ public class ServiceModelSchemaValidator extends ServiceModelVisitor {
             } catch (InvalidXmlSchemaReferenceException ixsre) {
                 complaints.append(part.getName() + " part element name " + ixsre.getMessage() + "\n");
             }
-        } else {
+        } else if (!part.getMessageInfo().getOperation().isUnwrapped()) {
             if (part.getTypeQName() == null) {
-                complaints.append(part.getName() + " part type QName null.\n");
+                complaints.append(part.getName() + " of message " 
+                                  + part.getMessageInfo().getName() 
+                                  + " part type QName null.\n");
             } else {
                 try {
                     schemaCollection.validateTypeName(part.getName(), part.getTypeQName());

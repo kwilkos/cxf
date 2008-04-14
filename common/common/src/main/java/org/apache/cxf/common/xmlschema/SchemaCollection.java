@@ -240,7 +240,7 @@ public class SchemaCollection {
         XmlSchemaElement element = schemaCollection.getElementByQName(elementQName);
         if (element == null) {
             throw new InvalidXmlSchemaReferenceException(referrer 
-                                                         + " references element "
+                                                         + " references non-existent element "
                                                          + elementQName);
         }
     }
@@ -249,7 +249,7 @@ public class SchemaCollection {
         XmlSchemaType type = schemaCollection.getTypeByQName(typeQName);
         if (type == null) {
             throw new InvalidXmlSchemaReferenceException(referrer 
-                                                         + " references type "
+                                                         + " references non-existent type "
                                                          + typeQName);
         }
     }
