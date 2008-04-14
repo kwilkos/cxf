@@ -94,7 +94,7 @@ public class ElementWriter extends AbstractMessageWriter implements MessageWrite
     }
 
     private void writeStartElement() throws XMLStreamException {
-        if (namespace != null) {
+        if (!StringUtils.isEmpty(namespace)) {
             boolean declare = false;
 
             String decPrefix = writer.getNamespaceContext().getPrefix(namespace);

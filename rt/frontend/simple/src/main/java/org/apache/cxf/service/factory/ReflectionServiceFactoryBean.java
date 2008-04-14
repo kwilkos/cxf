@@ -347,11 +347,13 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                 }
             }
         }
-        ServiceModelSchemaValidator validator = new ServiceModelSchemaValidator(serviceInfo);
-        validator.walk();
-        String validationComplaints = validator.getComplaints();
-        if (!"".equals(validationComplaints)) {
-            LOG.info(validationComplaints);
+        if (LOG.isLoggable(Level.FINE)) {
+            ServiceModelSchemaValidator validator = new ServiceModelSchemaValidator(serviceInfo);
+            validator.walk();
+            String validationComplaints = validator.getComplaints();
+            if (!"".equals(validationComplaints)) {
+                LOG.fine(validationComplaints);
+            }
         }
     }
 
