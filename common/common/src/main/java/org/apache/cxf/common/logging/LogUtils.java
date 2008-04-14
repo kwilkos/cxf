@@ -43,7 +43,7 @@ import org.apache.cxf.common.util.StringUtils;
  * <ul>
  * <li>Create a file, in the classpath, named META-INF/cxf/org.apache.cxf.logger. 
  * This file should contain the fully-qualified name
- * of the class.</li>
+ * of the class, with no comments, on a single line.</li>
  * <li>Call {@link #setLoggerClass(Class)} with a Class<?> reference to the logger class.</li>
  * </ul>
  * CXF provides {@link Log4jLogger} to use log4j instead of java.util.logging.
