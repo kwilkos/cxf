@@ -185,7 +185,7 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
 
             if (exp != null) {
                 getConduitSelector().complete(exchange);
-                if (getBinding() instanceof SOAPBinding) {
+                if (getBinding() instanceof SOAPBinding && exp instanceof Fault) {
                     try {
                         SOAPFault soapFault = SOAPFactory.newInstance().createFault();
                         Fault fault = (Fault)exp;
