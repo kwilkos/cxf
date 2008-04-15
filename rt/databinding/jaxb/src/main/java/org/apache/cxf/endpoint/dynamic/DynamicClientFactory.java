@@ -175,9 +175,10 @@ public final class DynamicClientFactory {
         boolean firstnt = false;
 
         for (Iterator<JPackage> packages = codeModel.packages(); packages.hasNext();) {
-            JPackage packadge = packages.next();
-            String name = packadge.name();
-            if ("org.w3._2001.xmlschema".equals(name)) {
+            JPackage jpackage = packages.next();
+            String name = jpackage.name();
+            if ("org.w3._2001.xmlschema".equals(name)
+                || !jpackage.classes().hasNext()) {
                 continue;
             }
             if (firstnt) {
@@ -185,7 +186,7 @@ public final class DynamicClientFactory {
             } else {
                 firstnt = true;
             }
-            sb.append(packadge.name());
+            sb.append(jpackage.name());
         }
         outputDebug(codeModel);
         
