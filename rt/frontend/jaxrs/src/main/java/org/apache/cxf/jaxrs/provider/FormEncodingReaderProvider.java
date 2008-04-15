@@ -76,7 +76,7 @@ public final class FormEncodingReaderProvider implements MessageBodyReader<Objec
 
     /**
      * Retrieve map of parameters from the passed in message
-     * 
+     *
      * @param message
      * @return a Map of parameters.
      */
@@ -86,7 +86,12 @@ public final class FormEncodingReaderProvider implements MessageBodyReader<Objec
             List<String> parts = Arrays.asList(body.split("&"));
             for (String part : parts) {
                 String[] keyValue = part.split("=");
-                params.add(keyValue[0], keyValue[1]);
+                // Change to add blank string if key but not value is specified
+                if (keyValue.length == 2) {
+                    params.add(keyValue[0], keyValue[1]);
+                } else {
+                    params.add(keyValue[0], "");
+                }
             }
         }
         return params;
