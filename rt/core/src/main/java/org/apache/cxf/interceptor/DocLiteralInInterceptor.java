@@ -91,104 +91,111 @@ public class DocLiteralInInterceptor extends AbstractInDatabindingInterceptor {
             bop = getBindingOperationInfo(exchange, startQName, client);
         }
 
-        if (bop != null && bop.isUnwrappedCapable()) {
-            ServiceInfo si = bop.getBinding().getService();
-            // Wrapped case
-            MessageInfo msgInfo = setMessage(message, bop, client, si);
-
-            // Determine if there is a wrapper class
-            if (msgInfo.getMessageParts().get(0).getTypeClass() != null) {
-                Object wrappedObject = dr.read(msgInfo.getMessageParts().get(0), xmlReader);
-                parameters.put(msgInfo.getMessageParts().get(0), wrappedObject);
-            } else {
-                // Unwrap each part individually if we don't have a wrapper
-
-                bop = bop.getUnwrappedOperation();
-
-                msgInfo = setMessage(message, bop, client, si);
-                List<MessagePartInfo> messageParts = msgInfo.getMessageParts();
-                Iterator<MessagePartInfo> itr = messageParts.iterator();
-
-                // advance just past the wrapped element so we don't get
-                // stuck
-                if (xmlReader.getEventType() == XMLStreamConstants.START_ELEMENT) {
-                    StaxUtils.nextEvent(xmlReader);
-                }
-
-                // loop through each child element
-                getPara(xmlReader, dr, parameters, itr, message);
-            }
-
-        } else {
-            //Bare style
-            BindingMessageInfo msgInfo = null;
-
-            if (bop != null) { //for xml binding or client side
-                getMessageInfo(message, bop);
-                if (client) {
-                    msgInfo = bop.getOutput();
+        try {
+            if (bop != null && bop.isUnwrappedCapable()) {
+                ServiceInfo si = bop.getBinding().getService();
+                // Wrapped case
+                MessageInfo msgInfo = setMessage(message, bop, client, si);
+    
+                // Determine if there is a wrapper class
+                if (msgInfo.getMessageParts().get(0).getTypeClass() != null) {
+                    Object wrappedObject = dr.read(msgInfo.getMessageParts().get(0), xmlReader);
+                    parameters.put(msgInfo.getMessageParts().get(0), wrappedObject);
                 } else {
-                    msgInfo = bop.getInput();
+                    // Unwrap each part individually if we don't have a wrapper
+    
+                    bop = bop.getUnwrappedOperation();
+    
+                    msgInfo = setMessage(message, bop, client, si);
+                    List<MessagePartInfo> messageParts = msgInfo.getMessageParts();
+                    Iterator<MessagePartInfo> itr = messageParts.iterator();
+    
+                    // advance just past the wrapped element so we don't get
+                    // stuck
+                    if (xmlReader.getEventType() == XMLStreamConstants.START_ELEMENT) {
+                        StaxUtils.nextEvent(xmlReader);
+                    }
+    
+                    // loop through each child element
+                    getPara(xmlReader, dr, parameters, itr, message);
                 }
-            }
-
-            Collection<OperationInfo> operations = null;
-            operations = new ArrayList<OperationInfo>();
-            Endpoint ep = exchange.get(Endpoint.class);
-            ServiceInfo si = ep.getEndpointInfo().getService();
-            operations.addAll(si.getInterface().getOperations());
-
-            if (!StaxUtils.toNextElement(xmlReader)) {
-                // empty input
-
-                // TO DO : check duplicate operation with no input
-                for (OperationInfo op : operations) {
-                    MessageInfo bmsg = op.getInput();
-                    if (bmsg.getMessageParts().size() == 0) {
-                        BindingOperationInfo boi = ep.getEndpointInfo().getBinding().getOperation(op);
-                        exchange.put(BindingOperationInfo.class, boi);
-                        exchange.put(OperationInfo.class, op);
-                        exchange.setOneWay(op.isOneWay());
+    
+            } else {
+                //Bare style
+                BindingMessageInfo msgInfo = null;
+    
+                if (bop != null) { //for xml binding or client side
+                    getMessageInfo(message, bop);
+                    if (client) {
+                        msgInfo = bop.getOutput();
+                    } else {
+                        msgInfo = bop.getInput();
                     }
                 }
-                return;
-            }
-
-            int paramNum = 0;
-
-            do {
-                QName elName = xmlReader.getName();
-                Object o = null;
-
-                MessagePartInfo p;
-                if (!client && msgInfo != null && msgInfo.getMessageParts() != null 
-                    && msgInfo.getMessageParts().size() == 0) {
-                    //no input messagePartInfo
+    
+                Collection<OperationInfo> operations = null;
+                operations = new ArrayList<OperationInfo>();
+                Endpoint ep = exchange.get(Endpoint.class);
+                ServiceInfo si = ep.getEndpointInfo().getService();
+                operations.addAll(si.getInterface().getOperations());
+    
+                if (!StaxUtils.toNextElement(xmlReader)) {
+                    // empty input
+    
+                    // TO DO : check duplicate operation with no input
+                    for (OperationInfo op : operations) {
+                        MessageInfo bmsg = op.getInput();
+                        if (bmsg.getMessageParts().size() == 0) {
+                            BindingOperationInfo boi = ep.getEndpointInfo().getBinding().getOperation(op);
+                            exchange.put(BindingOperationInfo.class, boi);
+                            exchange.put(OperationInfo.class, op);
+                            exchange.setOneWay(op.isOneWay());
+                        }
+                    }
                     return;
                 }
-                if (msgInfo != null && msgInfo.getMessageParts() != null 
-                    && msgInfo.getMessageParts().size() > 0) {
-                    assert msgInfo.getMessageParts().size() > paramNum;
-                    p = msgInfo.getMessageParts().get(paramNum);
-                } else {
-                    p = findMessagePart(exchange, operations, elName, client, paramNum);
-                }
-
-                if (p == null) {
-                    throw new Fault(new org.apache.cxf.common.i18n.Message("NO_PART_FOUND", LOG, elName),
-                                    Fault.FAULT_CODE_CLIENT);
-                }
-
-                o = dr.read(p, xmlReader);
-                parameters.put(p, o);
-                
-                paramNum++;
-            } while (StaxUtils.toNextElement(xmlReader));
-
-        }
-
-        if (parameters.size() > 0) {
-            message.setContent(List.class, parameters);
+    
+                int paramNum = 0;
+    
+                do {
+                    QName elName = xmlReader.getName();
+                    Object o = null;
+    
+                    MessagePartInfo p;
+                    if (!client && msgInfo != null && msgInfo.getMessageParts() != null 
+                        && msgInfo.getMessageParts().size() == 0) {
+                        //no input messagePartInfo
+                        return;
+                    }
+                    if (msgInfo != null && msgInfo.getMessageParts() != null 
+                        && msgInfo.getMessageParts().size() > 0) {
+                        assert msgInfo.getMessageParts().size() > paramNum;
+                        p = msgInfo.getMessageParts().get(paramNum);
+                    } else {
+                        p = findMessagePart(exchange, operations, elName, client, paramNum);
+                    }
+    
+                    if (p == null) {
+                        throw new Fault(new org.apache.cxf.common.i18n.Message("NO_PART_FOUND", LOG, elName),
+                                        Fault.FAULT_CODE_CLIENT);
+                    }
+    
+                    o = dr.read(p, xmlReader);
+                    parameters.put(p, o);
+                    
+                    paramNum++;
+                } while (StaxUtils.toNextElement(xmlReader));
+    
+            }
+    
+            if (parameters.size() > 0) {
+                message.setContent(List.class, parameters);
+            }
+        } catch (Fault f) {
+            if (!isRequestor(message)) {
+                f.setFaultCode(Fault.FAULT_CODE_CLIENT);
+            }
+            throw f;
         }
     }
     

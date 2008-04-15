@@ -130,7 +130,14 @@ public class RPCInInterceptor extends AbstractInDatabindingInterceptor {
                                                                            LOG,
                                                                            qn));
                 }
-                parameters.put(part, dr.read(part, xmlReader));
+                try {
+                    parameters.put(part, dr.read(part, xmlReader));
+                } catch (Fault f) {
+                    if (!isRequestor(message)) {
+                        f.setFaultCode(Fault.FAULT_CODE_CLIENT);
+                    }
+                    throw f;
+                }
             }
         }
 
