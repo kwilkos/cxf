@@ -1010,8 +1010,8 @@
         <profile>
             <id>spring2.5</id>
             <properties>
-               <spring.version>2.5</spring.version>
-               <spring.mock>spring-test</spring.mock> 
+                <spring.version>2.5.3</spring.version>
+                <spring.mock>spring-test</spring.mock>
             </properties>
         </profile>
     </profiles>
