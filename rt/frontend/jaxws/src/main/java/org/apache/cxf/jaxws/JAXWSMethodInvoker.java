@@ -49,12 +49,21 @@ public class JAXWSMethodInvoker extends FactoryInvoker {
         super(factory);
     }
     
+    protected SOAPFaultException findSoapFaultException(Throwable ex) {
+        if (ex instanceof SOAPFaultException) {
+            return (SOAPFaultException)ex;
+        }
+        if (ex.getCause() != null) {
+            return findSoapFaultException(ex.getCause());
+        }
+        return null;
+    }
     protected Fault createFault(Throwable ex, Method m, List<Object> params, boolean checked) {
         //map the JAX-WS faults
-        if (ex instanceof SOAPFaultException) {
-            SOAPFaultException sfe = (SOAPFaultException)ex;
+        SOAPFaultException sfe = findSoapFaultException(ex);
+        if (sfe != null) {
             SoapFault fault = new SoapFault(sfe.getFault().getFaultString(),
-                                            sfe,
+                                            ex,
                                             sfe.getFault().getFaultCodeAsQName());
             fault.setRole(sfe.getFault().getFaultActor());
             fault.setDetail(sfe.getFault().getDetail());

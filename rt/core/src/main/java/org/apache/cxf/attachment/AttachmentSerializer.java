@@ -51,6 +51,25 @@ public class AttachmentSerializer {
         
         String bodyCt = (String) message.get(Message.CONTENT_TYPE);
         bodyCt = bodyCt.replaceAll("\"", "\\\"");
+        
+        // The bodyCt string is used enclosed within "", so if it contains the character ", it
+        // should be adjusted, like in the following case:
+        //   application/soap+xml; action="urn:ihe:iti:2007:RetrieveDocumentSet"
+        // The attribute action is added in SoapActionOutInterceptor, when SOAP 1.2 is used
+        // The string has to be changed in:
+        //   application/soap+xml"; action="urn:ihe:iti:2007:RetrieveDocumentSet
+        // so when it is enclosed within "", the result must be:
+        //   "application/soap+xml"; action="urn:ihe:iti:2007:RetrieveDocumentSet"
+        // instead of 
+        //   "application/soap+xml; action="urn:ihe:iti:2007:RetrieveDocumentSet""
+        // that is wrong because when used it produces:
+        //   type="application/soap+xml; action="urn:ihe:iti:2007:RetrieveDocumentSet""
+        if ((bodyCt.indexOf('"') != -1) && (bodyCt.indexOf(';') != -1)) {
+            int pos = bodyCt.indexOf(';');
+            StringBuffer st = new StringBuffer(bodyCt.substring(0 , pos));
+            st.append("\"").append(bodyCt.substring(pos, bodyCt.length() - 1));
+            bodyCt = st.toString();
+        }        
         String enc = (String) message.get(Message.ENCODING);
         if (enc == null) {
             enc = "UTF-8";
@@ -91,9 +110,7 @@ public class AttachmentSerializer {
             .append(enc)
             .append("; type=\"")
             .append(bodyCt)
-            .append("; charset=")
-            .append(enc)
-            .append("\"");
+            .append("\";");
         
         writeHeaders(mimeBodyCt.toString(), BODY_ATTACHMENT_ID, writer);
         out.write(writer.getBuffer().toString().getBytes(encoding));

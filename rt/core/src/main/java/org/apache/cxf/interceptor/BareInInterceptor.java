@@ -134,7 +134,14 @@ public class BareInInterceptor extends AbstractInDatabindingInterceptor {
                                 Fault.FAULT_CODE_CLIENT);
             }
 
-            o = dr.read(p, xmlReader);
+            try {
+                o = dr.read(p, xmlReader);                
+            } catch (Fault fault) {
+                if (!isRequestor(message)) {
+                    fault.setFaultCode(Fault.FAULT_CODE_CLIENT);
+                }
+                throw fault;
+            }
 
             if (o != null) {
                 parameters.put(p, o);
