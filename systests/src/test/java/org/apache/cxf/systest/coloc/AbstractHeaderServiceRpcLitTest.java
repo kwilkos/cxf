@@ -211,7 +211,8 @@ public abstract class AbstractHeaderServiceRpcLitTest extends AbstractColocTest 
             ht.pingMe(in);
             fail("Should throw a CXF Fault exception");
         } catch (WebServiceException fault) {
-            assertFalse(-1 == fault.getMessage().lastIndexOf(HeaderTesterUtil.EX_STRING));
+            assertFalse("Wrong message: " + fault.getMessage(),
+                        -1 == fault.getMessage().lastIndexOf(HeaderTesterUtil.EX_STRING));
             if (isFaultCodeCheckEnabled()) {
                 verifyFaultCode(port);
             }
