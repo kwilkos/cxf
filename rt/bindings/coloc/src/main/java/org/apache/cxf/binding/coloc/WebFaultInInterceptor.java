@@ -47,7 +47,11 @@ public class WebFaultInInterceptor extends AbstractPhaseInterceptor<Message> {
             Fault f = (Fault) ex;
             ex = (Exception) f.getCause();
         }
-        
+        if (ex == null) { 
+            return;
+        }
+
+
         QName faultName = this.getFaultName(ex);
         if (faultName == null) {
             return;
