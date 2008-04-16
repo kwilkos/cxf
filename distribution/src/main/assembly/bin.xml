@@ -100,14 +100,14 @@
             <directory>manifest/target</directory>
             <outputDirectory>apache-cxf-${cxf.version}/lib</outputDirectory>
             <includes>
-                <include>**/cxf-manifest-incubator.jar</include>
+                <include>**/cxf-manifest.jar</include>
             </includes>
         </fileSet>
         <fileSet>
             <directory>manifest/target</directory>
             <outputDirectory>apache-cxf-${cxf.version}/modules</outputDirectory>
             <includes>
-                <include>**/cxf-manifest-incubator.jar</include>
+                <include>**/cxf-manifest.jar</include>
             </includes>
         </fileSet>
         <fileSet>
