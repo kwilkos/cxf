@@ -109,7 +109,6 @@
     <scm>
         <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/branches/2.0.x-fixes/rt/bindings/xml</connection>
         <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/branches/2.0.x-fixes/rt/bindings/xml</developerConnection>
-    <url>http://svn.apache.org/viewvc/incubator/cxf/branches/2.0.x-fixes/cxf-parent/cxf-rt-bindings-xml</url>
-  </scm>
+    </scm>
 
 </project>

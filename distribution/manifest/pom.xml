@@ -262,7 +262,6 @@
     <scm>
         <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/branches/2.0.x-fixes/distribution/manifest</connection>
         <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/branches/2.0.x-fixes/distribution/manifest</developerConnection>
-    <url>http://svn.apache.org/viewvc/incubator/cxf/branches/2.0.x-fixes/cxf-parent/cxf-distribution-manifest</url>
-  </scm>
+    </scm>
 
 </project>

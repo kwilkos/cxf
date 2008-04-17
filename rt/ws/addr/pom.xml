@@ -96,7 +96,6 @@
     <scm>
         <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/branches/2.0.x-fixes/rt/ws/addr</connection>
         <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/branches/2.0.x-fixes/rt/ws/addr</developerConnection>
-    <url>http://svn.apache.org/viewvc/incubator/cxf/branches/2.0.x-fixes/cxf-parent/cxf-rt-ws-addr</url>
-  </scm>
+    </scm>
 
 </project>

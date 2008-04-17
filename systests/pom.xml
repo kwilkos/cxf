@@ -33,8 +33,7 @@
     <scm>
         <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/branches/2.0.x-fixes/systests</connection>
         <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/branches/2.0.x-fixes/systests</developerConnection>
-      <url>http://svn.apache.org/viewvc/incubator/cxf/branches/2.0.x-fixes/cxf-parent/cxf-systests</url>
-  </scm>
+    </scm>
     <build>
         <plugins>
             <plugin>
