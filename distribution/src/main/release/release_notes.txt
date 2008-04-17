@@ -1,8 +1,8 @@
-Apache CXF 2.0.5 (incubating) Release Notes
+Apache CXF 2.0.5 Release Notes
 
 1. Overview
 
-Apache CXF 2.0.5, under incubation,  delivers the third milestone of 
+Apache CXF 2.0.5 delivers the third milestone of 
 the Celtix project (http://celtix.objectweb.org) and the XFire project
 (http://xfire.codehaus.org) merge.  This release is mostly a patch release
 from 2.0.4 fixing 34 JIRA issues as well as enhancing startup performance.
@@ -10,7 +10,7 @@ from 2.0.4 fixing 34 JIRA issues as well as enhancing startup performance.
 
 2. Installation Prerequisites 
 
-Before installing Apache CXF (incubating), make sure the following products,
+Before installing Apache CXF, make sure the following products,
 with the specified versions, are installed on your system:
 
     * Java 5 Development Kit   (Java 6 requires extra setup)
@@ -38,7 +38,7 @@ from the lib dir to your jre/lib/endorsed directory.
 
 2.2 Apache Ant 1.6.5 (or newer, 1.7.0 should work as well)
 
-To run samples included in the binary distribution of Apache CXF (incubating),
+To run samples included in the binary distribution of Apache CXF,
 you must install the Apache Ant 1.6.5 build utility, which can be downloaded
 from:
 
