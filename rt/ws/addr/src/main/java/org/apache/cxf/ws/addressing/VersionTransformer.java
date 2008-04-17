@@ -141,7 +141,7 @@ public class VersionTransformer {
         exposed.setAddress(convert(internal.getAddress()));
         exposed.setReferenceParameters(
                             convert(internal.getReferenceParameters()));
-        QName serviceQName = EndpointReferenceUtils.getServiceName(internal);
+        QName serviceQName = EndpointReferenceUtils.getServiceName(internal, null);
         if (serviceQName != null) {
             ServiceNameType serviceName =
                 Names200408.WSA_OBJECT_FACTORY.createServiceNameType();

@@ -35,6 +35,7 @@ import javax.xml.namespace.QName;
 import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
 
+import org.apache.cxf.Bus;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.io.CachedOutputStream;
 import org.apache.cxf.message.Exchange;
@@ -91,7 +92,8 @@ public class JBIConduitOutputStream extends CachedOutputStream {
             QName interfaceName = new QName(ws.targetNamespace(), ws.name());
             QName serviceName = null;
             if (target != null) {
-                serviceName = EndpointReferenceUtils.getServiceName(target);
+                serviceName = EndpointReferenceUtils.getServiceName(target,
+                                                                    message.getExchange().get(Bus.class));
             } else {
                 serviceName = message.getExchange().get(org.apache.cxf.service.Service.class).getName();
             }

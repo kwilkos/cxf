@@ -22,10 +22,12 @@ package org.apache.cxf.systest.nested_callback;
 
 import java.net.URL;
 
+import javax.annotation.Resource;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Service;
 import javax.xml.ws.wsaddressing.W3CEndpointReference;
 
+import org.apache.cxf.Bus;
 import org.apache.cxf.jaxb.JAXBUtils;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
 import org.apache.cxf.ws.addressing.VersionTransformer;
@@ -44,6 +46,8 @@ import org.apache.nested_callback.ServerPortType;
                       
                   
 public class ServerImpl implements ServerPortType  {
+    @Resource
+    Bus bus;
     
     public String foo(String s) {
         return s;
@@ -57,9 +61,9 @@ public class ServerImpl implements ServerPortType  {
 
             WSDLManager manager = new WSDLManagerImpl();
         
-            QName interfaceName = EndpointReferenceUtils.getInterfaceName(callback);
+            QName interfaceName = EndpointReferenceUtils.getInterfaceName(callback, bus);
             String wsdlLocation = EndpointReferenceUtils.getWSDLLocation(callback);
-            QName serviceName = EndpointReferenceUtils.getServiceName(callback);
+            QName serviceName = EndpointReferenceUtils.getServiceName(callback, bus);
 
             
             String portString = EndpointReferenceUtils.getPortName(callback);

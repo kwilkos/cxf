@@ -51,6 +51,7 @@ import org.apache.cxf.BusException;
 import org.apache.cxf.binding.BindingFactoryManager;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.configuration.Configurer;
 import org.apache.cxf.databinding.DataBinding;
 import org.apache.cxf.databinding.source.SourceDataBinding;
@@ -257,12 +258,24 @@ public class ServiceImpl extends ServiceDelegate {
     public <T> T getPort(EndpointReferenceType endpointReference, Class<T> type,
                          WebServiceFeature... features) {
         endpointReference = EndpointReferenceUtils.resolve(endpointReference, bus);
-        QName serviceQName = EndpointReferenceUtils.getServiceName(endpointReference);
+        QName serviceQName = EndpointReferenceUtils.getServiceName(endpointReference, bus);
         String portName = EndpointReferenceUtils.getPortName(endpointReference);
 
         QName portQName = null;
         if (portName != null && serviceQName != null) {
-            portQName = new QName(serviceQName.getNamespaceURI(), portName);
+            String ns = serviceQName.getNamespaceURI();
+            if (StringUtils.isEmpty(ns)) {
+                //hack to workaround a xalan bug
+                for (QName qn : portInfos.keySet()) {
+                    if (portName.equals(qn.getLocalPart())) {
+                        ns = qn.getNamespaceURI();
+                    }
+                }
+            }
+            if (StringUtils.isEmpty(ns) && serviceName != null) {
+                ns = serviceName.getNamespaceURI();
+            }
+            portQName = new QName(ns, portName);
         }
 
         return createPort(portQName, endpointReference, type, features);
@@ -521,7 +534,7 @@ public class ServiceImpl extends ServiceDelegate {
                                           Mode mode,
                                           WebServiceFeature... features) {
         EndpointReferenceType ref = VersionTransformer.convertToInternal(endpointReference);
-        return createDispatch(EndpointReferenceUtils.getPortQName(ref), 
+        return createDispatch(EndpointReferenceUtils.getPortQName(ref, bus), 
                               type, mode, features);
     }   
 
@@ -565,7 +578,7 @@ public class ServiceImpl extends ServiceDelegate {
                                            Mode mode,
                                            WebServiceFeature... features) {
         EndpointReferenceType ref = VersionTransformer.convertToInternal(endpointReference);
-        return createDispatch(EndpointReferenceUtils.getPortQName(ref), 
+        return createDispatch(EndpointReferenceUtils.getPortQName(ref, bus), 
                               context, mode, features);        
     }
 

@@ -88,7 +88,7 @@ public class ManualHttpMulitplexClientServerTest extends AbstractBusClientServer
         // no wsdl so default generated soap/http binding will be used
         // address url must come from the calling context
         EndpointReferenceType epr = VersionTransformer.convertToInternal(w3cEpr); 
-        QName serviceName = EndpointReferenceUtils.getServiceName(epr);
+        QName serviceName = EndpointReferenceUtils.getServiceName(epr, bus);
         Service numService = Service.create(serviceName);
         
         String portString = EndpointReferenceUtils.getPortName(epr);

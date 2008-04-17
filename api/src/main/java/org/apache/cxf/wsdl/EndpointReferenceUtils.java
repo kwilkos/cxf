@@ -256,35 +256,39 @@ public final class EndpointReferenceUtils {
      * @param ref the endpoint reference.
      * @return the service name.
      */
-    public static QName getServiceName(EndpointReferenceType ref) {
+    public static QName getServiceName(EndpointReferenceType ref, Bus bus) {
         MetadataType metadata = ref.getMetadata();
-        if (metadata != null) {
-            for (Object obj : metadata.getAny()) {
-                if (obj instanceof Element) {
-                    Node node = (Element)obj;
-                    if (node.getNamespaceURI().equals(JAXWSAConstants.NS_WSAW) 
-                        && node.getLocalName().equals("ServiceName")) {
-                        String content = node.getTextContent();
-                        String namespaceURI = node.getFirstChild().getNamespaceURI();
-                        String service = content;
-                        if (content.contains(":")) {
-                            namespaceURI = getNameSpaceUri(node, content, namespaceURI);
-                            service = getService(content);
-                        } else {
-                            Node nodeAttr = node.getAttributes().getNamedItem("xmlns");
-                            namespaceURI = nodeAttr.getNodeValue();
+        if (metadata == null) {
+            return null;
+        }
+        for (Object obj : metadata.getAny()) {
+            if (obj instanceof Element) {
+                Node node = (Element)obj;
+                if (node.getNamespaceURI().equals(JAXWSAConstants.NS_WSAW) 
+                    && node.getLocalName().equals("ServiceName")) {
+                    String content = node.getTextContent();
+                    String namespaceURI = node.getFirstChild().getNamespaceURI();
+                    String service = content;
+                    if (content.contains(":")) {
+                        namespaceURI = getNameSpaceUri(node, content, namespaceURI);
+                        if (StringUtils.isEmpty(namespaceURI)) {
+                            namespaceURI = findNamespaceHack(ref, bus);                                
                         }
-                        
-                        return new QName(namespaceURI, service);
+                        service = getService(content);
+                    } else {
+                        Node nodeAttr = node.getAttributes().getNamedItem("xmlns");
+                        namespaceURI = nodeAttr.getNodeValue();
                     }
-                } else if (obj instanceof JAXBElement) {
-                    Object val = ((JAXBElement)obj).getValue();
-                    if (val instanceof ServiceNameType) {
-                        return ((ServiceNameType)val).getValue();
-                    }
-                } else if (obj instanceof ServiceNameType) {
-                    return ((ServiceNameType)obj).getValue();
+                    
+                    return new QName(namespaceURI, service);
                 }
+            } else if (obj instanceof JAXBElement) {
+                Object val = ((JAXBElement)obj).getValue();
+                if (val instanceof ServiceNameType) {
+                    return ((ServiceNameType)val).getValue();
+                }
+            } else if (obj instanceof ServiceNameType) {
+                return ((ServiceNameType)obj).getValue();
             }
         }
         return null;
@@ -318,8 +322,8 @@ public final class EndpointReferenceUtils {
         return null;
     }
     
-    public static QName getPortQName(EndpointReferenceType ref) {
-        QName serviceName = getServiceName(ref); 
+    public static QName getPortQName(EndpointReferenceType ref, Bus bus) {
+        QName serviceName = getServiceName(ref, bus); 
         return new QName(serviceName.getNamespaceURI(), getPortName(ref));
     }
     
@@ -363,42 +367,72 @@ public final class EndpointReferenceUtils {
         }
     }
   
-    public static QName getInterfaceName(EndpointReferenceType ref) {
+    public static QName getInterfaceName(EndpointReferenceType ref, Bus bus) {
         MetadataType metadata = ref.getMetadata();
-        if (metadata != null) {
-            for (Object obj : metadata.getAny()) {
-                if (obj instanceof Element) {
-                    Node node = (Element)obj;
-                    if (node.getNamespaceURI().equals(JAXWSAConstants.NS_WSAW)
-                        && node.getNodeName().contains("InterfaceName")) {
-                        
-                        String content = node.getTextContent();
-                        String namespaceURI = node.getFirstChild().getNamespaceURI();
-                        //String service = content;
-                        if (content.contains(":")) {
-                            namespaceURI = getNameSpaceUri(node, content, namespaceURI);
-                            content = getService(content);
-                        } else {
-                            Node nodeAttr = node.getAttributes().getNamedItem("xmlns");
-                            namespaceURI = nodeAttr.getNodeValue();
+        if (metadata == null) {
+            return null;
+        }
+        for (Object obj : metadata.getAny()) {
+            if (obj instanceof Element) {
+                Node node = (Element)obj;
+                if (node.getNamespaceURI().equals(JAXWSAConstants.NS_WSAW)
+                    && node.getNodeName().contains("InterfaceName")) {
+                    
+                    String content = node.getTextContent();
+                    String namespaceURI = node.getFirstChild().getNamespaceURI();
+                    //String service = content;
+                    if (content.contains(":")) {
+                        namespaceURI = getNameSpaceUri(node, content, namespaceURI);
+                        if (StringUtils.isEmpty(namespaceURI)) {
+                            namespaceURI = findNamespaceHack(ref, bus);                                
                         }
+                        content = getService(content);
+                    } else {
+                        Node nodeAttr = node.getAttributes().getNamedItem("xmlns");
+                        namespaceURI = nodeAttr.getNodeValue();
+                    }
 
-                        return new QName(namespaceURI, content);
-                    }
-                } else if (obj instanceof JAXBElement) {
-                    Object val = ((JAXBElement)obj).getValue();
-                    if (val instanceof AttributedQNameType) {
-                        return ((AttributedQNameType)val).getValue();
-                    }
-                } else if (obj instanceof AttributedQNameType) {
-                    return ((AttributedQNameType)obj).getValue();
+                    return new QName(namespaceURI, content);
                 }
+            } else if (obj instanceof JAXBElement) {
+                Object val = ((JAXBElement)obj).getValue();
+                if (val instanceof AttributedQNameType) {
+                    return ((AttributedQNameType)val).getValue();
+                }
+            } else if (obj instanceof AttributedQNameType) {
+                return ((AttributedQNameType)obj).getValue();
             }
         }
 
         return null;
     }
     
+    private static String findNamespaceHack(EndpointReferenceType ref, Bus bus) {
+        //probably a broken version of Xalan, we'll have to 
+        //try a hack to figure out the namespace as xalan
+        //dropped the namespace declaration so there isn't 
+        //a way to map the namespace prefix to the real namespace.
+        //This is fixed in xalan 2.7.1, but older versions may 
+        //be used
+        if (bus == null) {
+            return "";
+        }
+        String wsdlLocation = getWSDLLocation(ref);
+        if (StringUtils.isEmpty(wsdlLocation)) {
+            return "";
+        }
+        WSDLManager manager = bus.getExtension(WSDLManager.class);
+        if (manager != null) {
+            try {
+                Definition def = manager.getDefinition(wsdlLocation);
+                return def.getTargetNamespace();
+            } catch (WSDLException e) {
+                //ignore
+            }
+        }
+        return "";
+    }
+
     public static void setWSDLLocation(EndpointReferenceType ref, String... wsdlLocation) {
         
         MetadataType metadata = ref.getMetadata();
@@ -626,8 +660,11 @@ public final class EndpointReferenceUtils {
             }
         }
         
-        QName serviceName = getServiceName(ref);
+        QName serviceName = getServiceName(ref, null);
         if (null != serviceName) {
+            if (StringUtils.isEmpty(serviceName.getNamespaceURI())) {
+                serviceName = new QName(def.getTargetNamespace(), serviceName.getLocalPart());
+            }
             Service service = def.getService(serviceName);
             if (service == null) {
                 throw new WSDLException(WSDLException.OTHER_ERROR, "Cannot find service for " + serviceName);

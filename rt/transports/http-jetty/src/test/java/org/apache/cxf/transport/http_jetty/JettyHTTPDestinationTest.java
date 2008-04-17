@@ -151,7 +151,7 @@ public class JettyHTTPDestinationTest extends Assert {
                      EndpointReferenceUtils.getAddress(ref),
                      StringUtils.addDefaultPortIfMissing(EndpointReferenceUtils.getAddress(address)));
         assertEquals("unexpected service name local part",
-                     EndpointReferenceUtils.getServiceName(ref).getLocalPart(),
+                     EndpointReferenceUtils.getServiceName(ref, bus).getLocalPart(),
                      "Service");
         assertEquals("unexpected portName",
                      EndpointReferenceUtils.getPortName(ref),

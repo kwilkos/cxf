@@ -53,7 +53,7 @@ public class VersionTransformerTest extends Assert {
         assertNotNull(ert);
         assertEquals("http://localhost:8080/test", ert.getAddress().getValue());
         assertEquals(new QName("http://apache.org/hello_world_soap_http", "SOAPService"), 
-                               EndpointReferenceUtils.getServiceName(ert));
+                               EndpointReferenceUtils.getServiceName(ert, null));
     }
     
     private EndpointReference readEndpointReference(Source eprInfoset) {
