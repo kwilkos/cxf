@@ -93,7 +93,7 @@
         <pathelement location="${basedir}"/>
         <pathelement location="${build.classes.dir}"/>
         <pathelement path="${srcbuild.classpath}"/>
-        <pathelement location="${cxf.home}/lib/cxf-manifest-incubator.jar"/>
+        <pathelement location="${cxf.home}/lib/cxf-manifest.jar"/>
     </path>
     <condition property="thirdparty.classpath" value="">
         <not>
