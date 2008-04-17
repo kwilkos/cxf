@@ -35,7 +35,7 @@
 
     <jar destfile="${build.lib.dir}/cxf-service-engine.jar" duplicate="preserve">
       <fileset dir="${env.CXF_HOME}/lib">
-        <include name="cxf-manifest-incubator.jar"/>
+        <include name="cxf-manifest.jar"/>
         <include name="cxf*.jar"/>
         <include name="jaxb*.jar"/>
         <include name="neethi-*.jar"/>
