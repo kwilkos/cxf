@@ -154,8 +154,7 @@
     <scm>
         <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/branches/2.0.x-fixes/common/common</connection>
         <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/branches/2.0.x-fixes/common/common</developerConnection>
-    <url>http://svn.apache.org/viewvc/incubator/cxf/branches/2.0.x-fixes/cxf-parent/cxf-common-utilities</url>
-  </scm>
+    </scm>
 
     <!-- will remove this after it is got sync to central repository -->
     <repositories>

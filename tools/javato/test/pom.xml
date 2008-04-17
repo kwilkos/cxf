@@ -139,8 +139,7 @@
     <scm>
         <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/branches/2.0.x-fixes/tools/javato/test</connection>
         <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/branches/2.0.x-fixes/tools/javato/test</developerConnection>
-      <url>http://svn.apache.org/viewvc/incubator/cxf/branches/2.0.x-fixes/cxf-parent/cxf-tools-java2wsdl-test</url>
-  </scm>
+    </scm>
 
     <build>
         <plugins>

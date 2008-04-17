@@ -67,8 +67,7 @@
     <scm>
         <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/branches/2.0.x-fixes/tools/wsdlto/frontend/jaxws</connection>
         <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/branches/2.0.x-fixes/tools/wsdlto/frontend/jaxws</developerConnection>
-    <url>http://svn.apache.org/viewvc/incubator/cxf/branches/2.0.x-fixes/cxf-parent/cxf-tools-wsdlto-frontend-jaxws</url>
-  </scm>
+    </scm>
 
 
 
