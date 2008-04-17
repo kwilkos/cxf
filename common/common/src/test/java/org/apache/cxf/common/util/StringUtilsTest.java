@@ -67,8 +67,8 @@ public class StringUtilsTest extends Assert {
     
     @Test
     public void testFormatVersionNumber() throws Exception {
-        assertEquals("2.0", StringUtils.formatVersionNumber("2.0-incubator-M1-SNAPSHOT"));
-        assertEquals("2.0.12", StringUtils.formatVersionNumber("2.0.12-incubator-M1-SNAPSHOT"));
+        assertEquals("2.0", StringUtils.formatVersionNumber("2.0-M1-SNAPSHOT"));
+        assertEquals("2.0.12", StringUtils.formatVersionNumber("2.0.12-M1-SNAPSHOT"));
     }
     
     @Test
