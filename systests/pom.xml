@@ -118,63 +118,6 @@
                 </dependency>
             </dependencies>
         </profile>
-        <profile>
-            <id>test.remoteresources</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <artifactId>maven-remote-resources-plugin</artifactId>
-                        <version>1.0-alpha-2-SNAPSHOT</version>
-                        <executions>
-                            <execution>
-                                <id>do-apache-stuff</id>
-                                <phase>generate-sources</phase>
-                                <goals>
-                                    <goal>process</goal>
-                                </goals>
-                                <configuration>
-                                    <resourceBundles>
-                                        <resourceBundle>org.apache:apache-jar-resource-bundle:1.1-SNAPSHOT</resourceBundle>
-                                        <resourceBundle>org.apache:apache-incubator-disclaimer-resource-bundle:1.0</resourceBundle>
-                                    </resourceBundles>
-                                    <properties>
-                                        <addLicense>true</addLicense>
-                                    </properties>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <artifactId>maven-jar-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <goals>
-                                    <goal>test-jar</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-            <repositories>
-                <repository>
-                    <id>apache.snapshots</id>
-                    <name>Apache SNAPSHOT repository</name>
-                    <url>http://people.apache.org/repo/m2-snapshot-repository/</url>
-                </repository>
-            </repositories>
-            <pluginRepositories>
-                <pluginRepository>
-                    <releases>
-                        <enabled>false</enabled>
-                    </releases>
-                    <snapshots />
-                    <id>apache.snapshots</id>
-                    <name>Apache Maven Snapshot Repository</name>
-                    <url>http://people.apache.org/repo/m2-snapshot-repository/</url>
-                </pluginRepository>
-            </pluginRepositories>
-        </profile>
     </profiles>
     <dependencies>
         <dependency>
