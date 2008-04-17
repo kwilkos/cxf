@@ -30,9 +30,9 @@ if not defined CXF_HOME goto set_cxf_home
 :cont
 if not defined JAVA_HOME goto no_java_home
 
-if not exist "%CXF_HOME%\lib\cxf-manifest-incubator.jar" goto no_cxf_jar
+if not exist "%CXF_HOME%\lib\cxf-manifest.jar" goto no_cxf_jar
 
-set CXF_JAR=%CXF_HOME%\lib\cxf-manifest-incubator.jar
+set CXF_JAR=%CXF_HOME%\lib\cxf-manifest.jar
 
 "%JAVA_HOME%\bin\java" -cp "%CXF_JAR%;%CLASSPATH%" -Djava.util.logging.config.file="%CXF_HOME%\etc\logging.properties" org.apache.cxf.management.utils.ManagementConsole %*
 
@@ -45,7 +45,7 @@ echo ERROR: Set JAVA_HOME to the path where the J2SE 5.0 (JDK5.0) is installed
 goto end 
 
 :no_cxf_jar
-echo ERROR: Unable to find cxf-manifest-incubator.jar in %cxf_home/lib
+echo ERROR: Unable to find cxf-manifest.jar in %cxf_home/lib
 goto end
 
 :set_cxf_home
