@@ -1,7 +1,7 @@
 <project name="CXF JProfile" default="compile">
 
    <property name="jprofile.home" location="/opt/jprofiler5"/>
-   <property name="cxf.dist" location="../../distribution/target/apache-cxf-2.1-incubator-SNAPSHOT.dir/apache-cxf-2.1-incubator-SNAPSHOT"/>
+   <property name="cxf.dist" location="../../distribution/target/apache-cxf-2.1-SNAPSHOT.dir/apache-cxf-2.1-SNAPSHOT"/>
 
   <target name="setNativeLibDir" depends="setPlatform">
     <property name="nativelib.dir" location="${jprofile.home}/bin/${platform}"/>
