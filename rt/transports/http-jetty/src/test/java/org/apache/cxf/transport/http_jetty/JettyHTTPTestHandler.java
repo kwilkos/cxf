@@ -25,19 +25,31 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 public class JettyHTTPTestHandler extends JettyHTTPHandler {
-    String string;
+    private boolean contextMatchExact;
+    private String response;
 
-    public JettyHTTPTestHandler(String s) {        
-        super(null, true); 
-        string = s;
+    public JettyHTTPTestHandler(String s, boolean cmExact) {
+        super(null, cmExact);
+        contextMatchExact = cmExact;
+        response = s;
     }
-    
+
     public void handle(String target, HttpServletRequest req,
-                       HttpServletResponse resp, int dispatch) throws IOException {        
-        
-        resp.getOutputStream().write(string.getBytes());
-        resp.flushBuffer();
-        
+                       HttpServletResponse resp, int dispatch) throws IOException {
+
+        if (contextMatchExact) {
+            // just return the response for testing
+            resp.getOutputStream().write(response.getBytes());
+            resp.flushBuffer();
+
+        } else {
+            if (target.equals(getName()) || checkContextPath(target)) {
+                resp.getOutputStream().write(response.getBytes());
+                resp.flushBuffer();
+            }
+        }
     }
+
+
 
 }
