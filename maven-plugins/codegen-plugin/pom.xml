@@ -107,7 +107,6 @@
     <scm>
         <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/trunk/maven-plugins/codegen-plugin</connection>
         <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/trunk/maven-plugins/codegen-plugin</developerConnection>
-      <url>http://svn.apache.org/viewvc/incubator/cxf/trunk/cxf-parent/cxf-codegen-plugin</url>
-  </scm>
+    </scm>
 
 </project>

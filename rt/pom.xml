@@ -58,7 +58,6 @@
     <scm>
         <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/trunk/rt</connection>
         <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/trunk/rt</developerConnection>
-      <url>http://svn.apache.org/viewvc/incubator/cxf/trunk/cxf-rt</url>
-  </scm>
+    </scm>
 
 </project>

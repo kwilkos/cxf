@@ -82,8 +82,7 @@
     <scm>
         <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/trunk/common/xsd</connection>
         <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/trunk/common/xsd</developerConnection>
-      <url>http://svn.apache.org/viewvc/incubator/cxf/trunk/cxf-parent/cxf-common-xsd</url>
-  </scm>
+    </scm>
     <!-- will remove this after it is got sync to central repository -->
     <repositories>
         <repository>

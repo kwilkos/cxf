@@ -79,8 +79,7 @@
     <scm>
         <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/trunk/tools/wsdlto/frontend/javascript</connection>
         <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/trunk/tools/wsdlto/frontend/javascript</developerConnection>
-      <url>http://svn.apache.org/viewvc/incubator/cxf/trunk/cxf-parent/cxf-tools-wsdlto-frontend-javascript</url>
-  </scm>
+    </scm>
 
 
 

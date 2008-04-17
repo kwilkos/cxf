@@ -40,7 +40,6 @@
     <scm>
         <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/trunk/integration</connection>
         <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/trunk/integration</developerConnection>
-      <url>http://svn.apache.org/viewvc/incubator/cxf/trunk/cxf-integration</url>
-  </scm>
+    </scm>
 
 </project>

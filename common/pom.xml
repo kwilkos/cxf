@@ -42,7 +42,6 @@
     <scm>
         <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/trunk/common</connection>
         <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/trunk/common</developerConnection>
-      <url>http://svn.apache.org/viewvc/incubator/cxf/trunk/cxf-common</url>
-  </scm>
+    </scm>
 
 </project>

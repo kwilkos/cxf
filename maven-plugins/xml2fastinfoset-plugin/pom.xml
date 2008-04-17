@@ -26,7 +26,7 @@
     <name>Apache CXF XML to FastInfoset Maven2 Plugin</name>
     <url>http://cwiki.apache.org/CXF</url>
     <prerequisites>
-     <maven>2.0</maven>
+        <maven>2.0</maven>
     </prerequisites>
 
     <parent>
@@ -38,7 +38,7 @@
 
 
 
-   <dependencies>
+    <dependencies>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -63,15 +63,15 @@
             <version>2.0.4</version>
             <scope>provided</scope>
         </dependency>
-       <dependency>
-         <groupId>org.codehaus.plexus</groupId>
-         <artifactId>plexus-utils</artifactId>
-         <version>1.0.4</version>
-       </dependency>
-       <dependency>
-         <groupId>com.sun.xml.fastinfoset</groupId>
-         <artifactId>FastInfoset</artifactId>
-         <version>1.2.2</version>
+        <dependency>
+            <groupId>org.codehaus.plexus</groupId>
+            <artifactId>plexus-utils</artifactId>
+            <version>1.0.4</version>
         </dependency>
-     </dependencies>
+        <dependency>
+            <groupId>com.sun.xml.fastinfoset</groupId>
+            <artifactId>FastInfoset</artifactId>
+            <version>1.2.2</version>
+        </dependency>
+    </dependencies>
 </project>

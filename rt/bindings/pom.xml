@@ -44,7 +44,6 @@
     <scm>
         <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/trunk/rt/bindings</connection>
         <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/trunk/rt/bindings</developerConnection>
-      <url>http://svn.apache.org/viewvc/incubator/cxf/trunk/cxf-rt/cxf-rt-bindings</url>
-  </scm>
+    </scm>
 
 </project>

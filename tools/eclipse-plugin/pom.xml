@@ -171,7 +171,6 @@
     <scm>
         <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/trunk/tools/eclipse-plugin</connection>
         <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/trunk/tools/eclipse-plugin</developerConnection>
-        <url>http://svn.apache.org/viewvc/incubator/cxf/trunk/tools/eclipse-plugin</url>
-  </scm>
+    </scm>
 
 </project>

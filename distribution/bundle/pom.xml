@@ -423,9 +423,8 @@
 
 
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/trunk/distribution</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/trunk/distribution</developerConnection>
-        <url>http://svn.apache.org/viewvc/incubator/cxf/trunk/cxf-parent/cxf-bundle</url>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/trunk/distribution/bundle</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/trunk/distribution/bundle</developerConnection>
     </scm>
 
 </project>

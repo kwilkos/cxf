@@ -109,7 +109,6 @@
     <scm>
         <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/trunk/maven-plugins/java2ws-plugin</connection>
         <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/trunk/maven-plugins/java2ws-plugin</developerConnection>
-        <url>http://svn.apache.org/viewvc/incubator/cxf/trunk/cxf-parent/cxf-java2ws-plugin</url>
-  </scm>
+    </scm>
 
 </project>
