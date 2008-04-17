@@ -378,7 +378,7 @@
                     <configuration>
                         <attach>true</attach>
                         <quiet>true</quiet>
-                        <bottom>Apache CXF is an effort undergoing incubation at the Apache Software Foundation(ASF) and sponsored by the Apache Incubator PMC.</bottom>
+                        <bottom>Apache CXF</bottom>
                         <!--subpackages>org.apache.cxf</subpackages-->
                     </configuration>
                 </plugin>
