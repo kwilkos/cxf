@@ -31,12 +31,12 @@ public class JettyHTTPHandler extends AbstractHandler {
     private boolean contextMatchExact;
     private JettyHTTPDestination jettyHTTPDestination;
     private ServletContext servletContext;
-    
+
     public JettyHTTPHandler(JettyHTTPDestination jhd, boolean cmExact) {
         contextMatchExact = cmExact;
         jettyHTTPDestination = jhd;
     }
-    
+
     public void setServletContext(ServletContext sc) {
         servletContext = sc;
         if (jettyHTTPDestination != null) {
@@ -46,24 +46,32 @@ public class JettyHTTPHandler extends AbstractHandler {
     public void setName(String name) {
         urlName = name;
     }
-    
+
     public String getName() {
         return urlName;
     }
-    
+
+    boolean checkContextPath(String target) {
+        String pathString = urlName;
+        if (!pathString.endsWith("/")) {
+            pathString = pathString + "/";
+        }
+        return target.startsWith(pathString);
+    }
+
     public void handle(String target, HttpServletRequest req,
-                       HttpServletResponse resp, int dispatch) throws IOException {        
+                       HttpServletResponse resp, int dispatch) throws IOException {
         if (contextMatchExact) {
             if (target.equals(urlName)) {
                 jettyHTTPDestination.doService(servletContext, req, resp);
             }
         } else {
-            if (target.startsWith(urlName)) {
+            if (target.equals(urlName) || checkContextPath(target)) {
                 jettyHTTPDestination.doService(servletContext, req, resp);
             }
         }
     }
-    
-    
+
+
 
 }
