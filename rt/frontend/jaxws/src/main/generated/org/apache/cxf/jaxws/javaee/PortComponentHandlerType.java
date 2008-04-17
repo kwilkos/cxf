@@ -182,6 +182,10 @@ public class PortComponentHandlerType {
      *     
      */
     public org.apache.cxf.jaxws.javaee.CString getHandlerName() {
+        if (handlerName == null) {
+            handlerName = new CString();
+            handlerName.setValue("");
+        }
         return handlerName;
     }
 
