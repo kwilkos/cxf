@@ -26,29 +26,29 @@ properly configured, or if you are planning on using wsdl2java,
 javac, and java to build and run the demos, you must set the
 environment.
 
-This demo requires ActiveMQ 4.1.X. Before you run this
-demo, please make sure you had installed the ActiveMQ 4.1.X and
+This demo requires ActiveMQ 5.0.0. Before you run this
+demo, please make sure you had installed the ActiveMQ 5.0.0 and
 set ACTIVEMQ_HOME and ACTIVEMQ_VERSION environment variables.
-ActiveMQ 4.1.0 the version variable should be
+ActiveMQ 5.0.0 the version variable should be
 
 For Unix:
-export ACTIVEMQ_VERSION=4.1.0-incubator
+export ACTIVEMQ_HOME=/installdir/apache-activemq-5.0.0
 
 For Windows:
-set ACTIVEMQ_VERSION=4.1.0-incubator
+set ACTIVEMQ_VERSION=installdir\apache-activemq-5.0.0
 
-ActiveMQ 4.1.1 the version variable should be
+ActiveMQ 5.0.0 the version variable should be
 For Unix:
-export ACTIVEMQ_VERSION=4.1.1
+export ACTIVEMQ_VERSION=5.0.0
 
 For Windows:
-set ACTIVEMQ_VERSION=4.1.1
+set ACTIVEMQ_VERSION=5.0.0
 
 
 
 Before you run this demo, please start up the JMS message broker first.
 
-From your ActiveMQ 4.1.X installation launch ActiveMQ JMS broker in a
+From your ActiveMQ 5.0.0 installation launch ActiveMQ JMS broker in a
 separate window or in the background using the commandline:
 
 For Unix:

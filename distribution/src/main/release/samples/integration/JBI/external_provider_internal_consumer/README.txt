@@ -49,7 +49,7 @@ Deploy CXF Service Engine into ServiceMix
 Build Instructions
 ------------------
 . Download & Install ServiceMix 
-  http://incubator.apache.org/servicemix/servicemix-31.html
+  http://servicemix.apache.org/servicemix-321.html
 . export SERVICEMIX_HOMEfor your shell envirnoment
 
 
@@ -71,9 +71,9 @@ java launch commandline
 Start cxf server
 
 For UNIX:
- > ant server -Dthirdparty.classpath=$SERVICEMIX_HOME/lib/activemq-core-4.1-incubator-20070103.jar:$SERVICEMIX_HOME/lib/backport-util-concurrent-2.2.jar:$SERVICEMIX_HOME/lib/activeio-core-3.0.0-incubator.jar:$SERVICEMIX_HOME/lib/geronimo-j2ee-management_1.0_spec-1.1.jar
+ > ant server -Dthirdparty.classpath=$SERVICEMIX_HOME/lib/activemq-core-4.1.1.jar:$SERVICEMIX_HOME/lib/backport-util-concurrent-2.2.jar:$SERVICEMIX_HOME/lib/activeio-core-3.0.0-incubator.jar:$SERVICEMIX_HOME/lib/geronimo-j2ee-management_1.0_spec-1.1.jar
 For Windows:
- > ant server -Dthirdparty.classpath="%SERVICEMIX_HOME%"/lib/activemq-core-4.1-incubator-20070103.jar:"%SERVICEMIX_HOME%"/lib/backport-util-concurrent-2.2.jar:"%SERVICEMIX_HOME%"/lib/activeio-core-3.0.0-incubator.jar:"%SERVICEMIX_HOME%"/lib/geronimo-j2ee-management_1.0_spec-1.1.jar
+ > ant server -Dthirdparty.classpath="%SERVICEMIX_HOME%"/lib/activemq-core-4.1.1.jar:"%SERVICEMIX_HOME%"/lib/backport-util-concurrent-2.2.jar:"%SERVICEMIX_HOME%"/lib/activeio-core-3.0.0-incubator.jar:"%SERVICEMIX_HOME%"/lib/geronimo-j2ee-management_1.0_spec-1.1.jar
 
 
 Install and start the CXF Service Engine:
@@ -85,14 +85,6 @@ For Windows:
  > ant -f "%SERVICEMIX_HOME%"/ant/servicemix-ant-task.xml install-component -Dsm.install.file=../service-engine/build/lib/cxf-service-engine.jar -Dsm.username=smx -Dsm.password=smx
  > ant -f "%SERVICEMIX_HOME%"/ant/servicemix-ant-task.xml start-component -Dsm.component.name=CXFServiceEngine -Dsm.username=smx -Dsm.password=smx
 
-
-Install and start the ServiceMix jms binding component
-
-copy servicemix-jms-3.1-incubating-installer.zip and
-servicemix-shared-3.1-incubating-installer.zip to the deploy directory
-where servicemix monitor on, for a instance, start servicemix from
-$SERVICEMIX_HOME/bin, then copy the two zip files into deploy directory under
-$SERVICEMIX_HOME/bin 
 
 Deploy the and start CXF demo service assembly
 

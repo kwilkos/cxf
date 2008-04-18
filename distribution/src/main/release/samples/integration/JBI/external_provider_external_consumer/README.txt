@@ -51,7 +51,7 @@ Deploy CXF Service Engine into ServiceMix
 Build Instructions
 ------------------
 . Download & Install ServiceMix 
-  http://incubator.apache.org/servicemix/servicemix-31.html
+  http://servicemix.apache.org/servicemix-321.html
 . export SERVICEMIX_HOME for your shell envirnoment
 
 
@@ -73,16 +73,9 @@ java launch commandline
 
 Start cxf server
 For UNIX:
- > ant server -Dthirdparty.classpath=$SERVICEMIX_HOME/lib/activemq-core-4.1-incubator-20070103.jar:$SERVICEMIX_HOME/lib/backport-util-concurrent-2.2.jar:$SERVICEMIX_HOME/lib/activeio-core-3.0.0-incubator.jar:$SERVICEMIX_HOME/lib/geronimo-j2ee-management_1.0_spec-1.1.jar 
+ > ant server -Dthirdparty.classpath=$SERVICEMIX_HOME/lib/activemq-core-4.1.1.jar:$SERVICEMIX_HOME/lib/backport-util-concurrent-2.2.jar:$SERVICEMIX_HOME/lib/activeio-core-3.0.0-incubator.jar:$SERVICEMIX_HOME/lib/geronimo-j2ee-management_1.0_spec-1.1.jar 
 For Windows:
- > ant server -Dthirdparty.classpath="%SERVICEMIX_HOME%"/lib/activemq-core-4.1-incubator-20070103.jar:"%SERVICEMIX_HOME%"/lib/backport-util-concurrent-2.2.jar:"%SERVICEMIX_HOME%"/lib/activeio-core-3.0.0-incubator.jar:"%SERVICEMIX_HOME%"/lib/geronimo-j2ee-management_1.0_spec-1.1.jar
-
-Install and start the ServiceMix soap/jms binding component
-copy servicemix-jms-3.1-incubating-installer.zip, servicemix-http-3.1-incubating-installer.zip and
-servicemix-shared-3.1-incubating-installer.zip to the deploy directory
-where servicemix monitor on, for a instance, start servicemix from
-$SERVICEMIX_HOME/bin, then copy the three zip files into deploy directory under
-$SERVICEMIX_HOME/bin 
+ > ant server -Dthirdparty.classpath="%SERVICEMIX_HOME%"/lib/activemq-core-4.1.1.jar:"%SERVICEMIX_HOME%"/lib/backport-util-concurrent-2.2.jar:"%SERVICEMIX_HOME%"/lib/activeio-core-3.0.0-incubator.jar:"%SERVICEMIX_HOME%"/lib/geronimo-j2ee-management_1.0_spec-1.1.jar
 
 
 Deploy and start the CXF demo service assembly
