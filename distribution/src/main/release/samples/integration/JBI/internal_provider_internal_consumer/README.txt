@@ -46,7 +46,7 @@ Build Instructions
 ------------------
 
 . Download & Install ServiceMix 
-  http://incubator.apache.org/servicemix/servicemix-31.html
+  http://servicemix.apache.org/servicemix-321.html
 . export SERVICEMIX_HOME for your shell envirnoment
 
 

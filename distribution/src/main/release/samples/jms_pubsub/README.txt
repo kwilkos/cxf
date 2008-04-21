@@ -26,28 +26,28 @@ properly configured, or if you are planning on using wsdl2java,
 javac, and java to build and run the demos, you must set the
 environment.
 
-This demo requires ActiveMQ 4.1.X. Before you run this
-demo, please make sure you had installed the ActiveMQ 4.1.X and
+This demo requires ActiveMQ 5.0.0. Before you run this
+demo, please make sure you had installed the ActiveMQ 5.0.0 and
 set ACTIVEMQ_HOME and ACTIVEMQ_VERSION environment variables.
-ActiveMQ 4.1.0 the version variable should be
+ActiveMQ 5.0.0 the version variable should be
 
 For Unix:
-export ACTIVEMQ_VERSION=4.1.0-incubator
+export ACTIVEMQ_HOME=/installdir/apache-activemq-5.0.0
 
 For Windows:
-set ACTIVEMQ_VERSION=4.1.0-incubator
+set ACTIVEMQ_VERSION=installdir\apache-activemq-5.0.0
 
-ActiveMQ 4.1.1 the version variable should be
+ActiveMQ 5.0.0 the version variable should be
 For Unix:
-export ACTIVEMQ_VERSION=4.1.1
+export ACTIVEMQ_VERSION=5.0.0
 
 For Windows:
-set ACTIVEMQ_VERSION=4.1.1
+set ACTIVEMQ_VERSION=5.0.0
  
 
 Before you run this demo, start up the JMS message broker.
 
-From ActiveMQ 4.1.X insallation launch ActiveMQ JMS Broker in seperate window
+From ActiveMQ 5.0.0 insallation launch ActiveMQ JMS Broker in seperate window
 or in background using the commands:
 
 For Unix:
@@ -105,13 +105,13 @@ Now compile the provided client and server applications with the commands:
 For UNIX:  
   
   export CLASSPATH=$CLASSPATH:$CXF_HOME/lib/cxf-manifest.jar:./build/classes:
-$ACTIVEMQ_HOME/apache-activemq-$ACTIVEMQ_VERSION.jar
+$ACTIVEMQ_HOME/activemq-all-$ACTIVEMQ_VERSION.jar
   javac -d build/classes src/demo/jms_greeter/client/*.java
   javac -d build/classes src/demo/jms_greeter/server/*.java
 
 For Windows:
   set classpath=%classpath%;%CXF_HOME%\lib\cxf-manifest.jar;.\build\classes;
-%ACTIVEMQ_HOME%\apache-activemq-%ACTIVEMQ_VERSION%.jar
+%ACTIVEMQ_HOME%\activemq-all-%ACTIVEMQ_VERSION%.jar
   javac -d build\classes src\demo\jms_greeter\client\*.java
   javac -d build\classes src\demo\jms_greeter\server\*.java
 
@@ -194,7 +194,7 @@ The following changes are needed to the demo to make it work for Apache Qpid.
     </condition>
     <fail message="this sample need to use activemq, please setup ACTIVEMQ_VERSION in your envrionment"
         unless="activemq.version"/>
-    <property name="thirdparty.classpath" location="${activemq.home}/incubator-activemq-${activemq.version}.jar"/>
+    <property name="thirdparty.classpath" location="${activemq.home}/activemq-all-${activemq.version}.jar"/>
  
   with
 
