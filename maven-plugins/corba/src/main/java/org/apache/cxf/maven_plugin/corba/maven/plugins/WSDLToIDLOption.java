@@ -17,26 +17,47 @@
  * under the License.
  */
 
-package yoko.server;
+package org.apache.cxf.maven_plugin.corba.maven.plugins;
 
-import javax.xml.ws.Endpoint;
+import java.util.List;
 
-public class Server {
+public class WSDLToIDLOption {
 
-    protected Server() throws Exception {
-        System.out.println("Starting Server");
+    String wsdl;
+    boolean corbabinding;
+    boolean idl;
 
-        Object implementor = new HelloWorldImpl();
-        String address = "corbaname::localhost:1050#HelloWorld";
-        Endpoint.publish(address, implementor);
+    List<String> extraargs;
+    
+    public String getWSDL() {
+        return wsdl;
     }
 
-    public static void main(String args[]) throws Exception {
-        new Server();
-        System.out.println("Server ready...");
+    public void setWSDL(String wsdlFile) {
+        wsdl = wsdlFile;
+    }
 
-        Thread.sleep(5 * 60 * 1000);
-        System.out.println("Server exiting");
-        System.exit(0);
+    public boolean isCorbaEnabled() {
+        return corbabinding;
+    }
+
+    public void setCorbabinding(boolean flag) {
+        corbabinding = flag;
+    }
+
+    public boolean isIdlEnabled() {
+        return idl;
+    }
+
+    public void setIdl(boolean flag) {
+        idl = flag;
+    }
+
+    public List<String> getExtraargs() {
+        return extraargs;
+    }
+
+    public void setExtraargs(List<String> args) {
+        extraargs = args;
     }
 }

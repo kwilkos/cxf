@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package yoko.server;
+package cxf.server;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -29,7 +29,7 @@ import bank.common.AccountNotFoundExceptionType;
 import bank.common.Bank;
 
 @javax.jws.WebService(portName = "BankCORBAPort", serviceName = "BankCORBAService", 
-                      targetNamespace = "http://schemas.apache.org/yoko/idl/bank", 
+                      targetNamespace = "http://cxf.apache.org/schemas/cxf/idl/bank", 
                       wsdlLocation = "file:../resources/bank.wsdl",
                       endpointInterface = "bank.common.Bank")
 

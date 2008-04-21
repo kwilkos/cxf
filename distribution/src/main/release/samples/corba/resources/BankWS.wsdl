@@ -19,16 +19,15 @@
 -->
 <definitions xmlns="http://schemas.xmlsoap.org/wsdl/" 
              xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" 
-             xmlns:tns="http://schemas.apache.org/yoko/idl/Bank" 
+             xmlns:tns="http://cxf.apache.org/schemas/cxf/idl/Bank" 
              xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-             xmlns:corba="http://schemas.apache.org/yoko/bindings/corba" 
-             xmlns:corbatm="http://schemas.apache.org/yoko/idl/Bank/corba/typemap"
+             xmlns:corbatm="http://cxf.apache.org/schemas/cxf/idl/Bank/corba/typemap"
              xmlns:wsa="http://www.w3.org/2005/08/addressing" 
-             targetNamespace="http://schemas.apache.org/yoko/idl/Bank"> 
+             targetNamespace="http://cxf.apache.org/schemas/cxf/idl/Bank"> 
   <types>
     <schema attributeFormDefault="unqualified" 
             elementFormDefault="unqualified"
-            targetNamespace="http://schemas.apache.org/yoko/idl/Bank"
+            targetNamespace="http://cxf.apache.org/schemas/cxf/idl/Bank"
             xmlns="http://www.w3.org/2001/XMLSchema"
             xmlns:xs="http://www.w3.org/2001/XMLSchema"
             xmlns:wsa="http://www.w3.org/2005/08/addressing">

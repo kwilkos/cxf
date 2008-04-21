@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.yoko.maven.plugins;
+package org.apache.cxf.maven_plugin.corba.maven.plugins;
 
 import java.io.File;
 import java.net.MalformedURLException;

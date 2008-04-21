@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package yoko.server;
+package cxf.server;
 
 import javax.xml.ws.Endpoint;
 
@@ -26,8 +26,8 @@ public class Server {
     protected Server() throws Exception {
         System.out.println("Starting Server");
 
-        Object implementor = new BankImpl();
-        String address = "corbaname::localhost:1050#Bank";
+        Object implementor = new HelloWorldImpl();
+        String address = "corbaname::localhost:1050#HelloWorld";
         Endpoint.publish(address, implementor);
     }
 
@@ -40,4 +40,3 @@ public class Server {
         System.exit(0);
     }
 }
-

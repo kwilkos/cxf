@@ -29,9 +29,9 @@
 
 
     <target name="cxf.client" depends="build">
-        <cxfrun classname="yoko.client.Client"/>
+        <cxfrun classname="cxf.client.Client"/>
     </target>
     <target name="cxf.server" depends="build">
-        <cxfrun classname="yoko.server.Server"/>
+        <cxfrun classname="cxf.server.Server"/>
     </target>
 </project>

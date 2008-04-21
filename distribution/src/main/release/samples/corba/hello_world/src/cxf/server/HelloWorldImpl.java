@@ -16,28 +16,21 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package cxf.server;
 
-package yoko.client;
+import cxf.common.HelloWorld;
 
 
-import yoko.common.HelloWorld;
-import yoko.common.HelloWorldCORBAService;
+@javax.jws.WebService(portName = "HelloWorldCORBAPort", serviceName = "HelloWorldCORBAService", 
+                      targetNamespace = "http://cxf.apache.org/schemas/cxf/idl/HelloWorld",
+                      wsdlLocation = "file:./build/HelloWorld-corba.wsdl",
+                      endpointInterface = "cxf.common.HelloWorld")
+                      
+public class HelloWorldImpl implements HelloWorld {
 
-public final class Client {
-
-    private Client() {
-    }
-
-    public static void main(String args[]) throws Exception {
-
-        HelloWorldCORBAService ss = new HelloWorldCORBAService();
-        HelloWorld port = ss.getHelloWorldCORBAPort();
-
-        System.out.println("Invoking greetMe... ");
-        java.lang.String greetMeoutparameter = port.greetMe("Hello There");
-        System.out.println("greetMe.result=" + greetMeoutparameter);
-
-        System.exit(0);
+    public java.lang.String greetMe(java.lang.String inparameter) {
+        System.out.println("In greetMe(" + inparameter + ")");
+        return "Hi " + inparameter;
     }
 
 }

@@ -39,7 +39,7 @@
     
     <target name="generate.ws.code">
         <echo level="info" message="Generating ws code using wsdl2java..."/>
-        <wsdl2java dir="${basedir}" file="BankWS-corba.wsdl" package="yoko.common"/>
+        <wsdl2java dir="${basedir}" file="BankWS-corba.wsdl" package="cxf.common"/>
     </target>
 
     <target name="generate.corba.code">
@@ -49,7 +49,7 @@
 
 
     <target name="cxf.client" depends="build">
-        <cxfrun classname="yoko.client.Client"/>
+        <cxfrun classname="cxf.client.Client"/>
     </target>
     <target name="corba.client" depends="build">
         <java classname="corba.client.Client" fork="yes">
@@ -61,7 +61,7 @@
     </target>
 
     <target name="cxf.server" depends="build">
-        <cxfrun classname="yoko.server.Server"/>
+        <cxfrun classname="cxf.server.Server"/>
     </target>
 
     <target name="corba.server" depends="build">

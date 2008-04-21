@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package yoko.client;
+package cxf.client;
 
 import java.net.URL;
 import javax.xml.namespace.QName;
@@ -30,7 +30,7 @@ import bank.common.BankCORBAService;
 public final class Client {
 
     private static final QName SERVICE_NAME 
-        = new QName("http://schemas.apache.org/yoko/idl/bank", "BankCORBAService");
+        = new QName("http://cxf.apache.org/schemas/cxf/idl/bank", "BankCORBAService");
 
     private Client() {
     }

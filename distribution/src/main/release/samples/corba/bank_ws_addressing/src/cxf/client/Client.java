@@ -17,17 +17,17 @@
  * under the License.
  */
 
-package yoko.client;
+package cxf.client;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.xml.ws.wsaddressing.W3CEndpointReference;
 
-import yoko.common.Account;
-import yoko.common.AccountCORBAService;
-import yoko.common.Bank;
-import yoko.common.BankCORBAService;
+import cxf.common.Account;
+import cxf.common.AccountCORBAService;
+import cxf.common.Bank;
+import cxf.common.BankCORBAService;
 
 public final class Client {
 

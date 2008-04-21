@@ -17,31 +17,27 @@
  * under the License.
  */
 
-package yoko.server;
+package cxf.client;
 
-import yoko.common.Account;
 
-@javax.jws.WebService(portName = "AccountCORBAPort",
-                      serviceName = "AccountCORBAService",
-                      targetNamespace = "http://schemas.apache.org/yoko/idl/Bank",
-                      wsdlLocation = "file:./BankWS-corba.wsdl",
-                      endpointInterface = "yoko.common.Account")
+import cxf.common.HelloWorld;
+import cxf.common.HelloWorldCORBAService;
 
-public class AccountImpl implements Account {
-    
-    private float balance;
-    
-    public float getBalance() {
-        System.out.println("[Account] Called AccountImpl.getBalance()...");
-        System.out.println();
+public final class Client {
 
-        return balance;
+    private Client() {
     }
 
-    public void deposit(float addition) {
-        System.out.println("[Account] Called AccountImpl.deposit( " + addition + " )...");
-        System.out.println();
+    public static void main(String args[]) throws Exception {
 
-        balance += addition;
+        HelloWorldCORBAService ss = new HelloWorldCORBAService();
+        HelloWorld port = ss.getHelloWorldCORBAPort();
+
+        System.out.println("Invoking greetMe... ");
+        java.lang.String greetMeoutparameter = port.greetMe("Hello There");
+        System.out.println("greetMe.result=" + greetMeoutparameter);
+
+        System.exit(0);
     }
+
 }

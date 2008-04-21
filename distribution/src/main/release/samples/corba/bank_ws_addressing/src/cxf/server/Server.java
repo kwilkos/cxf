@@ -17,47 +17,27 @@
  * under the License.
  */
 
-package org.apache.yoko.maven.plugins;
+package cxf.server;
 
-import java.util.List;
+import javax.xml.ws.Endpoint;
 
-public class WSDLToIDLOption {
+public class Server {
 
-    String wsdl;
-    boolean corbabinding;
-    boolean idl;
+    protected Server() throws Exception {
+        System.out.println("Starting Server");
 
-    List<String> extraargs;
-    
-    public String getWSDL() {
-        return wsdl;
+        Object implementor = new BankImpl();
+        String address = "corbaname::localhost:1050#Bank";
+        Endpoint.publish(address, implementor);
     }
 
-    public void setWSDL(String wsdlFile) {
-        wsdl = wsdlFile;
-    }
+    public static void main(String args[]) throws Exception {
+        new Server();
+        System.out.println("Server ready...");
 
-    public boolean isCorbaEnabled() {
-        return corbabinding;
-    }
-
-    public void setCorbabinding(boolean flag) {
-        corbabinding = flag;
-    }
-
-    public boolean isIdlEnabled() {
-        return idl;
-    }
-
-    public void setIdl(boolean flag) {
-        idl = flag;
-    }
-
-    public List<String> getExtraargs() {
-        return extraargs;
-    }
-
-    public void setExtraargs(List<String> args) {
-        extraargs = args;
+        Thread.sleep(5 * 60 * 1000);
+        System.out.println("Server exiting");
+        System.exit(0);
     }
 }
+

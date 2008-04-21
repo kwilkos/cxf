@@ -17,7 +17,7 @@
  * under the License.
 */ 
 
-module yoko {
+module cxf {
     
 	//change this to an interface once we support corba:object & wsa references.
     struct Account {	    

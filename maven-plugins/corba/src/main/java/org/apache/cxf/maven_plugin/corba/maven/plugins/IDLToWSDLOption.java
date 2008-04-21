@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.yoko.maven.plugins;
+package org.apache.cxf.maven_plugin.corba.maven.plugins;
 
 import java.util.List;
 

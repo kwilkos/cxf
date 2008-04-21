@@ -28,7 +28,7 @@
         <wsdl2corba extraArgs="-a corbaname::localhost:1050#HelloWorld" file="../resources/HelloWorld.wsdl" />
 
         <echo level="info" message="Generating server code using wsdl2java..."/>
-        <wsdl2java dir="build" file="HelloWorld-corba.wsdl" package="yoko.common" />
+        <wsdl2java dir="build" file="HelloWorld-corba.wsdl" package="cxf.common" />
 
         <echo level="info" message="Generating client code using idlj..."/>
         <exec executable="idlj" dir=".">
@@ -42,7 +42,7 @@
     </target>
 
     <target name="cxf.client" depends="build">
-        <cxfrun classname="yoko.client.Client"/>
+        <cxfrun classname="cxf.client.Client"/>
     </target>
     <target name="corba.client" depends="build">
         <java classname="corba.client.Client" fork="yes">
@@ -54,7 +54,7 @@
     </target>
 
     <target name="cxf.server" depends="build">
-        <cxfrun classname="yoko.server.Server"/>
+        <cxfrun classname="cxf.server.Server"/>
     </target>
 
     <target name="corba.server" depends="build">

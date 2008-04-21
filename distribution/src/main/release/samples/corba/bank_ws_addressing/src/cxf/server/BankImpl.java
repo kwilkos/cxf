@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package yoko.server;
+package cxf.server;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -25,13 +25,13 @@ import java.util.Map;
 import javax.xml.ws.Endpoint;
 import javax.xml.ws.wsaddressing.W3CEndpointReference;
 
-import yoko.common.Bank;
+import cxf.common.Bank;
 
 @javax.jws.WebService(portName = "BankCORBAPort", 
                       serviceName = "BankCORBAService",
-                      targetNamespace = "http://schemas.apache.org/yoko/idl/Bank",
+                      targetNamespace = "http://cxf.apache.org/schemas/cxf/idl/Bank",
                       wsdlLocation = "file:./BankWS-corba.wsdl",
-                      endpointInterface = "yoko.common.Bank")
+                      endpointInterface = "cxf.common.Bank")
 
 public class BankImpl implements Bank {
 

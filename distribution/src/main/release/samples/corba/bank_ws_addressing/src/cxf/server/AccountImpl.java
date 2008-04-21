@@ -16,28 +16,32 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package yoko.server;
 
-import javax.xml.ws.Endpoint;
+package cxf.server;
 
-public class Server {
+import cxf.common.Account;
 
-    protected Server() throws Exception {
-        System.out.println("Starting Server");
+@javax.jws.WebService(portName = "AccountCORBAPort",
+                      serviceName = "AccountCORBAService",
+                      targetNamespace = "http://cxf.apache.org/schemas/cxf/idl/Bank",
+                      wsdlLocation = "file:./BankWS-corba.wsdl",
+                      endpointInterface = "cxf.common.Account")
 
-        Object implementor = new BankImpl();
-        String address = "file:./build/bank.ref";
-        Endpoint endpoint = Endpoint.create("http://schemas.apache.org/yoko/bindings/corba",
-                                            implementor);
-        endpoint.publish(address);
+public class AccountImpl implements Account {
+    
+    private float balance;
+    
+    public float getBalance() {
+        System.out.println("[Account] Called AccountImpl.getBalance()...");
+        System.out.println();
+
+        return balance;
     }
 
-    public static void main(String args[]) throws Exception {
-        new Server();
-        System.out.println("Server ready...");
+    public void deposit(float addition) {
+        System.out.println("[Account] Called AccountImpl.deposit( " + addition + " )...");
+        System.out.println();
 
-        Thread.sleep(5 * 60 * 1000);
-        System.out.println("Server exiting");
-        System.exit(0);
+        balance += addition;
     }
 }

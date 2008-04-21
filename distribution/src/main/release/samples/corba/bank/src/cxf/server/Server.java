@@ -16,21 +16,28 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package yoko.server;
+package cxf.server;
 
-import yoko.common.HelloWorld;
+import javax.xml.ws.Endpoint;
 
+public class Server {
 
-@javax.jws.WebService(portName = "HelloWorldCORBAPort", serviceName = "HelloWorldCORBAService", 
-                      targetNamespace = "http://schemas.apache.org/yoko/idl/HelloWorld",
-                      wsdlLocation = "file:./build/HelloWorld-corba.wsdl",
-                      endpointInterface = "yoko.common.HelloWorld")
-                      
-public class HelloWorldImpl implements HelloWorld {
+    protected Server() throws Exception {
+        System.out.println("Starting Server");
 
-    public java.lang.String greetMe(java.lang.String inparameter) {
-        System.out.println("In greetMe(" + inparameter + ")");
-        return "Hi " + inparameter;
+        Object implementor = new BankImpl();
+        String address = "file:./build/bank.ref";
+        Endpoint endpoint = Endpoint.create("http://cxf.apache.org/bindings/corba",
+                                            implementor);
+        endpoint.publish(address);
     }
 
+    public static void main(String args[]) throws Exception {
+        new Server();
+        System.out.println("Server ready...");
+
+        Thread.sleep(5 * 60 * 1000);
+        System.out.println("Server exiting");
+        System.exit(0);
+    }
 }
