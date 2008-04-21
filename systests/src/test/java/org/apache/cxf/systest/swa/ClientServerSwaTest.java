@@ -25,10 +25,18 @@ import java.net.URL;
 import javax.activation.DataHandler;
 import javax.imageio.ImageIO;
 import javax.mail.util.ByteArrayDataSource;
+import javax.xml.namespace.QName;
+import javax.xml.soap.AttachmentPart;
+import javax.xml.soap.MessageFactory;
+import javax.xml.soap.SOAPBody;
+import javax.xml.soap.SOAPMessage;
 import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
+import javax.xml.ws.Dispatch;
 import javax.xml.ws.Holder;
+import javax.xml.ws.Service;
 
+import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.swa.SwAService;
 import org.apache.cxf.swa.SwAServiceInterface;
 import org.apache.cxf.swa.types.DataStruct;
@@ -170,4 +178,68 @@ public class ClientServerSwaTest extends AbstractBusClientServerTestBase {
         assertNotNull(response);
     }
     
+    @Test
+    public void testSwaTypesWithDispatchAPI() throws Exception {
+        if (Boolean.getBoolean("java.awt.headless")) {
+            System.out.println("Running headless. Skipping test as Images may not work.");
+            return;
+        }
+        
+        URL url1 = this.getClass().getResource("resources/attach.text");
+        URL url2 = this.getClass().getResource("resources/attach.html");
+        URL url3 = this.getClass().getResource("resources/attach.xml");
+        URL url4 = this.getClass().getResource("resources/attach.jpeg1");
+        URL url5 = this.getClass().getResource("resources/attach.jpeg2");
+
+
+        byte[] bytes = IOUtils.readBytesFromStream(url1.openStream());
+        byte[] bigBytes = new byte[bytes.length * 50];
+        for (int x = 0; x < 50; x++) {
+            System.arraycopy(bytes, 0, bigBytes, x * bytes.length, bytes.length);
+        }
+        
+        DataHandler dh1 = new DataHandler(new ByteArrayDataSource(bigBytes, "text/plain"));
+        DataHandler dh2 = new DataHandler(url2);
+        DataHandler dh3 = new DataHandler(url3);
+        DataHandler dh4 = new DataHandler(url4);
+        DataHandler dh5 = new DataHandler(url5);
+        
+        SwAService service = new SwAService();
+
+        Dispatch<SOAPMessage> disp = service
+            .createDispatch(SwAService.SwAServiceHttpPort,
+                            SOAPMessage.class,
+                            Service.Mode.MESSAGE);
+        
+        
+        SOAPMessage msg = MessageFactory.newInstance().createMessage();
+        SOAPBody body = msg.getSOAPPart().getEnvelope().getBody();
+        body.addBodyElement(new QName("http://cxf.apache.org/swa/types",
+                                      "VoidRequest"));
+        
+        AttachmentPart att = msg.createAttachmentPart(dh1);
+        att.setContentId("<attach1=c187f5da-fa5d-4ab9-81db-33c2bb855201@apache.org>");
+        msg.addAttachmentPart(att);
+
+        att = msg.createAttachmentPart(dh2);
+        att.setContentId("<attach2=c187f5da-fa5d-4ab9-81db-33c2bb855202@apache.org>");
+        msg.addAttachmentPart(att);
+        
+        att = msg.createAttachmentPart(dh3);
+        att.setContentId("<attach3=c187f5da-fa5d-4ab9-81db-33c2bb855203@apache.org>");
+        msg.addAttachmentPart(att);
+
+        att = msg.createAttachmentPart(dh4);
+        att.setContentId("<attach4=c187f5da-fa5d-4ab9-81db-33c2bb855204@apache.org>");
+        msg.addAttachmentPart(att);
+
+        att = msg.createAttachmentPart(dh5);
+        att.setContentId("<attach5=c187f5da-fa5d-4ab9-81db-33c2bb855205@apache.org>");
+        msg.addAttachmentPart(att);
+
+        //Test for CXF-
+        msg = disp.invoke(msg);
+        assertEquals(5, msg.countAttachments());
+        
+    }
 }
