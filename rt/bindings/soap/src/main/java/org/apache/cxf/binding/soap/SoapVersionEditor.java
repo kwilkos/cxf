@@ -20,7 +20,7 @@ package org.apache.cxf.binding.soap;
 
 import java.beans.PropertyEditorSupport;
 
-public class SoapVersionPropertyEditor extends PropertyEditorSupport {
+public class SoapVersionEditor extends PropertyEditorSupport {
 
     private SoapVersion version;
 
