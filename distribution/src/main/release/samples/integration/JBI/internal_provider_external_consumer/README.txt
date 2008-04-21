@@ -51,7 +51,7 @@ Deploy CXF Service Engine into ServiceMix
 Build Instructions
 ------------------
 . Download & Install ServiceMix 
-  http://incubator.apache.org/servicemix/servicemix-31.html
+  http://servicemix.apache.org/servicemix-321.html
 . export SERVICEMIX_HOME for your shell envirnoment
 
 
@@ -78,14 +78,6 @@ For UNIX:
 For Windows:
  > ant -f "%SERVICEMIX_HOME%"/ant/servicemix-ant-task.xml install-component -Dsm.install.file=../service-engine/build/lib/cxf-service-engine.jar -Dsm.username=smx -Dsm.password=smx
  > ant -f "%SERVICEMIX_HOME%"/ant/servicemix-ant-task.xml start-component -Dsm.component.name=CXFServiceEngine  -Dsm.username=smx -Dsm.password=smx
-
-Install and start the ServiceMix soap binding component
-
-copy servicemix-http-3.1-incubating-installer.zip and
-servicemix-shared-3.1-incubating-installer.zip to the deploy directory
-where servicemix monitor on, for a instance, start servicemix from
-$SERVICEMIX_HOME/bin, then copy the two zip files into deploy directory under
-$SERVICEMIX_HOME/bin 
 
 Deploy the and start CXF demo service assembly
 
