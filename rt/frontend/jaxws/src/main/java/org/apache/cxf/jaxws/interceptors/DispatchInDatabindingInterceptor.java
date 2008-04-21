@@ -115,6 +115,16 @@ public class DispatchInDatabindingInterceptor extends AbstractInDatabindingInter
             
             if (message instanceof SoapMessage) {
                 SOAPMessage soapMessage = newSOAPMessage(is, (SoapMessage)message);
+                //workaround bugs in SAAJ
+                //calling getSOAPBody does wacky things with the InputStream so
+                //attachements can be lost.  Count them first to make sure they
+                //are properly sucked in.
+                soapMessage.countAttachments();
+                
+                //This seems to be a problem in SAAJ. Envelope might not be initialized 
+                //properly without calling getEnvelope()
+                soapMessage.getSOAPPart().getEnvelope();
+                
                 if (soapMessage.getSOAPBody().hasFault()) {
                     Endpoint ep = message.getExchange().get(Endpoint.class);
                     message.getInterceptorChain().abort();
