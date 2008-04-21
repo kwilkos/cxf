@@ -101,15 +101,6 @@
         </dependency>
     </dependencies>
 
-    <!-- will remove this after it is got sync to central repository -->
-    <repositories>
-        <repository>
-            <id>java.net</id>
-            <url>http://download.java.net/maven/1/</url>
-            <layout>legacy</layout>
-        </repository>
-    </repositories>
-
     <scm>
         <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/branches/2.0.x-fixes/maven-plugins/codegen-plugin</connection>
         <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/branches/2.0.x-fixes/maven-plugins/codegen-plugin</developerConnection>
