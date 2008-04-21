@@ -41,6 +41,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.logging.Logger;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
@@ -62,8 +63,10 @@ import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.ext.MessageBodyReader;
 
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.PrimitiveUtils;
 import org.apache.cxf.common.util.StringUtils;
+import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.jaxrs.interceptor.JAXRSInInterceptor;
 import org.apache.cxf.jaxrs.model.ClassResourceInfo;
 import org.apache.cxf.jaxrs.model.OperationResourceInfo;
@@ -80,6 +83,7 @@ import org.apache.cxf.transport.http.AbstractHTTPDestination;
 public final class JAXRSUtils {
 
     public static final MediaType ALL_TYPES = new MediaType();
+    private static final Logger LOG = LogUtils.getL7dLogger(JAXRSUtils.class);
 
     private JAXRSUtils() {        
     }
@@ -375,13 +379,19 @@ public final class JAXRSUtils {
                                            Message message,
                                            OperationResourceInfo ori) {
         InputStream is = message.getContent(InputStream.class);
-        String contentType = (String)message.get(Message.CONTENT_TYPE);
-        
+
         String path = (String)message.get(JAXRSInInterceptor.RELATIVE_PATH);
         
         if ((parameterAnnotations == null || parameterAnnotations.length == 0)
             && ("PUT".equals(ori.getHttpMethod()) || "POST".equals(ori.getHttpMethod()))) {
-            return readFromMessageBody(parameterClass, 
+            String contentType = (String)message.get(Message.CONTENT_TYPE);
+
+            if (contentType == null) {
+                throw new Fault(new  org.apache.cxf.common.i18n.Message("NO_CONTENT_TYPE_SPECIFIED",
+                                                                        LOG, ori.getHttpMethod()));
+            }
+
+            return readFromMessageBody(parameterClass,
                                          is, 
                                          MediaType.parse(contentType),
                                          ori.getConsumeTypes());
