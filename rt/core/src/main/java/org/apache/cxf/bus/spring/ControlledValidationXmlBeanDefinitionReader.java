@@ -23,8 +23,8 @@ import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
 
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.stream.XMLStreamException;
 
 import org.w3c.dom.Document;
 
@@ -130,8 +130,9 @@ public class ControlledValidationXmlBeanDefinitionReader extends XmlBeanDefiniti
     }
     
     private int fastInfosetLoadBeanDefinitions(EncodedResource encodedResource)
-        throws TransformerConfigurationException, IOException,
-        TransformerException, StaleFastinfosetException {
+        throws IOException, StaleFastinfosetException, 
+        ParserConfigurationException, XMLStreamException {
+        
         URL resUrl = encodedResource.getResource().getURL();
         // There are XML files scampering around that don't end in .xml.
         // We don't apply the optimization to them.

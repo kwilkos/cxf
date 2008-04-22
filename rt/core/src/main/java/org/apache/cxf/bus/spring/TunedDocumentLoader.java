@@ -29,8 +29,8 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.sax.SAXSource;
@@ -42,8 +42,10 @@ import org.xml.sax.ErrorHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 
-import com.sun.xml.fastinfoset.sax.SAXDocumentParser;
+import com.sun.xml.fastinfoset.stax.StAXDocumentParser;
 
+import org.apache.cxf.staxutils.StaxUtils;
+import org.apache.cxf.staxutils.W3CDOMStreamWriter;
 import org.springframework.beans.factory.xml.DefaultDocumentLoader;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 
@@ -130,17 +132,15 @@ class TunedDocumentLoader extends DefaultDocumentLoader {
     }
     
     Document loadFastinfosetDocument(URL url) 
-        throws IOException, TransformerConfigurationException, TransformerException {
+        throws IOException, ParserConfigurationException, XMLStreamException {
+        
         InputStream is = url.openStream();
-        XMLReader saxReader = new SAXDocumentParser();
         InputStream in = new BufferedInputStream(is);
-        SAXSource saxSource = new SAXSource(saxReader, new InputSource(in));
-        Document document;
-        document = documentBuilder.newDocument();
-        DOMResult domResult = new DOMResult(document);
-        transformerFactory.newTransformer().transform(saxSource, domResult);
-        is.close();
-        return document;
+        XMLStreamReader staxReader = new StAXDocumentParser(in);
+        W3CDOMStreamWriter writer = new W3CDOMStreamWriter();
+        StaxUtils.copy(staxReader, writer);
+        in.close();
+        return writer.getDocument();
     }
 
 }

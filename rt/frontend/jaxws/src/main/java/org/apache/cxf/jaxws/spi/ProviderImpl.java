@@ -218,7 +218,7 @@ public class ProviderImpl extends javax.xml.ws.spi.Provider {
     public EndpointReference readEndpointReference(Source eprInfoset) {
         try {
             Unmarshaller unmarshaller = getJAXBContext().createUnmarshaller();
-            return (EndpointReference)unmarshaller.unmarshal(eprInfoset);
+            return (EndpointReference)unmarshaller.unmarshal(StaxUtils.createXMLStreamReader(eprInfoset));
         } catch (JAXBException e) {
             throw new WebServiceException(new Message("ERROR_UNMARSHAL_ENDPOINTREFERENCE", LOG).toString(),
                                           e);

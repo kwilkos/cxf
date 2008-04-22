@@ -36,6 +36,7 @@ import org.apache.cxf.bus.spring.SpringBusFactory;
 import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
 import org.apache.hello_world_soap_http.Greeter;
 import org.junit.BeforeClass;
+import org.junit.Test;
 
 /**
  *
@@ -83,14 +84,7 @@ public class WSSecurityClientTest extends AbstractBusClientServerTestBase {
         );
     }
 
-    //
-    // TODO
-    // Wss4j depends on xalan.jar ,this will broke the W3CEndpointReference test.
-    // so comment this test .After this issue is fixed or find other solution ,
-    // enalbe this test.
-    //
-
-    @org.junit.Ignore
+    @Test
     public void testTimestampSignEncrypt() {
         BusFactory.setDefaultBus(
             new SpringBusFactory().createBus(
@@ -108,7 +102,7 @@ public class WSSecurityClientTest extends AbstractBusClientServerTestBase {
         greeter.sayHi();
     }
 
-    @org.junit.Test
+    @Test
     public void testMalformedSecurityHeaders() throws java.lang.Exception {
         Dispatch<Source> dispatcher = null;
         java.io.InputStream is = null;
@@ -151,8 +145,7 @@ public class WSSecurityClientTest extends AbstractBusClientServerTestBase {
         assertTrue(result.indexOf("Fault") != -1);
     }
 
-    private static Dispatch<Source>
-    createUsernameTokenDispatcher() {
+    private static Dispatch<Source> createUsernameTokenDispatcher() {
         //
         // Set up the client (stolen from JAX-RS system test)
         //
@@ -180,8 +173,7 @@ public class WSSecurityClientTest extends AbstractBusClientServerTestBase {
         return dispatcher;
     }
 
-    private static String
-    source2String(Source source) throws Exception {
+    private static String source2String(Source source) throws Exception {
         final java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
         final StreamResult sr = new StreamResult(bos);
         final Transformer trans =
