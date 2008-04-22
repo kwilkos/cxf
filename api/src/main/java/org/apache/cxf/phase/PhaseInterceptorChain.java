@@ -31,6 +31,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.interceptor.InterceptorChain;
 import org.apache.cxf.message.FaultMode;
@@ -223,16 +224,23 @@ public class PhaseInterceptorChain implements InterceptorChain {
                 if (!faultOccurred) {
  
                     faultOccurred = true;
-                    
+                                        
                     FaultMode mode = message.get(FaultMode.class);
                     if (mode == FaultMode.CHECKED_APPLICATION_FAULT) {
                         if (LOG.isLoggable(Level.FINE)) { 
                             LogUtils.log(LOG, Level.FINE,
                                          "Application has thrown exception, unwinding now", ex);
                         } else if (LOG.isLoggable(Level.INFO)) {
+                            Throwable t = ex;
+                            if (ex instanceof Fault
+                                && ex.getCause() != null) {
+                                t = ex.getCause();
+                            }                            
+                            
                             LogUtils.log(LOG, Level.INFO,
-                                         "Application has thrown exception, unwinding now: " 
-                                         + ex.getMessage());
+                                         "Application has thrown exception, unwinding now: "
+                                         + t.getClass().getName() 
+                                         + ": " + ex.getMessage());
                         }
                     } else if (LOG.isLoggable(Level.INFO)) {
                         if (mode == FaultMode.UNCHECKED_APPLICATION_FAULT) {
