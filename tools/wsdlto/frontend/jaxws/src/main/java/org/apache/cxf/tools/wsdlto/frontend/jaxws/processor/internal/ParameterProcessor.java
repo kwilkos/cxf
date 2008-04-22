@@ -220,40 +220,50 @@ public class ParameterProcessor extends AbstractProcessor {
             outputMessage == null ? new ArrayList<MessagePartInfo>() : outputMessage.getMessageParts();
         // figure out output parts that are not present in input parts
         List<MessagePartInfo> outParts = new ArrayList<MessagePartInfo>();
+        int numHeader = 0;
         if (isRequestResponse(method)) {
-
             for (MessagePartInfo outpart : outputParts) {
-                if (isOutOfBandHeader(outpart) && !requireOutOfBandHeader()) {
-                    continue;
+                boolean oob = false;
+                if (isOutOfBandHeader(outpart)) {
+                    if (!requireOutOfBandHeader()) {
+                        continue;
+                    }
+                    oob = true;
                 }
                 
                 MessagePartInfo inpart = inputPartsMap.get(outpart.getName());
                 if (inpart == null) {
                     outParts.add(outpart);
+                    if (oob) {
+                        numHeader++;
+                    }
                     continue;
                 } else if (isSamePart(inpart, outpart)) {
                     addParameter(method, getParameterFromPart(outpart, JavaType.Style.INOUT));
                     continue;
                 } else if (!isSamePart(inpart, outpart)) {
+                    if (oob) {
+                        numHeader++;
+                    }
                     outParts.add(outpart);
                     continue;
                 }
             }
         }
 
-        if (isRequestResponse(method) && outParts.size() == 1) {
-            processReturn(method, outParts.get(0));
-            return;
-        } else {
-            processReturn(method, null);
-        }
         if (isRequestResponse(method)) {
+            if (outParts.size() - numHeader == 1
+                && !isHeader(outParts.get(0))) {
+                processReturn(method, outParts.get(0));
+                outParts.remove(0);
+            } else {
+                processReturn(method, null);
+            }
             for (MessagePartInfo part : outParts) {
-                if (isOutOfBandHeader(part) && !requireOutOfBandHeader()) {
-                    continue;
-                }
                 addParameter(method, getParameterFromPart(part, JavaType.Style.OUT));
             }
+        } else {
+            processReturn(method, null);
         }
     }
 
