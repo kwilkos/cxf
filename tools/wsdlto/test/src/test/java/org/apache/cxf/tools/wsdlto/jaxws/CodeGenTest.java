@@ -211,6 +211,7 @@ public class CodeGenTest extends ProcessorTestBase {
     }
 
 
+
     @Test
     public void testHeaderFromAnotherMessage4() throws Exception {
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/pizza_wrapped.wsdl"));
@@ -240,6 +241,26 @@ public class CodeGenTest extends ProcessorTestBase {
                         fail("No WebParam found!");
                     }
                 }
+            }
+        }
+    }
+
+    @Test
+    public void testHeaderFromAnotherMessage5() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/OutOfBandHeaderBug.wsdl"));
+        env.put(ToolConstants.CFG_EXTRA_SOAPHEADER, "TRUE");
+        processor.setContext(env);
+        processor.execute();
+
+        assertNotNull(output);
+
+        Class clz = classLoader.loadClass("org.apache.cxf.bugs.oobh.LoginInterface");
+        Method meths[] = clz.getMethods();
+        for (Method m : meths) {
+            if ("login".equals(m.getName())) {
+                assertEquals(String.class, m.getReturnType());
+                assertEquals(2, m.getParameterTypes().length);
+                assertEquals(Holder.class, m.getParameterTypes()[1]);
             }
         }
     }

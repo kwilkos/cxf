@@ -417,6 +417,24 @@ public class SoapBindingFactory extends AbstractBindingFactory {
         MessageInfo minfo = null;
         MessageInfo.Type type;
 
+        int nextId = 0;
+        minfo = bop.getOperationInfo().getInput();
+        if (minfo != null) {
+            for (MessagePartInfo part : minfo.getMessageParts()) {
+                if (part.getIndex() >= nextId) {
+                    nextId = part.getIndex() + 1;
+                }
+            }
+        }
+        minfo = bop.getOperationInfo().getOutput();
+        if (minfo != null) {
+            for (MessagePartInfo part : minfo.getMessageParts()) {
+                if (part.getIndex() >= nextId) {
+                    nextId = part.getIndex() + 1;
+                }
+            }
+        }
+        
         if (isInput) {
             type = MessageInfo.Type.INPUT;
             minfo = bop.getOperationInfo().getInput();
@@ -428,13 +446,33 @@ public class SoapBindingFactory extends AbstractBindingFactory {
         if (minfo == null) {
             minfo = new MessageInfo(null, type, msg.getQName());
         }
-        buildMessage(minfo, msg, schemas);
+        buildMessage(minfo, msg, schemas, nextId);
 
         // for wrapped style
         OperationInfo unwrapped = bop.getOperationInfo().getUnwrappedOperation();
         if (unwrapped == null) {
             return;
         }
+        
+        nextId = 0;
+        minfo = unwrapped.getInput();
+        if (minfo != null) {
+            for (MessagePartInfo part : minfo.getMessageParts()) {
+                if (part.getIndex() >= nextId) {
+                    nextId = part.getIndex() + 1;
+                }
+            }
+        }
+        minfo = unwrapped.getOutput();
+        if (minfo != null) {
+            for (MessagePartInfo part : minfo.getMessageParts()) {
+                if (part.getIndex() >= nextId) {
+                    nextId = part.getIndex() + 1;
+                }
+            }
+        }
+        
+        
         
         if (isInput) {
             minfo = unwrapped.getInput();
@@ -447,11 +485,13 @@ public class SoapBindingFactory extends AbstractBindingFactory {
         if (minfo == null) {
             minfo = new MessageInfo(unwrapped, type, msg.getQName());
         }
-        buildMessage(minfo, msg, schemas);
+        buildMessage(minfo, msg, schemas, nextId);
     }
 
-    private void buildMessage(MessageInfo minfo, javax.wsdl.Message msg,
-                              SchemaCollection schemas) {
+    private void buildMessage(MessageInfo minfo,
+                              javax.wsdl.Message msg,
+                              SchemaCollection schemas,
+                              int nextId) {
         for (Part part : cast(msg.getParts().values(), Part.class)) {
             MessagePartInfo pi = minfo.addMessagePart(new QName(minfo.getName().getNamespaceURI(), part
                                                                 .getName()));
@@ -466,6 +506,8 @@ public class SoapBindingFactory extends AbstractBindingFactory {
             }
             pi.setProperty(OUT_OF_BAND_HEADER, Boolean.TRUE);
             pi.setProperty(HEADER, Boolean.TRUE);
+            pi.setIndex(nextId);
+            nextId++;
         }
     }
 

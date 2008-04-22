@@ -78,7 +78,7 @@ public class HolderOutInterceptor extends AbstractPhaseInterceptor<Message> {
                 }
             }
             for (MessagePartInfo part : parts) {
-                if (part.getIndex() > 0) {
+                if (part.getIndex() > 0 && part.getTypeClass() != null) {
                     Holder holder = (Holder)outObjects.get(part);
                     outObjects.put(part, holder.value);
                 }
