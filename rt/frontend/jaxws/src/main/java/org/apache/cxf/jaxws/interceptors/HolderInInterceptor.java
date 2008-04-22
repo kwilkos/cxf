@@ -59,7 +59,7 @@ public class HolderInInterceptor extends AbstractPhaseInterceptor<Message> {
             List<Holder> outHolders = CastUtils.cast((List)message.getExchange()
                 .getOutMessage().get(CLIENT_HOLDERS));
             for (MessagePartInfo part : parts) {
-                if (part.getIndex() != 0) {
+                if (part.getIndex() != 0 && part.getTypeClass() != null) {
                     Holder holder = (Holder)outHolders.get(part.getIndex() - 1);
                     holder.value = inObjects.get(part);
                     inObjects.put(part, holder);
@@ -68,7 +68,7 @@ public class HolderInInterceptor extends AbstractPhaseInterceptor<Message> {
         } else {
             for (MessagePartInfo part : parts) {
                 int idx = part.getIndex() - 1;
-                if (idx >= 0) {
+                if (idx >= 0 && part.getTypeClass() != null) {
                     if (idx >= inObjects.size()) {
                         inObjects.set(idx, new Holder<Object>());
                     } else {
