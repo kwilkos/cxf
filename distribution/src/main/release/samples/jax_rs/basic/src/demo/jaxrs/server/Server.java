@@ -27,7 +27,8 @@ public class Server {
     protected Server() throws Exception {
         JAXRSServerFactoryBean sf = new JAXRSServerFactoryBean();
         sf.setResourceClasses(CustomerService.class);
-        sf.setResourceProvider(CustomerService.class, new SingletonResourceProvider());
+        sf.setResourceProvider(CustomerService.class, 
+            new SingletonResourceProvider(new CustomerService()));
         sf.setAddress("http://localhost:9000/");
 
         sf.create();
