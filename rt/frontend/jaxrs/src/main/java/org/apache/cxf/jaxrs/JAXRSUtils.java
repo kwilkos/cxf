@@ -552,7 +552,7 @@ public final class JAXRSUtils {
                                    "&",
                                    true).getFirst(queryName);
 
-        if (parameter.isPrimitive()) {
+        if (result != null) {
             return handleParameter(result, parameter);
         }
         return result;  

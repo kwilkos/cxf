@@ -128,7 +128,9 @@ public class JAXRSUtilsTest extends Assert {
         @ProduceMime("text/xml")   
         public void testMultipleQuery(@QueryParam("query")  String queryString, 
                                       @QueryParam("query2") String queryString2,
-                                      @QueryParam("query3") String queryString3) {
+                                      @QueryParam("query3") Long queryString3,
+                                      @QueryParam("query4") boolean queryBoolean4,
+                                      @QueryParam("query5") String queryString4) {
             // complete
         }
         
@@ -497,11 +499,13 @@ public class JAXRSUtilsTest extends Assert {
     
     @Test
     public void testMultipleQueryParameters() throws Exception {
-        Class[] argType = {String.class, String.class, String.class};
+        Class[] argType = {String.class, String.class, Long.class, 
+                           Boolean.TYPE, String.class};
         Method m = Customer.class.getMethod("testMultipleQuery", argType);
         MessageImpl messageImpl = new MessageImpl();
         
-        messageImpl.put(Message.QUERY_STRING, "query=first&query2=second&query3");
+        messageImpl.put(Message.QUERY_STRING, 
+                        "query=first&query2=second&query3=3&query4=true&query5");
         List<Object> params = JAXRSUtils.processParameters(new OperationResourceInfo(m, null), 
                                                            null, messageImpl);
         assertEquals("First Query Parameter of multiple was not matched correctly", "first", 
@@ -509,7 +513,11 @@ public class JAXRSUtilsTest extends Assert {
         assertEquals("Second Query Parameter of multiple was not matched correctly", 
                      "second", params.get(1));
         assertEquals("Third Query Parameter of multiple was not matched correctly", 
-                     "", params.get(2));
+                     new Long(3), params.get(2));
+        assertEquals("Fourth Query Parameter of multiple was not matched correctly", 
+                     Boolean.TRUE, params.get(3));
+        assertEquals("Fourth Query Parameter of multiple was not matched correctly", 
+                     "", params.get(4));
     }
     
     @Test
