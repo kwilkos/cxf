@@ -909,6 +909,17 @@
             </dependency>
             <dependency>
                 <groupId>org.apache.abdera</groupId>
+                <artifactId>abdera-extensions-json</artifactId>
+                <version>${abdera.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>javax.servlet</groupId>
+                        <artifactId>servlet-api</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.abdera</groupId>
                 <artifactId>abdera-parser</artifactId>
                 <version>${abdera.version}</version>
                 <exclusions>
