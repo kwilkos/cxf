@@ -6,7 +6,8 @@ Apache CXF 2.1 (Beta 1) delivers the second major version of
 the Celtix project (http://celtix.objectweb.org) and the XFire project
 (http://xfire.codehaus.org) merge.  This release is a major update from 
 the 2.0.x series.   The major new addition is JAX-WS 2.1 support.  However, there
-are a lot of other improvements like CORBA support, javascript generation, etc...
+are a lot of other improvements like CORBA support, javascript generation,
+preliminary JAX-RS 0.6 support, xmlbeans databinding runtime, etc...
 
 2. Installation Prerequisites 
 
@@ -80,8 +81,6 @@ cxf dev list, cxf-dev@incubator.apache.org.  You can also file issues in JIRA at
 
 http://issues.apache.org/jira/browse/CXF
 
-6. Specific issues, features, and improvements fixed in 2.1.
---- TBD ---
 
 
 
