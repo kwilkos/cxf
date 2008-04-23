@@ -23,13 +23,13 @@
     <artifactId>cxf-bundle</artifactId>
     <packaging>bundle</packaging>
     <name>Apache CXF Bundle Jar</name>
-    <version>2.1-SNAPSHOT</version>
+    <version>2.1</version>
     <url>http://cwiki.apache.org/CXF</url>
 
     <parent>
         <groupId>org.apache.cxf</groupId>
         <artifactId>cxf-parent</artifactId>
-        <version>2.1-SNAPSHOT</version>
+        <version>2.1</version>
         <relativePath>../../parent</relativePath>
     </parent>
 
@@ -355,7 +355,7 @@
                                 <transformer implementation="org.apache.cxf.maven.PluginTransformer">
                                     <resource>META-INF/tools-plugin.xml</resource>
                                 </transformer>
-                                <transformer implementation="org.apache.cxf.maven.CXFAllTransformer"/>
+                                <transformer implementation="org.apache.cxf.maven.CXFAllTransformer" />
                             </transformers>
                         </configuration>
                     </execution>
@@ -423,8 +423,8 @@
 
 
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/trunk/distribution/bundle</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/trunk/distribution/bundle</developerConnection>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/tags/cxf-2.1/distribution/bundle</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/tags/cxf-2.1/distribution/bundle</developerConnection>
     </scm>
 
 </project>
