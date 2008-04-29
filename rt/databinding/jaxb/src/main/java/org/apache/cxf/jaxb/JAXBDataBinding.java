@@ -442,6 +442,8 @@ public final class JAXBDataBinding extends AbstractDataBinding implements DataBi
                         OBJECT_FACTORY_CACHE.put(objectFactoryClassName, 
                                                  new CachedClassOrNull(null));
                     }
+                } else {
+                    objectFactories.add(ofactory);                    
                 }
             }
         }
