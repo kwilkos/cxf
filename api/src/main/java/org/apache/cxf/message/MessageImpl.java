@@ -47,6 +47,7 @@ public class MessageImpl extends StringMapImpl implements Message {
 
     public void setAttachments(Collection<Attachment> attachments) {
         this.attachments = attachments;
+        put(ATTACHMENTS, attachments);
     }
 
     public String getAttachmentMimeType() {

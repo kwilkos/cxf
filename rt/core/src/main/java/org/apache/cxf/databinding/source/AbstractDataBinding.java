@@ -30,7 +30,6 @@ import javax.xml.transform.dom.DOMSource;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.common.xmlschema.SchemaCollection;
@@ -62,20 +61,24 @@ public class AbstractDataBinding {
             d.getDocumentElement().setAttribute("targetNamespace", ns);
         }
 
-        NodeList nodes = d.getDocumentElement().getChildNodes();
-        for (int i = 0; i < nodes.getLength(); i++) {
-            Node n = nodes.item(i);
+        Node n = d.getDocumentElement().getFirstChild();
+        while (n != null) { 
             if (n instanceof Element) {
                 Element e = (Element)n;
                 if (e.getLocalName().equals("import")) {
                     e.removeAttribute("schemaLocation");
                 }
             }
+            n = n.getNextSibling();
         }
+
         SchemaInfo schema = new SchemaInfo(serviceInfo, ns);
         schema.setSystemId(systemId);
-        XmlSchema xmlSchema = col.read(d, systemId, null);
-        schema.setSchema(xmlSchema);
+        XmlSchema xmlSchema;
+        synchronized (d) {
+            xmlSchema = col.read(d, systemId, null);
+            schema.setSchema(xmlSchema);
+        }
         serviceInfo.addSchema(schema);
         return xmlSchema;
     }
