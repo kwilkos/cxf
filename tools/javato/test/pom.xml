@@ -137,8 +137,8 @@
     </dependencies>
 
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/branches/2.0.x-fixes/tools/javato/test</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/branches/2.0.x-fixes/tools/javato/test</developerConnection>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/cxf/branches/2.0.x-fixes/tools/javato/test</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/cxf/branches/2.0.x-fixes/tools/javato/test</developerConnection>
     </scm>
 
     <build>

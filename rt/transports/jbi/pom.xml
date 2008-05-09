@@ -101,8 +101,8 @@
     </build>
 
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/branches/2.0.x-fixes/rt/transports/jbi</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/branches/2.0.x-fixes/rt/transports/jbi</developerConnection>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/cxf/branches/2.0.x-fixes/rt/transports/jbi</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/cxf/branches/2.0.x-fixes/rt/transports/jbi</developerConnection>
     </scm>
 
 </project>

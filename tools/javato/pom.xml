@@ -37,8 +37,8 @@
     </modules>
 
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/branches/2.0.x-fixes/tools/javato</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/branches/2.0.x-fixes/tools/javato</developerConnection>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/cxf/branches/2.0.x-fixes/tools/javato</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/cxf/branches/2.0.x-fixes/tools/javato</developerConnection>
     </scm>
 
 </project>
