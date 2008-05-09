@@ -426,8 +426,10 @@ public final class JAXBDataBinding extends AbstractDataBinding implements DataBi
                 packageLoaders.put(pkgName, jcls.getClassLoader());
                 String objectFactoryClassName = pkgName + "." + "ObjectFactory";
                 Class<?> ofactory = null;
-                CachedClassOrNull cachedFactory = 
-                    OBJECT_FACTORY_CACHE.get(objectFactoryClassName);
+                CachedClassOrNull cachedFactory = null;
+                synchronized (OBJECT_FACTORY_CACHE) {
+                    cachedFactory = OBJECT_FACTORY_CACHE.get(objectFactoryClassName);
+                }
                 if (cachedFactory != null) {
                     ofactory = cachedFactory.getCachedClass();
                 }
@@ -436,11 +438,9 @@ public final class JAXBDataBinding extends AbstractDataBinding implements DataBi
                         ofactory = Class.forName(objectFactoryClassName, false, jcls
                                                  .getClassLoader());
                         objectFactories.add(ofactory);
-                        OBJECT_FACTORY_CACHE.put(objectFactoryClassName, 
-                                                 new CachedClassOrNull(ofactory));
+                        addToObjectFactoryCache(objectFactoryClassName, ofactory);
                     } catch (ClassNotFoundException e) {
-                        OBJECT_FACTORY_CACHE.put(objectFactoryClassName, 
-                                                 new CachedClassOrNull(null));
+                        addToObjectFactoryCache(objectFactoryClassName, null);
                     }
                 } else {
                     objectFactories.add(ofactory);                    
@@ -513,10 +513,17 @@ public final class JAXBDataBinding extends AbstractDataBinding implements DataBi
                 cachedContextAndSchemas = new CachedContextAndSchemas(ctx);
                 JAXBCONTEXT_CACHE.put(classes, cachedContextAndSchemas);
             }
+            cachedContextAndSchemas = JAXBCONTEXT_CACHE.get(classes);
         }
 
-        cachedContextAndSchemas = JAXBCONTEXT_CACHE.get(classes);
         return cachedContextAndSchemas.getContext();
+    }
+
+    private void addToObjectFactoryCache(String objectFactoryClassName, Class<?> ofactory) {
+        synchronized (OBJECT_FACTORY_CACHE) {
+            OBJECT_FACTORY_CACHE.put(objectFactoryClassName, 
+                                     new CachedClassOrNull(ofactory));
+        }
     }
 
     private void addWsAddressingTypes(Set<Class<?>> classes) {
