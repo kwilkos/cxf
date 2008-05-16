@@ -21,6 +21,8 @@ package demo.hw.server;
 
 import javax.jws.WebService;
 
+// START SNIPPET: service
+
 @WebService
 public interface HelloWorld {
     String sayHi(String text);
