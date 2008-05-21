@@ -1391,9 +1391,6 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                 if (mpi != null) {
                     mpi.setTypeClass(rawClass);
                     mpi.setProperty(GENERIC_TYPE, type);
-                    if (Collection.class.isAssignableFrom(rawClass)) {
-                        mpi.setProperty(RAW_CLASS, type);
-                    }
                 }
             }
             if (!Boolean.TRUE.equals(part.getProperty(ReflectionServiceFactoryBean.MODE_OUT))) {
@@ -1401,9 +1398,6 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                 if (mpi != null) {
                     mpi.setTypeClass(rawClass);
                     mpi.setProperty(GENERIC_TYPE, type);
-                    if (Collection.class.isAssignableFrom(rawClass)) {
-                        mpi.setProperty(RAW_CLASS, type);
-                    }
                 }
             }
         }      
