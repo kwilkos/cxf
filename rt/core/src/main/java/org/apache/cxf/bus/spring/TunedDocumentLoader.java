@@ -67,7 +67,7 @@ class TunedDocumentLoader extends DefaultDocumentLoader {
             Class<?> cls = Class.forName("com.ctc.wstx.sax.WstxSAXParserFactory");
             saxParserFactory = (SAXParserFactory)cls.newInstance();
             nsasaxParserFactory = (SAXParserFactory)cls.newInstance();
-        } catch (Exception e) {
+        } catch (Throwable e) {
             //woodstox not found, use any other Stax parser
             saxParserFactory = SAXParserFactory.newInstance();
             nsasaxParserFactory = SAXParserFactory.newInstance();
@@ -77,7 +77,7 @@ class TunedDocumentLoader extends DefaultDocumentLoader {
             nsasaxParserFactory.setFeature("http://xml.org/sax/features/namespaces", true); 
             nsasaxParserFactory.setFeature("http://xml.org/sax/features/namespace-prefixes", 
                                            true);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             //ignore
         }
     }
@@ -114,7 +114,7 @@ class TunedDocumentLoader extends DefaultDocumentLoader {
         DocumentBuilderFactory factory = super.createDocumentBuilderFactory(validationMode, namespaceAware);
         try {
             factory.setFeature("http://apache.org/xml/features/dom/defer-node-expansion", false);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             // we can get all kinds of exceptions from this
             // due to old copies of Xerces and whatnot.
         }
