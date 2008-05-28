@@ -227,10 +227,12 @@ final class WrapperHelperCompiler {
         mv.visitCode();
         Label l0 = new Label();
         mv.visitLabel(l0);
+        mv.visitLineNumber(100, l0);
         mv.visitLdcInsn(sig);
         mv.visitInsn(Opcodes.ARETURN);
         Label l1 = new Label();
         mv.visitLabel(l1);
+        mv.visitLineNumber(101, l1);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
         return true;
@@ -250,6 +252,7 @@ final class WrapperHelperCompiler {
         mv.visitCode();
         Label l0 = new Label();
         mv.visitLabel(l0);
+        mv.visitLineNumber(102, l0);
         
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         mv.visitMethodInsn(Opcodes.INVOKESPECIAL,
@@ -271,6 +274,8 @@ final class WrapperHelperCompiler {
     
         Label l1 = new Label();
         mv.visitLabel(l1);
+        mv.visitLineNumber(103, l0);
+
         mv.visitLocalVariable("this", "L" + newClassName + ";", null, l0, l1, 0);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
@@ -289,7 +294,8 @@ final class WrapperHelperCompiler {
         mv.visitCode();
         Label lBegin = new Label();
         mv.visitLabel(lBegin);
-        
+        mv.visitLineNumber(104, lBegin);
+
         mv.visitTypeInsn(Opcodes.NEW, periodToSlashes(wrapperType.getName()));
         mv.visitInsn(Opcodes.DUP);
         mv.visitMethodInsn(Opcodes.INVOKESPECIAL, periodToSlashes(wrapperType.getName()),
@@ -348,6 +354,7 @@ final class WrapperHelperCompiler {
     
         Label lEnd = new Label();
         mv.visitLabel(lEnd);
+        mv.visitLineNumber(105, lEnd);
         mv.visitLocalVariable("this", "L" + newClassName + ";", null, lBegin, lEnd, 0);
         mv.visitLocalVariable("lst", "Ljava/util/List;", "Ljava/util/List<*>;", lBegin, lEnd, 1);
         mv.visitLocalVariable("ok", "L" + periodToSlashes(wrapperType.getName()) + ";",
@@ -366,6 +373,10 @@ final class WrapperHelperCompiler {
         // aVal.addAll(newA);
         // }
         
+        Label l3 = new Label();
+        mv.visitLabel(l3);
+        mv.visitLineNumber(114, l3);
+
         mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
                            periodToSlashes(wrapperType.getName()),
                            getMethods[x].getName(),
@@ -402,6 +413,8 @@ final class WrapperHelperCompiler {
         Label jumpOverLabel = new Label();
         mv.visitJumpInsn(Opcodes.GOTO, jumpOverLabel);
         mv.visitLabel(nonNullLabel);
+        mv.visitLineNumber(106, nonNullLabel);
+
         mv.visitVarInsn(Opcodes.ALOAD, 4);
         mv.visitJumpInsn(Opcodes.IFNULL, jumpOverLabel);
         mv.visitVarInsn(Opcodes.ALOAD, 3);
@@ -410,7 +423,7 @@ final class WrapperHelperCompiler {
                            "java/util/List", "addAll", "(Ljava/util/Collection;)Z");
         mv.visitInsn(Opcodes.POP);
         mv.visitLabel(jumpOverLabel);
-
+        mv.visitLineNumber(107, jumpOverLabel);
     }
     
     private static boolean addGetWrapperParts(String newClassName,
@@ -428,6 +441,7 @@ final class WrapperHelperCompiler {
         mv.visitCode();
         Label lBegin = new Label();
         mv.visitLabel(lBegin);
+        mv.visitLineNumber(108, lBegin);
                
         //the ret List
         mv.visitTypeInsn(Opcodes.NEW, "java/util/ArrayList");
@@ -448,12 +462,20 @@ final class WrapperHelperCompiler {
             }
             
             if (method == null) {
+                Label l3 = new Label();
+                mv.visitLabel(l3);
+                mv.visitLineNumber(200 + x, l3);
+
                 mv.visitVarInsn(Opcodes.ALOAD, 2);
                 mv.visitInsn(Opcodes.ACONST_NULL);
                 mv.visitMethodInsn(Opcodes.INVOKEINTERFACE, "java/util/List",
                                    "add", "(Ljava/lang/Object;)Z");
                 mv.visitInsn(Opcodes.POP);
             } else {
+                Label l3 = new Label();
+                mv.visitLabel(l3);
+                mv.visitLineNumber(250 + x, l3);
+                
                 mv.visitVarInsn(Opcodes.ALOAD, 2);
                 mv.visitVarInsn(Opcodes.ALOAD, 3);
                 mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, 
@@ -478,12 +500,14 @@ final class WrapperHelperCompiler {
         //return the list
         Label l2 = new Label();
         mv.visitLabel(l2);
+        mv.visitLineNumber(108, l2);
         mv.visitVarInsn(Opcodes.ALOAD, 2);
         mv.visitInsn(Opcodes.ARETURN);
         
         
         Label lEnd = new Label();
         mv.visitLabel(lEnd);
+        mv.visitLineNumber(109, lEnd);
         mv.visitLocalVariable("this", "L" + newClassName + ";", null, lBegin, lEnd, 0);
         mv.visitLocalVariable("o", "Ljava/lang/Object;", null, lBegin, lEnd, 1);
         mv.visitLocalVariable("ret", "Ljava/util/List;", "Ljava/util/List<Ljava/lang/Object;>;",
