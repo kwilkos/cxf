@@ -873,8 +873,6 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     protected void createBareMessage(ServiceInfo serviceInfo,
                                      OperationInfo opInfo, boolean isOut) {
 
-        SchemaInfo schemaInfo = null;
-        XmlSchema schema = null;
         MessageInfo message = isOut ?  opInfo.getOutput() : opInfo.getInput();
 
         if (message.getMessageParts().size() == 0) {
@@ -884,6 +882,9 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         Method method = (Method)opInfo.getProperty(METHOD);
         int paraNumber = 0;
         for (MessagePartInfo mpi : message.getMessageParts()) {
+            SchemaInfo schemaInfo = null;
+            XmlSchema schema = null;
+
             QName qname = (QName)mpi.getProperty(ELEMENT_NAME);
             if (message.getMessageParts().size() == 1) {
                 qname = qname == null && !isOut ? getInParameterName(opInfo, method, -1) : qname;
@@ -956,8 +957,6 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                 mpi.setConcreteName(qname);
                 addImport(schema, mpi.getTypeQName().getNamespaceURI());
             }
-
-            schemaInfo.setSchema(schema);
 
             mpi.setElement(true);
             mpi.setElementQName(qname);
