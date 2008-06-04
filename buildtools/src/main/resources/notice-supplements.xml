@@ -162,12 +162,29 @@
   </supplement>
   <supplement>
     <project>
-      <groupId>xml-security</groupId>
+      <groupId>org.apache.santuario</groupId>
       <artifactId>xmlsec</artifactId>
       <name>XML Security</name>
       <organization>
         <name>The Apache Software Foundation</name>
         <url>http://www.apache.org</url>
+      </organization>
+      <licenses>
+        <license>
+          <name>The Apache Software License, Version 2.0</name>
+          <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+      </licenses>
+    </project>
+  </supplement>
+    <supplement>
+    <project>
+      <groupId>opensaml</groupId>
+      <artifactId>opensaml</artifactId>
+      <name>OpenSAML</name>
+      <organization>
+        <name>Internet2</name>
+        <url>http://www.opensaml.org</url>
       </organization>
       <licenses>
         <license>
