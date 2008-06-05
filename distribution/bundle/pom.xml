@@ -169,6 +169,11 @@
             <artifactId>cxf-rt-databinding-aegis</artifactId>
             <version>${pom.version}</version>
         </dependency>
+        <dependency>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>cxf-rt-databinding-jaxb</artifactId>
+            <version>${pom.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>${pom.groupId}</groupId>
@@ -225,6 +230,7 @@
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
+                <version>1.4.1</version>
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
@@ -250,6 +256,7 @@
                             org.apache.xmlbeans*;resolution:=optional,
                             org.apache.ws.security*;resolution:=optional,
                             org.codehaus.jra*;resolution:=optional,
+                            org.jaxen*;resolution:=optional,
                             org.jdom*;resolution:=optional,
                             org.junit*;resolution:=optional,
                             org.mortbay*;resolution:=optional,
@@ -260,6 +267,8 @@
                         <Export-Package>
                             org.apache.cxf.*;version=${pom.version};-split-package:=merge-first,
                             org.xmlsoap.schemas*;version=${pom.version};-split-package:=merge-first,
+                            org.xmlsoap.schemas.wsdl.http.*,
+                            org.w3._2006._05.addressing.wsdl.*,
                             '=META-INF.cxf'
                         </Export-Package>
                         <_failok>true</_failok>
