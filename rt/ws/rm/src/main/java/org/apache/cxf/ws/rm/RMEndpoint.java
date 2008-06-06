@@ -25,6 +25,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.wsdl.extensions.ExtensibilityElement;
+import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
 
@@ -235,8 +236,11 @@ public class RMEndpoint {
 
         DataBinding dataBinding = null;
         try {
-            dataBinding = new JAXBDataBinding(CreateSequenceType.class, CreateSequenceResponseType.class,
-                                              TerminateSequenceType.class, SequenceFaultType.class);
+            JAXBContext ctx =
+                JAXBContext.newInstance(
+                    CreateSequenceType.class.getPackage().getName(),
+                    CreateSequenceType.class.getClassLoader());
+            dataBinding = new JAXBDataBinding(ctx);
         } catch (JAXBException e) {
             throw new ServiceConstructionException(e);
         }
