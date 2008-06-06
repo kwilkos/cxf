@@ -74,7 +74,7 @@ public class WSS4JOutInterceptor extends AbstractWSS4JInterceptor {
         }
 
         if (doDebug) {
-            LOG.fine("WSDoAllSender: enter invoke()");
+            LOG.fine("WSS4JOutInterceptor: enter invoke()");
         }
 
         RequestData reqData = new RequestData();
@@ -178,7 +178,7 @@ public class WSS4JOutInterceptor extends AbstractWSS4JInterceptor {
             }
 
             if (doDebug) {
-                LOG.fine("WSDoAllSender: exit invoke()");
+                LOG.fine("WSS4JOutInterceptor: exit invoke()");
             }
         } catch (WSSecurityException e) {
             throw new SoapFault(new Message("SECURITY_FAILED", LOG), e, version
