@@ -26,6 +26,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.cxf.buslifecycle.BusLifeCycleManager;
+import org.apache.cxf.common.classloader.ClassLoaderUtils;
 import org.apache.cxf.common.logging.LogUtils;
 
 public abstract class BusFactory {
@@ -146,6 +147,7 @@ public abstract class BusFactory {
      * default search algorithm.
      * @return a new BusFactory to be used to create Bus objects
      */
+    @SuppressWarnings("unchecked")
     public static BusFactory newInstance(String className) {
         BusFactory instance = null;
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
@@ -154,7 +156,8 @@ public abstract class BusFactory {
         }
         Class<? extends BusFactory> busFactoryClass;
         try {
-            busFactoryClass = Class.forName(className, true, classLoader).asSubclass(BusFactory.class);
+            busFactoryClass = 
+                ClassLoaderUtils.loadClass(className, BusFactory.class).asSubclass(BusFactory.class);
             instance = busFactoryClass.newInstance();
         } catch (Exception ex) {
             LogUtils.log(LOG, Level.SEVERE, "BUS_FACTORY_INSTANTIATION_EXC", ex);
