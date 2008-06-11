@@ -72,7 +72,7 @@ public class AbstractDataBinding {
             n = n.getNextSibling();
         }
 
-        SchemaInfo schema = new SchemaInfo(serviceInfo, ns);
+        SchemaInfo schema = new SchemaInfo(ns);
         schema.setSystemId(systemId);
         XmlSchema xmlSchema;
         synchronized (d) {

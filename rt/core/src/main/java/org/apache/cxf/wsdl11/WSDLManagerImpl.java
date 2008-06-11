@@ -20,7 +20,6 @@
 package org.apache.cxf.wsdl11;
 
 import java.io.IOException;
-import java.lang.ref.WeakReference;
 import java.net.URL;
 import java.util.Collections;
 import java.util.Iterator;
@@ -76,14 +75,9 @@ public class WSDLManagerImpl implements WSDLManager {
     
     /**
      * The schemaCacheMap is used as a cache of SchemaInfo against the WSDLDefinitions.
-     * Note that the value is a WeakReference of ServiceSchemaInfo - Here the ServiceSchemaInfo in turn holds
-     * the key WSDL Definition. Since the value always strongly refers to the key, we make the value also
-     * weak - so that whenever their is no external strong reference to the key, the entry will qualify for
-     * removal from the map.
-     * https://issues.apache.org/jira/browse/CXF-1621
-     *
+     * The key is the same key that is used to hold the definition object into the definitionsMap 
      */
-    final Map<Definition, WeakReference<ServiceSchemaInfo>> schemaCacheMap;
+    final Map<Object, ServiceSchemaInfo> schemaCacheMap;
     private boolean disableSchemaCache;
     
     private Bus bus;
@@ -108,7 +102,7 @@ public class WSDLManagerImpl implements WSDLManager {
             throw new BusException(e);
         }
         definitionsMap = new CacheMap<Object, Definition>();
-        schemaCacheMap = new CacheMap<Definition, WeakReference<ServiceSchemaInfo>>();
+        schemaCacheMap = new CacheMap<Object, ServiceSchemaInfo>();
 
         registerInitialExtensions();
     }
@@ -251,10 +245,14 @@ public class WSDLManagerImpl implements WSDLManager {
         if (disableSchemaCache) {
             return null;
         }
-        synchronized (schemaCacheMap) {
-            WeakReference<ServiceSchemaInfo> weakReference = schemaCacheMap.get(wsdl);
-            if (weakReference != null) {
-                return weakReference.get();
+        synchronized (definitionsMap) {
+            for (Map.Entry<Object, Definition> e : definitionsMap.entrySet()) {
+                if (e.getValue() == wsdl) {
+                    ServiceSchemaInfo info = schemaCacheMap.get(e.getKey());
+                    if (info != null) {
+                        return info;
+                    }
+                }
             }
         }
         return null;
@@ -262,11 +260,14 @@ public class WSDLManagerImpl implements WSDLManager {
 
     public void putSchemasForDefinition(Definition wsdl, ServiceSchemaInfo schemas) {
         if (!disableSchemaCache) {
-            synchronized (schemaCacheMap) {
-                schemaCacheMap.put(wsdl, new WeakReference<ServiceSchemaInfo>(schemas));
-            }
+            synchronized (definitionsMap) {
+                for (Map.Entry<Object, Definition> e : definitionsMap.entrySet()) {
+                    if (e.getValue() == wsdl) {
+                        schemaCacheMap.put(e.getKey(), schemas);
+                    }
+                }
+            }            
         }
-        
     }
 
     public boolean isDisableSchemaCache() {
@@ -281,4 +282,19 @@ public class WSDLManagerImpl implements WSDLManager {
         this.disableSchemaCache = disableSchemaCache;
     }
 
+    public void removeDefinition(Definition wsdl) {
+        synchronized (definitionsMap) {
+            List<Object> keys = new ArrayList<Object>();
+            for (Map.Entry<Object, Definition> e : definitionsMap.entrySet()) {
+                if (e.getValue() == wsdl) {
+                    keys.add(e.getKey());
+                }
+            }
+            for (Object o : keys) {
+                definitionsMap.remove(o);
+                schemaCacheMap.remove(o);
+            }
+        }
+    }
+    
 }
