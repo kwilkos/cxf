@@ -42,6 +42,7 @@ import org.apache.cxf.message.FaultMode;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
+import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.service.model.FaultInfo;
 import org.apache.cxf.service.model.MessageInfo;
@@ -476,7 +477,7 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
             op = ((UnwrappedOperationInfo)op).getWrappedOperation();
         }
         
-        String actionUri = (String) message.get(SoapBindingConstants.SOAP_ACTION);
+        String actionUri = (String) message.get(SoapConstants.SOAP_ACTION);
         if (actionUri != null) {
             return actionUri;
         }
