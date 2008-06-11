@@ -1,5 +1,4 @@
-<?xml version='1.0' encoding='utf-8' ?>
-<!-- $Id: ws-addr-wsdl.xsd,v 1.1 2005/03/22 18:15:15 hugo Exp $ -->
+<?xml version="1.0" encoding="utf-8"?>
 <!--
     W3C XML Schema defined in the Web Services Addressing 1.0 
     - WSDL Binding specification
