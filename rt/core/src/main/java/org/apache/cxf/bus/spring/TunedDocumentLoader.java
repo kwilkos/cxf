@@ -36,6 +36,7 @@ import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 
 
+import org.apache.cxf.common.classloader.ClassLoaderUtils;
 import org.springframework.beans.factory.xml.DefaultDocumentLoader;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 
@@ -64,7 +65,8 @@ class TunedDocumentLoader extends DefaultDocumentLoader {
         transformerFactory = TransformerFactory.newInstance();
         
         try {
-            Class<?> cls = Class.forName("com.ctc.wstx.sax.WstxSAXParserFactory");
+            Class<?> cls = ClassLoaderUtils.loadClass("com.ctc.wstx.sax.WstxSAXParserFactory",
+                                                      TunedDocumentLoader.class);
             saxParserFactory = (SAXParserFactory)cls.newInstance();
             nsasaxParserFactory = (SAXParserFactory)cls.newInstance();
         } catch (Throwable e) {
