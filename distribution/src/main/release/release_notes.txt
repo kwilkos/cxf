@@ -56,6 +56,10 @@ http://bouncycastle.org/download/bcprov-jdk14-136.jar
 and add that to the lib directory or classpath.   
 
 
+The latest version of the WSS4J library that is used to implement WS-Security 
+requires the opensaml jar to be on the classpath.  This is different than previous
+versions that only required it if doing SAML assertions.  When upgrading
+to CXF 2.1.1, you will need to add the opensaml jar to your application.   
 
 3. Building the Samples
 
