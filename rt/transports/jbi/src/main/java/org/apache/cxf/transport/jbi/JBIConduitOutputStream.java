@@ -26,6 +26,7 @@ import java.lang.reflect.Method;
 import java.util.logging.Logger;
 
 import javax.jbi.messaging.DeliveryChannel;
+import javax.jbi.messaging.ExchangeStatus;
 import javax.jbi.messaging.InOut;
 import javax.jbi.messaging.MessageExchange;
 import javax.jbi.messaging.MessageExchangeFactory;
@@ -146,8 +147,8 @@ public class JBIConduitOutputStream extends CachedOutputStream {
                     
                     conduit.getMessageObserver().onMessage(inMessage);
                     
-                    
-                    
+                    xchng.setStatus(ExchangeStatus.DONE);
+                    channel.send(xchng);
                 } else {
                     channel.send(xchng);
                 }
