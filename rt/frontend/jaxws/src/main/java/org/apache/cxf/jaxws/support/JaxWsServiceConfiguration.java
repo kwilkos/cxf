@@ -688,7 +688,7 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
         if (ann != null) {
             return ann.style().toString().toLowerCase();
         }
-        return "document";
+        return super.getStyle();
     }
     
     private boolean isDocumentBare(Method method) {
@@ -711,7 +711,7 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
         if (ann != null) {
             return ann.style().equals(SOAPBinding.Style.RPC);
         }
-        return Boolean.FALSE;
+        return super.isRPC(method);
     }
     
     

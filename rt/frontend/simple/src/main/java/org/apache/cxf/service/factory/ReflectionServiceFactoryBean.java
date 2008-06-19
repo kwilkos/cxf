@@ -140,6 +140,13 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     private boolean qualifiedSchemas = true;
 
 
+    private Map<Method, Boolean> wrappedCache = new HashMap<Method, Boolean>();
+    private Map<Method, Boolean> isRpcCache = new HashMap<Method, Boolean>();
+    private String styleCache;
+    private Boolean defWrappedCache;
+    
+    
+    
     public ReflectionServiceFactoryBean() {
         getServiceConfigurations().add(0, new DefaultServiceConfiguration());
 
@@ -559,7 +566,6 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
 
             setFaultClassInfo(o, method);
         }
-
         Class<?>[] paramTypes = method.getParameterTypes();
         Type[] genericTypes = method.getGenericParameterTypes();
         for (int i = 0; i < paramTypes.length; i++) {
@@ -708,7 +714,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         op.setProperty(m.getClass().getName(), m);
         op.setProperty("action", getAction(op, m));
 
-        if (isWrapped(m)) {
+        if (!isRPC(m) && isWrapped(m)) {
             UnwrappedOperationInfo uOp = new UnwrappedOperationInfo(op);
             op.setUnwrappedOperation(uOp);
 
@@ -1505,13 +1511,25 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     }
     
     protected boolean isWrapped(final Method method) {
-        for (AbstractServiceConfiguration c : serviceConfigurations) {
-            Boolean b = c.isWrapped(method);
-            if (b != null) {
-                return b.booleanValue();
+        Boolean b = wrappedCache.get(method);
+        if (b == null) {
+            if (isRPC(method)) {
+                wrappedCache.put(method, Boolean.FALSE);
+                return false;
             }
+            
+            for (AbstractServiceConfiguration c : serviceConfigurations) {
+                b = c.isWrapped(method);
+                if (b != null) {
+                    wrappedCache.put(method, b);
+                    return b.booleanValue();
+                }
+            }
+            
+            wrappedCache.put(method, Boolean.TRUE);
+            return true;            
         }
-        return true;
+        return b; 
     }
 
     protected boolean isMatchOperation(String methodNameInClass, String methodNameInWsdl) {
@@ -1927,35 +1945,47 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
 
     public boolean isWrapped() {
         if (this.wrappedStyle != null) {
-            return this.wrappedStyle;
+            defWrappedCache = wrappedStyle;
         }
-        for (AbstractServiceConfiguration c : serviceConfigurations) {
-            Boolean b = c.isWrapped();
-            if (b != null) {
-                return b.booleanValue();
+        if (this.defWrappedCache == null) {
+            for (AbstractServiceConfiguration c : serviceConfigurations) {
+                defWrappedCache = c.isWrapped();
+                if (defWrappedCache != null) {
+                    return defWrappedCache;
+                }
             }
+            defWrappedCache = Boolean.TRUE;
         }
-        return true;
+        return defWrappedCache;
     }
 
     public String getStyle() {
-        for (AbstractServiceConfiguration c : serviceConfigurations) {
-            String style = c.getStyle();
-            if (style != null) {
-                return style;
+        if (styleCache == null) {
+            for (AbstractServiceConfiguration c : serviceConfigurations) {
+                styleCache = c.getStyle();
+                if (styleCache != null) {
+                    return styleCache;
+                }
             }
+            styleCache = "document";
         }
-        return "document";
+        return styleCache;
     }
 
     public boolean isRPC(Method method) {
-        for (AbstractServiceConfiguration c : serviceConfigurations) {
-            Boolean b = c.isRPC(method);
-            if (b != null) {
-                return b.booleanValue();
+        Boolean b = isRpcCache.get(method);
+        if (b == null) {
+            for (AbstractServiceConfiguration c : serviceConfigurations) {
+                b = c.isRPC(method);
+                if (b != null) {
+                    isRpcCache.put(method, b);
+                    return b.booleanValue();
+                }
             }
+            b = "rpc".equals(getStyle());
+            isRpcCache.put(method, b);            
         }
-        return "rpc".equals(getStyle());
+        return b;
     }
 
     public void setWrapped(boolean style) {

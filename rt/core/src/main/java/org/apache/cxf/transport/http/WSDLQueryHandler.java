@@ -73,7 +73,10 @@ public class WSDLQueryHandler implements StemMatchingQueryHandler {
     public WSDLQueryHandler(Bus b) {
         bus = b;
     }
-
+    public WSDLQueryHandler(Bus b) {
+        bus = b;
+    }
+    
     public String getResponseContentType(String baseUri, String ctx) {
         if (baseUri.toLowerCase().contains("?wsdl")
             || baseUri.toLowerCase().contains("?xsd=")) {
