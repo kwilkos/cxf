@@ -81,7 +81,7 @@ public abstract class AbstractWSDLBasedEndpointFactory extends AbstractEndpointF
     }
     
     protected Endpoint createEndpoint() throws BusException, EndpointException {        
-        serviceFactory.setFeatures(getFeatures());
+        //serviceFactory.setFeatures(getFeatures());
 
         if (serviceName != null) {
             serviceFactory.setServiceName(serviceName);
