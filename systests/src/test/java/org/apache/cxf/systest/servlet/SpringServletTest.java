@@ -133,7 +133,7 @@ public class SpringServletTest extends AbstractServletTest {
         assertEquals(200, res.getResponseCode());
         assertEquals("text/xml", res.getContentType());
         
-        doc = DOMUtils.readXml(res.getInputStream());
+        Document doc = DOMUtils.readXml(res.getInputStream());
         assertNotNull(doc);
         
         assertValid("//wsdl:operation[@name='greetMe']", doc);
