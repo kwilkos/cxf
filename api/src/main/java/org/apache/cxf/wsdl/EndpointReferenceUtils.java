@@ -464,7 +464,7 @@ public final class EndpointReferenceUtils {
                             doTransform = false;
                         }
                     } else if (source instanceof DOMSource) {
-                        node = ((DOMSource)node).getNode();
+                        node = ((DOMSource)source).getNode();
                         doTransform = false;
                     } 
                     
