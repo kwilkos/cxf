@@ -30,13 +30,14 @@ import javax.xml.namespace.QName;
 // importation convention: if the same class name is used for 
 // 2005/08 and 2004/08, then the former version is imported
 // and the latter is fully qualified when used
+
+import org.apache.cxf.common.util.PackageUtils;
 import org.apache.cxf.ws.addressing.v200408.AttributedQName;
 import org.apache.cxf.ws.addressing.v200408.AttributedURI;
 import org.apache.cxf.ws.addressing.v200408.ObjectFactory;
 import org.apache.cxf.ws.addressing.v200408.Relationship;
 import org.apache.cxf.ws.addressing.v200408.ServiceNameType;
 import org.apache.cxf.wsdl.EndpointReferenceUtils;
-
 
 /**
  * This class is responsible for transforming between the native 
@@ -339,7 +340,7 @@ public class VersionTransformer {
                 if (jaxbContext == null) {
                     Class clz = org.apache.cxf.ws.addressing.v200408.ObjectFactory.class;
                     jaxbContext =
-                        JAXBContext.newInstance(clz.getPackage().getName(),
+                        JAXBContext.newInstance(PackageUtils.getPackageName(clz),
                                                 clz.getClassLoader());
                 }
             }

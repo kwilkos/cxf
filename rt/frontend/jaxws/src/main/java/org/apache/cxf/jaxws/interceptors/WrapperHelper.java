@@ -29,6 +29,7 @@ import java.util.List;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.annotation.XmlElement;
 
+import org.apache.cxf.common.util.PackageUtils;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.jaxb.JAXBUtils;
@@ -54,9 +55,10 @@ public abstract class WrapperHelper {
         List<Field> fields = new ArrayList<Field>(partNames.size());
         
         Method allMethods[] = wrapperType.getMethods();
+
+        String packageName = PackageUtils.getPackageName(wrapperType);
         
-        String objectFactoryClassName = wrapperType.getPackage().getName()
-                                        + ".ObjectFactory";
+        String objectFactoryClassName = packageName + ".ObjectFactory";
 
         Object objectFactory = null;
         try {

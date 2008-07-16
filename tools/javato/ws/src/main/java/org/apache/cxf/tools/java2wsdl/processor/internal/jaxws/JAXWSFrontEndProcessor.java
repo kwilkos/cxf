@@ -32,6 +32,7 @@ import javax.jws.WebService;
 
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.common.util.PackageUtils;
 import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.service.model.InterfaceInfo;
@@ -118,7 +119,8 @@ public class JAXWSFrontEndProcessor implements Processor {
             jreturn.setStyle(Style.OUT);
             jm.setReturn(jreturn);
 
-            javaInf.setPackageName(m.getDeclaringClass().getPackage().getName());
+            String pkg = PackageUtils.getPackageName(m.getDeclaringClass());
+            javaInf.setPackageName(pkg);
             javaInf.addMethod(jm);
             javaInf.setName(inf.getName().getLocalPart());
 

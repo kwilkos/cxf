@@ -27,6 +27,7 @@ import java.util.TreeMap;
 import javax.xml.namespace.QName;
 import javax.xml.ws.WebFault;
 
+import org.apache.cxf.common.util.PackageUtils;
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.tools.common.model.JavaClass;
 import org.apache.cxf.tools.common.model.JavaField;
@@ -64,8 +65,9 @@ public final class FaultBean {
 
         buildBeanFields(exceptionClass, jClass);
 
-        jClass.setElementName(new QName(URIParserUtil.getNamespace(exceptionClass.getPackage().getName()),
-                                        exceptionClass.getSimpleName()));
+        String pkg = PackageUtils.getPackageName(exceptionClass);
+        jClass.setElementName(new QName(URIParserUtil.getNamespace(pkg),
+        
         jClass.annotate(new WrapperBeanAnnotator());
         
         return jClass;
