@@ -497,7 +497,7 @@ public class SoapBindingFactory extends AbstractBindingFactory {
                 MessagePartInfo pi = minfo.addOutOfBandMessagePart(pqname);
                 
                 if (!minfo.getName().equals(msg.getQName())) {
-                    pi.setMessageContainer(new MessageInfo(minfo.getOperation(), null, msg.getQName()));
+                    pi.setMessageContainer(new MessageInfo(minfo.getOperation(), msg.getQName()));
                 }
                 
                 if (part.getTypeName() != null) {
