@@ -158,6 +158,12 @@ class JAXBContextInitializer extends ServiceModelVisitor {
                 if (classes.contains(cls)) {
                     return;
                 }
+                if (cls.getSuperclass() != null) {
+                    //JAXB should do this, but it doesn't always.
+                    //in particular, older versions of jaxb don't
+                    addClass(cls.getSuperclass());
+                }
+
                 if (cls.isEnum()) {
                     // The object factory stuff doesn't work for enums
                     classes.add(cls);
