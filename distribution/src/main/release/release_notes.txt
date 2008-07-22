@@ -86,6 +86,7 @@ http://issues.apache.org/jira/browse/CXF
 ** Bug
     * [CXF-1578] - Json marshall/unmarshall error
     * [CXF-1617] - Basic Authentication failure
+    * [CXF-1620] - wsdl2java ignores jaxb2 xjc globalBindings with namespace xjc
     * [CXF-1658] - The jbi transport should honor the sendSync flag so that xa transactions are handled correctly in smx3
     * [CXF-1659] - Eclipse plugin has ${cxf.version} in directory name
     * [CXF-1660] - Nested namespace defined spring beans aren't properly unique
@@ -101,6 +102,7 @@ http://issues.apache.org/jira/browse/CXF
     * [CXF-1687] - Lots of NPE when parsing documents at start time
     * [CXF-1689] - CXF assumes class.getPackage() is never null
     * [CXF-1696] - wsdl2java issues with implicit headers
+    * [CXF-1697] - Problem with converting to Calendar
     * [CXF-1709] - "No service was found." after refresh of Spring's ApplicationContext 
     * [CXF-1711] - Server failed to start and receieved IllegalAnnotationExceptions 
     * [CXF-1712] - ObjectFactory cache doesn't take classloaders into accout
