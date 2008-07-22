@@ -3,7 +3,7 @@ Apache CXF 2.0.8 Release Notes
 1. Overview
 
 Apache CXF 2.0.8 delivers the latest set of patches for the 2.0.x series
-fixing another 52 reported JIRA issues.
+fixing another 28 reported JIRA issues.
 
 
 2. Installation Prerequisites 
