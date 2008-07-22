@@ -31,6 +31,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -559,10 +560,14 @@ public final class JAXBEncoderDecoder {
                 u.setAttachmentUnmarshaller(au);
             }
             boolean unmarshalWithClass = true;
-            
-            if (clazz == null || (!clazz.isPrimitive() && !clazz.isArray() && !clazz.isEnum() 
-                && (Modifier.isAbstract(clazz.getModifiers()) 
-                || Modifier.isInterface(clazz.getModifiers())))) {
+
+            if (clazz == null
+                || (!clazz.isPrimitive() 
+                    && !clazz.isArray() 
+                    && !clazz.isEnum() 
+                    && !clazz.equals(Calendar.class)
+                    && (Modifier.isAbstract(clazz.getModifiers()) 
+                        || Modifier.isInterface(clazz.getModifiers())))) {
                 unmarshalWithClass = false;
             } 
             
