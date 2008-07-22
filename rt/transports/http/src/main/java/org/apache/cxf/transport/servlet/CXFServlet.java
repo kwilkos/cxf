@@ -37,6 +37,10 @@ import org.apache.cxf.resource.ResourceManager;
 import org.apache.cxf.resource.URIResolver;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.core.io.InputStreamResource;
 
@@ -48,9 +52,11 @@ import org.springframework.core.io.InputStreamResource;
  * to the {@link ServletController}.
  *
  */
-public class CXFServlet extends AbstractCXFServlet {
+public class CXFServlet extends AbstractCXFServlet implements ApplicationListener {
     
     private GenericApplicationContext childCtx;
+    private boolean inRefresh;
+    
     
     public static Logger getLogger() {
         return LogUtils.getL7dLogger(CXFServlet.class);
@@ -91,7 +97,14 @@ public class CXFServlet extends AbstractCXFServlet {
             }                   
         }
         
-        // This constructor works whether there is a context or not
+        updateContext(servletConfig, ctx);
+
+        if (ctx instanceof ConfigurableApplicationContext) {
+            ((ConfigurableApplicationContext)ctx).addApplicationListener(this);
+        }
+    }
+    private void updateContext(ServletConfig servletConfig, ApplicationContext ctx) {
+     // This constructor works whether there is a context or not
         // If the ctx is null, we just start up the default bus
         if (ctx == null) {            
             LOG.info("LOAD_BUS_WITHOUT_APPLICATION_CONTEXT");
@@ -99,7 +112,8 @@ public class CXFServlet extends AbstractCXFServlet {
         } else {
             LOG.info("LOAD_BUS_WITH_APPLICATION_CONTEXT");
             bus = new SpringBusFactory(ctx).createBus();
-        }
+        }        
+        
         ResourceManager resourceManager = bus.getExtension(ResourceManager.class);
         resourceManager.addResourceResolver(new ServletContextResourceResolver(
                                                servletConfig.getServletContext()));
@@ -114,7 +128,7 @@ public class CXFServlet extends AbstractCXFServlet {
     }
 
     private void loadAdditionalConfig(ApplicationContext ctx, 
-                                        ServletConfig servletConfig) throws ServletException {
+                                        ServletConfig servletConfig) {
         String location = servletConfig.getInitParameter("config-location");
         if (location == null) {
             location = "/WEB-INF/cxf-servlet.xml";
@@ -151,6 +165,19 @@ public class CXFServlet extends AbstractCXFServlet {
             childCtx.destroy();
         }
         super.destroy();        
+    }
+
+    public void onApplicationEvent(ApplicationEvent event) {
+        if (!inRefresh && event instanceof ContextRefreshedEvent) {
+            //need to re-do the bus/controller stuff
+            try {
+                inRefresh = true;
+                updateContext(this.getServletConfig(), 
+                          ((ContextRefreshedEvent)event).getApplicationContext());
+            } finally {
+                inRefresh = false;
+            }
+        }
     }
 
     
