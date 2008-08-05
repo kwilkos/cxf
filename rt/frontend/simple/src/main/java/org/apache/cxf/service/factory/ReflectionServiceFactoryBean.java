@@ -279,6 +279,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     
     protected void buildServiceFromWSDL(String url) {
         LOG.info("Creating Service " + getServiceQName() + " from WSDL: " + url);
+        populateFromClass = false;
         WSDLServiceFactory factory = new WSDLServiceFactory(getBus(), url, getServiceQName());
         setService(factory.create());
 
@@ -299,7 +300,8 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
 
     protected void buildServiceFromClass() {
         LOG.info("Creating Service " + getServiceQName() + " from class " + getServiceClass().getName());
-        
+        populateFromClass = true;
+
         if (Proxy.isProxyClass(this.getServiceClass())) {
             LOG.log(Level.WARNING, "USING_PROXY_FOR_SERVICE", getServiceClass());
         }
