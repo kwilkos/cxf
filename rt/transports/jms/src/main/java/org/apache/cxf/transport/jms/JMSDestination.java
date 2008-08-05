@@ -116,7 +116,7 @@ public class JMSDestination extends AbstractMultiplexDestination implements Conf
             listenerSession = base.sessionFactory.get(base.targetDestination);
             listenerThread = new JMSListenerThread(listenerSession,
                                                    endpointInfo.getName());
-             listenerThread.start();
+            listenerThread.start();
         } catch (JMSException ex) {
             getLogger().log(Level.SEVERE, "JMS connect failed with JMSException : ", ex);
         } catch (NamingException nex) {
