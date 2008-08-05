@@ -115,9 +115,8 @@ public class JMSDestination extends AbstractMultiplexDestination implements Conf
             //Get a non-pooled session. 
             listenerSession = base.sessionFactory.get(base.targetDestination);
             listenerThread = new JMSListenerThread(listenerSession,
-                                                   getEndpointInfo() == null ? null 
-                                                       : getEndpointInfo().getName());
-            listenerThread.start();
+                                                   endpointInfo.getName());
+             listenerThread.start();
         } catch (JMSException ex) {
             getLogger().log(Level.SEVERE, "JMS connect failed with JMSException : ", ex);
         } catch (NamingException nex) {
