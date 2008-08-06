@@ -921,6 +921,9 @@ public class HTTPConduit
         if (--decoupledDestinationRefCount == 0) {
             LOG.log(Level.INFO, "shutting down decoupled destination");
             decoupledDestination.shutdown();
+            
+            //this way we can release the port of decoupled destination
+            decoupledDestination.setMessageObserver(null);
         }
     }
     
