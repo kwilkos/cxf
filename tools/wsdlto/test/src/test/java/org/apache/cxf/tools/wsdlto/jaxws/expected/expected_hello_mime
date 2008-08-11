@@ -35,7 +35,6 @@ import javax.xml.ws.ResponseWrapper;
 
 public interface Hello {
 
-    @SOAPBinding(parameterStyle = SOAPBinding.ParameterStyle.BARE)
     @WebResult(name = "addressRes", targetNamespace = "http://apache.org/hello_world_mime/types", partName = "mime")
     @WebMethod
     public javax.xml.transform.Source address(
@@ -43,7 +42,6 @@ public interface Hello {
         org.apache.cxf.mime.Address mime
     );
 
-    @SOAPBinding(parameterStyle = SOAPBinding.ParameterStyle.BARE)
     @WebMethod
     public void helloMime(
         @WebParam(partName = "body", name = "body", targetNamespace = "http://apache.org/hello_world_mime/types")
@@ -52,7 +50,6 @@ public interface Hello {
         javax.xml.ws.Holder<java.awt.Image> mime
     );
 
-    @SOAPBinding(parameterStyle = SOAPBinding.ParameterStyle.BARE)
     @WebMethod
     public void hello(
         @WebParam(partName = "body", name = "body", targetNamespace = "http://apache.org/hello_world_mime/types")
