@@ -19,6 +19,9 @@
 package org.apache.cxf.systest.servlet;
 
 
+import javax.jws.WebService;
+import javax.xml.ws.Endpoint;
+
 import org.w3c.dom.Document;
 
 import com.meterware.httpunit.GetMethodWebRequest;
@@ -180,5 +183,20 @@ public class CXFServletTest extends AbstractServletTest {
         assertEquals("text/xml", res.getContentType());
         assertTrue("the xsd should contain the completType SimpleStruct",
                    text.contains("<complexType name=\"SimpleStruct\">"));
+    }
+    
+    
+    @Test
+    public void testGetBinding() throws Exception {
+        Endpoint ep = Endpoint.create("http://schemas.xmlsoap.org/wsdl/soap/http", new HelloImpl());
+        System.out.println(ep.getBinding().getClass());
+    }
+
+    @WebService(name = "Hello", portName = "HelloPort",
+                serviceName = "HelloService", targetNamespace = "http://cxf.apache.org/hello")
+    public static class HelloImpl {
+        public String hello(String name) {
+            return "Hello " + name;
+        }
     }
 }
