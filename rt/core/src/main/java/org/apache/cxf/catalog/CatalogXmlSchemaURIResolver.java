@@ -20,6 +20,8 @@ package org.apache.cxf.catalog;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.xml.sax.InputSource;
 
@@ -36,10 +38,15 @@ public class CatalogXmlSchemaURIResolver implements URIResolver {
 
     private ExtendedURIResolver resolver;
     private Catalog catalogResolver;
+    private Map<String, String> resolved = new HashMap<String, String>();
 
     public CatalogXmlSchemaURIResolver(OASISCatalogManager catalogManager) {
         this.resolver = new ExtendedURIResolver();
         this.catalogResolver = catalogManager.getCatalog();
+    }
+    
+    public Map<String, String> getResolvedMap() {
+        return resolved;
     }
 
     public InputSource resolveEntity(String targetNamespace, String schemaLocation, String baseUri) {
@@ -61,6 +68,7 @@ public class CatalogXmlSchemaURIResolver implements URIResolver {
         if (resolvedSchemaLocation == null) {
             in = this.resolver.resolve(schemaLocation, baseUri);
         } else {
+            resolved.put(schemaLocation, resolvedSchemaLocation);
             in = this.resolver.resolve(resolvedSchemaLocation, baseUri);
         }
 

@@ -147,7 +147,7 @@ public class ServiceInfo extends AbstractDescriptionElement {
     }
 
     public List<SchemaInfo> getSchemas() {
-        return Collections.unmodifiableList(schemas);
+        return schemas;
     }
 
     public SchemaCollection getXmlSchemaCollection() {
