@@ -19,9 +19,11 @@
 
 package org.apache.cxf.tools.java2wsdl.processor.internal.jaxws;
 
+import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import javax.xml.ws.Holder;
 
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.service.model.MessageInfo;
@@ -58,16 +60,10 @@ public class RequestWrapper extends Wrapper {
         return buildFields(getMethod(), getOperationInfo().getUnwrappedOperation().getInput());
     }
     
-    protected List<JavaField> buildFields(final Method method, final MessageInfo message) {
-        List<JavaField> fields = new ArrayList<JavaField>();
-        String name;
-        String type;
-
-        final Class[] paramClasses = method.getParameterTypes();
-        for (MessagePartInfo mpi : message.getMessageParts()) {
-            int idx = mpi.getIndex();
-            name = mpi.getName().getLocalPart();
-            Class clz = paramClasses[idx];
+    private String getTypeString(Type t) {
+        String type = "Object";
+        if (t instanceof Class) {
+            Class clz = (Class) t;
             if (clz.isArray()) {
                 if (isBuiltInTypes(clz.getComponentType())) {
                     type = clz.getComponentType().getSimpleName() + "[]";
@@ -77,10 +73,38 @@ public class RequestWrapper extends Wrapper {
             } else {
                 type = clz.getName();
             }
+        } else if (t instanceof ParameterizedType) {
+            ParameterizedType pt = (ParameterizedType) t;
+            Class c = (Class)pt.getRawType();
+            if (Holder.class.isAssignableFrom(c)
+                && pt.getActualTypeArguments().length == 1
+                && pt.getActualTypeArguments()[0] instanceof Class) {
+                type = getTypeString(pt.getActualTypeArguments()[0]);
+            } else {
+                type = t.toString();
+            }
+        } else if (t instanceof GenericArrayType) {
+            GenericArrayType gat = (GenericArrayType)t;
+            type = gat.toString();
+        }
+        type = type.replace('$', '.');
+        return type;
+    }
+    
+    
+    protected List<JavaField> buildFields(final Method method, final MessageInfo message) {
+        List<JavaField> fields = new ArrayList<JavaField>();
+
+        final Type[] paramClasses = method.getGenericParameterTypes();
+        for (MessagePartInfo mpi : message.getMessageParts()) {
+            int idx = mpi.getIndex();
+            String name = mpi.getName().getLocalPart();
+            Type t = paramClasses[idx];
+            String type = getTypeString(t);
+
             JavaField field = new JavaField(name, type, "");
             field.setTargetNamespace("");
             fields.add(field);
-            
         }
 
         return fields;
