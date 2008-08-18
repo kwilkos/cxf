@@ -93,8 +93,8 @@ import org.apache.cxf.workqueue.OneShotAsyncExecutor;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
 import org.apache.cxf.wsdl.EndpointReferenceUtils;
 import org.apache.cxf.wsdl.WSDLManager;
-import org.apache.cxf.wsdl.http.AddressType;
 import org.apache.cxf.wsdl11.WSDLServiceFactory;
+import org.xmlsoap.schemas.wsdl.http.AddressType;
 
 public class ServiceImpl extends ServiceDelegate {
 
