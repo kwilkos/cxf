@@ -90,7 +90,8 @@ public class CodeGenBugTest extends ProcessorTestBase {
 
         Class clz = classLoader.loadClass("org.apache.cxf.cxf1678.hello_world_soap_http.GreeterImpl");
         WebService webServiceAnn = AnnotationUtil.getPrivClassAnnotation(clz, WebService.class);
-        assertEquals("Greeter", webServiceAnn.name());
+        assertEquals("org.apache.cxf.cxf1678.hello_world_soap_http.Greeter",
+                     webServiceAnn.endpointInterface());
     }
 
     @Test
@@ -115,7 +116,8 @@ public class CodeGenBugTest extends ProcessorTestBase {
         Class clz = classLoader.loadClass("org.apache.hello_world_soap_http.GreeterImpl");
 
         WebService webServiceAnn = AnnotationUtil.getPrivClassAnnotation(clz, WebService.class);
-        assertEquals("Greeter", webServiceAnn.name());
+        assertTrue("Impl class should note generate name property value in webService annotation",
+                    webServiceAnn.name().equals(""));
         assertFalse("Impl class should generate portName property value in webService annotation",
                     webServiceAnn.portName().equals(""));
         assertFalse("Impl class should generate serviceName property value in webService annotation",

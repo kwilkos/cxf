@@ -53,7 +53,6 @@ import org.apache.cxf.service.factory.ServiceConstructionException;
 import org.apache.cxf.service.model.InterfaceInfo;
 import org.apache.cxf.service.model.MessageInfo;
 import org.apache.cxf.service.model.OperationInfo;
-import org.apache.cxf.tools.util.AnnotationUtil;
 
 public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
 
@@ -142,33 +141,40 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
         }
     }
 
-    @Override
-    public Boolean isOperation(Method method) {
-        Method origMethod = method;
-        method = getDeclaredMethod(method);
+    public Boolean isWebMethod(final Method method) {
         if (method == null
             || method.getReturnType().equals(Future.class)
             || method.getReturnType().equals(Response.class)) {
-            return false;
+            return Boolean.FALSE;
         }
         
-        if (method != null) {
-            WebMethod wm = method.getAnnotation(WebMethod.class);
-            if (wm != null) {
-                if (wm.exclude()) {
-                    return Boolean.FALSE;
-                } else {
-                    return Boolean.TRUE;
-                }
+        WebMethod wm = method.getAnnotation(WebMethod.class);
+        if (wm != null) {
+            if (wm.exclude()) {
+                return Boolean.FALSE;
             } else {
-                if (method.getDeclaringClass().isInterface()) {
-                    return hasWebServiceAnnotation(method) 
-                        ||  hasWebServiceAnnotation(origMethod);
-                }
-                return hasWebServiceAnnotation(method);              
+                return Boolean.TRUE;
             }
+        } 
+        if (method.getDeclaringClass().isInterface()) {
+            return hasWebServiceAnnotation(method);
         }
-        return Boolean.FALSE;
+        if (implInfo.getSEIClass() == null) {
+            return hasWebServiceAnnotation(method);
+        }
+        return implInfo.getSEIClass().isAssignableFrom(method.getDeclaringClass());
+    }
+
+    @Override
+    public Boolean isOperation(final Method method) {
+        if (Object.class.equals(method.getDeclaringClass())) {
+            return false;
+        }
+        Class implClz = implInfo.getImplementorClass();
+        if (isWebMethod(getDeclaredMethod(implClz, method))) {
+            return true;
+        }
+        return isWebMethod(getDeclaredMethod(method));
     }
     
     private boolean hasWebServiceAnnotation(Method method) {
@@ -176,15 +182,17 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
     }
 
     Method getDeclaredMethod(Method method) {
-        Class<?> endpointClass = implInfo.getEndpointClass();
+        return getDeclaredMethod(implInfo.getEndpointClass(), method);
+    }
 
+    private Method getDeclaredMethod(Class<?> endpointClass, Method method) {
         if (!method.getDeclaringClass().equals(endpointClass)) {
             try {
                 method = endpointClass.getMethod(method.getName(), (Class[])method.getParameterTypes());
             } catch (SecurityException e) {
                 throw new ServiceConstructionException(e);
             } catch (NoSuchMethodException e) {
-                return null;
+                return isWebMethod(method) ? method : null;
             }
         }
         return method;
@@ -528,7 +536,7 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
         ResponseWrapper rw = m.getAnnotation(ResponseWrapper.class);
         String clsName = "";
         if (rw == null) {
-            clsName = getPackageName(selected) + ".jaxws." + AnnotationUtil.capitalize(selected.getName())
+            clsName = getPackageName(selected) + ".jaxws." + StringUtils.capitalize(selected.getName())
                       + "Response";
         } else {
             clsName = rw.className();
@@ -593,7 +601,7 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
         RequestWrapper rw = m.getAnnotation(RequestWrapper.class);
         String clsName = "";
         if (rw == null) {
-            clsName = getPackageName(selected) + ".jaxws." + AnnotationUtil.capitalize(selected.getName());
+            clsName = getPackageName(selected) + ".jaxws." + StringUtils.capitalize(selected.getName());
         } else {
             clsName = rw.className();
         }
