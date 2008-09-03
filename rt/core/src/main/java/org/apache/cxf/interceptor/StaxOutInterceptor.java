@@ -137,6 +137,7 @@ public class StaxOutInterceptor extends AbstractPhaseInterceptor<Message> {
                     xtw.writeEndDocument();
                     xtw.close();
                 }
+                message.removeContent(XMLStreamWriter.class);
             } catch (XMLStreamException e) {
                 throw new Fault(new org.apache.cxf.common.i18n.Message("STAX_WRITE_EXC", BUNDLE), e);
             }

@@ -60,6 +60,7 @@ import org.apache.cxf.ws.policy.AssertionInfoMap;
  * Properties for outgoing messages.
  */
 public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
+    public static final String USING_ADDRESSING = MAPAggregator.class.getName() + ".usingAddressing";
 
     private static final Logger LOG = 
         LogUtils.getL7dLogger(MAPAggregator.class);
@@ -74,11 +75,6 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
     protected final Map<String, String> messageIDs = 
         new ConcurrentHashMap<String, String>();
     
-    /**
-     * Whether the endpoint supports WS-Addressing.
-     */
-
-    private final Map<Endpoint, Boolean> usingAddressing = new ConcurrentHashMap<Endpoint, Boolean>();
     private boolean usingAddressingAdvisory = true;
 
     private boolean allowDuplicates = true;
@@ -183,7 +179,7 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
         boolean ret = false;
         Endpoint endpoint = message.getExchange().get(Endpoint.class);
         if (null != endpoint) {
-            Boolean b = usingAddressing.get(endpoint);
+            Boolean b = (Boolean)endpoint.get(USING_ADDRESSING);
             if (null == b) {
                 EndpointInfo endpointInfo = endpoint.getEndpointInfo();
                 List<ExtensibilityElement> endpointExts = endpointInfo != null ? endpointInfo
@@ -197,7 +193,7 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
                 ret = hasUsingAddressing(endpointExts) || hasUsingAddressing(bindingExts)
                              || hasUsingAddressing(serviceExts);
                 b = ret ? Boolean.TRUE : Boolean.FALSE;
-                usingAddressing.put(endpoint, b);
+                endpoint.put(USING_ADDRESSING, b);
             } else {
                 ret = b.booleanValue();
             }

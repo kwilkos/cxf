@@ -1827,7 +1827,7 @@ public class HTTPConduit
             try {
                 handleResponse();
             } finally {
-                if (cachingForRetransmission) {
+                if (cachingForRetransmission && cachedStream != null) {
                     cachedStream.close();
                 }
             }
@@ -1937,6 +1937,14 @@ public class HTTPConduit
                     connection.getInputStream().close();
                     return;
                 }
+            } else {
+                //not going to be resending or anything, clear out the stuff in the out message
+                //to free memory
+                outMessage.removeContent(OutputStream.class);
+                if (cachingForRetransmission) {
+                    cachedStream.close();
+                }
+                cachedStream = null;
             }
             
             Message inMessage = new MessageImpl();
@@ -1988,6 +1996,7 @@ public class HTTPConduit
                 LOG.log(Level.WARNING, "Input Stream is null!");
             }
             inMessage.setContent(InputStream.class, in);
+            
             
             incomingObserver.onMessage(inMessage);
         }
