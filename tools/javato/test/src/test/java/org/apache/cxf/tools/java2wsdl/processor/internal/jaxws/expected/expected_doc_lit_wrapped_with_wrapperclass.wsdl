@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <wsdl:definitions name="StockWrappedService" targetNamespace="http://cxf.com/" xmlns:tns="http://cxf.com/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
   <wsdl:types>
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://cxf.com/" attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://cxf.com/">
-    <xs:element name="getPrice" type="getPrice"/>
-    <xs:element name="getPriceResponse" type="getPriceResponse"/>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://cxf.com/" attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://cxf.com/">
+    <xs:element name="getPrice" type="tns:getPrice"/>
+    <xs:element name="getPriceResponse" type="tns:getPriceResponse"/>
     <xs:complexType name="getPrice">
         <xs:sequence>
             <xs:element name="responseType" type="xs:string"/>
