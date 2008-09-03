@@ -530,7 +530,6 @@ public final class JAXBDataBinding extends AbstractDataBinding implements DataBi
         for (Method meth : clz.getMethods()) {
             XmlElementDecl decl = meth.getAnnotation(XmlElementDecl.class);
             if (decl != null 
-                && XmlElementDecl.GLOBAL.class.equals(decl.scope())
                 && StringUtils.isEmpty(decl.namespace())) {
                 return true;
             }
