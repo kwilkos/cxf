@@ -149,7 +149,6 @@
                         <Import-Package>
                             com.ibm*;resolution:=optional,
                             com.sun*;resolution:=optional,
-                            javanet.staxutils*;resolution:=optional,
                             javax.jms*;resolution:=optional,
                             repackage;resolution:=optional,
                             javax.xml.soap,
