@@ -24,6 +24,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringReader;
 
+import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -145,6 +146,9 @@ public final class DOMUtils {
         }
         return attN.getNodeValue();
     }
+    public static String getAttribute(Element element, QName attName) {
+        return element.getAttributeNS(attName.getNamespaceURI(), attName.getLocalPart());
+    }
 
     public static void setAttribute(Node node, String attName, String val) {
         NamedNodeMap attributes = node.getAttributes();
@@ -214,6 +218,10 @@ public final class DOMUtils {
         }
         return null;
     }
+    
+    public static QName getElementQName(Element el) {
+        return new QName(el.getNamespaceURI(), el.getLocalName());
+    }
     /**
      * Get the first direct child with a given type
      */
@@ -227,7 +235,31 @@ public final class DOMUtils {
         }
         return (Element) n;
     }
-
+    public static Element getNextElement(Element el) {
+        Node nd = el.getNextSibling();
+        while (nd != null) {
+            if (nd.getNodeType() == Node.ELEMENT_NODE) {
+                return (Element)nd;
+            }
+            nd = nd.getNextSibling();
+        }
+        return null;
+    }
+    
+    public static Element getFirstChildWithName(Element parent, QName q) { 
+        String ns = q.getNamespaceURI();
+        String lp = q.getLocalPart();
+        return getFirstChildWithName(parent, ns, lp);
+    }
+    public static Element getFirstChildWithName(Element parent, String ns, String lp) { 
+        Node n = parent.getFirstChild();
+        while (n != null 
+            && !ns.equals(n.getNamespaceURI())
+            && !lp.equals(n.getLocalName())) {
+            n = n.getNextSibling();
+        }
+        return (Element)n;
+    }
     /**
      * Get the first direct child with a given type
      */
