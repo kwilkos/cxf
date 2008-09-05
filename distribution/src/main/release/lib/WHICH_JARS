@@ -46,7 +46,6 @@ For standalone HTTP support:
 For Aegis support:
 - jaxen.jar
 - jdom.jar
-- stax-utils.jar
 
 For WS-Security support:
 - bcprov-jdk14.jar
