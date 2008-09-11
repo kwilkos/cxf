@@ -164,6 +164,10 @@ public class WSS4JInInterceptor extends AbstractWSS4JInterceptor {
             if (wsResult == null) { // no security header found
                 if (doAction == WSConstants.NO_SECURITY) {
                     return;
+                } else if (doc.getSOAPPart().getEnvelope().getBody().hasFault()) {
+                    LOG.warning("Request does not contain required Security header, " 
+                                + "but it's a fault.");
+                    return;
                 } else {
                     LOG.warning("Request does not contain required Security header");
                     throw new WSSecurityException(WSSecurityException.INVALID_SECURITY);
