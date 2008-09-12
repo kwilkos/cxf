@@ -48,6 +48,7 @@ import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPHandler;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 
+import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -199,9 +200,12 @@ public class SOAPHandlerInterceptorTest extends Assert {
                         SOAPHeader soapHeader = message.getSOAPHeader();
                         Element headerElementNew = (Element)soapHeader.getChildNodes().item(0);
 
-                        SoapVersion soapVersion = Soap11.getInstance();
-                        headerElementNew.setAttributeNS(soapVersion.getNamespace(),
-                                                        "SOAP-ENV:mustUnderstand", "false");
+                        SoapVersion soapVersion = Soap11.getInstance();                        
+                        Attr attr = 
+                            headerElementNew.getOwnerDocument().createAttributeNS(soapVersion.getNamespace(), 
+                                                                                  "SOAP-ENV:mustUnderstand"); 
+                        attr.setValue("false");
+                        headerElementNew.setAttributeNodeNS(attr);          
                     }
                 } catch (Exception e) {
                     throw new Fault(e);
@@ -296,8 +300,11 @@ public class SOAPHandlerInterceptorTest extends Assert {
                         SOAPHeaderElement headerElementNew = (SOAPHeaderElement)it.next();
 
                         SoapVersion soapVersion = Soap11.getInstance();
-                        headerElementNew.setAttributeNS(soapVersion.getNamespace(),
-                                                        "SOAP-ENV:mustUnderstand", "false");
+                        Attr attr = 
+                            headerElementNew.getOwnerDocument().createAttributeNS(soapVersion.getNamespace(), 
+                                                                                  "SOAP-ENV:mustUnderstand"); 
+                        attr.setValue("false");
+                        headerElementNew.setAttributeNodeNS(attr);
                     }
                 } catch (Exception e) {
                     throw new Fault(e);
@@ -527,8 +534,12 @@ public class SOAPHandlerInterceptorTest extends Assert {
         
         Element childElement = doc.createElementNS("http://apache.org/hello_world_rpclit/types",
                                                    "ns2:header1");
+        Attr attr = 
+            childElement.getOwnerDocument().createAttributeNS(soapVersion.getNamespace(), 
+                                                                  "SOAP-ENV:mustUnderstand"); 
+        attr.setValue("true");
+        childElement.setAttributeNodeNS(attr);  
         
-        childElement.setAttributeNS(soapVersion.getNamespace(), "SOAP-ENV:mustUnderstand", "true");
         headerElement.appendChild(childElement);
         envElement.appendChild(headerElement);
         envElement.appendChild(bodyElement);
