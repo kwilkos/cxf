@@ -38,6 +38,11 @@ import org.apache.cxf.resource.DefaultResourceManager;
 import org.apache.cxf.resource.ResourceManager;
 import org.apache.cxf.resource.ResourceResolver;
 
+/**
+* Factory for creating JAX-WS proxies, This class provides access to the 
+* internal properties used to set-up proxies. Using it provides more control 
+* than the standard JAX-WS APIs.
+*/
 public class JaxWsProxyFactoryBean extends ClientProxyFactoryBean {
     List<Handler> handlers = new ArrayList<Handler>();
     boolean loadHandlers = true;
@@ -49,10 +54,21 @@ public class JaxWsProxyFactoryBean extends ClientProxyFactoryBean {
         super(fact);
     }
 
+    /**
+          * Specifies a list of JAX-WS Handler implementations that are to be 
+          * used by the proxy.
+          * 
+          * @param h a <code>List</code> of <code>Handler</code> objects
+          */
     public void setHandlers(List<Handler> h) {
         handlers.clear();
         handlers.addAll(h);
     }
+    /**
+           * Returns the configured list of JAX-WS handlers for the proxy.
+           *
+           * @return a <code>List</code> of <code>Handler</code> objects
+           */
     public List<Handler> getHandlers() {
         return handlers;
     }
@@ -78,6 +94,7 @@ public class JaxWsProxyFactoryBean extends ClientProxyFactoryBean {
         Class cls = getClientFactoryBean().getServiceClass();
         return new Class[] {cls, BindingProvider.class};
     }
+
    
     private void buildHandlerChain(JaxWsClientProxy cp) {
         AnnotationHandlerChainBuilder builder = new AnnotationHandlerChainBuilder();
