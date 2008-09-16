@@ -114,6 +114,9 @@ public class ClientMtomXopTest extends AbstractBusClientServerTestBase {
                                                                                 fileSize);
             }
             
+            ((BindingProvider)mtomPort).getRequestContext().put("schema-validation-enabled",
+                                                                Boolean.TRUE);
+            
             param.value = new DataHandler(new ByteArrayDataSource(data, "application/octet-stream"));
             Holder<String> name = new Holder<String>("call detail");
             mtomPort.testXop(name, param);

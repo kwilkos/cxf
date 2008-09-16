@@ -45,6 +45,8 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.PropertyException;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.bind.ValidationEvent;
+import javax.xml.bind.ValidationEventHandler;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
@@ -67,6 +69,7 @@ import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.interceptor.Fault;
+import org.apache.cxf.jaxb.attachment.JAXBAttachmentMarshaller;
 import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.staxutils.StaxUtils;
@@ -109,6 +112,29 @@ public final class JAXBEncoderDecoder {
         return jm;
     }
 
+    private static class MtomValidationHandler implements ValidationEventHandler {
+        ValidationEventHandler origHandler;
+        JAXBAttachmentMarshaller marshaller;
+        public MtomValidationHandler(ValidationEventHandler v,
+                                     JAXBAttachmentMarshaller m) {
+            origHandler = v;
+            marshaller = m;
+        }
+        
+        public boolean handleEvent(ValidationEvent event) {
+            String msg = event.getMessage();
+            if (msg.startsWith("cvc-type.3.1.2: ")
+                && msg.contains(marshaller.getLastMTOMElementName().getLocalPart())) {
+                return true;
+            }
+            if (origHandler != null) {
+                return origHandler.handleEvent(event);
+            }
+            return false;
+        }
+        
+    }
+
     @SuppressWarnings("unchecked")
     public static void marshall(JAXBContext context, 
                                 Schema schema, 
@@ -148,6 +174,11 @@ public final class JAXBEncoderDecoder {
             }
             u.setSchema(schema);
             if (am != null) {
+                if (am instanceof JAXBAttachmentMarshaller) {
+                    //we need a special even handler for XOP attachments 
+                    u.setEventHandler(new MtomValidationHandler(u.getEventHandler(),
+                                                                (JAXBAttachmentMarshaller)am));
+                }
                 u.setAttachmentMarshaller(am);
             }
 

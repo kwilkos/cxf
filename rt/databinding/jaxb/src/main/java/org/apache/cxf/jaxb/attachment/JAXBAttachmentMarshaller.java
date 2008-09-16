@@ -29,6 +29,7 @@ import javax.activation.DataHandler;
 import javax.activation.DataSource;
 import javax.activation.FileDataSource;
 import javax.xml.bind.attachment.AttachmentMarshaller;
+import javax.xml.namespace.QName;
 
 import org.apache.cxf.attachment.AttachmentImpl;
 import org.apache.cxf.attachment.AttachmentUtil;
@@ -41,12 +42,17 @@ public class JAXBAttachmentMarshaller extends AttachmentMarshaller {
     private static final int THRESHOLD = 5 * 1024;
     private Collection<Attachment> atts;
     private boolean isXop;
+    private QName lastElementName;
 
     public JAXBAttachmentMarshaller(Collection<Attachment> attachments) {
         super();
 
         atts = attachments;
         isXop = attachments != null;
+    }
+    
+    public QName getLastMTOMElementName() {
+        return lastElementName;
     }
 
     public String addMtomAttachment(byte[] data, int offset, int length, String mimeType, String elementNS,
@@ -76,6 +82,7 @@ public class JAXBAttachmentMarshaller extends AttachmentMarshaller {
         att.setXOP(this.isXop);
         atts.add(att);
 
+        lastElementName = new QName(elementNS, elementLocalName);
         return "cid:" + id;
     }
 
@@ -117,6 +124,7 @@ public class JAXBAttachmentMarshaller extends AttachmentMarshaller {
         AttachmentImpl att = new AttachmentImpl(id, handler);
         att.setXOP(this.isXop);
         atts.add(att);
+        lastElementName = new QName(elementNS, elementLocalName);
 
         return "cid:" + id;
     }
