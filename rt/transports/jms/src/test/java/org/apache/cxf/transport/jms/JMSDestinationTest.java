@@ -23,6 +23,8 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import javax.jms.DeliveryMode;
+
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.bus.spring.SpringBusFactory;
 import org.apache.cxf.message.Exchange;
@@ -193,7 +195,7 @@ public class JMSDestinationTest extends AbstractJMSTester {
     private void setupMessageHeader(Message outMessage) {
         JMSMessageHeadersType header = new JMSMessageHeadersType();
         header.setJMSCorrelationID("Destination test");
-        header.setJMSDeliveryMode(3);
+        header.setJMSDeliveryMode(DeliveryMode.PERSISTENT);
         header.setJMSPriority(1);
         header.setTimeToLive(1000);
         outMessage.put(JMSConstants.JMS_CLIENT_REQUEST_HEADERS, header);
@@ -239,6 +241,8 @@ public class JMSDestinationTest extends AbstractJMSTester {
             .getJMSCorrelationID(), inHeader.getJMSCorrelationID());
         assertEquals("The inMessage and outMessage JMS Header's JMSPriority should be equals", outHeader
             .getJMSPriority(), inHeader.getJMSPriority());
+        assertEquals("The inMessage and outMessage JMS Header's JMSDeliveryMode should be equals", outHeader
+                     .getJMSDeliveryMode(), inHeader.getJMSDeliveryMode());
         assertEquals("The inMessage and outMessage JMS Header's JMSType should be equals", outHeader
             .getJMSType(), inHeader.getJMSType());
     }

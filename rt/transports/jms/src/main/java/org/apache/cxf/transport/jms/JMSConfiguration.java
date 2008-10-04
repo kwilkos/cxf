@@ -36,7 +36,7 @@ public class JMSConfiguration implements InitializingBean {
     private boolean messageTimestampEnabled = true;
     private boolean pubSubNoLocal;
     private long receiveTimeout;
-    // Replace the JmsTemplate.RECEIVE_TIMEOUT_INDEFINITE_WAIT with 0 to support the Spring 2.0.x
+    // Repalce the JmsTemplate.RECEIVE_TIMEOUT_INDEFINITE_WAIT with 0 to support the Spring 2.0.x 
     private boolean explicitQosEnabled;
     private int deliveryMode = Message.DEFAULT_DELIVERY_MODE;
     private int priority = Message.DEFAULT_PRIORITY;

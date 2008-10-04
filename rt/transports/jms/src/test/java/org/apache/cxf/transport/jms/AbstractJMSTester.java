@@ -21,7 +21,6 @@ package org.apache.cxf.transport.jms;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URL;
-import java.util.Map;
 
 import javax.xml.namespace.QName;
 
@@ -115,15 +114,11 @@ public abstract class AbstractJMSTester extends Assert {
 
         JMSConfiguration jmsConfig = new JMSOldConfigHolder()
             .createJMSConfigurationFromEndpointInfo(bus, endpointInfo, true);
-        jmsConfig.setDeliveryMode(3);
-        jmsConfig.setPriority(1);
-        jmsConfig.setTimeToLive(1000);
         JMSConduit jmsConduit = new JMSConduit(target, jmsConfig);
-        jmsConduit.afterPropertiesSet();
         if (send) {
             // setMessageObserver
             observer = new MessageObserver() {
-                public void onMessage(Message m) {                    
+                public void onMessage(Message m) {
                     inMessage = m;
                 }
             };
