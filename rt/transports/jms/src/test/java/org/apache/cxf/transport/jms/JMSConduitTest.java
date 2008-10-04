@@ -97,6 +97,7 @@ public class JMSConduitTest extends AbstractJMSTester {
     }
 
     public void verifyReceivedMessage(Message message) {
+        System.out.println("inMessage " + inMessage.toString());
         ByteArrayInputStream bis = (ByteArrayInputStream)inMessage.getContent(InputStream.class);
         byte bytes[] = new byte[bis.available()];
         try {
