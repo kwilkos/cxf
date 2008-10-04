@@ -30,10 +30,8 @@ import org.apache.cxf.message.ExchangeImpl;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.transport.Conduit;
-import org.apache.cxf.transport.ConduitInitiator;
 import org.apache.cxf.transport.MessageObserver;
 import org.apache.cxf.transport.MultiplexDestination;
-import org.easymock.classextension.EasyMock;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -62,20 +60,23 @@ public class JMSDestinationTest extends AbstractJMSTester {
 
     private void waitForReceiveDestMessage() {
         int waitTime = 0;
-        while (destMessage == null && waitTime < 3000) {
+        while (destMessage == null && waitTime < MAX_RECEIVE_TIME) {
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
                 // do nothing here
             }
-            waitTime = waitTime + 1000;
+            waitTime++;
         }
-        assertTrue("Can't receive the Destination message in 3 seconds", destMessage != null);
+        assertTrue("Can't receive the Destination message in " + MAX_RECEIVE_TIME 
+                   + " seconds", destMessage != null);
     }
 
-    public JMSDestination setupJMSDestination(boolean send) throws IOException {
-        ConduitInitiator conduitInitiator = EasyMock.createMock(ConduitInitiator.class);
-        JMSDestination jmsDestination = new JMSDestination(bus, conduitInitiator, endpointInfo);
+    public JMSDestination setupJMSDestination(boolean send) {
+        JMSConfiguration jmsConfig = new JMSOldConfigHolder()
+            .createJMSConfigurationFromEndpointInfo(bus, endpointInfo, false);
+        JMSDestination jmsDestination = new JMSDestination(bus, endpointInfo, jmsConfig);
+
         if (send) {
             // setMessageObserver
             observer = new MessageObserver() {
@@ -102,24 +103,25 @@ public class JMSDestinationTest extends AbstractJMSTester {
                          "HelloWorldQueueBinMsgService",
                          "HelloWorldQueueBinMsgPort");
         JMSDestination destination = setupJMSDestination(false);
-        assertEquals("Can't get the right ServerConfig's MessageTimeToLive ", 500L, destination
-            .getServerConfig().getMessageTimeToLive());
-        assertEquals("Can't get the right Server's MessageSelector", "cxf_message_selector", destination
-            .getRuntimePolicy().getMessageSelector());
-        assertEquals("Can't get the right SessionPoolConfig's LowWaterMark", 10, destination
-            .getSessionPool().getLowWaterMark());
-        assertEquals("Can't get the right AddressPolicy's ConnectionPassword", "testPassword", destination
-            .getJMSAddress().getConnectionPassword());
-        assertEquals("Can't get the right DurableSubscriberName", "cxf_subscriber", destination
-            .getRuntimePolicy().getDurableSubscriberName());
-        assertEquals("Can't get the right MessageSelectorName", "cxf_message_selector", destination
-            .getRuntimePolicy().getMessageSelector());
+        JMSConfiguration jmsConfig = destination.getJmsConfig();
+        //JmsTemplate jmsTemplate = destination.getJmsTemplate();
+        //AbstractMessageListenerContainer jmsListener = destination.getJmsListener();
+        assertEquals("Can't get the right ServerConfig's MessageTimeToLive ", 500L, jmsConfig
+            .getTimeToLive());
+        assertEquals("Can't get the right Server's MessageSelector", "cxf_message_selector", jmsConfig
+            .getMessageSelector());
+        // assertEquals("Can't get the right SessionPoolConfig's LowWaterMark", 10,
+        // jmsListener.getLowWaterMark());
+        // assertEquals("Can't get the right AddressPolicy's ConnectionPassword", "testPassword",
+        // .getConnectionPassword());
+        assertEquals("Can't get the right DurableSubscriberName", "cxf_subscriber", jmsConfig
+            .getDurableSubscriptionName());
         BusFactory.setDefaultBus(null);
 
     }
 
     @Test
-    public void testGetConfigurationFormWSDL() throws Exception {
+    public void testGetConfigurationFromWSDL() throws Exception {
         SpringBusFactory bf = new SpringBusFactory();
         BusFactory.setDefaultBus(null);
         bus = bf.createBus();
@@ -130,11 +132,11 @@ public class JMSDestinationTest extends AbstractJMSTester {
         JMSDestination destination = setupJMSDestination(false);
 
         assertEquals("Can't get the right DurableSubscriberName", "CXF_subscriber", destination
-            .getRuntimePolicy().getDurableSubscriberName());
+            .getJmsConfig().getDurableSubscriptionName());
 
-        assertEquals("Can't get the right AddressPolicy's ConnectionPassword",
-                     "dynamicQueues/test.jmstransport.binary", destination.getJMSAddress()
-                         .getJndiDestinationName());
+        assertEquals("Can't get the right AddressPolicy's Destination",
+                     "dynamicQueues/test.jmstransport.binary", destination.getJmsConfig()
+                         .getTargetDestination());
 
         BusFactory.setDefaultBus(null);
 
@@ -154,7 +156,7 @@ public class JMSDestinationTest extends AbstractJMSTester {
         Message outMessage = new MessageImpl();
         setupMessageHeader(outMessage);
         JMSDestination destination = setupJMSDestination(true);
-        // destination.activate();
+        destination.activate();
         sendoutMessage(conduit, outMessage, true);
         // wait for the message to be get from the destination
         waitForReceiveDestMessage();
@@ -162,6 +164,7 @@ public class JMSDestinationTest extends AbstractJMSTester {
         assertTrue("The destiantion should have got the message ", destMessage != null);
         verifyReceivedMessage(destMessage);
         verifyHeaders(destMessage, outMessage);
+        conduit.close();
         destination.shutdown();
     }
 
@@ -174,14 +177,8 @@ public class JMSDestinationTest extends AbstractJMSTester {
         JMSConduit conduit = setupJMSConduit(true, false);
         Message outMessage = new MessageImpl();
         setupMessageHeader(outMessage);
-        JMSDestination destination = null;
-        try {
-            destination = setupJMSDestination(true);
-            destination.activate();
-        } catch (IOException e) {
-            assertFalse("The JMSDestination activate should not throw exception ", false);
-            e.printStackTrace();
-        }
+        JMSDestination destination = setupJMSDestination(true);
+        destination.activate();
         sendoutMessage(conduit, outMessage, true);
         // wait for the message to be get from the destination
         waitForReceiveDestMessage();
@@ -189,6 +186,7 @@ public class JMSDestinationTest extends AbstractJMSTester {
         assertTrue("The destiantion should have got the message ", destMessage != null);
         verifyReceivedMessage(destMessage);
         verifyHeaders(destMessage, outMessage);
+        conduit.close();
         destination.shutdown();
     }
 
@@ -249,8 +247,8 @@ public class JMSDestinationTest extends AbstractJMSTester {
     public void testRoundTripDestination() throws Exception {
 
         inMessage = null;
-        setupServiceInfo("http://cxf.apache.org/hello_world_jms", "/wsdl/jms_test.wsdl", "HelloWorldService",
-                         "HelloWorldPort");
+        setupServiceInfo("http://cxf.apache.org/hello_world_jms", "/wsdl/jms_test.wsdl",
+                         "HelloWorldService", "HelloWorldPort");
         // set up the conduit send to be true
         JMSConduit conduit = setupJMSConduit(true, false);
         final Message outMessage = new MessageImpl();
@@ -294,14 +292,14 @@ public class JMSDestinationTest extends AbstractJMSTester {
         verifyReceivedMessage(inMessage);
 
         Thread.sleep(1000);
+        conduit.close();
         destination.shutdown();
     }
 
     @Test
     public void testPropertyExclusion() throws Exception {
 
-        final String customPropertyName =
-            "THIS_PROPERTY_WILL_NOT_BE_AUTO_COPIED";
+        final String customPropertyName = "THIS_PROPERTY_WILL_NOT_BE_AUTO_COPIED";
 
         inMessage = null;
         setupServiceInfo("http://cxf.apache.org/hello_world_jms", "/wsdl/jms_test.wsdl",
@@ -363,6 +361,7 @@ public class JMSDestinationTest extends AbstractJMSTester {
 
         // wait for a while for the jms session recycling
         Thread.sleep(1000);
+        conduit.close();
         destination.shutdown();
     }
 
