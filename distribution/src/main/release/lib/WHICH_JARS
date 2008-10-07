@@ -48,9 +48,10 @@ For Aegis support:
 - jdom.jar
 
 For WS-Security support:
-- bcprov-jdk14.jar
+- bcprov-jdk15.jar
 - wss4j.jar
 - xalan.jar
+- serializer.jar
 - xmlsec.jar
 
 For HTTP Binding support:
