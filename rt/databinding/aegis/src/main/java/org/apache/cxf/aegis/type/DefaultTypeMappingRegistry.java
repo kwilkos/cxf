@@ -45,6 +45,7 @@ import org.apache.cxf.aegis.type.basic.Base64Type;
 import org.apache.cxf.aegis.type.basic.BigDecimalType;
 import org.apache.cxf.aegis.type.basic.BigIntegerType;
 import org.apache.cxf.aegis.type.basic.BooleanType;
+import org.apache.cxf.aegis.type.basic.ByteType;
 import org.apache.cxf.aegis.type.basic.CalendarType;
 import org.apache.cxf.aegis.type.basic.CharacterType;
 import org.apache.cxf.aegis.type.basic.DateTimeType;
@@ -74,11 +75,11 @@ import org.jdom.Element;
 
 /**
  * The default implementation of TypeMappingRegistry.
- * 
+ *
  * @author <a href="mailto:dan@envoisolutions.com">Dan Diephouse</a>
  * @since Feb 22, 2004
  */
-public final class DefaultTypeMappingRegistry extends AbstractTypeMappingRegistry 
+public final class DefaultTypeMappingRegistry extends AbstractTypeMappingRegistry
     implements TypeMappingRegistry {
     static final QName XSD_STRING = new QName(XmlConstants.XSD, "string", XmlConstants.XSD_PREFIX);
     static final QName XSD_LONG = new QName(XmlConstants.XSD, "long", XmlConstants.XSD_PREFIX);
@@ -86,6 +87,7 @@ public final class DefaultTypeMappingRegistry extends AbstractTypeMappingRegistr
     static final QName XSD_DOUBLE = new QName(XmlConstants.XSD, "double", XmlConstants.XSD_PREFIX);
     static final QName XSD_INT = new QName(XmlConstants.XSD, "int", XmlConstants.XSD_PREFIX);
     static final QName XSD_SHORT = new QName(XmlConstants.XSD, "short", XmlConstants.XSD_PREFIX);
+    static final QName XSD_BYTE = new QName(XmlConstants.XSD, "byte", XmlConstants.XSD_PREFIX);
     static final QName XSD_BOOLEAN = new QName(XmlConstants.XSD,
                                                          "boolean", XmlConstants.XSD_PREFIX);
     static final QName XSD_DATETIME = new QName(XmlConstants.XSD, "dateTime",
@@ -226,12 +228,12 @@ public final class DefaultTypeMappingRegistry extends AbstractTypeMappingRegistr
 
     protected TypeCreator createTypeCreator() {
         AbstractTypeCreator xmlCreator = createRootTypeCreator();
-    
+
         Java5TypeCreator j5Creator = new Java5TypeCreator();
         j5Creator.setNextCreator(createDefaultTypeCreator());
         j5Creator.setConfiguration(getConfiguration());
         xmlCreator.setNextCreator(j5Creator);
-        
+
         return xmlCreator;
     }
 
@@ -314,6 +316,7 @@ public final class DefaultTypeMappingRegistry extends AbstractTypeMappingRegistr
         register(soapTM, boolean.class, XSD_BOOLEAN, new BooleanType());
         register(soapTM, int.class, XSD_INT, new IntType());
         register(soapTM, short.class, XSD_SHORT, new ShortType());
+        register(soapTM, byte.class, XSD_BYTE, new ByteType());
         register(soapTM, double.class, XSD_DOUBLE, new DoubleType());
         register(soapTM, float.class, XSD_FLOAT, new FloatType());
         register(soapTM, long.class, XSD_LONG, new LongType());
@@ -321,6 +324,7 @@ public final class DefaultTypeMappingRegistry extends AbstractTypeMappingRegistr
         register(soapTM, Boolean.class, XSD_BOOLEAN, new BooleanType());
         register(soapTM, Integer.class, XSD_INT, new IntType());
         register(soapTM, Short.class, XSD_SHORT, new ShortType());
+        register(soapTM, Byte.class, XSD_BYTE, new ByteType());
         register(soapTM, Double.class, XSD_DOUBLE, new DoubleType());
         register(soapTM, Float.class, XSD_FLOAT, new FloatType());
         register(soapTM, Long.class, XSD_LONG, new LongType());
@@ -354,6 +358,7 @@ public final class DefaultTypeMappingRegistry extends AbstractTypeMappingRegistr
         register(tm, boolean.class, XSD_BOOLEAN, new BooleanType());
         register(tm, int.class, XSD_INT, new IntType());
         register(tm, short.class, XSD_SHORT, new ShortType());
+        register(tm, byte.class, XSD_BYTE, new ByteType());
         register(tm, double.class, XSD_DOUBLE, new DoubleType());
         register(tm, float.class, XSD_FLOAT, new FloatType());
         register(tm, long.class, XSD_LONG, new LongType());
@@ -363,6 +368,8 @@ public final class DefaultTypeMappingRegistry extends AbstractTypeMappingRegistr
         register(tm, Boolean.class, XSD_BOOLEAN, new BooleanType());
         register(tm, Integer.class, XSD_INT, new IntType());
         register(tm, Short.class, XSD_SHORT, new ShortType());
+        register(tm, Byte.class, XSD_BYTE, new ByteType());
+        register(tm, Boolean.class, XSD_BOOLEAN, new BooleanType());
         register(tm, Double.class, XSD_DOUBLE, new DoubleType());
         register(tm, Float.class, XSD_FLOAT, new FloatType());
         register(tm, Long.class, XSD_LONG, new LongType());

@@ -29,6 +29,8 @@ public class SimpleBean {
     private String howdy;
     
     private int[] numbers;
+    private byte littleByte;
+    private Byte bigByte;
 
     public int[] getNumbers() {
         return numbers;
@@ -52,5 +54,21 @@ public class SimpleBean {
 
     public void setHowdy(String howdy) {
         this.howdy = howdy;
+    }
+
+    public byte getLittleByte() {
+        return littleByte;
+    }
+
+    public void setLittleByte(byte littleByte) {
+        this.littleByte = littleByte;
+    }
+
+    public Byte getBigByte() {
+        return bigByte;
+    }
+
+    public void setBigByte(Byte bigByte) {
+        this.bigByte = bigByte;
     }
 }

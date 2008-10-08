@@ -51,6 +51,7 @@ public class BeanTest extends AbstractAegisTest {
         super.setUp();
 
         addNamespace("b", "urn:Bean");
+        addNamespace("bz", "urn:beanz");
         addNamespace("a", "urn:anotherns");
         addNamespace("xsi", XmlConstants.XSI_NS);
 
@@ -100,16 +101,16 @@ public class BeanTest extends AbstractAegisTest {
 
     private void assertValid(String xpath, Element element) throws Exception {
         org.w3c.dom.Document doc = new DOMOutputter().output(element.getDocument());
-        
+
         assertValid(xpath, doc);
     }
 
     private void assertInvalid(String xpath, Element element) throws Exception {
         org.w3c.dom.Document doc = new DOMOutputter().output(element.getDocument());
-        
+
         assertInvalid(xpath, doc);
     }
-    
+
     @Test
     public void testBeanWithXsiType() throws Exception {
         BeanType type = new BeanType();
@@ -240,7 +241,7 @@ public class BeanTest extends AbstractAegisTest {
         writer.flush();
 
         bos.close();
-        
+
         StaxBuilder builder = new StaxBuilder();
         Document doc = builder.build(new ByteArrayInputStream(bos.toByteArray()));
         Element element = doc.getRootElement();
@@ -283,7 +284,7 @@ public class BeanTest extends AbstractAegisTest {
         assertValid("//xsd:complexType[@name='bean']/xsd:attribute[@name='howdy']", schema);
         assertValid("//xsd:complexType[@name='bean']/xsd:sequence/xsd:element[@name='bleh']", schema);
     }
-    
+
     @Test
     public void testNillableInt() throws Exception {
         BeanTypeInfo info = new BeanTypeInfo(IntBean.class, "urn:Bean");
@@ -342,6 +343,54 @@ public class BeanTest extends AbstractAegisTest {
                       schema);
     }
     @Test
+    public void testByteMappings() throws Exception {
+        reg = new DefaultTypeMappingRegistry();
+        reg.createDefaultMappings();
+        mapping = reg.createTypeMapping(true);
+
+        BeanType type = (BeanType)mapping.getTypeCreator().createType(SimpleBean.class);
+        type.setTypeClass(SimpleBean.class);
+        type.setTypeMapping(mapping);
+
+
+        Element types = new Element("types", "xsd", XmlConstants.XSD);
+        Element schema = new Element("schema", "xsd", XmlConstants.XSD);
+        types.addContent(schema);
+
+        new Document(types);
+
+        type.writeSchema(schema);
+
+        assertValid("//xsd:complexType[@name='SimpleBean']/xsd:sequence/xsd:element[@name='littleByte']"
+                       + "/@type",
+                       schema);
+
+        assertValid("//xsd:complexType[@name='SimpleBean']/xsd:sequence/xsd:element[@name='bigByte']"
+                       + "/@type",
+                       schema);
+
+        Element element = new Element("root", "b", "urn:Bean");
+        new Document(element);
+        SimpleBean bean = new SimpleBean();
+        bean.setBigByte(new Byte((byte)0xfe));
+        bean.setLittleByte((byte)0xfd);
+        type.writeObject(bean, new JDOMWriter(element), new Context());
+        Byte bb = new Byte((byte)0xfe);
+        String bbs = bb.toString();
+        addNamespace("n1", "http://services.aegis.cxf.apache.org");
+        assertValid("/b:root/n1:bigByte[text()='" + bbs + "']", element);
+
+        // Test reading
+        ElementReader reader = new ElementReader(getResourceAsStream("byteBeans.xml"));
+        bean = (SimpleBean)type.readObject(reader, new Context());
+        assertEquals(-5, bean.getLittleByte());
+        assertEquals(25, bean.getBigByte().byteValue());
+
+        reader.getXMLStreamReader().close();
+
+    }
+
+    @Test
     public void testNullNonNillableWithDate() throws Exception {
         BeanTypeInfo info = new BeanTypeInfo(DateBean.class, "urn:Bean");
         info.setTypeMapping(mapping);
@@ -375,7 +424,8 @@ public class BeanTest extends AbstractAegisTest {
         type.setSchemaType(new QName("urn:Bean", "bean"));
 
         PropertyDescriptor[] pds = info.getPropertyDescriptors();
-        assertEquals(3, pds.length);
+
+        assertEquals(5, pds.length);
 
         ExtendedBean bean = new ExtendedBean();
         bean.setHowdy("howdy");
