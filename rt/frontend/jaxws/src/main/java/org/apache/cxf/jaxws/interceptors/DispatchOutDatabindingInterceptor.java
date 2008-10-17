@@ -64,6 +64,7 @@ import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.helpers.XMLUtils;
 import org.apache.cxf.interceptor.AbstractInDatabindingInterceptor;
 import org.apache.cxf.interceptor.AbstractOutDatabindingInterceptor;
+import org.apache.cxf.interceptor.AttachmentOutInterceptor;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.jaxws.handler.logical.DispatchLogicalHandlerInterceptor;
 import org.apache.cxf.message.Attachment;
@@ -232,7 +233,6 @@ public class DispatchOutDatabindingInterceptor extends AbstractOutDatabindingInt
         }
         
         public void handleMessage(Message message) throws Fault {
-            OutputStream os = message.getContent(OutputStream.class);
             
             XMLStreamWriter xmlWriter = message.getContent(XMLStreamWriter.class);
             SOAPMessage soapMessage = message.getContent(SOAPMessage.class);
@@ -264,15 +264,28 @@ public class DispatchOutDatabindingInterceptor extends AbstractOutDatabindingInt
                             l.add(head.getValue());
                         }
                     }
+                    OutputStream os = message.getContent(OutputStream.class);
                     soapMessage.writeTo(os);
+                    os.flush();
                 } else if (source != null) {
+                    if (message.getAttachments() != null
+                        && !message.getAttachments().isEmpty()) {
+                        message.put(AttachmentOutInterceptor.WRITE_ATTACHMENTS, Boolean.TRUE);
+                        new AttachmentOutInterceptor().handleMessage(message);
+                    }
+                    OutputStream os = message.getContent(OutputStream.class);
                     doTransform(source, os);
+                    os.flush();
                 } else if (dataSource != null) {
+                    if (message.getAttachments() != null
+                        && !message.getAttachments().isEmpty()) {
+                        message.put(AttachmentOutInterceptor.WRITE_ATTACHMENTS, Boolean.TRUE);
+                        new AttachmentOutInterceptor().handleMessage(message);
+                    }
+                    OutputStream os = message.getContent(OutputStream.class);
                     doTransform(dataSource, os);
+                    os.flush();
                 }
-
-                // Finish the message processing, do flush
-                os.flush();
             } catch (Exception ex) {
                 ex.printStackTrace();
                 throw new Fault(new org.apache.cxf.common.i18n.Message("EXCEPTION_WRITING_OBJECT", LOG, ex));
@@ -332,7 +345,6 @@ public class DispatchOutDatabindingInterceptor extends AbstractOutDatabindingInt
                         }
                         SOAPMessage msg = msgFactory.createMessage();
                         msg.getSOAPPart().setContent(source);
-                        msg.saveChanges();
                         if (message.getAttachments() != null) {
                             for (Attachment att : message.getAttachments()) {
                                 AttachmentPart part = msg.createAttachmentPart(att.getDataHandler());
@@ -346,6 +358,7 @@ public class DispatchOutDatabindingInterceptor extends AbstractOutDatabindingInt
                                 msg.addAttachmentPart(part);
                             }
                         }
+                        msg.saveChanges();
                         obj = msg;                    
                     } catch (Exception e) {
                         e.printStackTrace();
