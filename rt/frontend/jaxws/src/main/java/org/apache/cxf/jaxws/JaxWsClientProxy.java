@@ -105,6 +105,9 @@ public class JaxWsClientProxy extends org.apache.cxf.frontend.ClientProxy implem
 
         client.getRequestContext().put(Method.class.getName(), method);
         boolean isAsync = method.getName().endsWith("Async");
+        
+        // need to do context mapping from jax-ws to cxf message
+        ContextPropertiesMapping.mapRequestfromJaxws2Cxf(client.getRequestContext());
 
         Object result = null;
         try {
@@ -269,11 +272,11 @@ public class JaxWsClientProxy extends org.apache.cxf.frontend.ClientProxy implem
 
     
     public Map<String, Object> getRequestContext() {
-        return new WrappedMessageContext(this.getClient().getRequestContext(),
+        return new WrappedMessageContext(this.getClient().getRequestContext(), null,
                                          Scope.APPLICATION);
     }
     public Map<String, Object> getResponseContext() {
-        return new WrappedMessageContext(this.getClient().getResponseContext(),
+        return new WrappedMessageContext(this.getClient().getResponseContext(), null,
                                                           Scope.APPLICATION);
     }
 
@@ -281,16 +284,4 @@ public class JaxWsClientProxy extends org.apache.cxf.frontend.ClientProxy implem
         return binding;
     }
 
-    /*
-    //  TODO JAX-WS 2.1
-    public EndpointReference getEndpointReference() {
-        // TODO
-        throw new UnsupportedOperationException();
-    }
-
-    public <T extends EndpointReference> T getEndpointReference(Class<T> clazz) {
-        // TODO
-        throw new UnsupportedOperationException();
-    }    
-    */
 }

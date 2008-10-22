@@ -41,10 +41,6 @@ public class MAPTest extends MAPTestBase {
         return CONFIG;
     }
     
-    @Test
-    public void foo() {
-        
-    }
     
     @Test
     public void testUsingKeepAliveConnection() throws Exception {
