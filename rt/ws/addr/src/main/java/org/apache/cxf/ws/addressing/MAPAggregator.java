@@ -238,15 +238,15 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
             
         }
         Collection<AssertionInfo> ais = aim.get(MetadataConstants.USING_ADDRESSING_2004_QNAME);
-        if (null != ais || ais.size() > 0) {
+        if (null != ais && ais.size() > 0) {
             return true;
         }
         ais = aim.get(MetadataConstants.USING_ADDRESSING_2005_QNAME);
-        if (null != ais || ais.size() > 0) {
+        if (null != ais && ais.size() > 0) {
             return true;
         }
         ais = aim.get(MetadataConstants.USING_ADDRESSING_2006_QNAME);
-        if (null != ais || ais.size() > 0) {
+        if (null != ais && ais.size() > 0) {
             return true;
         } 
         return false;

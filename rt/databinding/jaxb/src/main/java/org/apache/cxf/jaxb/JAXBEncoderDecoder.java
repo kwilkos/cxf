@@ -307,7 +307,6 @@ public final class JAXBEncoderDecoder {
             throw new Fault(new Message("MARSHAL_ERROR", BUNDLE, e.getMessage()), e);
         }
     }
-    @SuppressWarnings("unchecked")
     public static Exception unmarshallException(JAXBContext context, 
                                     Schema schema, 
                                     Object source,

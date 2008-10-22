@@ -290,7 +290,6 @@ public final class DynamicClientFactory {
         return client;
     }
 
-    @SuppressWarnings("deprecation")
     private void addBindingFiles(List<String> bindingFiles, SchemaCompiler compiler) {
         if (bindingFiles != null) {
             for (String s : bindingFiles) {

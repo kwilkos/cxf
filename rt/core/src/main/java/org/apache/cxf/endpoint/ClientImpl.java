@@ -545,6 +545,9 @@ public class ClientImpl
     }
 
     private void setParameters(Object[] params, Message message) {
+        if (params == null) {
+            params = new Object[0];
+        }
         MessageContentsList contents = new MessageContentsList(params);
         message.setContent(List.class, contents);
     }
