@@ -20,6 +20,7 @@ package org.apache.cxf.endpoint.dynamic;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.InputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -29,6 +30,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
@@ -298,7 +300,7 @@ public final class DynamicClientFactory {
                     InputSource is = new InputSource(ins);
                     is.setSystemId(url.toString());
                     is.setPublicId(url.toString());
-                    compiler.getOptions().addBindFile(is);
+                    compiler.parseSchema(is);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }

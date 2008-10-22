@@ -19,6 +19,7 @@
 
 package org.apache.cxf.service.factory;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.GenericArrayType;
