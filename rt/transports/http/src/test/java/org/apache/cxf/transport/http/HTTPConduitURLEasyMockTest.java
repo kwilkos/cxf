@@ -328,6 +328,8 @@ public class HTTPConduitURLEasyMockTest extends Assert {
         message.setExchange(exchange);
         exchange.isOneWay();
         EasyMock.expectLastCall().andReturn(true);
+        exchange.isSynchronous();
+        EasyMock.expectLastCall().andReturn(true);
     }
 
     private HTTPConduit setUpConduit(
