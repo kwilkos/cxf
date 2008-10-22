@@ -107,9 +107,9 @@ public class JaxWsClientProxy extends org.apache.cxf.frontend.ClientProxy implem
         Object result = null;
         try {
             if (isAsync) {
-                result = invokeAsync(method, oi, params);
+                result = invokeAsync(method, oi, args);
             } else {
-                result = invokeSync(method, oi, params);
+                result = invokeSync(method, oi, args);
             }
         } catch (WebServiceException wex) {
             throw wex.fillInStackTrace();
@@ -144,11 +144,11 @@ public class JaxWsClientProxy extends org.apache.cxf.frontend.ClientProxy implem
         
         // need to do context mapping from cxf message to jax-ws
         ContextPropertiesMapping.mapResponsefromCxf2Jaxws(client.getResponseContext());
-        Map<String, Scope> scopes = CastUtils.cast((Map<?, ?>)respContext.get(WrappedMessageContext.SCOPES));
+        Map<String, Scope> scopes = CastUtils.cast((Map<?, ?>)client.getResponseContext().get(WrappedMessageContext.SCOPES));
         if (scopes != null) {
             for (Map.Entry<String, Scope> scope : scopes.entrySet()) {
                 if (scope.getValue() == Scope.HANDLER) {
-                    respContext.remove(scope.getKey());
+                    client.getResponseContext().remove(scope.getKey());
                 }
             }
         }
@@ -230,12 +230,10 @@ public class JaxWsClientProxy extends org.apache.cxf.frontend.ClientProxy implem
     
     public Map<String, Object> getRequestContext() {
         return new WrappedMessageContext(this.getClient().getRequestContext(),
-                                         null,
                                          Scope.APPLICATION);
     }
     public Map<String, Object> getResponseContext() {
         return new WrappedMessageContext(this.getClient().getResponseContext(),
-                                                          null,
                                                           Scope.APPLICATION);
     }
 
