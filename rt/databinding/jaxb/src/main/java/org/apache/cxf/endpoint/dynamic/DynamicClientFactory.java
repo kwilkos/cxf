@@ -27,8 +27,10 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -49,6 +51,7 @@ import com.sun.codemodel.JDefinedClass;
 import com.sun.codemodel.JPackage;
 import com.sun.codemodel.writer.FileCodeWriter;
 import com.sun.tools.xjc.Options;
+import com.sun.tools.xjc.api.ClassNameAllocator;
 import com.sun.tools.xjc.api.ErrorListener;
 import com.sun.tools.xjc.api.S2JJAXBModel;
 import com.sun.tools.xjc.api.SchemaCompiler;
@@ -129,6 +132,9 @@ public final class DynamicClientFactory {
     public Client createClient(String wsdlUrl) {
         return createClient(wsdlUrl, (QName)null, (QName)null);
     }
+    public Client createClient(String wsdlUrl, List<String> bindingFiles) {
+        return createClient(wsdlUrl, (QName)null, (QName)null, bindingFiles);
+    }
 
     /**
      * Create a new <code>Client</code> instance using the WSDL to be loaded
@@ -142,16 +148,31 @@ public final class DynamicClientFactory {
     public Client createClient(String wsdlUrl, ClassLoader classLoader) {
         return createClient(wsdlUrl, null, classLoader, null);
     }
+    public Client createClient(String wsdlUrl, ClassLoader classLoader, List<String> bindingFiles) {
+        return createClient(wsdlUrl, null, classLoader, null, bindingFiles);
+    }
 
     public Client createClient(String wsdlUrl, QName service) {
-        return createClient(wsdlUrl, service, null);
+        return createClient(wsdlUrl, service, (QName)null);
+    }
+    public Client createClient(String wsdlUrl, QName service, List<String> bindingFiles) {
+        return createClient(wsdlUrl, service, null, bindingFiles);
     }
 
     public Client createClient(String wsdlUrl, QName service, QName port) {
         return createClient(wsdlUrl, service, null, port);
     }
+    public Client createClient(String wsdlUrl, QName service, QName port, List<String> bindingFiles) {
+        return createClient(wsdlUrl, service, null, port, bindingFiles);
+    }
 
     public Client createClient(String wsdlUrl, QName service, ClassLoader classLoader, QName port) {
+        return createClient(wsdlUrl, service, classLoader, port, null);
+    }
+    public Client createClient(String wsdlUrl, QName service,
+                               ClassLoader classLoader, QName port,
+                               List<String> bindingFiles) {
+            
         if (classLoader == null) {
             classLoader = Thread.currentThread().getContextClassLoader();
         }
@@ -166,9 +187,14 @@ public final class DynamicClientFactory {
         SchemaCompiler compiler = XJC.createSchemaCompiler();
         ErrorListener elForRun = new InnerErrorListener(wsdlUrl);
         compiler.setErrorListener(elForRun);
+        
+        ClassNameAllocator allocator 
+            = new ClassNameAllocatorImpl();
+
+        compiler.setClassNameAllocator(allocator);
 
         addSchemas(wsdlUrl, schemas, compiler);
-        
+        addBindingFiles(bindingFiles, compiler);
         S2JJAXBModel intermediateModel = compiler.bind();
         JCodeModel codeModel = intermediateModel.generateCode(null, elForRun);
         StringBuilder sb = new StringBuilder();
@@ -262,6 +288,24 @@ public final class DynamicClientFactory {
         return client;
     }
 
+    @SuppressWarnings("deprecation")
+    private void addBindingFiles(List<String> bindingFiles, SchemaCompiler compiler) {
+        if (bindingFiles != null) {
+            for (String s : bindingFiles) {
+                URL url = composeUrl(s);
+                try {
+                    InputStream ins = url.openStream();
+                    InputSource is = new InputSource(ins);
+                    is.setSystemId(url.toString());
+                    is.setPublicId(url.toString());
+                    compiler.getOptions().addBindFile(is);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+    }
+
     private boolean isValidPackage(JPackage jpackage) {
         if (jpackage == null) {
             return false;
@@ -311,8 +355,11 @@ public final class DynamicClientFactory {
         int num = 1;
         for (SchemaInfo schema : schemas) {
             Element el = schema.getElement();
-            
-            compiler.parseSchema(wsdlUrl + "#types" + num, el);
+            String key = schema.getSystemId();
+            if (StringUtils.isEmpty(key)) {
+                key = wsdlUrl + "#types" + num;
+            }
+            compiler.parseSchema(key, el);
             num++;
         }
         
@@ -493,5 +540,28 @@ public final class DynamicClientFactory {
      */
     public void setJaxbContextProperties(Map<String, Object> jaxbContextProperties) {
         this.jaxbContextProperties = jaxbContextProperties;
+    }
+    
+    
+    
+    private static class ClassNameAllocatorImpl implements ClassNameAllocator {
+        private final Set<String> typesClassNames = new HashSet<String>();
+
+        public ClassNameAllocatorImpl() {
+        }
+
+        public String assignClassName(String packageName, String className) {
+            String fullClassName = className;
+            String fullPckClass = packageName + "." + fullClassName;
+            int cnt = 0;
+            while (typesClassNames.contains(fullPckClass)) {
+                cnt++;
+                fullClassName = className + cnt;
+                fullPckClass = packageName + "." + fullClassName;
+            }
+            typesClassNames.add(fullPckClass);
+            return fullClassName;
+        }
+       
     }
 }

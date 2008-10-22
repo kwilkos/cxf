@@ -92,6 +92,9 @@ public class WrappedMessageContext implements MessageContext {
     public final Message getWrappedMessage() {
         return message;
     }
+    public final Map<String, Object> getWrappedMap() {
+        return message;
+    }
     
     public void clear() {
         contextMap.clear();      
@@ -148,7 +151,11 @@ public class WrappedMessageContext implements MessageContext {
 
     public final Object remove(Object key) {
         scopes.remove(key);
-        return contextMap.remove(key);
+        if (BindingProvider.PASSWORD_PROPERTY.equals(key) 
+            || BindingProvider.USERNAME_PROPERTY.equals(key)) {
+            message.remove(AuthorizationPolicy.class.getName());
+        }
+        return message.remove(key);
     }
 
     public final int size() {
