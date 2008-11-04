@@ -229,7 +229,7 @@
                             com.sun*;resolution:=optional,
                             javax.jms*;resolution:=optional,
                             repackage;resolution:=optional,
-                            javax.resource.spi*;resolution:=optional,
+                            javax.resource*;resolution:=optional,
                             javax.xml.soap,
                             junit.framework*;resolution:=optional,
                             org.apache.commons.lang*;resolution:=optional,
