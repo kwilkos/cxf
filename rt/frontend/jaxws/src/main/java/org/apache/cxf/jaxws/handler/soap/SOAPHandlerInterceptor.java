@@ -21,6 +21,7 @@ package org.apache.cxf.jaxws.handler.soap;
 
 import java.net.URI;
 import java.util.HashSet;
+import java.util.ListIterator;
 import java.util.Set;
 
 import javax.xml.namespace.QName;
@@ -46,6 +47,7 @@ import org.apache.cxf.binding.soap.saaj.SAAJOutInterceptor;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.interceptor.Fault;
+import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.interceptor.InterceptorChain;
 import org.apache.cxf.interceptor.OutgoingChainInterceptor;
 import org.apache.cxf.jaxws.handler.AbstractProtocolHandlerInterceptor;
@@ -103,10 +105,12 @@ public class SOAPHandlerInterceptor extends
         }
 
         if (getInvoker(message).isOutbound()) {
+            if (!chainAlreadyContainsSAAJ(message)) {
 
-            SAAJ_OUT.handleMessage(message);
+                SAAJ_OUT.handleMessage(message);
 
-            message.getInterceptorChain().add(ending);
+                message.getInterceptorChain().add(ending);
+            }
         } else {
             boolean isFault = handleMessageInternal(message);
             SOAPMessage msg = message.getContent(SOAPMessage.class);
@@ -283,4 +287,14 @@ public class SOAPHandlerInterceptor extends
         return null;
     }
 
+    private static boolean chainAlreadyContainsSAAJ(SoapMessage message) {
+        ListIterator<Interceptor<? extends Message>> listIterator =
+            message.getInterceptorChain().getIterator();
+        while (listIterator.hasNext()) {
+            if (listIterator.next() instanceof SAAJOutInterceptor) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
