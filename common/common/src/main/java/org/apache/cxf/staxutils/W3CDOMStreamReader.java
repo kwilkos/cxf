@@ -119,6 +119,9 @@ public class W3CDOMStreamReader extends AbstractDOMStreamReader {
         super.endElement();
     }
 
+    public final Node getCurrentNode() {
+        return (Node)getCurrentFrame().element;
+    }
     public final Element getCurrentElement() {
         return (Element)getCurrentFrame().element;
     }

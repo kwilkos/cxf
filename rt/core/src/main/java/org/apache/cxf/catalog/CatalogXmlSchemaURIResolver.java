@@ -26,6 +26,7 @@ import java.util.Map;
 
 import org.xml.sax.InputSource;
 
+import org.apache.cxf.Bus;
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.resource.ExtendedURIResolver;
 import org.apache.cxf.transport.TransportURIResolver;
