@@ -89,7 +89,7 @@ public class ServiceWSDLBuilderTest extends Assert {
         bindingFactoryManager = control.createMock(BindingFactoryManager.class);
         destinationFactoryManager = control.createMock(DestinationFactoryManager.class);
         destinationFactory = control.createMock(DestinationFactory.class);
-        wsdlServiceBuilder = new WSDLServiceBuilder(bus);
+        wsdlServiceBuilder = new WSDLServiceBuilder(bus, false);
 
         for (Service serv : CastUtils.cast(def.getServices().values(), Service.class)) {
             if (serv != null) {
@@ -110,10 +110,7 @@ public class ServiceWSDLBuilderTest extends Assert {
         control.replay();
         
         serviceInfo = wsdlServiceBuilder.buildServices(def, service).get(0);
-        serviceInfo.setProperty(WSDLServiceBuilder.WSDL_DEFINITION, null);
-        serviceInfo.setProperty(WSDLServiceBuilder.WSDL_SERVICE, null);
         newDef = new ServiceWSDLBuilder(bus, serviceInfo).build();
-        
     }
     
     @After

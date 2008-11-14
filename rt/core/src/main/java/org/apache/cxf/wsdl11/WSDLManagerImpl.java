@@ -51,7 +51,6 @@ import com.ibm.wsdl.extensions.soap.SOAPHeaderSerializer;
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
 import org.apache.cxf.catalog.CatalogWSDLLocator;
-import org.apache.cxf.catalog.OASISCatalogManager;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.CacheMap;
 import org.apache.cxf.common.util.PropertiesLoaderUtils;
@@ -203,8 +202,7 @@ public class WSDLManagerImpl implements WSDLManager {
         WSDLReader reader = factory.newWSDLReader();
         reader.setFeature("javax.wsdl.verbose", false);
         reader.setExtensionRegistry(registry);
-        CatalogWSDLLocator catLocator = 
-            new CatalogWSDLLocator(url, OASISCatalogManager.getCatalogManager(bus));
+        CatalogWSDLLocator catLocator = new CatalogWSDLLocator(url, bus);
         ResourceManagerWSDLLocator wsdlLocator = new ResourceManagerWSDLLocator(url,
                                                                                 catLocator,
                                                                                 bus);

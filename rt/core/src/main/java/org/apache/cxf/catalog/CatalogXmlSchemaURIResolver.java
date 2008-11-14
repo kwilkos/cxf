@@ -18,6 +18,7 @@
  */
 package org.apache.cxf.catalog;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -27,6 +28,7 @@ import org.xml.sax.InputSource;
 
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.resource.ExtendedURIResolver;
+import org.apache.cxf.transport.TransportURIResolver;
 import org.apache.ws.commons.schema.XmlSchemaException;
 import org.apache.ws.commons.schema.resolver.URIResolver;
 import org.apache.xml.resolver.Catalog;
@@ -40,6 +42,11 @@ public class CatalogXmlSchemaURIResolver implements URIResolver {
     private Catalog catalogResolver;
     private Map<String, String> resolved = new HashMap<String, String>();
 
+    public CatalogXmlSchemaURIResolver(Bus bus) {
+        this(OASISCatalogManager.getCatalogManager(bus));
+        this.resolver = new TransportURIResolver(bus);
+        this.catalogResolver = OASISCatalogManager.getCatalogManager(bus).getCatalog();
+    }
     public CatalogXmlSchemaURIResolver(OASISCatalogManager catalogManager) {
         this.resolver = new ExtendedURIResolver();
         this.catalogResolver = catalogManager.getCatalog();
@@ -81,7 +88,8 @@ public class CatalogXmlSchemaURIResolver implements URIResolver {
                                          + (baseUri == null
                                             ? "."
                                             : ", relative to '" + baseUri + "'."));
-        } else if (in.getByteStream() != null) {
+        } else if (in.getByteStream() != null
+            && !(in.getByteStream() instanceof ByteArrayInputStream)) {
             //workaround bug in XmlSchema - XmlSchema is not closing the InputStreams
             //that are returned for imports.  Thus, with a lot of services starting up 
             //or a lot of schemas imported or similar, it's easy to run out of

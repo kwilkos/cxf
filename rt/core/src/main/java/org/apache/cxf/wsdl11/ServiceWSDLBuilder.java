@@ -386,6 +386,39 @@ public class ServiceWSDLBuilder {
     }
 
     protected void buildService(ServiceInfo serviceInfo) {
+        
+        Map<QName, MessageInfo> messages = serviceInfo.getMessages();
+        for (Map.Entry<QName, MessageInfo> mie : messages.entrySet()) {
+            if (!mie.getKey().getNamespaceURI().equals(definition.getTargetNamespace())) {
+                continue;
+            }
+            if (definition.getMessage(mie.getKey()) != null) {
+                continue;
+            }
+            Message message = definition.createMessage();
+            message.setUndefined(false);
+            message.setQName(mie.getKey());
+            for (MessagePartInfo mpi : mie.getValue().getMessageParts()) {
+                Part part = definition.createPart();
+                boolean elemental = mpi.isElement();
+                // RFSB will turn on isElement bogusly.
+                if (elemental 
+                    && null == serviceInfo.getXmlSchemaCollection().
+                        getElementByQName(mpi.getElementQName())) {
+                    elemental = false;
+                }
+                if (elemental) {
+                    part.setElementName(mpi.getElementQName());
+                } else {
+                    part.setTypeName(mpi.getTypeQName());
+                }
+                part.setName(mpi.getName().getLocalPart());
+                message.addPart(part);
+            }
+            
+            definition.addMessage(message);
+        }
+        
         Service serv = definition.createService();
         serv.setQName(serviceInfo.getName());
         addNamespace(serviceInfo.getName().getNamespaceURI());
