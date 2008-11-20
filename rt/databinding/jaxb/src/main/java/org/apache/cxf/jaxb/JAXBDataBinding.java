@@ -76,7 +76,7 @@ import org.apache.cxf.service.factory.ServiceConstructionException;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.ws.addressing.ObjectFactory;
 
-public final class JAXBDataBinding extends AbstractDataBinding implements DataBinding {
+public class JAXBDataBinding extends AbstractDataBinding implements DataBinding {
     public static final String SCHEMA_RESOURCE = "SCHEMRESOURCE";
 
     public static final String UNWRAP_JAXB_ELEMENT = "unwrap.jaxb.element";
