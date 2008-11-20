@@ -407,7 +407,7 @@ public final class DynamicClientFactory {
         this.simpleBindingEnabled = simpleBindingEnabled;
     }
 
-    static boolean compileJavaSrc(Path classPath, Path srcPath, String dest) {
+    public boolean compileJavaSrc(Path classPath, Path srcPath, String dest) {
         String[] srcList = srcPath.list();        
         String[] javacCommand = new String[srcList.length + 7];
         
