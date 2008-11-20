@@ -24,12 +24,11 @@ import org.apache.cxf.continuations.SuspendedInvocationException;
 import org.apache.cxf.frontend.MethodDispatcher;
 import org.apache.cxf.jaxws.service.Hello;
 import org.apache.cxf.message.Exchange;
-import org.apache.cxf.service.invoker.ScopePolicy;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageContentsList;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.service.Service;
-import org.apache.cxf.service.invoker.Factory;
+import org.apache.cxf.service.invoker.ScopePolicy;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.easymock.classextension.EasyMock;
 import org.junit.Assert;
@@ -49,9 +48,10 @@ public class JAXWSMethodInvokerTest extends Assert {
         JAXWSMethodInvoker jaxwsMethodInvoker = new JAXWSMethodInvoker(factory);
         Exchange ex = EasyMock.createMock(Exchange.class);               
         Object object = jaxwsMethodInvoker.getServiceObject(ex);
-        assertEquals("the target object and service object should be equal ", object, target);
+        Assert.assertEquals("the target object and service object should be equal ", object, target);
         EasyMock.verify(factory);
     }
+
         
 
     @Test
@@ -62,9 +62,8 @@ public class JAXWSMethodInvokerTest extends Assert {
         ContinuationService serviceObject = 
             new ContinuationService(originalException);
         EasyMock.reset(factory);
-        factory.create(ex);
+        factory.create();
         EasyMock.expectLastCall().andReturn(serviceObject);
-        factory.release(ex, serviceObject);
         EasyMock.expectLastCall();
         EasyMock.replay(factory);
                         
