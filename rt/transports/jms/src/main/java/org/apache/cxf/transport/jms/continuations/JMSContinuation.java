@@ -78,24 +78,22 @@ public class JMSContinuation implements Continuation {
     }
 
     public void resume() {
+        if (isResumed || !isPending) {
+            return;
+        }
+        isResumed = true;
         cancelTimerTask();
         doResume();
     }
     
     protected void doResume() {
-        if (isResumed || !isPending) {
-            return;
-        }
-        
         continuations.remove(this);
         
         BusFactory.setThreadDefaultBus(bus);
         try {
             incomingObserver.onMessage(inMessage);
         } finally {
-            isResumed = true;
             isPending = false;
-            
             BusFactory.setThreadDefaultBus(null);
         }
     }
@@ -127,7 +125,9 @@ public class JMSContinuation implements Continuation {
         timer.schedule(new TimerTask() {
             public void run() {
                 synchronized (JMSContinuation.this) { 
-                    doResume();
+                    if (isPending) {
+                        doResume();
+                    }
                 }
             }
         }, timeout);
