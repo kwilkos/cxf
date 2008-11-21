@@ -729,6 +729,7 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
     
     @Override
     public Boolean isRPC(Method method) {
+        method = getDeclaredMethod(method);
         SOAPBinding ann = method.getAnnotation(SOAPBinding.class);
         if (ann != null) {
             return ann.style().equals(SOAPBinding.Style.RPC);
