@@ -115,7 +115,7 @@ public class DispatchInDatabindingInterceptor extends AbstractInDatabindingInter
                 params.add(null);
             }
             message.setContent(List.class, params);
-            LOG.info("DispatchInInterceptor skipped in HTTP GET method");
+            LOG.fine("DispatchInInterceptor skipped in HTTP GET method");
             return;
         }       
      
