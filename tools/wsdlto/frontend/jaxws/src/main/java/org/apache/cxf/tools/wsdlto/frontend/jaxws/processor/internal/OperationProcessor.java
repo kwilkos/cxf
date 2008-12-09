@@ -58,7 +58,9 @@ public class OperationProcessor  extends AbstractProcessor {
     public void process(JavaInterface intf, OperationInfo operation) throws ToolException {
         JavaMethod method = new MethodMapper().map(operation);
         method.setInterface(intf);
-        processMethod(method, operation, null);
+        
+        processMethod(method, operation);
+        
         Collection<FaultInfo> faults = operation.getFaults();
         FaultProcessor faultProcessor = new FaultProcessor(context);
         faultProcessor.process(method, faults);
@@ -66,8 +68,8 @@ public class OperationProcessor  extends AbstractProcessor {
         intf.addMethod(method);
     }
 
-    void processMethod(JavaMethod method, OperationInfo operation,
-                              JAXWSBinding globalBinding) throws ToolException {
+    void processMethod(JavaMethod method, 
+                       OperationInfo operation) throws ToolException {
         if (isAsyncMethod(method)) {
             return;
         }
@@ -99,21 +101,43 @@ public class OperationProcessor  extends AbstractProcessor {
         method.annotate(new WebResultAnnotator());
 
         JAXWSBinding opBinding = (JAXWSBinding)operation.getExtensor(JAXWSBinding.class);
-
+        JAXWSBinding ptBinding = operation.getInterface().getExtensor(JAXWSBinding.class);
+        JAXWSBinding defBinding = operation.getInterface().getService()
+            .getDescription().getExtensor(JAXWSBinding.class);
+        
         boolean enableAsync = false;
-        if (globalBinding != null && globalBinding.isEnableAsyncMapping()
-            || opBinding != null && opBinding.isEnableAsyncMapping()) {
-            enableAsync = true;
+        boolean enableMime = false;
+        if (defBinding != null) {
+            if (defBinding.isSetEnableMime()) {
+                enableMime = defBinding.isEnableMime();
+            }
+            if (defBinding.isSetEnableAsyncMapping()) {
+                enableAsync = defBinding.isEnableAsyncMapping();
+            }
         }
-
-
+        if (ptBinding != null) {
+            if (ptBinding.isSetEnableMime()) {
+                enableMime = ptBinding.isEnableMime();
+            }
+            if (ptBinding.isSetEnableAsyncMapping()) {
+                enableAsync = ptBinding.isEnableAsyncMapping();
+            }
+        }
+        if (opBinding != null) {
+            if (opBinding.isSetEnableMime()) {
+                enableMime = opBinding.isEnableMime();
+            }
+            if (opBinding.isSetEnableAsyncMapping()) {
+                enableAsync = opBinding.isEnableAsyncMapping();
+            }
+        }
+        
         if (!method.isOneWay()
-            && enableAsync && !isAddedAsyMethod(method)) {
+            && enableAsync && !isAddedAsycMethod(method)) {
             addAsyncMethod(method);
         }
 
-        if (globalBinding != null && globalBinding.isEnableMime()
-            || opBinding != null && opBinding.isEnableMime()) {
+        if (enableMime) {
             method.setMimeEnable(true);
         }
     }
@@ -151,9 +175,14 @@ public class OperationProcessor  extends AbstractProcessor {
     }
 
     private boolean isAsyncMethod(JavaMethod method) {
-        if (method.getName().toLowerCase()
-            .equals((method.getOperationName() + ToolConstants.ASYNC_METHOD_SUFFIX).toLowerCase())) {
-            return true;
+        if (method.getName().endsWith(ToolConstants.ASYNC_METHOD_SUFFIX)) {
+            if (method.getReturn().getClassName().startsWith("Response<")) {
+                return true;
+            } else if (method.getParameterCount() > 0
+                && method.getParameters().get(method.getParameterCount() - 1)
+                    .getClassName().startsWith("AsyncHandler<")) {
+                return true;
+            }
         }
         return false;
     }
@@ -252,7 +281,7 @@ public class OperationProcessor  extends AbstractProcessor {
         return sb.toString();
     }
 
-    private boolean isAddedAsyMethod(JavaMethod method) {
+    private boolean isAddedAsycMethod(JavaMethod method) {
         List<JavaMethod> jmethods = method.getInterface().getMethods();
         int counter = 0;
         for (JavaMethod jm : jmethods) {
