@@ -57,8 +57,9 @@
         <activemq.version>4.1.1</activemq.version>
         <rhino.version>1.6R5</rhino.version>
         <jdom.version>1.0</jdom.version>
-        <xmlbeans.version>2.3.0</xmlbeans.version>
-
+        <xmlbeans.version>2.3.0</xmlbeans.version>        
+        <xmlschema.version>1.4.3</xmlschema.version>
+        
         <spring.validation.mode>VALIDATION_AUTO</spring.validation.mode>
 
         <downloadSources>true</downloadSources>
@@ -465,7 +466,7 @@
             <dependency>
                 <groupId>org.apache.ws.commons.schema</groupId>
                 <artifactId>XmlSchema</artifactId>
-                <version>1.4.2</version>
+                <version>${xmlschema.version}</version>
             </dependency>
             <dependency>
                 <groupId>javax.xml.soap</groupId>
