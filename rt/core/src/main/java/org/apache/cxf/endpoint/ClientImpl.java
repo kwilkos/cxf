@@ -424,7 +424,10 @@ public class ClientImpl
             if (null != reqContext) {
                 exchange.putAll(reqContext);
             }
-            exchange.setOneWay(oi.getOutput() == null);
+            
+            if (null != oi) {
+                exchange.setOneWay(oi.getOutput() == null);
+            }
     
             exchange.setOutMessage(message);
             
@@ -452,7 +455,7 @@ public class ClientImpl
         }
     }
 
-    private Object[] processResult(Message message, 
+    protected Object[] processResult(Message message, 
                                    Exchange exchange,
                                    BindingOperationInfo oi,
                                    Map<String, Object> resContext) throws Exception {
@@ -517,7 +520,7 @@ public class ClientImpl
         return null;
     }
 
-    private void setContext(Map<String, Object> ctx, Message message) {
+    protected void setContext(Map<String, Object> ctx, Message message) {
         if (ctx != null) {            
             message.putAll(ctx);
             if (LOG.isLoggable(Level.FINE)) {
@@ -526,7 +529,7 @@ public class ClientImpl
         }        
     }
 
-    private void waitResponse(Exchange exchange) {
+    protected void waitResponse(Exchange exchange) {
         int remaining = synchronousTimeout;
         while (!Boolean.TRUE.equals(exchange.get(FINISHED)) && remaining > 0) {
             long start = System.currentTimeMillis();
@@ -544,7 +547,7 @@ public class ClientImpl
         }
     }
 
-    private void setParameters(Object[] params, Message message) {
+    protected void setParameters(Object[] params, Message message) {
         if (params == null) {
             params = new Object[0];
         }
@@ -663,8 +666,10 @@ public class ClientImpl
     protected void setOutMessageProperties(Message message, BindingOperationInfo boi) {
         message.put(Message.REQUESTOR_ROLE, Boolean.TRUE);
         message.put(Message.INBOUND_MESSAGE, Boolean.FALSE);
-        message.put(BindingMessageInfo.class, boi.getInput());
-        message.put(MessageInfo.class, boi.getOperationInfo().getInput());
+        if (null != boi) {
+            message.put(BindingMessageInfo.class, boi.getInput());
+            message.put(MessageInfo.class, boi.getOperationInfo().getInput());
+        }
     }
     
     protected void setExchangeProperties(Exchange exchange,
