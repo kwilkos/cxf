@@ -395,6 +395,8 @@ public abstract class AbstractHTTPDestination extends AbstractMultiplexDestinati
         if (policy.isSetHonorKeepAlive() && !policy.isHonorKeepAlive()) {
             headers.put("Connection",
                         createMutableList("close"));
+        } else if (policy.isSetKeepAliveParameters()) {
+            headers.put("Keep-Alive", createMutableList(policy.getKeepAliveParameters()));
         }
         
     
