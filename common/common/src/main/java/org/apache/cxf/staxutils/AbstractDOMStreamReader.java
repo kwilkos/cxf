@@ -18,6 +18,7 @@
  */
 package org.apache.cxf.staxutils;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +28,7 @@ import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
+
 /**
  * Abstract logic for creating XMLStreamReader from DOM documents. Its works
  * using adapters for Element, Node and Attribute (
@@ -34,61 +36,78 @@ import javax.xml.stream.XMLStreamReader;
  * @see ElementAdapter }
  * @author <a href="mailto:tsztelak@gmail.com">Tomasz Sztelak</a>
  */
-public abstract class AbstractDOMStreamReader implements XMLStreamReader {
+public abstract class AbstractDOMStreamReader<T, I> implements XMLStreamReader {
     protected int currentEvent = XMLStreamConstants.START_DOCUMENT;
 
     private Map properties = new HashMap();
 
-    private FastStack<ElementFrame> frames = new FastStack<ElementFrame>();
+    private FastStack<ElementFrame<T, I>> frames = new FastStack<ElementFrame<T, I>>();
 
-    private ElementFrame frame;
+    private ElementFrame<T, I> frame;
 
     
     /**
      *     
      */
-    public static class ElementFrame {
-        Object element;
+    public static class ElementFrame<T, I> {
+        T element;
+        I currentChild;
 
         boolean started;
-
         boolean ended;
-
-        int currentChild = -1;
-
+        
         int currentAttribute = -1;
-
         int currentNamespace = -1;
 
-        int currentElement = -1;
         List<String> uris;
         List<String> prefixes;
         List<Object> attributes;
         List<Object> allAttributes;
 
-        final ElementFrame parent;
+        final ElementFrame<T, I> parent;
         
-        public ElementFrame(Object element, ElementFrame parent) {
+        public ElementFrame(T element, ElementFrame<T, I> parent) {
             this.element = element;
             this.parent = parent;
         }
         
-        public Object getElement() {
+        public ElementFrame(T element, ElementFrame<T, I> parent, I ch) {
+            this.element = element;
+            this.parent = parent;
+            this.currentChild = ch;
+        }
+        public ElementFrame(T doc) {
+            this.element = doc;
+            parent = null;
+            started = true;
+            attributes = Collections.emptyList();
+            prefixes = Collections.emptyList();
+            uris = Collections.emptyList();
+            allAttributes = Collections.emptyList();
+        }
+        
+        public T getElement() {
             return element;
         }
 
+        public I getCurrentChild() {
+            return currentChild;
+        }
+        public void setCurrentChild(I o) {
+            currentChild = o;
+        }
 
     }
 
     /**
      * @param element
      */
-    public AbstractDOMStreamReader(ElementFrame frame) {
+    public AbstractDOMStreamReader(ElementFrame<T, I> frame) {
         this.frame = frame;
         frames.push(this.frame);
     }
 
-    protected ElementFrame getCurrentFrame() {
+    protected ElementFrame<T, I> getCurrentFrame() {
         return frame;
     }
 
@@ -110,7 +129,7 @@ public abstract class AbstractDOMStreamReader implements XMLStreamReader {
         if (frame.ended) {
             frames.pop();
             if (!frames.empty()) {
-                frame = (ElementFrame)frames.peek();
+                frame = frames.peek();
             } else {
                 currentEvent = END_DOCUMENT;
                 return currentEvent;
@@ -126,13 +145,11 @@ public abstract class AbstractDOMStreamReader implements XMLStreamReader {
         } else if (frame.currentNamespace < getNamespaceCount() - 1) {
             frame.currentNamespace++;
             currentEvent = NAMESPACE;
-        } else if (frame.currentChild < getChildCount() - 1) {
-            frame.currentChild++;
-
-            currentEvent = moveToChild(frame.currentChild);
+        } else if (hasMoreChildren()) {
+            currentEvent = nextChild();
 
             if (currentEvent == START_ELEMENT) {
-                ElementFrame newFrame = getChildFrame(frame.currentChild);
+                ElementFrame<T, I> newFrame = getChildFrame();
                 newFrame.started = true;
                 frame = newFrame;
                 frames.push(this.frame);
@@ -148,17 +165,15 @@ public abstract class AbstractDOMStreamReader implements XMLStreamReader {
         return currentEvent;
     }
 
-    protected void newFrame(ElementFrame newFrame) {
+    protected void newFrame(ElementFrame<T, I> newFrame) {
     }
 
     protected void endElement() {
     }
 
-    protected abstract int moveToChild(int currentChild);
-
-    protected abstract ElementFrame getChildFrame(int currentChild);
-
-    protected abstract int getChildCount();
+    protected abstract boolean hasMoreChildren();
+    protected abstract int nextChild();
+    protected abstract ElementFrame<T, I> getChildFrame();
 
     /*
      * (non-Javadoc)

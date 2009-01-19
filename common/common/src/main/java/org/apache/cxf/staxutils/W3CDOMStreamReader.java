@@ -30,11 +30,13 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
+import org.w3c.dom.Text;
+import org.w3c.dom.TypeInfo;
 
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.staxutils.AbstractDOMStreamReader.ElementFrame;
 
-public class W3CDOMStreamReader extends AbstractDOMStreamReader {
+public class W3CDOMStreamReader extends AbstractDOMStreamReader<Node, Node> {
     private Node content;
 
     private Document document;
@@ -45,10 +47,15 @@ public class W3CDOMStreamReader extends AbstractDOMStreamReader {
      * @param element
      */
     public W3CDOMStreamReader(Element element) {
-        super(new ElementFrame(element, null));
+        super(new ElementFrame<Node, Node>(element, null));
+        content = element;
         newFrame(getCurrentFrame());
                 
         this.document = element.getOwnerDocument();
+    }
+    public W3CDOMStreamReader(Document doc) {
+        super(new ElementFrame<Node, Node>(doc));
+        this.document = doc;
     }
 
     /**
@@ -65,8 +72,8 @@ public class W3CDOMStreamReader extends AbstractDOMStreamReader {
      * collection.
      */
     @Override
-    protected final void newFrame(ElementFrame frame) {
-        Element element = getCurrentElement();
+    protected final void newFrame(ElementFrame<Node, Node> frame) {
+        Node element = getCurrentNode();
         frame.uris = new ArrayList<String>();
         frame.prefixes = new ArrayList<String>();
         frame.attributes = new ArrayList<Object>();
@@ -74,8 +81,9 @@ public class W3CDOMStreamReader extends AbstractDOMStreamReader {
         if (context == null) {
             context = new W3CNamespaceContext();
         }
-
-        context.setElement(element);
+        if (element instanceof Element) {
+            context.setElement((Element)element);
+        }
 
         NamedNodeMap nodes = element.getAttributes();
 
@@ -126,22 +134,29 @@ public class W3CDOMStreamReader extends AbstractDOMStreamReader {
     }
 
     @Override
-    protected ElementFrame getChildFrame(int currentChild) {
-        return new ElementFrame(getCurrentElement().getChildNodes().item(currentChild), getCurrentFrame());
+    protected ElementFrame<Node, Node> getChildFrame() {
+        return new ElementFrame<Node, Node>(getCurrentFrame().currentChild, 
+                                getCurrentFrame());
     }
 
     @Override
-    protected int getChildCount() {
-        return getCurrentElement().getChildNodes().getLength();
-    }
-
-    @Override
-    protected int moveToChild(int currentChild) {
-        content = getCurrentNode().getFirstChild();
-        while (currentChild > 0 && content != null) {
-            content = content.getNextSibling();
-            --currentChild;
+    protected boolean hasMoreChildren() {
+        if (getCurrentFrame().currentChild == null) {
+            return getCurrentNode().getFirstChild() != null;            
         }
+        return ((Node)getCurrentFrame().currentChild).getNextSibling() != null;
+    }
+
+    @Override
+    protected int nextChild() {
+        ElementFrame<Node, Node> frame = getCurrentFrame();
+        if (frame.currentChild == null) {
+            content = getCurrentNode().getFirstChild();            
+        } else {
+            content = ((Node)frame.currentChild).getNextSibling();
+        }
+        
+        frame.currentChild = content;
         switch (content.getNodeType()) {
         case Node.ELEMENT_NODE:
             return START_ELEMENT;
@@ -162,7 +177,7 @@ public class W3CDOMStreamReader extends AbstractDOMStreamReader {
     public String getElementText() throws XMLStreamException {
         String result = DOMUtils.getContent(content);
 
-        ElementFrame frame = getCurrentFrame();
+        ElementFrame<Node, Node> frame = getCurrentFrame();
         frame.ended = true;
         currentEvent = END_ELEMENT;
         endElement();
@@ -173,7 +188,7 @@ public class W3CDOMStreamReader extends AbstractDOMStreamReader {
 
     @Override
     public String getNamespaceURI(String prefix) {
-        ElementFrame frame = getCurrentFrame();
+        ElementFrame<Node, Node> frame = getCurrentFrame();
 
         while (null != frame) {
             int index = frame.prefixes.indexOf(prefix);
@@ -251,15 +266,21 @@ public class W3CDOMStreamReader extends AbstractDOMStreamReader {
     }
 
     public String getAttributeType(int i) {
-        return toStaxType(getAttribute(i).getNodeType());
+        Attr attr = getAttribute(i);
+        if (attr.isId()) {
+            return "ID";
+        }
+        TypeInfo schemaType = null;
+        try {
+            schemaType = attr.getSchemaTypeInfo();
+        } catch (Throwable t) {
+            //DOM level 2?
+            schemaType = null;
+        }
+        return (schemaType == null) ? "CDATA" 
+            : schemaType.getTypeName() == null ? "CDATA" : schemaType.getTypeName();
     }
 
-    public static String toStaxType(short jdom) {
-        switch (jdom) {
-        default:
-            return null;
-        }
-    }
 
     public String getAttributeValue(int i) {
         return getAttribute(i).getValue();
@@ -286,7 +307,10 @@ public class W3CDOMStreamReader extends AbstractDOMStreamReader {
     }
 
     public String getText() {
-        return DOMUtils.getRawContent(getCurrentElement());
+        if (content instanceof Text) {
+            return ((Text)content).getData();
+        }
+        return DOMUtils.getRawContent(getCurrentNode());
     }
 
     public char[] getTextCharacters() {
@@ -306,7 +330,7 @@ public class W3CDOMStreamReader extends AbstractDOMStreamReader {
     }
 
     public QName getName() {
-        Element el = getCurrentElement();
+        Node el = getCurrentNode();
 
         String prefix = getPrefix();
         String ln = getLocalName();
@@ -319,17 +343,17 @@ public class W3CDOMStreamReader extends AbstractDOMStreamReader {
     }
 
     public String getLocalName() {
-        String ln = getCurrentElement().getLocalName();
+        String ln = getCurrentNode().getLocalName();
         if (ln == null) {
-            ln = getCurrentElement().getNodeName();
+            ln = getCurrentNode().getNodeName();
         }
         return ln;
     }
 
     public String getNamespaceURI() {
-        String ln = getCurrentElement().getLocalName();
+        String ln = getCurrentNode().getLocalName();
         if (ln == null) {
-            ln = getCurrentElement().getNodeName();
+            ln = getCurrentNode().getNodeName();
             if (ln.indexOf(":") == -1) {
                 ln = getNamespaceURI("");
             } else {
@@ -337,11 +361,11 @@ public class W3CDOMStreamReader extends AbstractDOMStreamReader {
             }
             return ln;
         }
-        return getCurrentElement().getNamespaceURI();
+        return getCurrentNode().getNamespaceURI();
     }
 
     public String getPrefix() {
-        String prefix = getCurrentElement().getPrefix();
+        String prefix = getCurrentNode().getPrefix();
         if (prefix == null) {
             prefix = "";
         }
