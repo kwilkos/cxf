@@ -300,7 +300,6 @@ public class JAXBEncoderDecoderTest extends Assert {
         JAXBEncoderDecoder.marshall(context, null, 
                                     new String("TestSOAPMessage"), part,  elNode, emptyMarshallerProperties);
         
-        assertNotNull(elNode.getChildNodes());
         assertEquals("TestSOAPMessage", elNode.getFirstChild().getFirstChild().getNodeValue());
     }
 

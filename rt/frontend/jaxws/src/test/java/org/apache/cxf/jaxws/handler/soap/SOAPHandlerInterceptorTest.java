@@ -198,7 +198,7 @@ public class SOAPHandlerInterceptorTest extends Assert {
                         // change mustUnderstand to false
                         SOAPMessage message = smc.getMessage();
                         SOAPHeader soapHeader = message.getSOAPHeader();
-                        Element headerElementNew = (Element)soapHeader.getChildNodes().item(0);
+                        Element headerElementNew = (Element)soapHeader.getFirstChild();
 
                         SoapVersion soapVersion = Soap11.getInstance();                        
                         Attr attr = 
@@ -241,7 +241,7 @@ public class SOAPHandlerInterceptorTest extends Assert {
         
         message.setContent(Node.class, headerInfo[0]);
         
-        Node node = ((Element) headerInfo[1]).getChildNodes().item(0);
+        Node node = ((Element) headerInfo[1]).getFirstChild();
         
         message.getHeaders().add(new Header(new QName(node.getNamespaceURI(), node.getLocalName()), node));
         
