@@ -93,8 +93,10 @@ public class QuotedPrintableDecoderStream extends InputStream {
         // space characters are a pain. We need to scan ahead until we find a non-space character.
         // if the character is a line terminator, we need to discard the blanks.
         // scan forward, counting the characters.
-        while ((ch = in.read()) == ' ') {
+        ch = in.read();
+        while (ch == ' ') {
             deferredWhitespace++;
+            ch = in.read();
         }
         // is this a lineend at the current location?
         if (ch == -1 || ch == '\r' || ch == '\n') {

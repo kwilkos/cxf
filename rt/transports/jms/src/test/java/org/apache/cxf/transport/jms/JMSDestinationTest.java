@@ -28,6 +28,7 @@ import javax.jms.DeliveryMode;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.bus.spring.SpringBusFactory;
+import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.ExchangeImpl;
 import org.apache.cxf.message.Message;
