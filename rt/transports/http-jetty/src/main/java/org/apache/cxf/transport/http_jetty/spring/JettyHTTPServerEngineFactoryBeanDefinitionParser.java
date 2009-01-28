@@ -44,6 +44,8 @@ import org.apache.cxf.transports.http_jetty.configuration.ThreadingParametersTyp
 
 
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.BeanDefinitionStoreException;
+import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.ManagedList;
 import org.springframework.beans.factory.xml.ParserContext;
@@ -54,6 +56,19 @@ public class JettyHTTPServerEngineFactoryBeanDefinitionParser
         extends AbstractBeanDefinitionParser {
     private static final String HTTP_JETTY_NS = "http://cxf.apache.org/transports/http-jetty/configuration";
 
+    protected String resolveId(Element elem, AbstractBeanDefinition definition, 
+                               ParserContext ctx) throws BeanDefinitionStoreException {
+        String id = this.getIdOrName(elem);
+        if (StringUtils.isEmpty(id)) {
+            return JettyHTTPServerEngineFactory.class.getName();            
+        }
+        id = super.resolveId(elem, definition, ctx);
+        if (!ctx.getRegistry().containsBeanDefinition(JettyHTTPServerEngineFactory.class.getName())) {
+            ctx.getRegistry().registerAlias(id, JettyHTTPServerEngineFactory.class.getName());
+        }
+        return id;
+    }
+    
     @Override
     public void doParse(Element element, ParserContext ctx, BeanDefinitionBuilder bean) {
         //bean.setAbstract(true);        
