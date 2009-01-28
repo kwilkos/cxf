@@ -374,8 +374,7 @@ public class WSS4JInOutTest extends AbstractSecurityTest {
     public void testCustomProcessorObject() throws Exception {
         Document doc = readDocument("wsse-request-clean.xml");
 
-        WSS4JOutInterceptor ohandler = new WSS4JOutInterceptor();
-        PhaseInterceptor<SoapMessage> handler = ohandler.createEndingInterceptor();
+        WSS4JOutInterceptor handler = new WSS4JOutInterceptor();
 
         SoapMessage msg = new SoapMessage(new MessageImpl());
         Exchange ex = new ExchangeImpl();
