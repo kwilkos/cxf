@@ -522,6 +522,7 @@ public class HTTPConduit
                         "Auth Supplier, but no Premeptive User Pass." 
                         + " We must cache request.");
             }
+            message.put("AUTH_VALUE", auth);
         }
         if (getClient().isAutoRedirect()) {
             // If the AutoRedirect property is set then we cannot
@@ -1068,8 +1069,13 @@ public class HTTPConduit
             && (newPolicy == null
                 || (!"Basic".equals(newPolicy.getAuthorizationType())
                     && newPolicy.getAuthorization() == null))) {
-            authString = authSupplier.getPreemptiveAuthorization(
+            authString = (String)message.get("AUTH_VALUE");
+            if (authString == null) {
+                authString = authSupplier.getPreemptiveAuthorization(
                     this, url, message);
+            } else {
+                message.remove("AUTH_VALUE");
+            }
             if (authString != null) {
                 headers.put("Authorization",
                             createMutableList(authString));
@@ -2081,6 +2087,11 @@ public class HTTPConduit
     
     public boolean canAssert(QName type) {
         return PolicyUtils.HTTPCLIENTPOLICY_ASSERTION_QNAME.equals(type);  
+    }
+
+    @Deprecated
+    public void setBasicAuthSupplier(HttpBasicAuthSupplier basicAuthSupplier) {
+        setAuthSupplier(basicAuthSupplier);
     }
     
 }
