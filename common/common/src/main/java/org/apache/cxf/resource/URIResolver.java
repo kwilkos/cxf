@@ -28,9 +28,14 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLConnection;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.cxf.common.classloader.ClassLoaderUtils;
 import org.apache.cxf.common.util.Base64Utility;
+import org.apache.cxf.helpers.IOUtils;
+import org.apache.cxf.helpers.LoadingByteArrayOutputStream;
 
 /**
  * Resolves a File, classpath resource, or URL according to the follow rules:
@@ -43,6 +48,8 @@ import org.apache.cxf.common.util.Base64Utility;
  * @author Dan Diephouse
  */
 public class URIResolver {
+    private Map<String, LoadingByteArrayOutputStream> cache
+        = new HashMap<String, LoadingByteArrayOutputStream>();
     private File file;
     private URI uri;
     private URL url;
@@ -154,7 +161,7 @@ public class URIResolver {
                 }
                 
                 base = base.resolve(relative);
-                if (base.isAbsolute()) {
+                if (base.isAbsolute() && "file".equalsIgnoreCase(base.getScheme())) {
                     try {
                         baseFile = new File(base);
                         if (baseFile.exists()) {
@@ -168,6 +175,9 @@ public class URIResolver {
                         tryClasspath(base.toString().startsWith("file:") 
                                      ? base.toString().substring(5) : base.toString());
                     }
+                } else {
+                    tryClasspath(base.toString().startsWith("file:") 
+                                 ? base.toString().substring(5) : base.toString());
                 }
             }
         } catch (URISyntaxException e) {
@@ -275,9 +285,18 @@ public class URIResolver {
 
     private void tryRemote(String uriStr) throws IOException {
         try {
+            LoadingByteArrayOutputStream bout = cache.get(uriStr);
             url = new URL(uriStr);
             uri = new URI(url.toString());
-            is = url.openStream();
+            if (bout == null) {
+                URLConnection connection = url.openConnection();
+                is = connection.getInputStream();
+                bout = new LoadingByteArrayOutputStream(1024);
+                IOUtils.copy(is, bout);
+                is.close();
+                cache.put(uriStr, bout);
+            }
+            is = bout.createInputStream();
         } catch (MalformedURLException e) {
             // do nothing
         } catch (URISyntaxException e) {
