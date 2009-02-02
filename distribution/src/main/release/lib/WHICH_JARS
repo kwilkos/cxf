@@ -9,10 +9,10 @@ The following jars are required for all CXF usage:
 - geronimo-activation.jar (Or the Sun equivalent)
 - geronimo-annotation.jar (Or the Sun equivalent)
 - geronimo-javamail.jar (Or the Sun equivalent)
+- geronimo-stax-api.jar (Or the Sun equivalent)
 - neethi.jar
 - jaxb-api.jar
 - jaxb-impl.jar
-- stax-api.jar
 - XmlSchema.jar
 - wstx-asl.jar
 - xml-resolver.jar 
@@ -24,6 +24,7 @@ For Java2WSDL and WSDL2Java:
 - velocity-dep.jar
 
 For JAX-WS support:
+- geronimo-ws-metadata.jar (Or the Sun equivalent)
 - jaxws-api.jar
 - saaj-api.jar
 - saaj-impl.jar
@@ -36,8 +37,16 @@ For XML Configuration support:
 - spring-core.jar
 - spring.web.jar
 
+For JMS transport:
+- geronimo-jms_1.1_spec.jar (Or the Sun equivalent)
+- spring-jms.jar
+- commons-pool.jar
+- spring-dao.jar
+- spring-support.jar
+
+
 For standalone HTTP support:
-- geronimo-servlet.jar
+- geronimo-servlet.jar (Or the Sun equivalent)
 - jetty.jar
 - jetty-sslengine.jar
 - jetty-util.jar

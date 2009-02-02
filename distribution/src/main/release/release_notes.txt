@@ -1,9 +1,9 @@
-Apache CXF 2.0.9 Release Notes
+Apache CXF 2.0.10 Release Notes
 
 1. Overview
 
-Apache CXF 2.0.9 delivers the latest set of patches for the 2.0.x series
-fixing another 37 reported JIRA issues.
+Apache CXF 2.0.10 delivers the latest set of patches for the 2.0.x series
+fixing another 40 reported JIRA issues.
 
 
 2. Installation Prerequisites 
@@ -68,51 +68,50 @@ http://issues.apache.org/jira/browse/CXF
 
 6. Specific issues, features, and improvements fixed in this version:
 
-** Bug
-    * [CXF-1048] - wsdl2java generate wrong portName in impl class
-    * [CXF-1076] - Wsdl2Java out of memory if the wsdl has tons of imports
-    * [CXF-1194] - Schema Validation & MTOM fails
-    * [CXF-1652] - CXF Decoupled Endpoints are not getting cleaned up properly even after bus.Shutdown() in org.apache.cxf.systest.ws.rm.SequenceTest.
-    * [CXF-1657] - CheckFaultInterceptor causes XMLStreamReader to throw IllegalState at doc end
-    * [CXF-1716] - Wrong namespace for faultcode
-    * [CXF-1719] - RPC/Lit not honoring namespace in soap:body wsdl extensor
-    * [CXF-1720] - RPC/Lit soap 1.2 not processing the soap-rpc:result element
-    * [CXF-1721] - Generated WS-Addressing action uses wrong separator for urns
-    * [CXF-1724] - Nullpointer error in DOMUtils
-    * [CXF-1733] - SoapPreProtocolOutInterceptor overrides SoapActionOutInterceptor 
-    * [CXF-1737] - NPE in ClientProxyFactoryBean on void methods 
-    * [CXF-1741] - NPE is thrown when publish the code first service  in NoSpringServlet
-    * [CXF-1742] - JMS Conduit Pooled Session Recycling
-    * [CXF-1743] - Temporary files are not deleted
-    * [CXF-1752] - JavaToWs generates wrong types for arrays and generic types in wrapper classes
-    * [CXF-1753] - cxf-codegen:wsdl2java java.util.zip.ZipException: The system cannot find the path specified
-    * [CXF-1755] - JMSConduit need copy protocol headers to response in Message
-    * [CXF-1760] - jms transport don't support MTOM
-    * [CXF-1769] - Nillable schema elements in WSDL cause XmlSchemaException
-    * [CXF-1779] - exclude non-serializable property to JBI NormalizedMessage
-    * [CXF-1781] - Unprocessed soap headers with mustUnderstand=1 and no actor not throwing exceptions
-    * [CXF-1797] - Trouble with services having multiple methods/operations 
-    * [CXF-1805] - Use of Content-Type in JMS Header not in line with JMS specification
-    * [CXF-1809] - Annotated @PostConstruct methods called twice on single Spring bean 
-    * [CXF-1823] - JCA inbund connector samples (inbound-mdb*) READMEs need correction
-    * [CXF-1831] - org.apache.cxf.wsdl.EndpointReferenceUtils.resolveResource() changes cause failure in schema import resolution
-    * [CXF-1843] - wsdl2java: failed to create "action" attribute under annotation @WebMethod
+Bug
+[CXF-1140] - wsdl2java failed if the schema import use the relative path to a url
+[CXF-1749] - Quick Fix for JMS Encoding issue
+[CXF-1847] - AttachmentDeserializer cannot handle attachments with Quoted Printable content transfer encoding
+[CXF-1872] - JCA inbound connector ignores jaxws-endpoint bean configuration
+[CXF-1889] - WS-RM: Cleanup of candidate list in RetransmissionQueueImpl
+[CXF-1890] - Aegis serializes enums with toString instead of name
+[CXF-1895] - Invalid character set UTF-8; action= urn:ihe:iti:2007:RetrieveDocumentSet in request in Contet-type
+[CXF-1898] - cxf bundle should optionally depend on J2EE Connector API
+[CXF-1900] - Invalid ContentId Encode
+[CXF-1905] - WSDL2Java can't handle JAXB-bindings with split WSDLs
+[CXF-1909] - JMS Transport does not work with JMS 1.0.2 provider
+[CXF-1915] - W3CDOMStreamReader returns wrong type in moveToChild()
+[CXF-1924] - Infinite loop in FileUtils.getDefaultTempDir() when "java.io.tmpdir" directory does not exist
+[CXF-1931] - Can't include the <jaxws:dataBinding> inside the <jaxws:endpoint>
+[CXF-1932] - Spring injection with bare parameter style fails to deploy
+[CXF-1936] - Async methods are bound when not using wsdl on client side
+[CXF-1943] - jms transport doesn't support to inject jmsconfig to JmsDestination
+[CXF-1945] - NullPointerException in W3CDOMStreamReader
+[CXF-1947] - Incorrect deserialization of null values in Map
+[CXF-1979] - wsdl2java fails to generate working client code if web service name or serviceName is "Service"
+[CXF-1980] - XML Validation in offline fails due to missing cxf-beans.xsd in distro
+[CXF-1981] - Inconsistent use of logger delegation via LogUtils
+[CXF-2000] - ReadHeadersInterceptor ignoring DataBinding when creating SoapHeader
 
-** Improvement
-    * [CXF-1734] - AutomaticWorkQueue not configurable
-    * [CXF-1782] - ServletController.generateServiceList is private - cannot extend/change the way a service list is built
-    * [CXF-1796] - ServletController - change constructor arguments to set ServletContext & Bus
-    * [CXF-1806] - Use Spring JMSTemplate in JMSConduit instead of direct JMS
-    * [CXF-1812] - refactor the pause/resume mechanism in PhaseInterceptorChain
-    * [CXF-1825] - Allow request/response contexts access when using JCA outbound connector
-    * [CXF-1826] - ConfigurationDomain and ConfigurationScope are unused properties in JCA ra.xml
+Improvement
+[CXF-1819] - Make PhaseInterceptorChain.unwind() more defensive wrt handleFault() exceptions
+[CXF-1835] - Use Jetty Continuations to implement asynchronous HTTP processing
+[CXF-1910] - JBI binding should honor aegis databinding
+[CXF-1916] - Mtom Performance - MimeBodyPartInputStream performs slow
+[CXF-1918] - AttachmentUtil creates randomUUID for each attachment
+[CXF-1922] - Improve DynamicClientFactory: make compileJavaSrc() non static and protected
+[CXF-1926] - The transportId should be available on org.apache.cxf.jaxws.JaxWsProxyFactoryBean 
+[CXF-1946] - Changed the jms client received timeout value from 2 second to 60 second
+[CXF-1964] - Add ability to inject WSS4J Processor objects into the WSS4JInInterceptor
+[CXF-1968] - Add API in Client interface to allow passing Exchange in the invoke method
+[CXF-1978] - Spring-based JMS Conduit should support using a shared permanent reply queue for several instances
+[CXF-2012] - Implement HTTP digest auth
 
-** New Feature
-    * [CXF-1801] - JCA inbound connector does not support WebSphere 6.1
+New Feature
+[CXF-180] - JMS Transport support for transaction
+[CXF-1912] - Implement asynchronous support for JMS transport in CXF Server 
+[CXF-1962] - Create directory if does not exist for WSDL to javascript
 
-
-** Task
-    * [CXF-1842] - Add an example to show how to publish the WSDL first endpoints from spring
-
-
-
+Wish
+[CXF-1327] - Logging Interceptor with pretty formatting
+[CXF-1921] - Class org.apache.cxf.jaxb.JAXBDataBinding is final
