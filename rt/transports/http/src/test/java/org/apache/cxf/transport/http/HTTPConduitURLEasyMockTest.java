@@ -350,8 +350,8 @@ public class HTTPConduitURLEasyMockTest extends Assert {
             connectionFactory.createConnection(
                                       EasyMock.eq(proxy), 
                                       EasyMock.eq(new URL(NOWHERE + "bar/foo")));
-            
             EasyMock.expectLastCall().andReturn(connection);
+
             connection.setDoOutput(true);
             EasyMock.expectLastCall();
             
@@ -505,7 +505,7 @@ public class HTTPConduitURLEasyMockTest extends Assert {
         wrappedOS.flush();
         wrappedOS.flush();
         wrappedOS.close();
-        
+
         assertNotNull("expected in message", inMessage);
         Map<?, ?> headerMap = (Map<?, ?>) inMessage.get(Message.PROTOCOL_HEADERS);
         assertEquals("unexpected response headers", headerMap.size(), 0);
@@ -560,6 +560,8 @@ public class HTTPConduitURLEasyMockTest extends Assert {
                                           EasyMock.eq("charset=utf8"));
             EasyMock.expectLastCall();
         }
+        connection.getRequestProperties();
+        EasyMock.expectLastCall().andReturn(new HashMap<String, List<String>>()).anyTimes();
         
         control.replay();
         
