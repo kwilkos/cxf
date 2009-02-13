@@ -705,7 +705,7 @@ public class SoapBindingFactory extends AbstractBindingFactory {
 
                 if (mpi != null) {
                     headerInfo.setPart(mpi);
-                    messageParts.remove(mpart);
+                    messageParts.remove(mpi);
                     bmsg.getMessageParts().remove(mpi);
                     bmsg.addExtensor(headerInfo);
                 }
