@@ -21,6 +21,7 @@ package org.apache.cxf.systest.jaxws;
 import java.util.List;
 import java.util.Vector;
 
+import javax.jws.Oneway;
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
 import javax.jws.WebResult;
@@ -39,6 +40,10 @@ import org.apache.cxf.message.Exchange;
              use = SOAPBinding.Use.LITERAL)
 public interface DocLitWrappedCodeFirstService {
 
+    @Oneway
+    @WebMethod
+    void doOneWay();
+    
     @WebMethod
     String[] arrayOutput();
 
