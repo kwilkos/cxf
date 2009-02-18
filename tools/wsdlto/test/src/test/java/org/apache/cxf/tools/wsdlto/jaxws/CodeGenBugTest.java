@@ -702,10 +702,15 @@ public class CodeGenBugTest extends ProcessorTestBase {
     }
     @Test
     public void testNonWrapperStyleNameCollision() throws Exception {
-        env.put(ToolConstants.CFG_WSDLURL,
-                getLocation("/wsdl2java_wsdl/cxf918/bug2.wsdl"));
-        processor.setContext(env);
-        processor.execute();
+        try {
+            env.put(ToolConstants.CFG_WSDLURL,
+                    getLocation("/wsdl2java_wsdl/cxf918/bug2.wsdl"));
+            processor.setContext(env);
+            processor.execute();
+            fail("The cxf918/bug2.wsdl should not have generated code");
+        } catch (Exception e) {
+            assertTrue(e.getMessage(), e.getMessage().contains("theSameNameFieldDifferentDataType"));
+        } 
     }
 
     @Test
