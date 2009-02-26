@@ -132,13 +132,13 @@ public class ContextPropertiesMappingTest extends Assert {
         xchng.setOutMessage(outMsg);
         
         responseContext.put(MessageContext.HTTP_RESPONSE_CODE, RESPONSE_CODE);
-        
+
         MessageContext ctx = EasyMock.createMock(MessageContext.class);
         ctx.containsKey(MessageContext.HTTP_RESPONSE_CODE);
         EasyMock.expectLastCall().andReturn(true);
         ctx.get(MessageContext.HTTP_RESPONSE_CODE);
         EasyMock.expectLastCall().andReturn(RESPONSE_CODE);
-        
+
         ctx.containsKey(Header.HEADER_LIST);
         EasyMock.expectLastCall().andReturn(true);
         ctx.get(Header.HEADER_LIST);
@@ -150,11 +150,18 @@ public class ContextPropertiesMappingTest extends Assert {
         EasyMock.expectLastCall().andReturn(false);
 
         EasyMock.replay(ctx);
+
+        final Map<String, DataHandler> dataHandlers = new HashMap<String, DataHandler>();
+        dataHandlers.put("1", new DataHandler("one", "text/plain"));
+        outMsg.put(MessageContext.OUTBOUND_MESSAGE_ATTACHMENTS, dataHandlers);
         
         ContextPropertiesMapping.updateWebServiceContext(xchng, ctx);
         Integer respCode = (Integer)outMsg.get(Message.RESPONSE_CODE);
         assertNotNull("no response code set on out message", respCode);
         assertEquals("incorrect response code returned", RESPONSE_CODE, respCode);
+
+        assertNull(outMsg.get(MessageContext.OUTBOUND_MESSAGE_ATTACHMENTS));
+        assertNotNull(outMsg.getAttachments());
     }
 
     @Test

@@ -18,6 +18,7 @@
  */
 package org.apache.cxf.jaxws.support;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -31,6 +32,7 @@ import javax.xml.ws.BindingProvider;
 import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.MessageContext.Scope;
 
+import org.apache.cxf.attachment.AttachmentImpl;
 import org.apache.cxf.binding.soap.SoapConstants;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.configuration.security.AuthorizationPolicy;
@@ -278,6 +280,25 @@ public final class ContextPropertiesMapping {
                 sm.getHeaders().add((Header) iter.next());
             }
         }
+
+        if (exchange.getOutMessage() != null) {
+            Message out = exchange.getOutMessage();
+            Map<String, DataHandler> dataHandlers =
+                CastUtils.cast((Map<?, ?>)out.get(MessageContext.OUTBOUND_MESSAGE_ATTACHMENTS));
+            if (dataHandlers != null && !dataHandlers.isEmpty()) {
+                Collection<Attachment> attachments = out.getAttachments();
+                if (attachments == null) {
+                    attachments = new ArrayList<Attachment>();
+                    out.setAttachments(attachments);
+                }
+                for (Map.Entry<String, DataHandler> entry : dataHandlers.entrySet()) {
+                    Attachment att = new AttachmentImpl(entry.getKey(), entry.getValue());
+                    attachments.add(att);
+                }
+            }
+            out.remove(MessageContext.OUTBOUND_MESSAGE_ATTACHMENTS);
+        }
+
         if (ctx.containsKey(MessageContext.HTTP_RESPONSE_HEADERS)) {
             Map<String, List<String>> other = CastUtils
                 .cast((Map<?, ?>)ctx.get(MessageContext.HTTP_RESPONSE_HEADERS));
