@@ -51,8 +51,10 @@ import org.apache.cxf.configuration.security.AuthorizationPolicy;
 import org.apache.cxf.configuration.security.ProxyAuthorizationPolicy;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.helpers.HttpHeaderHelper;
+import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.io.AbstractWrappedOutputStream;
 import org.apache.cxf.io.CacheAndWriteOutputStream;
+import org.apache.cxf.io.CachedOutputStream;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.ExchangeImpl;
 import org.apache.cxf.message.Message;
@@ -72,6 +74,7 @@ import org.apache.cxf.ws.addressing.EndpointReferenceType;
 import org.apache.cxf.ws.policy.Assertor;
 import org.apache.cxf.ws.policy.PolicyEngine;
 import org.apache.cxf.wsdl.EndpointReferenceUtils;
+
 
 
 import static org.apache.cxf.message.Message.DECOUPLED_CHANNEL_MESSAGE;
@@ -1927,7 +1930,6 @@ public class HTTPConduit
             
             // Process retransmits until we fall out.
             handleRetransmits();
-            
             if (outMessage == null 
                 || outMessage.getExchange() == null
                 || outMessage.getExchange().isSynchronous()) {
@@ -2050,8 +2052,8 @@ public class HTTPConduit
             if (in == null) {
                 LOG.log(Level.WARNING, "Input Stream is null!");
             }
-            inMessage.setContent(InputStream.class, in);
             
+            inMessage.setContent(InputStream.class, in);
             
             incomingObserver.onMessage(inMessage);
         }
@@ -2082,8 +2084,20 @@ public class HTTPConduit
             inMessage.remove(AbstractHTTPDestination.HTTP_REQUEST);
             inMessage.remove(AbstractHTTPDestination.HTTP_RESPONSE);
             inMessage.remove(Message.ASYNC_POST_RESPONSE_DISPATCH);
-
-            incomingObserver.onMessage(inMessage);
+            
+            //cache this inputstream since it's defer to use in case of async
+            try {
+                InputStream in = inMessage.getContent(InputStream.class);
+                if (in != null) {
+                    CachedOutputStream cos = new CachedOutputStream();
+                    IOUtils.copy(in, cos);
+                    inMessage.setContent(InputStream.class, cos.getInputStream());
+                }
+                incomingObserver.onMessage(inMessage);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            
         }
     }
     
