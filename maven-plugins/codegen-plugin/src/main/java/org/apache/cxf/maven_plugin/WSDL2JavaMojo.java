@@ -375,9 +375,7 @@ public class WSDL2JavaMojo extends AbstractMojo {
                 list.add(it.next().toString());
             }
         }
-        if (getLog().isDebugEnabled()) {
-            list.add("-verbose");            
-        }
+
         // -d specify the dir for generated source code            
         list.add("-d");
         list.add(outputDirFile.toString());
@@ -447,6 +445,9 @@ public class WSDL2JavaMojo extends AbstractMojo {
         if (wsdlOption.isSetWsdlLocation()) {
             list.add("-wsdlLocation");
             list.add(wsdlOption.getWsdlLocation() == null ? "" : wsdlOption.getWsdlLocation());
+        }
+        if (getLog().isDebugEnabled() && !list.contains("-verbose")) {
+            list.add("-verbose");            
         }
         list.add(wsdlURI.toString());
         return list;
