@@ -146,7 +146,7 @@
                         <DynamicImport-Package>
                             com.ctc.wstx.*,
                             com.sun.xml.bind.api.*,
-                            com.sun.xml.internal.bind.api.*,
+                            com.sun.xml.internal.bind.api.*
                         </DynamicImport-Package>
                         <Import-Package>
                             com.ibm*;resolution:=optional,
