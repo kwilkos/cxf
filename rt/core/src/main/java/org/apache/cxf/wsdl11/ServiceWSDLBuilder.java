@@ -498,6 +498,7 @@ public class ServiceWSDLBuilder {
                 buildMessage(message, operationInfo.getInput(), def);
                 input.setMessage(message);
                 operation.setInput(input);
+                operation.setParameterOrdering(operationInfo.getParameterOrdering());
                 
                 if (operationInfo.getOutput() != null) {
                     Output output = def.createOutput();

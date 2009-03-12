@@ -34,6 +34,7 @@ import java.util.Map;
 
 import org.apache.cxf.common.classloader.ClassLoaderUtils;
 import org.apache.cxf.common.util.Base64Utility;
+import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.helpers.LoadingByteArrayOutputStream;
 
@@ -146,7 +147,7 @@ public class URIResolver {
                 } catch (ClassCastException ex) {
                     is = url.openStream();
                 }
-            } else if (baseUriStr != null) {
+            } else if (!StringUtils.isEmpty(baseUriStr)) {
                 URI base;
                 File baseFile = new File(baseUriStr);
 
@@ -179,6 +180,9 @@ public class URIResolver {
                     tryClasspath(base.toString().startsWith("file:") 
                                  ? base.toString().substring(5) : base.toString());
                 }
+            } else {
+                tryClasspath(uriStr.startsWith("file:") 
+                             ? uriStr.substring(5) : uriStr);
             }
         } catch (URISyntaxException e) {
             // do nothing
