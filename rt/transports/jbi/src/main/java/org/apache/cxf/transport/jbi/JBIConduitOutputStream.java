@@ -162,8 +162,7 @@ public class JBIConduitOutputStream extends CachedOutputStream {
         } catch (IOException e) {
             throw e;
         } catch (Exception e) {
-            e.printStackTrace();
-            new IOException(e.toString());
+            throw new RuntimeException(e.toString());
         }
     }
 
