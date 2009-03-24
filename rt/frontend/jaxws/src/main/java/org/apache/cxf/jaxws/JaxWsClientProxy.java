@@ -46,6 +46,8 @@ import javax.xml.ws.soap.SOAPFaultException;
 
 import org.w3c.dom.Node;
 
+import com.sun.corba.se.impl.orbutil.closure.Future;
+
 import org.apache.cxf.binding.soap.SoapFault;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
@@ -103,7 +105,7 @@ public class JaxWsClientProxy extends org.apache.cxf.frontend.ClientProxy implem
 
 
         client.getRequestContext().put(Method.class.getName(), method);
-        boolean isAsync = method.getName().endsWith("Async");
+        boolean isAsync = isAsync(method);
         
         // need to do context mapping from jax-ws to cxf message
         ContextPropertiesMapping.mapRequestfromJaxws2Cxf(client.getRequestContext());
@@ -159,6 +161,11 @@ public class JaxWsClientProxy extends org.apache.cxf.frontend.ClientProxy implem
         }
         return result;
 
+    }
+    boolean isAsync(Method m) {
+        return m.getName().endsWith("Async")
+            && (Future.class.equals(m.getReturnType()) 
+                || Response.class.equals(m.getReturnType()));
     }
     
     private SOAPFault createSoapFault(Exception ex) throws SOAPException {

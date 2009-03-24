@@ -165,4 +165,9 @@ public class DocLitWrappedCodeFirstServiceImpl implements DocLitWrappedCodeFirst
             e.printStackTrace();
         }
     }
+    
+    public String echoStringNotReallyAsync(String s) {
+        return s;
+    }
+    
 }
