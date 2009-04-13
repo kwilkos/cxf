@@ -143,6 +143,7 @@ public class JBIConduitOutputStream extends CachedOutputStream {
                             "UNABLE.RETRIEVE.MESSAGE", LOG).toString());
                     }
                     inMessage.setContent(InputStream.class, ins);
+                    inMessage.put(MessageExchange.class, xchng);
                     
                     
                     conduit.getMessageObserver().onMessage(inMessage);
