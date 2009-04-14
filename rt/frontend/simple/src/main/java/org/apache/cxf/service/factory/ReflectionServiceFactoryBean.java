@@ -118,7 +118,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     public static final String HEADER = "messagepart.isheader";
     public static final String ELEMENT_NAME = "messagepart.elementName";
     public static final String METHOD = "operation.method";
-
+    public static final String FORCE_TYPES = "operation.force.types";
     private static final Logger LOG = LogUtils.getL7dLogger(ReflectionServiceFactoryBean.class,
                                                             "SimpleMessages");
 
@@ -723,7 +723,8 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         op.setProperty(m.getClass().getName(), m);
         op.setProperty("action", getAction(op, m));
 
-        if (!isRPC(m) && isWrapped(m)) {
+        boolean isrpc = isRPC(m);
+        if (!isrpc && isWrapped(m)) {
             UnwrappedOperationInfo uOp = new UnwrappedOperationInfo(op);
             op.setUnwrappedOperation(uOp);
 
@@ -753,6 +754,9 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                 }
             }
         } else {
+            if (isrpc) {
+                op.setProperty(FORCE_TYPES, Boolean.TRUE);
+            }
             createMessageParts(intf, op, m);
         }
 
