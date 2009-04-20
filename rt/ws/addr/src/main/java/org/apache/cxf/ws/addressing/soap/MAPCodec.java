@@ -716,8 +716,7 @@ public class MAPCodec extends AbstractSoapInterceptor {
      */
     private void restoreExchange(SoapMessage message, AddressingProperties maps) {
         if (maps != null
-            && maps.getRelatesTo() != null
-            && isRelationshipReply(maps.getRelatesTo())) { 
+            && maps.getRelatesTo() != null) { 
             Exchange correlatedExchange =
                 uncorrelatedExchanges.remove(maps.getRelatesTo().getValue());
             if (correlatedExchange != null) {
@@ -747,14 +746,6 @@ public class MAPCodec extends AbstractSoapInterceptor {
         
     }
 
-    /** 
-     * @param relatesTo the current RelatesTo
-     * @return true iff the relationship type is reply
-     */
-    private boolean isRelationshipReply(RelatesToType relatesTo) {
-        return Names.WSA_RELATIONSHIP_REPLY.equals(relatesTo.getRelationshipType());
-    }
- 
     /**
      * Marks a message as partial response
      * 
