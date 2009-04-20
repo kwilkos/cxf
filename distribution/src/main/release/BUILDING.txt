@@ -12,7 +12,7 @@ Initial Setup
    JDK location, and that your PATH includes %JAVA_HOME%\bin (windows) or 
    $JAVA_HOME$/bin (unix).
 
-3) Install Maven 2.0.6, which can be downloaded from 
+3) Install Maven 2.0.9 or newer, which can be downloaded from 
    http://maven.apache.org/download.html. Make sure that your PATH includes 
    the MVN_HOME/bin directory. 
 
@@ -28,15 +28,14 @@ Building
          $> mvn -Pfastinstall.
    This will compile Apache CXF without running the tests and takes less
    time to build.
-   Depending on the load of remote Maven 2.0 repositories, you may have 
+   Depending on the load of remote Maven repositories, you may have 
    to run "mvn" several times utill the required dependencies are 
    all located in your local maven repository. It usually takes some time for 
    maven to download required dependencies in the first build.
 
 Building kit
 ------------
-1) Change to the "distribution" directory of Apache CXF source distribution.
-2) Run 
-         $> mvn
+1) From top level, run
+         $> mvn -Pfastinstall,everything
    This will build an Apache CXF distribution kit under "distribution/target"
    directory.
