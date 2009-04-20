@@ -107,7 +107,7 @@ public class LoggingInInterceptor extends AbstractPhaseInterceptor<Message> {
         if (headers != null) {
             buffer.getHeader().append(headers);
         }
-        String uri = (String)message.get(Message.REQUEST_URI);
+        String uri = (String)message.get(Message.ENDPOINT_ADDRESS);
         if (uri != null) {
             buffer.getAddress().append(uri);
         }
