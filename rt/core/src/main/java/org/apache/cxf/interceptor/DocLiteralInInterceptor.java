@@ -132,6 +132,9 @@ public class DocLiteralInInterceptor extends AbstractInDatabindingInterceptor {
                         msgInfo = bop.getOutput();
                     } else {
                         msgInfo = bop.getInput();
+                        if (bop.getOutput() == null) {
+                            exchange.setOneWay(true);
+                        }
                     }
                     setMessage(message, bop, client, si, msgInfo.getMessageInfo());
                 }
