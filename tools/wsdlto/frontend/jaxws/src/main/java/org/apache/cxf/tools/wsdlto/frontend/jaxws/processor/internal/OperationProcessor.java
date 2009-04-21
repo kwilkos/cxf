@@ -276,7 +276,11 @@ public class OperationProcessor  extends AbstractProcessor {
         StringBuffer sb = new StringBuffer();
         sb.append(clzName);
         sb.append("<");
-        sb.append(response);
+        if ("void".equals(response)) {
+            sb.append('?');
+        } else {
+            sb.append(response);
+        }
         sb.append(">");
         return sb.toString();
     }
