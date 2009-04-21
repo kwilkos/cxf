@@ -22,6 +22,9 @@ package org.apache.cxf.common.classloader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
 
 /**
  * This class is extremely useful for loading resources and classes in a fault
@@ -48,9 +51,22 @@ public final class ClassLoaderUtils {
      */
     public static URL getResource(String resourceName, Class callingClass) {
         URL url = Thread.currentThread().getContextClassLoader().getResource(resourceName);
+        if (url == null && resourceName.startsWith("/")) {
+            //certain classloaders need it without the leading /
+            url = Thread.currentThread().getContextClassLoader()
+                .getResource(resourceName.substring(1));
+        }
 
+        ClassLoader cluClassloader = ClassLoaderUtils.class.getClassLoader();
+        if (cluClassloader == null) {
+            cluClassloader = ClassLoader.getSystemClassLoader();
+        }
         if (url == null) {
-            url = ClassLoaderUtils.class.getClassLoader().getResource(resourceName);
+            url = cluClassloader.getResource(resourceName);
+        }
+        if (url == null && resourceName.startsWith("/")) {
+            //certain classloaders need it without the leading /
+            url = cluClassloader.getResource(resourceName.substring(1));
         }
 
         if (url == null) {
@@ -71,6 +87,95 @@ public final class ClassLoaderUtils {
 
         return url;
     }
+    
+    /**
+     * Load a given resources. <p/> This method will try to load the resources
+     * using the following methods (in order):
+     * <ul>
+     * <li>From Thread.currentThread().getContextClassLoader()
+     * <li>From ClassLoaderUtil.class.getClassLoader()
+     * <li>callingClass.getClassLoader()
+     * </ul>
+     * 
+     * @param resourceName The name of the resource to load
+     * @param callingClass The Class object of the calling object
+     */
+    public static List<URL> getResources(String resourceName, Class callingClass) {
+        List<URL> ret = new ArrayList<URL>();
+        Enumeration<URL> urls = new Enumeration<URL>() {
+            public boolean hasMoreElements() {
+                return false;
+            }
+            public URL nextElement() {
+                return null;
+            }
+            
+        };
+        try {
+            urls = Thread.currentThread().getContextClassLoader()
+                .getResources(resourceName);
+        } catch (IOException e) {
+            //ignore
+        }
+        if (!urls.hasMoreElements() && resourceName.startsWith("/")) {
+            //certain classloaders need it without the leading /
+            try {
+                urls = Thread.currentThread().getContextClassLoader()
+                    .getResources(resourceName.substring(1));
+            } catch (IOException e) {
+                // ignore
+            }
+        }
+
+        ClassLoader cluClassloader = ClassLoaderUtils.class.getClassLoader();
+        if (cluClassloader == null) {
+            cluClassloader = ClassLoader.getSystemClassLoader();
+        }
+        if (!urls.hasMoreElements()) {
+            try {
+                urls = cluClassloader.getResources(resourceName);
+            } catch (IOException e) {
+                // ignore
+            }
+        }
+        if (!urls.hasMoreElements() && resourceName.startsWith("/")) {
+            //certain classloaders need it without the leading /
+            try {
+                urls = cluClassloader.getResources(resourceName.substring(1));
+            } catch (IOException e) {
+                // ignore
+            }
+        }
+
+        if (!urls.hasMoreElements()) {
+            ClassLoader cl = callingClass.getClassLoader();
+
+            if (cl != null) {
+                try {
+                    urls = cl.getResources(resourceName);
+                } catch (IOException e) {
+                    // ignore
+                }
+            }
+        }
+
+        if (!urls.hasMoreElements()) {
+            URL url = callingClass.getResource(resourceName);
+            if (url != null) {
+                ret.add(url);
+            }
+        }
+        while (urls.hasMoreElements()) {
+            ret.add(urls.nextElement());
+        }
+
+        
+        if (ret.isEmpty() && (resourceName != null) && (resourceName.charAt(0) != '/')) {
+            return getResources('/' + resourceName, callingClass);
+        }
+        return ret;
+    }
+
 
     /**
      * This is a convenience method to load a resource as a stream. <p/> The
@@ -110,12 +215,11 @@ public final class ClassLoaderUtils {
 
             if (cl != null) {
                 return cl.loadClass(className);
-            }
-            
-            return loadClass2(className, callingClass);
+            }            
         } catch (ClassNotFoundException e) {
-            return loadClass2(className, callingClass);
+            //ignore
         }
+        return loadClass2(className, callingClass);
     }
 
     private static Class<?> loadClass2(String className, Class<?> callingClass)
@@ -124,10 +228,15 @@ public final class ClassLoaderUtils {
             return Class.forName(className);
         } catch (ClassNotFoundException ex) {
             try {
-                return ClassLoaderUtils.class.getClassLoader().loadClass(className);
+                if (ClassLoaderUtils.class.getClassLoader() != null) {
+                    return ClassLoaderUtils.class.getClassLoader().loadClass(className);
+                }
             } catch (ClassNotFoundException exc) {
-                return callingClass.getClassLoader().loadClass(className);
+                if (callingClass != null && callingClass.getClassLoader() != null) {
+                    return callingClass.getClassLoader().loadClass(className);
+                }
             }
+            throw ex;
         }
     }
 }
