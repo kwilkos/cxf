@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.cxf.aegis.databinding.AegisDatabinding;
+import org.apache.cxf.binding.soap.saaj.SAAJOutInterceptor;
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
 import org.apache.cxf.systest.aegis.bean.Item;
 import org.apache.cxf.ws.security.wss4j.WSS4JOutInterceptor;
@@ -51,6 +52,8 @@ public class AegisJaxWsTest extends AbstractDependencyInjectionSpringContextTest
         JaxWsProxyFactoryBean factory = new JaxWsProxyFactoryBean();
         factory.setServiceClass(AegisJaxWs.class);
         if (sec) {
+            factory.getOutInterceptors().add(new SAAJOutInterceptor());
+
             factory.setAddress("http://localhost:9167/aegisJaxWsUN");
             WSS4JOutInterceptor wss4jOut = new WSS4JOutInterceptor();
             wss4jOut.setProperty("action", "UsernameToken");
