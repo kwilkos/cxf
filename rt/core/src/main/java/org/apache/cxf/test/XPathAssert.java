@@ -118,7 +118,7 @@ public final class XPathAssert {
             throw new AssertionFailedError("No nodes were found for expression: " + xpath);
         }
 
-        String value2 = DOMUtils.getContent(result).trim();
+        String value2 = DOMUtils.getContent(result);
 
         Assert.assertEquals(value, value2);
     }
